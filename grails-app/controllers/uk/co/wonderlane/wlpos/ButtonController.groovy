@@ -1,9 +1,10 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.Gson
-import grails.converters.JSON
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.enums.ProcessType
 
 class ButtonController {
 
@@ -12,7 +13,24 @@ class ButtonController {
     }
 
     def edit() {
-        [button: Button.get(params.id)]
+        def button
+
+        if (!params.id?.equals("0")) {
+            button = Button.get(params.id)
+        } else {
+            def buttonGrid = ButtonGrid.get(params.buttonGridId)
+
+            button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid)
+        }
+
+        def availableProcesses = [ProcessType.NAVIGATE_SALES, ProcessType.NAVIGATE_QUICK_SELL, ProcessType.NAVIGATE_SEARCH, ProcessType.NAVIGATE_RECEIPTS, ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
+                                  ProcessType.NAVIGATE_CUSTOMER_REFUSAL, ProcessType.NAVIGATE_BACK, ProcessType.NAVIGATE_REFUND, ProcessType.NAVIGATE_ADD_FLOAT, ProcessType.NAVIGATE_CASH_LIFT,
+                                  ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
+                                  ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
+
+        def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+
+        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages]
     }
 
     def save() {
@@ -32,16 +50,15 @@ class ButtonController {
                 }
 
                 button.buttonGrid.addToButtons(button)
-                button.buttonGrid.save(flush: true)
+                button.buttonGrid.save(flush: true, failOnError: true)
 
-                SyncMessage syncMessage = new SyncMessage()
-                syncMessage.setType(SyncMessageType.BUTTON_GRID)
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, 1, 23034, 0) // TODO Retailer ID and store ID from session.
                 syncMessage.setInsert(true)
                 syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
 
                 Gson gson = new Gson()
 
-                rabbitService.sendQueueMessage("Till01", gson.toJson(syncMessage)) // TODO Send to store exchange not till queue.
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
 
                 redirect(action: "show", id: button.id)
             } catch (Exception e) {

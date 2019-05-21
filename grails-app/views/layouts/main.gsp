@@ -1,42 +1,61 @@
 <!doctype html>
 <html lang="en" class="no-js">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>
-        <g:layoutTitle default="Grails"/>
+        <g:layoutTitle default="Well Pharmacy" />
     </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <asset:link rel="icon" href="favicon.ico" type="image/x-ico"/>
 
-    <asset:stylesheet src="application.css"/>
+    <asset:link rel="icon" href="favicon.ico" type="image/x-ico" />
 
-    <g:layoutHead/>
+    <asset:stylesheet src="application.css" />
+
+    <g:layoutHead />
 </head>
 
 <body>
+    <div class="d-flex align-items-center topbar">
+        <div class="flex-grow-1">
+            <asset:image src="well_logo.png" class="topbar-logo" />
+        </div>
 
-<nav class="navbar navbar-expand-lg navbar-dark navbar-static-top" role="navigation">
-    <a class="navbar-brand" href="/#"><asset:image src="grails.svg" alt="Grails Logo"/></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+        <div class="mr-5">Site: 3480</div>
 
-    <div class="collapse navbar-collapse" aria-expanded="false" style="height: 0.8px;" id="navbarContent">
-        <ul class="nav navbar-nav ml-auto">
-            <g:pageProperty name="page.nav"/>
-        </ul>
+        <div class="mr-5"><asset:image src="user_icon.png" />&nbsp;Admin</div>
     </div>
 
-</nav>
+    <ul class="nav justify-content-center nav-wl align-items-center">
+        <li class="vertical-line"></li>
 
-<g:layoutBody/>
+        <li class="nav-item">
+            <g:link url="/" class="nav-link active">Home</g:link>
+        </li>
 
-<div id="spinner" class="spinner" style="display:none;">
-    <g:message code="spinner.alt" default="Loading&hellip;"/>
-</div>
+        <li class="vertical-line"></li>
 
-<asset:javascript src="application.js"/>
+        <li class="nav-item">
+            <g:link controller="user" class="nav-link">User Management</g:link>
+        </li>
+
+        <li class="vertical-line"></li>
+
+        <li class="nav-item">
+            <g:link controller="tillSettings" class="nav-link">EPOS</g:link>
+        </li>
+
+        <li class="vertical-line"></li>
+    </ul>
+
+    <g:layoutBody/>
+
+    <div id="spinner" class="spinner" style="display:none;">
+        <g:message code="spinner.alt" default="Loading&hellip;"/>
+    </div>
+
+    <asset:javascript src="application.js"/>
 
 </body>
 </html>

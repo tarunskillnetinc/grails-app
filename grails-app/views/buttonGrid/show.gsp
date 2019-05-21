@@ -1,48 +1,35 @@
 <!doctype html>
+<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonGridType" %>
 <html>
 <head>
-    <meta name="layout" content="main"/>
-    <title>Button Grids</title>
+    <meta name="layout" content="main" />
+
+    <title>Well Pharmacy Button Grids</title>
 </head>
 <body>
-<content tag="nav">
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Application Status <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-            <li class="dropdown-item"><a href="#">Environment: ${grails.util.Environment.current.name}</a></li>
-            <li class="dropdown-item"><a href="#">App profile: ${grailsApplication.config.grails?.profile}</a></li>
-            <li class="dropdown-item"><a href="#">App version:
-                <g:meta name="info.app.version"/></a>
-            </li>
-            <li role="separator" class="dropdown-divider"></li>
-            <li class="dropdown-item"><a href="#">Grails version:
-                <g:meta name="info.app.grailsVersion"/></a>
-            </li>
-            <li class="dropdown-item"><a href="#">Groovy version: ${GroovySystem.getVersion()}</a></li>
-            <li class="dropdown-item"><a href="#">JVM version: ${System.getProperty('java.version')}</a></li>
-            <li role="separator" class="dropdown-divider"></li>
-            <li class="dropdown-item"><a href="#">Reloading active: ${grails.util.Environment.reloadingAgentEnabled}</a></li>
-        </ul>
-    </li>
-</content>
 
-<div class="svg" role="presentation">
-    <div class="grails-logo-container">
-        <asset:image src="grails-cupsonly-logo-white.svg" class="grails-logo"/>
+    <g:render template="/nav/epos" model="[active: 'quicksell']" />
+
+    <div class="d-flex justify-content-center header-wl">
+        <h2><g:message code="ButtonGridType.${buttonGrid.type.name()}" /></h2>
     </div>
-</div>
 
-<div id="content" role="main">
-    <section class="row colset-2-its">
-        <h1>Button Grid</h1>
-
-        <ul>
-            <g:each var="button" in="${buttonGrid.buttons}">
-                <li class="controller"><g:link controller="button" action="show" id="${button.id}">${button.id}</g:link> - ${button.type} - ${button.description}</li>
-            </g:each>
-        </ul>
-    </section>
-</div>
+    <div class="col-12 col-lg-6 offset-lg-3">
+        <g:each var="row" in="${0..<buttonGrid.rows}">
+            <div class="d-flex justify-content-center align-items-stretch button-grid">
+                <g:each var="column" in="${0..<buttonGrid.columns}">
+                    <%
+                        def button = buttonGrid.buttons.find { it.row == row && it.column == column }
+                    %>
+                    <div class="d-flex flex-fill button-grid-button ${button ? '' : 'blank'} justify-content-center align-items-center">
+                        <g:link controller="button" action="edit" id="${button?.id ?: 0}" params="[buttonGridId: buttonGrid.id, row: row, column: column]">
+                            ${button?.description ?: "Unassigned Button"}
+                        </g:link>
+                    </div>
+                </g:each>
+            </div>
+        </g:each>
+    </div>
 
 </body>
 </html>

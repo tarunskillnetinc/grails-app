@@ -1,81 +1,168 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonGridType" %>
 <%@ page import="uk.co.wonderlane.wlpos.enums.ButtonType" %>
 <%@ page import="uk.co.wonderlane.wlpos.enums.ProcessType" %>
 <%@ page import="uk.co.wonderlane.wlpos.enums.TenderType" %>
+
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="main"/>
-    <title>Button Grids</title>
+    <meta name="layout" content="main" />
+
+    <title>Well Pharmacy Button Grids</title>
 </head>
 <body>
-<content tag="nav">
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Application Status <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-            <li class="dropdown-item"><a href="#">Environment: ${grails.util.Environment.current.name}</a></li>
-            <li class="dropdown-item"><a href="#">App profile: ${grailsApplication.config.grails?.profile}</a></li>
-            <li class="dropdown-item"><a href="#">App version:
-                <g:meta name="info.app.version"/></a>
+
+    <g:render template="/nav/epos" model="[active: 'quicksell']" />
+
+    <div class="col-12 col-lg-6 offset-lg-3">
+        <ul class="nav nav-pills nav-fill pills-wl sub-pills" role="tablist">
+            <li class="nav-item">
+                <a id="product-tab" data-toggle="tab" href="#product" role="tab" aria-controls="product" aria-selected="${button.type == ButtonType.PRODUCT}" class="nav-link ${button.type == ButtonType.PRODUCT ? 'active' : ''}">Product</a>
             </li>
-            <li role="separator" class="dropdown-divider"></li>
-            <li class="dropdown-item"><a href="#">Grails version:
-                <g:meta name="info.app.grailsVersion"/></a>
+
+            <li class="nav-item">
+                <a id="subpage-tab" data-toggle="tab" href="#subpage" role="tab" aria-controls="subpage" aria-selected="${button.type == ButtonType.PROCESS && button.quantity}" class="nav-link ${button.type == ButtonType.PROCESS && button.quantity ? 'active' : ''}">Sub Page</a>
             </li>
-            <li class="dropdown-item"><a href="#">Groovy version: ${GroovySystem.getVersion()}</a></li>
-            <li class="dropdown-item"><a href="#">JVM version: ${System.getProperty('java.version')}</a></li>
-            <li role="separator" class="dropdown-divider"></li>
-            <li class="dropdown-item"><a href="#">Reloading active: ${grails.util.Environment.reloadingAgentEnabled}</a></li>
+
+            <li class="nav-item">
+                <a id="process-tab" data-toggle="tab" href="#processtab" role="tab" aria-controls="processtab" aria-selected="${button.type == ButtonType.PROCESS}" class="nav-link ${button.type == ButtonType.PROCESS ? 'active' : ''}">Action</a>
+            </li>
+
+            <li class="nav-item">
+                <a id="tender-tab" data-toggle="tab" href="#tender" role="tab" aria-controls="tender" aria-selected="${button.type == ButtonType.TENDER}" class="nav-link ${button.type == ButtonType.TENDER ? 'active' : ''}">Tender</a>
+            </li>
         </ul>
-    </li>
-</content>
 
-<div class="svg" role="presentation">
-    <div class="grails-logo-container">
-        <asset:image src="grails-cupsonly-logo-white.svg" class="grails-logo"/>
+        <div class="tab-content">
+            <!-- Product -->
+            <div class="tab-pane fade show ${button.type == ButtonType.PRODUCT ? 'active' : ''}" id="product" role="tabpanel" aria-labelledby="product-tab">
+                bla product
+            </div>
+
+            <!-- Sub Page -->
+            <div class="tab-pane fade show ${button.type == ButtonType.PROCESS && button.quantity ? 'active' : ''}" id="subpage" role="tabpanel" aria-labelledby="subpage-tab">
+                <g:form name="save-button" action="save" style="margin-top: 50px;">
+                    <g:hiddenField name="id" value="${button?.id}" />
+                    <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
+                    <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
+                    <g:hiddenField name="storeId" value="${button?.buttonGrid?.storeId}" />
+                    <g:hiddenField name="row" value="${button?.row}" />
+                    <g:hiddenField name="column" value="${button?.column}" />
+                    <g:hiddenField name="type" value="${button?.type}" />
+                    <g:hiddenField name="amount" value="" />
+                    <g:hiddenField name="productId" value="" />
+                    <g:hiddenField name="tenderType" value="" />
+                    <g:hiddenField name="process" value="" />
+
+                    <div class="form-group row">
+                        <label for="description" class="col-2 col-form-label">Description</label>
+                        <div class="col-8">
+                            <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="description" class="col-2 col-form-label">Sub page</label>
+                        <div class="col-5">
+                            <g:select name="quantity" from="${availableSubPages}" value="${button?.quantity}" optionKey="id" optionValue="description" noSelection="['':'']" class="form-control select-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-8 offset-2">
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-secondary">Unassign</g:link>
+                            <g:submitButton class="btn btn-success" name="save" value="Save" />
+                        </div>
+                    </div>
+                </g:form>
+            </div>
+
+            <!-- Process -->
+            <div class="tab-pane fade show ${button.type == ButtonType.PROCESS && !button.quantity ? 'active' : ''}" id="processtab" role="tabpanel" aria-labelledby="process-tab">
+                <g:form name="save-button" action="save" style="margin-top: 50px;">
+                    <g:hiddenField name="id" value="${button?.id}" />
+                    <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
+                    <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
+                    <g:hiddenField name="storeId" value="${button?.buttonGrid?.storeId}" />
+                    <g:hiddenField name="row" value="${button?.row}" />
+                    <g:hiddenField name="column" value="${button?.column}" />
+                    <g:hiddenField name="type" value="${button?.type}" />
+                    <g:hiddenField name="amount" value="" />
+                    <g:hiddenField name="quantity" value="" />
+                    <g:hiddenField name="productId" value="" />
+                    <g:hiddenField name="tenderType" value="" />
+
+                    <div class="form-group row">
+                        <label for="description" class="col-2 col-form-label">Description</label>
+                        <div class="col-8">
+                            <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="description" class="col-2 col-form-label">Action</label>
+                        <div class="col-5">
+                            <g:select name="process" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-8 offset-2">
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-secondary">Unassign</g:link>
+                            <g:submitButton class="btn btn-success" name="save" value="Save" />
+                        </div>
+                    </div>
+                </g:form>
+            </div>
+
+            <!-- Tender -->
+            <div class="tab-pane fade show ${button.type == ButtonType.TENDER ? 'active' : ''}" id="tender" role="tabpanel" aria-labelledby="tender-tab">
+                <g:form name="save-button" action="save" style="margin-top: 50px;">
+                    <g:hiddenField name="id" value="${button?.id}" />
+                    <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
+                    <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
+                    <g:hiddenField name="storeId" value="${button?.buttonGrid?.storeId}" />
+                    <g:hiddenField name="row" value="${button?.row}" />
+                    <g:hiddenField name="column" value="${button?.column}" />
+                    <g:hiddenField name="type" value="${button?.type}" />
+                    <g:hiddenField name="quantity" value="" />
+                    <g:hiddenField name="productId" value="" />
+                    <g:hiddenField name="process" value="" />
+
+                    <div class="form-group row">
+                        <label for="description" class="col-2 col-form-label">Description</label>
+                        <div class="col-8">
+                            <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="amount" class="col-2 col-form-label">Amount</label>
+                        <div class="col-2">
+                            <g:field type="number" min="0" max="99999" name="amount" value="${button.amount}" class="form-control bottom-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="description" class="col-2 col-form-label">Tender type</label>
+                        <div class="col-4">
+                            <g:select name="tenderType" from="${TenderType}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'']" class="form-control select-border" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-8 offset-2">
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-secondary">Unassign</g:link>
+                            <g:submitButton class="btn btn-success" name="save" value="Save" />
+                        </div>
+                    </div>
+                </g:form>
+            </div>
+        </div>
     </div>
-</div>
-
-<div id="content" role="main">
-    <div style="text-align: center;">
-        <h1>Edit Button</h1>
-
-        <g:form name="save-button" action="save">
-            <g:hiddenField name="id" value="${button?.id}" />
-            <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
-            <g:hiddenField name="retailerId" value="1" />
-            <g:hiddenField name="storeId" value="1" />
-
-            <h5>Type</h5>
-            <p><g:select name="type" from="${ButtonType}" value="${button.type}" noSelection="['':'-Please select-']"/></p>
-
-            <h5>Row</h5>
-            <p><g:textField name="row" value="${button?.row}" /></p>
-
-            <h5>Column</h5>
-            <p><g:textField name="column" value="${button?.column}" /></p>
-
-            <h5>Description</h5>
-            <p><g:textField name="description" value="${button?.description}" /></p>
-
-            <h5>Amount</h5>
-            <p><g:textField name="amount" value="${button?.amount}" /></p>
-
-            <h5>Quantity</h5>
-            <p><g:textField name="quantity" value="${button?.quantity}" /></p>
-
-            <h5>Product ID</h5>
-            <p><g:textField name="productId" value="${button?.productId}" /></p>
-
-            <h5>Process</h5>
-            <p><g:select name="process" from="${ProcessType}" value="${button.process}" noSelection="['':'']" /></p>
-
-            <h5>Tender Type</h5>
-            <p><g:select name="type" from="${TenderType}" value="${button.tenderType}" noSelection="['':'']" /></p>
-
-            <g:submitButton name="save" value="Save" />
-        </g:form>
-    </div>
-</div>
 
 </body>
 </html>

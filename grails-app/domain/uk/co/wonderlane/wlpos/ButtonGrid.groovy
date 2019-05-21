@@ -12,6 +12,7 @@ class ButtonGrid extends uk.co.wonderlane.wlpos.entities.ButtonGrid {
         retailerId column: "retailerId"
         storeId column: "storeId"
         type sqlType: "enum", enumType: "string"
+        description column: "`description`"
         buttons lazy: false
     }
 
@@ -19,6 +20,7 @@ class ButtonGrid extends uk.co.wonderlane.wlpos.entities.ButtonGrid {
         retailerId nullable: false
         storeId nullable: false
         type nullable: false
+        description nullable: true, blank: true
         rows nullable: false, min: 1
         columns nullable: false, min: 1
         buttons nullable: true
@@ -57,6 +59,7 @@ class ButtonGrid extends uk.co.wonderlane.wlpos.entities.ButtonGrid {
         buttonGrid.setRetailerId(retailerId)
         buttonGrid.setStoreId(storeId)
         buttonGrid.setType(type)
+        buttonGrid.setDescription(description)
         buttonGrid.setRows(rows)
         buttonGrid.setColumns(columns)
 
