@@ -8,6 +8,5 @@
 <body>
 
     <g:render template="/nav/epos" model="[active: 'tillsettings']" />
-
 </body>
 </html>

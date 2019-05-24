@@ -5,6 +5,18 @@ input, select, textarea {
     color: #004C6A;
 }
 
+a {
+    border-radius: 0 !important;
+}
+
+button {
+    border-radius: 0 !important;
+}
+
+input {
+    border-radius: 0 !important;
+}
+
 .topbar {
     background: #004C6A;
     height: 60px;
@@ -50,7 +62,7 @@ input, select, textarea {
 }
 
 .pills-wl.sub-pills {
-    padding-bottom: 25px;
+    padding-bottom: 20px;
     border-bottom: 2px solid #004C6A;
 }
 
@@ -59,16 +71,28 @@ input, select, textarea {
 }
 
 .pills-wl li a.active {
-    color: #FFFFFF;
+    border: 2px solid #707070;
+    color: #004C6A !important;
+    background-color: #FFFFFF !important;
+}
+
+.pills-wl.sub-pills li a {
+    color: #004C6A;
+}
+
+.pills-wl.sub-pills li a.active {
+    border: 1px solid #004C6A;
+    color: #FFFFFF !important;
     background-color: #004C6A !important;
 }
 
 .pills-wl li.show a.dropdown-toggle {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
     background-color: #004C6A !important;
 }
 
 .pills-wl li div.dropdown-menu a:hover {
+    color: #004C6A;
     background-color: #CEEEE9;
 }
 
@@ -118,4 +142,30 @@ input, select, textarea {
 
 .select-border {
     border: 1px solid #004C6A;
+}
+
+.product-select-box {
+    background-color: #C4D5DC;
+    margin: 0px -20px;
+    padding: 0px 20px;
+}
+
+.product-select-button {
+    background-color: #35B7A5;
+    border: 1px solid #35B7A5;
+}
+
+.product-select-button:hover {
+    background-color: #35B7A5;
+    border: 1px solid #35B7A5;
+}
+
+.product-search-table {
+    color: #004C6A;
+    font-size: 18px;
+}
+
+.product-search-table th {
+    font-weight: normal;
+    border-top: 0px;
 }

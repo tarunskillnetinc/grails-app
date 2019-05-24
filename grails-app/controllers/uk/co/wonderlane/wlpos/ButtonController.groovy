@@ -15,7 +15,7 @@ class ButtonController {
     def edit() {
         def button
 
-        if (!params.id?.equals("0")) {
+        if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
@@ -34,9 +34,18 @@ class ButtonController {
     }
 
     def save() {
-        def button = params.id ? Button.get(params.id) : new Button()
+        def button
+
+        if (params.id && Integer.parseInt(params.id) > 0) {
+            button = Button.get(params.id)
+        } else {
+            button = new Button()
+            button.buttonGrid = ButtonGrid.get(params.buttonGrid.id)
+        }
 
         bindData(button, params)
+
+        println ("BLA: " +button.buttonGrid)
 
         if (button.validate()) {
             // Make sure the RabbitMQ connection is available, otherwise reject the save.
@@ -60,7 +69,7 @@ class ButtonController {
 
                 rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
 
-                redirect(action: "show", id: button.id)
+                redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id)
             } catch (Exception e) {
                 e.printStackTrace()
 
@@ -70,5 +79,37 @@ class ButtonController {
         } else {
             render (view: "edit", model: [button: button])
         }
+    }
+
+    def unassign(int id) {
+        println id
+        Button button = Button.get(id)
+
+        int buttonGridId = button.buttonGrid.id
+
+        button.delete(flush: true)
+
+        // Make sure the RabbitMQ connection is available, otherwise reject the save.
+        try {
+            // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
+            BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
+            rabbitService.init()
+
+            if (!rabbitService.isOpen()) {
+                throw new Exception("Rabbit MQ not available")
+            }
+
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, 1, 23034, 0) // TODO Retailer ID and store ID from session.
+            syncMessage.setInsert(true)
+            syncMessage.setButtonGrid(ButtonGrid.get(buttonGridId).getButtonGrid())
+
+            Gson gson = new Gson()
+
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+
+        redirect (controller: "buttonGrid", action: "show", id: buttonGridId)
     }
 }

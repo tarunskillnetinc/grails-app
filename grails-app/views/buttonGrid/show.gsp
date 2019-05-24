@@ -1,5 +1,7 @@
 <!doctype html>
 <%@ page import="uk.co.wonderlane.wlpos.enums.ButtonGridType" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonType" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.TenderType" %>
 <html>
 <head>
     <meta name="layout" content="main" />
@@ -11,7 +13,14 @@
     <g:render template="/nav/epos" model="[active: 'quicksell']" />
 
     <div class="d-flex justify-content-center header-wl">
-        <h2><g:message code="ButtonGridType.${buttonGrid.type.name()}" /></h2>
+        <h2>
+            <g:if test="${buttonGrid.type == ButtonGridType.OTHER}">
+                ${buttonGrid.description}
+            </g:if>
+            <g:else>
+                <g:message code="ButtonGridType.${buttonGrid.type.name()}" />
+            </g:else>
+        </h2>
     </div>
 
     <div class="col-12 col-lg-6 offset-lg-3">
@@ -21,11 +30,21 @@
                     <%
                         def button = buttonGrid.buttons.find { it.row == row && it.column == column }
                     %>
-                    <div class="d-flex flex-fill button-grid-button ${button ? '' : 'blank'} justify-content-center align-items-center">
-                        <g:link controller="button" action="edit" id="${button?.id ?: 0}" params="[buttonGridId: buttonGrid.id, row: row, column: column]">
-                            ${button?.description ?: "Unassigned Button"}
-                        </g:link>
-                    </div>
+                    <g:if test="${!button}">
+                        <div class="d-flex flex-fill button-grid-button blank justify-content-center align-items-center">
+                            <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]">Unassigned Button</g:link>
+                        </div>
+                    </g:if>
+                    <g:elseif test="${button.type == ButtonType.TENDER && button.tenderType == TenderType.CASH && !button.description}">
+                        <div class="d-flex flex-fill button-grid-button blank justify-content-center align-items-center" style="color: #000000;">
+                            Exact
+                        </div>
+                    </g:elseif>
+                    <g:else>
+                        <div class="d-flex flex-fill button-grid-button justify-content-center align-items-center">
+                            <g:link controller="button" action="edit" id="${button.id}">${button.description}</g:link>
+                        </div>
+                    </g:else>
                 </g:each>
             </div>
         </g:each>

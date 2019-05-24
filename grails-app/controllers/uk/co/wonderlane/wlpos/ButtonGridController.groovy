@@ -33,3 +33,4 @@ class ButtonGridController {
         [buttonGrid: buttonGrid]
     }
 }
+//def UserList = ConferenceUser.executeQuery('from ConferenceUser cu where cu.user = ?', [user])
