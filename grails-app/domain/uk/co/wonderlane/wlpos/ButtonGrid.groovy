@@ -1,18 +1,30 @@
 package uk.co.wonderlane.wlpos
 
-class ButtonGrid extends uk.co.wonderlane.wlpos.entities.ButtonGrid {
+import uk.co.wonderlane.wlpos.enums.ButtonGridType
 
+class ButtonGrid {
+
+    int id
+    int retailerId
+    int storeId
+    ButtonGridType type
+    String description
+    int rows
+    int columns
     Collection<Button> buttons
+
     static hasMany = [ buttons: Button ]
 
     static mapping = {
-        table "buttonGrid"
+        table "buttongrid"
         version false
 
         retailerId column: "retailerId"
         storeId column: "storeId"
         type sqlType: "enum", enumType: "string"
         description column: "`description`"
+        rows column: "`rows`"
+        columns column: "`columns`"
         buttons lazy: false
     }
 
@@ -20,7 +32,11 @@ class ButtonGrid extends uk.co.wonderlane.wlpos.entities.ButtonGrid {
         retailerId nullable: false
         storeId nullable: false
         type nullable: false
-        description nullable: true, blank: true
+        description nullable: true, blank: true, validator: { val, obj ->
+            if (obj.type == ButtonGridType.OTHER && !val) {
+                return false; // Description is not nullable for sub pages.
+            }
+        }
         rows nullable: false, min: 1
         columns nullable: false, min: 1
         buttons nullable: true
@@ -37,14 +53,6 @@ class ButtonGrid extends uk.co.wonderlane.wlpos.entities.ButtonGrid {
 
     int hashCode() {
         return id.hashCode()
-    }
-
-    public Collection<Button> getButtons() {
-        return buttons
-    }
-
-    public void setButtons(Collection<Button> buttons) {
-        this.buttons = buttons
     }
 
     /**

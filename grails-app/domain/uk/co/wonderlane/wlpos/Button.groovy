@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import uk.co.wonderlane.wlpos.enums.ButtonType
+
 class Button extends uk.co.wonderlane.wlpos.entities.Button {
 
     static belongsTo = [ buttonGrid: ButtonGrid ]
@@ -20,6 +22,7 @@ class Button extends uk.co.wonderlane.wlpos.entities.Button {
         row column: "`row`"
         column column: "`column`"
         productId column: "productId"
+        subPageId column: "subPageId"
         tenderType column: "tenderType"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
@@ -33,11 +36,36 @@ class Button extends uk.co.wonderlane.wlpos.entities.Button {
         row  nullable: false
         column nullable: false
         description nullable: false
-        amount nullable: true
-        quantity nullable: true
-        productId nullable: true
-        process nullable: true
-        tenderType nullable: true
+        amount nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.TENDER && !val) {
+                return false; // Amount is not nullable for tender buttons.
+            }
+        }
+        quantity nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.PRODUCT && !val) {
+                return false; // Quantity is not nullable for product buttons.
+            }
+        }
+        productId nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.PRODUCT && !val) {
+                return false; // Product ID is not nullable for product buttons.
+            }
+        }
+        subPageId nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.SUB_PAGE && !val) {
+                return false; // Sub page ID is not nullable for sub page buttons.
+            }
+        }
+        process nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.PROCESS && !val) {
+                return false; // Process is not nullable for process buttons.
+            }
+        }
+        tenderType nullable: true, validator: { val, obj ->
+            if (obj.type == ButtonType.TENDER && !val) {
+                return false; // Tender type is not nullable for tender buttons.
+            }
+        }
         createdDatetime nullable: true
         createdUserId nullable: true
         updateDatetime nullable: true
@@ -115,6 +143,7 @@ class Button extends uk.co.wonderlane.wlpos.entities.Button {
         button.setAmount(amount)
         button.setQuantity(quantity)
         button.setProductId(productId)
+        button.setSubPageId(subPageId)
         button.setProcess(process)
         button.setTenderType(tenderType)
 

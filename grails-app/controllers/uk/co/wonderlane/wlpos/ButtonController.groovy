@@ -2,21 +2,37 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.Gson
 import uk.co.wonderlane.wlpos.entities.SyncMessage
-import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.enums.ButtonType
 import uk.co.wonderlane.wlpos.enums.ProcessType
+import uk.co.wonderlane.wlpos.enums.ButtonGridType
+import uk.co.wonderlane.wlpos.enums.TenderType
 
 class ButtonController {
 
+    def productService
+
     def show() {
-        [button: Button.get(params.id)]
+        def button = Button.get(params.id)
+        def product = null
+
+        if (button.type == ButtonType.PRODUCT) {
+            product = productService.getProduct(button.productId)
+        }
+
+        [button: button, productItemCode: product?.itemCode, productDescription: product?.description]
     }
 
     def edit() {
         def button
+        def product
 
         if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
+
+            if (button.type == ButtonType.PRODUCT) {
+                product = productService.getProduct(button.productId)
+            }
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
 
@@ -29,8 +45,9 @@ class ButtonController {
                                   ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
 
         def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+        def availableTenderTypes = TenderType.values()
 
-        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages]
+        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, productItemCode: product?.itemCode, productDescription: product?.description, availableTenderTypes: availableTenderTypes]
     }
 
     def save() {
@@ -44,8 +61,6 @@ class ButtonController {
         }
 
         bindData(button, params)
-
-        println ("BLA: " +button.buttonGrid)
 
         if (button.validate()) {
             // Make sure the RabbitMQ connection is available, otherwise reject the save.
@@ -73,11 +88,39 @@ class ButtonController {
             } catch (Exception e) {
                 e.printStackTrace()
 
+                def availableProcesses = [ProcessType.NAVIGATE_SALES, ProcessType.NAVIGATE_QUICK_SELL, ProcessType.NAVIGATE_SEARCH, ProcessType.NAVIGATE_RECEIPTS, ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
+                                          ProcessType.NAVIGATE_CUSTOMER_REFUSAL, ProcessType.NAVIGATE_BACK, ProcessType.NAVIGATE_REFUND, ProcessType.NAVIGATE_ADD_FLOAT, ProcessType.NAVIGATE_CASH_LIFT,
+                                          ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
+                                          ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
+
+                def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+                def availableTenderTypes = TenderType.values()
+
+                def product
+
+                if (button.type == ButtonType.PRODUCT && button.productId) {
+                    product = productService.getProduct(button.productId)
+                }
+
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button])
+                render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: product?.itemCode, productDescription: product?.description])
             }
         } else {
-            render (view: "edit", model: [button: button])
+            def availableProcesses = [ProcessType.NAVIGATE_SALES, ProcessType.NAVIGATE_QUICK_SELL, ProcessType.NAVIGATE_SEARCH, ProcessType.NAVIGATE_RECEIPTS, ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
+                                      ProcessType.NAVIGATE_CUSTOMER_REFUSAL, ProcessType.NAVIGATE_BACK, ProcessType.NAVIGATE_REFUND, ProcessType.NAVIGATE_ADD_FLOAT, ProcessType.NAVIGATE_CASH_LIFT,
+                                      ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
+                                      ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
+
+            def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+            def availableTenderTypes = TenderType.values()
+
+            def product
+
+            if (button.type == ButtonType.PRODUCT && button.productId) {
+                product = productService.getProduct(button.productId)
+            }
+
+            render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: product?.itemCode, productDescription: product?.description])
         }
     }
 

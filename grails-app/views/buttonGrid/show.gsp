@@ -1,7 +1,4 @@
 <!doctype html>
-<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonGridType" %>
-<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonType" %>
-<%@ page import="uk.co.wonderlane.wlpos.enums.TenderType" %>
 <html>
 <head>
     <meta name="layout" content="main" />
@@ -14,7 +11,7 @@
 
     <div class="d-flex justify-content-center header-wl">
         <h2>
-            <g:if test="${buttonGrid.type == ButtonGridType.OTHER}">
+            <g:if test="${buttonGrid.type.name() == 'OTHER'}">
                 ${buttonGrid.description}
             </g:if>
             <g:else>
@@ -35,7 +32,7 @@
                             <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]">Unassigned Button</g:link>
                         </div>
                     </g:if>
-                    <g:elseif test="${button.type == ButtonType.TENDER && button.tenderType == TenderType.CASH && !button.description}">
+                    <g:elseif test="${button.type.name() == 'TENDER' && button.tenderType.name() == 'CASH' && !button.description}">
                         <div class="d-flex flex-fill button-grid-button blank justify-content-center align-items-center" style="color: #000000;">
                             Exact
                         </div>

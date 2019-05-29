@@ -32,5 +32,24 @@ class ButtonGridController {
 
         [buttonGrid: buttonGrid]
     }
+
+    def add() {
+
+    }
+
+    def save() {
+        def buttonGrid = new ButtonGrid()
+
+        bindData(buttonGrid, params)
+
+        buttonGrid.retailerId = 1 // TODO
+        buttonGrid.storeId = 23034 // TODO
+
+        if (buttonGrid.validate()) {
+            buttonGrid.save(flush: true, failOnError: true)
+            redirect(controller: "buttonGrid", action: "show", id: buttonGrid.id)
+        } else {
+            render(view: "add", model: [buttonGrid: buttonGrid])
+        }
+    }
 }
-//def UserList = ConferenceUser.executeQuery('from ConferenceUser cu where cu.user = ?', [user])

@@ -19,7 +19,9 @@
 <body>
     <div class="d-flex align-items-center topbar">
         <div class="flex-grow-1">
-            <asset:image src="well_logo.png" class="topbar-logo" />
+            <g:link url="/">
+                <asset:image src="well_logo.png" class="topbar-logo" />
+            </g:link>
         </div>
 
         <div class="mr-5">Site: 3480</div>

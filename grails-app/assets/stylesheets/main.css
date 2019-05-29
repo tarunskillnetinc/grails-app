@@ -17,6 +17,10 @@ input {
     border-radius: 0 !important;
 }
 
+select {
+    border-radius: 0 !important;
+}
+
 .topbar {
     background: #004C6A;
     height: 60px;
@@ -126,6 +130,15 @@ input {
     color: #000000;
 }
 
+.btn-wl {
+    background-color: #004C6A;
+    color: #FFFFFF;
+}
+
+.btn-wl:hover {
+    color: #B8B8B8;
+}
+
 .col-form-label {
     font-size: 20px;
 }
@@ -160,6 +173,26 @@ input {
     border: 1px solid #35B7A5;
 }
 
+.product-search-header {
+    margin-left: 15px;
+    margin-top: 10px;
+}
+
+.product-search-filters {
+    margin-left: 15px;
+    margin-top: 25px;
+}
+
+.product-search-filter {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.product-search-button {
+    background-color: #004C6A;
+    height: calc(1.5em + 0.75rem + 2px);
+}
+
 .product-search-table {
     color: #004C6A;
     font-size: 18px;
@@ -168,4 +201,17 @@ input {
 .product-search-table th {
     font-weight: normal;
     border-top: 0px;
+}
+
+.product-search-table td {
+    vertical-align: middle;
+}
+
+.alert-wl {
+    margin: 20px 40px;
+}
+
+.alert-wl ul {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
