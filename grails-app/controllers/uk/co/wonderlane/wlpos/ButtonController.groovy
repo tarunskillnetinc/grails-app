@@ -12,17 +12,6 @@ class ButtonController {
 
     def productService
 
-    def show() {
-        def button = Button.get(params.id)
-        def product = null
-
-        if (button.type == ButtonType.PRODUCT) {
-            product = productService.getProduct(button.productId)
-        }
-
-        [button: button, productItemCode: product?.itemCode, productDescription: product?.description]
-    }
-
     def edit() {
         def button
         def product
