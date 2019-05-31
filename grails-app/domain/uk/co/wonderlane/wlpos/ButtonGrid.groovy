@@ -32,13 +32,13 @@ class ButtonGrid {
         retailerId nullable: false
         storeId nullable: false
         type nullable: false
-        description nullable: true, blank: true, validator: { val, obj ->
+        description nullable: true, blank: true, maxSize: 45, validator: { val, obj ->
             if (obj.type == ButtonGridType.OTHER && !val) {
                 return false; // Description is not nullable for sub pages.
             }
         }
-        rows nullable: false, min: 1
-        columns nullable: false, min: 1
+        rows nullable: false, min: 1, max: 4
+        columns nullable: false, min: 1, max: 4
         buttons nullable: true
     }
 
