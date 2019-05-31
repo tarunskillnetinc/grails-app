@@ -28,22 +28,26 @@
                         def button = buttonGrid.buttons.find { it.row == row && it.column == column }
                     %>
                     <g:if test="${!button}"><!-- Unassigned buttons -->
-                        <div class="d-flex flex-fill button-grid-button blank justify-content-center align-items-center">
-                            <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]">Unassigned Button</g:link>
-                        </div>
+                        <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]" class="no-underline">
+                            <div class="d-flex button-grid-button blank justify-content-center align-items-center">
+                                Unassigned Button
+                            </div>
+                        </g:link>
                     </g:if>
                     <g:elseif test="${button.type.name() == 'TENDER' && button.tenderType.name() == 'CASH' && !button.description}"><!-- Exact cash button -->
-                        <div class="d-flex flex-fill button-grid-button blank justify-content-center align-items-center" style="color: #000000;">
+                        <div class="d-flex button-grid-button blank justify-content-center align-items-center" style="color: #000000;">
                             Exact
                         </div>
                     </g:elseif>
                     <g:elseif test="${button.buttonGrid?.type?.name() == 'TENDER' && button.type.name() == 'PROCESS'}"><!-- Tender back button -->
-                        <div class="d-flex flex-fill button-grid-button blank justify-content-center align-items-center" style="color: #000000;">${button.description}</div>
+                        <div class="d-flex button-grid-button blank justify-content-center align-items-center" style="color: #000000;">${button.description}</div>
                     </g:elseif>
                     <g:else><!-- All other assigned buttons -->
-                        <div class="d-flex flex-fill button-grid-button justify-content-center align-items-center">
-                            <g:link controller="button" action="edit" id="${button.id}">${button.description}</g:link>
-                        </div>
+                        <g:link controller="button" action="edit" id="${button.id}" class="no-underline">
+                            <div class="d-flex button-grid-button justify-content-center align-items-center">
+                                ${button.description}
+                            </div>
+                        </g:link>
                     </g:else>
                 </g:each>
             </div>

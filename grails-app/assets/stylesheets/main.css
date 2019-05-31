@@ -110,6 +110,7 @@ select {
 
 .button-grid-button {
     margin: 0px 5px;
+    padding: 5px;
     font-size: 30px;
     width: 200px;
     height: 200px;
@@ -122,12 +123,16 @@ select {
     border: 2px dashed #B8B8B8;
 }
 
-.button-grid-button a {
+a .button-grid-button {
     color: #000000;
 }
 
-.button-grid-button:hover {
-    color: #000000;
+a .button-grid-button:hover {
+    color: #FFFFFF;
+}
+
+a.no-underline:hover {
+    text-decoration: none;
 }
 
 .btn-wl {
