@@ -43,7 +43,7 @@
 
             <div class="form-group row">
                 <div class="col-8 offset-3">
-                    <g:link controller="buttonGrid" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+                    <g:link controller="tillSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 
                     <g:submitButton class="btn btn-success" name="save" value="Save" />
                 </div>
