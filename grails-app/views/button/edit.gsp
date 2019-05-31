@@ -61,7 +61,7 @@
                         <div class="form-group row">
                             <label for="description" class="col-2 col-form-label">Description</label>
                             <div class="col-8">
-                                <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                                <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
@@ -117,7 +117,7 @@
                         <div class="form-group row">
                             <label for="description" class="col-2 col-form-label">Description</label>
                             <div class="col-8">
-                                <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                                <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
@@ -151,7 +151,7 @@
                         <div class="form-group row">
                             <label for="description" class="col-2 col-form-label">Description</label>
                             <div class="col-8">
-                                <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                                <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
@@ -186,19 +186,19 @@
                         <div class="form-group row">
                             <label for="description" class="col-2 col-form-label">Description</label>
                             <div class="col-8">
-                                <g:textField name="description" value="${button?.description}" class="form-control bottom-border" />
+                                <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
                         <div class="form-group row">
                             <label for="amount" class="col-2 col-form-label">Amount</label>
                             <div class="col-2">
-                                <g:field type="number" min="0" max="99999" step=".01" name="amount" value="${button.amount}" class="form-control bottom-border" />
+                                <g:field type="number" min="0" max="9999" step=".01" name="amount" value="${button.amount}" class="form-control bottom-border" />
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="tenderType" class="col-2 col-form-label">Tender type: ${button.tenderType}</label>
+                            <label for="tenderType" class="col-2 col-form-label">Tender type:</label>
                             <div class="col-4">
                                 <g:select name="tenderType" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'']" class="form-control select-border" />
                             </div>

@@ -35,13 +35,13 @@ class Button extends uk.co.wonderlane.wlpos.entities.Button {
         type nullable: false
         row  nullable: false
         column nullable: false
-        description nullable: false
-        amount nullable: true, validator: { val, obj ->
+        description nullable: false, maxSize: 50
+        amount nullable: true, min: 0.0, max: 9999.0, validator: { val, obj ->
             if (obj.type == ButtonType.TENDER && !val) {
                 return false; // Amount is not nullable for tender buttons.
             }
         }
-        quantity nullable: true, validator: { val, obj ->
+        quantity nullable: true, min: 1, max: 999, validator: { val, obj ->
             if (obj.type == ButtonType.PRODUCT && !val) {
                 return false; // Quantity is not nullable for product buttons.
             }
