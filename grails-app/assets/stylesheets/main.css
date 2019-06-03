@@ -141,7 +141,16 @@ a.no-underline:hover {
 }
 
 .btn-wl:hover {
-    color: #B8B8B8;
+    background-color: #336F87;
+    color: #FFFFFF;
+}
+
+.btn-wl:active {
+    box-shadow: 0 0 0 0.2rem rgba(0, 76, 106, 0.5);
+}
+
+.btn-wl:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 76, 106, 0.5);
 }
 
 .col-form-label {
@@ -178,6 +187,10 @@ a.no-underline:hover {
     border: 1px solid #35B7A5;
 }
 
+.product-select-button:focus {
+    box-shadow: 0;
+}
+
 .product-search-header {
     margin-left: 15px;
     margin-top: 10px;
@@ -194,8 +207,17 @@ a.no-underline:hover {
 }
 
 .product-search-button {
+    cursor: pointer;
     background-color: #004C6A;
     height: calc(1.5em + 0.75rem + 2px);
+}
+
+.product-search-button:hover {
+    background-color: #336F87;
+}
+
+.product-search-button:active {
+    box-shadow: 0 0 0 0.2rem rgba(0, 76, 106, 0.5);
 }
 
 .product-search-table {
