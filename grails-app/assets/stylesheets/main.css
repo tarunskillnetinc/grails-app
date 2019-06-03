@@ -220,3 +220,8 @@ a.no-underline:hover {
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+.col-form-label.value {
+    font-size: 1rem;
+    margin-top: 6px;
+}

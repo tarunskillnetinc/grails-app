@@ -30,14 +30,14 @@
             <div class="form-group row">
                 <label for="rows" class="col-3 col-form-label">Number of rows</label>
                 <div class="col-2">
-                    <g:field type="number" min="1" max="4" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
+                    <g:field type="number" min="1" max="4" maxlength="1" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="columns" class="col-3 col-form-label">Number of columns</label>
                 <div class="col-2">
-                    <g:field type="number" min="1" max="4" name="columns" value="${buttonGrid?.columns ?: 2}" class="form-control bottom-border" />
+                    <g:field type="number" min="1" max="4" maxlength="1" name="columns" value="${buttonGrid?.columns ?: 2}" class="form-control bottom-border" />
                 </div>
             </div>
 

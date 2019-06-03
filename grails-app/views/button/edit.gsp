@@ -76,7 +76,7 @@
                             <div class="form-group row" style="padding-top: 10px;">
                                 <label for="itemCode" class="col-2 col-form-label">Item code</label>
                                 <div class="col-4">
-                                    <input type="text" readonly class="form-control-plaintext" id="itemCode" value="${productItemCode}">
+                                    <label id="itemCode" class="col-form-label value">${productItemCode}</label>
                                 </div>
                                 <div class="col-4">
                                     <!-- Button trigger modal -->
@@ -89,7 +89,7 @@
                             <div class="form-group row" style="margin-top: 0px; padding-bottom: 10px;">
                                 <label for="productDescription" class="col-2 col-form-label">Description</label>
                                 <div class="col-10">
-                                    <input type="text" readonly class="form-control-plaintext" id="productDescription" value="${productDescription}">
+                                    <label id="productDescription" class="col-form-label value">${productDescription}</label>
                                 </div>
                             </div>
                         </div>

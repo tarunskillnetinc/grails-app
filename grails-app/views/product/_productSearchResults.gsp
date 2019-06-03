@@ -8,7 +8,7 @@
         <td>${product.description}</td>
         <td>${product.category?.description}</td>
         <td>£${product.productDatas?.size() > 0 ? (product.productDatas?.get(0)?.costPrice ?: '0.00') : '0.00'}</td>
-        <td>£${product.productDatas?.size() > 0 ? (product.productDatas?.get(0)?.retailPrice ?: '0'00') : '0.00'}</td>
+        <td>£${product.productDatas?.size() > 0 ? (product.productDatas?.get(0)?.retailPrice ?: '0.00') : '0.00'}</td>
         <td>${product.vatCode?.percentage}%</td>
         <td><button class="btn btn-wl" onClick="productSelected(${product.id}, '${product.itemCode}', '${product.description}');" data-dismiss="modal">Select</button></td>
     </tr>
