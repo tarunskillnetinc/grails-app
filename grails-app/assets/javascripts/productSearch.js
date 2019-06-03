@@ -7,7 +7,7 @@ $(document).ready(function() {
 
         $.ajax({
             url: url,
-            data: { searchTerm: $("#productSearchTerm").val() },
+            data: { searchTerm: $("#productSearchTerm").val(), searchBy: $("#productSearchBy").val() },
             success: function(resp) {
                 $("#productSearchResults").html(resp);
             }

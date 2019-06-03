@@ -5,7 +5,7 @@ class ProductController {
     def productService
 
     def search() {
-        def products = productService.searchProducts(params.searchTerm)
+        def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
         render(template: "/product/productSearchResults", model: [ products: products ])
     }

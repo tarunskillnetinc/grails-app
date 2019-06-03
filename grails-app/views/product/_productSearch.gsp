@@ -9,7 +9,7 @@
                         <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
 
                         <div class="input-group-append">
-                            <g:select name="searchType" from="${['Everything']}" value="Everything" class="form-control select-border" id="select-addon2" style="z-index: 0;" />
+                            <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
                         </div>
                     </div>
 
