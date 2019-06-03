@@ -178,17 +178,25 @@ a.no-underline:hover {
 }
 
 .product-select-button {
+    color: #FFFFFF;
     background-color: #35B7A5;
     border: 1px solid #35B7A5;
 }
 
 .product-select-button:hover {
-    background-color: #35B7A5;
-    border: 1px solid #35B7A5;
+    color: #FFFFFF;
+    background-color: #27A795;
+    border: 1px solid #27A795;
+}
+
+.product-select-button:active {
+    color: #FFFFFF;
+    box-shadow: 0 0 0 0.2rem rgba(53, 183, 165, 0.5);
 }
 
 .product-select-button:focus {
-    box-shadow: 0;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 0.2rem rgba(53, 183, 165, 0.5);
 }
 
 .product-search-header {

@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="col-4">
                                     <!-- Button trigger modal -->
-                                    <a href="#" class="btn btn-secondary product-select-button" data-toggle="modal" data-target="#productSearchModal">
+                                    <a href="#" class="btn product-select-button" data-toggle="modal" data-target="#productSearchModal">
                                         Select Product
                                     </a>
                                 </div>
