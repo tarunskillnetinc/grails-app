@@ -24,6 +24,14 @@ class TillSettingsController {
         if (tillSettings.validate()) {
             tillSettings.save(flush: true, failOnError: true)
 
+            // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
+            BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
+            rabbitService.init()
+
+            if (!rabbitService.isOpen()) {
+                throw new Exception("Rabbit MQ not available")
+            }
+
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.TILL_SETTINGS, 1, 23034, 0) // TODO Retailer ID and store ID from session.
             syncMessage.setInsert(true)
             syncMessage.setTillSettings(tillSettings.getTillSettings());
@@ -31,6 +39,8 @@ class TillSettingsController {
             Gson gson = new Gson()
 
             rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+
+            flash.message = "Store settings saved successfully."
 
             redirect(action: "index")
         } else {

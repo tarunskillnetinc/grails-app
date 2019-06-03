@@ -15,6 +15,10 @@
         </div>
     </g:hasErrors>
 
+    <g:if test="${flash.message}">
+        <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+    </g:if>
+
     <g:form name="save-button" action="save">
         <g:hiddenField name="id" value="${tillSettings?.id}" />
         <g:hiddenField name="retailerId" value="${tillSettings?.retailerId}" />
