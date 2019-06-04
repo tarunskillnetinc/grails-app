@@ -200,7 +200,7 @@
                         <div class="form-group row">
                             <label for="tenderType" class="col-2 col-form-label">Tender type:</label>
                             <div class="col-4">
-                                <g:select name="tenderType" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" class="form-control select-border" />
+                                <g:select name="tenderType" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'']" class="form-control select-border" />
                             </div>
                         </div>
 
