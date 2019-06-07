@@ -1,17 +1,39 @@
 package uk.co.wonderlane.wlpos
 
 import uk.co.wonderlane.wlpos.enums.ButtonType
+import uk.co.wonderlane.wlpos.enums.ProcessType
+import uk.co.wonderlane.wlpos.enums.TenderType
 
-class Button extends uk.co.wonderlane.wlpos.entities.Button {
+import javax.annotation.Resource
+
+class Button {
+
+    def springSecurityService
 
     static belongsTo = [ buttonGrid: ButtonGrid ]
 
-    private Date createdDatetime
-    private Integer createdUserId
-    private Date updateDatetime
-    private Integer updatedUserId
+    int id
+    ButtonType type
+    int row
+    int column
+    String description
+    BigDecimal amount
+    Integer quantity
+    Integer productId
+    Integer subPageId
+    ProcessType process
+    TenderType tenderType
+
+    Date createdDatetime
+    Integer createdUserId
+    Date updateDatetime
+    Integer updatedUserId
+
+    // This constructor is required or dependency injection (springSecurityService) breaks.
+    public Button() { }
 
     static mapping = {
+        autowire true
         table 'button'
         version false
 
@@ -87,44 +109,12 @@ class Button extends uk.co.wonderlane.wlpos.entities.Button {
 
     def beforeInsert() {
         createdDatetime = new Date()
-        createdUserId = 1 // TODO
+        createdUserId = springSecurityService.principal.id
     }
 
     def beforeUpdate() {
         updateDatetime = new Date()
-        updatedUserId = 1 // TODO
-    }
-
-    Date getCreatedDatetime() {
-        return createdDatetime
-    }
-
-    void setCreatedDatetime(Date createdDatetime) {
-        this.createdDatetime = createdDatetime
-    }
-
-    Integer getCreatedUserId() {
-        return createdUserId
-    }
-
-    void setCreatedUserId(Integer createdUserId) {
-        this.createdUserId = createdUserId
-    }
-
-    Date getUpdateDatetime() {
-        return updateDatetime
-    }
-
-    void setUpdateDatetime(Date updateDatetime) {
-        this.updateDatetime = updateDatetime
-    }
-
-    Integer getUpdatedUserId() {
-        return updatedUserId
-    }
-
-    void setUpdatedUserId(Integer updatedUserId) {
-        this.updatedUserId = updatedUserId
+        updatedUserId = springSecurityService.principal.id
     }
 
     /**

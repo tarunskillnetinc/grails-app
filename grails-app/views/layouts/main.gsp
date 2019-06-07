@@ -24,32 +24,42 @@
             </g:link>
         </div>
 
-        <div class="mr-5">Site: 3480</div>
+        <sec:ifLoggedIn>
+            <div class="text-right">
+                <span style="margin-right: 50px;">Store:&nbsp;<sec:loggedInUserInfo field="storeId" /></span>
 
-        <div class="mr-5"><asset:image src="user_icon.png" />&nbsp;Admin</div>
+                <asset:image src="user_icon.png" width="25" style="margin-right: 10px;" />
+
+                <span style="margin-right: 50px;"><sec:loggedInUserInfo field="usersName" /></span>
+
+                <g:link controller="logoff" class="btn btn-danger" style="margin-right: 30px;">Log out</g:link>
+            </div>
+        </sec:ifLoggedIn>
     </div>
 
-    <ul class="nav justify-content-center nav-wl align-items-center">
-        <li class="vertical-line"></li>
+    <sec:ifLoggedIn>
+        <ul class="nav justify-content-center nav-wl align-items-center">
+            <li class="vertical-line"></li>
 
-        <li class="nav-item">
-            <g:link url="/" class="nav-link active">Home</g:link>
-        </li>
+            <li class="nav-item">
+                <g:link url="/" class="nav-link active">Home</g:link>
+            </li>
 
-        <li class="vertical-line"></li>
+            <li class="vertical-line"></li>
 
-        <li class="nav-item">
-            <g:link controller="user" class="nav-link">User Management</g:link>
-        </li>
+            <li class="nav-item">
+                <g:link controller="user" class="nav-link">User Management</g:link>
+            </li>
 
-        <li class="vertical-line"></li>
+            <li class="vertical-line"></li>
 
-        <li class="nav-item">
-            <g:link controller="tillSettings" class="nav-link">EPOS</g:link>
-        </li>
+            <li class="nav-item">
+                <g:link controller="tillSettings" class="nav-link">EPOS</g:link>
+            </li>
 
-        <li class="vertical-line"></li>
-    </ul>
+            <li class="vertical-line"></li>
+        </ul>
+    </sec:ifLoggedIn>
 
     <g:layoutBody/>
 

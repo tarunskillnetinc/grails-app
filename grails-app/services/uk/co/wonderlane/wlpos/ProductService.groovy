@@ -5,6 +5,8 @@ import grails.gorm.transactions.Transactional
 @Transactional
 class ProductService {
 
+    def springSecurityService
+
     def getProducts(int max, int offset) {
         return Product.list(max: max, offset: offset)
     }
@@ -16,8 +18,6 @@ class ProductService {
     def searchProducts(String searchTerm, String searchBy = "everything", int maxResults = 50, int startIndex = 0, String sortColumn = "id", String orderBy = "asc") {
         def productSearchCriteria = Product.createCriteria()
 
-        // TODO Add retailer ID and store ID to search query.
-
         def products = productSearchCriteria.list(max: maxResults, offset: startIndex) {
             if (searchBy.equalsIgnoreCase("everything")) {
                 or {
@@ -28,6 +28,11 @@ class ProductService {
                 like("description", "%$searchTerm%")
             } else if (searchBy.equalsIgnoreCase("itemCode")) {
                 like("itemCode", "%$searchTerm%")
+            }
+
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            productDatas {
+                eq ("storeId", springSecurityService.principal.storeId)
             }
 
             order(sortColumn, orderBy)

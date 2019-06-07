@@ -4,6 +4,8 @@ import uk.co.wonderlane.wlpos.enums.ButtonGridType
 
 class ButtonGridController {
 
+    def springSecurityService
+
     def index() {
 
     }
@@ -42,8 +44,8 @@ class ButtonGridController {
 
         bindData(buttonGrid, params)
 
-        buttonGrid.retailerId = 1 // TODO
-        buttonGrid.storeId = 23034 // TODO
+        buttonGrid.retailerId = springSecurityService.principal.retailerId
+        buttonGrid.storeId = springSecurityService.principal.storeId
 
         if (buttonGrid.validate()) {
             buttonGrid.save(flush: true, failOnError: true)

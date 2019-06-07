@@ -21,6 +21,10 @@ select {
     border-radius: 0 !important;
 }
 
+p {
+    font-size: 20px;
+}
+
 .topbar {
     background: #004C6A;
     height: 60px;
@@ -102,6 +106,7 @@ select {
 
 .header-wl {
     margin-top: 30px;
+    text-align: center;
 }
 
 .button-grid {

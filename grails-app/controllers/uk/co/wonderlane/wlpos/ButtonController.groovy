@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.enums.TenderType
 
 class ButtonController {
 
+    def springSecurityService
     def productService
 
     def edit() {
@@ -33,7 +34,7 @@ class ButtonController {
                                   ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
                                   ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
 
-        def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+        def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         def availableTenderTypes = TenderType.values()
 
         [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, productItemCode: product?.itemCode, productDescription: product?.description, availableTenderTypes: availableTenderTypes]
@@ -41,6 +42,8 @@ class ButtonController {
 
     def save() {
         def button
+
+        println params
 
         if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
@@ -65,7 +68,7 @@ class ButtonController {
                 button.buttonGrid.addToButtons(button)
                 button.buttonGrid.save(flush: true, failOnError: true)
 
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, 1, 23034, 0) // TODO Retailer ID and store ID from session.
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
                 syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
 
@@ -82,7 +85,7 @@ class ButtonController {
                                           ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
                                           ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
 
-                def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+                def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
                 def availableTenderTypes = TenderType.values()
 
                 def product
@@ -100,7 +103,7 @@ class ButtonController {
                                       ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
                                       ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF]
 
-            def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, 1, 23034)
+            def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
             def availableTenderTypes = TenderType.values()
 
             def product
@@ -114,7 +117,6 @@ class ButtonController {
     }
 
     def unassign(int id) {
-        println id
         Button button = Button.get(id)
 
         int buttonGridId = button.buttonGrid.id
@@ -131,7 +133,7 @@ class ButtonController {
                 throw new Exception("Rabbit MQ not available")
             }
 
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, 1, 23034, 0) // TODO Retailer ID and store ID from session.
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
             syncMessage.setInsert(true)
             syncMessage.setButtonGrid(ButtonGrid.get(buttonGridId).getButtonGrid())
 

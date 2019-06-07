@@ -4,6 +4,8 @@ import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
 class TillSettings {
 
+    def springSecurityService
+
     int id
     int retailerId
     int storeId
@@ -25,7 +27,11 @@ class TillSettings {
     Date updatedDatetime
     Integer updatedUserId
 
+    // This constructor is required or dependency injection (springSecurityService) breaks.
+    public TillSettings() { }
+
     static mapping = {
+        autowire true
         table "tillsettings"
         version false
 
@@ -74,12 +80,12 @@ class TillSettings {
 
     def beforeInsert() {
         createdDatetime = new Date()
-        createdUserId = 1 // TODO
+        createdUserId = springSecurityService.principal.id
     }
 
     def beforeUpdate() {
         updatedDatetime = new Date()
-        updatedUserId = 1 // TODO
+        updatedUserId = springSecurityService.principal.id
     }
 
     public uk.co.wonderlane.wlpos.entities.TillSettings getTillSettings() {

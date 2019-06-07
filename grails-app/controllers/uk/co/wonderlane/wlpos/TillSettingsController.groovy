@@ -7,19 +7,21 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 class TillSettingsController {
 
+    def springSecurityService
+
     def index() {
-        def tillSettings = TillSettings.findByRetailerIdAndStoreId(1, 23034)
+        def tillSettings = TillSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
         [tillSettings: tillSettings, availablePrintReceiptOptions: PrintReceiptOption.values()]
     }
 
     def save() {
-        def tillSettings = TillSettings.findByRetailerIdAndStoreId(1, 23034)
+        def tillSettings = TillSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
         bindData(tillSettings, params)
 
-        tillSettings.retailerId = 1 // TODO
-        tillSettings.storeId = 23034 // TODO
+        tillSettings.retailerId = springSecurityService.principal.retailerId
+        tillSettings.storeId = springSecurityService.principal.storeId
 
         if (tillSettings.validate()) {
             tillSettings.save(flush: true, failOnError: true)
@@ -32,7 +34,7 @@ class TillSettingsController {
                 throw new Exception("Rabbit MQ not available")
             }
 
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.TILL_SETTINGS, 1, 23034, 0) // TODO Retailer ID and store ID from session.
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.TILL_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
             syncMessage.setInsert(true)
             syncMessage.setTillSettings(tillSettings.getTillSettings());
 
