@@ -43,8 +43,6 @@ class ButtonController {
     def save() {
         def button
 
-        println params
-
         if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
         } else {
