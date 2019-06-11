@@ -59,14 +59,14 @@
                         <g:hiddenField name="productId" id="buttonProductId" value="${button?.productId}" />
 
                         <div class="form-group row">
-                            <label for="description" class="col-2 col-form-label">Description</label>
-                            <div class="col-8">
+                            <label for="description" class="col-2 offset-2 col-form-label">Description</label>
+                            <div class="col-6">
                                 <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="quantity" class="col-2 col-form-label">Quantity</label>
+                            <label for="quantity" class="col-2 offset-2 col-form-label">Quantity</label>
                             <div class="col-2">
                                 <g:field type="number" min="1" max="999" name="quantity" value="${button.quantity}" class="form-control bottom-border" />
                             </div>
@@ -74,7 +74,7 @@
 
                         <div class="product-select-box">
                             <div class="form-group row" style="padding-top: 10px;">
-                                <label for="itemCode" class="col-2 col-form-label">Item code</label>
+                                <label for="itemCode" class="col-2 offset-2 col-form-label">Item code</label>
                                 <div class="col-4">
                                     <label id="itemCode" class="col-form-label value">${productItemCode}</label>
                                 </div>
@@ -87,8 +87,8 @@
                             </div>
 
                             <div class="form-group row" style="margin-top: 0px; padding-bottom: 10px;">
-                                <label for="productDescription" class="col-2 col-form-label">Description</label>
-                                <div class="col-10">
+                                <label for="productDescription" class="col-2 offset-2 col-form-label">Description</label>
+                                <div class="col-8">
                                     <label id="productDescription" class="col-form-label value">${productDescription}</label>
                                 </div>
                             </div>
@@ -115,14 +115,14 @@
                         <g:hiddenField name="process" value="" />
 
                         <div class="form-group row">
-                            <label for="description" class="col-2 col-form-label">Description</label>
-                            <div class="col-8">
+                            <label for="description" class="col-2 offset-2 col-form-label">Description</label>
+                            <div class="col-6">
                                 <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="subPageId" class="col-2 col-form-label">Sub page</label>
+                            <label for="subPageId" class="col-2 offset-2  col-form-label">Sub page</label>
                             <div class="col-5">
                                 <g:select name="subPageId" from="${availableSubPages}" value="${button?.subPageId}" optionKey="id" optionValue="description" noSelection="['':'']" class="form-control select-border" />
                             </div>
@@ -149,14 +149,14 @@
                         <g:hiddenField name="tenderType" value="" />
 
                         <div class="form-group row">
-                            <label for="description" class="col-2 col-form-label">Description</label>
-                            <div class="col-8">
+                            <label for="description" class="col-2 offset-2 col-form-label">Description</label>
+                            <div class="col-6">
                                 <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="process" class="col-2 col-form-label">Action</label>
+                            <label for="process" class="col-2 offset-2 col-form-label">Action</label>
                             <div class="col-5">
                                 <g:select name="process" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
                             </div>
@@ -184,21 +184,22 @@
                         <g:hiddenField name="process" value="" />
 
                         <div class="form-group row">
-                            <label for="description" class="col-2 col-form-label">Description</label>
-                            <div class="col-8">
+                            <label for="description" class="col-2 offset-2 col-form-label">Description</label>
+                            <div class="col-6">
                                 <g:textField name="description" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="amount" class="col-2 col-form-label">Amount</label>
+                            <label for="amount" class="col-2 offset-2 col-form-label">Amount</label>
                             <div class="col-2">
                                 <g:field type="number" min="0" max="9999" step=".01" name="amount" value="${button.amount}" class="form-control bottom-border" />
                             </div>
+                            <div class="col-4" style="margin-top: 7px;"><small class="text-muted">Leave blank for manual entry.</small></div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="tenderType" class="col-2 col-form-label">Tender type:</label>
+                            <label for="tenderType" class="col-2 offset-2 col-form-label">Tender type:</label>
                             <div class="col-4">
                                 <g:select name="tenderType" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'']" class="form-control select-border" />
                             </div>

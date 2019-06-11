@@ -176,7 +176,7 @@ a.no-underline:hover {
 }
 
 .bottom-border {
-    border-radius: 0px;
+    border-radius: 0;
     border: 0;
     border-bottom: 1px solid #004C6A;
 }
@@ -187,8 +187,8 @@ a.no-underline:hover {
 
 .product-select-box {
     background-color: #C4D5DC;
-    margin: 0px -20px;
-    padding: 0px 20px;
+    margin: 0 -20px;
+    padding: 0 20px;
 }
 
 .product-select-button {
