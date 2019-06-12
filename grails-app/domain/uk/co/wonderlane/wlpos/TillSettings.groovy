@@ -60,8 +60,8 @@ class TillSettings {
         id nullable: true
         retailerId nullable: false
         storeId nullable: false
-        receiptMessage1 nullable: true, maxSize: 45
-        receiptMessage2 nullable: true, maxSize: 45
+        receiptMessage1 nullable: true, maxSize: 100
+        receiptMessage2 nullable: true, maxSize: 100
         vatRegistrationNumber nullable: true, maxSize: 45
         addressBuildingNumberOrName nullable: true, maxSize: 45
         addressLine1 nullable: true, maxSize: 45

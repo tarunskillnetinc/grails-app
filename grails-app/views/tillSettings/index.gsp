@@ -33,14 +33,14 @@
                 <div class="form-group row">
                     <label for="receiptMessage1" class="col-5 col-md-3 col-form-label">Receipt line 1</label>
                     <div class="col-7 col-md-6">
-                        <g:textField name="receiptMessage1" maxlength="45" value="${tillSettings?.receiptMessage1}" class="form-control bottom-border" />
+                        <g:textField name="receiptMessage1" maxlength="100" value="${tillSettings?.receiptMessage1}" class="form-control bottom-border" />
                     </div>
                 </div>
 
                 <div class="form-group row">
                     <label for="receiptMessage2" class="col-5 col-md-3 col-form-label">Receipt line 2</label>
                     <div class="col-7 col-md-6">
-                        <g:textField name="receiptMessage2" maxlength="45" value="${tillSettings?.receiptMessage2}" class="form-control bottom-border" />
+                        <g:textField name="receiptMessage2" maxlength="100" value="${tillSettings?.receiptMessage2}" class="form-control bottom-border" />
                     </div>
                 </div>
 
