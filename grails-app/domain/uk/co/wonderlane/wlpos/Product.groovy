@@ -18,7 +18,7 @@ class Product {
     VatCode vatCode
     BigDecimal vatPercentageOverride
     Restrictions restrictions
-    boolean discreet
+    String discreetMessage
     ProductStatus status
     String retailerProductId
 
@@ -50,7 +50,7 @@ class Product {
         vatCode column: "vatCodeId"
         vatPercentageOverride column: "vatPercentageOverride"
         restrictions column: "restrictionsId"
-        discreet column: "discreet"
+        discreetMessage column: "discreetMessage"
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
 
