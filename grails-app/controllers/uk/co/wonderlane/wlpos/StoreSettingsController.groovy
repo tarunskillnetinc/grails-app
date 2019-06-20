@@ -5,26 +5,26 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
-class TillSettingsController {
+class StoreSettingsController {
 
     def springSecurityService
 
     def index() {
-        def tillSettings = TillSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
-        [tillSettings: tillSettings, availablePrintReceiptOptions: PrintReceiptOption.values()]
+        [storeSettings: storeSettings, availablePrintReceiptOptions: PrintReceiptOption.values()]
     }
 
     def save() {
-        def tillSettings = TillSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
-        bindData(tillSettings, params)
+        bindData(storeSettings, params)
 
-        tillSettings.retailerId = springSecurityService.principal.retailerId
-        tillSettings.storeId = springSecurityService.principal.storeId
+        storeSettings.retailerId = springSecurityService.principal.retailerId
+        storeSettings.storeId = springSecurityService.principal.storeId
 
-        if (tillSettings.validate()) {
-            tillSettings.save(flush: true, failOnError: true)
+        if (storeSettings.validate()) {
+            storeSettings.save(flush: true, failOnError: true)
 
             // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
             BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
@@ -34,9 +34,9 @@ class TillSettingsController {
                 throw new Exception("Rabbit MQ not available")
             }
 
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.TILL_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
             syncMessage.setInsert(true)
-            syncMessage.setTillSettings(tillSettings.getTillSettings());
+            syncMessage.setStoreSettings(storeSettings.getStoreSettings());
 
             Gson gson = new Gson()
 
@@ -46,7 +46,7 @@ class TillSettingsController {
 
             redirect(action: "index")
         } else {
-            render(view: "index", model: [tillSettings: tillSettings, availablePrintReceiptOptions: PrintReceiptOption.values()])
+            render(view: "index", model: [storeSettings: storeSettings, availablePrintReceiptOptions: PrintReceiptOption.values()])
         }
     }
 }

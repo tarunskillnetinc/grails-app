@@ -54,7 +54,7 @@
             <li class="vertical-line"></li>
 
             <li class="nav-item">
-                <g:link controller="tillSettings" class="nav-link">EPOS</g:link>
+                <g:link controller="storeSettings" class="nav-link">EPOS</g:link>
             </li>
 
             <li class="vertical-line"></li>

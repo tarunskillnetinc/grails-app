@@ -1,6 +1,6 @@
 <ul class="nav nav-pills nav-fill pills-wl">
     <li class="nav-item">
-        <g:link controller="tillSettings" class="nav-link ${active.equals('tillsettings') ? 'active' : ''}">Store Settings</g:link>
+        <g:link controller="storeSettings" class="nav-link ${active.equals('storesettings') ? 'active' : ''}">Store Settings</g:link>
     </li>
 
     <li class="nav-item dropdown">

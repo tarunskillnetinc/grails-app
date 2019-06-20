@@ -13,7 +13,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/css/**',      access: ['permitAll']],
 	[pattern: '/**/images/**',   access: ['permitAll']],
 	[pattern: '/**/favicon.ico', access: ['permitAll']],
-	[pattern: '/tillSettings/**', access: 'isAuthenticated()'],
+	[pattern: '/storeSettings/**', access: 'isAuthenticated()'],
 	[pattern: '/button/**', access: 'isAuthenticated()'],
 	[pattern: '/buttonGrid/**', access: 'isAuthenticated()'],
 	[pattern: '/product/**', access: 'isAuthenticated()']

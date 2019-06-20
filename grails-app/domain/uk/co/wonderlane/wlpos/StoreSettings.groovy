@@ -2,7 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
-class TillSettings {
+class StoreSettings {
 
     def springSecurityService
 
@@ -12,6 +12,7 @@ class TillSettings {
     String receiptMessage1
     String receiptMessage2
     String vatRegistrationNumber
+    String storeName
     String addressBuildingNumberOrName
     String addressLine1
     String addressLine2
@@ -28,11 +29,11 @@ class TillSettings {
     Integer updatedUserId
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
-    public TillSettings() { }
+    public StoreSettings() { }
 
     static mapping = {
         autowire true
-        table "tillsettings"
+        table "storesettings"
         version false
 
         id column: "id"
@@ -41,6 +42,7 @@ class TillSettings {
         receiptMessage1 column: "receiptMessage1"
         receiptMessage2 column: "receiptMessage2"
         vatRegistrationNumber column: "vatRegistrationNumber"
+        storeName column: "storeName"
         addressBuildingNumberOrName column: "addressBuildingNumberOrName"
         addressLine1 column: "addressLine1"
         addressLine2 column: "addressLine2"
@@ -63,6 +65,7 @@ class TillSettings {
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
         vatRegistrationNumber nullable: true, maxSize: 45
+        storeName nullable: true, maxSize: 45
         addressBuildingNumberOrName nullable: true, maxSize: 45
         addressLine1 nullable: true, maxSize: 45
         addressLine2 nullable: true, maxSize: 45
@@ -88,22 +91,23 @@ class TillSettings {
         updatedUserId = springSecurityService.principal.id
     }
 
-    public uk.co.wonderlane.wlpos.entities.TillSettings getTillSettings() {
-        uk.co.wonderlane.wlpos.entities.TillSettings tillSettings = new uk.co.wonderlane.wlpos.entities.TillSettings()
+    public uk.co.wonderlane.wlpos.entities.StoreSettings getStoreSettings() {
+        uk.co.wonderlane.wlpos.entities.StoreSettings storeSettings = new uk.co.wonderlane.wlpos.entities.StoreSettings()
 
-        tillSettings.setReceiptMessage1(receiptMessage1)
-        tillSettings.setReceiptMessage2(receiptMessage2)
-        tillSettings.setVatRegistrationNumber(vatRegistrationNumber)
-        tillSettings.setAddressBuildingNumberOrName(addressBuildingNumberOrName)
-        tillSettings.setAddressLine1(addressLine1)
-        tillSettings.setAddressLine2(addressLine2)
-        tillSettings.setAddressTown(addressTown)
-        tillSettings.setAddressCounty(addressCounty)
-        tillSettings.setAddressCountry(addressCountry)
-        tillSettings.setAddressPostCode(addressPostCode)
-        tillSettings.setPhoneNumber(phoneNumber)
-        tillSettings.setPrintReceiptOption(printReceiptOption)
+        storeSettings.setReceiptMessage1(receiptMessage1)
+        storeSettings.setReceiptMessage2(receiptMessage2)
+        storeSettings.setVatRegistrationNumber(vatRegistrationNumber)
+        storeSettings.setStoreName(storeName)
+        storeSettings.setAddressBuildingNumberOrName(addressBuildingNumberOrName)
+        storeSettings.setAddressLine1(addressLine1)
+        storeSettings.setAddressLine2(addressLine2)
+        storeSettings.setAddressTown(addressTown)
+        storeSettings.setAddressCounty(addressCounty)
+        storeSettings.setAddressCountry(addressCountry)
+        storeSettings.setAddressPostCode(addressPostCode)
+        storeSettings.setPhoneNumber(phoneNumber)
+        storeSettings.setPrintReceiptOption(printReceiptOption)
 
-        return tillSettings
+        return storeSettings
     }
 }

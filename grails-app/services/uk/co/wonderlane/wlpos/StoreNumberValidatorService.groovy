@@ -7,6 +7,6 @@ class StoreNumberValidatorService implements StoreNumberValidator {
 
     @Override
     boolean isValidStoreNumber(int retailerId, int storeId) {
-        return (TillSettings.findByRetailerIdAndStoreId(retailerId, storeId) != null)
+        return (StoreSettings.findByRetailerIdAndStoreId(retailerId, storeId) != null)
     }
 }
