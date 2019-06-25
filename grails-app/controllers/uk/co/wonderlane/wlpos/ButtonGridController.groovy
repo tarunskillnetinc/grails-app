@@ -29,7 +29,7 @@ class ButtonGridController {
                 return
             }
 
-            buttonGrid = ButtonGrid.findByTypeAndRetailerId(type, 1)
+            buttonGrid = ButtonGrid.findByTypeAndRetailerIdAndStoreId(type, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         }
 
         [buttonGrid: buttonGrid]
