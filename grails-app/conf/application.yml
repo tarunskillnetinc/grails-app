@@ -10,7 +10,7 @@ grails:
             events: false
 info:
     app:
-        name: '@info.app.name@'
+        name: 'Well EPOS Back Office'
         version: '@info.app.version@'
         grailsVersion: '@info.app.grailsVersion@'
 spring:

@@ -59,6 +59,20 @@
                 </div>
 
                 <div class="form-group row">
+                    <label for="quantityPromptThreshold" class="col-5 col-md-3 col-form-label">Quantity Prompt Threshold</label>
+                    <div class="col-7 col-md-4">
+                        <g:field type="number" min="0" max="9999" maxlength="3" name="quantityPromptThreshold" value="${storeSettings?.quantityPromptThreshold}" class="form-control bottom-border" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="valuePromptThreshold" class="col-5 col-md-3 col-form-label">Value Prompt Threshold</label>
+                    <div class="col-7 col-md-4">
+                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="valuePromptThreshold" value="${storeSettings?.valuePromptThreshold}" class="form-control bottom-border" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
                     <div class="col-12 col-md-5 offset-md-3">
                         <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 

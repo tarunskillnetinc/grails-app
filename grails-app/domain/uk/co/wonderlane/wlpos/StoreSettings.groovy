@@ -22,6 +22,8 @@ class StoreSettings {
     String addressPostCode
     String phoneNumber
     PrintReceiptOption printReceiptOption
+    Integer quantityPromptThreshold
+    BigDecimal valuePromptThreshold
 
     Date createdDatetime
     Integer createdUserId
@@ -52,6 +54,8 @@ class StoreSettings {
         addressPostCode column: "addressPostCode"
         phoneNumber column: "phoneNumber"
         printReceiptOption column: "printReceiptOption", sqlType: "enum", enumType: "string"
+        quantityPromptThreshold column: "quantityPromptThreshold"
+        valuePromptThreshold column: "valuePromptThreshold"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
@@ -75,6 +79,8 @@ class StoreSettings {
         addressPostCode nullable: true, maxSize: 45
         phoneNumber nullable: true, maxSize: 45
         printReceiptOption nullable: false
+        quantityPromptThreshold nullable: true, min: 1, max: 999
+        valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: new BigDecimal(9999)
         createdDatetime nullable: true
         createdUserId nullable: true
         updatedDatetime nullable: true
@@ -107,6 +113,8 @@ class StoreSettings {
         storeSettings.setAddressPostCode(addressPostCode)
         storeSettings.setPhoneNumber(phoneNumber)
         storeSettings.setPrintReceiptOption(printReceiptOption)
+        storeSettings.setQuantityPromptThreshold(quantityPromptThreshold)
+        storeSettings.setValuePromptThreshold(valuePromptThreshold)
 
         return storeSettings
     }
