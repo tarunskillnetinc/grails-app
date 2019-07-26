@@ -24,6 +24,8 @@ class StoreSettings {
     PrintReceiptOption printReceiptOption
     Integer quantityPromptThreshold
     BigDecimal valuePromptThreshold
+    Integer varianceQuantity
+    BigDecimal varianceValue
 
     Date createdDatetime
     Integer createdUserId
@@ -56,6 +58,8 @@ class StoreSettings {
         printReceiptOption column: "printReceiptOption", sqlType: "enum", enumType: "string"
         quantityPromptThreshold column: "quantityPromptThreshold"
         valuePromptThreshold column: "valuePromptThreshold"
+        varianceQuantity column: "varianceQuantity"
+        varianceValue column: "varianceValue"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
@@ -81,6 +85,8 @@ class StoreSettings {
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: new BigDecimal(9999)
+        varianceQuantity nullable: true, min: 1, max: 999
+        varianceValue nullable:true, min: BigDecimal.ONE, max: new BigDecimal(9999)
         createdDatetime nullable: true
         createdUserId nullable: true
         updatedDatetime nullable: true
@@ -115,6 +121,8 @@ class StoreSettings {
         storeSettings.setPrintReceiptOption(printReceiptOption)
         storeSettings.setQuantityPromptThreshold(quantityPromptThreshold)
         storeSettings.setValuePromptThreshold(valuePromptThreshold)
+        storeSettings.setVarianceQuantity(varianceQuantity)
+        storeSettings.setVarianceValue(varianceValue)
 
         return storeSettings
     }
