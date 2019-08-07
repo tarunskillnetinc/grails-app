@@ -27,7 +27,7 @@ p {
 
 .topbar {
     background: #004C6A;
-    height: 60px;
+    min-height: 60px;
     color: #FFFFFF;
     font-size: 20px;
 }
@@ -38,8 +38,9 @@ p {
 }
 
 .nav-wl {
+    padding: 0 1rem;
     background: #336F87;
-    height: 60px;
+    min-height: 60px;
     color: #FFFFFF;
     font-size: 24px;
 }
@@ -50,7 +51,7 @@ p {
 }
 
 .nav-wl .nav-item a {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 
 .nav-wl .nav-item a:hover {

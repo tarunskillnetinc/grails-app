@@ -17,28 +17,63 @@
 </head>
 
 <body>
-    <div class="d-flex align-items-center topbar">
-        <div class="flex-grow-1">
+    <div class="row align-items-center topbar">
+        <div class="col-12 col-sm-2">
             <g:link url="/">
                 <asset:image src="well_logo.png" class="topbar-logo" />
             </g:link>
         </div>
 
         <sec:ifLoggedIn>
-            <div class="text-right">
+            <div class="col-12 col-sm-9 text-right">
                 <span style="margin-right: 50px;">Store:&nbsp;<sec:loggedInUserInfo field="storeId" /></span>
 
                 <asset:image src="user_icon.png" width="25" style="margin-right: 10px;" />
 
-                <span style="margin-right: 50px;"><sec:loggedInUserInfo field="usersName" /></span>
-
+                <span><sec:loggedInUserInfo field="usersName" /></span>
+            </div>
+            <div class="col-12 col-sm-1 text-right">
                 <g:link controller="logoff" class="btn btn-danger" style="margin-right: 30px;">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
     </div>
 
     <sec:ifLoggedIn>
-        <ul class="nav justify-content-center nav-wl align-items-center">
+        <nav class="navbar navbar-expand-lg navbar-dark nav-wl">
+            <button class="navbar-toggler m-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav m-auto align-items-center">
+                    <li class="vertical-line d-md-none d-lg-block"></li>
+
+                    <li class="nav-item">
+                        <g:link url="/" class="nav-link">Home</g:link>
+                    </li>
+
+                    <li class="vertical-line d-md-none d-lg-block"></li>
+
+                    <li class="nav-item">
+                        <g:link controller="user" class="nav-link">User Management</g:link>
+                    </li>
+
+                    <li class="vertical-line d-md-none d-lg-block"></li>
+
+                    <li class="nav-item">
+                        <g:link controller="storeSettings" class="nav-link">EPOS</g:link>
+                    </li>
+
+                    <li class="vertical-line d-md-none d-lg-block"></li>
+                </ul>
+            </div>
+        </nav>
+
+
+
+
+
+        <!--<ul class="nav justify-content-center nav-wl align-items-center">
             <li class="vertical-line"></li>
 
             <li class="nav-item">
@@ -58,7 +93,7 @@
             </li>
 
             <li class="vertical-line"></li>
-        </ul>
+        </ul>-->
     </sec:ifLoggedIn>
 
     <g:layoutBody/>
