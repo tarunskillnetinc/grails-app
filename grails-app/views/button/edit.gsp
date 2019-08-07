@@ -44,7 +44,7 @@
             <g:if test="${button.buttonGrid?.type?.name() != 'TENDER'}">
                 <!-- Product -->
                 <div class="tab-pane fade show ${!button.type || button.type.name() == 'PRODUCT' ? 'active' : ''}" id="product" role="tabpanel" aria-labelledby="product-tab">
-                    <g:form name="save-button" action="save">
+                    <g:form name="save-button" action="save" novalidate="novalidate">
                         <g:hiddenField name="id" value="${button?.id}" />
                         <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
                         <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
@@ -100,7 +100,7 @@
 
                 <!-- Sub Page -->
                 <div class="tab-pane fade show ${button.type?.name() == 'SUB_PAGE' ? 'active' : ''}" id="subpage" role="tabpanel" aria-labelledby="subpage-tab">
-                    <g:form name="save-button" action="save">
+                    <g:form name="save-button" action="save" novalidate="novalidate">
                         <g:hiddenField name="id" value="${button?.id}" />
                         <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
                         <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
@@ -134,7 +134,7 @@
 
                 <!-- Process -->
                 <div class="tab-pane fade show ${button.type?.name() == 'PROCESS' ? 'active' : ''}" id="processtab" role="tabpanel" aria-labelledby="process-tab">
-                    <g:form name="save-button" action="save">
+                    <g:form name="save-button" action="save" novalidate="novalidate">
                         <g:hiddenField name="id" value="${button?.id}" />
                         <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
                         <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
@@ -170,7 +170,7 @@
             <!-- Tender -->
             <g:if test="${button.buttonGrid?.type?.name() == 'TENDER'}">
                 <div class="tab-pane fade show ${!button.type || button.type.name() == 'TENDER' ? 'active' : ''}" id="tender" role="tabpanel" aria-labelledby="tender-tab">
-                    <g:form name="save-button" action="save">
+                    <g:form name="save-button" action="save" novalidate="novalidate">
                         <g:hiddenField name="id" value="${button?.id}" />
                         <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
                         <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />

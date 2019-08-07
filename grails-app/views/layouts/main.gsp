@@ -68,32 +68,6 @@
                 </ul>
             </div>
         </nav>
-
-
-
-
-
-        <!--<ul class="nav justify-content-center nav-wl align-items-center">
-            <li class="vertical-line"></li>
-
-            <li class="nav-item">
-                <g:link url="/" class="nav-link active">Home</g:link>
-            </li>
-
-            <li class="vertical-line"></li>
-
-            <li class="nav-item">
-                <g:link controller="user" class="nav-link">User Management</g:link>
-            </li>
-
-            <li class="vertical-line"></li>
-
-            <li class="nav-item">
-                <g:link controller="storeSettings" class="nav-link">EPOS</g:link>
-            </li>
-
-            <li class="vertical-line"></li>
-        </ul>-->
     </sec:ifLoggedIn>
 
     <g:layoutBody/>
