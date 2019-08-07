@@ -273,5 +273,6 @@ a.no-underline:hover {
 
 input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=number].no-number-arrows::-webkit-outer-spin-button {
     -webkit-appearance: none;
+    -moz-appearance: none;
     margin: 0;
 }
