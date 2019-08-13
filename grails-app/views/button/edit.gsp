@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Well Pharmacy Button Grids</title>
+    <title>WonderLane Button Grids</title>
 
     <asset:javascript src="buttonGrid.js" />
 </head>

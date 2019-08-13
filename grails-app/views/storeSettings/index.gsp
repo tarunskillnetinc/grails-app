@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Well Pharmacy</title>
+    <title>WonderLane Store Settings</title>
 </head>
 <body>
 

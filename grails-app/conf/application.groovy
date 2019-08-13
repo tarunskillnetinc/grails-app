@@ -1,5 +1,5 @@
 grails.plugin.springsecurity.password.algorithm = 'bcrypt'
-grails.plugin.springsecurity.password.bcrypt.logrounds = 10
+grails.plugin.springsecurity.password.bcrypt.logrounds = 8
 
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [

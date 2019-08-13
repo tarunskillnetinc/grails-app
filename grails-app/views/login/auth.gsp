@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Well Pharmacy</title>
+    <title>WonderLane</title>
 </head>
 <body>
     <g:if test="${flash.message}">
@@ -18,21 +18,21 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="storeId" class="col-5 col-md-2 offset-md-2 col-form-label">Store number</label>
-                    <div class="col-7 col-md-4">
+                    <label for="storeId" class="col-5 col-md-3 offset-md-1 col-form-label text-right">Store number</label>
+                    <div class="col-7 col-md-5">
                         <input type="number" class="text_ form-control bottom-border no-number-arrows" max="9999999999" maxlength="10" name="storeId" id="storeId" />
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <label for="username" class="col-5 col-md-2 offset-md-2 col-form-label">Username</label>
+                    <label for="username" class="col-5 col-md-3 offset-md-1 col-form-label text-right">Username</label>
                     <div class="col-7 col-md-5">
                         <input type="text" class="text_ form-control bottom-border" maxlength="45" name="${usernameParameter ?: 'username'}" id="username" />
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <label for="password" class="col-5 col-md-2 offset-md-2 col-form-label">Password</label>
+                    <label for="password" class="col-5 col-md-3 offset-md-1 col-form-label text-right">Password</label>
                     <div class="col-7 col-md-5">
                         <input type="password" class="text_ form-control bottom-border" maxlength="45" name="${passwordParameter ?: 'password'}" id="password"/>
                     </div>

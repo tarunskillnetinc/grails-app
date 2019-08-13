@@ -10,7 +10,7 @@ grails:
             events: false
 info:
     app:
-        name: 'Well EPOS Back Office'
+        name: 'WonderLane EPOS Back Office'
         version: '@info.app.version@'
         grailsVersion: '@info.app.grailsVersion@'
 spring:
@@ -154,5 +154,6 @@ environments:
 
 rabbitmq:
     host: LOCALHOST
+    port: 5672
     username: rabbituser
     password: Pa**W0rd01

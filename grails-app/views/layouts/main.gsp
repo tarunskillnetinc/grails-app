@@ -7,7 +7,7 @@
     <meta name="format-detection" content="telephone=no">
 
     <title>
-        <g:layoutTitle default="Well Pharmacy" />
+        <g:layoutTitle default="WonderLane" />
     </title>
 
     <asset:link rel="icon" href="favicon.ico" type="image/x-ico" />
@@ -21,7 +21,7 @@
     <div class="row align-items-center topbar">
         <div class="col-12 col-sm-2">
             <g:link url="/">
-                <asset:image src="well_logo.png" class="topbar-logo" />
+                <asset:image src="wl_logo_transparent.png" class="topbar-logo" />
             </g:link>
         </div>
 
@@ -34,7 +34,7 @@
                 <span><sec:loggedInUserInfo field="usersName" /></span>
             </div>
             <div class="col-12 col-sm-1 text-right">
-                <g:link controller="logoff" class="btn btn-danger" style="margin-right: 30px;">Log out</g:link>
+                <g:link controller="logoff" class="btn btn-danger" style="margin-right: 21px;">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
     </div>
@@ -56,7 +56,7 @@
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
                     <li class="nav-item">
-                        <g:link controller="user" class="nav-link">User Management</g:link>
+                        <g:link url="/" class="nav-link">User Management</g:link>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>

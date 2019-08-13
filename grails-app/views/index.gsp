@@ -3,22 +3,22 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Well Pharmacy</title>
+    <title>WonderLane</title>
 </head>
 <body>
     <div class="row">
         <div class="col-12 header-wl">
-            <h2>Welcome to Well</h2>
+            <h2>Welcome to WonderLane</h2>
         </div>
     </div>
 
     <div class="row" style="margin-top: 30px;">
         <div class="col-12 col-md-6 offset-md-3">
-            <p>Welcome to the hub of your new Well Pharmacy device. Here you can access store settings and button grid administration.</p>
+            <p>Welcome to the hub of your new WonderLane EPOS device. Here you can access store settings and button grid administration.</p>
 
             <p>We'll be adding more features over the coming weeks and months. In the meantime we appreciate your patience and welcome any feedback you may have.</p>
 
-            <p>If you need any help along the way please contact your store manager.</p>
+            <p>If you need any help along the way please contact us <a href="http://www.wonderlane.co.uk">here</a>.</p>
         </div>
     </div>
 </body>

@@ -4,7 +4,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Well Pharmacy Button Grids</title>
+    <title>WonderLane Button Grids</title>
 </head>
 <body>
 
