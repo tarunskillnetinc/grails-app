@@ -29,9 +29,13 @@ class Product {
     Collection<Message> refundMessages = new ArrayList<>()
     Collection<DiscountRate> discountRates = new ArrayList<>()
 
+    ProductData currentProductData
+
     static hasMany = [ productDatas: ProductData, tags: Tag, barcodes: Barcode, saleMessages: Message, refundMessages: Message, discountRates: DiscountRate ]
 
 //    static mappedBy = [ saleMessages: "saleProduct", refundMessages: "refundProduct" ]
+
+    static transients = ['currentProductData']
 
     static mapping = {
         table "product"

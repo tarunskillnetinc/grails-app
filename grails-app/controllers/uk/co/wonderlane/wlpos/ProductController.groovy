@@ -9,4 +9,10 @@ class ProductController {
 
         render(template: "/product/productSearchResults", model: [ products: products ])
     }
+
+    def chrisTest() {
+        def products = productService.searchProductsChrisTest("Hydro")
+
+        [products: products]
+    }
 }
