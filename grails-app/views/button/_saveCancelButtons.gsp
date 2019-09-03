@@ -1,4 +1,4 @@
-<div class="form-group row">
+<div class="form-group row margin-top-2rem">
     <div class="col-12 col-sm-8 offset-sm-4">
         <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 

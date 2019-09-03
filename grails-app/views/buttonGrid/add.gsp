@@ -20,28 +20,28 @@
         <g:form name="save-button" action="save">
             <g:hiddenField name="type" value="OTHER" />
 
-            <div class="form-group row">
+            <div class="form-group row margin-top-2rem">
                 <label for="description" class="col-3 col-form-label">Description</label>
                 <div class="col-7">
                     <g:textField name="description" maxlength="45" value="${buttonGrid?.description}" class="form-control bottom-border" />
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row margin-top-2rem">
                 <label for="rows" class="col-3 col-form-label">Number of rows</label>
                 <div class="col-2">
                     <g:field type="number" min="1" max="4" maxlength="1" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row margin-top-2rem">
                 <label for="columns" class="col-3 col-form-label">Number of columns</label>
                 <div class="col-2">
                     <g:field type="number" min="1" max="4" maxlength="1" name="columns" value="${buttonGrid?.columns ?: 2}" class="form-control bottom-border" />
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row margin-top-2rem">
                 <div class="col-8 offset-3">
                     <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 
