@@ -26,6 +26,7 @@ class StoreSettings {
     BigDecimal valuePromptThreshold
     Integer varianceQuantity
     BigDecimal varianceValue
+    Boolean pickListForceZeroCount
 
     Date createdDatetime
     Integer createdUserId
@@ -60,6 +61,7 @@ class StoreSettings {
         valuePromptThreshold column: "valuePromptThreshold"
         varianceQuantity column: "varianceQuantity"
         varianceValue column: "varianceValue"
+        pickListForceZeroCount column: "pickListForceZeroCount"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
@@ -87,6 +89,7 @@ class StoreSettings {
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: new BigDecimal(9999)
         varianceQuantity nullable: true, min: 1, max: 999
         varianceValue nullable:true, min: BigDecimal.ONE, max: new BigDecimal(9999)
+        pickListForceZeroCount nullable: true
         createdDatetime nullable: true
         createdUserId nullable: true
         updatedDatetime nullable: true
