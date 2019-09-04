@@ -31,6 +31,10 @@
                 </li>
 
                 <li class="nav-item">
+                    <a id="inventoryManagement-tab" data-toggle="tab" href="#inventoryManagement" role="tab" aria-controls="inventoryManagement" class="nav-link">Inventory Management</a>
+                </li>
+
+                <li class="nav-item">
                     <a id="contactInformation-tab" data-toggle="tab" href="#contactInformation" role="tab" aria-controls="contactInformation" class="nav-link">Contact Information</a>
                 </li>
             </ul>
@@ -70,23 +74,39 @@
 
                     <div class="form-group row margin-top-2rem">
                         <label for="quantityPromptThreshold" class="col-5 col-lg-3 col-form-label">Quantity Prompt Threshold</label>
-                        <div class="col-7 col-lg-6 col-xl-4">
+                        <div class="col-7 col-lg-4 col-xl-3">
                             <g:field type="number" min="0" max="9999" maxlength="3" name="quantityPromptThreshold" value="${storeSettings?.quantityPromptThreshold}" class="form-control bottom-border" />
                         </div>
+                        <small id="quantityPromptHelp" class="form-text text-muted">Selling this quantity of any item will trigger a confirmation prompt.</small>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
                         <label for="valuePromptThreshold" class="col-5 col-lg-3 col-form-label">Value Prompt Threshold</label>
-                        <div class="col-7 col-lg-6 col-xl-4">
+                        <div class="col-7 col-lg-4 col-xl-3">
                             <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="valuePromptThreshold" value="${storeSettings?.valuePromptThreshold}" class="form-control bottom-border" />
                         </div>
+                        <small id="valuePromptHelp" class="form-text text-muted">Selling this value of any item will trigger a confirmation prompt.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Management -->
+            <div class="tab-pane fade show" id="inventoryManagement" role="tabpanel" aria-labelledby="inventoryManagement-tab">
+                <div class="col-12 col-md-6 offset-md-3">
+                    <div class="form-group row margin-top-2rem">
+                        <label for="varianceQuantity" class="col-5 col-lg-3 col-form-label">Variance Quantity Threshold</label>
+                        <div class="col-7 col-lg-4 col-xl-3">
+                            <g:field type="number" min="0" max="9999" maxlength="3" name="varianceQuantity" value="${storeSettings?.varianceQuantity}" class="form-control bottom-border" />
+                        </div>
+                        <small id="varianceQuantityHelp" class="form-text text-muted">Adjustments of this quantity will trigger a variance report.</small>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="valuePromptThreshold" class="col-5 col-lg-3 col-form-label">Value Prompt Threshold</label>
-                        <div class="col-7 col-lg-6 col-xl-4">
-                            <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="valuePromptThreshold" value="${storeSettings?.valuePromptThreshold}" class="form-control bottom-border" />
+                        <label for="varianceValue" class="col-5 col-lg-3 col-form-label">Variance Value Threshold</label>
+                        <div class="col-7 col-lg-4 col-xl-3">
+                            <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="varianceValue" value="${storeSettings?.varianceValue}" class="form-control bottom-border" />
                         </div>
+                        <small id="varianceValueHelp" class="form-text text-muted">Adjustments of this value will trigger a variance report.</small>
                     </div>
 
                     <div class="form-group form-check row margin-top-2rem">
