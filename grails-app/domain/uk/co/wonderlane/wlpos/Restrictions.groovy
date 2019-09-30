@@ -37,4 +37,40 @@ class Restrictions {
         quantityChangeForced column: "quantityChangeForced"
         receiptPrintForced column: "receiptPrintForced"
     }
+
+    static constraints = {
+        minOpenPrice blank: false, nullable: false
+        maxOpenPrice blank:false, nullable: false
+        buyerAgeRestriction blank: true, nullable: true
+        buyerChallengeAge blank: true, nullable: true
+        sellerAgeRestriction blank: true, nullable:true
+        refundAllowed nullable: true
+        markdownAllowed nullable: true
+        discountAllowed nullable: true
+        creditPaymentAllowed nullable: true
+        quantityChangeAllowed nullable: true
+        quantityChangeForced nullable: true
+        receiptPrintForced nullable: true
+    }
+
+    public uk.co.wonderlane.wlpos.entities.Restrictions getRestrictions() {
+        uk.co.wonderlane.wlpos.entities.Restrictions restrictions = new uk.co.wonderlane.wlpos.entities.Restrictions()
+
+        restrictions.setId(id)
+        restrictions.setMinOpenPrice(minOpenPrice)
+        restrictions.setMaxOpenPrice(maxOpenPrice)
+        restrictions.setBuyerIdRequired(buyerIdRequired)
+        restrictions.setBuyerIdForced(buyerIdForced)
+        restrictions.setBuyerAgeRestriction(buyerAgeRestriction)
+        restrictions.setBuyerChallengeAge(buyerChallengeAge)
+        restrictions.setSellerAgeRestriction(sellerAgeRestriction)
+        restrictions.setRefundAllowed(refundAllowed)
+        restrictions.setMarkdownAllowed(markdownAllowed)
+        restrictions.setDiscountAllowed(discountAllowed)
+        restrictions.setCreditPaymentAllowed(creditPaymentAllowed)
+        restrictions.setQuantityChangeAllowed(quantityChangeAllowed)
+        restrictions.setQuantityChangeForced(quantityChangeForced)
+        restrictions.setReceiptPrintForced(receiptPrintForced)
+        return restrictions
+    }
 }

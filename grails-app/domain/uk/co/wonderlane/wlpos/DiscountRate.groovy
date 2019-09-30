@@ -17,4 +17,14 @@ class DiscountRate {
         rate column: "`rate`"
         description column: "`description`"
     }
+
+    public uk.co.wonderlane.wlpos.entities.DiscountRate getDiscountRate() {
+        uk.co.wonderlane.wlpos.entities.DiscountRate discountRate = new uk.co.wonderlane.wlpos.entities.DiscountRate()
+        discountRate.setId(id)
+        discountRate.setRetailerId(retailerId)
+        discountRate.setCardTypeId(cardTypeId)
+        discountRate.setRate(rate)
+        discountRate.setDescription(description)
+        return discountRate
+    }
 }

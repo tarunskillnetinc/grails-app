@@ -17,7 +17,7 @@
     </li>
 
     <li class="nav-item">
-        <g:link url="/" class="nav-link disabled">Product</g:link>
+        <g:link controller="product" class="nav-link ${active.equals('product') ? 'active' : ''}">Product</g:link>
     </li>
 
     <li class="nav-item">

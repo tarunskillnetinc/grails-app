@@ -8,9 +8,11 @@ class ProductData implements Serializable {
     int storeId
     BigDecimal retailPrice
     BigDecimal costPrice
-    int balanceOnHand
-    int balanceOnOrder
     Date effectiveDate
+    Date createdDatetime
+    Integer createdUserId
+    Date updateDatetime
+    Integer updatedUserId
 
     static mapping = {
         table "productdata"
@@ -22,9 +24,19 @@ class ProductData implements Serializable {
         storeId column: "storeId"
         retailPrice column: "price"
         costPrice column: "costPrice"
-        balanceOnHand column: "balanceOnHand"
-        balanceOnOrder column: "balanceOnOrder"
         effectiveDate column: "effectiveDate"
+        createdDatetime column: "createdDatetime"
+        createdUserId column: "createdUserId"
+        updateDatetime column: "updateDatetime"
+        updatedUserId column: "updatedUserId"
+    }
+
+    static constraints = {
+        retailPrice blank: false, nullable: false, scale: 2
+        costPrice blank: false, nullable: false, scale: 2
+        effectiveDate nullable: false
+        createdUserId nullable: true
+        updatedUserId nullable: true
     }
 
     @Override

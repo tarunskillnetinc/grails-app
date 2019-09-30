@@ -18,7 +18,7 @@
 </head>
 
 <body>
-    <div class="row align-items-center topbar">
+    <div class="align-items-center topbar d-flex">
         <div class="col-12 col-sm-2">
             <g:link url="/">
                 <asset:image src="wl_logo_transparent.png" class="topbar-logo" />

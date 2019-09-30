@@ -15,13 +15,13 @@ class ButtonController {
 
     def edit() {
         def button
-        def product
+        def productVariant
 
         if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
 
             if (button.type == ButtonType.PRODUCT) {
-                product = productService.getProduct(button.productId)
+                productVariant = productService.getProductVariant(button.productId)
             }
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
@@ -37,7 +37,7 @@ class ButtonController {
         def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         def availableTenderTypes = TenderType.values()
 
-        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, productItemCode: product?.itemCode, productDescription: product?.description, availableTenderTypes: availableTenderTypes]
+        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, productItemCode: productVariant?.itemCode, productDescription: productVariant?.product?.description, availableTenderTypes: availableTenderTypes]
     }
 
     def save() {

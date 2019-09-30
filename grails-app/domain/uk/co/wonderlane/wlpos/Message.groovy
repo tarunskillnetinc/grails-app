@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+
 class Message {
 
     int id
@@ -28,5 +30,18 @@ class Message {
 
 //        saleProduct column: "productId"
 //        refundProduct column: "productId"
+    }
+
+    public uk.co.wonderlane.wlpos.entities.Message getMessage() {
+        uk.co.wonderlane.wlpos.entities.Message message = new uk.co.wonderlane.wlpos.entities.Message()
+        message.setId(id)
+        message.setRetailerId(retailerId)
+        message.setMessage(this.message)
+        message.setRetailerMessageCode(retailerMessageCode)
+        message.setStartDate(new DateTime(startDate))
+        message.setEndDate(new DateTime(endDate))
+        message.setDisplayOncePerItem(displayOncePerItem)
+        message.setDisplayOncePerTransaction(displayOncePerTransaction)
+        return message
     }
 }

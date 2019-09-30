@@ -21,4 +21,18 @@ class Category {
         retailerCategoryCode column: "retailerCategoryCode"
         restrictions column: "restrictionsId"
     }
+
+    public uk.co.wonderlane.wlpos.entities.Category getCategory() {
+        uk.co.wonderlane.wlpos.entities.Category category = new uk.co.wonderlane.wlpos.entities.Category()
+
+        category.setId(id)
+        category.setRetailerId(retailerId)
+        category.setParentId(parentId)
+        category.setDescription(description)
+        category.setShortDescription(shortDescription)
+        category.setRetailerCategoryCode(retailerCategoryCode)
+        category.setRestrictions(restrictions.getRestrictions())
+
+        return category
+    }
 }
