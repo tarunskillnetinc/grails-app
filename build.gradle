@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-version "1.1-SNAPSHOT"
+version "1.2.0.1"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"eclipse"
@@ -61,7 +61,7 @@ dependencies {
     testCompile "org.grails:grails-web-testing-support"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    implementation ('uk.co.wonderlane.wlpos:Common:1.2-SNAPSHOT') {
+    implementation ('uk.co.wonderlane.wlpos:Common:1.2.0.1-SNAPSHOT') {
         transitive = false
     }
     implementation 'joda-time:joda-time:2.10.1'
