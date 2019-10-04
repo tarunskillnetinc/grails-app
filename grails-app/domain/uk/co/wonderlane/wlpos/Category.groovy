@@ -22,6 +22,10 @@ class Category {
         restrictions column: "restrictionsId"
     }
 
+    static constraints = {
+        parentId nullable: true
+    }
+
     public uk.co.wonderlane.wlpos.entities.Category getCategory() {
         uk.co.wonderlane.wlpos.entities.Category category = new uk.co.wonderlane.wlpos.entities.Category()
 
