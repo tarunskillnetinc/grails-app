@@ -6,6 +6,14 @@
         <title>WonderLane Product Maintenance</title>
 
         <script type="text/javascript">
+            $(document).ready(function () {
+                $('#productSearchTerm').on('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        searchButton();
+                    }
+                });
+            });
+
             function search() {
                 var URL = "${createLink(controller: 'product', action: 'maintenanceSearch')}";
                 var searchTerm = $('#productSearchTerm').val();

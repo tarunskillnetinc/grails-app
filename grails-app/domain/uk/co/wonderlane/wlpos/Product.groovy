@@ -68,14 +68,47 @@ class Product {
     }
 
     static constraints = {
-        itemCode blank: false, nullable: false
-        description blank: false, nullable: false
-        receiptDescription blank: false, nullable: false
-        discreetMessage blank: true, nullable: true
+        itemCode size: 1..50, blank: false, nullable: false
+        description size: 1..100, blank: false, nullable: false
+        receiptDescription size: 1..50, blank: false, nullable: false
+        discreetMessage size: 0..50, blank: true, nullable: true
+        unitSize size: 1..50, blank: false, nullable:false
+        vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal,blank: false, nullable: false, scale: 2
         vatCode nullable: false
         status nullable: false
         category nullable: false
-        variants minSize: 1
+        restrictions validator: {val, obj ->
+            return val?.validate() ? true : ["error.Product.badRestrictions"]
+        }
+        variants minSize: 1, validator: {val, obj ->
+            boolean noError = true;
+            List<ProductVariant> variants = val.collect()
+
+            def allFields = ProductVariant.declaredFields.collectMany {!it.synthetic ? [it.name] : []}
+            def allFieldsButExclusion = allFields - ['product']
+
+            for (ProductVariant productVariant : variants) {
+                if(!productVariant.validate(allFieldsButExclusion)) {
+                    noError = false;
+                }
+            }
+            return noError ? true : ["error.Product.badVariants"]
+        }
+        productDatas validator: {val, obj ->
+            boolean noError = true;
+            List<ProductData> productDatas = val.collect()
+
+            def allFields = ProductData.declaredFields.collectMany {!it.synthetic ? [it.name] : []}
+            def allFieldsButExclusion = allFields - ['product']
+
+            for (ProductData productData : productDatas) {
+                if (!productData.validate(allFieldsButExclusion)) {
+                    noError = false
+                }
+            }
+
+            return noError ? true : ["error.Product.badProductData", ProductData.constrainedProperties['retailPrice']['min'], ProductData.constrainedProperties['retailPrice']['max']]
+        }
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {
