@@ -179,10 +179,6 @@ class ProductController {
                     }).create()
 
             rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
-        } else {
-            if (newProduct) {
-                product.productDatas.clear()
-            }
         }
 
         if (newProduct && !product.hasErrors()) {
