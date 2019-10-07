@@ -15,6 +15,26 @@
         <g:hasErrors bean="${product}">
             <div class="alert alert-danger alert-wl" role="alert">
                 <g:renderErrors bean="${product}" as="list" />
+                <g:hasErrors bean="${product.restrictions}">
+                    <g:renderErrors bean="${product.restrictions}" as="list" />
+                </g:hasErrors>
+                <g:each in="${product.variants.findAll{it.storeId == storeId}}" var="variant" status="i">
+                    <g:hasErrors bean="${variant}">
+                        <div class="ml-3 pl-3 border">
+                            Variant ${i+1}
+                            <g:renderErrors bean="${variant}" as="list" />
+
+                            <g:each in="${variant.barcodes}" var="barcode" status="j">
+                                <g:hasErrors bean="${barcode}">
+                                    <div class="ml-3">
+                                        Barcode ${j+1}
+                                        <g:renderErrors bean="${barcode}" as="list" />
+                                    </div>
+                                </g:hasErrors>
+                            </g:each>
+                        </div>
+                    </g:hasErrors>
+                </g:each>
             </div>
         </g:hasErrors>
 

@@ -39,11 +39,11 @@ class Restrictions {
     }
 
     static constraints = {
-        minOpenPrice blank: false, nullable: false
-        maxOpenPrice blank:false, nullable: false
-        buyerAgeRestriction blank: true, nullable: true
-        buyerChallengeAge blank: true, nullable: true
-        sellerAgeRestriction blank: true, nullable:true
+        minOpenPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2
+        maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank:false, nullable: false, scale: 2
+        buyerAgeRestriction min: 1, max: 25, blank: true, nullable: true
+        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
+        sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true
         refundAllowed nullable: true
         markdownAllowed nullable: true
         discountAllowed nullable: true

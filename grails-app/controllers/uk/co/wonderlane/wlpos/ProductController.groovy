@@ -109,6 +109,7 @@ class ProductController {
             product = baseProduct
         }
 
+
         List<ProductVariant> variants = product.variants.collect()
         for (ProductVariant variant : variants) {
             if (variant.storeId == springSecurityService.principal.storeId) {
@@ -136,54 +137,55 @@ class ProductController {
             } else {
                 flash.message = "Product saved successfully"
             }
+        }
+
+        if (!product.hasErrors()) {
+            if (newProduct) {
+                product.productDatas.get(0).id = product.id
+                product.productDatas.get(0).save(failOnError: true, flush: true)
+            } else {
+                product.productDatas.each {
+                    it.save(failOnError: true, flush: true)
+                }
+            }
+
+            productService.populateCurrentProductData(product)
+
+            BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
+            rabbitService.init()
+
+            if (!rabbitService.isOpen()) {
+                throw new Exception("Rabbit MQ not available")
+            }
+
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+            syncMessage.setInsert(true)
+            List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
+            products.add(product.getProduct(springSecurityService.principal.storeId))
+            syncMessage.setProducts(products)
+
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
+                        @Override
+                        public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
+                            return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
+                        }
+                    })
+                    .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
+                        @Override
+                        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                            return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
+                        }
+                    }).create()
+
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
         } else {
-            product.errors.allErrors.each {
-                println(it)
+            if (newProduct) {
+                product.productDatas.clear()
             }
         }
 
-        if (newProduct) {
-            product.productDatas.get(0).id = product.id
-            product.productDatas.get(0).save(failOnError:true, flush:true)
-        } else {
-            product.productDatas.each {
-                it.save(failOnError:true, flush:true)
-            }
-        }
-
-        productService.populateCurrentProductData(product)
-
-        BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
-        rabbitService.init()
-
-        if (!rabbitService.isOpen()) {
-            throw new Exception("Rabbit MQ not available")
-        }
-
-        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
-        syncMessage.setInsert(true)
-        List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
-        products.add(product.getProduct(springSecurityService.principal.storeId))
-        syncMessage.setProducts(products)
-
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>(){
-                    @Override
-                    public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                        return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-                    }
-                })
-                .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-                    @Override
-                    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
-                    }
-                }).create()
-
-        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
-
-
-        if (newProduct) {
+        if (newProduct && !product.hasErrors()) {
             redirect(action: "index")
         } else {
             render(view: "maintenance", model: [product: product,

@@ -26,7 +26,7 @@ class Barcode {
     }
 
     static constraints = {
-        barcode blank: false, nullable: false
+        barcode size: 1..20, blank: false, nullable: false
         effectiveDate nullable: false
         recordStatus nullable: false
         delete bindable: true

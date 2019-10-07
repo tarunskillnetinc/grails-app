@@ -91,23 +91,23 @@
                             <label for="receiptDescription" class="col-3 offset-2">Receipt Description</label>
                             <g:textField name="receiptDescription" value="${product.receiptDescription}" class="col-5"/>
                         </div>
-                        <div class="row mb-3">
+                        <div class="row mb-3 product-maintenance-input">
                             <label for="retailPrice" class="col-3 offset-2">Retail Price</label>
-                            <g:textField name="retailPrice" value="${product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }.retailPrice}" class="col-3"/>
+                            <g:field name="retailPrice" type="number" value="${product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }.retailPrice}" class="col-3"/>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="row mb-3">
+                        <div class="row mb-3 product-maintenance-input">
                             <label for="vatPercentageOverride" class="col-3 offset-2">Vat Override</label>
-                            <g:textField name="vatPercentageOverride" value="${product.vatPercentageOverride}" class="col-3 text-right"/>
+                            <g:field name="vatPercentageOverride" type="number" value="${product.vatPercentageOverride}" class="col-3 text-right"/>
                         </div>
                         <div class="row mb-3">
                             <label for="discreetMessage" class="col-3 offset-2">Discreet Message</label>
                             <g:textField name="discreetMessage" value="${product.discreetMessage}" class="col-5"/>
                         </div>
-                        <div class="row mb-3">
+                        <div class="row mb-3 product-maintenance-input">
                             <label for="costPrice" class="col-3 offset-2">Cost Price</label>
-                            <g:textField name="costPrice" value="${product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }.costPrice}" class="col-3"/>
+                            <g:field name="costPrice" type="number" value="${product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }.costPrice}" class="col-3"/>
                         </div>
                     </div>
                 </div>
@@ -143,17 +143,17 @@
                 <div class="col-12 col-md-6">
                     <div class="row">
                         <div class="col-12 col-sm-7 col-md-12 col-lg-7">
-                            <div class="row form-group">
+                            <div class="row form-group product-maintenance-input">
                                 <label for="restrictions.buyerAgeRestriction" class="col-9 text-right">Customer Age Required</label>
-                                <g:textField name="restrictions.buyerAgeRestriction" value="${product.restrictions.buyerAgeRestriction}" class="col-2 text-center"/>
+                                <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product.restrictions.buyerAgeRestriction}" class="col-2 text-center"/>
                             </div>
-                            <div class="row form-group">
+                            <div class="row form-group product-maintenance-input">
                                 <label for="restrictions.buyerChallengeAge" class="col-9 text-right">Customer Challenge Age</label>
-                                <g:textField name="restrictions.buyerChallengeAge" value="${product.restrictions.buyerChallengeAge}" class="col-2 text-center"/>
+                                <g:field name="restrictions.buyerChallengeAge" type="number" value="${product.restrictions.buyerChallengeAge}" class="col-2 text-center"/>
                             </div>
-                            <div class="row form-group">
+                            <div class="row form-group product-maintenance-input">
                                 <label for="restrictions.sellerAgeRestriction" class="col-9 text-right">Operator Age Required</label>
-                                <g:textField name="restrictions.sellerAgeRestriction" value="${product.restrictions.sellerAgeRestriction}" class="col-2 text-center"/>
+                                <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product.restrictions.sellerAgeRestriction}" class="col-2 text-center"/>
                             </div>
                         </div>
                         <div class="col-12 col-sm-5 col-md-12 col-lg-5">
@@ -169,13 +169,13 @@
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
-                    <div class="row form-group">
+                    <div class="row form-group product-maintenance-input">
                         <label for="restrictions.minOpenPrice" class="col-4 offset-2">Min Open Price</label>
-                        <g:textField name="restrictions.minOpenPrice" value="${product.restrictions.minOpenPrice}" class="col-3 text-center"/>
+                        <g:field name="restrictions.minOpenPrice" type="number" value="${product.restrictions.minOpenPrice}" class="col-3 text-center"/>
                     </div>
-                    <div class="row form-group">
+                    <div class="row form-group product-maintenance-input">
                         <label for="restrictions.maxOpenPrice" class="col-4 offset-2">Max Open Price</label>
-                        <g:textField name="restrictions.maxOpenPrice" value="${product.restrictions.maxOpenPrice}" class="col-3 text-center"/>
+                        <g:field name="restrictions.maxOpenPrice" type="number" value="${product.restrictions.maxOpenPrice}" class="col-3 text-center"/>
                     </div>
                     <div class="row">
                         <div class="col-6">
