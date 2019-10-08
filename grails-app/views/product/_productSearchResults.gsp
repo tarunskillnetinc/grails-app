@@ -11,6 +11,6 @@
         <td>£${product.productDatas?.size() > 0 ? (product.currentProductData?.retailPrice ?: '0.00') : '0.00'}</td>
         <td>£${product.productDatas?.size() > 0 ? (product.currentProductData?.retailPrice ?: '0.00') : '0.00'}</td>
         <td>${product.vatCode?.percentage}%</td>
-        <td><button class="btn btn-wl" onClick="productSelected(${product.id}, '${product.variants?.findAll{it.storeId == storeId}?.first()?.itemCode}', '${product.description}');" data-dismiss="modal">Select</button></td>
+        <td><button class="btn btn-wl" onClick="productSelected(${product.variants?.findAll{it.storeId == storeId}?.first()?.id}, '${product.variants?.findAll{it.storeId == storeId}?.first()?.itemCode}', '${product.description}');" data-dismiss="modal">Select</button></td>
     </tr>
 </g:each>
