@@ -56,7 +56,6 @@ class ProductController {
     def search() {
         def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
-
         render(template: "/product/productSearchResults", model: [ products: products , storeId: springSecurityService.principal.storeId])
     }
 
@@ -181,7 +180,7 @@ class ProductController {
             rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
         }
 
-        if (newProduct && !product.hasErrors()) {
+        if (!product.hasErrors()) {
             redirect(action: "index")
         } else {
             render(view: "maintenance", model: [product: product,
