@@ -150,6 +150,23 @@ a.no-underline:hover {
     text-decoration: none;
 }
 
+.prevLink, .step, .nextLink, .currentStep {
+    margin: 0 0 0 3px;
+    padding: 7px 10px;
+    background-color: #004C6A;
+    color: #FFFFFF;
+}
+
+.prevLine:hover, .step:hover, .nextLink:hover {
+    color: #FFFFFF;
+    background-color: #105F7F;
+    text-decoration: none;
+}
+
+.currentStep {
+    background-color: #319CAA;
+}
+
 .btn-wl {
     background-color: #004C6A;
     color: #FFFFFF;
@@ -298,4 +315,12 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
     -webkit-appearance: none;
     -moz-appearance: none;
     margin: 0;
+}
+
+.wl-striped0 {
+    background: #336F8720;
+}
+
+.wl-striped1 {
+    background: #336F8730;
 }

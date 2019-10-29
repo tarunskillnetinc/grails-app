@@ -210,3 +210,11 @@ rabbitmq:
     port: 5672
     username: rabbituser
     password: Pa**W0rd01
+
+mysql:
+    wlpos:
+        host: LOCALHOST
+        port: 3306
+        username: root
+        password: Pa**W0rd01
+        database: wlpos

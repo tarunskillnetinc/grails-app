@@ -25,7 +25,7 @@ class ProductController {
     def productService
 
     def index() {
-        render( view: "index", model:[products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
+        render( view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
     }
 
     def maintenance() {
@@ -50,26 +50,28 @@ class ProductController {
                                             statusValues: ProductStatus.values(),
                                             categoryValues: Category.list(),
                                             vatValues: VatCode.list(),
-                                            navlink: "details"])
+                                            navlink: "details",
+                                            isNewProduct: true])
     }
 
     def search() {
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
+        def products = productService.searchProductsNew(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
-        render(template: "/product/productSearchResults", model: [ products: products , storeId: springSecurityService.principal.storeId])
+        int totalResults = products[-1].getId()
+
+        products.pop()
+
+        render(template: "/product/productSearchResults", model: [ products: products, storeId: springSecurityService.principal.storeId ])
     }
 
     def maintenanceSearch() {
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, Integer.parseInt(params.page) - 1, "id", "asc")
-        def pageCount = (int) Math.ceil(productService.countProductSearch(params.searchTerm, params.searchBy) / 50.0f)
+        def products = productService.searchProductsNew(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
-        def pageNumbers = productService.searchPaginationNumbers(Integer.parseInt(params.page), pageCount)
+        int totalResults = products[-1].getId()
 
-        render(template: "/product/maintenanceSearchResults", model: [ products: products ,
-                                                                       storeId: springSecurityService.principal.storeId,
-                                                                       page: Integer.parseInt(params.page),
-                                                                       pageCount: pageCount,
-                                                                       pageNumbers: pageNumbers])
+        products.pop()
+
+        render(template: "/product/maintenanceSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }
 
     def save(Product product) {
