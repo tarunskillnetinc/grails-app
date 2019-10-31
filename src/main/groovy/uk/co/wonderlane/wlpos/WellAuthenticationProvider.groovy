@@ -25,7 +25,7 @@ class WellAuthenticationProvider extends DaoAuthenticationProvider {
         def wellAuthenticationDetails = details as WellAuthenticationDetails
 
         // Do our store number check.
-        if (!wellAuthenticationDetails.storeId || wellAuthenticationDetails.storeId.length() > 10 || !wellAuthenticationDetails.storeId.isNumber() || !storeNumberValidator.isValidStoreNumber(1, Integer.parseInt(wellAuthenticationDetails.storeId))) {
+        if (!(userDetails instanceof WellUserDetails) && !wellAuthenticationDetails.storeId || wellAuthenticationDetails.storeId.length() > 10 || !wellAuthenticationDetails.storeId.isNumber() || ((userDetails instanceof WellUserDetails) && !storeNumberValidator.isValidStoreNumber(((WellUserDetails)userDetails).retailerId, Integer.parseInt(wellAuthenticationDetails.storeId)))) {
             throw new BadCredentialsException(messages.getMessage("WellAuthenticationProvider.badStoreId", "Store number not recognised."))
         }
 
