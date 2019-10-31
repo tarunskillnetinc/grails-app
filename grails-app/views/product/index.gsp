@@ -15,6 +15,11 @@
                 });
             });
 
+            function searchButtonClicked() {
+                $('#offset').val(0);
+                search();
+            }
+
             function search() {
                 var URL = "${createLink(controller: 'product', action: 'maintenanceSearch')}";
                 var searchTerm = $('#productSearchTerm').val();
@@ -57,7 +62,7 @@
 
                     <div class="input-group-append">
                         <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
-                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="searchButton()" class="product-search-button" />
+                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="searchButtonClicked()" class="product-search-button" />
                     </div>
                 </div>
 
