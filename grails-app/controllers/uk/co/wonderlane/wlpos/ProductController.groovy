@@ -35,21 +35,23 @@ class ProductController {
         render(view: "maintenance", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.list(),
-                                            vatValues: VatCode.list(),
+                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "details"])
     }
 
     def add() {
         def product = new Product()
         product.restrictions = new Restrictions()
+
         ProductData productData = new ProductData(storeId: springSecurityService.principal.storeId,  effectiveDate: new Date())
         product.addToProductDatas(productData)
+
         render(view: "maintenance", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.list(),
-                                            vatValues: VatCode.list(),
+                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "details",
                                             isNewProduct: true])
     }
@@ -188,8 +190,8 @@ class ProductController {
             render(view: "maintenance", model: [product: product,
                                                 storeId: springSecurityService.principal.storeId,
                                                 statusValues: ProductStatus.values(),
-                                                categoryValues: Category.list(),
-                                                vatValues: VatCode.list(),
+                                                categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                                vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                                 navlink: "details"])
         }
     }
@@ -260,8 +262,8 @@ class ProductController {
         render(view: "maintenance", productId: product.id, model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.list(),
-                                            vatValues: VatCode.list(),
+                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "variants"])
     }
 
@@ -314,8 +316,8 @@ class ProductController {
         render(view: "maintenance", productId: product.id, model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.list(),
-                                            vatValues: VatCode.list(),
+                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "variants"])
     }
 
@@ -370,8 +372,8 @@ class ProductController {
         render(view: "maintenance", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.list(),
-                                            vatValues: VatCode.list(),
+                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "variants"])
     }
 
@@ -424,8 +426,8 @@ class ProductController {
         render(view: "maintenance", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.list(),
-                                            vatValues: VatCode.list(),
+                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "variants"])
 
     }
