@@ -1,7 +1,3 @@
-<div class="row header-wl">
-    <h2 class="mx-auto">Product Maintenance</h2>
-</div>
-
 <g:form method="post" url="${product.id == 0 ? "./add" : "./maintenance?productId=" + product.id}" class="mt-4">
     <g:hiddenField name="id" value="${product.id}"/>
 

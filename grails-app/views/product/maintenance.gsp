@@ -12,6 +12,12 @@
     </head>
 
     <body>
+        <g:render template="/nav/epos" model="[active: 'product']" />
+
+        <div class="row header-wl">
+            <h2 class="mx-auto">Product Maintenance</h2>
+        </div>
+
         <g:hasErrors bean="${product}">
             <div class="alert alert-danger alert-wl" role="alert">
                 <g:renderErrors bean="${product}" as="list" />
@@ -43,8 +49,6 @@
         <g:if test="${flash.message}">
             <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
         </g:if>
-
-        <g:render template="/nav/epos" model="[active: 'product']" />
 
         <section id="maintenance-section" class="container-fluid">
             <g:render template="maintenanceForm" model="[product: product,
