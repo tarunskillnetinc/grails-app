@@ -73,19 +73,19 @@
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="quantityPromptThreshold" class="col-5 col-lg-3 col-form-label">Quantity Prompt Threshold</label>
-                        <div class="col-7 col-lg-4 col-xl-3">
+                        <label for="quantityPromptThreshold" class="col-4 col-lg-3 col-form-label">Quantity Prompt Threshold</label>
+                        <div class="col-8 col-lg-4 col-xl-3">
                             <g:field type="number" min="0" max="9999" maxlength="3" name="quantityPromptThreshold" value="${storeSettings?.quantityPromptThreshold}" class="form-control bottom-border" />
                         </div>
                         <small id="quantityPromptHelp" class="form-text text-muted">Selling this quantity of any item will trigger a confirmation prompt.</small>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="valuePromptThreshold" class="col-5 col-lg-3 col-form-label">Value Prompt Threshold</label>
-                        <div class="col-7 col-lg-4 col-xl-3">
+                        <label for="valuePromptThreshold" class="col-4 col-lg-3 col-form-label">Price Change Value Prompt Threshold</label>
+                        <div class="col-8 col-lg-4 col-xl-3">
                             <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="valuePromptThreshold" value="${storeSettings?.valuePromptThreshold}" class="form-control bottom-border" />
                         </div>
-                        <small id="valuePromptHelp" class="form-text text-muted">Selling this value of any item will trigger a confirmation prompt.</small>
+                        <small id="valuePromptHelp" class="form-text text-muted">Changing the price of any item by this value will trigger a confirmation prompt.</small>
                     </div>
                 </div>
             </div>
