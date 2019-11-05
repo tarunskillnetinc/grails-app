@@ -112,7 +112,7 @@
                     <div class="form-group form-check row margin-top-2rem">
                         <div class="col-12 col-lg-9 offset-lg-3">
                             <g:checkBox name="pickListForceZeroCount" value="${storeSettings?.pickListForceZeroCount}" class="form-check-input" />
-                            <label class="form-check-label" for="pickListForceZeroCount">Force users to count items in a pick list which have zero balance on hand.</label>
+                            <label class="form-check-label" for="pickListForceZeroCount">Force users to count items in a pick list which have zero quantity in stock.</label>
                         </div>
                     </div>
                 </div>
