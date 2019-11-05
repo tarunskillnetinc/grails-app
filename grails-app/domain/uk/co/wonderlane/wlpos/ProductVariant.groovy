@@ -37,20 +37,7 @@ class ProductVariant {
         itemCode size: 1..50, blank: false, nullable: false
         size size: 0..45, blank: true, nullable: true
         colour size: 0..45, blank: true, nullable: true
-        barcodes minSize: 1, validator: {val, obj ->
-            boolean noError = true
-            List<Barcode> barcodes = val.collect()
-
-            def allFields = Barcode.declaredFields.collectMany {!it.synthetic ? [it.name] : []}
-            def allFieldsButExclusion = allFields - ['productVariant']
-
-            for (Barcode barcode : barcodes) {
-                if (!barcode.validate(allFieldsButExclusion)) {
-                    noError = false
-                }
-            }
-            return noError ? true : ["error.ProductVariant.badBarcodes"]
-        }
+        barcodes nullable: true
         delete bindable: true
     }
 

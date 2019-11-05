@@ -6,8 +6,18 @@
         <title>WonderLane Product Maintenance</title>
         <script type="text/javascript">
             function setRelevantVariant(val) {
-                $('#relevantVariant').val(val)
+                $('#relevantVariant').val(val);
             }
+
+            $(document).ready(function () {
+                $('#vatCode').change(function() {
+                    var vatCode = $('#vatCode option:selected').attr("data-code");
+
+                    var vatPercentageOverride = $('#vatPercentageOverride');
+                    vatPercentageOverride.attr("readonly", vatCode !== 'O');
+                    vatPercentageOverride.val("0.00");
+                });
+            });
         </script>
     </head>
 
@@ -57,7 +67,7 @@
                                             categoryValues: categoryValues,
                                             vatValues: vatValues,
                                             navlink: navlink,
-                                            isNewProduct: false]"/>
+                                            isNewProduct: isNewProduct]"/>
         </section>
     </body>
 </html>

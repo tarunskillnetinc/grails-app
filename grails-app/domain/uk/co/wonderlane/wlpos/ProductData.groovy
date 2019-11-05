@@ -32,8 +32,8 @@ class ProductData implements Serializable {
     }
 
     static constraints = {
-        retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2
-        costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2
+        retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: false, scale: 2
+        costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         effectiveDate nullable: false
         createdUserId nullable: true
         updatedUserId nullable: true

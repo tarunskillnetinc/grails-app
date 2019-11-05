@@ -105,6 +105,52 @@ p {
     background-color: #CEEEE9;
 }
 
+.tabs-wl {
+    margin-top: 30px;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.tabs-wl li a {
+    color: #004C6A;
+    background-color: #FFFFFF !important;
+}
+
+.tabs-wl li a.active {
+    border-style: solid;
+    border-width: 2px 2px 0 2px;
+    border-color: #004C6A !important;
+    color: #004C6A !important;
+}
+
+.tabs-wl li a:not(.active) {
+    border-style: solid;
+    border-width: 0 0 2px 0;
+    border-color: #004C6A !important;
+    color: #004C6A !important;
+}
+
+.tabs-wl li a.disabled {
+    color: #004C6A !important;
+    background-color: #EFEFEF !important;
+}
+
+.tabs-wl li a:not(.active):hover {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #004C6A !important;
+}
+
+.tabs-wl li.show a.dropdown-toggle {
+    color: #FFFFFF !important;
+    background-color: #004C6A !important;
+}
+
+.tabs-wl li div.dropdown-menu a:hover {
+    color: #004C6A;
+    background-color: #CEEEE9;
+}
+
 .header-wl {
     margin-top: 30px;
     text-align: center;
@@ -285,6 +331,11 @@ a.no-underline:hover {
     margin: 0;
 }
 
+.wl-checkbox {
+    height: 20px;
+    margin-top: 10px;
+}
+
 .variant-display-item {
     height: 24px;
     margin-top: auto;
@@ -323,4 +374,8 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
 
 .wl-striped1 {
     background: #336F8730;
+}
+
+.pl-125 {
+    padding-left: 1.25rem;
 }

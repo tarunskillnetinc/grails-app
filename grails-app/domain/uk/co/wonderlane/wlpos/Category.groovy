@@ -20,6 +20,8 @@ class Category {
         shortDescription column: "shortDescription"
         retailerCategoryCode column: "retailerCategoryCode"
         restrictions column: "restrictionsId"
+
+        sort "description"
     }
 
     static constraints = {

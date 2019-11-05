@@ -28,6 +28,10 @@ class ProductService extends MySqlDal {
         return Product.get(id)
     }
 
+    def populateCurrentProductData(def product) {
+        product.currentProductData = product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date() }
+    }
+
     def searchProductsNew(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         Map<Integer, uk.co.wonderlane.wlpos.entities.Product> products = new LinkedHashMap<>()
 

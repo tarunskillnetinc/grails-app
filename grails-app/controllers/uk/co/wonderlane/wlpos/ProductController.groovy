@@ -30,7 +30,8 @@ class ProductController {
 
     def maintenance() {
         def product = productService.getProduct(Integer.parseInt(params.productId))
-        //productService.populateCurrentProductData(product)
+
+
 
         render(view: "maintenance", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
@@ -42,9 +43,13 @@ class ProductController {
 
     def add() {
         def product = new Product()
+
+        def variant = new ProductVariant(storeId: springSecurityService.principal.storeId)
+        variant.addToBarcodes(new Barcode(effectiveDate: new Date(), recordStatus: (char)'C'))
+        product.addToVariants(variant)
         product.restrictions = new Restrictions()
 
-        ProductData productData = new ProductData(storeId: springSecurityService.principal.storeId,  effectiveDate: new Date())
+        ProductData productData = new ProductData(storeId: springSecurityService.principal.storeId, effectiveDate: new Date())
         product.addToProductDatas(productData)
 
         render(view: "maintenance", model: [product: product,
@@ -78,7 +83,7 @@ class ProductController {
 
     def save(Product product) {
         boolean newProduct
-        if(product) {
+        if (product) {
             newProduct = false
         }  else {
             newProduct = true
@@ -87,14 +92,18 @@ class ProductController {
         if (newProduct) {
             product = new Product()
             product.retailerId = springSecurityService.principal.retailerId
+
             ProductData productData = new ProductData(storeId: springSecurityService.principal.storeId,
                                                         effectiveDate: new Date(),
                                                         createdDatetime: new Date(),
                                                         createdUserId: 0,
                                                         updateDatetime: new Date(),
                                                         updatedUserId: 0)
+
             product.addToProductDatas(productData)
+
             bindData(product, params)
+
             product.productDatas.get(0).retailPrice = (params.retailPrice.equals("") ? null : new BigDecimal(params.retailPrice))
             product.productDatas.get(0).costPrice = (params.costPrice.equals("") ? null : new BigDecimal(params.costPrice))
             product.retailerProductId = 0
@@ -112,21 +121,32 @@ class ProductController {
             product = baseProduct
         }
 
+        if (product.variants == null || product.variants.size() == 0) {
+            ProductVariant variant = new ProductVariant()
+            variant.itemCode = product.itemCode ?: ""
+            variant.storeId = springSecurityService.principal.storeId
 
-        List<ProductVariant> variants = product.variants.collect()
-        for (ProductVariant variant : variants) {
+            product.addToVariants(variant)
+        }
+
+        for (ProductVariant variant : product.variants) {
             if (variant.storeId == springSecurityService.principal.storeId) {
                 List<Barcode> barcodes = variant.barcodes.collect()
                 if (variant.delete) {
                     for (Barcode barcode : barcodes) {
                         variant.removeFromBarcodes(barcode)
                     }
+
                     product.removeFromVariants(variant)
                 } else {
                     for (Barcode barcode : barcodes) {
                         if (barcode.delete) {
                             variant.removeFromBarcodes(barcode)
                         }
+                    }
+
+                    if ((variant.itemCode == null || variant.itemCode?.isEmpty() || variant.itemCode?.isAllWhitespace()) && (!product.itemCode?.isEmpty() || !product.itemCode?.isAllWhitespace())) {
+                        variant.itemCode = product.itemCode
                     }
                 }
             }
@@ -198,7 +218,7 @@ class ProductController {
 
     def addVariant(Product product) {
         boolean newProduct
-        if(product) {
+        if (product) {
             newProduct = false
         }  else {
             newProduct = true
@@ -269,7 +289,7 @@ class ProductController {
 
     def deleteVariants(Product product) {
         boolean newProduct
-        if(product) {
+        if (product) {
             newProduct = false
         }  else {
             newProduct = true
@@ -299,8 +319,8 @@ class ProductController {
         List<ProductVariant> variants = product.variants.collect()
         List<Integer> removals = new ArrayList<>()
 
-        for (int i = variants.size(); i > -1; i--) {
-            if (params."variants[${i}].selected" as boolean) {
+        for (int i = 0 ; i < variants.size() ; i++) {
+            if (Boolean.parseBoolean(params."variants[${i}].selected")) {
                 removals.add(i)
             }
         }
@@ -379,7 +399,7 @@ class ProductController {
 
     def deleteBarcodes(Product product) {
         boolean newProduct
-        if(product) {
+        if (product) {
             newProduct = false
         }  else {
             newProduct = true
@@ -406,20 +426,22 @@ class ProductController {
             product = baseProduct
         }
 
-        List<Barcode> barcodes = product.variants.get(Integer.parseInt(params.relevantVariant)).barcodes.collect()
-        List<Integer> removals = new ArrayList<>()
+        for (int i = 0 ; i < product.variants.size() ; i++) {
+            Iterator<Barcode> barcodeIterator = product.variants[i].barcodes.listIterator()
 
-        for (int i = barcodes.size(); i > -1; i--) {
-            if (params."variants[${params.relevantVariant}].barcodes[${i}].selected" as boolean) {
-                removals.add(i)
-            }
-        }
+            int j = 0
+            while (barcodeIterator.hasNext()) {
+                Barcode barcode = barcodeIterator.next()
 
-        for (Integer i in removals) {
-            if (product.variants.get(Integer.parseInt(params.relevantVariant)).barcodes.get(i).id != 0) {
-                product.variants.get(Integer.parseInt(params.relevantVariant)).barcodes.get(i).delete = true
-            } else {
-                product.variants.get(Integer.parseInt(params.relevantVariant)).barcodes.removeAt(i)
+                if (Boolean.parseBoolean(params."variants[${i}].barcodes[${j}].selected")) {
+                    if (barcode.id != 0) {
+                        barcode.delete = true
+                    } else {
+                        barcodeIterator.remove()
+                    }
+                }
+
+                j++
             }
         }
 
