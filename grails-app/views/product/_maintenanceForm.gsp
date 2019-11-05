@@ -146,14 +146,16 @@
                         </div>
                         <div class="col-3">
                             <g:each in="${variant.barcodes}" var="barcode" status="j">
-                                <div class="form-group ${barcode.delete ? "d-none" : ""}">
+                                <div class="input-group form-group ${barcode.delete ? "d-none" : ""}">
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].effectiveDate" value="${barcode.effectiveDate.format('yyyy-MM-dd')}"/>
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].recordStatus" value="${barcode.recordStatus}"/>
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].delete" value="${barcode.delete}"/>
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].selected" value="false" />
 
                                     <g:textField name="variants[${i}].barcodes[${j}].barcode" value="${barcode.barcode}" class="form-control bottom-border" />
-                                    <g:actionSubmitImage value=" " src="bin.png" action="deleteBarcodes" class="button btn-danger m-auto" onclick="document.getElementById('variants[${i}].barcodes[${j}].selected').value = true;" />
+                                    <div class="input-group-append">
+                                        <g:actionSubmitImage value="Sum" src="${resource(dir: 'images', file: 'bin.png')}" action="deleteBarcodes" style="height: 30px;" class="m-auto" onclick="document.getElementById('variants[${i}].barcodes[${j}].selected').value = true;" />
+                                    </div>
                                 </div>
                             </g:each>
                         </div>

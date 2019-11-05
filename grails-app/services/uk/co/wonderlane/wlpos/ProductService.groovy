@@ -10,6 +10,7 @@ import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.sql.Types
 
 @Transactional
 class ProductService extends MySqlDal {
@@ -36,18 +37,20 @@ class ProductService extends MySqlDal {
         Map<Integer, uk.co.wonderlane.wlpos.entities.Product> products = new LinkedHashMap<>()
 
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call searchProducts(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call searchProducts(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             cstmt.setInt(1, springSecurityService.principal.retailerId)
             cstmt.setInt(2, springSecurityService.principal.storeId)
             cstmt.setString(3, searchTerm ?: "")
             cstmt.setString(4, searchBy ?: "everything")
-            cstmt.setInt(5, maxResults)
-            cstmt.setInt(6, startIndex)
-            cstmt.setString(7, sortColumn ?: "id")
-            cstmt.setString(8, sortOrder ?: "asc")
-            cstmt.setString(9, new Date().format(DATE_TIME_FORMAT))
+            cstmt.setNull(5, Types.INTEGER)
+            cstmt.setNull(6, Types.INTEGER)
+            cstmt.setInt(7, maxResults)
+            cstmt.setInt(8, startIndex)
+            cstmt.setString(9, sortColumn ?: "id")
+            cstmt.setString(10, sortOrder ?: "asc")
+            cstmt.setString(11, new Date().format(DATE_TIME_FORMAT))
 
             // Read in our VAT codes.
             Map<Integer, uk.co.wonderlane.wlpos.entities.VatCode> vatCodes = new HashMap<>()
