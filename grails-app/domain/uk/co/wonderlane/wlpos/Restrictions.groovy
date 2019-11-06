@@ -40,7 +40,9 @@ class Restrictions {
 
     static constraints = {
         minOpenPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2
-        maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank:false, nullable: false, scale: 2
+        maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2, validator: {val, obj ->
+            return val != null && obj.minOpenPrice != null && val.compareTo(obj.minOpenPrice) > 0 ? true : ["error.Restrictions.maxMoreThanMin"]
+        }
         buyerAgeRestriction min: 1, max: 25, blank: true, nullable: true
         buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
         sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true
