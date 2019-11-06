@@ -21,7 +21,7 @@
 <body>
     <div class="align-items-center topbar d-flex">
         <div class="col-12 col-sm-2">
-            <g:link url="/">
+            <g:link uri="/">
                 <asset:image src="wl_logo_transparent.png" class="topbar-logo" />
             </g:link>
         </div>
@@ -51,13 +51,13 @@
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
                     <li class="nav-item">
-                        <g:link url="/" class="nav-link">Home</g:link>
+                        <g:link uri="/" class="nav-link">Home</g:link>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
                     <li class="nav-item">
-                        <g:link url="/" class="nav-link">User Management</g:link>
+                        <g:link uri="/" class="nav-link">User Management</g:link>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
@@ -72,7 +72,7 @@
         </nav>
     </sec:ifLoggedIn>
 
-    <g:layoutBody/>
+    <g:layoutBody />
 
     <div id="spinner" class="spinner" style="display:none;">
         <g:message code="spinner.alt" default="Loading&hellip;"/>
