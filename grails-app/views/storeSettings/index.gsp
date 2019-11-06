@@ -45,28 +45,28 @@
             <div class="tab-pane fade show active" id="storeSettings" role="tabpanel" aria-labelledby="storeSettings-tab">
                 <div class="col-12 col-md-6 offset-md-3">
                     <div class="form-group row margin-top-2rem">
-                        <label for="receiptMessage1" class="col-5 col-lg-3 col-form-label">Receipt line 1</label>
+                        <label for="receiptMessage1" class="col-5 col-lg-3 col-form-label">Receipt Line 1</label>
                         <div class="col-7 col-lg-8 col-xl-6">
                             <g:textField name="receiptMessage1" maxlength="100" value="${storeSettings?.receiptMessage1}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="receiptMessage2" class="col-5 col-lg-3 col-form-label">Receipt line 2</label>
+                        <label for="receiptMessage2" class="col-5 col-lg-3 col-form-label">Receipt Line 2</label>
                         <div class="col-7 col-lg-8 col-xl-6">
                             <g:textField name="receiptMessage2" maxlength="100" value="${storeSettings?.receiptMessage2}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="vatRegistrationNumber" class="col-5 col-lg-3 col-form-label">VAT reg. number</label>
+                        <label for="vatRegistrationNumber" class="col-5 col-lg-3 col-form-label">VAT Reg. Number</label>
                         <div class="col-7 col-lg-6 col-xl-4">
                             <g:textField name="vatRegistrationNumber" maxlength="45" value="${storeSettings?.vatRegistrationNumber}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="printReceiptOption" class="col-5 col-lg-3 col-form-label">Receipt print option</label>
+                        <label for="printReceiptOption" class="col-5 col-lg-3 col-form-label">Receipt Print Option</label>
                         <div class="col-7 col-lg-6 col-xl-4">
                             <g:select name="printReceiptOption" from="${availablePrintReceiptOptions}" value="${storeSettings?.printReceiptOption}" valueMessagePrefix="PrintReceiptOption" class="form-control select-border" />
                         </div>
@@ -122,35 +122,35 @@
             <div class="tab-pane fade show" id="contactInformation" role="tabpanel" aria-labelledby="contactInformation-tab">
                 <div class="col-12 col-md-6 offset-md-3">
                     <div class="form-group row margin-top-2rem">
-                        <label for="storeName" class="col-5 col-lg-3 col-form-label">Store name</label>
+                        <label for="storeName" class="col-5 col-lg-3 col-form-label">Store Name</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="storeName" maxlength="45" value="${storeSettings?.storeName}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressBuildingNumberOrName" class="col-5 col-lg-3 col-form-label">Building name / number</label>
+                        <label for="addressBuildingNumberOrName" class="col-5 col-lg-3 col-form-label">Building Name / Number</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="addressBuildingNumberOrName" maxlength="45" value="${storeSettings?.addressBuildingNumberOrName}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressLine1" class="col-5 col-lg-3 col-form-label">Address line 1</label>
+                        <label for="addressLine1" class="col-5 col-lg-3 col-form-label">Address Line 1</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="addressLine1" maxlength="45" value="${storeSettings?.addressLine1}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressLine2" class="col-5 col-lg-3 col-form-label">Address line 2</label>
+                        <label for="addressLine2" class="col-5 col-lg-3 col-form-label">Address Line 2</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="addressLine2" maxlength="45" value="${storeSettings?.addressLine2}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressTown" class="col-5 col-lg-3 col-form-label">Town / city</label>
+                        <label for="addressTown" class="col-5 col-lg-3 col-form-label">Town / City</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="addressTown" maxlength="45" value="${storeSettings?.addressTown}" class="form-control bottom-border" />
                         </div>
@@ -171,14 +171,14 @@
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressPostCode" class="col-5 col-lg-3 col-form-label">Post code</label>
+                        <label for="addressPostCode" class="col-5 col-lg-3 col-form-label">Post Code</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="addressPostCode" maxlength="45" value="${storeSettings?.addressPostCode}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="phoneNumber" class="col-5 col-lg-3 col-form-label">Phone number</label>
+                        <label for="phoneNumber" class="col-5 col-lg-3 col-form-label">Phone Number</label>
                         <div class="col-7 col-lg-6">
                             <g:textField name="phoneNumber" maxlength="45" value="${storeSettings?.phoneNumber}" class="form-control bottom-border" />
                         </div>
