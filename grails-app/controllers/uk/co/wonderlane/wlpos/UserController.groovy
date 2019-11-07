@@ -75,7 +75,10 @@ class SaveUserCommand {
         importFrom User
 
         confirmPassword blank: false, nullable: false, validator: { val, obj ->
-            return val == obj.password ? true : ["error.User.passwordsDoNotMatch"]
+            return (val == obj.password) ? true : ["error.User.passwordsDoNotMatch"]
+        }
+        dateOfBirth validator: { val, obj ->
+            return (val >= new Date()) ? ["error.User.dateOfBirthInFuture"] : true
         }
     }
 }
