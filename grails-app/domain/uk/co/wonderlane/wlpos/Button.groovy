@@ -4,8 +4,6 @@ import uk.co.wonderlane.wlpos.enums.ButtonType
 import uk.co.wonderlane.wlpos.enums.ProcessType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
-import javax.annotation.Resource
-
 class Button {
 
     def springSecurityService

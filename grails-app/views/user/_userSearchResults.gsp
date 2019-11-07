@@ -1,0 +1,16 @@
+<g:if test="${!users || users?.size() == 0}">
+    <tr id="noResultsRow"><td colspan="7" style="text-align: center;">No results found.</td></tr>
+</g:if>
+
+<g:each in="${users}" var="user" status="i">
+    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'view', id: user.id)}';">
+        <div class="col-2">${user.id}</div>
+        <div class="col-4">${user.username}</div>
+        <div class="col-4">${user.name}</div>
+        <div class="col-2">${user.dateOfBirth?.format("dd/MM/yyyy")}</div>
+    </div>
+</g:each>
+
+<div class="my-3 text-right">
+    <util:remotePaginate action="ajaxGetUsers" total="${users?.totalCount ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" />
+</div>

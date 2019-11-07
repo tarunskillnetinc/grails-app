@@ -31,7 +31,7 @@
                     </tr>
                     </thead>
                     <tbody id="productSearchResults">
-                    <g:render template="/product/productSearchResults" model="${[ products: products ]}" />
+                        <g:render template="/product/productSearchResults" model="${[ products: products ]}" />
                     </tbody>
                 </table>
 

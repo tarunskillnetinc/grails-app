@@ -4,6 +4,8 @@ import uk.co.wonderlane.wlpos.enums.Role
 
 class User {
 
+    def springSecurityService
+
     int id
     int retailerId
     String username
@@ -17,7 +19,13 @@ class User {
     Role role
     String retailerUserId
 
+    // Constructor required for dependency injection (ie, to make springSecurityService work).
+    public User() {
+
+    }
+
     static mapping = {
+        autowire true
         table "user"
         version false
 
@@ -46,5 +54,15 @@ class User {
         securityKey nullable: true, maxSize: 50
         role nullable: false
         retailerUserId nullable: true, maxSize: 30
+    }
+
+    def beforeInsert() {
+        password = springSecurityService.encodePassword(password)
+    }
+
+    def beforeUpdate() {
+        if (isDirty("password")) {
+            password = springSecurityService.encodePassword(password)
+        }
     }
 }

@@ -57,7 +57,7 @@
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
                     <li class="nav-item">
-                        <g:link uri="/" class="nav-link">User Management</g:link>
+                        <g:link controller="user" class="nav-link">User Management</g:link>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
