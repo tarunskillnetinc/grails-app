@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.Role
 
 class User {
@@ -64,5 +65,23 @@ class User {
         if (isDirty("password")) {
             password = springSecurityService.encodePassword(password)
         }
+    }
+
+    public uk.co.wonderlane.wlpos.entities.User getUser() {
+        uk.co.wonderlane.wlpos.entities.User user = new uk.co.wonderlane.wlpos.entities.User()
+
+        user.setId(id)
+        user.setUsername(username)
+        user.setPassword(password)
+        user.setDefaultStoreId(defaultStoreId)
+        user.setName(name)
+        user.setDateOfBirth(new DateTime(dateOfBirth))
+        user.setActive(active)
+        user.setAgeRelatedSaleAllowed(ageRelatedSaleAllowed)
+        user.setSecurityKey(securityKey)
+        user.setRole(role)
+        user.setRetailerUserId(retailerUserId)
+
+        return user
     }
 }
