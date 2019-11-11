@@ -29,7 +29,7 @@ class WellAuthenticationProvider extends DaoAuthenticationProvider {
             throw new BadCredentialsException(messages.getMessage("WellAuthenticationProvider.badStoreId", "Store number not recognised."))
         }
 
-        // Add the store ID to our user details object.
+        // Add the store number to our user details object.
         if (userDetails instanceof WellUserDetails) {
             ((WellUserDetails)userDetails).storeId = Integer.parseInt(wellAuthenticationDetails.storeId)
         }

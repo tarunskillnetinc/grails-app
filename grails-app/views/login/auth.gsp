@@ -18,7 +18,7 @@
                 </div>
 
                 <div class="form-group row mt-4">
-                    <label for="storeId" class="col-5 col-md-3 offset-md-1 col-form-label text-right">Store number</label>
+                    <label for="storeId" class="col-5 col-md-3 offset-md-1 col-form-label text-right">Store Number</label>
                     <div class="col-7 col-md-5">
                         <input type="number" class="text_ form-control bottom-border no-number-arrows" max="9999999999" maxlength="10" name="storeId" id="storeId" />
                     </div>
