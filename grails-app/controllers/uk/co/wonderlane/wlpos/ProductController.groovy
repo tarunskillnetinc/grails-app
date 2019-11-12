@@ -110,12 +110,17 @@ class ProductController {
         } else {
             Product baseProduct = Product.findById(product.id)
 
-            baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
-                it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
-            }.retailPrice = new BigDecimal(params.retailPrice)
-            baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
-                it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
-            }.costPrice = new BigDecimal(params.costPrice)
+            if (params.retailPrice) {
+                baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
+                    it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
+                }.retailPrice = new BigDecimal(params.retailPrice)
+            }
+
+            if (params.costPrice) {
+                baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
+                    it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
+                }.costPrice = new BigDecimal(params.costPrice)
+            }
 
             baseProduct.properties = product.properties as BindingResult
             product = baseProduct
@@ -359,12 +364,17 @@ class ProductController {
         } else {
             Product baseProduct = Product.findById(product.id)
 
-            baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
-                it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
-            }.retailPrice = new BigDecimal(params.retailPrice)
-            baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
-                it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
-            }.costPrice = new BigDecimal(params.costPrice)
+            if (params.retailPrice) {
+                baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
+                    it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
+                }.retailPrice = new BigDecimal(params.retailPrice)
+            }
+
+            if (params.costPrice) {
+                baseProduct.productDatas.sort { it.effectiveDate }.reverse().find {
+                    it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date()
+                }.costPrice = new BigDecimal(params.costPrice)
+            }
 
             baseProduct.properties = product.properties as BindingResult
             product = baseProduct
