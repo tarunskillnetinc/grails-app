@@ -62,7 +62,7 @@
 
                     <div class="input-group-append">
                         <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
-                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="searchButtonClicked()" class="product-search-button" />
+                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="searchButtonClicked()" class="wl-search-button" />
                     </div>
                 </div>
 
