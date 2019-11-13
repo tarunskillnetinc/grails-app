@@ -45,14 +45,14 @@ class User {
     }
 
     static constraints = {
-        username nullable: false, blank: false, maxSize: 40
-        password nullable: false, blank: false, maxSize: 60
+        username nullable: false, blank: false, minSize: 3, maxSize: 40
+        password nullable: false, blank: false, minSize: 5, maxSize: 60
         defaultStoreId nullable: false
         name nullable: true, maxSize: 50
         dateOfBirth nullable: true
         active nullable: false
         ageRelatedSaleAllowed nullable: true
-        securityKey nullable: true, maxSize: 50
+        securityKey nullable: true, minSize: 8, maxSize: 50
         role nullable: false
         retailerUserId nullable: true, maxSize: 30
     }
