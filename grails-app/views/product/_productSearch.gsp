@@ -14,7 +14,7 @@
                     </div>
 
                     <div class="col-2">
-                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" data-url="${createLink(controller:'product', action:'search')}" class="product-search-button" />
+                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" data-url="${createLink(controller:'product', action:'search')}" class="wl-search-button" />
                     </div>
                 </div>
 

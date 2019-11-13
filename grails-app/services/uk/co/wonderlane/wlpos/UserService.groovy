@@ -7,9 +7,13 @@ class UserService {
 
     def springSecurityService
 
-    def getUsers(int offset, int max) {
+    def getUsers(String searchTerm, int offset, int max) {
         return User.createCriteria().list([offset: offset, max: max]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
+            or {
+                like ("username", "%$searchTerm%")
+                like ("name", "%$searchTerm%")
+            }
         }
     }
 

@@ -25,11 +25,11 @@ class UserController {
     def userService
 
     def index() {
-        [users: userService.getUsers(0, 50)]
+        [users: userService.getUsers("", 0, 50), searchTerm: ""]
     }
 
-    def ajaxGetUsers(int offset, int max) {
-        render (template: "userSearchResults", model: [users: userService.getUsers(offset, max)])
+    def ajaxGetUsers(String searchTerm, int offset, int max) {
+        render (template: "userSearchResults", model: [users: userService.getUsers(searchTerm, offset, max), searchTerm: searchTerm])
     }
 
     def add() {

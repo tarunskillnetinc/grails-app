@@ -297,17 +297,17 @@ a.no-underline:hover {
     padding-right: 0px;
 }
 
-.product-search-button {
+.wl-search-button {
     cursor: pointer;
     background-color: #004C6A;
     height: calc(1.5em + 0.75rem + 2px);
 }
 
-.product-search-button:hover {
+.wl-search-button:hover {
     background-color: #336F87;
 }
 
-.product-search-button:active {
+.wl-search-button:active {
     box-shadow: 0 0 0 0.2rem rgba(0, 76, 106, 0.5);
 }
 
