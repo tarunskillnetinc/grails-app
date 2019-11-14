@@ -24,8 +24,8 @@
         <g:hiddenField name="retailerId" value="${storeSettings?.retailerId}" />
         <g:hiddenField name="storeId" value="${storeSettings?.storeId}" />
 
-        <div class="col-12 col-sm-6 offset-sm-3">
-            <ul class="nav nav-pills nav-fill pills-wl sub-pills" role="tablist">
+        <div class="col-12 col-sm-8 offset-sm-2 mt-5">
+            <ul class="nav nav-tabs nav-fill tabs-wl" role="tablist">
                 <li class="nav-item">
                     <a id="storeSettings-tab" data-toggle="tab" href="#storeSettings" aria-selected="true" role="tab" aria-controls="storeSettings" class="nav-link active">Store Settings</a>
                 </li>
@@ -43,46 +43,46 @@
         <div class="tab-content" style="margin-top: 50px;">
             <!-- Store Settings -->
             <div class="tab-pane fade show active" id="storeSettings" role="tabpanel" aria-labelledby="storeSettings-tab">
-                <div class="col-12 col-md-6 offset-md-3">
+                <div class="col-12">
                     <div class="form-group row margin-top-2rem">
-                        <label for="receiptMessage1" class="col-5 col-lg-3 col-form-label">Receipt Line 1</label>
-                        <div class="col-7 col-lg-8 col-xl-6">
+                        <label for="receiptMessage1" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Receipt Line 1</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="receiptMessage1" maxlength="100" value="${storeSettings?.receiptMessage1}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="receiptMessage2" class="col-5 col-lg-3 col-form-label">Receipt Line 2</label>
-                        <div class="col-7 col-lg-8 col-xl-6">
+                        <label for="receiptMessage2" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Receipt Line 2</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="receiptMessage2" maxlength="100" value="${storeSettings?.receiptMessage2}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="vatRegistrationNumber" class="col-5 col-lg-3 col-form-label">VAT Reg. Number</label>
-                        <div class="col-7 col-lg-6 col-xl-4">
+                        <label for="vatRegistrationNumber" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">VAT Reg. Number</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="vatRegistrationNumber" maxlength="45" value="${storeSettings?.vatRegistrationNumber}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="printReceiptOption" class="col-5 col-lg-3 col-form-label">Receipt Print Option</label>
-                        <div class="col-7 col-lg-6 col-xl-4">
+                        <label for="printReceiptOption" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Receipt Print Option</label>
+                        <div class="col-7 col-lg-2">
                             <g:select name="printReceiptOption" from="${availablePrintReceiptOptions}" value="${storeSettings?.printReceiptOption}" valueMessagePrefix="PrintReceiptOption" class="form-control select-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="quantityPromptThreshold" class="col-4 col-lg-3 col-form-label">Quantity Prompt Threshold</label>
-                        <div class="col-8 col-lg-4 col-xl-3">
+                        <label for="quantityPromptThreshold" class="col-4 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Quantity Prompt Threshold</label>
+                        <div class="col-8 col-lg-2">
                             <g:field type="number" min="0" max="9999" maxlength="3" name="quantityPromptThreshold" value="${storeSettings?.quantityPromptThreshold}" class="form-control bottom-border" />
                         </div>
                         <small id="quantityPromptHelp" class="form-text text-muted">Selling this quantity of any item will trigger a confirmation prompt.</small>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="valuePromptThreshold" class="col-4 col-lg-3 col-form-label">Price Change Value Prompt Threshold</label>
-                        <div class="col-8 col-lg-4 col-xl-3">
+                        <label for="valuePromptThreshold" class="col-4 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Price Change Value Prompt Threshold</label>
+                        <div class="col-8 col-lg-2">
                             <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="valuePromptThreshold" value="${storeSettings?.valuePromptThreshold}" class="form-control bottom-border" />
                         </div>
                         <small id="valuePromptHelp" class="form-text text-muted">Changing the price of any item by this value will trigger a confirmation prompt.</small>
@@ -92,9 +92,9 @@
 
             <!-- Inventory Management -->
             <div class="tab-pane fade show" id="inventoryManagement" role="tabpanel" aria-labelledby="inventoryManagement-tab">
-                <div class="col-12 col-md-6 offset-md-3">
+                <div class="col-12">
                     <div class="form-group row margin-top-2rem">
-                        <label for="varianceQuantity" class="col-5 col-lg-3 col-form-label">Variance Quantity Threshold</label>
+                        <label for="varianceQuantity" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Variance Quantity Threshold</label>
                         <div class="col-7 col-lg-4 col-xl-3">
                             <g:field type="number" min="0" max="9999" maxlength="3" name="varianceQuantity" value="${storeSettings?.varianceQuantity}" class="form-control bottom-border" />
                         </div>
@@ -102,7 +102,7 @@
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="varianceValue" class="col-5 col-lg-3 col-form-label">Variance Value Threshold</label>
+                        <label for="varianceValue" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Variance Value Threshold</label>
                         <div class="col-7 col-lg-4 col-xl-3">
                             <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="varianceValue" value="${storeSettings?.varianceValue}" class="form-control bottom-border" />
                         </div>
@@ -110,7 +110,7 @@
                     </div>
 
                     <div class="form-group form-check row margin-top-2rem">
-                        <div class="col-12 col-lg-9 offset-lg-3">
+                        <div class="col-12 col-lg-8 offset-lg-4">
                             <g:checkBox name="pickListForceZeroCount" value="${storeSettings?.pickListForceZeroCount}" class="form-check-input" />
                             <label class="form-check-label" for="pickListForceZeroCount">Force users to count items in a pick list which have zero quantity in stock.</label>
                         </div>
@@ -120,66 +120,66 @@
 
             <!-- Contact Information -->
             <div class="tab-pane fade show" id="contactInformation" role="tabpanel" aria-labelledby="contactInformation-tab">
-                <div class="col-12 col-md-6 offset-md-3">
+                <div class="col-12">
                     <div class="form-group row margin-top-2rem">
-                        <label for="storeName" class="col-5 col-lg-3 col-form-label">Store Name</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="storeName" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Store Name</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="storeName" maxlength="45" value="${storeSettings?.storeName}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressBuildingNumberOrName" class="col-5 col-lg-3 col-form-label">Building Name / Number</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressBuildingNumberOrName" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Building Name / Number</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressBuildingNumberOrName" maxlength="45" value="${storeSettings?.addressBuildingNumberOrName}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressLine1" class="col-5 col-lg-3 col-form-label">Address Line 1</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressLine1" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Address Line 1</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressLine1" maxlength="45" value="${storeSettings?.addressLine1}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressLine2" class="col-5 col-lg-3 col-form-label">Address Line 2</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressLine2" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Address Line 2</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressLine2" maxlength="45" value="${storeSettings?.addressLine2}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressTown" class="col-5 col-lg-3 col-form-label">Town / City</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressTown" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Town / City</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressTown" maxlength="45" value="${storeSettings?.addressTown}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressCounty" class="col-5 col-lg-3 col-form-label">County</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressCounty" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">County</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressCounty" maxlength="45" value="${storeSettings?.addressCounty}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressCountry" class="col-5 col-lg-3 col-form-label">Country</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressCountry" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Country</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressCountry" maxlength="45" value="${storeSettings?.addressCountry}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="addressPostCode" class="col-5 col-lg-3 col-form-label">Post Code</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="addressPostCode" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Post Code</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="addressPostCode" maxlength="45" value="${storeSettings?.addressPostCode}" class="form-control bottom-border" />
                         </div>
                     </div>
 
                     <div class="form-group row margin-top-2rem">
-                        <label for="phoneNumber" class="col-5 col-lg-3 col-form-label">Phone Number</label>
-                        <div class="col-7 col-lg-6">
+                        <label for="phoneNumber" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Phone Number</label>
+                        <div class="col-7 col-lg-4">
                             <g:textField name="phoneNumber" maxlength="45" value="${storeSettings?.phoneNumber}" class="form-control bottom-border" />
                         </div>
                     </div>
@@ -188,8 +188,8 @@
         </div>
 
         <div class="form-group row margin-top-2rem">
-            <div class="col-12 col-md-6 offset-md-3">
-                <div class="col-6 col-md-5 offset-md-3">
+            <div class="col-12">
+                <div class="col-6 col-md-5 offset-md-4">
                     <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 
                     <g:submitButton class="btn btn-success" name="save" value="Save" />

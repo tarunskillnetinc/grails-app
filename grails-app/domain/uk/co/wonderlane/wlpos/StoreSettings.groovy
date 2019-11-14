@@ -86,9 +86,9 @@ class StoreSettings {
         phoneNumber nullable: true, maxSize: 45
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
-        valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: new BigDecimal(9999.99)
+        valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
         varianceQuantity nullable: true, min: 1, max: 999
-        varianceValue nullable:true, min: BigDecimal.ONE, max: new BigDecimal(9999.99)
+        varianceValue nullable:true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         createdDatetime nullable: true
         createdUserId nullable: true
