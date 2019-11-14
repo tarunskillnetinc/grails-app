@@ -17,6 +17,22 @@
                     vatPercentageOverride.attr("readonly", vatCode !== 'O');
                     vatPercentageOverride.val("0.00");
                 });
+
+                $("#openPrice").change(function() {
+                    $("#restrictions\\.minOpenPrice").attr("readonly", !this.checked);
+                    $("#restrictions\\.maxOpenPrice").attr("readonly", !this.checked);
+                });
+
+                $("#restrictions\\.buyerIdRequired").change(function() {
+                    $("#restrictions\\.buyerIdForced").prop("checked", false);
+                    $("#restrictions\\.buyerIdForced").attr("disabled", !this.checked);
+                    $("#restrictions\\.buyerAgeRestriction").val("");
+                    $("#restrictions\\.buyerAgeRestriction").attr("readonly", !this.checked);
+                    $("#restrictions\\.buyerChallengeAge").val("");
+                    $("#restrictions\\.buyerChallengeAge").attr("readonly", !this.checked);
+                    $("#restrictions\\.sellerAgeRestriction").val("");
+                    $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
+                });
             });
         </script>
     </head>

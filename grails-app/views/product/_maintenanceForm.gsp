@@ -201,7 +201,7 @@
                 <div class="col-12 col-md-6">
                     <div class="row mt-1 form-group form-check">
                         <label for="restrictions.buyerIdForced" class="col-6 col-form-label text-right pr-4">ID Check Forced</label>
-                        <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.buyerIdForced}"/>
+                        <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.buyerIdForced}" disabled="${!product.restrictions.buyerIdRequired}" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -216,7 +216,7 @@
                 <div class="col-12 col-md-6">
                     <div class="row mt-1 form-group pl-125">
                         <label for="restrictions.buyerAgeRestriction" class="col-6 col-form-label text-right pr-4">Customer Age Required</label>
-                        <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product.restrictions.buyerAgeRestriction}" class="col-2 form-control bottom-border"/>
+                        <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product.restrictions.buyerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product.restrictions.buyerIdRequired}" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -231,13 +231,13 @@
                 <div class="col-12 col-md-6">
                     <div class="row mt-1 form-group pl-125">
                         <label for="restrictions.buyerChallengeAge" class="col-6 col-form-label text-right pr-4">Customer Challenge Age</label>
-                        <g:field name="restrictions.buyerChallengeAge" type="number" value="${product.restrictions.buyerChallengeAge}" class="col-2 form-control bottom-border"/>
+                        <g:field name="restrictions.buyerChallengeAge" type="number" value="${product.restrictions.buyerChallengeAge}" class="col-2 form-control bottom-border" readonly="${!product.restrictions.buyerIdRequired}" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="mt-1 form-group form-check">
                         <label for="restrictions.creditPaymentAllowed" class="col-6 col-form-label text-right pr-4">Allow Credit Payments</label>
-                        <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.creditPaymentAllowed}"/>
+                        <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.creditPaymentAllowed}" />
                     </div>
                 </div>
             </div>
@@ -246,7 +246,7 @@
                 <div class="col-12 col-md-6">
                     <div class="row mt-1 form-group pl-125">
                         <label for="restrictions.sellerAgeRestriction" class="col-6 col-form-label text-right pr-4">Operator Age Required</label>
-                        <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product.restrictions.sellerAgeRestriction}" class="col-2 form-control bottom-border"/>
+                        <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product.restrictions.sellerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product.restrictions.buyerIdRequired}" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -261,13 +261,13 @@
                 <div class="col-12 col-md-6">
                     <div class="row mt-1 form-group pl-125">
                         <label for="restrictions.minOpenPrice" class="col-6 col-form-label text-right pr-4">Min Open Price</label>
-                        <g:field name="restrictions.minOpenPrice" type="number" value="${product.restrictions.minOpenPrice ?: '0.01'}" class="col-3 form-control bottom-border" step="0.01"/>
+                        <g:field name="restrictions.minOpenPrice" type="number" value="${product.restrictions.minOpenPrice ?: '0.01'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product.openPrice}" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="mt-1 form-group form-check">
                         <label for="restrictions.quantityChangeForced" class="col-6 col-form-label text-right pr-4">Force Quantity Changes</label>
-                        <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.quantityChangeForced}"/>
+                        <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.quantityChangeForced}" />
                     </div>
                 </div>
             </div>
@@ -276,7 +276,7 @@
                 <div class="col-12 col-md-6">
                     <div class="row mt-1 form-group pl-125">
                         <label for="restrictions.maxOpenPrice" class="col-6 col-form-label text-right pr-4">Max Open Price</label>
-                        <g:field name="restrictions.maxOpenPrice" type="number" value="${product.restrictions.maxOpenPrice ?: '9999.99'}" class="col-3 form-control bottom-border" step="0.01" />
+                        <g:field name="restrictions.maxOpenPrice" type="number" value="${product.restrictions.maxOpenPrice ?: '9999.99'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product.openPrice}" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
