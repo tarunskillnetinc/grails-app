@@ -77,6 +77,7 @@ class Product {
         vatCode nullable: false
         status nullable: false
         category nullable: false
+        retailerProductId nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
