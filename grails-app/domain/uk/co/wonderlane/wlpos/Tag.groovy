@@ -4,6 +4,7 @@ class Tag {
 
     int id
     String description
+    boolean hidden
 
     static hasMany = [ products: Product ]
     static belongsTo = Product
@@ -13,6 +14,7 @@ class Tag {
         version false
 
         description column: "`description`"
+        hidden column: "hidden"
 
         products joinTable: [name: 'tagproduct', key: 'tagId', column: 'productId']
     }

@@ -151,6 +151,22 @@ p {
     background-color: #CEEEE9;
 }
 
+.collapsible-products .collapsed .if-not-collapsed {
+    display: none;
+}
+
+.collapsible-products .if-not-collapsed {
+    display: block;
+}
+
+.collapsible-products .collapsed .if-collapsed {
+    display: block;
+}
+
+.collapsible-products .if-collapsed {
+    display: none;
+}
+
 .header-wl {
     margin-top: 30px;
     text-align: center;
@@ -378,4 +394,23 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
 
 .pl-125 {
     padding-left: 1.25rem;
+}
+
+.promotion-products-container {
+    min-height: 20px;
+    background-color: whitesmoke;
+    border: 1px solid gainsboro;
+    border-radius: 4px;
+}
+.promotion-products-container.is-invalid {
+    min-height: 20px;
+    background-color: whitesmoke;
+    border: 1px solid crimson;
+    border-radius: 4px;
+}
+
+.promotion-product-container {
+    padding: 10px 10px 7px;
+    background-color: #bbbbbb;
+    border-radius: 5px;
 }
