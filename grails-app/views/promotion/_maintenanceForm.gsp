@@ -47,7 +47,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="bogof-startDatepicker">
-                            <g:textField name="bogof-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? new org.joda.time.DateTime(promotion.startDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime().toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="bogof-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -58,7 +58,7 @@
                     <div class="form-group row col-12 col-sm-6" id="bogof-endDate-container">
                         <label for="bogof-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="bogof-endDatepicker">
-                            <g:textField name="bogof-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ?  promotion.endDate ? false : true : false}" value="${promotion ?  promotion.endDate ? new org.joda.time.DateTime(promotion.endDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime(promotion.startDate).plusDays(7).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().plusDays(7).toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="bogof-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -147,9 +147,9 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
+                        <label for="xfory-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="xfory-startDatepicker">
-                            <g:textField name="xfory-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? new org.joda.time.DateTime(promotion.startDate).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="xfory-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -158,9 +158,9 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6" id="xfory-endDate-container">
-                        <label for="bogof-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
+                        <label for="xfory-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="xfory-endDatepicker">
-                            <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ?  promotion.endDate ? false : true : false}" value="${promotion ?  promotion.endDate ? new org.joda.time.DateTime(promotion.endDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime(promotion.startDate).plusDays(7).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().plusDays(7).toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -173,7 +173,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
                         <g:field type="number" name="xfory-retailerPromoId" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -290,7 +290,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="percentage-startDatepicker">
-                            <g:textField name="percentage-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? new org.joda.time.DateTime(promotion.startDate).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="percentage-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -301,7 +301,7 @@
                     <div class="form-group row col-12 col-sm-6" id="percentage-endDate-container">
                         <label for="percentage-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="percentage-endDatepicker">
-                            <g:textField name="percentage-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ?  promotion.endDate ? false : true : false}" value="${promotion ?  promotion.endDate ? new org.joda.time.DateTime(promotion.endDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime(promotion.startDate).plusDays(7).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().plusDays(7).toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="percentage-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -314,7 +314,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
                         <g:field type="number" name="percentage-retailerPromoId" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -404,7 +404,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="fixedAmount-startDatepicker">
-                            <g:textField name="fixedAmount-startDate" class="row form-control promo-startDate" required="true" value="${promotion ? new org.joda.time.DateTime(promotion.startDate).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="fixedAmount-startDate" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -415,7 +415,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="fixedAmount-endDatepicker">
-                            <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ?  promotion.endDate ? false : true : false}" value="${promotion ?  promotion.endDate ? new org.joda.time.DateTime(promotion.endDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime(promotion.startDate).plusDays(7).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().plusDays(7).toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -428,7 +428,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
                         <g:field type="number" name="fixedAmount-retailerPromoId" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -525,7 +525,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="fixedPrice-startDatepicker">
-                            <g:textField name="fixedPrice-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? new org.joda.time.DateTime(promotion.startDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime().toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="fixedPrice-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -536,7 +536,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="fixedPrice-endDatepicker">
-                            <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ?  promotion.endDate ? false : true : false}" value="${promotion ?  promotion.endDate ? new org.joda.time.DateTime(promotion.endDate).toString("EEEE dd MMMM yyyy") : new org.joda.time.DateTime(promotion.startDate).plusDays(7).toString("EEEE dd MMMM yyyy")  : new org.joda.time.DateTime().plusDays(7).toString("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -549,7 +549,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
                         <g:field type="number" name="fixedPrice-retailerPromoId" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
