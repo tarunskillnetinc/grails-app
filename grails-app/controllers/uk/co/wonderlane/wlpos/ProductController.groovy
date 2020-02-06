@@ -44,9 +44,6 @@ class ProductController {
     def add() {
         def product = new Product()
 
-        def variant = new ProductVariant(storeId: springSecurityService.principal.storeId)
-        variant.addToBarcodes(new Barcode(effectiveDate: new Date(), recordStatus: (char)'C'))
-        product.addToVariants(variant)
         product.restrictions = new Restrictions()
 
         ProductData productData = new ProductData(storeId: springSecurityService.principal.storeId, effectiveDate: new Date())
@@ -277,10 +274,10 @@ class ProductController {
         if (!found) {
             ProductVariant productVariant = new ProductVariant()
             productVariant.storeId = springSecurityService.principal.storeId
-            Barcode barcode = new Barcode()
-            barcode.effectiveDate = new Date()
-            barcode.recordStatus = 'C'
-            productVariant.addToBarcodes(barcode)
+//            Barcode barcode = new Barcode()
+//            barcode.effectiveDate = new Date()
+//            barcode.recordStatus = 'C'
+//            productVariant.addToBarcodes(barcode)
             product.addToVariants(productVariant)
         }
 

@@ -26,7 +26,7 @@
     <div class="row">
         <div class="form-group row col-6">
             <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
-            <g:textField name="unitSize" class="col-3 form-control bottom-border" value="${product.unitSize}"/>
+            <g:textField name="unitSize" class="col-3 form-control bottom-border" value="${product.unitSize ?: 'EACH'}"/>
         </div>
     </div>
     <div class="row">
@@ -171,7 +171,7 @@
             </g:each>
 
             <div class="row">
-                <g:actionSubmit value="+ Add Variant" controller="product" action="addVariant" class="offset-1 btn btn-wl" />
+                <g:actionSubmit value="+ Add Variant" controller="product" action="addVariant" class="offset-1 btn btn-wl mt-5" />
             </div>
 %{--                delete barcodes <g:actionSubmit value="Delete Selected" action="deleteBarcodes" class="button btn-danger m-auto" onclick="setRelevantVariant(${i})"/>--}%
         </div>

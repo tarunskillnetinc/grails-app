@@ -5,16 +5,6 @@ import uk.co.wonderlane.wlpos.interfaces.ILogging
 class BackOfficeLogger implements ILogging {
 
     @Override
-    void logInfo(String s, String s1) {
-
-    }
-
-    @Override
-    void logInfo(String s, String s1, String s2) {
-
-    }
-
-    @Override
     void logDebug(String s, String s1) {
 
     }
@@ -25,12 +15,12 @@ class BackOfficeLogger implements ILogging {
     }
 
     @Override
-    void logError(String s, String s1) {
+    void logInfo(String s, String s1) {
 
     }
 
     @Override
-    void logError(String s, String s1, String s2) {
+    void logInfo(String s, String s1, String s2) {
 
     }
 
@@ -45,12 +35,22 @@ class BackOfficeLogger implements ILogging {
     }
 
     @Override
-    void logException(String s, String s1, Exception e) {
+    void logError(String s, String s1) {
 
     }
 
     @Override
-    void logException(String s, String s1, String s2, Exception e) {
+    void logError(String s, String s1, String s2) {
+
+    }
+
+    @Override
+    void logException(String s, String s1, Throwable throwable) {
+
+    }
+
+    @Override
+    void logException(String s, String s1, Throwable throwable, String s2) {
 
     }
 }
