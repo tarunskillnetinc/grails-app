@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-version "1.2.0.4"
+version "1.3.1"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"eclipse"
@@ -61,7 +61,7 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     implementation 'mysql:mysql-connector-java:8.0.15'
-    implementation ('uk.co.wonderlane.wlpos:Common:1.2.0.4-SNAPSHOT')
+    implementation ('uk.co.wonderlane.wlpos:Common:1.3-SNAPSHOT')
     implementation 'joda-time:joda-time:2.10.1'
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
 }
@@ -72,7 +72,6 @@ bootRun {
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
 }
-
 
 assets {
     minifyJs = true
