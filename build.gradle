@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-version "1.3.1"
+version "1.3"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"eclipse"
