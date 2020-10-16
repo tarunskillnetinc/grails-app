@@ -155,22 +155,17 @@ class ProductController {
         }
 
         if (product.validate()) {
-            if (!product.save(failOnError:true, flush:true)) {
-                product.errors.allErrors.each {
-                    println(it)
-                }
-            } else {
-                flash.message = "Product saved successfully"
-            }
+            productService.saveProduct(product)
+            flash.message = "Product saved successfully"
         }
 
         if (!product.hasErrors()) {
             if (newProduct) {
                 product.productDatas.get(0).id = product.id
-                product.productDatas.get(0).save(failOnError: true, flush: true)
+                productService.saveProductData(product.productDatas.get(0))
             } else {
                 product.productDatas.each {
-                    it.save(failOnError: true, flush: true)
+                    productService.saveProductData(it)
                 }
             }
 

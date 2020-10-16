@@ -38,7 +38,7 @@
 
                 <div class="form-group row col-12 col-lg-6">
                     <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
-                    <g:textField name="dateOfBirth" class="col-5 form-control bottom-border" value="${user?.dateOfBirth ? user?.dateOfBirth?.format('dd/MM/yyyy') : null}" disabled="disabled" />
+                    <g:textField name="dateOfBirth" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:user?.dateOfBirth)}" disabled="disabled" />
                 </div>
 
                 <div class="form-group form-check row col-12 col-lg-6">

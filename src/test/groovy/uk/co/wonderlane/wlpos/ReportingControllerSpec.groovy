@@ -10,9 +10,4 @@ class ReportingControllerSpec extends Specification implements ControllerUnitTes
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }

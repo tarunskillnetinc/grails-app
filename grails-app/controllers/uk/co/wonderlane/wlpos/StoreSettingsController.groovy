@@ -8,6 +8,7 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 class StoreSettingsController {
 
     def springSecurityService
+    def storeSettingsService
 
     def index() {
         def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
@@ -24,7 +25,7 @@ class StoreSettingsController {
         storeSettings.storeId = springSecurityService.principal.storeId
 
         if (storeSettings.validate()) {
-            storeSettings.save(flush: true, failOnError: true)
+            storeSettingsService.saveStoreSettings(storeSettings)
 
             // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
             BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))

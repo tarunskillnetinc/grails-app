@@ -59,7 +59,7 @@ class UserController {
         if (saveUserCommand.validate()) {
             User user = saveUserCommand.id ? User.get(saveUserCommand.id) : new User()
             user.properties = saveUserCommand.properties
-            user.save(flush: true)
+            userService.saveUser(user)
 
             flash.message = "User saved successfully"
 

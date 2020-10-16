@@ -12,6 +12,7 @@ class ButtonController {
 
     def springSecurityService
     def productService
+    def buttonService
 
     def edit() {
         def button
@@ -64,7 +65,7 @@ class ButtonController {
                 }
 
                 button.buttonGrid.addToButtons(button)
-                button.buttonGrid.save(flush: true, failOnError: true)
+                buttonService.saveButtonGrid(button.buttonGrid)
 
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)

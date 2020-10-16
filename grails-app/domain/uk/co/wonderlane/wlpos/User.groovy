@@ -46,7 +46,7 @@ class User {
 
     static constraints = {
         username nullable: false, blank: false, minSize: 3, maxSize: 40
-        password nullable: false, blank: false, minSize: 5, maxSize: 60
+        password nullable: false, blank: false, password: true, minSize: 5, maxSize: 70
         defaultStoreId nullable: false
         name nullable: true, maxSize: 50
         dateOfBirth nullable: true
@@ -57,15 +57,15 @@ class User {
         retailerUserId nullable: true, maxSize: 30
     }
 
-    def beforeInsert() {
-        password = springSecurityService.encodePassword(password)
-    }
-
-    def beforeUpdate() {
-        if (isDirty("password")) {
-            password = springSecurityService.encodePassword(password)
-        }
-    }
+//    def beforeInsert() {
+//        password = springSecurityService.encodePassword(password)
+//    }
+//
+//    def beforeUpdate() {
+//        if (isDirty("password")) {
+//            password = springSecurityService.encodePassword(password)
+//        }
+//    }
 
     public uk.co.wonderlane.wlpos.entities.User getUser() {
         uk.co.wonderlane.wlpos.entities.User user = new uk.co.wonderlane.wlpos.entities.User()

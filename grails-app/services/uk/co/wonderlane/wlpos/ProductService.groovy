@@ -29,6 +29,14 @@ class ProductService extends MySqlDal {
         return Product.get(id)
     }
 
+    def saveProduct(Product product) {
+        product.save()
+    }
+
+    def saveProductData(ProductData productData) {
+        productData.save()
+    }
+
     def populateCurrentProductData(def product) {
         product.currentProductData = product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date() }
     }
@@ -50,7 +58,7 @@ class ProductService extends MySqlDal {
             cstmt.setInt(8, startIndex)
             cstmt.setString(9, sortColumn ?: "id")
             cstmt.setString(10, sortOrder ?: "asc")
-            cstmt.setString(11, new Date().format(DATE_TIME_FORMAT))
+            cstmt.setString(11, new DateTime().toString(DATE_TIME_FORMAT))
 
             // Read in our VAT codes.
             Map<Integer, uk.co.wonderlane.wlpos.entities.VatCode> vatCodes = new HashMap<>()
@@ -380,7 +388,7 @@ class ProductService extends MySqlDal {
 
         message.setId(resultSet.getInt("id"))
         message.setRetailerId(resultSet.getInt("retailerId"))
-        message.setMessage(resultSet.getString("message"))
+        message.setText(resultSet.getString("text"))
         message.setRetailerMessageCode(resultSet.getString("retailerMessageCode"))
         message.setStartDate(new DateTime(resultSet.getTimestamp("startDate"), DateTimeZone.UTC))
         message.setEndDate(new DateTime(resultSet.getTimestamp("endDate"), DateTimeZone.UTC))

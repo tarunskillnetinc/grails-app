@@ -3,6 +3,7 @@ import uk.co.wonderlane.wlpos.WellAuthenticationProvider
 import uk.co.wonderlane.wlpos.WellAuthenticationDetailsSource
 import uk.co.wonderlane.wlpos.StoreNumberValidatorService
 import uk.co.wonderlane.wlpos.ProductService
+import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 
 // Place your Spring DSL code here
 beans = {
@@ -13,12 +14,13 @@ beans = {
         userDetailsService = ref('userDetailsService')
         passwordEncoder = ref('passwordEncoder')
         userCache = ref('userCache')
-        saltSource = ref('saltSource')
         preAuthenticationChecks = ref('preAuthenticationChecks')
         postAuthenticationChecks = ref('postAuthenticationChecks')
         authoritiesMapper = ref('authoritiesMapper')
         hideUserNotFoundExceptions = true
     }
+
+    userPasswordEncoderListener(UserPasswordEncoderListener)
 
     authenticationDetailsSource(WellAuthenticationDetailsSource)
     storeNumberValidator(StoreNumberValidatorService)

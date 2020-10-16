@@ -10,9 +10,4 @@ class StoreNumberValidatorServiceSpec extends Specification implements ServiceUn
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }

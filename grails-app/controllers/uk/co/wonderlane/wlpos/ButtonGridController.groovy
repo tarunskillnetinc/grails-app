@@ -5,6 +5,7 @@ import uk.co.wonderlane.wlpos.enums.ButtonGridType
 class ButtonGridController {
 
     def springSecurityService
+    def buttonService
 
     def index() {
 
@@ -48,7 +49,7 @@ class ButtonGridController {
         buttonGrid.storeId = springSecurityService.principal.storeId
 
         if (buttonGrid.validate()) {
-            buttonGrid.save(flush: true, failOnError: true)
+            buttonService.saveButtonGrid(buttonGrid)
             redirect(controller: "buttonGrid", action: "show", id: buttonGrid.id)
         } else {
             render(view: "add", model: [buttonGrid: buttonGrid])

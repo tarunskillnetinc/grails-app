@@ -10,9 +10,4 @@ class LoginControllerSpec extends Specification implements ControllerUnitTest<Lo
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }

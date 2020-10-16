@@ -147,7 +147,7 @@
                         <div class="col-3">
                             <g:each in="${variant.barcodes}" var="barcode" status="j">
                                 <div class="input-group form-group ${barcode.delete ? "d-none" : ""}">
-                                    <g:hiddenField name="variants[${i}].barcodes[${j}].effectiveDate" value="${barcode.effectiveDate.format('yyyy-MM-dd')}"/>
+                                    <g:hiddenField name="variants[${i}].barcodes[${j}].effectiveDate" value="${g.formatDate(format:"dd/MM/yyyy", date:barcode?.effectiveDate)}"/>
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].recordStatus" value="${barcode.recordStatus}"/>
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].delete" value="${barcode.delete}"/>
                                     <g:hiddenField name="variants[${i}].barcodes[${j}].selected" value="false" />

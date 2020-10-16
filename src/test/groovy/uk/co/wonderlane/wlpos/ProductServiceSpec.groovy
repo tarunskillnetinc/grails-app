@@ -10,9 +10,4 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }

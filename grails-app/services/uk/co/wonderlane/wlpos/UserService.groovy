@@ -20,4 +20,8 @@ class UserService {
     def getUser(int id) {
         return User.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
+
+    def saveUser(User user) {
+        user.save()
+    }
 }

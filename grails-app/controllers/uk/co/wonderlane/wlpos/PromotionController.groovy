@@ -26,6 +26,7 @@ class PromotionController {
 
     def springSecurityService
     def productService
+    def promotionService
 
     def index() { }
 
@@ -319,7 +320,8 @@ class PromotionController {
         }
 
         if (promotion.validate()) {
-            promotion.save(flush: true, failOnError: true)
+            promotionService.savePromotion(promotion)
+
             redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
             return
         } else {
