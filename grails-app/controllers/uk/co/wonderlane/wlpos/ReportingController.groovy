@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+
 class ReportingController {
 
     def reportingService
@@ -8,7 +10,7 @@ class ReportingController {
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
 
     def index() {
-        redirect(action: "salesDepartments")
+
     }
 
     def salesDepartments() {
@@ -17,10 +19,8 @@ class ReportingController {
         String sortColumn = getSortColumn(SALES_REPORT_CATEGORY_SORT_COLUMNS, params.sortColumn)
         String sortOrder = getSortOrder(params.sortOrder)
 
-        Date startDate = new Date() - 7
-        startDate.clearTime()
-        Date endDate = new Date() + 1
-        endDate.clearTime()
+        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
 
         // Find all sales involving this category in the date range.
         def sales = reportingService.getSales(startDate, endDate)
@@ -80,10 +80,8 @@ class ReportingController {
         String sortColumn = getSortColumn(SALES_REPORT_CATEGORY_SORT_COLUMNS, params.sortColumn)
         String sortOrder = getSortOrder(params.sortOrder)
 
-        Date startDate = new Date() - 7
-        startDate.clearTime()
-        Date endDate = new Date() + 1
-        endDate.clearTime()
+        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
 
         // Find all sales involving this category in the date range.
         def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate)
@@ -147,10 +145,8 @@ class ReportingController {
         String sortColumn = getSortColumn(SALES_REPORT_TRANSACTION_SORT_COLUMNS, params.sortColumn)
         String sortOrder = getSortOrder(params.sortOrder)
 
-        Date startDate = new Date() - 7
-        startDate.clearTime()
-        Date endDate = new Date() + 1
-        endDate.clearTime()
+        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
 
         def sales = reportingService.getSalesForProduct(productId, startDate, endDate, max, offset, sortColumn, sortOrder)
 

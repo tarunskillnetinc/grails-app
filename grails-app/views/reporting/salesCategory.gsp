@@ -6,62 +6,68 @@
     <title>WonderLane</title>
 </head>
 <body>
+    <g:render template="/nav/reporting" model="[active: 'sales']" />
 
-    <g:render template="/nav/epos" model="[active: 'reporting']" />
-
-    <br /><br />
-
-    <div class="card bg-light">
-        <div class="card-header">
-            Filter
+    <section id="reporting-container" class="container-fluid">
+        <div class="row header-wl">
+            <h2 class="mx-auto">Sales Report</h2>
         </div>
-        <div class="card-body">
-            <g:form class="form-inline" action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: sortColumn, sortOrder: sortOrder]">
-                <div class="form-group">
-                    <g:textField name="searchText" placeholder="Description search" maxlength="100" value="${searchText}" class="form-control bottom-border" />
+
+        <div class="col-8 offset-2 mt-4">
+            <div class="card bg-light border-wl">
+                <div class="card-header" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
+                    Filters
                 </div>
-                <g:submitButton name="Search" class="btn btn-primary" />
-            </g:form>
+                <div class="card-body collapse" id="filterCollapse">
+                    <g:form class="form-inline" action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: sortColumn, sortOrder: sortOrder]">
+                        <div class="form-group">
+                            <g:textField name="searchText" placeholder="Description search" maxlength="100" value="${searchText}" class="form-control bottom-border" />
+                        </div>
+                        <g:submitButton name="Search" class="btn btn-wl" />
+                    </g:form>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <br /><br />
+        <div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
+            <div class="col-3 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></div>
+            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Qty</g:link></div>
+            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgCostPrice', sortOrder: sortColumn == 'avgCostPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Cost Price</g:link></div>
+            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgRetailPrice', sortOrder: sortColumn == 'avgRetailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Sales Price</g:link></div>
+            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'retailPrice', sortOrder: sortColumn == 'retailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Sales</g:link></div>
+            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'vatAmount', sortOrder: sortColumn == 'vatAmount' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">VAT Amount</g:link></div>
+            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgMargin', sortOrder: sortColumn == 'avgMargin' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Margin</g:link></div>
+        </div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></th>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Qty</g:link></th>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgCostPrice', sortOrder: sortColumn == 'avgCostPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Cost Price</g:link></th>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgRetailPrice', sortOrder: sortColumn == 'avgRetailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Sales Price</g:link></th>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'retailPrice', sortOrder: sortColumn == 'retailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Sales</g:link></th>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'vatAmount', sortOrder: sortColumn == 'vatAmount' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">VAT Amount</g:link></th>
-            <th scope="col"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgMargin', sortOrder: sortColumn == 'avgMargin' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Margin</g:link></th>
-        </tr>
-        </thead>
-        <tbody>
-            <g:each in="${sales}" var="sale">
-                <tr>
-                    <td>
-                        <g:if test="${sale.productItemCode}">
-                            <g:link action="salesProduct" params="[productId: sale.productId]">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</g:link>
-                        </g:if>
-                        <g:else>
-                            <g:link action="salesCategory" params="[categoryId: sale.salesCategories.first().categoryId]">${sale.productDescription}</g:link>
-                        </g:else>
-                    </td>
-                    <td>${sale.quantity}</td>
-                    <td>&pound;${sale.avgCostPrice}</td>
-                    <td>&pound;${sale.avgRetailPrice}</td>
-                    <td>&pound;${sale.retailPrice}</td>
-                    <td>&pound;${sale.vatAmount}</td>
-                    <td>${sale.avgMargin}&#37;</td>
-                </tr>
+        <div id="search-results" class="align-content-center">
+            <g:if test="${!sales || sales?.size() == 0}">
+                <div id="noResultsRow" class="col pt-2 text-center">No results found.</div>
+            </g:if>
+
+            <g:each in="${sales}" var="sale" status="i">
+                <g:if test="${sale.productItemCode}">
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesProduct', params: [productId: sale.productId])}';">
+                        <div class="col-3">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
+                </g:if>
+                <g:else>
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId])}';">
+                        <div class="col-3">${sale.productDescription}</div>
+                </g:else>
+
+                        <div class="col">${sale.quantity}</div>
+                        <div class="col">&pound;${sale.avgCostPrice}</div>
+                        <div class="col">&pound;${sale.avgRetailPrice}</div>
+                        <div class="col">&pound;${sale.retailPrice}</div>
+                        <div class="col">&pound;${sale.vatAmount}</div>
+                        <div class="col">${sale.avgMargin}&#37;</div>
+                    </div>
             </g:each>
-        </tbody>
-    </table>
+        </div>
 
-    <div class="text-right">Displaying ${sales.size()} of ${totalResults} results.</div>
-    <g:paginate total="$totalResults" offset="$offset" max="$max" params="[categoryId: categoryId, sortColumn: sortColumn, sortOrder: sortOrder]" />
+        <div class="my-3 text-right">
+            <div class="text-right">Displaying ${sales.size()} of ${totalResults} results.</div>
+            <g:paginate total="$totalResults" offset="$offset" max="$max" params="[categoryId: categoryId, sortColumn: sortColumn, sortOrder: sortOrder]" />
+        </div>
+    </section>
 </body>
 </html>
