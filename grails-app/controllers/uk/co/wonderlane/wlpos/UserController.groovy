@@ -36,7 +36,7 @@ class UserController {
         [roleValues: Role.values()]
     }
 
-    def view() {
+    def show() {
         if (!params.id || !params.id.isNumber() || params.id.length() > 8) {
             params.id = "-1"
         }

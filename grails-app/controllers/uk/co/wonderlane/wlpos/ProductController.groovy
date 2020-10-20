@@ -63,9 +63,11 @@ class ProductController {
 
         int totalResults = products[-1].getId()
 
-        products.pop()
+        if (products.size() > 0) {
+            products.removeLast()
+        }
 
-        render(template: "/product/productSearchResults", model: [ products: products, storeId: springSecurityService.principal.storeId ])
+        render(template: "/product/productSearchResults", model: [ products: products, totalResults: totalResults, storeId: springSecurityService.principal.storeId ])
     }
 
     def maintenanceSearch() {

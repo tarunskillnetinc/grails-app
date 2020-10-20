@@ -1,4 +1,3 @@
-<%@ page import="java.util.stream.Collectors" %>
 <g:if test="${!products || products?.size() == 0}">
     <tr id="noResultsRow"><td colspan="7" style="text-align: center;">No results found.</td></tr>
 </g:if>

@@ -22,11 +22,15 @@ class ProductService extends MySqlDal {
     }
 
     def getProductVariant(int id) {
-        return ProductVariant.get(id)
+        def productVariant = ProductVariant.get(id)
+
+        return productVariant?.product?.retailerId == springSecurityService.principal.retailerId ? productVariant : null
     }
 
     def getProduct(int id) {
-        return Product.get(id)
+        def product = Product.get(id)
+
+        return product?.retailerId == springSecurityService.principal.retailerId ? product : null
     }
 
     def saveProduct(Product product) {

@@ -9,7 +9,7 @@
         <asset:javascript src="bootstrap-datepicker.min.js" />
 
         <script type='text/javascript'>
-            $(function(){
+            $(function() {
                 $('#dateOfBirth').datepicker({
                     format: "dd/mm/yyyy",
                     weekStart: 1,
@@ -62,7 +62,7 @@
                     <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" />
                 </div>
 
-                <div class="form-group row col-12 col-lg-6" id="dateofBirthDatePicker">
+                <div class="form-group row col-12 col-lg-6">
                     <label for="dateOfBirth" class="col-4 col-form-label text-right pr-4">Date of Birth</label>
 
                     <g:textField name="dateOfBirth" type="text" class="col-5 form-control bottom-border" value="${user?.dateOfBirth ? user?.dateOfBirth?.format('dd/MM/yyyy') : null}" autocomplete="off" />

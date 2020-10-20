@@ -39,7 +39,7 @@
                         $('#productSearchTerm').data('prev',$('#productSearchTerm').val())
                         $('#productSearchBy').data('prev', $('#productSearchBy').val())
                     }
-                })
+                });
             }
         </script>
     </head>

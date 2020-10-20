@@ -73,6 +73,12 @@
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
+
+                    <li class="nav-item">
+                        <g:link controller="productList" class="nav-link">Administration</g:link>
+                    </li>
+
+                    <li class="vertical-line d-md-none d-lg-block"></li>
                 </ul>
             </div>
         </nav>

@@ -14,12 +14,13 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/**/images/**',   access: ['permitAll']],
 	[pattern: '/**/favicon.ico', access: ['permitAll']],
 	[pattern: '/storeSettings/**', access: 'isAuthenticated()'],
-	[pattern: '/button/**', access: 'isAuthenticated()'],
-	[pattern: '/buttonGrid/**', access: 'isAuthenticated()'],
-	[pattern: '/product/**', access: 'isAuthenticated()'],
-	[pattern: '/promotion/**', access: 'isAuthenticated()'],
-	[pattern: '/reporting/**', access: 'isAuthenticated()'],
-	[pattern: '/user/**', access: 'isAuthenticated()']
+	[pattern: '/button/**',      access: 'isAuthenticated()'],
+	[pattern: '/buttonGrid/**',  access: 'isAuthenticated()'],
+	[pattern: '/product/**',     access: 'isAuthenticated()'],
+	[pattern: '/promotion/**',   access: 'isAuthenticated()'],
+	[pattern: '/reporting/**',   access: 'isAuthenticated()'],
+	[pattern: '/user/**',        access: 'isAuthenticated()'],
+	[pattern: '/productList/**', access: 'isAuthenticated()']
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [
