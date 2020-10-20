@@ -87,7 +87,7 @@ class ReportingController {
         def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate)
 
         // Group them by the next level down category ID if the sale is not directly in this category.
-        def salesGrouped = sales.groupBy { sale ->
+        def salesGrouped = sales?.groupBy { sale ->
             sale.salesCategories.find { saleCategory ->
                 saleCategory.categoryLevel == (sale.salesCategories.find { saleCategory2 -> saleCategory2.categoryId == categoryId }.categoryLevel + 1)
             }?.categoryId
@@ -96,10 +96,22 @@ class ReportingController {
         def finalSales = []
 
         // Populating a dummy sale object for any of the sales which are not in this category (because they have summed values for everything in that category).
-        salesGrouped.each { salesGroup ->
+        salesGrouped?.each { salesGroup ->
             if (salesGroup.key == null) {
-                // Filter our results.
-                finalSales.addAll(params.searchText ? salesGroup.value.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.searchText.toLowerCase()) } : salesGroup.value)
+                // This block are the products which are sold directly in this category. Filter the results and then group by product ID.
+                def filteredProductSales = params.searchText ? salesGroup.value.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.searchText.toLowerCase()) } : salesGroup.value
+
+                def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
+
+                filteredGroupedProductSales?.each { groupedProductSale ->
+                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity }
+                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.costPrice }
+                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.retailPrice }
+                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.vatAmount }
+                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.margin }
+
+                    finalSales.add(groupedProductSale.value[0])
+                }
             } else {
                 if (!params.searchText || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.searchText.toLowerCase())) {
                     Sale groupedSale = new Sale(

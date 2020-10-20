@@ -30,8 +30,8 @@
         </div>
 
         <div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
-            <div class="col-3 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></div>
-            <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Qty</g:link></div>
+            <div class="col-4 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></div>
+            <div class="col-1 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Qty</g:link></div>
             <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgCostPrice', sortOrder: sortColumn == 'avgCostPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Cost Price</g:link></div>
             <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgRetailPrice', sortOrder: sortColumn == 'avgRetailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Sales Price</g:link></div>
             <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'retailPrice', sortOrder: sortColumn == 'retailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Sales</g:link></div>
@@ -47,14 +47,14 @@
             <g:each in="${sales}" var="sale" status="i">
                 <g:if test="${sale.productItemCode}">
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesProduct', params: [productId: sale.productId])}';">
-                        <div class="col-3">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
+                        <div class="col-4">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
                 </g:if>
                 <g:else>
                     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId])}';">
-                        <div class="col-3">${sale.productDescription}</div>
+                        <div class="col-4">${sale.productDescription}</div>
                 </g:else>
 
-                        <div class="col my-auto">${sale.quantity}</div>
+                        <div class="col-1 my-auto">${sale.quantity}</div>
                         <div class="col my-auto">&pound;${sale.avgCostPrice}</div>
                         <div class="col my-auto">&pound;${sale.avgRetailPrice}</div>
                         <div class="col my-auto">&pound;${sale.retailPrice}</div>

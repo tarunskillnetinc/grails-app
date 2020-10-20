@@ -56,7 +56,7 @@
                 <div class="col my-auto">&pound;${sale.retailPrice.subtract(sale.costPrice).subtract(sale.vatAmount)}</div>
                 <div class="col my-auto">${sale.margin}&#37;</div>
                 <div class="col my-auto">${sale.usersName}</div>
-                <div class="col my-auto"><g:formatDate value="${sale.dateCreated}" format="dd/MM/yyyy HH:mm:ss" /></div>
+                <div class="col my-auto"><g:formatDate date="${sale.dateCreated}" format="dd/MM/yyyy HH:mm:ss" /></div>
             </div>
         </g:each>
     </div>
