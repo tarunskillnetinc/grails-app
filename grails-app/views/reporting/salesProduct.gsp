@@ -31,7 +31,7 @@
 
     <div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
         <div class="col-3 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></div>
-        <div class="col font-weight-bold"><g:link action="salesProduct" params="[productId: productId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Qty Sold</g:link></div>
+        <div class="col-1 font-weight-bold"><g:link action="salesProduct" params="[productId: productId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Qty Sold</g:link></div>
         <div class="col font-weight-bold"><g:link action="salesProduct" params="[productId: productId, max: max, offset: offset, sortColumn: 'costPrice', sortOrder: sortColumn == 'costPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Cost Price</g:link></div>
         <div class="col font-weight-bold"><g:link action="salesProduct" params="[productId: productId, max: max, offset: offset, sortColumn: 'netTotal', sortOrder: sortColumn == 'netTotal' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Net Total</g:link></div>
         <div class="col font-weight-bold"><g:link action="salesProduct" params="[productId: productId, max: max, offset: offset, sortColumn: 'vatAmount', sortOrder: sortColumn == 'vatAmount' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">VAT Amount</g:link></div>
@@ -43,20 +43,20 @@
 
     <div id="search-results" class="align-content-center">
         <g:if test="${!sales || sales?.size() == 0}">
-            <div id="noResultsRow" class="col pt-2 text-center">No results found.</div>
+            <div id="noResultsRow" class="col pt-2 text-center my-auto">No results found.</div>
         </g:if>
 
         <g:each in="${sales}" var="sale" status="i">
             <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
-                <div class="col-3">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
-                <div class="col">${sale.quantity}</div>
-                <div class="col">&pound;${sale.costPrice}</div>
-                <div class="col">&pound;${sale.retailPrice.subtract(sale.vatAmount)}</div>
-                <div class="col">&pound;${sale.vatAmount}</div>
-                <div class="col">&pound;${sale.retailPrice.subtract(sale.costPrice).subtract(sale.vatAmount)}</div>
-                <div class="col">${sale.margin}&#37;</div>
-                <div class="col">${sale.usersName}</div>
-                <div class="col">${sale.dateCreated}</div>
+                <div class="col-3 my-auto">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
+                <div class="col-1 my-auto">${sale.quantity}</div>
+                <div class="col my-auto">&pound;${sale.costPrice}</div>
+                <div class="col my-auto">&pound;${sale.retailPrice.subtract(sale.vatAmount)}</div>
+                <div class="col my-auto">&pound;${sale.vatAmount}</div>
+                <div class="col my-auto">&pound;${sale.retailPrice.subtract(sale.costPrice).subtract(sale.vatAmount)}</div>
+                <div class="col my-auto">${sale.margin}&#37;</div>
+                <div class="col my-auto">${sale.usersName}</div>
+                <div class="col my-auto"><g:formatDate value="${sale.dateCreated}" format="dd/MM/yyyy HH:mm:ss" /></div>
             </div>
         </g:each>
     </div>

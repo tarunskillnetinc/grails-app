@@ -41,7 +41,7 @@
 
         <div id="search-results" class="align-content-center">
             <g:if test="${!sales || sales?.size() == 0}">
-                <div id="noResultsRow" class="col pt-2 text-center">No results found.</div>
+                <div id="noResultsRow" class="col pt-2 text-center my-auto">No results found.</div>
             </g:if>
 
             <g:each in="${sales}" var="sale" status="i">
@@ -54,12 +54,12 @@
                         <div class="col-3">${sale.productDescription}</div>
                 </g:else>
 
-                        <div class="col">${sale.quantity}</div>
-                        <div class="col">&pound;${sale.avgCostPrice}</div>
-                        <div class="col">&pound;${sale.avgRetailPrice}</div>
-                        <div class="col">&pound;${sale.retailPrice}</div>
-                        <div class="col">&pound;${sale.vatAmount}</div>
-                        <div class="col">${sale.avgMargin}&#37;</div>
+                        <div class="col my-auto">${sale.quantity}</div>
+                        <div class="col my-auto">&pound;${sale.avgCostPrice}</div>
+                        <div class="col my-auto">&pound;${sale.avgRetailPrice}</div>
+                        <div class="col my-auto">&pound;${sale.retailPrice}</div>
+                        <div class="col my-auto">&pound;${sale.vatAmount}</div>
+                        <div class="col my-auto">${sale.avgMargin}&#37;</div>
                     </div>
             </g:each>
         </div>

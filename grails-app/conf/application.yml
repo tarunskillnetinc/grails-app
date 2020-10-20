@@ -111,7 +111,7 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3306/wlpos"
+            url: "jdbc:mysql://192.168.2.107:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "root"
@@ -140,7 +140,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/reporting"
+                url: "jdbc:mysql://192.168.2.107:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -216,14 +216,14 @@ environments:
                     defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
 
 rabbitmq:
-    host: LOCALHOST
+    host: 192.168.2.107
     port: 5672
     username: rabbituser
     password: Pa**W0rd01
 
 mysql:
     wlpos:
-        host: LOCALHOST
+        host: 192.168.2.107
         port: 3306
         username: root
         password: Pa**W0rd01
