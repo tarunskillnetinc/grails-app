@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import uk.co.wonderlane.wlpos.enums.TillControlEventType
 
 @Transactional("reporting")
 class ReportingService {
@@ -65,5 +66,26 @@ class ReportingService {
                                 ORDER BY ${sort}"""
 
         return Sale.executeQuery(searchQuery, [productId: productId, retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, startDate: startDate, endDate: endDate])
+    }
+
+    def getTillControlEvents(Date startDate, Date endDate) {
+        def tillControlEventsCriteria = TillControlEvent.createCriteria()
+
+        return tillControlEventsCriteria.list() {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+            between ("dateCreated", startDate, endDate)
+        }
+    }
+
+    def getTillControlEvents(Date startDate, Date endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def tillControlEventsCriteria = TillControlEvent.createCriteria()
+
+        return tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
+            eq ("type", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+            between ("dateCreated", startDate, endDate)
+        }
     }
 }

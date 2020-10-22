@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.TillControlEventType
 
 class ReportingController {
 
@@ -8,6 +9,8 @@ class ReportingController {
 
     private static final SALES_REPORT_TRANSACTION_SORT_COLUMNS = [ "usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated" ]
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
+    private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
+    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "type", "usersName", "reason", "dateCreated", "amount" ]
 
     def index() {
 
@@ -172,6 +175,105 @@ class ReportingController {
         sales = offset < sales.size() ? sales.subList(offset, (offset + max < sales.size() ? offset + max : sales.size())) : []
 
         [productId: productId, sales: sales, searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+    }
+
+    def tillControlEvents() {
+        int max = getMax(params.max)
+        int offset = getOffset(params.offset)
+        String sortColumn = getSortColumn(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS, params.sortColumn ?: "type")
+        String sortOrder = getSortOrder(params.sortOrder)
+
+        Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+
+        // Find all till control events in the date range.
+        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate)
+
+        // Filter our results.
+        if (params.searchText) {
+            tillControlEvents = tillControlEvents.findAll { it.type.toString().toLowerCase().contains(params.searchText.toLowerCase()) }
+        }
+
+        // Group them by type.
+        def tillControlEventsGrouped = tillControlEvents.groupBy { it.type }
+
+        // Sort into the required order.
+        Comparator comparator
+
+        if (sortColumn == "type") {
+            comparator = [ compare: { a, b ->
+                if (sortOrder == "desc") {
+                    a.compareTo(b)
+                } else {
+                    b.compareTo(a)
+                }
+            }] as Comparator
+
+            tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
+        } else if (sortColumn == "quantity") {
+            comparator = [ compare: { a, b ->
+                if (sortOrder == "desc") {
+                    if (tillControlEventsGrouped.get(b).size() < tillControlEventsGrouped.get(a).size()) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                } else {
+                    if (tillControlEventsGrouped.get(a).size() < tillControlEventsGrouped.get(b).size()) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                }
+            }] as Comparator
+
+            tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
+        }
+
+        // Restrict the number of results.
+        int totalResults = tillControlEventsGrouped.size()
+//        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
+
+        [tillControlEvents: tillControlEventsGrouped, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+    }
+
+    def tillControlEvent() {
+        int max = getMax(params.max)
+        int offset = getOffset(params.offset)
+        String sortColumn = getSortColumn(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS, params.sortColumn)
+        String sortOrder = getSortOrder(params.sortOrder)
+
+        Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+
+        TillControlEventType type = null
+
+        try {
+            type = TillControlEventType.valueOf(params.type)
+        } catch (Exception e) {
+            // No action, simply return no results.
+        }
+
+        // Find all till control events in the date range.
+        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate, type, max, offset, sortColumn, sortOrder)
+
+        // Filter our results.
+//        if (params.searchText) {
+//            tillControlEvents = tillControlEvents.findAll { it.type.toString().toLowerCase().contains(params.searchText.toLowerCase()) }
+//        }
+
+        // Sort into the required order.
+//        tillControlEvents = tillControlEvents.sort { it."${sortColumn}"}
+
+//        if (sortOrder == "desc") {
+//            tillControlEvents = tillControlEvents.reverse();
+//        }
+//
+        // Restrict the number of results.
+        int totalResults = tillControlEvents.size()
+//        tillControlEvents = offset < tillControlEvents.size() ? tillControlEvents.subList(offset, (offset + max < tillControlEvents.size() ? offset + max : tillControlEvents.size())) : []
+
+        [tillControlEvents: tillControlEvents, type: type, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     /**

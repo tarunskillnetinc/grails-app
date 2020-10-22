@@ -4,11 +4,11 @@
     </li>
 
     <li class="nav-item">
-        <g:link controller="reporting" action="promotions" class="nav-link ${active.equals('promotion') ? 'active' : ''}">Promotions</g:link>
+        <g:link url="/" class="nav-link disabled">Promotions</g:link>
     </li>
 
     <li class="nav-item">
-        <g:link controller="reporting" action="tillControls" class="nav-link ${active.equals('promotion') ? 'active' : ''}">Till Controls</g:link>
+        <g:link controller="reporting" action="tillControlEvents" class="nav-link ${active.equals('tillControlEvents') ? 'active' : ''}">Till Control Events</g:link>
     </li>
 
     <li class="nav-item">
