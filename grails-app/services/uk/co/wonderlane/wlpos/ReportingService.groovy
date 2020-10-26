@@ -88,4 +88,37 @@ class ReportingService {
             between ("dateCreated", startDate, endDate)
         }
     }
+
+    def getPromotionSales(Date startDate, Date endDate) {
+        def promotionsCriteria = PromotionSale.createCriteria()
+
+        return promotionsCriteria.list() {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+            between ("dateCreated", startDate, endDate)
+        }
+    }
+
+    def getPromotionSales(Date startDate, Date endDate, int promotionId) {
+        def promotionsCriteria = PromotionSale.createCriteria()
+
+        return promotionsCriteria.list() {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+            between ("dateCreated", startDate, endDate)
+            eq("promotionId", promotionId)
+        }
+    }
+
+    def getPromotionSaleProducts(int promotionSaleId) {
+        def promotionProductsCriteria = PromotionSaleProduct.createCriteria()
+
+        return promotionProductsCriteria.list() {
+            promotion {
+                eq("retailerId", springSecurityService.principal.retailerId)
+                eq("storeId", springSecurityService.principal.storeId)
+                eq("id", promotionSaleId)
+            }
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 
 class ReportingController {
@@ -9,6 +10,8 @@ class ReportingController {
 
     private static final SALES_REPORT_TRANSACTION_SORT_COLUMNS = [ "usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated" ]
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
+    private static final PROMOTIONS_REPORT_SORT_COLUMNS = [ "type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated" ]
+    private static final PROMOTION_REPORT_SORT_COLUMNS = [ "itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat" ]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
     private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "type", "usersName", "reason", "dateCreated", "amount" ]
 
@@ -274,6 +277,124 @@ class ReportingController {
 //        tillControlEvents = offset < tillControlEvents.size() ? tillControlEvents.subList(offset, (offset + max < tillControlEvents.size() ? offset + max : tillControlEvents.size())) : []
 
         [tillControlEvents: tillControlEvents, type: type, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+    }
+
+    def promotionsGrouped() {
+        int max = getMax(params.max)
+        int offset = getOffset(params.offset)
+        String sortColumn = getSortColumn(PROMOTIONS_REPORT_SORT_COLUMNS, params.sortColumn)
+        String sortOrder = getSortOrder(params.sortOrder)
+
+        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+
+        // Find all promotion sales in the date range.
+        def promotionSales = reportingService.getPromotionSales(startDate, endDate)
+
+        // Filter our results.
+        if (params.searchText) {
+            promotionSales = promotionSales.findAll { it.description.toLowerCase().contains(params.searchText.toLowerCase()) }
+        }
+
+        // Group them by promotion ID.
+        def promotionSalesGrouped = promotionSales.groupBy { it.promotionId }
+
+        def finalPromotionSales = []
+
+        // Populating a dummy sale object for any of the sales which are not in this category (because they have summed values for everything in that category).
+        promotionSalesGrouped.each { promotionSaleGroup ->
+            PromotionSale promotionSale = new PromotionSale(
+                    id: promotionSaleGroup.value[0].id,
+                    promotionId: promotionSaleGroup.value[0].promotionId,
+                    type: promotionSaleGroup.value[0].type,
+                    description: promotionSaleGroup.value[0].description,
+                    fullPrice: promotionSaleGroup.value.sum { it.fullPrice },
+                    discount: promotionSaleGroup.value.sum { it.discount },
+                    margin: promotionSaleGroup.value.sum { it.margin },
+                    profit: promotionSaleGroup.value.sum { it.profit },
+                    vat: promotionSaleGroup.value.sum { it.vat }
+            )
+
+            promotionSale.quantity = promotionSaleGroup.value.size() // Setting a transient value to pass the quantity into the report.
+
+            finalPromotionSales.add(promotionSale)
+        }
+
+        // Sort into the required order.
+        finalPromotionSales.sort { it."$sortColumn" }
+
+        if (sortOrder == "desc") {
+            finalPromotionSales = finalPromotionSales.reverse()
+        }
+
+        // Restrict the number of results.
+        int totalResults = finalPromotionSales.size()
+        finalPromotionSales = offset < finalPromotionSales.size() ? finalPromotionSales.subList(offset, (offset + max < finalPromotionSales.size() ? offset + max : finalPromotionSales.size())) : []
+
+        [promotionSales: finalPromotionSales, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+    }
+
+    def promotions() {
+        int max = getMax(params.max)
+        int offset = getOffset(params.offset)
+        String sortColumn = getSortColumn(PROMOTIONS_REPORT_SORT_COLUMNS, params.sortColumn)
+        String sortOrder = getSortOrder(params.sortOrder)
+
+        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+
+        int promotionId = getIntegerParam(params.promotionId)
+
+        // Find all promotion sales for this promotion in the date range.
+        def promotionSales = reportingService.getPromotionSales(startDate, endDate, promotionId)
+
+        // Filter our results.
+        if (params.searchText) {
+            promotionSales = promotionSales.findAll { it.description.toLowerCase().contains(params.searchText.toLowerCase()) }
+        }
+
+        // Sort into the required order.
+        promotionSales.sort { it."$sortColumn" }
+
+        if (sortOrder == "desc") {
+            promotionSales = promotionSales.reverse()
+        }
+
+        // Restrict the number of results.
+        int totalResults = promotionSales.size()
+        promotionSales = offset < promotionSales.size() ? promotionSales.subList(offset, (offset + max < promotionSales.size() ? offset + max : promotionSales.size())) : []
+
+        [promotionSales: promotionSales, promotionId: promotionId, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+    }
+
+    def promotion() {
+        int max = getMax(params.max)
+        int offset = getOffset(params.offset)
+        String sortColumn = getSortColumn(PROMOTION_REPORT_SORT_COLUMNS, params.sortColumn)
+        String sortOrder = getSortOrder(params.sortOrder)
+
+        int promotionSaleId = getIntegerParam(params.promotionSaleId)
+
+        // Find all promotion sale products for this promotion sale.
+        def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId)
+
+        // Filter our results.
+        if (params.searchText) {
+            promotionSaleProducts = promotionSaleProducts.findAll { it.description.toLowerCase().contains(params.searchText.toLowerCase()) }
+        }
+
+        // Sort into the required order.
+        promotionSaleProducts.sort { it."$sortColumn" }
+
+        if (sortOrder == "desc") {
+            promotionSaleProducts = promotionSaleProducts.reverse()
+        }
+
+        // Restrict the number of results.
+        int totalResults = promotionSaleProducts.size()
+        promotionSaleProducts = offset < promotionSaleProducts.size() ? promotionSaleProducts.subList(offset, (offset + max < promotionSaleProducts.size() ? offset + max : promotionSaleProducts.size())) : []
+
+        [promotionSaleProducts: promotionSaleProducts, promotionSaleId: promotionSaleId, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     /**

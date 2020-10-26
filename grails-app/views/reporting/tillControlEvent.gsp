@@ -19,7 +19,7 @@
                     Filters
                 </div>
                 <div class="card-body collapse" id="filterCollapse">
-                    <g:form class="form-inline" action="tillControlEvents" params="[max: max, offset: offset, sortColumn: sortColumn, sortOrder: sortOrder]">
+                    <g:form class="form-inline" action="tillControlEvent" params="[type: type, max: max, offset: offset, sortColumn: sortColumn, sortOrder: sortOrder]">
                         <div class="form-group">
                             <g:textField name="searchText" placeholder="Type search" maxlength="100" value="${searchText}" class="form-control bottom-border" />
                         </div>

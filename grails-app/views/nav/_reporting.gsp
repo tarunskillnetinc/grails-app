@@ -4,7 +4,7 @@
     </li>
 
     <li class="nav-item">
-        <g:link url="/" class="nav-link disabled">Promotions</g:link>
+        <g:link controller="reporting" action="promotionsGrouped" class="nav-link ${active.equals('promotions') ? 'active' : ''}">Promotions</g:link>
     </li>
 
     <li class="nav-item">
