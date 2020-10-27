@@ -310,7 +310,7 @@ class ReportingController {
                     description: promotionSaleGroup.value[0].description,
                     fullPrice: promotionSaleGroup.value.sum { it.fullPrice },
                     discount: promotionSaleGroup.value.sum { it.discount },
-                    margin: promotionSaleGroup.value.sum { it.margin },
+                    margin: promotionSaleGroup.value.sum { it.margin } / promotionSaleGroup.value.size(),
                     profit: promotionSaleGroup.value.sum { it.profit },
                     vat: promotionSaleGroup.value.sum { it.vat }
             )
