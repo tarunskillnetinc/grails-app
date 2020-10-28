@@ -1,12 +1,19 @@
 package uk.co.wonderlane.wlpos
 
+import groovy.json.JsonSlurper
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
+import uk.co.wonderlane.wlpos.reporting.PromotionSale
+import uk.co.wonderlane.wlpos.reporting.ReportColumn
+import uk.co.wonderlane.wlpos.reporting.ReportColumns
+import uk.co.wonderlane.wlpos.reporting.ReportType
+import uk.co.wonderlane.wlpos.reporting.Sale
+import uk.co.wonderlane.wlpos.reporting.SaleCategory
 
 class ReportingController {
 
     def reportingService
+    def springSecurityService
 
     private static final SALES_REPORT_TRANSACTION_SORT_COLUMNS = [ "usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated" ]
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
@@ -76,7 +83,7 @@ class ReportingController {
         int totalResults = finalSales.size()
         finalSales = offset < finalSales.size() ? finalSales.subList(offset, (offset + max < finalSales.size() ? offset + max : finalSales.size())) : []
 
-        [sales: finalSales, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def salesCategory() {
@@ -153,7 +160,7 @@ class ReportingController {
         int totalResults = finalSales.size()
         finalSales = offset < finalSales.size() ? finalSales.subList(offset, (offset + max < finalSales.size() ? offset + max : finalSales.size())) : []
 
-        [categoryId: categoryId, sales: finalSales, searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def salesProduct() {
@@ -177,7 +184,7 @@ class ReportingController {
         int totalResults = sales.size()
         sales = offset < sales.size() ? sales.subList(offset, (offset + max < sales.size() ? offset + max : sales.size())) : []
 
-        [productId: productId, sales: sales, searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [productId: productId, sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def tillControlEvents() {
@@ -237,7 +244,7 @@ class ReportingController {
         int totalResults = tillControlEventsGrouped.size()
 //        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
 
-        [tillControlEvents: tillControlEventsGrouped, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def tillControlEvent() {
@@ -276,7 +283,7 @@ class ReportingController {
         int totalResults = tillControlEvents.size()
 //        tillControlEvents = offset < tillControlEvents.size() ? tillControlEvents.subList(offset, (offset + max < tillControlEvents.size() ? offset + max : tillControlEvents.size())) : []
 
-        [tillControlEvents: tillControlEvents, type: type, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [tillControlEvents: tillControlEvents, type: type, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def promotionsGrouped() {
@@ -331,7 +338,7 @@ class ReportingController {
         int totalResults = finalPromotionSales.size()
         finalPromotionSales = offset < finalPromotionSales.size() ? finalPromotionSales.subList(offset, (offset + max < finalPromotionSales.size() ? offset + max : finalPromotionSales.size())) : []
 
-        [promotionSales: finalPromotionSales, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def promotions() {
@@ -364,7 +371,7 @@ class ReportingController {
         int totalResults = promotionSales.size()
         promotionSales = offset < promotionSales.size() ? promotionSales.subList(offset, (offset + max < promotionSales.size() ? offset + max : promotionSales.size())) : []
 
-        [promotionSales: promotionSales, promotionId: promotionId, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [promotionSales: promotionSales, promotionId: promotionId, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
     }
 
     def promotion() {
@@ -394,7 +401,37 @@ class ReportingController {
         int totalResults = promotionSaleProducts.size()
         promotionSaleProducts = offset < promotionSaleProducts.size() ? promotionSaleProducts.subList(offset, (offset + max < promotionSaleProducts.size() ? offset + max : promotionSaleProducts.size())) : []
 
-        [promotionSaleProducts: promotionSaleProducts, promotionSaleId: promotionSaleId, max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        [promotionSaleProducts: promotionSaleProducts, promotionSaleId: promotionSaleId, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+    }
+
+    def ajaxSaveReportColumns() {
+        try {
+            if (params.reportColumns && params.reportType) {
+                def userReportColumns = new JsonSlurper().parseText(params.reportColumns)
+                def reportType = ReportType.valueOf(params.reportType)
+
+                def reportColumns = reportingService.getReportColumns(reportType)
+
+                if (!reportColumns) {
+                    reportColumns = new ReportColumns(userId: springSecurityService.principal.id, reportType: reportType)
+                }
+
+                userReportColumns?.each { userReportColumn ->
+                    if (reportColumns?.columns?.find { it.column == userReportColumn.key }) {
+                        reportColumns?.columns?.find { it.column == userReportColumn.key }?.enabled = userReportColumn.value
+                    } else {
+                        reportColumns.addToColumns(new ReportColumn(column: userReportColumn.key, enabled: userReportColumn.value))
+                    }
+                }
+
+                reportingService.saveReportColumns(reportColumns)
+
+                render (status: 200)
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            render (status: 500, text: "An error occurred saving your report column preferences.")
+        }
     }
 
     /**

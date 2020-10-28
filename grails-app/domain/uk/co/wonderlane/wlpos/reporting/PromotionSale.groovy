@@ -1,4 +1,4 @@
-package uk.co.wonderlane.wlpos
+package uk.co.wonderlane.wlpos.reporting
 
 import uk.co.wonderlane.wlpos.enums.PromotionType
 

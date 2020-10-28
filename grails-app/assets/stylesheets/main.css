@@ -422,3 +422,7 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
 .table-wl a {
     color: #004C6A;
 }
+
+.pointer {
+    cursor: pointer;
+}

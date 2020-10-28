@@ -2,6 +2,12 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
+import uk.co.wonderlane.wlpos.reporting.PromotionSale
+import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
+import uk.co.wonderlane.wlpos.reporting.ReportType
+import uk.co.wonderlane.wlpos.reporting.Sale
+import uk.co.wonderlane.wlpos.reporting.TillControlEvent
+import uk.co.wonderlane.wlpos.reporting.ReportColumns
 
 @Transactional("reporting")
 class ReportingService {
@@ -120,5 +126,13 @@ class ReportingService {
                 eq("id", promotionSaleId)
             }
         }
+    }
+
+    def getReportColumns(ReportType reportType) {
+        return ReportColumns.findByUserIdAndReportType(springSecurityService.principal.id, reportType)
+    }
+
+    def saveReportColumns(ReportColumns reportColumns) {
+        reportColumns.save()
     }
 }
