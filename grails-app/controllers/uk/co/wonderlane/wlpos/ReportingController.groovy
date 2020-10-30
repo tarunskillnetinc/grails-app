@@ -9,14 +9,15 @@ import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.reporting.Sale
 import uk.co.wonderlane.wlpos.reporting.SaleCategory
+import uk.co.wonderlane.wlpos.reporting.SortParams
 
 class ReportingController {
 
     def reportingService
     def springSecurityService
 
-    private static final SALES_REPORT_TRANSACTION_SORT_COLUMNS = [ "usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated" ]
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
+    private static final SALES_REPORT_PRODUCT_SORT_COLUMNS = [ "usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated" ]
     private static final PROMOTIONS_REPORT_SORT_COLUMNS = [ "type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated" ]
     private static final PROMOTION_REPORT_SORT_COLUMNS = [ "itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat" ]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
@@ -26,11 +27,12 @@ class ReportingController {
 
     }
 
-    def salesDepartments() {
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(SALES_REPORT_CATEGORY_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
+    def salesDepartment() {
+        [reportType: ReportType.SALES_DEPARTMENT, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT)]
+    }
+
+    def ajaxSalesDepartment(SortParams sortParams) {
+        sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
         Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
         Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
@@ -53,13 +55,13 @@ class ReportingController {
         // Populating a dummy sale object for any of the sales which are not in this category (because they have summed values for everything in that category).
         salesGrouped.each { salesGroup ->
             Sale groupedSale = new Sale(
-                quantity: salesGroup.value.sum { it.quantity },
-                costPrice: salesGroup.value.sum { it.costPrice },
-                retailPrice: salesGroup.value.sum { it.retailPrice },
-                vatAmount: salesGroup.value.sum { it.vatAmount },
-                margin: salesGroup.value.sum { it.margin },
-                productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
-                productUnitSize: ""
+                    quantity: salesGroup.value.sum { it.quantity },
+                    costPrice: salesGroup.value.sum { it.costPrice },
+                    retailPrice: salesGroup.value.sum { it.retailPrice },
+                    vatAmount: salesGroup.value.sum { it.vatAmount },
+                    margin: salesGroup.value.sum { it.margin },
+                    productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
+                    productUnitSize: ""
             )
 
             // Also add a dummy category object so we know which category this is in the view.
@@ -69,29 +71,33 @@ class ReportingController {
         }
 
         // Sort into the required order.
-        if (sortColumn == "description") {
+        if (sortParams.sortColumn == "description") {
             finalSales.sort { it.productItemCode ? it.productItemCode + it.productDescription : it.productDescription }
         } else {
-            finalSales.sort { it."$sortColumn" }
+            finalSales.sort { it."${sortParams.sortColumn}" }
         }
 
-        if (sortOrder == "desc") {
+        if (sortParams.sortOrder == "desc") {
             finalSales = finalSales.reverse()
         }
 
         // Restrict the number of results.
         int totalResults = finalSales.size()
-        finalSales = offset < finalSales.size() ? finalSales.subList(offset, (offset + max < finalSales.size() ? offset + max : finalSales.size())) : []
+        finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-        [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def salesCategory() {
         int categoryId = getIntegerParam(params.categoryId)
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(SALES_REPORT_CATEGORY_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
+
+        [reportType: ReportType.SALES_CATEGORY, categoryId: categoryId, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
+    }
+
+    def ajaxSalesCategory(SortParams sortParams) {
+        int categoryId = getIntegerParam(params.categoryId)
+
+        sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
         Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
         Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
@@ -146,34 +152,38 @@ class ReportingController {
         }
 
         // Sort into the required order.
-        if (sortColumn == "description") {
+        if (sortParams.sortColumn == "description") {
             finalSales.sort { it.productItemCode ? it.productItemCode + it.productDescription : it.productDescription }
         } else {
-            finalSales.sort { it."$sortColumn" }
+            finalSales.sort { it."${sortParams.sortColumn}" }
         }
 
-        if (sortOrder == "desc") {
+        if (sortParams.sortOrder == "desc") {
             finalSales = finalSales.reverse()
         }
 
         // Restrict the number of results.
         int totalResults = finalSales.size()
-        finalSales = offset < finalSales.size() ? finalSales.subList(offset, (offset + max < finalSales.size() ? offset + max : finalSales.size())) : []
+        finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-        [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def salesProduct() {
         int productId = getIntegerParam(params.productId)
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(SALES_REPORT_TRANSACTION_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
+
+        [reportType: ReportType.SALES_PRODUCT, productId: productId, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
+    }
+
+    def ajaxSalesProduct(SortParams sortParams) {
+        int productId = getIntegerParam(params.productId)
+
+        sortParams.validateParams(SALES_REPORT_PRODUCT_SORT_COLUMNS)
 
         Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
         Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
 
-        def sales = reportingService.getSalesForProduct(productId, startDate, endDate, max, offset, sortColumn, sortOrder)
+        def sales = reportingService.getSalesForProduct(productId, startDate, endDate, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
         // Filter our results.
         if (params.searchText) {
@@ -182,16 +192,17 @@ class ReportingController {
 
         // Restrict the number of results.
         int totalResults = sales.size()
-        sales = offset < sales.size() ? sales.subList(offset, (offset + max < sales.size() ? offset + max : sales.size())) : []
+        sales = sortParams.offset < sales.size() ? sales.subList(sortParams.offset, (sortParams.offset + sortParams.max < sales.size() ? sortParams.offset + sortParams.max : sales.size())) : []
 
-        [productId: productId, sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), searchText: params.searchText, max: max, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def tillControlEvents() {
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS, params.sortColumn ?: "type")
-        String sortOrder = getSortOrder(params.sortOrder)
+        [reportType: ReportType.TILL_CONTROL_EVENTS, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS)]
+    }
+
+    def ajaxTillControlEvents(SortParams sortParams) {
+        sortParams.validateParams(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS)
 
         Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
         Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
@@ -210,9 +221,9 @@ class ReportingController {
         // Sort into the required order.
         Comparator comparator
 
-        if (sortColumn == "type") {
+        if (sortParams.sortColumn == "type") {
             comparator = [ compare: { a, b ->
-                if (sortOrder == "desc") {
+                if (sortParams.sortOrder == "desc") {
                     a.compareTo(b)
                 } else {
                     b.compareTo(a)
@@ -220,9 +231,9 @@ class ReportingController {
             }] as Comparator
 
             tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
-        } else if (sortColumn == "quantity") {
+        } else if (sortParams.sortColumn == "quantity") {
             comparator = [ compare: { a, b ->
-                if (sortOrder == "desc") {
+                if (sortParams.sortOrder == "desc") {
                     if (tillControlEventsGrouped.get(b).size() < tillControlEventsGrouped.get(a).size()) {
                         return -1
                     } else {
@@ -244,18 +255,10 @@ class ReportingController {
         int totalResults = tillControlEventsGrouped.size()
 //        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
 
-        [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def tillControlEvent() {
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
-
-        Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
-
         TillControlEventType type = null
 
         try {
@@ -264,9 +267,25 @@ class ReportingController {
             // No action, simply return no results.
         }
 
-        // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate, type, max, offset, sortColumn, sortOrder)
+        [reportType: ReportType.TILL_CONTROL_EVENT, type: type, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT)]
+    }
 
+    def ajaxTillControlEvent(SortParams sortParams) {
+        TillControlEventType type = null
+
+        try {
+            type = TillControlEventType.valueOf(params.type)
+        } catch (Exception e) {
+            // No action, simply return no results.
+        }
+
+        sortParams.validateParams(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS)
+
+        Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
+        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+
+        // Find all till control events in the date range.
+        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate, type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
         // Filter our results.
 //        if (params.searchText) {
 //            tillControlEvents = tillControlEvents.findAll { it.type.toString().toLowerCase().contains(params.searchText.toLowerCase()) }
@@ -280,17 +299,18 @@ class ReportingController {
 //        }
 //
         // Restrict the number of results.
-        int totalResults = tillControlEvents.size()
+        int totalResults = tillControlEvents.totalCount
 //        tillControlEvents = offset < tillControlEvents.size() ? tillControlEvents.subList(offset, (offset + max < tillControlEvents.size() ? offset + max : tillControlEvents.size())) : []
 
-        [tillControlEvents: tillControlEvents, type: type, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def promotionsGrouped() {
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(PROMOTIONS_REPORT_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
+        [reportType: ReportType.PROMOTIONS_GROUPED, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED)]
+    }
+
+    def ajaxPromotionsGrouped(SortParams sortParams) {
+        sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
 
         Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
         Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
@@ -328,29 +348,32 @@ class ReportingController {
         }
 
         // Sort into the required order.
-        finalPromotionSales.sort { it."$sortColumn" }
+        finalPromotionSales.sort { it."${sortParams.sortColumn}" }
 
-        if (sortOrder == "desc") {
+        if (sortParams.sortOrder == "desc") {
             finalPromotionSales = finalPromotionSales.reverse()
         }
 
         // Restrict the number of results.
         int totalResults = finalPromotionSales.size()
-        finalPromotionSales = offset < finalPromotionSales.size() ? finalPromotionSales.subList(offset, (offset + max < finalPromotionSales.size() ? offset + max : finalPromotionSales.size())) : []
+        finalPromotionSales = sortParams.offset < finalPromotionSales.size() ? finalPromotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalPromotionSales.size() ? sortParams.offset + sortParams.max : finalPromotionSales.size())) : []
 
-        [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "promotionsGroupedResults", model: [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def promotions() {
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(PROMOTIONS_REPORT_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
+        int promotionId = getIntegerParam(params.promotionId)
+
+        [promotionId: promotionId, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS)]
+    }
+
+    def ajaxPromotions(SortParams sortParams) {
+        int promotionId = getIntegerParam(params.promotionId)
+
+        sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
 
         Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
         Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
-
-        int promotionId = getIntegerParam(params.promotionId)
 
         // Find all promotion sales for this promotion in the date range.
         def promotionSales = reportingService.getPromotionSales(startDate, endDate, promotionId)
@@ -361,26 +384,29 @@ class ReportingController {
         }
 
         // Sort into the required order.
-        promotionSales.sort { it."$sortColumn" }
+        promotionSales.sort { it."${sortParams.sortColumn}" }
 
-        if (sortOrder == "desc") {
+        if (sortParams.sortOrder == "desc") {
             promotionSales = promotionSales.reverse()
         }
 
         // Restrict the number of results.
         int totalResults = promotionSales.size()
-        promotionSales = offset < promotionSales.size() ? promotionSales.subList(offset, (offset + max < promotionSales.size() ? offset + max : promotionSales.size())) : []
+        promotionSales = sortParams.offset < promotionSales.size() ? promotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < promotionSales.size() ? sortParams.offset + sortParams.max : promotionSales.size())) : []
 
-        [promotionSales: promotionSales, promotionId: promotionId, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def promotion() {
-        int max = getMax(params.max)
-        int offset = getOffset(params.offset)
-        String sortColumn = getSortColumn(PROMOTION_REPORT_SORT_COLUMNS, params.sortColumn)
-        String sortOrder = getSortOrder(params.sortOrder)
-
         int promotionSaleId = getIntegerParam(params.promotionSaleId)
+
+        [promotionSaleId: promotionSaleId, userColumns: reportingService.getReportColumns(ReportType.PROMOTION)]
+    }
+
+    def ajaxPromotion(SortParams sortParams) {
+        int promotionSaleId = getIntegerParam(params.promotionSaleId)
+
+        sortParams.validateParams(PROMOTION_REPORT_SORT_COLUMNS)
 
         // Find all promotion sale products for this promotion sale.
         def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId)
@@ -391,17 +417,17 @@ class ReportingController {
         }
 
         // Sort into the required order.
-        promotionSaleProducts.sort { it."$sortColumn" }
+        promotionSaleProducts.sort { it."${sortParams.sortColumn}" }
 
-        if (sortOrder == "desc") {
+        if (sortParams.sortOrder == "desc") {
             promotionSaleProducts = promotionSaleProducts.reverse()
         }
 
         // Restrict the number of results.
         int totalResults = promotionSaleProducts.size()
-        promotionSaleProducts = offset < promotionSaleProducts.size() ? promotionSaleProducts.subList(offset, (offset + max < promotionSaleProducts.size() ? offset + max : promotionSaleProducts.size())) : []
+        promotionSaleProducts = sortParams.offset < promotionSaleProducts.size() ? promotionSaleProducts.subList(sortParams.offset, (sortParams.offset + sortParams.max < promotionSaleProducts.size() ? sortParams.offset + sortParams.max : promotionSaleProducts.size())) : []
 
-        [promotionSaleProducts: promotionSaleProducts, promotionSaleId: promotionSaleId, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), max: max, searchText: params.searchText, offset: offset, totalResults: totalResults, sortColumn: sortColumn, sortOrder: sortOrder]
+        render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
     }
 
     def ajaxSaveReportColumns() {
@@ -454,12 +480,12 @@ class ReportingController {
      * @param max
      * @return
      */
-    private static int getMax(max) {
-        if (!max || !max.isNumber() || max.length() > 9) {
+    private static int getMax(int max) {
+        if (!max || max > 500) {
             return 50
         }
 
-        return Integer.parseInt(max)
+        return max
     }
 
     /**
@@ -468,12 +494,12 @@ class ReportingController {
      * @param offset
      * @return
      */
-    private static int getOffset(offset) {
-        if (!offset || !offset.isNumber() || offset.length() > 9) {
+    private static int getOffset(int offset) {
+        if (!offset || offset > 5000) {
             return 0
         }
 
-        return Integer.parseInt(offset)
+        return offset
     }
 
     /**

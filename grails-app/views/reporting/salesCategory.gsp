@@ -8,7 +8,12 @@
     <asset:javascript src="reporting.js" />
 
     <script type='text/javascript'>
-        var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
+        var reportType = "${reportType}";
+        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxSalesCategory')}";
+
+        $(document).ready(function () {
+            getReportData(null, { categoryId: ${categoryId} });
+        });
     </script>
 </head>
 <body>
@@ -86,83 +91,15 @@
                                 <label class="form-check-label" for="columnsAvgMargin">Avg Margin</label>
                             </div>
 
-                            <button type="button" class="btn btn-wl" onclick="saveReportColumns(saveReportColumnsUrl, 'SALES_CATEGORY');">Apply</button>
+                            <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-4 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div class="col-1 font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Qty</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgCostPrice', sortOrder: sortColumn == 'avgCostPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Cost Price</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgRetailPrice" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgRetailPrice', sortOrder: sortColumn == 'avgRetailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Sales Price</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'retailPrice', sortOrder: sortColumn == 'retailPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Sales</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatAmount" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'vatAmount', sortOrder: sortColumn == 'vatAmount' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">VAT Amount</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgMargin" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="salesCategory" params="[categoryId: categoryId, max: max, offset: offset, sortColumn: 'avgMargin', sortOrder: sortColumn == 'avgMargin' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Avg Margin</g:link></div>
-            </g:if>
-        </div>
-
-        <div id="search-results" class="align-content-center">
-            <g:if test="${!sales || sales?.size() == 0}">
-                <div id="noResultsRow" class="col pt-2 text-center my-auto">No results found.</div>
-            </g:if>
-
-            <g:each in="${sales}" var="sale" status="i">
-                <g:if test="${sale.productItemCode}">
-                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesProduct', params: [productId: sale.productId])}';">
-                </g:if>
-                <g:else>
-                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId])}';">
-                </g:else>
-
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                    <g:if test="${sale.productItemCode}">
-                        <div class="col-4">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
-                    </g:if>
-                    <g:else>
-                        <div class="col-4">${sale.productDescription}</div>
-                    </g:else>
-                </g:if>
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                    <div class="col-1 my-auto">${sale.quantity}</div>
-                </g:if>
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
-                    <div class="col my-auto">&pound;${sale.avgCostPrice}</div>
-                </g:if>
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgRetailPrice" }?.enabled}">
-                    <div class="col my-auto">&pound;${sale.avgRetailPrice}</div>
-                </g:if>
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-                    <div class="col my-auto">&pound;${sale.retailPrice}</div>
-                </g:if>
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatAmount" }?.enabled}">
-                    <div class="col my-auto">&pound;${sale.vatAmount}</div>
-                </g:if>
-                <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgMargin" }?.enabled}">
-                    <div class="col my-auto">${sale.avgMargin}&#37;</div>
-                </g:if>
-                </div><!-- This </div> matches the one in either the IF or ELSE blocks at the top of the each -->
-            </g:each>
-        </div>
-
-        <div class="my-3 text-right">
-            <div class="text-right">Displaying ${sales.size()} of ${totalResults} results.</div>
-            <g:paginate total="$totalResults" offset="$offset" max="$max" params="[categoryId: categoryId, sortColumn: sortColumn, sortOrder: sortOrder]" />
+        <div id="results-container" class="align-content-center">
+            <g:render template="salesCategoryResults" />
         </div>
     </section>
 </body>

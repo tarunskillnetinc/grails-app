@@ -1,6 +1,6 @@
 <ul class="nav nav-pills nav-fill pills-wl">
     <li class="nav-item">
-        <g:link controller="reporting" action="salesDepartments" class="nav-link ${active.equals('sales') ? 'active' : ''}">Sales</g:link>
+        <g:link controller="reporting" action="salesDepartment" class="nav-link ${active.equals('sales') ? 'active' : ''}">Sales</g:link>
     </li>
 
     <li class="nav-item">

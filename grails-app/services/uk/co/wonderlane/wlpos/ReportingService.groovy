@@ -87,12 +87,17 @@ class ReportingService {
     def getTillControlEvents(Date startDate, Date endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def tillControlEventsCriteria = TillControlEvent.createCriteria()
 
-        return tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
+        def results = tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             eq ("type", type)
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
             between ("dateCreated", startDate, endDate)
         }
+
+        // criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
+        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails.
+        int totalCount = results.totalCount
+        return results
     }
 
     def getPromotionSales(Date startDate, Date endDate) {

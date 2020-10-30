@@ -8,7 +8,12 @@
     <asset:javascript src="reporting.js" />
 
     <script type='text/javascript'>
-        var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
+        var reportType = "${reportType}";
+        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxTillControlEvents')}";
+
+        $(document).ready(function () {
+            getReportData();
+        });
     </script>
 </head>
 <body>
@@ -66,42 +71,15 @@
                                 <label class="form-check-label" for="columnsQuantity">Total Quantity</label>
                             </div>
 
-                            <button type="button" class="btn btn-wl" onclick="saveReportColumns(saveReportColumnsUrl, 'TILL_CONTROL_EVENTS');">Apply</button>
+                            <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="tillControlEvents" params="[max: max, offset: offset, sortColumn: 'type', sortOrder: sortColumn == 'type' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Type</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="tillControlEvents" params="[max: max, offset: offset, sortColumn: 'quantity', sortOrder: sortColumn == 'quantity' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Total Quantity</g:link></div>
-            </g:if>
-        </div>
-
-        <div id="search-results" class="align-content-center">
-            <g:if test="${!tillControlEvents || tillControlEvents?.size() == 0}">
-                <div id="noResultsRow" class="col pt-2 text-center my-auto">No results found.</div>
-            </g:if>
-
-            <g:each in="${tillControlEvents}" var="tillControlEvent" status="i">
-                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'tillControlEvent', params: [type: tillControlEvent.key])}';">
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                        <div class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.key}" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                        <div class="col my-auto">${tillControlEvent.value.size()}</div>
-                    </g:if>
-                </div>
-            </g:each>
-        </div>
-
-        <div class="my-3 text-right">
-            <div class="text-right">Displaying ${tillControlEvents.size()} of ${totalResults} results.</div>
-            <g:paginate total="$totalResults" offset="$offset" max="$max" params="[sortColumn: sortColumn, sortOrder: sortOrder]" />
+        <div id="results-container" class="align-content-center">
+            <g:render template="tillControlEventsResults" />
         </div>
     </section>
 </body>

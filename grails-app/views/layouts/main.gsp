@@ -69,7 +69,7 @@
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
                     <li class="nav-item">
-                        <g:link controller="reporting" action="salesDepartments" class="nav-link">Reporting</g:link>
+                        <g:link controller="reporting" action="salesDepartment" class="nav-link">Reporting</g:link>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>

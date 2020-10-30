@@ -8,7 +8,12 @@
     <asset:javascript src="reporting.js" />
 
     <script type='text/javascript'>
-        var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
+        var reportType = "${reportType}";
+        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxPromotions')}";
+
+        $(document).ready(function () {
+            getReportData(null, { promotionId: ${promotionId} });
+        });
     </script>
 </head>
 <body>
@@ -90,78 +95,15 @@
                                 <label class="form-check-label" for="columnsDateCreated">Date</label>
                             </div>
 
-                            <button type="button" class="btn btn-wl" onclick="saveReportColumns(saveReportColumnsUrl, 'PROMOTIONS');">Apply</button>
+                            <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-2 font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'description', sortOrder: sortColumn == 'description' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Description</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'type', sortOrder: sortColumn == 'type' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Type</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fullPrice" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'fullPrice', sortOrder: sortColumn == 'fullPrice' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Full Price</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discount" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'discount', sortOrder: sortColumn == 'discount' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Discount</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "profit" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'profit', sortOrder: sortColumn == 'profit' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Profit</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'margin', sortOrder: sortColumn == 'margin' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Margin</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vat" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'vat', sortOrder: sortColumn == 'vat' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">VAT</g:link></div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div class="col font-weight-bold"><g:link action="promotions" params="[promotionId: promotionId, max: max, offset: offset, sortColumn: 'dateCreated', sortOrder: sortColumn == 'dateCreated' ? sortOrder == 'asc' ? 'desc' : 'asc' : 'asc']">Date</g:link></div>
-            </g:if>
-        </div>
-
-        <div id="search-results" class="align-content-center">
-            <g:if test="${!promotionSales || promotionSales?.size() == 0}">
-                <div id="noResultsRow" class="col pt-2 text-center my-auto">No results found.</div>
-            </g:if>
-
-            <g:each in="${promotionSales}" var="promotionSale" status="i">
-                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id])}';">
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                        <div class="col-2 my-auto">${promotionSale.description}</div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                        <div class="col my-auto"><g:message code="PromotionType.${promotionSale.type}" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fullPrice" }?.enabled}">
-                        <div class="col my-auto"><g:formatNumber number="${promotionSale.fullPrice}" type="currency" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discount" }?.enabled}">
-                        <div class="col my-auto"><g:formatNumber number="${promotionSale.discount}" type="currency" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "profit" }?.enabled}">
-                        <div class="col my-auto"><g:formatNumber number="${promotionSale.profit}" type="currency" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
-                        <div class="col my-auto"><g:formatNumber number="${promotionSale.margin / 100}" type="percent" minFractionDigits="2" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vat" }?.enabled}">
-                        <div class="col my-auto"><g:formatNumber number="${promotionSale.vat}" type="currency" /></div>
-                    </g:if>
-                    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                        <div class="col my-auto"><g:formatDate date="${promotionSale.dateCreated}" format="dd/MM/yyyy HH:mm" /></div>
-                    </g:if>
-                </div>
-            </g:each>
-        </div>
-
-        <div class="my-3 text-right">
-            <div class="text-right">Displaying ${promotionSales.size()} of ${totalResults} results.</div>
-            <g:paginate total="$totalResults" offset="$offset" max="$max" params="[promotionId: promotionId, sortColumn: sortColumn, sortOrder: sortOrder]" />
+        <div id="results-container" class="align-content-center">
+            <g:render template="promotionsResults" />
         </div>
     </section>
 </body>
