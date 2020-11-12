@@ -12,7 +12,7 @@
         var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxPromotion')}";
 
         $(document).ready(function () {
-            getReportData(null, { promotionSaleId: ${promotionSaleId} });
+            filterReport();
         });
     </script>
 </head>
@@ -20,12 +20,14 @@
     <g:render template="/nav/reporting" model="[active: 'promotions']" />
 
     <section id="reporting-container" class="container-fluid">
+        <g:reportBreadcrumb reportType="${reportType}" promotionSaleId="${promotionSaleId}" startDate="${startDate}" endDate="${endDate}" />
+
         <div class="row header-wl">
             <h2 class="mx-auto">Promotion Sales Report</h2>
         </div>
 
         <div class="row mt-4">
-            <div class="col-6">
+            <div class="col-5">
                 <div class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
                         <div class="row">
@@ -38,11 +40,19 @@
                         </div>
                     </div>
                     <div class="card-body collapse" id="filterCollapse">
-                        <g:form class="form-inline" action="promotion" params="[promotionSaleId: promotionSaleId, max: max, offset: offset, sortColumn: sortColumn, sortOrder: sortOrder]">
-                            <div class="form-group">
-                                <g:textField name="searchText" placeholder="Type search" maxlength="100" value="${searchText}" class="form-control bottom-border" />
+                        <g:form name="filtersForm" id="filtersForm">
+                            <g:hiddenField name="promotionSaleId" value="${promotionSaleId}" />
+
+                            <div class="form-group row">
+                                <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Product</label>
+                                <div class="col-6">
+                                    <g:textField name="descriptionFilter" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
+                                </div>
+
+                                <div class="col-4 text-right">
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                                </div>
                             </div>
-                            <g:submitButton name="Search" class="btn btn-wl" />
                         </g:form>
                     </div>
                 </div>

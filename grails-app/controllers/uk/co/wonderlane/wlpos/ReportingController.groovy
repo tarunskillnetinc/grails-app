@@ -1,7 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import groovy.json.JsonSlurper
-import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
 import uk.co.wonderlane.wlpos.reporting.ReportColumn
@@ -28,21 +28,30 @@ class ReportingController {
     }
 
     def salesDepartment() {
-        [reportType: ReportType.SALES_DEPARTMENT, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT)]
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
+
+        [reportType: ReportType.SALES_DEPARTMENT, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate]
     }
 
     def ajaxSalesDepartment(SortParams sortParams) {
         sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
-        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
 
         // Find all sales involving this category in the date range.
-        def sales = reportingService.getSales(startDate, endDate)
+        def sales = reportingService.getSales(startDate, endDate + 1)
 
         // Filter our results.
-        if (params.searchText) {
-            sales = sales.findAll { it.salesCategories.first().categoryDescription.toLowerCase().contains(params.searchText.toLowerCase()) }
+        if (params.descriptionFilter) {
+            sales = sales.findAll { it.salesCategories.first().categoryDescription.toLowerCase().contains(params.descriptionFilter.toLowerCase()) }
         }
 
         // Group them by department.
@@ -85,13 +94,15 @@ class ReportingController {
         int totalResults = finalSales.size()
         finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-        render (template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
+        render (template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate, sortParams: sortParams, totalResults: totalResults])
     }
 
     def salesCategory() {
         int categoryId = getIntegerParam(params.categoryId)
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
 
-        [reportType: ReportType.SALES_CATEGORY, categoryId: categoryId, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
+        [reportType: ReportType.SALES_CATEGORY, categoryId: categoryId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
     }
 
     def ajaxSalesCategory(SortParams sortParams) {
@@ -99,11 +110,14 @@ class ReportingController {
 
         sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
-        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
 
         // Find all sales involving this category in the date range.
-        def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate)
+        def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate + 1)
 
         // Group them by the next level down category ID if the sale is not directly in this category.
         def salesGrouped = sales?.groupBy { sale ->
@@ -118,7 +132,7 @@ class ReportingController {
         salesGrouped?.each { salesGroup ->
             if (salesGroup.key == null) {
                 // This block are the products which are sold directly in this category. Filter the results and then group by product ID.
-                def filteredProductSales = params.searchText ? salesGroup.value.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.searchText.toLowerCase()) } : salesGroup.value
+                def filteredProductSales = params.descriptionFilter ? salesGroup.value.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.descriptionFilter.toLowerCase()) } : salesGroup.value
 
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
@@ -132,7 +146,7 @@ class ReportingController {
                     finalSales.add(groupedProductSale.value[0])
                 }
             } else {
-                if (!params.searchText || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.searchText.toLowerCase())) {
+                if (!params.descriptionFilter || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.descriptionFilter?.toLowerCase())) {
                     Sale groupedSale = new Sale(
                             quantity: salesGroup.value.sum { it.quantity },
                             costPrice: salesGroup.value.sum { it.costPrice },
@@ -166,13 +180,15 @@ class ReportingController {
         int totalResults = finalSales.size()
         finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-        render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
+        render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
     }
 
     def salesProduct() {
         int productId = getIntegerParam(params.productId)
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
 
-        [reportType: ReportType.SALES_PRODUCT, productId: productId, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
+        [reportType: ReportType.SALES_PRODUCT, productId: productId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
     }
 
     def ajaxSalesProduct(SortParams sortParams) {
@@ -180,40 +196,152 @@ class ReportingController {
 
         sortParams.validateParams(SALES_REPORT_PRODUCT_SORT_COLUMNS)
 
-        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
 
-        def sales = reportingService.getSalesForProduct(productId, startDate, endDate, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        startDate.clearTime()
+        endDate.clearTime()
 
-        // Filter our results.
-        if (params.searchText) {
-            sales = sales findAll { (it.productItemCode + it.productDescription).toLowerCase().contains(params.searchText.toLowerCase()) }
+        def sales = reportingService.getSalesForProduct(productId, startDate, endDate + 1, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, params.descriptionFilter)
+
+        def totalResults = reportingService.countSalesForProduct(productId, startDate, endDate + 1, params.descriptionFilter)
+
+        render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+    }
+
+    def promotionsGrouped() {
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
+
+        [reportType: ReportType.PROMOTIONS_GROUPED, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), promotionTypes: PromotionType.values(), startDate: startDate, endDate: endDate]
+    }
+
+    def ajaxPromotionsGrouped(SortParams sortParams) {
+        sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
+
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
+
+        // Validate the promotion type filter if passed in.
+        if (!params.promotionTypeFilter?.isAllWhitespace()) {
+            try {
+                params.promotionTypeFilter = PromotionType.valueOf(params.promotionTypeFilter)
+            } catch (Exception e) {
+                params.promotionTypeFilter = null;
+            }
+        } else {
+            params.promotionTypeFilter = null;
+        }
+
+        // Find all promotion sales in the date range.
+        def promotionSales = reportingService.getPromotionSales(startDate, endDate + 1, params.descriptionFilter, params.promotionTypeFilter)
+
+        // Group them by promotion ID.
+        def promotionSalesGrouped = promotionSales.groupBy { it.promotionId }
+
+        def finalPromotionSales = []
+
+        // Populating a dummy promotion sale object for all sales of this promotion (because they have summed values).
+        promotionSalesGrouped.each { promotionSaleGroup ->
+            PromotionSale promotionSale = new PromotionSale(
+                    id: promotionSaleGroup.value[0].id,
+                    promotionId: promotionSaleGroup.value[0].promotionId,
+                    type: promotionSaleGroup.value[0].type,
+                    description: promotionSaleGroup.value[0].description,
+                    fullPrice: promotionSaleGroup.value.sum { it.fullPrice },
+                    discount: promotionSaleGroup.value.sum { it.discount },
+                    margin: promotionSaleGroup.value.sum { it.margin } / promotionSaleGroup.value.size(),
+                    profit: promotionSaleGroup.value.sum { it.profit },
+                    vat: promotionSaleGroup.value.sum { it.vat }
+            )
+
+            promotionSale.quantity = promotionSaleGroup.value.size() // Setting a transient value to pass the quantity into the report.
+
+            finalPromotionSales.add(promotionSale)
+        }
+
+        // Sort into the required order.
+        finalPromotionSales.sort { it."${sortParams.sortColumn}" }
+
+        if (sortParams.sortOrder == "desc") {
+            finalPromotionSales = finalPromotionSales.reverse()
         }
 
         // Restrict the number of results.
-        int totalResults = sales.size()
-        sales = sortParams.offset < sales.size() ? sales.subList(sortParams.offset, (sortParams.offset + sortParams.max < sales.size() ? sortParams.offset + sortParams.max : sales.size())) : []
+        int totalResults = finalPromotionSales.size()
+        finalPromotionSales = sortParams.offset < finalPromotionSales.size() ? finalPromotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalPromotionSales.size() ? sortParams.offset + sortParams.max : finalPromotionSales.size())) : []
 
-        render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
+        render (template: "promotionsGroupedResults", model: [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+    }
+
+    def promotions() {
+        int promotionId = getIntegerParam(params.promotionId)
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        [reportType: ReportType.PROMOTIONS, promotionId: promotionId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS)]
+    }
+
+    def ajaxPromotions(SortParams sortParams) {
+        int promotionId = getIntegerParam(params.promotionId)
+
+        sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
+
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
+
+        // Find all promotion sales for this promotion in the date range.
+        def promotionSales = reportingService.getPromotionSales(startDate, endDate + 1, promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+        render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
+    }
+
+    def promotion() {
+        int promotionSaleId = getIntegerParam(params.promotionSaleId)
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        [reportType: ReportType.PROMOTION, promotionSaleId: promotionSaleId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.PROMOTION)]
+    }
+
+    def ajaxPromotion(SortParams sortParams) {
+        int promotionSaleId = getIntegerParam(params.promotionSaleId)
+
+        sortParams.validateParams(PROMOTION_REPORT_SORT_COLUMNS)
+
+        // Find all promotion sale products for this promotion sale.
+        def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId, params.descriptionFilter, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+        render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), sortParams: sortParams, totalResults: promotionSaleProducts.totalCount])
     }
 
     def tillControlEvents() {
-        [reportType: ReportType.TILL_CONTROL_EVENTS, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS)]
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        [reportType: ReportType.TILL_CONTROL_EVENTS, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), startDate: startDate, endDate: endDate]
     }
 
     def ajaxTillControlEvents(SortParams sortParams) {
         sortParams.validateParams(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS)
 
-        Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
 
         // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate)
-
-        // Filter our results.
-        if (params.searchText) {
-            tillControlEvents = tillControlEvents.findAll { it.type.toString().toLowerCase().contains(params.searchText.toLowerCase()) }
-        }
+        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate + 1)
 
         // Group them by type.
         def tillControlEventsGrouped = tillControlEvents.groupBy { it.type }
@@ -255,10 +383,13 @@ class ReportingController {
         int totalResults = tillControlEventsGrouped.size()
 //        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
 
-        render (template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
+        render (template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
     }
 
     def tillControlEvent() {
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
         TillControlEventType type = null
 
         try {
@@ -267,167 +398,30 @@ class ReportingController {
             // No action, simply return no results.
         }
 
-        [reportType: ReportType.TILL_CONTROL_EVENT, type: type, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT)]
+        [reportType: ReportType.TILL_CONTROL_EVENT, tillControlEventType: type, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT)]
     }
 
     def ajaxTillControlEvent(SortParams sortParams) {
         TillControlEventType type = null
 
         try {
-            type = TillControlEventType.valueOf(params.type)
+            type = TillControlEventType.valueOf(params.tillControlEventType)
         } catch (Exception e) {
             // No action, simply return no results.
         }
 
         sortParams.validateParams(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS)
 
-        Date startDate = new DateTime().minusDays(14).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
 
         // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate, type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
-        // Filter our results.
-//        if (params.searchText) {
-//            tillControlEvents = tillControlEvents.findAll { it.type.toString().toLowerCase().contains(params.searchText.toLowerCase()) }
-//        }
+        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate + 1, type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
-        // Sort into the required order.
-//        tillControlEvents = tillControlEvents.sort { it."${sortColumn}"}
-
-//        if (sortOrder == "desc") {
-//            tillControlEvents = tillControlEvents.reverse();
-//        }
-//
-        // Restrict the number of results.
-        int totalResults = tillControlEvents.totalCount
-//        tillControlEvents = offset < tillControlEvents.size() ? tillControlEvents.subList(offset, (offset + max < tillControlEvents.size() ? offset + max : tillControlEvents.size())) : []
-
-        render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
-    }
-
-    def promotionsGrouped() {
-        [reportType: ReportType.PROMOTIONS_GROUPED, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED)]
-    }
-
-    def ajaxPromotionsGrouped(SortParams sortParams) {
-        sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
-
-        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
-
-        // Find all promotion sales in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate, endDate)
-
-        // Filter our results.
-        if (params.searchText) {
-            promotionSales = promotionSales.findAll { it.description.toLowerCase().contains(params.searchText.toLowerCase()) }
-        }
-
-        // Group them by promotion ID.
-        def promotionSalesGrouped = promotionSales.groupBy { it.promotionId }
-
-        def finalPromotionSales = []
-
-        // Populating a dummy sale object for any of the sales which are not in this category (because they have summed values for everything in that category).
-        promotionSalesGrouped.each { promotionSaleGroup ->
-            PromotionSale promotionSale = new PromotionSale(
-                    id: promotionSaleGroup.value[0].id,
-                    promotionId: promotionSaleGroup.value[0].promotionId,
-                    type: promotionSaleGroup.value[0].type,
-                    description: promotionSaleGroup.value[0].description,
-                    fullPrice: promotionSaleGroup.value.sum { it.fullPrice },
-                    discount: promotionSaleGroup.value.sum { it.discount },
-                    margin: promotionSaleGroup.value.sum { it.margin } / promotionSaleGroup.value.size(),
-                    profit: promotionSaleGroup.value.sum { it.profit },
-                    vat: promotionSaleGroup.value.sum { it.vat }
-            )
-
-            promotionSale.quantity = promotionSaleGroup.value.size() // Setting a transient value to pass the quantity into the report.
-
-            finalPromotionSales.add(promotionSale)
-        }
-
-        // Sort into the required order.
-        finalPromotionSales.sort { it."${sortParams.sortColumn}" }
-
-        if (sortParams.sortOrder == "desc") {
-            finalPromotionSales = finalPromotionSales.reverse()
-        }
-
-        // Restrict the number of results.
-        int totalResults = finalPromotionSales.size()
-        finalPromotionSales = sortParams.offset < finalPromotionSales.size() ? finalPromotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalPromotionSales.size() ? sortParams.offset + sortParams.max : finalPromotionSales.size())) : []
-
-        render (template: "promotionsGroupedResults", model: [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
-    }
-
-    def promotions() {
-        int promotionId = getIntegerParam(params.promotionId)
-
-        [promotionId: promotionId, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS)]
-    }
-
-    def ajaxPromotions(SortParams sortParams) {
-        int promotionId = getIntegerParam(params.promotionId)
-
-        sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
-
-        Date startDate = new DateTime().minusDays(7).withTimeAtStartOfDay().toDate()
-        Date endDate = new DateTime().plusDays(1).withTimeAtStartOfDay().toDate()
-
-        // Find all promotion sales for this promotion in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate, endDate, promotionId)
-
-        // Filter our results.
-        if (params.searchText) {
-            promotionSales = promotionSales.findAll { it.description.toLowerCase().contains(params.searchText.toLowerCase()) }
-        }
-
-        // Sort into the required order.
-        promotionSales.sort { it."${sortParams.sortColumn}" }
-
-        if (sortParams.sortOrder == "desc") {
-            promotionSales = promotionSales.reverse()
-        }
-
-        // Restrict the number of results.
-        int totalResults = promotionSales.size()
-        promotionSales = sortParams.offset < promotionSales.size() ? promotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < promotionSales.size() ? sortParams.offset + sortParams.max : promotionSales.size())) : []
-
-        render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
-    }
-
-    def promotion() {
-        int promotionSaleId = getIntegerParam(params.promotionSaleId)
-
-        [promotionSaleId: promotionSaleId, userColumns: reportingService.getReportColumns(ReportType.PROMOTION)]
-    }
-
-    def ajaxPromotion(SortParams sortParams) {
-        int promotionSaleId = getIntegerParam(params.promotionSaleId)
-
-        sortParams.validateParams(PROMOTION_REPORT_SORT_COLUMNS)
-
-        // Find all promotion sale products for this promotion sale.
-        def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId)
-
-        // Filter our results.
-        if (params.searchText) {
-            promotionSaleProducts = promotionSaleProducts.findAll { it.description.toLowerCase().contains(params.searchText.toLowerCase()) }
-        }
-
-        // Sort into the required order.
-        promotionSaleProducts.sort { it."${sortParams.sortColumn}" }
-
-        if (sortParams.sortOrder == "desc") {
-            promotionSaleProducts = promotionSaleProducts.reverse()
-        }
-
-        // Restrict the number of results.
-        int totalResults = promotionSaleProducts.size()
-        promotionSaleProducts = sortParams.offset < promotionSaleProducts.size() ? promotionSaleProducts.subList(sortParams.offset, (sortParams.offset + sortParams.max < promotionSaleProducts.size() ? sortParams.offset + sortParams.max : promotionSaleProducts.size())) : []
-
-        render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), sortParams: sortParams, searchText: params.searchText, totalResults: totalResults])
+        render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
     }
 
     def ajaxSaveReportColumns() {

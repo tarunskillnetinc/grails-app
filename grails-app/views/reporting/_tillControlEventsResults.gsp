@@ -19,7 +19,7 @@
     </g:if>
 
     <g:each in="${tillControlEvents}" var="tillControlEvent" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'tillControlEvent', params: [type: tillControlEvent.key])}';">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'tillControlEvent', params: [type: tillControlEvent.key, startDate: startDate.format("dd/MM/yyyy"), endDate: endDate.format("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
                 <div class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.key}" /></div>
             </g:if>
@@ -30,7 +30,9 @@
     </g:each>
 </div>
 
-<div class="my-3 text-right">
-    <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (tillControlEvents?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
-    <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
-</div>
+<g:if test="${totalResults > 0}">
+    <div class="my-3 text-right">
+        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (tillControlEvents?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
+        <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
+    </div>
+</g:if>

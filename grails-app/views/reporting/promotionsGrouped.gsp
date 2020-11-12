@@ -5,6 +5,8 @@
 
     <title>WonderLane</title>
 
+    <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+    <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="reporting.js" />
 
     <script type='text/javascript'>
@@ -12,7 +14,31 @@
         var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxPromotionsGrouped')}";
 
         $(document).ready(function () {
-            getReportData();
+            filterReport();
+        });
+
+        $(function() {
+            $('#startDate').datepicker({
+                format: "dd/mm/yyyy",
+                weekStart: 1,
+                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
+                endDate: "${new Date().format("dd/MM/yyyy")}",
+                todayHighlight: true,
+                autoclose: true,
+                todayBtn: "linked",
+                orientation: "bottom auto"
+            });
+
+            $('#endDate').datepicker({
+                format: "dd/mm/yyyy",
+                weekStart: 1,
+                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
+                endDate: "${new Date().format("dd/MM/yyyy")}",
+                todayHighlight: true,
+                autoclose: true,
+                todayBtn: "linked",
+                orientation: "bottom auto"
+            });
         });
     </script>
 </head>
@@ -20,12 +46,14 @@
     <g:render template="/nav/reporting" model="[active: 'promotions']" />
 
     <section id="reporting-container" class="container-fluid">
+        <g:reportBreadcrumb reportType="${reportType}" />
+
         <div class="row header-wl">
             <h2 class="mx-auto">Promotion Sales Report</h2>
         </div>
 
         <div class="row mt-4">
-            <div class="col-6">
+            <div class="col-5">
                 <div class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
                         <div class="row">
@@ -38,11 +66,36 @@
                         </div>
                     </div>
                     <div class="card-body collapse" id="filterCollapse">
-                        <g:form class="form-inline" action="promotionsGrouped" params="[max: max, offset: offset, sortColumn: sortColumn, sortOrder: sortOrder]">
-                            <div class="form-group">
-                                <g:textField name="searchText" placeholder="Type search" maxlength="100" value="${searchText}" class="form-control bottom-border" />
+                        <g:form name="filtersForm" id="filtersForm">
+                            <div class="form-group row">
+                                <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
+                                <div class="col-4">
+                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                </div>
+
+                                <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
+                                <div class="col-4">
+                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                </div>
                             </div>
-                            <g:submitButton name="Search" class="btn btn-wl" />
+
+                            <div class="form-group row">
+                                <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
+                                <div class="col-6">
+                                    <g:textField name="descriptionFilter" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="promotionTypeFilter" class="col-2 col-form-label-sm text-right">Type</label>
+                                <div class="col-4">
+                                    <g:select name="promotionTypeFilter" from="${promotionTypes}" noSelection="['':'']" value="${promotionTypeFilter}" valueMessagePrefix="PromotionType" class="form-control select-border" />
+                                </div>
+
+                                <div class="col-4 text-right">
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                                </div>
+                            </div>
                         </g:form>
                     </div>
                 </div>

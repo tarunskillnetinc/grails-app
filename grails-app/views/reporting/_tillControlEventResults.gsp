@@ -36,7 +36,13 @@
                 <div class="col my-auto">${tillControlEvent.usersName}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
-                <div class="col my-auto">${tillControlEvent.reason ?: 'N/A'}</div>
+                <div class="col my-auto">
+                    <g:if test="${!tillControlEvent.reason}">N/A</g:if>
+                    <g:elseif test="${tillControlEvent.type.name() == 'CUSTOMER_REFUSAL'}"><g:message code="CustomerRefusalReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:elseif test="${tillControlEvent.type.name() == 'REFUND'}"><g:message code="RefundReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:elseif test="${tillControlEvent.type.name() == 'MARKDOWN'}"><g:message code="MarkdownReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:else>${tillControlEvent.reason}</g:else>
+                </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
                 <div class="col my-auto"><g:formatDate date="${tillControlEvent.dateCreated}" format="dd/MM/yy HH:mm:ss" /></div>
@@ -53,7 +59,9 @@
     </g:each>
 </div>
 
-<div class="my-3 text-right">
-    <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (tillControlEvents?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
-    <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
-</div>
+<g:if test="${totalResults > 0}">
+    <div class="my-3 text-right">
+        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (tillControlEvents?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
+        <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
+    </div>
+</g:if>

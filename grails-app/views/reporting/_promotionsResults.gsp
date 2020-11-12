@@ -37,7 +37,7 @@
     </g:if>
 
     <g:each in="${promotionSales}" var="promotionSale" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id])}';">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id, startDate: startDate?.format('dd/MM/yyyy'), endDate: endDate?.format('dd/MM/yyyy')])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div class="col-2 my-auto">${promotionSale.description}</div>
             </g:if>
@@ -66,7 +66,9 @@
     </g:each>
 </div>
 
-<div class="my-3 text-right">
-    <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (promotionSales?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
-    <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
-</div>
+<g:if test="${totalResults > 0}">
+    <div class="my-3 text-right">
+        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (promotionSales?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
+        <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
+    </div>
+</g:if>

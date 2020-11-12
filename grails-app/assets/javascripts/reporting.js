@@ -19,6 +19,22 @@ function saveReportColumns() {
     });
 }
 
+function filterReport() {
+    var filterValues = { };
+
+    $("#filtersForm input").each(function() {
+        filterValues[$(this).attr("name")] = $(this).val();
+    }).get();
+
+    $("#filtersForm select").each(function() {
+        filterValues[$(this).attr("name")] = $(this).find(":selected").val();
+    }).get();
+
+    console.log(filterValues);
+
+    getReportData(null, filterValues);
+}
+
 function getReportData(sortParams, filterParams) {
     $("#search-results").hide();
     $("#loading-indicator").show();

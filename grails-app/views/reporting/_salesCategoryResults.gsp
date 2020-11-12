@@ -35,10 +35,10 @@
 
     <g:each in="${sales}" var="sale" status="i">
         <g:if test="${sale.productItemCode}">
-            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesProduct', params: [productId: sale.productId])}';">
+            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesProduct', params: [productId: sale.productId, startDate: startDate?.format("dd/MM/yyyy"), endDate: endDate?.format("dd/MM/yyyy")])}';">
         </g:if>
         <g:else>
-            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId])}';">
+            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId, startDate: startDate?.format("dd/MM/yyyy"), endDate: endDate?.format("dd/MM/yyyy")])}';">
         </g:else>
 
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
@@ -71,7 +71,9 @@
     </g:each>
 </div>
 
-<div class="my-3 text-right">
-    <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (sales?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
-    <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
-</div>
+<g:if test="${totalResults > 0}">
+    <div class="my-3 text-right">
+        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (sales?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
+        <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
+    </div>
+</g:if>
