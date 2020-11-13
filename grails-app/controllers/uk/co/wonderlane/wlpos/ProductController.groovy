@@ -31,8 +31,6 @@ class ProductController {
     def maintenance() {
         def product = productService.getProduct(Integer.parseInt(params.productId))
 
-
-
         render(view: "maintenance", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),

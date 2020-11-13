@@ -62,20 +62,54 @@
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
-                    <li class="nav-item">
-                        <g:link controller="storeSettings" class="nav-link">EPOS</g:link>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="eposDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">EPOS</a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="eposDropdown">
+                            <div class="dropdown-submenu">
+                                <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="buttonGridsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Button Grids</a>
+
+                                <div class="dropdown-menu" aria-labelledby="buttonGridsDropdown">
+                                    <g:link controller="buttonGrid" action="show" params="[type: 'SALES']" class="dropdown-item">Sales</g:link>
+                                    <g:link controller="buttonGrid" action="show" params="[type: 'QUICK_SELL']" class="dropdown-item">Quicksell</g:link>
+                                    <g:link controller="buttonGrid" action="show" params="[type: 'TENDER']" class="dropdown-item">Tender</g:link>
+                                    <g:link controller="buttonGrid" action="show" params="[type: 'MANAGER_FUNCTIONS']" class="dropdown-item">Manager Functions</g:link>
+                                    <div class="dropdown-divider"></div>
+                                    <g:quicksellMenu />
+                                    <g:link controller="buttonGrid" action="add" class="dropdown-item">+ Add Page</g:link>
+                                </div>
+                            </div>
+
+                            <g:link controller="product" class="dropdown-item">Products</g:link>
+                            <g:link controller="promotion" class="dropdown-item">Promotions</g:link>
+                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Shift Management</a>
+                        </div>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
-                    <li class="nav-item">
-                        <g:link controller="reporting" action="salesDepartment" class="nav-link">Reporting</g:link>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reporting</a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="reportingDropdown">
+                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales</g:link>
+                            <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotions</g:link>
+                            <g:link controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
+                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
+                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
+                        </div>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>
 
-                    <li class="nav-item">
-                        <g:link controller="productList" class="nav-link">Administration</g:link>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
+                            <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
+                            <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
+                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Administration 3</a>
+                        </div>
                     </li>
 
                     <li class="vertical-line d-md-none d-lg-block"></li>

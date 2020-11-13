@@ -45,8 +45,6 @@
     </head>
 
     <body>
-        <g:render template="/nav/epos" model="[active: 'product']" />
-
         <g:if test="${flash.message}">
             <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
         </g:if>

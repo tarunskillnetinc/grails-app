@@ -43,8 +43,6 @@
     </script>
 </head>
 <body>
-    <g:render template="/nav/reporting" model="[active: 'sales']" />
-
     <section id="reporting-container" class="container-fluid">
         <g:reportBreadcrumb reportType="${reportType}" />
 

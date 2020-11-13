@@ -7,14 +7,15 @@
     <title>WonderLane Button Grids</title>
 </head>
 <body>
-
-    <g:render template="/nav/epos" model="[active: 'quicksell']" />
-
     <g:hasErrors bean="${buttonGrid}">
         <div class="alert alert-danger alert-wl" role="alert">
             <g:renderErrors bean="${buttonGrid}" as="list" />
         </div>
     </g:hasErrors>
+
+    <div class="row header-wl">
+        <h2 class="mx-auto">Add Button Grid</h2>
+    </div>
 
     <div class="col-12 col-lg-6 offset-lg-3">
         <g:form name="save-button" action="save">

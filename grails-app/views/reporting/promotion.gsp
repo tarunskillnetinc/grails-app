@@ -17,8 +17,6 @@
     </script>
 </head>
 <body>
-    <g:render template="/nav/reporting" model="[active: 'promotions']" />
-
     <section id="reporting-container" class="container-fluid">
         <g:reportBreadcrumb reportType="${reportType}" promotionSaleId="${promotionSaleId}" startDate="${startDate}" endDate="${endDate}" />
 

@@ -6,9 +6,6 @@
     <title>WonderLane Button Grids</title>
 </head>
 <body>
-
-    <g:render template="/nav/epos" model="[active: 'quicksell']" />
-
     <div class="d-flex justify-content-center header-wl">
         <h2>
             <g:if test="${buttonGrid.type.name() == 'OTHER'}">
