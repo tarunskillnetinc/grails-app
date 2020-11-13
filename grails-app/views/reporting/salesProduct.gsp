@@ -53,7 +53,7 @@
         </div>
 
         <div class="row mt-4">
-            <div class="col-6">
+            <div class="col-5">
                 <div class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
                         <div class="row">

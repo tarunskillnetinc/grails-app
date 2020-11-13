@@ -92,7 +92,7 @@
                                     <g:select name="promotionTypeFilter" from="${promotionTypes}" noSelection="['':'']" value="${promotionTypeFilter}" valueMessagePrefix="PromotionType" class="form-control select-border" />
                                 </div>
 
-                                <div class="col-4 text-right">
+                                <div class="col-6 text-right">
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
                                 </div>
                             </div>
