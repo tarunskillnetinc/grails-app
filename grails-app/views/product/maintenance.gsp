@@ -38,8 +38,6 @@
     </head>
 
     <body>
-        <g:render template="/nav/epos" model="[active: 'product']" />
-
         <div class="row header-wl">
             <h2 class="mx-auto">Product Maintenance</h2>
         </div>
