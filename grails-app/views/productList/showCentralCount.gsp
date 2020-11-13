@@ -76,7 +76,7 @@
 
                 <div id="search-results" class="align-content-center mb-5">
                     <g:if test="${!productList.productListItems || productList?.productListItems?.size() == 0}">
-                        <div id="noResultsRow" class="col-10 pt-2 text-center">No products added.</div>
+                        <div id="noResultsRow" class="col pt-2 text-center">No products added.</div>
                     </g:if>
 
                     <g:each in="${productList.productListItems}" var="productListItem" status="i">
