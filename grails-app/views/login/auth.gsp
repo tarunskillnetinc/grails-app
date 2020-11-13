@@ -40,7 +40,7 @@
 
                 <div class="form-group row">
                     <div class="col-12 col-md-5 offset-md-4">
-                        <g:submitButton class="btn btn-success" name="save" value="Log in" />
+                        <g:submitButton class="btn btn-wl" name="save" value="Log in" />
                     </div>
                 </div>
             </div>

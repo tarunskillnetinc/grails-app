@@ -1,4 +1,4 @@
-<div class="row mt-4">
+<div class="row mt-2">
     <div class="col-12">
         <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
             <li class="nav-item">

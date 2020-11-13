@@ -8,9 +8,6 @@
     <asset:javascript src="buttonGrid.js" />
 </head>
 <body>
-
-    <g:render template="/nav/epos" model="[active: 'quicksell']" />
-
     <g:hasErrors bean="${button}">
         <div class="alert alert-danger alert-wl" role="alert">
             <g:renderErrors bean="${button}" as="list" />
@@ -82,7 +79,7 @@
                                 </div>
                                 <div class="col-4">
                                     <!-- Button trigger modal -->
-                                    <a href="#" class="btn product-select-button" data-toggle="modal" data-target="#productSearchModal">
+                                    <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                                         Select Product
                                     </a>
                                 </div>

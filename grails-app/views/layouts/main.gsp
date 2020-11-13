@@ -35,7 +35,7 @@
                 <span><sec:loggedInUserInfo field="usersName" /></span>
             </div>
             <div class="col-12 col-sm-1 text-right">
-                <g:link controller="logoff" class="btn btn-danger" style="margin-right: 21px;">Log out</g:link>
+                <g:link controller="logoff" class="btn btn-wl red" style="margin-right: 21px;">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
     </div>

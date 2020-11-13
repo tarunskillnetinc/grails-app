@@ -7,8 +7,6 @@
     </head>
 
     <body>
-        <g:render template="/nav/administration" model="[active: 'centralCounts']" />
-
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl">
                 <h2 class="mx-auto">Central Count Management</h2>
@@ -58,7 +56,7 @@
                 <div class="row mt-4 ml-0 mr-0">
                     <div class="col-2 offset-10 text-right">
                         <!-- Button trigger modal -->
-                        <a href="#" class="btn product-select-button" data-toggle="modal" data-target="#productSearchModal">
+                        <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                             Add Product
                         </a>
                     </div>

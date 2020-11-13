@@ -7,8 +7,6 @@
     </head>
 
     <body>
-        <g:render template="/nav/administration" model="[active: 'centralCounts']" />
-
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl">
                 <h2 class="mx-auto">Central Count Management</h2>

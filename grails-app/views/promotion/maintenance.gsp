@@ -617,8 +617,6 @@
     </head>
 
     <body>
-        <g:render template="/nav/epos" model="[active: 'promotion']" />
-
         <section id="maintenance-section" class="container-fluid">
             <div class="row header-wl">
                 <h2 class="mx-auto">Promotion Maintenance</h2>
