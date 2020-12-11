@@ -12,6 +12,7 @@
     <script type='text/javascript'>
         var reportType = "${reportType}";
         var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxSalesCategory')}";
+        var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
 
         $(document).ready(function () {
             filterReport();

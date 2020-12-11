@@ -9,7 +9,7 @@ function saveReportColumns() {
     }).get();
 
     $.ajax({
-        url: "/reporting/ajaxSaveReportColumns",
+        url: saveReportColumnsUrl,
         method: "POST",
         data: { reportColumns: JSON.stringify(checkboxValues), reportType: reportType },
         success: function(resp) {
