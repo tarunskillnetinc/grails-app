@@ -44,7 +44,7 @@
 
                 <div class="form-group row col-12 col-lg-6">
                     <label for="username" class="col-4 col-form-label text-right pr-4">Username</label>
-                    <g:textField name="username" class="col-5 form-control bottom-border" value="${user?.username}" />
+                    <g:textField name="username" class="col-5 form-control bottom-border" value="${user?.username}" autocomplete="off" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6">
@@ -59,7 +59,7 @@
 
                 <div class="form-group row col-12 col-lg-6">
                     <label for="name" class="col-4 col-form-label text-right pr-4">Name</label>
-                    <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" />
+                    <g:textField name="name" class="col-5 form-control bottom-border" value="${user?.name}" autocomplete="off" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6">
@@ -80,7 +80,7 @@
 
                 <div class="form-group row col-12 col-lg-6">
                     <label for="securityKey" class="col-4 col-form-label text-right pr-4">Security Key</label>
-                    <g:textField name="securityKey" class="col-5 form-control bottom-border" value="${user?.securityKey}" />
+                    <g:textField name="securityKey" class="col-5 form-control bottom-border" value="${user?.securityKey}" autocomplete="off" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6">
@@ -90,7 +90,7 @@
 
                 <div class="form-group row col-12 col-lg-6">
                     <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
-                    <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" />
+                    <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" autocomplete="off" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6">
