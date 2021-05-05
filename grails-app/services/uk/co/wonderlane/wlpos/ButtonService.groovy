@@ -12,4 +12,8 @@ class ButtonService {
     def saveButtonGrid(ButtonGrid buttonGrid) {
         buttonGrid.save()
     }
+
+    def deleteButton(Button button) {
+        button.delete()
+    }
 }

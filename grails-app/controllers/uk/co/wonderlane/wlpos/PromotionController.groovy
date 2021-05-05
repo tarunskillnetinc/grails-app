@@ -336,7 +336,7 @@ class PromotionController {
 
         int totalResults = products[-1].getId()
 
-        products.pop()
+        products.removeLast()
 
         render(template: "/promotion/productSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }

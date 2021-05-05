@@ -120,7 +120,7 @@ class ButtonController {
 
         int buttonGridId = button.buttonGrid.id
 
-        button.delete(flush: true)
+        buttonService.deleteButton(button)
 
         // Make sure the RabbitMQ connection is available, otherwise reject the save.
         try {
