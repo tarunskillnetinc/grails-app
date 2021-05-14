@@ -3,24 +3,26 @@ grails.plugin.springsecurity.password.bcrypt.logrounds = 8
 
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
-	[pattern: '/',               access: ['permitAll']],
-	[pattern: '/error',          access: ['permitAll']],
-	[pattern: '/index',          access: ['isAuthenticated()']],
-	[pattern: '/index.gsp',      access: ['permitAll']],
-	[pattern: '/shutdown',       access: ['permitAll']],
-	[pattern: '/assets/**',      access: ['permitAll']],
-	[pattern: '/**/js/**',       access: ['permitAll']],
-	[pattern: '/**/css/**',      access: ['permitAll']],
-	[pattern: '/**/images/**',   access: ['permitAll']],
-	[pattern: '/**/favicon.ico', access: ['permitAll']],
+	[pattern: '/',                 access: ['permitAll']],
+	[pattern: '/error',            access: ['permitAll']],
+	[pattern: '/index',            access: ['isAuthenticated()']],
+	[pattern: '/index.gsp',        access: ['permitAll']],
+	[pattern: '/shutdown',         access: ['permitAll']],
+	[pattern: '/assets/**',        access: ['permitAll']],
+	[pattern: '/**/js/**',         access: ['permitAll']],
+	[pattern: '/**/css/**',        access: ['permitAll']],
+	[pattern: '/**/images/**',     access: ['permitAll']],
+	[pattern: '/**/favicon.ico',   access: ['permitAll']],
 	[pattern: '/storeSettings/**', access: 'isAuthenticated()'],
-	[pattern: '/button/**',      access: 'isAuthenticated()'],
-	[pattern: '/buttonGrid/**',  access: 'isAuthenticated()'],
-	[pattern: '/product/**',     access: 'isAuthenticated()'],
-	[pattern: '/promotion/**',   access: 'isAuthenticated()'],
-	[pattern: '/reporting/**',   access: 'isAuthenticated()'],
-	[pattern: '/user/**',        access: 'isAuthenticated()'],
-	[pattern: '/productList/**', access: 'isAuthenticated()']
+	[pattern: '/button/**',        access: 'isAuthenticated()'],
+	[pattern: '/buttonGrid/**',    access: 'isAuthenticated()'],
+	[pattern: '/product/**',       access: 'isAuthenticated()'],
+	[pattern: '/promotion/**',     access: 'isAuthenticated()'],
+	[pattern: '/reporting/**',     access: 'isAuthenticated()'],
+	[pattern: '/user/**',          access: 'isAuthenticated()'],
+	[pattern: '/productList/**',   access: 'isAuthenticated()'],
+	[pattern: '/shift/**',         access: 'isAuthenticated()'],
+	[pattern: '/supplier/**',      access: 'isAuthenticated()']
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [

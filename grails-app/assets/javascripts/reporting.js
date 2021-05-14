@@ -30,8 +30,6 @@ function filterReport() {
         filterValues[$(this).attr("name")] = $(this).find(":selected").val();
     }).get();
 
-    console.log(filterValues);
-
     getReportData(null, filterValues);
 }
 
