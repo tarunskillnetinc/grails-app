@@ -1,0 +1,179 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<html>
+    <head>
+        <meta name="layout" content="main" />
+
+        <title>Suppliers & Affiliations</title>
+
+        <script type='text/javascript'>
+            var getSuppliersUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSuppliers')}";
+            var getSymbolGroupSubscriptionsUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSymbolGroupSubscriptions')}";
+            var addSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxAddSupplier')}";
+            var saveSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxSaveSupplier')}";
+
+            $(function() {
+                getSuppliers();
+                getSymbolGroupSubscriptions();
+            });
+
+            function getSuppliers() {
+                $("#search-results").hide();
+                $("#loading-indicator").show();
+
+                $.ajax({
+                    url: getSuppliersUrl,
+                    method: "GET",
+                    success: function(resp) {
+                        $("#results-container").html(resp);
+                    }
+                });
+            }
+
+            function getSymbolGroupSubscriptions() {
+                $("#subscriptions-search-results").hide();
+                $("#subscriptions-loading-indicator").show();
+
+                $.ajax({
+                    url: getSymbolGroupSubscriptionsUrl,
+                    method: "GET",
+                    success: function(resp) {
+                        $("#subscriptions-results-container").html(resp);
+                    }
+                });
+            }
+
+            function showAddSupplierModal() {
+                $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#addSupplierModal').modal({ show: true });
+
+                $.ajax({
+                    url: addSupplierUrl,
+                    method: "GET",
+                    success: function(resp) {
+                        $("#addSupplierContent").html(resp);
+                    }
+                });
+            }
+
+            function saveSupplier() {
+                var formValues = $("#addSupplierForm").serialize();
+
+                $("#addSupplierContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
+
+                $.ajax({
+                    url: saveSupplierUrl,
+                    method: "POST",
+                    data: formValues,
+                    success: function(resp) {
+                        if (resp === "OK") {
+                            $('#addSupplierModal').modal('hide')
+
+                            getSuppliers();
+                        } else {
+                            $("#addSupplierContent").html(resp);
+                        }
+                    }
+                });
+            }
+
+            function submitCash(shiftId) {
+                var cashUpBy = $("#cashUpBy").val();
+
+                if (cashUpBy === "VALUE" && !isFormValid()) {
+                    return;
+                }
+
+                var formValues = $("#cashUpForm").serialize();
+                formValues = formValues + "&shiftId=" +shiftId
+
+                $.ajax({
+                    url: saveCashUrl,
+                    method: "POST",
+                    data: formValues,
+                    success: function(resp) {
+                        $("#cashModalContent").html(resp);
+
+                        $("#saveShiftButton").prop("onclick", null).off("click");
+                        $("#saveShiftButton").click(function() {
+                            submitShift(shiftId);
+                        });
+                    }
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <div class="col-12 col-sm-8 offset-sm-2 mt-5">
+            <ul class="nav nav-tabs nav-fill tabs-wl" role="tablist">
+                <li class="nav-item">
+                    <a id="suppliers-tab" data-toggle="tab" href="#suppliers" aria-selected="true" role="tab" aria-controls="suppliers" class="nav-link active">Suppliers</a>
+                </li>
+
+                <li class="nav-item">
+                    <a id="symbolGroupSubscriptions-tab" data-toggle="tab" href="#symbolGroupSubscriptions" role="tab" aria-controls="symbolGroupSubscriptions" class="nav-link">Supplier Affiliations</a>
+                </li>
+
+                <li class="nav-item">
+                    <a id="supplierUpdates-tab" data-toggle="tab" href="#supplierUpdates" role="tab" aria-controls="supplierUpdates" class="nav-link disabled">Supplier Price Updates</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" style="margin-top: 50px;">
+            <!-- Suppliers -->
+            <div class="tab-pane fade show active" id="suppliers" role="tabpanel" aria-labelledby="suppliers-tab">
+                <section id="suppliers-container" class="container-fluid">
+                    <div class="row header-wl mt-3">
+                        <h2 class="mx-auto">Suppliers</h2>
+                    </div>
+
+                    <div class="row mt-4 ml-0 mr-0">
+                        <div class="col-2 offset-10 text-right">
+                            <a href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
+                        </div>
+                    </div>
+
+                    <div id="results-container" class="align-content-center">
+                        <g:render template="supplierSearchResults" />
+                    </div>
+                </section>
+            </div>
+
+            <!-- Symbol group subscriptions -->
+            <div class="tab-pane fade show" id="symbolGroupSubscriptions" role="tabpanel" aria-labelledby="symbolGroupSubscriptions-tab">
+                <section id="subscriptions-container" class="container-fluid">
+                    <div class="row header-wl mt-3">
+                        <h2 class="mx-auto">Supplier Affiliations</h2>
+                    </div>
+
+                    <div class="row mt-4 ml-0 mr-0">
+                        <div class="col-2 offset-10 text-right">
+                            <g:link action="add" class="btn btn-wl">Add Supplier Affiliation</g:link>
+                        </div>
+                    </div>
+
+                    <div id="subscriptions-results-container" class="align-content-center">
+                        <g:render template="symbolGroupSubscriptionsSearchResults" />
+                    </div>
+                </section>
+            </div>
+
+            <!-- Supplier price updates -->
+            <div class="tab-pane fade show" id="supplierUpdates" role="tabpanel" aria-labelledby="supplierUpdates-tab">
+
+            </div>
+        </div>
+
+        <section id="addSupplier-modal" class="container-fluid">
+            <!-- Add supplier modal -->
+            <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div id="addSupplierContent" class="modal-content">
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

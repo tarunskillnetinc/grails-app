@@ -82,7 +82,6 @@
 
                             <g:link controller="product" class="dropdown-item">Products</g:link>
                             <g:link controller="promotion" class="dropdown-item">Promotions</g:link>
-                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Shift Management</a>
                         </div>
                     </li>
 
@@ -107,8 +106,9 @@
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
                             <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
+                            <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                            <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
                             <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
-                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Administration 3</a>
                         </div>
                     </li>
 
