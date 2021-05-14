@@ -2,18 +2,18 @@
 
 <g:if test="${products == null}">
     <div class="row text-center">
-        <div class="col-12">Please enter a search term.</div>
+        <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>
     </div>
 </g:if>
 
 <g:if test="${products?.size() == 0}">
     <div class="row text-center">
-        <div class="col-12">No results found.</div>
+        <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </div>
 </g:if>
 
 <g:each in="${products}" var="product" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'maintenance', params:[productId: product.id])}';">
+    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'maintenance', params:[productId: product.id])}';">
         <div class="col-2">${product.itemCode}</div>
         <div class="col-6">${product.description}</div>
         <div class="col-2">${product.unitSize}</div>

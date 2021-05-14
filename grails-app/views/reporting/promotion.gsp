@@ -28,7 +28,7 @@
         <div class="row mt-4">
             <div class="col-5">
                 <div class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
+                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                         <div class="row">
                             <div class="col-10">Filters</div>
                             <div class="col-2 text-right">

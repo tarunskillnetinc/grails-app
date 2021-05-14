@@ -1,4 +1,4 @@
-<div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
+<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemCode" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'itemCode', sortOrder: ${sortParams?.sortColumn == 'itemCode' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Item Code</a></div>
     </g:if>

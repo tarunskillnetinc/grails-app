@@ -3,7 +3,7 @@
 </g:if>
 
 <g:each in="${productLists}" var="productList" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'showCentralCount', id: productList.id)}';">
+    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'showCentralCount', id: productList.id)}';">
         <div class="col-1">${productList.id}</div>
         <div class="col">${productList.description}</div>
         <div class="col"><g:message code="ProductListStatus.${productList.status}" /></div>

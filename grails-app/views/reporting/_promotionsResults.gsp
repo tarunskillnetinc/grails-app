@@ -1,4 +1,4 @@
-<div class="row mt-5 mb-2 ml-0 mr-0 table-wl">
+<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
         <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'description', sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
     </g:if>
@@ -37,7 +37,7 @@
     </g:if>
 
     <g:each in="${promotionSales}" var="promotionSale" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id, startDate: startDate?.format('dd/MM/yyyy'), endDate: endDate?.format('dd/MM/yyyy')])}';">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id, startDate: startDate?.format('dd/MM/yyyy'), endDate: endDate?.format('dd/MM/yyyy')])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div class="col-2 my-auto">${promotionSale.description}</div>
             </g:if>

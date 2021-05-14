@@ -28,7 +28,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a id="storeSettings-tab" data-toggle="tab" href="#storeSettings" role="tab" aria-controls="storeSettings" class="nav-link">EPOS</a>
+                    <a id="storeSettings-tab" data-toggle="tab" href="#storeSettings" role="tab" aria-controls="storeSettings" class="nav-link">EPOS Configuration</a>
                 </li>
 
                 <li class="nav-item">
@@ -40,6 +40,10 @@
         <div class="tab-content" style="margin-top: 50px;">
             <!-- Contact Information -->
             <div class="tab-pane fade show active" id="contactInformation" role="tabpanel" aria-labelledby="contactInformation-tab">
+                <div class="row header-wl mt-3">
+                    <h2 class="mx-auto">Contact Information</h2>
+                </div>
+
                 <div class="col-12">
                     <div class="form-group row margin-top-2rem">
                         <label for="storeName" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Store Name</label>
@@ -108,6 +112,10 @@
 
             <!-- EPOS Settings -->
             <div class="tab-pane fade show" id="storeSettings" role="tabpanel" aria-labelledby="storeSettings-tab">
+                <div class="row header-wl mt-3">
+                    <h2 class="mx-auto">EPOS Configuration</h2>
+                </div>
+
                 <div class="col-12">
                     <div class="form-group row margin-top-2rem">
                         <label for="receiptMessage1" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Receipt Line 1</label>
@@ -157,6 +165,10 @@
 
             <!-- Inventory Management -->
             <div class="tab-pane fade show" id="inventoryManagement" role="tabpanel" aria-labelledby="inventoryManagement-tab">
+                <div class="row header-wl mt-3">
+                    <h2 class="mx-auto">Inventory Management</h2>
+                </div>
+
                 <div class="col-12">
                     <div class="form-group row margin-top-2rem">
                         <label for="varianceQuantity" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Variance Quantity Threshold</label>

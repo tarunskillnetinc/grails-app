@@ -25,7 +25,7 @@
                 var searchTerm = $('#productSearchTerm').val();
                 var searchBy = $('#productSearchBy').val();
 
-                $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
+                $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
                     "    <span class=\"sr-only\">Loading...</span>\n" +
                     "  </div>\n" +
@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <div class="row mt-5 mb-2 ml-0 mr-0">
+            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-2 font-weight-bold">Item Code</div>
                 <div class="col-6 font-weight-bold">Description</div>
                 <div class="col-2 font-weight-bold">Unit Size</div>
@@ -77,7 +77,7 @@
             </div>
 
             <div id="search-results" class="align-content-center">
-
+                <g:render template="maintenanceSearchResults" />
             </div>
         </section>
     </body>

@@ -60,7 +60,7 @@
                 </div>
             </div>
 
-            <div class="row mt-5 mb-2 ml-0 mr-0">
+            <div class="row mt-5 ml-0 mr-0 pb-2 table-wl bottom-border">
                 <div class="col-4 font-weight-bold">Username</div>
                 <div class="col-4 font-weight-bold">Name</div>
                 <div class="col-2 font-weight-bold">Date of Birth</div>
