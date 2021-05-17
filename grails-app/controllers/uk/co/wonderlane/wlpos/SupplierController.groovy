@@ -1,6 +1,11 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.Gson
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
 class SupplierController {
 
@@ -25,11 +30,17 @@ class SupplierController {
         render (template: "addSupplier")
     }
 
+    def ajaxEditSupplier(int supplierId) {
+        def supplier = supplierService.getSupplier(supplierId)
+
+        render (template: "addSupplier", model: [supplier: supplier])
+    }
+
     def ajaxSaveSupplier() {
         def supplier
 
         if (params.id && Integer.parseInt(params.id) > 0) {
-            supplier = supplierService.getSupplier(params.id)
+            supplier = supplierService.getSupplier(Integer.parseInt(params.id))
         } else {
             supplier = new Supplier()
             supplier.retailerId = springSecurityService.principal.retailerId
@@ -44,6 +55,64 @@ class SupplierController {
             render "OK"
         } else {
             render (template: "addSupplier", model: [supplier: supplier])
+        }
+    }
+
+    def ajaxAddSymbolGroupSubscription() {
+        render (template: "addSymbolGroupSubscription", model: [symbolGroups: supplierService.getSymbolGroups()])
+    }
+
+    def ajaxEditSymbolGroupSubscription(int symbolGroupSubscriptionId) {
+        def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupSubscriptionId)
+
+        render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: supplierService.getSymbolGroups()])
+    }
+
+    def ajaxSaveSymbolGroupSubscription() {
+        def symbolGroupSubscription
+
+        if (params.id && Integer.parseInt(params.id) > 0) {
+            symbolGroupSubscription = supplierService.getSymbolGroupSubscription(Integer.parseInt(params.id))
+        } else {
+            symbolGroupSubscription = new SymbolGroupSubscription()
+        }
+
+        bindData(symbolGroupSubscription, params)
+
+        symbolGroupSubscription.retailerId = springSecurityService.principal.retailerId
+        symbolGroupSubscription.storeId = springSecurityService.principal.storeId
+        symbolGroupSubscription.status = SymbolGroupSubscriptionStatus.PENDING
+        symbolGroupSubscription.active = true
+
+        if (symbolGroupSubscription.validate()) {
+            // Make sure the RabbitMQ connection is available, otherwise reject the save.
+            try {
+                // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
+                BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
+                rabbitService.init()
+
+                if (!rabbitService.isOpen()) {
+                    throw new Exception("Rabbit MQ not available")
+                }
+
+                supplierService.saveSymbolGroupSubscription(symbolGroupSubscription)
+
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.SYMBOL_GROUP_SUBSCRIPTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setSymbolGroupId(symbolGroupSubscription.symbolGroup.id)
+
+                Gson gson = new Gson()
+
+                rabbitService.sendExchangeMessage("SymbolGroups", gson.toJson(syncMessage))
+
+                render "OK"
+            } catch (Exception e) {
+                e.printStackTrace()
+
+                render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: supplierService.getSymbolGroups()])
+            }
+        } else {
+            render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: supplierService.getSymbolGroups()])
         }
     }
 }

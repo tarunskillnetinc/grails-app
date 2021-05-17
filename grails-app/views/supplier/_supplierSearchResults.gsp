@@ -19,7 +19,7 @@
     </g:if>
 
     <g:each in="${suppliers}" var="supplier" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="showSupplierModal(${supplier.id});">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="editSupplier(${supplier.id});">
             <div class="col-2 my-auto">${supplier.reference}</div>
             <div class="col-2 my-auto">${supplier.name}</div>
             <div class="col-2 my-auto">${supplier.customerReference}</div>

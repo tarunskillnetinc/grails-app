@@ -1,7 +1,7 @@
 package uk.co.wonderlane.wlpos.supplier
 
-import grails.databinding.BindingFormat
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
 
 class SymbolGroupSubscription {
@@ -15,14 +15,11 @@ class SymbolGroupSubscription {
     String organisationIdentifier
     String username
     String password
-    @BindingFormat('dd/MM/yyyy HH:mm:ss')
     DateTime lastProductDownload
-    @BindingFormat('dd/MM/yyyy HH:mm:ss')
     DateTime lastPromotionDownload
     String additionalPassword
     SymbolGroupSubscriptionStatus status
     String error
-    @BindingFormat('dd/MM/yyyy HH:mm:ss')
     DateTime updateDate
 
     static mapping = {
@@ -55,6 +52,14 @@ class SymbolGroupSubscription {
         additionalPassword nullable: true, maxSize: 50
         error nullable: true, maxSize: 250
         updateDate nullable: true
+    }
+
+    def beforeInsert() {
+        updateDate = DateTime.now(DateTimeZone.UTC)
+    }
+
+    def beforeUpdate() {
+        updateDate = DateTime.now(DateTimeZone.UTC)
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.SymbolGroupSubscription getSymbolGroupSubscription() {

@@ -17,11 +17,11 @@
     </g:if>
 
     <g:each in="${symbolGroupSubscriptions}" var="symbolGroupSubscription" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="showSubscriptionModal(${symbolGroupSubscription.id});">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="editSymbolGroupSubscription(${symbolGroupSubscription.id});">
             <div class="col-3 my-auto">${symbolGroupSubscription.symbolGroup.name}</div>
             <div class="col-3 my-auto"><g:message code="SymbolGroupSubscriptionStatus.${symbolGroupSubscription.status}" /></div>
-            <div class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy" date="${symbolGroupSubscription.lastProductDownload}" /></div>
-            <div class="col-3 my-auto">${symbolGroupSubscription.contactName}</div>
+            <div class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${symbolGroupSubscription.lastProductDownload?.toDate()}" /></div>
+            <div class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${symbolGroupSubscription.lastPromotionDownload?.toDate()}" /></div>
         </div>
     </g:each>
 </div>

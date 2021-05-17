@@ -9,7 +9,11 @@
             var getSuppliersUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSuppliers')}";
             var getSymbolGroupSubscriptionsUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSymbolGroupSubscriptions')}";
             var addSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxAddSupplier')}";
+            var editSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxEditSupplier')}";
             var saveSupplierUrl = "${createLink(controller: 'supplier', action: 'ajaxSaveSupplier')}";
+            var addSymbolGroupSubscriptionUrl = "${createLink(controller: 'supplier', action: 'ajaxAddSymbolGroupSubscription')}";
+            var editSymbolGroupSubscriptionUrl = "${createLink(controller: 'supplier', action: 'ajaxEditSymbolGroupSubscription')}";
+            var saveSymbolGroupSubscriptionUrl = "${createLink(controller: 'supplier', action: 'ajaxSaveSymbolGroupSubscription')}";
 
             $(function() {
                 getSuppliers();
@@ -55,6 +59,20 @@
                 });
             }
 
+            function editSupplier(supplierId) {
+                $("#addSupplierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#addSupplierModal').modal({ show: true });
+
+                $.ajax({
+                    url: editSupplierUrl,
+                    method: "GET",
+                    data: { supplierId: supplierId },
+                    success: function(resp) {
+                        $("#addSupplierContent").html(resp);
+                    }
+                });
+            }
+
             function saveSupplier() {
                 var formValues = $("#addSupplierForm").serialize();
 
@@ -76,27 +94,60 @@
                 });
             }
 
-            function submitCash(shiftId) {
-                var cashUpBy = $("#cashUpBy").val();
-
-                if (cashUpBy === "VALUE" && !isFormValid()) {
-                    return;
-                }
-
-                var formValues = $("#cashUpForm").serialize();
-                formValues = formValues + "&shiftId=" +shiftId
+            function showAddSymbolGroupSubscriptionModal() {
+                $("#addSymbolGroupSubscriptionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#addSymbolGroupSubscriptionModal').modal({ show: true });
 
                 $.ajax({
-                    url: saveCashUrl,
+                    url: addSymbolGroupSubscriptionUrl,
+                    method: "GET",
+                    success: function(resp) {
+                        $("#addSymbolGroupSubscriptionContent").html(resp);
+                    }
+                });
+            }
+
+            function symbolGroupSubscripionSupplierChanged(symbolGroupId) {
+                var nisaForm = $("#nisaForm");
+
+                nisaForm.hide();
+
+                if (symbolGroupId === "1") {
+                    nisaForm.show();
+                }
+            }
+
+            function editSymbolGroupSubscription(symbolGroupSubscriptionId) {
+                $("#addSymbolGroupSubscriptionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#addSymbolGroupSubscriptionModal').modal({ show: true });
+
+                $.ajax({
+                    url: editSymbolGroupSubscriptionUrl,
+                    method: "GET",
+                    data: { symbolGroupSubscriptionId: symbolGroupSubscriptionId },
+                    success: function(resp) {
+                        $("#addSymbolGroupSubscriptionContent").html(resp);
+                    }
+                });
+            }
+
+            function saveSymbolGroupSubscription() {
+                var formValues = $("#addSymbolGroupSubscriptionForm").serialize();
+
+                $("#addSymbolGroupSubscriptionContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>");
+
+                $.ajax({
+                    url: saveSymbolGroupSubscriptionUrl,
                     method: "POST",
                     data: formValues,
                     success: function(resp) {
-                        $("#cashModalContent").html(resp);
+                        if (resp === "OK") {
+                            $('#addSymbolGroupSubscriptionModal').modal('hide')
 
-                        $("#saveShiftButton").prop("onclick", null).off("click");
-                        $("#saveShiftButton").click(function() {
-                            submitShift(shiftId);
-                        });
+                            getSymbolGroupSubscriptions();
+                        } else {
+                            $("#addSymbolGroupSubscriptionContent").html(resp);
+                        }
                     }
                 });
             }
@@ -149,7 +200,7 @@
 
                     <div class="row mt-4 ml-0 mr-0">
                         <div class="col-2 offset-10 text-right">
-                            <g:link action="add" class="btn btn-wl">Add Supplier Affiliation</g:link>
+                            <a href="#" class="btn btn-wl" onclick="showAddSymbolGroupSubscriptionModal();">Add New Supplier Affiliation</a>
                         </div>
                     </div>
 
@@ -170,6 +221,17 @@
             <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div id="addSupplierContent" class="modal-content">
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="addSymbolGroupSubscription-modal" class="container-fluid">
+            <!-- Add symbol group subscription modal -->
+            <div class="modal fade" id="addSymbolGroupSubscriptionModal" tabindex="-1" role="dialog" aria-labelledby="addSymbolGroupSubscriptionModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div id="addSymbolGroupSubscriptionContent" class="modal-content">
 
                     </div>
                 </div>

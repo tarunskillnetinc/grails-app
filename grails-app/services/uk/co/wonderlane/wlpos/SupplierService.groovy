@@ -2,6 +2,8 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SymbolGroup
+import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
 @Transactional
 class SupplierService {
@@ -25,6 +27,18 @@ class SupplierService {
     }
 
     def getSymbolGroupSubscriptions() {
-//        return Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, [sort: "name", order: "asc"])
+        return SymbolGroupSubscription.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+    }
+
+    def getSymbolGroupSubscription(int id) {
+        return SymbolGroupSubscription.findByIdAndRetailerIdAndStoreId(id, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+    }
+
+    def getSymbolGroups() {
+        return SymbolGroup.listOrderByName()
+    }
+
+    def saveSymbolGroupSubscription(SymbolGroupSubscription symbolGroupSubscription) {
+        symbolGroupSubscription.save()
     }
 }
