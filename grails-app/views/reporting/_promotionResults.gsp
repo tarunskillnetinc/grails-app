@@ -42,7 +42,7 @@
 
 <div id="search-results">
     <g:if test="${!promotionSaleProducts || promotionSaleProducts.size() == 0}">
-        <div id="noResultsRow" class="col pt-2 text-center my-auto">No results found.</div>
+        <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </g:if>
 
     <g:each in="${promotionSaleProducts}" var="promotionSaleProduct" status="i">

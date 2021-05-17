@@ -13,7 +13,7 @@
 </g:if>
 
 <g:each in="${products}" var="product" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'maintenance', params:[productId: product.id])}';">
+    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'maintenance', params:[productId: product.id])}';">
         <div class="col-2">${product.itemCode}</div>
         <div class="col-6">${product.description}</div>
         <div class="col-2">${product.unitSize}</div>

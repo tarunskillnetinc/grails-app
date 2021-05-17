@@ -1,5 +1,5 @@
 <g:if test="${!products || products?.size() == 0}">
-    <tr id="noResultsRow"><td colspan="7" style="text-align: center;">No results found.</td></tr>
+    <tr id="noResultsRow" class="wl-striped0"><td colspan="7" style="text-align: center;">No results found.</td></tr>
 </g:if>
 
 <g:each in="${products}" var="product">

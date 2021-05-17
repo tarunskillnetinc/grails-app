@@ -15,11 +15,11 @@
 
 <div id="search-results">
     <g:if test="${!shifts || shifts?.size() == 0}">
-        <div id="noResultsRow" class="col pt-2 text-center my-auto">No shifts found.</div>
+        <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No shifts found.</div>
     </g:if>
 
     <g:each in="${shifts}" var="shift" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable"  title="Click to view." style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
             <div class="col-2 my-auto">${shift.tillId}</div>
             <div class="col-2 my-auto">${shift.shiftNumber}</div>
             <div class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
