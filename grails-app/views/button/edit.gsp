@@ -8,6 +8,30 @@
     <asset:javascript src="buttonGrid.js" />
 </head>
 <body>
+    <section id="breadcrumb-container" class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <div class="row mt-4">
+                <div class="col">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li class="breadcrumb-item active" aria-current="page">Button Grids</li>
+                        <li class="breadcrumb-item" aria-current="page">
+                            <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}">
+                                <g:if test="${button?.buttonGrid?.type?.name() == 'OTHER'}">
+                                    ${button?.buttonGrid?.description}
+                                </g:if>
+                                <g:else>
+                                    <g:message code="ButtonGridType.${button?.buttonGrid?.type?.name()}" />
+                                </g:else>
+                            </g:link>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">${button?.description ? button.description : "New Button"}</li>
+                    </ol>
+                </div>
+            </div>
+        </nav>
+    </section>
+
     <g:hasErrors bean="${button}">
         <div class="alert alert-danger alert-wl" role="alert">
             <g:renderErrors bean="${button}" as="list" />

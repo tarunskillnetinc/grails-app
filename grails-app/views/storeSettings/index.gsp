@@ -6,6 +6,19 @@
     <title>WonderLane Store Settings</title>
 </head>
 <body>
+    <section id="breadcrumb-container" class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <div class="row mt-4">
+                <div class="col">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li class="breadcrumb-item active" aria-current="page">Store Settings</li>
+                    </ol>
+                </div>
+            </div>
+        </nav>
+    </section>
+
     <g:hasErrors bean="${storeSettings}">
         <div class="alert alert-danger alert-wl" role="alert">
             <g:renderErrors bean="${storeSettings}" as="list" />

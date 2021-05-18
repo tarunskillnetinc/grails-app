@@ -6,8 +6,29 @@
     <title>WonderLane Button Grids</title>
 </head>
 <body>
-    <div class="d-flex justify-content-center header-wl">
-        <h2>
+    <section id="breadcrumb-container" class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <div class="row mt-4">
+                <div class="col">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li class="breadcrumb-item active" aria-current="page">Button Grids</li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <g:if test="${buttonGrid.type.name() == 'OTHER'}">
+                                ${buttonGrid.description}
+                            </g:if>
+                            <g:else>
+                                <g:message code="ButtonGridType.${buttonGrid.type.name()}" />
+                            </g:else>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </nav>
+    </section>
+
+    <div class="row header-wl mt-3">
+        <h2 class="mx-auto">
             <g:if test="${buttonGrid.type.name() == 'OTHER'}">
                 ${buttonGrid.description}
             </g:if>

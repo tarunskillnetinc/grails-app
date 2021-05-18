@@ -42,15 +42,17 @@ class EposTagLib {
     def reportBreadcrumb = { attrs, body ->
         out << """<nav aria-label="breadcrumb"><div class="row mt-4"><div class="col"><ol class="breadcrumb">"""
 
+        out << """<li class="breadcrumb-item">${g.link(uri:"/") { "Home" }}"""
+
         switch ((ReportType)attrs.reportType) {
             case ReportType.SALES_DEPARTMENT:
-                out << """<li class="breadcrumb-item active" aria-current="page">All</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
 
                 break;
             case ReportType.SALES_CATEGORY:
                 def categories = categoryService.getCategoryHierarchy(attrs.categoryId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
 
                 categories.each { category ->
                     if (category.id == attrs.categoryId) {
@@ -65,7 +67,7 @@ class EposTagLib {
                 def product = productService.getProduct(attrs.productId)
                 def categories = categoryService.getCategoryHierarchy(product.category.id)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
 
                 categories.each { category ->
                     out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: category.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { category.description }}"""
@@ -75,13 +77,13 @@ class EposTagLib {
 
                 break;
             case ReportType.PROMOTIONS_GROUPED:
-                out << """<li class="breadcrumb-item active" aria-current="page">All</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
 
                 break;
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break;
@@ -89,17 +91,17 @@ class EposTagLib {
                 def promotionSale = reportingService.getPromotionSale(attrs.promotionSaleId)
                 def promotion = promotionService.getPromotion(promotionSale.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
                 out << """<li class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { promotion.description }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break;
             case ReportType.TILL_CONTROL_EVENTS:
-                out << """<li class="breadcrumb-item active" aria-current="page">All</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Events</li>"""
 
                 break;
             case ReportType.TILL_CONTROL_EVENT:
-                out << """<li class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Events" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${g.message(code: 'TillControlEventType.' +attrs.tillControlEventType)}</li>"""
 
                 break;

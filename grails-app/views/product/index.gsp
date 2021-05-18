@@ -45,12 +45,25 @@
     </head>
 
     <body>
+        <section id="breadcrumb-container" class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <div class="row mt-4">
+                    <div class="col">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li class="breadcrumb-item active" aria-current="page">Product Maintenance</li>
+                        </ol>
+                    </div>
+                </div>
+            </nav>
+        </section>
+
         <g:if test="${flash.message}">
             <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
         </g:if>
 
         <section id="maintenance-search" class="container-fluid">
-            <div class="row header-wl">
+            <div class="row header-wl mt-3">
                 <h2 class="mx-auto">Product Maintenance</h2>
             </div>
 

@@ -481,11 +481,6 @@ class ReportingController {
     private String getSalesByCategoryCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
 
-        // Stick these bytes on the start to make the encoding right.
-        stringBuilder.append(0xEF)
-        stringBuilder.append(0xBB)
-        stringBuilder.append(0xBF)
-
         stringBuilder.append("Description,Total Quantity,Avg Cost Price,Avg Sales Price,Total Sales,VAT Amount,Avg Margin\n")
 
         sales?.each {
@@ -510,11 +505,6 @@ class ReportingController {
 
     private String getSalesByProductCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
-
-        // Stick these bytes on the start to make the encoding right.
-        stringBuilder.append(0xEF)
-        stringBuilder.append(0xBB)
-        stringBuilder.append(0xBF)
 
         stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
 

@@ -7,9 +7,23 @@
     </head>
 
     <body>
+        <section id="breadcrumb-container" class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <div class="row mt-4">
+                    <div class="col">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li class="breadcrumb-item"><g:link controller="user" action="index">User Management</g:link></li>
+                            <li class="breadcrumb-item active" aria-current="page">${user.name ?: "View User"}</li>
+                        </ol>
+                    </div>
+                </div>
+            </nav>
+        </section>
+
         <section id="add-user-section" class="container-fluid">
-            <div class="row header-wl">
-                <h2 class="mx-auto">Add User</h2>
+            <div class="row header-wl mt-3">
+                <h2 class="mx-auto">View User</h2>
             </div>
 
             <g:if test="${flash.message}">
