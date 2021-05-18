@@ -9,10 +9,14 @@
             $(document).ready(function () {
                 $('#promotionSearchTerm').on('keyup', function(event) {
                     if (event.key === 'Enter') {
-                        $('#offset').val(0);
-                        search();
+                        searchButtonClicked();
                     }
                 });
+
+                var existingSearchTerm = $('#promotionSearchTerm').val();
+                if (existingSearchTerm != null && existingSearchTerm !== "") {
+                    searchButtonClicked();
+                }
             });
 
             function searchButtonClicked() {
@@ -51,7 +55,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Promotion Maintenance</li>
+                            <li class="breadcrumb-item active" aria-current="page">Promotion Search</li>
                         </ol>
                     </div>
                 </div>
@@ -64,12 +68,12 @@
 
         <section id="promo-maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">
-                <h2 class="mx-auto">Promotion Maintenance</h2>
+                <h2 class="mx-auto">Promotion Search</h2>
             </div>
 
             <div class="row mt-4 ml-0 mr-0 justify-content-center">
                 <div class="input-group offset-2 col-8">
-                    <g:textField name="promotionSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+                    <g:textField name="promotionSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" value="${session.PROMOTION_SEARCH_TERM}" />
 
                     <div class="input-group-append">
                         <g:select id="promotionSearchBy" name="productSearchBy" from="${['description', 'promotionId']}" value="everything" valueMessagePrefix="PromotionSearchBy" class="form-control select-border" style="z-index: 0;" />

@@ -19,7 +19,7 @@
         <div class="col-1">
             <g:checkBox name="promo-${i}-active" value="${promotion.active}" disabled="true"/>
         </div>
-        <div class="col-2">${promotion.type}</div>
+        <div class="col-2"><g:message code="PromotionType.${promotion.type}" /></div>
         <div class="col-2">${promotion.amount}</div>
     </div>
 </g:each>

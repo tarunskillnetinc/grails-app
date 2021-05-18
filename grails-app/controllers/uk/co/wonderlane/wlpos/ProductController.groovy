@@ -25,7 +25,7 @@ class ProductController {
     def productService
 
     def index() {
-        render( view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
+        render(view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
     }
 
     def maintenance() {
@@ -57,6 +57,8 @@ class ProductController {
     }
 
     def search() {
+        session.PRODUCT_SEARCH_TERM = params.searchTerm
+
         def products = productService.searchProductsNew(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
         int totalResults = products[-1].getId()
@@ -69,6 +71,8 @@ class ProductController {
     }
 
     def maintenanceSearch() {
+        session.PRODUCT_SEARCH_TERM = params.searchTerm
+
         def products = productService.searchProductsNew(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
         int totalResults = products[-1].getId()

@@ -9,10 +9,14 @@
             $(document).ready(function () {
                 $('#productSearchTerm').on('keyup', function(event) {
                     if (event.key === 'Enter') {
-                        $('#offset').val(0);
-                        search();
+                        searchButtonClicked();
                     }
                 });
+
+                var existingSearchTerm = $('#productSearchTerm').val();
+                if (existingSearchTerm != null && existingSearchTerm !== "") {
+                    searchButtonClicked();
+                }
             });
 
             function searchButtonClicked() {
@@ -51,7 +55,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Product Maintenance</li>
+                            <li class="breadcrumb-item active" aria-current="page">Product Search</li>
                         </ol>
                     </div>
                 </div>
@@ -64,12 +68,12 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">
-                <h2 class="mx-auto">Product Maintenance</h2>
+                <h2 class="mx-auto">Product Search</h2>
             </div>
 
             <div class="row mt-4 ml-0 mr-0">
                 <div class="input-group offset-2 col-8">
-                    <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+                    <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" value="${session.PRODUCT_SEARCH_TERM}" />
 
                     <div class="input-group-append">
                         <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />

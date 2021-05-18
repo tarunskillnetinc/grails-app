@@ -364,6 +364,8 @@ class PromotionController {
     }
 
     def promotionSearch() {
+        session.PROMOTION_SEARCH_TERM = params.searchTerm
+
         def promos
         def totalResults
 

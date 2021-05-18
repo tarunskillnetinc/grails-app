@@ -93,7 +93,7 @@
                 </div>
             </div>
 
-            <div class="col-1 offset-4 text-right my-auto">
+            <div class="col-1 offset-4 text-right mt-1">
                 <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
             </div>
 

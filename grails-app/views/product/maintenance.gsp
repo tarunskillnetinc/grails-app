@@ -38,7 +38,21 @@
     </head>
 
     <body>
-        <div class="row header-wl">
+        <section id="breadcrumb-container" class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <div class="row mt-4">
+                    <div class="col">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
+                            <li class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
+                        </ol>
+                    </div>
+                </div>
+            </nav>
+        </section>
+
+        <div class="row header-wl mt-3">
             <h2 class="mx-auto">Product Maintenance</h2>
         </div>
 
