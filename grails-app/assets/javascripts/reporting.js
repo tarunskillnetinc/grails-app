@@ -58,3 +58,10 @@ function getReportData(sortParams, filterParams) {
         }
     });
 }
+
+function exportToCsv() {
+    var params = { reportType: reportType, csv: true };
+    $.extend(params, globalSortParams, globalFilterParams);
+
+    window.location = getDataUrl + "?" + $.param(params);
+}

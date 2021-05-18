@@ -94,7 +94,15 @@ class ReportingController {
         int totalResults = finalSales.size()
         finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-        render (template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate, sortParams: sortParams, totalResults: totalResults])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "SalesByDepartment-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getSalesByCategoryCsv(finalSales)
+        } else {
+            render(template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate, sortParams: sortParams, totalResults: totalResults])
+        }
     }
 
     def salesCategory() {
@@ -180,7 +188,15 @@ class ReportingController {
         int totalResults = finalSales.size()
         finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-        render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "SalesByCategory-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getSalesByCategoryCsv(finalSales)
+        } else {
+            render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        }
     }
 
     def salesProduct() {
@@ -206,7 +222,15 @@ class ReportingController {
 
         def totalResults = reportingService.countSalesForProduct(productId, startDate, endDate + 1, params.descriptionFilter)
 
-        render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "SalesByProduct-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getSalesByProductCsv(sales)
+        } else {
+            render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        }
     }
 
     def promotionsGrouped() {
@@ -452,6 +476,70 @@ class ReportingController {
             e.printStackTrace()
             render (status: 500, text: "An error occurred saving your report column preferences.")
         }
+    }
+
+    private String getSalesByCategoryCsv(List<Sale> sales) {
+        StringBuilder stringBuilder = new StringBuilder()
+
+        // Stick these bytes on the start to make the encoding right.
+        stringBuilder.append(0xEF)
+        stringBuilder.append(0xBB)
+        stringBuilder.append(0xBF)
+
+        stringBuilder.append("Description,Total Quantity,Avg Cost Price,Avg Sales Price,Total Sales,VAT Amount,Avg Margin\n")
+
+        sales?.each {
+            stringBuilder.append(it.productDescription?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.quantity)
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.avgCostPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.avgRetailPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.retailPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.vatAmount?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append(it.avgMargin?.setScale(2) + "%")
+            stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getSalesByProductCsv(List<Sale> sales) {
+        StringBuilder stringBuilder = new StringBuilder()
+
+        // Stick these bytes on the start to make the encoding right.
+        stringBuilder.append(0xEF)
+        stringBuilder.append(0xBB)
+        stringBuilder.append(0xBF)
+
+        stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
+
+        sales?.each {
+            stringBuilder.append(it.productItemCode?.replace("'", "\\'") + " - " + it.productDescription?.replace("'", "\\'") + " - " + it.productUnitSize?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.quantity)
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.costPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.retailPrice.subtract(it.vatAmount)?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.vatAmount?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.retailPrice.subtract(it.costPrice).subtract(it.vatAmount)?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append(it.margin?.setScale(2) + "%")
+            stringBuilder.append(",")
+            stringBuilder.append(it.usersName)
+            stringBuilder.append(",")
+            stringBuilder.append(it.dateCreated?.format("dd/MM/yy HH:mm:ss"))
+            stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
     }
 
     /**
