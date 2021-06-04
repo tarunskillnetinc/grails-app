@@ -28,21 +28,67 @@ class ProductService extends MySqlDal {
     }
 
     def getProduct(int id) {
-        def product = Product.get(id)
+        def product = Product.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
 
-        return product?.retailerId == springSecurityService.principal.retailerId ? product : null
+        return product
     }
 
     def saveProduct(Product product) {
         product.save()
     }
 
-    def saveProductData(ProductData productData) {
-        productData.save()
+    def saveProductVariant(ProductVariant productVariant) {
+        productVariant.save()
     }
 
-    def populateCurrentProductData(def product) {
-        product.currentProductData = product.productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date() }
+    def populateCurrentProductVariant(def product) {
+        product.currentProductVariant = product.variants.sort { it.effectiveDate }.reverse().find { it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date() }
+    }
+
+    def searchProducts(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def productSearchCriteria = Product.createCriteria()
+
+        def now = DateTime.now(DateTimeZone.UTC)
+
+        def results = productSearchCriteria.list([offset: startIndex, max: maxResults]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            variants {
+                eq ("storeId", springSecurityService.principal.storeId)
+                lte ("effectiveDate", now)
+            }
+
+            if (searchBy == "everything") {
+                or {
+                    like ("itemCode", "%$searchTerm%")
+                    variants {
+                        like ("itemCode", "%$searchTerm%")
+                    }
+                    like ("description", "%$searchTerm%")
+                }
+            } else if (searchBy == "itemCode") {
+                or {
+                    like("itemCode", "%$searchTerm%")
+                    variants {
+                        like("itemCode", "%$searchTerm%")
+                    }
+                }
+            } else if (searchBy == "description") {
+                like ("description", "%$searchTerm%")
+            }
+
+            if (sortColumn == "id" || sortColumn == "description") {
+                order (sortColumn, sortOrder)
+            } else if (sortColumn == "price") {
+                order ("variants.price", sortOrder)
+            }
+        }
+
+        // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
+        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
+        // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
+        int totalCount = results.totalCount
+
+        return results
     }
 
     def searchProductsNew(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
@@ -129,6 +175,7 @@ class ProductService extends MySqlDal {
                     productVariant.setColour(rs.getString("colour"))
                     productVariant.setBalanceOnHand(rs.getInt("balanceOnHand"))
                     productVariant.setBalanceOnOrder(rs.getInt("balanceOnOrder"))
+                    productVariant.setMinimumStockLevel(rs.getInt("minimumStockLevel"))
 
                     productVariants.put(productVariant.getId(), productVariant)
                 }

@@ -48,19 +48,13 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav m-auto align-items-center">
-                    <li class="vertical-line d-md-none d-lg-block"></li>
-
                     <li class="nav-item">
                         <g:link uri="/" class="nav-link">Home</g:link>
                     </li>
 
-                    <li class="vertical-line d-md-none d-lg-block"></li>
-
                     <li class="nav-item">
                         <g:link controller="user" class="nav-link">User Management</g:link>
                     </li>
-
-                    <li class="vertical-line d-md-none d-lg-block"></li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="eposDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">EPOS</a>
@@ -85,8 +79,6 @@
                         </div>
                     </li>
 
-                    <li class="vertical-line d-md-none d-lg-block"></li>
-
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="reportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reporting</a>
 
@@ -99,8 +91,6 @@
                         </div>
                     </li>
 
-                    <li class="vertical-line d-md-none d-lg-block"></li>
-
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
@@ -111,8 +101,6 @@
                             <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
                         </div>
                     </li>
-
-                    <li class="vertical-line d-md-none d-lg-block"></li>
                 </ul>
             </div>
         </nav>
@@ -123,6 +111,5 @@
     <div id="spinner" class="spinner" style="display:none;">
         <g:message code="spinner.alt" default="Loading&hellip;"/>
     </div>
-
 </body>
 </html>

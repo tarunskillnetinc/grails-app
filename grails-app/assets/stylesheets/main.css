@@ -62,14 +62,13 @@ p {
 }
 
 .topbar-logo {
-    height: 45px;
+    height: 60px;
     margin-left: 20px;
 }
 
 .nav-wl {
     padding: 0 1rem;
     background: #575756;
-    min-height: 60px;
     color: #FFFFFF;
     font-size: 24px;
 }
@@ -77,6 +76,10 @@ p {
 .nav-wl .nav-item {
     padding-left: 50px;
     padding-right: 50px;
+}
+
+.nav-wl .nav-item:hover {
+    background: #35343F !important;
 }
 
 .nav-wl .nav-item .dropdown-menu {
@@ -89,7 +92,7 @@ p {
 }
 
 .nav-wl .nav-item a:hover {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 
 .nav-wl .vertical-line {
@@ -510,6 +513,10 @@ li.breadcrumb-item a {
     color: #575756;
 }
 
+.card.accordion-card {
+    margin-top: 1px;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -517,6 +524,7 @@ li.breadcrumb-item a {
 .breadcrumb {
     background: transparent;
     border: 1px solid #575756;
+    border-radius: 0;
 }
 
 .z-index-1 {
@@ -537,4 +545,9 @@ li.breadcrumb-item a {
     color: #575756;
     text-decoration: none;
     cursor: default;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden !important
 }

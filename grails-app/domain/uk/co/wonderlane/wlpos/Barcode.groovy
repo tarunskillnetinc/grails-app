@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import grails.databinding.BindingFormat
+import org.joda.time.DateTime
 
 class Barcode {
 
@@ -8,12 +8,8 @@ class Barcode {
 
     int id
     String barcode
-    @BindingFormat('yyyy-MM-dd')
-    Date effectiveDate
+    DateTime effectiveDate
     char recordStatus
-    boolean delete
-
-    static transients = ['delete']
 
     static mapping = {
         table "barcode"
@@ -29,6 +25,5 @@ class Barcode {
         barcode size: 1..20, blank: false, nullable: false
         effectiveDate nullable: false
         recordStatus nullable: false
-        delete bindable: true
     }
 }

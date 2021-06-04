@@ -23,20 +23,17 @@ class Product {
     ProductStatus status
     String retailerProductId
 
-    Collection<ProductData> productDatas = new ArrayList<>()
     Collection<Tag> tags = new ArrayList<>()
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
     Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
 
-    ProductData currentProductData
+    ProductVariant currentProductVariant
 
-    static hasMany = [ productDatas: ProductData, tags: Tag, saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
+    static hasMany = [ tags: Tag, saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
 
-//    static mappedBy = [ saleMessages: "saleProduct", refundMessages: "refundProduct" ]
-
-    static transients = ['currentProductData']
+    static transients = ['currentProductVariant']
 
     static mapping = {
         table "product"
@@ -58,8 +55,7 @@ class Product {
         discreetMessage column: "discreetMessage"
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
-        productDatas cascade: "delete"
-        variants cascade: "all-delete-orphan"
+        variants cascade: "save-update,delete"
 
         tags joinTable: [name: 'tagproduct', key: 'productId', column: 'tagId']
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
@@ -82,39 +78,25 @@ class Product {
             return val?.validate() ? true : ["error.Product.badRestrictions"]
         }
         variants minSize: 1, validator: {val, obj ->
-            boolean noError = true;
-            List<ProductVariant> variants = val.collect()
+//            boolean noError = true;
+//            List<ProductVariant> variants = val.collect()
+//
+//            def allFields = ProductVariant.declaredFields.collectMany {!it.synthetic ? [it.name] : []}
+//            def allFieldsButExclusion = allFields - ['product']
 
-            def allFields = ProductVariant.declaredFields.collectMany {!it.synthetic ? [it.name] : []}
-            def allFieldsButExclusion = allFields - ['product']
-
-            for (ProductVariant productVariant : variants) {
-                if(!productVariant.validate(allFieldsButExclusion)) {
-                    noError = false;
-                }
-            }
-            return noError ? true : ["error.Product.badVariants"]
-        }
-        productDatas validator: {val, obj ->
-            boolean noError = true;
-            List<ProductData> productDatas = val.collect()
-
-            def allFields = ProductData.declaredFields.collectMany {!it.synthetic ? [it.name] : []}
-            def allFieldsButExclusion = allFields - ['product']
-
-            for (ProductData productData : productDatas) {
-                if (!productData.validate(allFieldsButExclusion)) {
-                    noError = false
-                }
-            }
-
-            return noError ? true : ["error.Product.badProductData", ProductData.constrainedProperties['retailPrice']['min'], ProductData.constrainedProperties['retailPrice']['max']]
+//            for (ProductVariant productVariant : variants) {
+//                if(!productVariant.validate(allFieldsButExclusion)) {
+//                    noError = false;
+//                }
+//            }
+//            return noError ? true : ["error.Product.badVariants"]
+            return true
         }
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {
         uk.co.wonderlane.wlpos.entities.Product product = new uk.co.wonderlane.wlpos.entities.Product()
-        ProductData productData = productDatas.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }
+        ProductVariant productVariant = variants.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }
 
         product.setId(id)
         product.setRetailerId(retailerId)
@@ -130,11 +112,11 @@ class Product {
         product.setZeroPrice(zeroPrice)
         product.setVatCode(vatCode.getVatCode())
         product.setVatPercentageOverride(vatPercentageOverride)
-        product.setRetailPrice(productData.retailPrice)
-        product.setCostPrice(productData.costPrice)
+        product.setRetailPrice(productVariant.retailPrice)
+        product.setCostPrice(productVariant.costPrice)
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
-        product.setEffectiveDate(new DateTime(productData.effectiveDate))
+        product.setEffectiveDate(new DateTime(productVariant.effectiveDate))
         product.setStatus(status)
         tags.each {
             product.getTags().add(it.getTag())

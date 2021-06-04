@@ -1,6 +1,8 @@
 package uk.co.wonderlane.wlpos.reporting
 
-class SortParams {
+import grails.validation.Validateable
+
+class SortParams implements Validateable {
 
     int max = 50
     int offset = 0
