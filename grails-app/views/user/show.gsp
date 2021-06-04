@@ -22,7 +22,7 @@
         </section>
 
         <section id="add-user-section" class="container-fluid">
-            <div class="row header-wl mt-3">
+            <div class="header-wl mt-3">
                 <h2 class="mx-auto">View User</h2>
             </div>
 

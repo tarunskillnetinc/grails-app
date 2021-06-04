@@ -67,7 +67,7 @@
         </g:if>
 
         <section id="promo-maintenance-search" class="container-fluid">
-            <div class="row header-wl mt-3">
+            <div class="header-wl mt-3">
                 <h2 class="mx-auto">Promotion Search</h2>
             </div>
 

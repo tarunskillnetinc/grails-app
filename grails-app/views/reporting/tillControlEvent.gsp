@@ -47,7 +47,7 @@
     <section id="reporting-container" class="container-fluid">
         <g:reportBreadcrumb reportType="${reportType}" tillControlEventType="${tillControlEventType}" startDate="${startDate}" endDate="${endDate}"/>
 
-        <div class="row header-wl mt-3">
+        <div class="header-wl mt-3">
             <h2 class="mx-auto">Till Control Events Report</h2>
         </div>
 

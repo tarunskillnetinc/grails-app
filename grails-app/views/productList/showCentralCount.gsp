@@ -22,7 +22,7 @@
         </section>
 
         <section id="central-count-search" class="container-fluid">
-            <div class="row header-wl mt-3">
+            <div class="header-wl mt-3">
                 <h2 class="mx-auto">Central Count Management</h2>
             </div>
 
@@ -76,7 +76,7 @@
                     <g:textField name="dateCompleted" class="col-5 form-control bottom-border" value="${productList?.dateCompleted}" disabled="disabled" />
                 </div>
 
-                <div class="row header-wl mt-5">
+                <div class="header-wl mt-5">
                     <h3 class="mx-auto">Products</h3>
                 </div>
 

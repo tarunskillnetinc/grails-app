@@ -50,7 +50,7 @@
         </section>
 
         <section id="central-count-search" class="container-fluid">
-            <div class="row header-wl">
+            <div class="header-wl">
                 <h2 class="mx-auto">Central Count Management</h2>
             </div>
 

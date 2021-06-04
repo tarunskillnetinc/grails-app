@@ -67,7 +67,7 @@
             <g:if test="${button.buttonGrid?.type?.name() != 'TENDER'}">
                 <!-- Product -->
                 <div class="tab-pane fade show ${!button.type || button.type.name() == 'PRODUCT' ? 'active' : ''}" id="product" role="tabpanel" aria-labelledby="product-tab">
-                    <div class="row header-wl mt-3">
+                    <div class="header-wl mt-3">
                         <h2 class="mx-auto">Product Button</h2>
                     </div>
 
@@ -127,7 +127,7 @@
 
                 <!-- Sub Page -->
                 <div class="tab-pane fade show ${button.type?.name() == 'SUB_PAGE' ? 'active' : ''}" id="subpage" role="tabpanel" aria-labelledby="subpage-tab">
-                    <div class="row header-wl mt-3">
+                    <div class="header-wl mt-3">
                         <h2 class="mx-auto">Sub Page Button</h2>
                     </div>
 
@@ -165,7 +165,7 @@
 
                 <!-- Process -->
                 <div class="tab-pane fade show ${button.type?.name() == 'PROCESS' ? 'active' : ''}" id="processtab" role="tabpanel" aria-labelledby="process-tab">
-                    <div class="row header-wl mt-3">
+                    <div class="header-wl mt-3">
                         <h2 class="mx-auto">Action Button</h2>
                     </div>
 

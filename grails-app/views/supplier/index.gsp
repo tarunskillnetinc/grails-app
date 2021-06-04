@@ -188,7 +188,7 @@
             <!-- Suppliers -->
             <div class="tab-pane fade show active" id="suppliers" role="tabpanel" aria-labelledby="suppliers-tab">
                 <section id="suppliers-container" class="container-fluid">
-                    <div class="row header-wl mt-3">
+                    <div class="header-wl mt-3">
                         <h2 class="mx-auto">Suppliers</h2>
                     </div>
 
@@ -207,7 +207,7 @@
             <!-- Symbol group subscriptions -->
             <div class="tab-pane fade show" id="symbolGroupSubscriptions" role="tabpanel" aria-labelledby="symbolGroupSubscriptions-tab">
                 <section id="subscriptions-container" class="container-fluid">
-                    <div class="row header-wl mt-3">
+                    <div class="header-wl mt-3">
                         <h2 class="mx-auto">Supplier Affiliations</h2>
                     </div>
 

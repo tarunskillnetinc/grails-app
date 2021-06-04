@@ -47,7 +47,7 @@
     <section id="reporting-container" class="container-fluid">
         <g:reportBreadcrumb reportType="${reportType}" productId="${productId}" startDate="${startDate}" endDate="${endDate}" />
 
-        <div class="row header-wl mt-3">
+        <div class="header-wl mt-3">
             <h2 class="mx-auto">Sales Report</h2>
         </div>
 
@@ -95,7 +95,7 @@
                 </div>
             </div>
 
-            <div class="col-1 offset-4 text-right mt-1">
+            <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
                 <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
             </div>
 

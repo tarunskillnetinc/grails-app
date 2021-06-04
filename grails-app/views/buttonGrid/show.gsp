@@ -27,7 +27,7 @@
         </nav>
     </section>
 
-    <div class="row header-wl mt-3">
+    <div class="header-wl mt-3">
         <h2 class="mx-auto">
             <g:if test="${buttonGrid.type.name() == 'OTHER'}">
                 ${buttonGrid.description}

@@ -299,7 +299,7 @@
         </section>
 
         <section id="shifts-container" class="container-fluid">
-            <div class="row header-wl mt-3">
+            <div class="header-wl mt-3">
                 <h2 class="mx-auto">Shift Viewer</h2>
             </div>
 

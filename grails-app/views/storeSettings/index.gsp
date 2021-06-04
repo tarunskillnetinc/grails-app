@@ -53,7 +53,7 @@
         <div class="tab-content" style="margin-top: 50px;">
             <!-- Contact Information -->
             <div class="tab-pane fade show active" id="contactInformation" role="tabpanel" aria-labelledby="contactInformation-tab">
-                <div class="row header-wl mt-3">
+                <div class="header-wl mt-3">
                     <h2 class="mx-auto">Contact Information</h2>
                 </div>
 
@@ -125,7 +125,7 @@
 
             <!-- EPOS Settings -->
             <div class="tab-pane fade show" id="storeSettings" role="tabpanel" aria-labelledby="storeSettings-tab">
-                <div class="row header-wl mt-3">
+                <div class="header-wl mt-3">
                     <h2 class="mx-auto">EPOS Configuration</h2>
                 </div>
 
@@ -178,7 +178,7 @@
 
             <!-- Inventory Management -->
             <div class="tab-pane fade show" id="inventoryManagement" role="tabpanel" aria-labelledby="inventoryManagement-tab">
-                <div class="row header-wl mt-3">
+                <div class="header-wl mt-3">
                     <h2 class="mx-auto">Inventory Management</h2>
                 </div>
 

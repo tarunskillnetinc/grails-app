@@ -21,7 +21,7 @@
     <section id="reporting-container" class="container-fluid">
         <g:reportBreadcrumb reportType="${reportType}" promotionSaleId="${promotionSaleId}" startDate="${startDate}" endDate="${endDate}" />
 
-        <div class="row header-wl mt-3">
+        <div class="header-wl mt-3">
             <h2 class="mx-auto">Promotion Sales Report</h2>
         </div>
 

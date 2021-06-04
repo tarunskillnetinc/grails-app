@@ -27,7 +27,7 @@
         </div>
     </g:hasErrors>
 
-    <div class="row header-wl mt-3">
+    <div class="header-wl mt-3">
         <h2 class="mx-auto">Add Button Grid</h2>
     </div>
 
