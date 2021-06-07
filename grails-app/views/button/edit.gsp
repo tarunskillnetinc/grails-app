@@ -83,7 +83,7 @@
                         <g:hiddenField name="tenderType" value="" />
                         <g:hiddenField name="process" value="" />
                         <g:hiddenField name="subPageId" value="" />
-                        <g:hiddenField name="productId" id="buttonProductId" value="${button?.productId}" />
+                        <g:hiddenField name="productVariantId" id="buttonProductVariantId" value="${button?.productVariantId}" />
 
                         <div class="form-group row margin-top-2rem">
                             <label for="description" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
@@ -140,7 +140,7 @@
                         <g:hiddenField name="column" value="${button?.column}" />
                         <g:hiddenField name="type" value="SUB_PAGE" />
                         <g:hiddenField name="amount" value="" />
-                        <g:hiddenField name="productId" value="" />
+                        <g:hiddenField name="productVariantId" value="" />
                         <g:hiddenField name="tenderType" value="" />
                         <g:hiddenField name="quantity" value="" />
                         <g:hiddenField name="process" value="" />
@@ -179,7 +179,7 @@
                         <g:hiddenField name="type" value="PROCESS" />
                         <g:hiddenField name="amount" value="" />
                         <g:hiddenField name="quantity" value="" />
-                        <g:hiddenField name="productId" value="" />
+                        <g:hiddenField name="productVariantId" value="" />
                         <g:hiddenField name="subPageId" value="" />
                         <g:hiddenField name="tenderType" value="" />
 
@@ -214,7 +214,7 @@
                         <g:hiddenField name="column" value="${button?.column}" />
                         <g:hiddenField name="type" value="TENDER" />
                         <g:hiddenField name="quantity" value="" />
-                        <g:hiddenField name="productId" value="" />
+                        <g:hiddenField name="productVariantId" value="" />
                         <g:hiddenField name="subPageId" value="" />
                         <g:hiddenField name="process" value="" />
 

@@ -22,7 +22,7 @@ class ButtonController {
             button = Button.get(params.id)
 
             if (button.type == ButtonType.PRODUCT) {
-                productVariant = productService.getProductVariant(button.productId)
+                productVariant = productService.getProductVariant(button.productVariantId)
             }
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
@@ -87,14 +87,14 @@ class ButtonController {
                 def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
                 def availableTenderTypes = TenderType.values()
 
-                def product
+                def productVariant
 
-                if (button.type == ButtonType.PRODUCT && button.productId) {
-                    product = productService.getProduct(button.productId)
+                if (button.type == ButtonType.PRODUCT && button.productVariantId) {
+                    productVariant = productService.getProductVariant(button.productVariantId)
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: product?.itemCode, productDescription: product?.description])
+                render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: productVariant?.itemCode, productDescription: productVariant?.product?.description])
             }
         } else {
             def availableProcesses = [ProcessType.NAVIGATE_SALES, ProcessType.NAVIGATE_QUICK_SELL, ProcessType.NAVIGATE_SEARCH, ProcessType.NAVIGATE_RECEIPTS, ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
@@ -105,13 +105,13 @@ class ButtonController {
             def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
             def availableTenderTypes = TenderType.values()
 
-            def product
+            def productVariant
 
-            if (button.type == ButtonType.PRODUCT && button.productId) {
-                product = productService.getProduct(button.productId)
+            if (button.type == ButtonType.PRODUCT && button.productVariantId) {
+                product = productService.getProductVariant(button.productVariantId)
             }
 
-            render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: product?.itemCode, productDescription: product?.description])
+            render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: productVariant?.itemCode, productDescription: productVariant?.product?.description])
         }
     }
 

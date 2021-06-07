@@ -17,7 +17,7 @@ class Button {
     String description
     BigDecimal amount
     Integer quantity
-    Integer productId
+    Integer productVariantId
     Integer subPageId
     ProcessType process
     TenderType tenderType
@@ -41,7 +41,7 @@ class Button {
         tenderType sqlType: "enum", enumType: 'string'
         row column: "`row`"
         column column: "`column`"
-        productId column: "productId"
+        productVariantId column: "productVariantId"
         subPageId column: "subPageId"
         tenderType column: "tenderType"
         createdDatetime column: "createdDatetime"
@@ -62,7 +62,7 @@ class Button {
                 return false; // Quantity is not nullable for product buttons.
             }
         }
-        productId nullable: true, validator: { val, obj ->
+        productVariantId nullable: true, validator: { val, obj ->
             if (obj.type == ButtonType.PRODUCT && !val) {
                 return false; // Product ID is not nullable for product buttons.
             }
@@ -126,7 +126,7 @@ class Button {
         button.setDescription(description)
         button.setAmount(amount)
         button.setQuantity(quantity)
-        button.setProductId(productId)
+        button.setProductVariantId(productVariantId)
         button.setSubPageId(subPageId)
         button.setProcess(process)
         button.setTenderType(tenderType)
