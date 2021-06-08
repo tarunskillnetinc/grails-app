@@ -42,20 +42,7 @@ class ProductController {
     }
 
     def add() {
-        def product = new Product()
-        def now = DateTime.now(DateTimeZone.UTC)
-
-        product.restrictions = new Restrictions()
-
-        ProductVariant productVariant = new ProductVariant(storeId: springSecurityService.principal.storeId, effectiveDate: now)
-
-        Barcode barcode = new Barcode(effectiveDate: now)
-
-        productVariant.addToBarcodes(barcode)
-        product.addToVariants(productVariant)
-
-        render(view: "add", model: [product: product,
-                                    storeId: springSecurityService.principal.storeId,
+        render(view: "add", model: [storeId: springSecurityService.principal.storeId,
                                     statusValues: ProductStatus.values(),
                                     categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),

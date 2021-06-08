@@ -1,5 +1,5 @@
-<g:form method="post" url="${product.id == 0 ? "./add" : "./maintenance?productId=" + product.id}">
-    <g:hiddenField name="id" value="${product.id}"/>
+<g:form method="post" url="${product?.id == 0 ? "./add" : "./maintenance?productId=" + product?.id}">
+    <g:hiddenField name="id" value="${product?.id}"/>
 
     <div id="accordion">
         <!-- Product details. -->
@@ -21,27 +21,24 @@
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code</label>
-                                <g:textField name="itemCode" class="col-5 form-control bottom-border" value="${product.itemCode}" onblur="itemCodeChanged(this.value);" />
+                                <g:textField name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
-                                <g:textField name="description" class="col-9 form-control bottom-border" value="${product.description}"/>
+                                <g:textField name="description" class="col-9 form-control bottom-border" value="${product?.description}"/>
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                                <g:textField name="receiptDescription" value="${product.receiptDescription}" class="col-5 form-control bottom-border" />
+                                <g:textField name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
-                                <g:textField name="unitSize" class="col-3 form-control bottom-border" value="${product.unitSize ?: 'EACH'}"/>
+                                <g:textField name="unitSize" class="col-3 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <div class="row form-group mb-3">
-                                <label for="category" class="col-3 col-form-label text-right pr-4">Category</label>
-                                <g:select name="category" from="${categoryValues}" optionKey="id" optionValue="description" value="${product.category?.id}" class="col-7 form-control select-border" />
-                            </div>
+                            <g:render template="categorySelect" model="[categories: categoryValues, selectedCategoryId: product?.category?.id]" />
                         </div>
                     </div>
                 </div>
@@ -75,7 +72,13 @@
                     </div>
 
                     <div id="variantsContainer">
-                        <g:each in="${product.variants}" var="variant" status="i">
+                        <g:if test="${!product || !product?.variants}">
+                            <div id="variant-0">
+                                <g:render template="variant" model="[index: 0]" />
+                            </div>
+                        </g:if>
+
+                        <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${variant.storeId == storeId}">
                                 <div id="variant-${i}">
                                     <g:render template="variant" model="[index: i, variant: variant]" />
@@ -111,62 +114,62 @@
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.buyerIdRequired" class="col-4 col-form-label text-right pr-4">Age Restricted Item</label>
-                                <g:checkBox name="restrictions.buyerIdRequired" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.buyerIdRequired}" />
+                                <g:checkBox name="restrictions.buyerIdRequired" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.buyerIdRequired}" />
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.buyerIdForced" class="col-4 col-form-label text-right pr-4">ID Check Forced</label>
-                                <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.buyerIdForced}" disabled="${!product.restrictions.buyerIdRequired}" />
+                                <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.buyerIdForced}" disabled="${!product?.restrictions?.buyerIdRequired}" />
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.buyerAgeRestriction" class="col-4 col-form-label text-right pr-4">Customer Age Required</label>
-                                <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product.restrictions.buyerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product.restrictions.buyerIdRequired}" />
+                                <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product?.restrictions?.buyerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.buyerChallengeAge" class="col-4 col-form-label text-right pr-4">Customer Challenge Age</label>
-                                <g:field name="restrictions.buyerChallengeAge" type="number" value="${product.restrictions.buyerChallengeAge}" class="col-2 form-control bottom-border" readonly="${!product.restrictions.buyerIdRequired}" />
+                                <g:field name="restrictions.buyerChallengeAge" type="number" value="${product?.restrictions?.buyerChallengeAge}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.sellerAgeRestriction" class="col-4 col-form-label text-right pr-4">Operator Age Required</label>
-                                <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product.restrictions.sellerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product.restrictions.buyerIdRequired}" />
+                                <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product?.restrictions?.sellerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.minOpenPrice" class="col-4 col-form-label text-right pr-4">Min Open Price</label>
-                                <g:field name="restrictions.minOpenPrice" type="number" value="${product.restrictions.minOpenPrice ?: '0.01'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product.openPrice}" />
+                                <g:field name="restrictions.minOpenPrice" type="number" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product?.openPrice}" />
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.maxOpenPrice" class="col-4 col-form-label text-right pr-4">Max Open Price</label>
-                                <g:field name="restrictions.maxOpenPrice" type="number" value="${product.restrictions.maxOpenPrice ?: '9999.99'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product.openPrice}" />
+                                <g:field name="restrictions.maxOpenPrice" type="number" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product?.openPrice}" />
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.refundAllowed" class="col-4 col-form-label text-right pr-4">Allow Refunds</label>
-                                <g:checkBox name="restrictions.refundAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.refundAllowed}"/>
+                                <g:checkBox name="restrictions.refundAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.refundAllowed}"/>
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.discountAllowed" class="col-4 col-form-label text-right pr-4">Allow Discounts</label>
-                                <g:checkBox name="restrictions.discountAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.discountAllowed}"/>
+                                <g:checkBox name="restrictions.discountAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.discountAllowed}"/>
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.markdownAllowed" class="col-4 col-form-label text-right pr-4">Allow Price Changes</label>
-                                <g:checkBox name="restrictions.markdownAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.markdownAllowed}"/>
+                                <g:checkBox name="restrictions.markdownAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.markdownAllowed}"/>
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.creditPaymentAllowed" class="col-4 col-form-label text-right pr-4">Allow Credit Payments</label>
-                                <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.creditPaymentAllowed}" />
+                                <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.creditPaymentAllowed}" />
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.quantityChangeAllowed" class="col-4 col-form-label text-right pr-4">Allow Quantity Changes</label>
-                                <g:checkBox name="restrictions.quantityChangeAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product.restrictions.quantityChangeAllowed}"/>
+                                <g:checkBox name="restrictions.quantityChangeAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.quantityChangeAllowed}"/>
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.quantityChangeForced" class="col-4 col-form-label text-right pr-4">Force Quantity Changes</label>
-                                <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.quantityChangeForced}" />
+                                <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.quantityChangeForced}" />
                             </div>
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.receiptPrintForced" class="col-4 col-form-label text-right pr-4">Force Receipt Print</label>
-                                <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${product.restrictions.receiptPrintForced}"/>
+                                <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.receiptPrintForced}"/>
                             </div>
                         </div>
                     </div>
@@ -197,30 +200,30 @@
                             </div>
                             <div class="row mt-1 form-group">
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
-                                <g:textField name="discreetMessage" value="${product.discreetMessage}" class="col-5 form-control bottom-border" />
+                                <g:textField name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
                             </div>
                             <div class="row mt-1 form-group">
                                 <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
-                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product.status}" valueMessagePrefix="ProductStatus" />
+                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
                             <div class="row form-group">
                                 <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
-                                <g:field name="vatPercentageOverride" type="number" value="${product.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right" step="0.01" readonly="${product?.vatCode?.code != 'O'}" />
+                                <g:field name="vatPercentageOverride" type="number" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right" step="0.01" readonly="${product?.vatCode?.code != 'O'}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
-                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product.weightedItem}"/>
+                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}"/>
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="openPrice" class="col-3 col-form-label text-right pr-4">Open Price</label>
-                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product.openPrice}"/>
+                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}"/>
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="zeroPrice" class="col-3 col-form-label text-right pr-4">Zero Price</label>
-                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product.zeroPrice}"/>
+                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}"/>
                             </div>
                         </div>
                     </div>
