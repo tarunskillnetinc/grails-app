@@ -67,7 +67,7 @@
                     </div>
                 </div>
 
-                <div class="col-2 text-right">
+                <div class="col-2 px-0 text-right">
                     <g:link controller="productList" action="addCentralCount" class="btn btn-wl">Add New Central Count</g:link>
                 </div>
             </div>

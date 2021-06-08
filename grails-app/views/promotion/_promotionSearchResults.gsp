@@ -1,13 +1,13 @@
 <%@ page import="java.util.stream.Collectors" %>
 
 <g:if test="${promotions == null}">
-    <div class="row text-center">
+    <div class="row ml-0 mr-0 text-center">
         <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>
     </div>
 </g:if>
 
 <g:if test="${promotions?.size() == 0}">
-    <div class="row text-center">
+    <div class="row ml-0 mr-0 text-center">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </div>
 </g:if>

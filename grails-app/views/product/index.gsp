@@ -81,7 +81,7 @@
                     </div>
                 </div>
 
-                <div class="col-2 text-right">
+                <div class="col-2 px-0 text-right">
                     <g:link controller="product" action="add" class="btn btn-wl">Add New Product</g:link>
                 </div>
             </div>

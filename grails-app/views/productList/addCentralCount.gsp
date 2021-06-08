@@ -27,11 +27,11 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
             <g:hasErrors bean="${productList}">
-                <div class="alert alert-danger alert-wl" role="alert">
+                <div class="alert alert-danger alert-wl mx-0" role="alert">
                     <g:renderErrors bean="${productList}" as="list" />
                 </div>
             </g:hasErrors>

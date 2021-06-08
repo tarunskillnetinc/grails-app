@@ -12,10 +12,6 @@
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
 
-            function setRelevantVariant(val) {
-                $('#relevantVariant').val(val);
-            }
-
             $(document).ready(function () {
                 // Enable the VAT override when "Other" is selected.
                 $('#vatCode').change(function() {
@@ -44,6 +40,7 @@
                 });
             });
 
+            // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
             function itemCodeChanged(itemCode) {
                 var sku = $("#variants\\[0\\]\\.itemCode");
 
@@ -54,6 +51,7 @@
                 }
             }
 
+            // Displays the add/edit variant modal depending whether you've clicked the add button or clicked an existing row.
             function addVariant(index) {
                 $("#addVariantContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#addVariantModal').modal({ show: true });
@@ -101,6 +99,7 @@
                 });
             }
 
+            // Handle the "Ok" of the add/edit variant modal which puts the values into the form ready for submission as part of the whole page.
             function saveVariant(index) {
                 var itemCode = $("#addVariantItemCode").val();
                 var retailPrice = $("#addVariantRetailPrice").val();
@@ -142,6 +141,7 @@
                 $('#addVariantModal').modal("hide");
             }
 
+            // Delete variant button was clicked, we just delete the whole div and handle the removal server side (if it was an existing variant).
             function deleteVariant(index) {
                 if (!confirm("This SKU will be deleted.")) {
                     return;
@@ -158,6 +158,7 @@
                 });
             }
 
+            // Add barcode button was clicked, this just adds a new empty textbox.
             function addBarcode() {
                 var lastBarcodeContainer = $("#addBarcodesContainer > div:last-child");
 
@@ -187,10 +188,12 @@
                 });
             }
 
+            // Delete barcode button was clicked, we just remove the div.
             function deleteBarcode(index) {
                 $("#addBarcodesContainer > #addBarcode" +index).remove();
             }
 
+            // The suppliers button was clicked, we display the suppliers modal for this variant.
             function showSuppliersModal(variantIndex) {
                 $("#suppliersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#suppliersModal').modal({ show: true });
@@ -230,6 +233,7 @@
                 });
             }
 
+            // If an existing row was clicked, then hidden form is displayed, otherwise a whole new blank "add pack" row is added.
             function addPack(variantIndex, packIndex) {
                 if (packIndex != null) {
                     var packContainer = $("#addPackTextContainer-" + variantIndex + "-" + packIndex);
@@ -261,6 +265,7 @@
                 }
             }
 
+            // The "Ok" button was clicked on the suppliers modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function savePacks(variantIndex) {
                 var params = { index: variantIndex };
 
@@ -321,35 +326,39 @@
         </div>
 
         <g:hasErrors bean="${product}">
-            <div class="alert alert-danger alert-wl" role="alert">
-                <g:renderErrors bean="${product}" as="list" />
+            <section id="errors-container" class="container-fluid">
+                <div class="alert alert-danger alert-wl mx-0" role="alert">
+                    <g:renderErrors bean="${product}" as="list" />
 
-                <g:hasErrors bean="${product.restrictions}">
-                    <g:renderErrors bean="${product.restrictions}" as="list" />
-                </g:hasErrors>
-
-                <g:each in="${product.variants.findAll{it.storeId == storeId}}" var="variant" status="i">
-                    <g:hasErrors bean="${variant}">
-                        <div class="ml-3 pl-3 border">
-                            Variant ${i+1}
-                            <g:renderErrors bean="${variant}" as="list" />
-
-                            <g:each in="${variant.barcodes}" var="barcode" status="j">
-                                <g:hasErrors bean="${barcode}">
-                                    <div class="ml-3">
-                                        Barcode ${j+1}
-                                        <g:renderErrors bean="${barcode}" as="list" />
-                                    </div>
-                                </g:hasErrors>
-                            </g:each>
-                        </div>
+                    <g:hasErrors bean="${product.restrictions}">
+                        <g:renderErrors bean="${product.restrictions}" as="list" />
                     </g:hasErrors>
-                </g:each>
-            </div>
+
+                    <g:each in="${product.variants.findAll{it.storeId == storeId}}" var="variant" status="i">
+                        <g:hasErrors bean="${variant}">
+                            <div class="ml-3 pl-3 border">
+                                Variant ${i+1}
+                                <g:renderErrors bean="${variant}" as="list" />
+
+                                <g:each in="${variant.barcodes}" var="barcode" status="j">
+                                    <g:hasErrors bean="${barcode}">
+                                        <div class="ml-3">
+                                            Barcode ${j+1}
+                                            <g:renderErrors bean="${barcode}" as="list" />
+                                        </div>
+                                    </g:hasErrors>
+                                </g:each>
+                            </div>
+                        </g:hasErrors>
+                    </g:each>
+                </div>
+            </section>
         </g:hasErrors>
 
         <g:if test="${flash.message}">
-            <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+            <section id="errors-container2" class="container-fluid">
+                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            </section>
         </g:if>
 
         <section id="addProduct-section" class="container-fluid mt-4">

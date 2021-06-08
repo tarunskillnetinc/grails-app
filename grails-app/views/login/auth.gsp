@@ -7,7 +7,9 @@
 </head>
 <body>
     <g:if test="${flash.message}">
-        <div class="alert alert-danger alert-wl" role="alert">${flash.message}</div>
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.message}</div>
+        </section>
     </g:if>
 
     <form action="${postUrl ?: '/login/authenticate'}" method="POST" id="loginForm" class="cssform" autocomplete="off">

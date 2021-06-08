@@ -44,13 +44,17 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+                <section id="errors-container" class="container-fluid">
+                    <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                </section>
             </g:if>
 
             <g:hasErrors bean="${user}">
-                <div class="alert alert-danger alert-wl" role="alert">
-                    <g:renderErrors bean="${user}" as="list" />
-                </div>
+                <section id="errors-container" class="container-fluid">
+                    <div class="alert alert-danger alert-wl mx-0" role="alert">
+                        <g:renderErrors bean="${user}" as="list" />
+                    </div>
+                </section>
             </g:hasErrors>
 
             <g:form name="save-button" action="save" novalidate="novalidate" class="mt-4">

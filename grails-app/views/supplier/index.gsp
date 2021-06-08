@@ -193,7 +193,7 @@
                     </div>
 
                     <div class="row mt-4 ml-0 mr-0">
-                        <div class="col-2 offset-10 text-right">
+                        <div class="col-2 offset-10 text-right px-0">
                             <a href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
                         </div>
                     </div>
@@ -212,7 +212,7 @@
                     </div>
 
                     <div class="row mt-4 ml-0 mr-0">
-                        <div class="col-2 offset-10 text-right">
+                        <div class="col-2 offset-10 text-right px-0">
                             <a href="#" class="btn btn-wl" onclick="showAddSymbolGroupSubscriptionModal();">Add New Supplier Affiliation</a>
                         </div>
                     </div>

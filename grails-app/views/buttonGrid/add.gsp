@@ -22,9 +22,11 @@
     </section>
 
     <g:hasErrors bean="${buttonGrid}">
-        <div class="alert alert-danger alert-wl" role="alert">
-            <g:renderErrors bean="${buttonGrid}" as="list" />
-        </div>
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${buttonGrid}" as="list" />
+            </div>
+        </section>
     </g:hasErrors>
 
     <div class="header-wl mt-3">

@@ -318,6 +318,7 @@ a.no-underline:hover {
 .btn-wl {
     background-color: #575756;
     color: #FFFFFF;
+    border-radius: 4px !important;
 }
 
 .btn-wl[disabled]:hover {
@@ -340,6 +341,10 @@ a.no-underline:hover {
 
 .btn-wl.red {
     background-color: #E6283B;
+}
+
+.btn {
+    border-radius: 4px !important;
 }
 
 .col-form-label {
@@ -524,7 +529,7 @@ li.breadcrumb-item a {
 .breadcrumb {
     background: transparent;
     border: 1px solid #575756;
-    border-radius: 0;
+    border-radius: 4px;
 }
 
 .z-index-1 {
