@@ -1,4 +1,11 @@
-<div class="row form-group mb-3">
-    <label for="category" class="col-3 col-form-label text-right pr-4">Category</label>
-    <g:select name="category" from="${categories}" optionKey="id" optionValue="description" value="${selectedCategoryId}" class="col-7 form-control select-border" />
-</div>
+<g:each in="${categories}" var="category">
+    <label class="radio-container level-${level}">${category.description}
+        <g:radio name="category.id" id="category-${category.id}" checked="${category.id == selectedCategoryId}" value="${category.id}" class="form-check-input" />
+
+        <span class="checkmark"></span>
+    </label>
+
+    <g:if test="${category.childCategories}">
+        <g:render template="categorySelect" model="[categories: category.childCategories, selectedCategoryId: selectedCategoryId, level: (level + 1)]" />
+    </g:if>
+</g:each>

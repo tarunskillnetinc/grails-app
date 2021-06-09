@@ -4,6 +4,9 @@
         <meta name="layout" content="main" />
 
         <title>WonderLane Product Maintenance</title>
+
+        <asset:stylesheet href="radio.css" />
+
         <script type="text/javascript">
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
             var addBarcodeUrl = "${createLink(controller: 'product', action: 'ajaxAddBarcode')}";

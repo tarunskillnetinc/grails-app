@@ -25,6 +25,7 @@ class ProductController {
 
     def springSecurityService
     def productService
+    def categoryService
 
     def index() {
         render(view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
@@ -44,7 +45,7 @@ class ProductController {
     def add() {
         render(view: "add", model: [storeId: springSecurityService.principal.storeId,
                                     statusValues: ProductStatus.values(),
-                                    categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    categoryValues: categoryService.getFullCategoryHierarchy(),
                                     vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     isNewProduct: true])
     }
@@ -204,7 +205,7 @@ class ProductController {
             render(view: "add", model: [product       : product,
                                         storeId       : springSecurityService.principal.storeId,
                                         statusValues  : ProductStatus.values(),
-                                        categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                        categoryValues: categoryService.getFullCategoryHierarchy(),
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
         }
     }

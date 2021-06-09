@@ -16,7 +16,7 @@
             </div>
 
             <div id="collapseProductDetails" class="collapse show" aria-labelledby="productDetails" data-parent="#accordion">
-                <div class="card-body py-5">
+                <div class="card-body pt-5">
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
@@ -38,7 +38,13 @@
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <g:render template="categorySelect" model="[categories: categoryValues, selectedCategoryId: product?.category?.id]" />
+                            <div class="row form-group">
+                                <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
+
+                                <div class="col-lg-9 pt-2" style="max-height: 300px; overflow-y: scroll;">
+                                    <g:render template="categorySelect" model="[categories: categoryValues, selectedCategoryId: product?.category?.id, level: 1]" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

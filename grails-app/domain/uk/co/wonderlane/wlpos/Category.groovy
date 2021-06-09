@@ -4,28 +4,31 @@ class Category {
 
     int id
     int retailerId
-    Integer parentId
     String description
     String shortDescription
     String retailerCategoryCode
     Restrictions restrictions
+
+    Collection<Category> childCategories
+
+    static hasMany = [ childCategories: Category ]
+    static belongsTo = [ parentCategory: Category ]
 
     static mapping = {
         table "category"
         version false
 
         retailerId column: "retailerId"
-        parentId column: "parentId"
         description column: "`description`"
         shortDescription column: "shortDescription"
         retailerCategoryCode column: "retailerCategoryCode"
         restrictions column: "restrictionsId"
+        parentCategory column: "parentId"
 
-        sort "description"
+        childCategories sort: 'description', order: 'asc'
     }
 
     static constraints = {
-        parentId nullable: true
         retailerCategoryCode nullable: true
     }
 
@@ -34,7 +37,7 @@ class Category {
 
         category.setId(id)
         category.setRetailerId(retailerId)
-        category.setParentId(parentId)
+        category.setParentId(parentCategory?.id)
         category.setDescription(description)
         category.setShortDescription(shortDescription)
         category.setRetailerCategoryCode(retailerCategoryCode)

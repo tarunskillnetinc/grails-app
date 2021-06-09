@@ -8,12 +8,7 @@ class CategoryService {
     def springSecurityService
 
     def getCategory(int categoryId) {
-        def categoryCriteria = Category.createCriteria()
-
-        return categoryCriteria.get() {
-            eq ("id", categoryId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
-        }
+        return Category.findByIdAndRetailerId(categoryId, springSecurityService.principal.retailerId)
     }
 
     /**
@@ -29,12 +24,16 @@ class CategoryService {
 
         categories.add(category)
 
-        while (category?.parentId) {
-            category = getCategory(category.parentId)
-
-            categories.add(0, category)
-        }
+//        while (category?.parentId) {
+//            category = getCategory(category.parentId)
+//
+//            categories.add(0, category)
+//        }
 
         return categories
+    }
+
+    def getFullCategoryHierarchy() {
+        return Category.findAllByRetailerIdAndParentCategory(springSecurityService.principal.retailerId, null, [sort: 'description', order: 'asc'])
     }
 }
