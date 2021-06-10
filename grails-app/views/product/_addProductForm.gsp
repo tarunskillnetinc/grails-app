@@ -95,7 +95,60 @@
 
                     <div class="row mx-5 mt-3">
                         <a href="#" onclick="addVariant(null);" class="btn btn-wl">Add SKU</a>
-%{--                        <g:actionSubmit value="+ Add Variant" controller="product" action="addVariant" class="offset-1 btn btn-wl mt-5" />--}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product additional attributes. -->
+        <div class="card bg-light border-wl accordion-card">
+            <div class="card-header pointer" id="productAdditional" data-toggle="collapse" data-target="#collapseAdditional" aria-expanded="true" aria-controls="collapseAdditional">
+                <div class="row">
+                    <div class="col-10"><strong>Extended Attributes</strong></div>
+                    <div class="col-2 text-right">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="collapseAdditional" class="collapse collapsed" aria-labelledby="productAdditional" data-parent="#accordion">
+                <div class="card-body py-5">
+                    <div class="row">
+                        <div class="col-12 col-lg-5 offset-lg-1">
+                            <div class="row form-group">
+                                <label for="vatCode" class="col-3 col-form-label text-right pr-4">VAT Code</label>
+                                <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="description" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
+                            </div>
+                            <div class="row mt-1 form-group">
+                                <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
+                                <g:textField name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
+                            </div>
+                            <div class="row mt-1 form-group">
+                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
+                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="row form-group">
+                                <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
+                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" disabled="${product?.vatCode?.code != 'O'}" />
+                            </div>
+                            <div class="row mt-1 form-group form-check pl-0">
+                                <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
+                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}"/>
+                            </div>
+                            <div class="row mt-1 form-group form-check pl-0">
+                                <label for="openPrice" class="col-3 col-form-label text-right pr-4">Open Price</label>
+                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}"/>
+                            </div>
+                            <div class="row mt-1 form-group form-check pl-0">
+                                <label for="zeroPrice" class="col-3 col-form-label text-right pr-4">Zero Price</label>
+                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -140,11 +193,23 @@
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.minOpenPrice" class="col-4 col-form-label text-right pr-4">Min Open Price</label>
-                                <g:field name="restrictions.minOpenPrice" type="number" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product?.openPrice}" />
+
+                                <div class="input-group col-3 px-0">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">&pound;</span>
+                                    </div>
+                                    <g:textField name="restrictions.minOpenPrice" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money" readonly="${!product?.openPrice}" disabled="${!product?.openPrice}" />
+                                </div>
                             </div>
                             <div class="row form-group">
                                 <label for="restrictions.maxOpenPrice" class="col-4 col-form-label text-right pr-4">Max Open Price</label>
-                                <g:field name="restrictions.maxOpenPrice" type="number" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="col-3 form-control bottom-border" step="0.01" readonly="${!product?.openPrice}" />
+
+                                <div class="input-group col-3 px-0">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">&pound;</span>
+                                    </div>
+                                    <g:textField name="restrictions.maxOpenPrice" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money" readonly="${!product?.openPrice}" disabled="${!product?.openPrice}" />
+                                </div>
                             </div>
                         </div>
 
@@ -176,60 +241,6 @@
                             <div class="row form-group form-check pl-0">
                                 <label for="restrictions.receiptPrintForced" class="col-4 col-form-label text-right pr-4">Force Receipt Print</label>
                                 <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.receiptPrintForced}"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product additional attributes. -->
-        <div class="card bg-light border-wl accordion-card">
-            <div class="card-header pointer" id="productAdditional" data-toggle="collapse" data-target="#collapseAdditional" aria-expanded="true" aria-controls="collapseAdditional">
-                <div class="row">
-                    <div class="col-10"><strong>Extended Attributes</strong></div>
-                    <div class="col-2 text-right">
-                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div id="collapseAdditional" class="collapse collapsed" aria-labelledby="productAdditional" data-parent="#accordion">
-                <div class="card-body py-5">
-                    <div class="row">
-                        <div class="col-12 col-lg-5 offset-lg-1">
-                            <div class="row form-group">
-                                <label for="vatCode" class="col-3 col-form-label text-right pr-4">VAT Code</label>
-                                <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="description" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
-                            </div>
-                            <div class="row mt-1 form-group">
-                                <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
-                                <g:textField name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
-                            </div>
-                            <div class="row mt-1 form-group">
-                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
-                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <div class="row form-group">
-                                <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
-                                <g:field name="vatPercentageOverride" type="number" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right" step="0.01" readonly="${product?.vatCode?.code != 'O'}" />
-                            </div>
-                            <div class="row mt-1 form-group form-check pl-0">
-                                <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
-                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}"/>
-                            </div>
-                            <div class="row mt-1 form-group form-check pl-0">
-                                <label for="openPrice" class="col-3 col-form-label text-right pr-4">Open Price</label>
-                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}"/>
-                            </div>
-                            <div class="row mt-1 form-group form-check pl-0">
-                                <label for="zeroPrice" class="col-3 col-form-label text-right pr-4">Zero Price</label>
-                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}"/>
                             </div>
                         </div>
                     </div>

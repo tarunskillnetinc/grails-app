@@ -13,8 +13,14 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active" aria-current="page">Button Grids</li>
-                        <li class="breadcrumb-item active" aria-current="page">Add Button Grid</li>
+                        <li class="breadcrumb-item active">Button Grids</li>
+                        <g:if test="${buttonGrid?.id && buttonGrid?.type?.name() != 'OTHER'}">
+                            <li class="breadcrumb-item"><g:link action="show" params="[type: buttonGrid?.type]"><g:message code="ButtonGridType.${buttonGrid?.type}" /></g:link></li>
+                        </g:if>
+                        <g:elseif test="${buttonGrid?.id && buttonGrid?.type?.name() == 'OTHER'}">
+                            <li class="breadcrumb-item"><g:link action="show" id="${buttonGrid?.id}">${buttonGrid?.description}</g:link></li>
+                        </g:elseif>
+                        <li class="breadcrumb-item active" aria-current="page">${buttonGrid?.id ? 'Edit' : 'Add'} Button Grid</li>
                     </ol>
                 </div>
             </div>
@@ -30,12 +36,13 @@
     </g:hasErrors>
 
     <div class="header-wl mt-3">
-        <h2 class="mx-auto">Add Button Grid</h2>
+        <h2 class="mx-auto">${buttonGrid?.id ? 'Edit' : 'Add'} Button Grid</h2>
     </div>
 
     <div class="col-12 col-lg-6 offset-lg-3">
         <g:form name="save-button" action="save">
-            <g:hiddenField name="type" value="OTHER" />
+            <g:hiddenField name="id" value="${buttonGrid?.id ?: ''}" />
+            <g:hiddenField name="type" value="${buttonGrid?.type ?: 'OTHER'}" />
 
             <div class="form-group row margin-top-2rem">
                 <label for="description" class="col-3 col-form-label">Description</label>

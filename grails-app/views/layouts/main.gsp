@@ -22,7 +22,7 @@
     <div class="align-items-center topbar d-flex">
         <div class="col-12 col-sm-2">
             <g:link uri="/">
-                <asset:image src="wl_logo_transparent.png" class="topbar-logo" />
+                <asset:image src="wl_logo_topbar.png" class="topbar-logo" />
             </g:link>
         </div>
 
@@ -35,7 +35,7 @@
                 <span><sec:loggedInUserInfo field="usersName" /></span>
             </div>
             <div class="col-12 col-sm-1 text-right">
-                <g:link controller="logoff" class="btn btn-wl red" style="margin-right: 21px;">Log out</g:link>
+                <g:link controller="logoff" class="btn btn-wl red">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
     </div>

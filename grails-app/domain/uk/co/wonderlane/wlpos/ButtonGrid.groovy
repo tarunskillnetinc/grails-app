@@ -25,7 +25,7 @@ class ButtonGrid {
         description column: "`description`"
         rows column: "`rows`"
         columns column: "`columns`"
-        buttons lazy: false
+        buttons lazy: false, cascade: "save-update,delete"
     }
 
     static constraints = {

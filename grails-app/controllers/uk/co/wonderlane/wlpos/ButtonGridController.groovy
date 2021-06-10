@@ -15,9 +15,10 @@ class ButtonGridController {
         def buttonGrid
 
         if (params.id && Integer.parseInt(params.id) > 0) {
-            buttonGrid = ButtonGrid.get(params.id)
+            buttonGrid = buttonService.getButtonGrid(Integer.parseInt(params.id))
 
             if (buttonGrid == null) {
+                flash.error = "Button grid not found."
                 redirect(action: "index")
                 return
             }
@@ -30,7 +31,7 @@ class ButtonGridController {
                 return
             }
 
-            buttonGrid = ButtonGrid.findByTypeAndRetailerIdAndStoreId(type, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            buttonGrid = buttonService.getButtonGrid(type)
         }
 
         [buttonGrid: buttonGrid]
@@ -40,8 +41,35 @@ class ButtonGridController {
 
     }
 
+    def edit(int id) {
+        def buttonGrid = buttonService.getButtonGrid(id)
+
+        if (buttonGrid) {
+            render (view: "add", model: [buttonGrid: buttonGrid])
+        } else {
+            flash.error = "Button grid not found."
+            redirect(action: "index")
+        }
+    }
+
     def save() {
-        def buttonGrid = new ButtonGrid()
+        def buttonGrid
+
+        if (params.id && Integer.parseInt(params.id) > 0) {
+            buttonGrid = buttonService.getButtonGrid(Integer.parseInt(params.id))
+
+            // Ensure this is one of their button grids.
+            if (!buttonGrid) {
+                flash.error = "Button grid not found."
+                redirect(action: "index")
+                return
+            }
+        } else {
+            buttonGrid = new ButtonGrid()
+        }
+
+        int previousColumns = buttonGrid.columns
+        int previousRows = buttonGrid.rows
 
         bindData(buttonGrid, params)
 
@@ -49,7 +77,24 @@ class ButtonGridController {
         buttonGrid.storeId = springSecurityService.principal.storeId
 
         if (buttonGrid.validate()) {
+            // If we made the button grid smaller, remove any buttons which were on the row/column which no longer exists.
+            if (buttonGrid.columns < previousColumns || buttonGrid.rows < previousRows) {
+                def buttonsToRemove = []
+
+                buttonGrid.buttons?.each {
+                    if (it.row >= buttonGrid.rows || it.column >= buttonGrid.columns) {
+                        buttonsToRemove.add(Button.get(it.id))
+                    }
+                }
+
+                buttonsToRemove?.each {
+                    buttonGrid.removeFromButtons(it)
+                    buttonService.deleteButton(it)
+                }
+            }
+
             buttonService.saveButtonGrid(buttonGrid)
+
             redirect(controller: "buttonGrid", action: "show", id: buttonGrid.id)
         } else {
             render(view: "add", model: [buttonGrid: buttonGrid])

@@ -38,7 +38,11 @@
         </h2>
     </div>
 
-    <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3" style="margin-top: 25px;">
+    <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4 px-0 text-right" style="padding-right: 5px !important;">
+        <g:link action="edit" id="${buttonGrid.id}" class="btn btn-wl">Edit Button Grid</g:link>
+    </div>
+
+    <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4">
         <g:each var="row" in="${0 ..< buttonGrid.rows}">
             <div class="row button-grid">
                 <g:each var="column" in="${0 ..< buttonGrid.columns}">

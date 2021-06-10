@@ -6,6 +6,7 @@
         <title>WonderLane Product Maintenance</title>
 
         <asset:stylesheet href="radio.css" />
+        <asset:javascript src="money-mask.js" />
 
         <script type="text/javascript">
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
@@ -22,13 +23,16 @@
 
                     var vatPercentageOverride = $('#vatPercentageOverride');
                     vatPercentageOverride.attr("readonly", vatCode !== 'O');
+                    vatPercentageOverride.attr("disabled", vatCode !== 'O');
                     vatPercentageOverride.val("0.00");
                 });
 
                 // Enable the min and max open price entries when open price is selected.
                 $("#openPrice").change(function() {
                     $("#restrictions\\.minOpenPrice").attr("readonly", !this.checked);
+                    $("#restrictions\\.minOpenPrice").attr("disabled", !this.checked);
                     $("#restrictions\\.maxOpenPrice").attr("readonly", !this.checked);
+                    $("#restrictions\\.maxOpenPrice").attr("disabled", !this.checked);
                 });
 
                 $("#restrictions\\.buyerIdRequired").change(function() {
@@ -41,6 +45,9 @@
                     $("#restrictions\\.sellerAgeRestriction").val("");
                     $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
                 });
+
+                $(".mask-money").maskMoney({ allowZero: true });
+                // $(".mask-money").maskMoney('mask');
             });
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
