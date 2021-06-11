@@ -11,8 +11,10 @@ import uk.co.wonderlane.wlpos.enums.TenderType
 class ButtonController {
 
     def springSecurityService
+
     def productService
     def buttonService
+    def rabbitService
 
     def edit() {
         def button
@@ -56,10 +58,6 @@ class ButtonController {
         if (button.validate()) {
             // Make sure the RabbitMQ connection is available, otherwise reject the save.
             try {
-                // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
-                BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
-                rabbitService.init()
-
                 if (!rabbitService.isOpen()) {
                     throw new Exception("Rabbit MQ not available")
                 }
@@ -124,10 +122,6 @@ class ButtonController {
 
         // Make sure the RabbitMQ connection is available, otherwise reject the save.
         try {
-            // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
-            BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
-            rabbitService.init()
-
             if (!rabbitService.isOpen()) {
                 throw new Exception("Rabbit MQ not available")
             }

@@ -4,6 +4,7 @@ import uk.co.wonderlane.wlpos.WellAuthenticationDetailsSource
 import uk.co.wonderlane.wlpos.StoreNumberValidatorService
 import uk.co.wonderlane.wlpos.ProductService
 import uk.co.wonderlane.wlpos.ShiftService
+import uk.co.wonderlane.wlpos.BackOfficeRabbitService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 
 // Place your Spring DSL code here
@@ -42,6 +43,16 @@ beans = {
             grailsApplication.config.getProperty('mysql.transactions.database'),
             grailsApplication.config.getProperty('mysql.transactions.username'),
             grailsApplication.config.getProperty('mysql.transactions.password')) {
+
+        springSecurityService = ref('springSecurityService')
+    }
+
+    rabbitService(BackOfficeRabbitService,
+            grailsApplication.config.getProperty('rabbitmq.host'),
+            grailsApplication.config.getProperty('rabbitmq.port'),
+            grailsApplication.config.getProperty('rabbitmq.apiPort'),
+            grailsApplication.config.getProperty('rabbitmq.username'),
+            grailsApplication.config.getProperty('rabbitmq.password')) {
 
         springSecurityService = ref('springSecurityService')
     }

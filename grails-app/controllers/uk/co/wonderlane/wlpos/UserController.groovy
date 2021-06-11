@@ -22,7 +22,9 @@ import java.lang.reflect.Type
 class UserController {
 
     def springSecurityService
+
     def userService
+    def rabbitService
 
     def index() {
         [users: userService.getUsers("", 0, 50), searchTerm: ""]
@@ -62,10 +64,6 @@ class UserController {
             userService.saveUser(user)
 
             flash.message = "User saved successfully"
-
-            // TODO I think this service needs to be made into an injectable dependency if we go ahead with Grails implementation.
-            BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
-            rabbitService.init()
 
             if (!rabbitService.isOpen()) {
                 throw new Exception("Rabbit MQ not available")

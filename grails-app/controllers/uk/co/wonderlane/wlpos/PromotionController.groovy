@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import antlr.StringUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -25,8 +24,10 @@ import java.math.RoundingMode
 class PromotionController {
 
     def springSecurityService
+
     def productService
     def promotionService
+    def rabbitService
 
     def index() { }
 
@@ -381,9 +382,6 @@ class PromotionController {
     }
 
     def sendToTill() {
-        BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
-        rabbitService.init()
-
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }

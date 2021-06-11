@@ -24,8 +24,10 @@ import java.lang.reflect.Type
 class ProductController {
 
     def springSecurityService
+
     def productService
     def categoryService
+    def rabbitService
 
     def index() {
         render(view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
@@ -168,9 +170,6 @@ class ProductController {
 //            }
 
 //            productService.populateCurrentProductData(product)
-
-//            BackOfficeRabbitService rabbitService = new BackOfficeRabbitService(grailsApplication.config.getProperty('rabbitmq.host'), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')), Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')), grailsApplication.config.getProperty('rabbitmq.username'), grailsApplication.config.getProperty('rabbitmq.password'))
-//            rabbitService.init()
 
 //            if (!rabbitService.isOpen()) {
 //                throw new Exception("Rabbit MQ not available")
