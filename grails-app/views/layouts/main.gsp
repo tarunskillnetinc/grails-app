@@ -38,6 +38,12 @@
                 <g:link controller="logoff" class="btn btn-wl red">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
+
+        <sec:ifNotLoggedIn>
+            <div class="col-12 col-sm-10 text-right px-0">
+                <span class="mr-4">Website version: <g:meta name="info.app.version" /></span>
+            </div>
+        </sec:ifNotLoggedIn>
     </div>
 
     <sec:ifLoggedIn>
