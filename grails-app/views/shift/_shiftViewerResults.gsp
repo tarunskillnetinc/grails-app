@@ -19,7 +19,7 @@
     </g:if>
 
     <g:each in="${shifts}" var="shift" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable"  title="Click to view." style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
             <div class="col-2 my-auto">${shift.tillId}</div>
             <div class="col-2 my-auto">${shift.shiftNumber}</div>
             <div class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>

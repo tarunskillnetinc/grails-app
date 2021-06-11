@@ -53,7 +53,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <g:link controller="user" class="nav-link">User Management</g:link>
+                        <g:link controller="user" class="nav-link">Users</g:link>
                     </li>
 
                     <li class="nav-item dropdown">
@@ -100,6 +100,10 @@
                             <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
                             <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
                         </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <g:link controller="monitoring" class="nav-link">Monitoring</g:link>
                     </li>
                 </ul>
             </div>

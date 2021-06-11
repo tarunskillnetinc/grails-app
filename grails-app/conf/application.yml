@@ -246,6 +246,7 @@ environments:
 rabbitmq:
     host: localhost
     port: 5672
+    apiPort: 15672
     username: rabbituser
     password: Pa**W0rd01
 
