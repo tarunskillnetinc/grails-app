@@ -1,7 +1,9 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.Gson
+import uk.co.wonderlane.wlpos.entities.SymbolGroupMessage
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Supplier
@@ -95,13 +97,13 @@ class SupplierController {
 
                 supplierService.saveSymbolGroupSubscription(symbolGroupSubscription)
 
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.SYMBOL_GROUP_SUBSCRIPTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
-                syncMessage.setInsert(true)
-                syncMessage.setSymbolGroupId(symbolGroupSubscription.symbolGroup.id)
+                // TODO Not always REGISTRATION
+                SymbolGroupMessage symbolGroupMessage = new SymbolGroupMessage(SymbolGroupMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
                 Gson gson = new Gson()
 
-                rabbitService.sendExchangeMessage("SymbolGroups", gson.toJson(syncMessage))
+                // TODO Considering using routing key to reach Nisa?
+                rabbitService.sendExchangeMessage("SymbolGroups", gson.toJson(symbolGroupMessage))
 
                 render "OK"
             } catch (Exception e) {
