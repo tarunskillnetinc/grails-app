@@ -1,6 +1,6 @@
 import uk.co.wonderlane.wlpos.ButtonGrid
+import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
-import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 class EposTagLib {
@@ -112,5 +112,48 @@ class EposTagLib {
         }
 
         out << """</ol></div></div></nav>"""
+    }
+
+    def groupHierarchyPadding = { attrs, body ->
+        if (attrs.type == GroupType.DIVISION) {
+            out << "pad-left-25"
+        } else if (attrs.type == GroupType.REGION) {
+            out << "pad-left-40"
+        }
+    }
+
+    def groupBreadcrumb = { attrs, body ->
+        def group = Group.get(attrs.groupId)
+
+        def groups = []
+
+        if (group) {
+            groups.add(group)
+        }
+
+        while (group?.parentGroup) {
+            group = group.parentGroup
+
+            groups.add(group)
+        }
+
+        groups = groups.reverse()
+
+        def breadcrumb = ""
+        groups.eachWithIndex { it, index ->
+            if (index == 0) {
+                breadcrumb += """<nav aria-label="breadcrumb"><ol class="breadcrumb">"""
+                breadcrumb += """<li class="breadcrumb-item"><a href=# onclick="navigateToGroup(0, 1);">Home</a></li>"""
+            }
+
+            if (index == groups.size() - 1) {
+                breadcrumb += """<li class="breadcrumb-item active" aria-current="page">${it.name}</li>"""
+                breadcrumb += """</ol></nav>"""
+            } else {
+                breadcrumb += """<li class="breadcrumb-item"><a href=# onclick="navigateToGroup(${it.id}, ${it.level.level});">${it.name}</a></li>"""
+            }
+        }
+
+        out << breadcrumb
     }
 }

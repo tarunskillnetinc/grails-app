@@ -4,6 +4,7 @@ import uk.co.wonderlane.wlpos.WellAuthenticationDetailsSource
 import uk.co.wonderlane.wlpos.StoreNumberValidatorService
 import uk.co.wonderlane.wlpos.ProductService
 import uk.co.wonderlane.wlpos.ShiftService
+import uk.co.wonderlane.wlpos.GroupService
 import uk.co.wonderlane.wlpos.BackOfficeRabbitService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 
@@ -54,6 +55,10 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password')) {
 
+        springSecurityService = ref('springSecurityService')
+    }
+
+    groupService(GroupService) {
         springSecurityService = ref('springSecurityService')
     }
 }

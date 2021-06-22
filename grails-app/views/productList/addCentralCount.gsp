@@ -41,18 +41,18 @@
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                    <g:textField name="description" class="col-5 form-control bottom-border" value="${productList?.description}" />
+                    <g:textField name="description" class="col-6 form-control bottom-border" value="${productList?.description}" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="startDate" class="col-4 col-form-label text-right pr-4">Start Date</label>
 
-                    <g:textField name="startDate" type="text" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.startDate)}" autocomplete="off" />
+                    <g:textField name="startDate" type="text" class="col-4 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.startDate)}" autocomplete="off" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="endDate" class="col-4 col-form-label text-right pr-4">End Date</label>
-                    <g:textField name="endDate" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.endDate)}" autocomplete="off" />
+                    <g:textField name="endDate" class="col-4 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.endDate)}" autocomplete="off" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
@@ -67,8 +67,8 @@
                     <h3 class="mx-auto">Products</h3>
                 </div>
 
-                <div class="row mt-4 ml-0 mr-0">
-                    <div class="col-2 offset-10 text-right">
+                <div class="row mt-4 mx-0">
+                    <div class="col-2 offset-10 text-right px-0">
                         <!-- Button trigger modal -->
                         <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                             Add Product
