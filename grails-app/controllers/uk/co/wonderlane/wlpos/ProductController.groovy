@@ -39,7 +39,7 @@ class ProductController {
         render(view: "add", model: [product: product,
                                             storeId: springSecurityService.principal.storeId,
                                             statusValues: ProductStatus.values(),
-                                            categoryValues: Category.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                            categoryValues: categoryService.getFullCategoryHierarchy(),
                                             vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                             navlink: "details"])
     }
@@ -57,12 +57,6 @@ class ProductController {
 
         def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
-//        int totalResults = products[-1].getId()
-
-//        if (products.size() > 0) {
-//            products.removeLast()
-//        }
-
         render(template: "/product/productSearchResults", model: [ products: products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId ])
     }
 
@@ -70,12 +64,6 @@ class ProductController {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
 
         def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
-
-//        int totalResults = products[-1].getId()
-//
-//        if (products.size() > 0) {
-//            products.removeLast()
-//        }
 
         render(template: "/product/maintenanceSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
     }
@@ -207,6 +195,12 @@ class ProductController {
                                         categoryValues: categoryService.getFullCategoryHierarchy(),
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
         }
+    }
+
+    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {
+        def category = categoryService.getCategory(categoryId)
+
+        render (template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId])
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {

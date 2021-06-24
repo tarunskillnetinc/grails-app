@@ -2,10 +2,12 @@
     <label class="radio-container level-${level}">${category.description}
         <g:radio name="category.id" id="category-${category.id}" checked="${category.id == selectedCategoryId}" value="${category.id}" class="form-check-input" />
 
+        <g:if test="${category.childCategories}">
+            <span id="plusMinus-${category.id}" class="plus-minus" aria-expanded="false" onclick="expandCollapseCategory(${category.id}, ${level + 1}, ${selectedCategoryId})">+</span>
+        </g:if>
+
         <span class="checkmark"></span>
     </label>
 
-    <g:if test="${category.childCategories}">
-        <g:render template="categorySelect" model="[categories: category.childCategories, selectedCategoryId: selectedCategoryId, level: (level + 1)]" />
-    </g:if>
+    <div id="categoryContainer-${category.id}"></div>
 </g:each>

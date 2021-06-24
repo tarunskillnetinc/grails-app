@@ -2,7 +2,7 @@
 .radio-container {
     display: block;
     position: relative;
-    padding-left: 35px;
+    padding-left: 75px;
     margin-bottom: 12px;
     cursor: pointer;
     -webkit-user-select: none;
@@ -24,7 +24,7 @@
 .checkmark {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 30px;
     height: 25px;
     width: 25px;
     background-color: #eee;
@@ -65,14 +65,23 @@
     transform: rotate(45deg);
 }
 
+.radio-container .plus-minus {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    font-weight: bold;
+}
+
 .radio-container.level-2 {
-    margin-left: 40px;
+    margin-left: 38px;
 }
 
 .radio-container.level-3 {
-    margin-left: 80px;
+    margin-left: 76px;
 }
 
 .radio-container.level-4 {
-    margin-left: 120px;
+    margin-left: 114px;
 }
