@@ -168,66 +168,37 @@
             </nav>
         </section>
 
-        <div class="col-12 col-sm-8 offset-sm-2 mt-5">
-            <ul class="nav nav-tabs nav-fill tabs-wl" role="tablist">
-                <li class="nav-item">
-                    <a id="suppliers-tab" data-toggle="tab" href="#suppliers" aria-selected="true" role="tab" aria-controls="suppliers" class="nav-link active">Suppliers</a>
-                </li>
-
-                <li class="nav-item">
-                    <a id="symbolGroupSubscriptions-tab" data-toggle="tab" href="#symbolGroupSubscriptions" role="tab" aria-controls="symbolGroupSubscriptions" class="nav-link">Supplier Affiliations</a>
-                </li>
-
-                <li class="nav-item">
-                    <a id="supplierUpdates-tab" data-toggle="tab" href="#supplierUpdates" role="tab" aria-controls="supplierUpdates" class="nav-link disabled">Supplier Price Updates</a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="tab-content" style="margin-top: 50px;">
-            <!-- Suppliers -->
-            <div class="tab-pane fade show active" id="suppliers" role="tabpanel" aria-labelledby="suppliers-tab">
-                <section id="suppliers-container" class="container-fluid">
-                    <div class="header-wl mt-3">
-                        <h2 class="mx-auto">Suppliers</h2>
-                    </div>
-
-                    <div class="row mt-4 ml-0 mr-0">
-                        <div class="col-2 offset-10 text-right px-0">
-                            <a href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
-                        </div>
-                    </div>
-
-                    <div id="results-container" class="align-content-center">
-                        <g:render template="supplierSearchResults" />
-                    </div>
-                </section>
+        <section id="suppliers-container" class="container-fluid">
+            <div class="header-wl mt-3">
+                <h2 class="mx-auto">Suppliers</h2>
             </div>
 
-            <!-- Symbol group subscriptions -->
-            <div class="tab-pane fade show" id="symbolGroupSubscriptions" role="tabpanel" aria-labelledby="symbolGroupSubscriptions-tab">
-                <section id="subscriptions-container" class="container-fluid">
-                    <div class="header-wl mt-3">
-                        <h2 class="mx-auto">Supplier Affiliations</h2>
-                    </div>
-
-                    <div class="row mt-4 ml-0 mr-0">
-                        <div class="col-2 offset-10 text-right px-0">
-                            <a href="#" class="btn btn-wl" onclick="showAddSymbolGroupSubscriptionModal();">Add New Supplier Affiliation</a>
-                        </div>
-                    </div>
-
-                    <div id="subscriptions-results-container" class="align-content-center">
-                        <g:render template="symbolGroupSubscriptionsSearchResults" />
-                    </div>
-                </section>
+            <div class="row mt-4 ml-0 mr-0">
+                <div class="col-2 offset-10 text-right px-0">
+                    <a href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
+                </div>
             </div>
 
-            <!-- Supplier price updates -->
-            <div class="tab-pane fade show" id="supplierUpdates" role="tabpanel" aria-labelledby="supplierUpdates-tab">
-
+            <div id="results-container" class="align-content-center">
+                <g:render template="supplierSearchResults" />
             </div>
-        </div>
+        </section>
+
+        <section id="subscriptions-container" class="container-fluid">
+            <div class="header-wl mt-5">
+                <h2 class="mx-auto">Supplier Affiliations</h2>
+            </div>
+
+            <div class="row mt-4 ml-0 mr-0">
+                <div class="col-2 offset-10 text-right px-0">
+                    <a href="#" class="btn btn-wl" onclick="showAddSymbolGroupSubscriptionModal();">Add New Supplier Affiliation</a>
+                </div>
+            </div>
+
+            <div id="subscriptions-results-container" class="align-content-center">
+                <g:render template="symbolGroupSubscriptionsSearchResults" />
+            </div>
+        </section>
 
         <section id="addSupplier-modal" class="container-fluid">
             <!-- Add supplier modal -->
