@@ -69,7 +69,7 @@ class Product {
         receiptDescription size: 1..50, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
         unitSize size: 1..50, blank: false, nullable:false
-        vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal,blank: false, nullable: false, scale: 2
+        vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: false, nullable: false, scale: 2
         vatCode nullable: false
         status nullable: false
         category nullable: false

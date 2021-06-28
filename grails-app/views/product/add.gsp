@@ -24,16 +24,13 @@
 
                     var vatPercentageOverride = $('#vatPercentageOverride');
                     vatPercentageOverride.attr("readonly", vatCode !== 'O');
-                    vatPercentageOverride.attr("disabled", vatCode !== 'O');
                     vatPercentageOverride.val("0.00");
                 });
 
                 // Enable the min and max open price entries when open price is selected.
                 $("#openPrice").change(function() {
                     $("#restrictions\\.minOpenPrice").attr("readonly", !this.checked);
-                    $("#restrictions\\.minOpenPrice").attr("disabled", !this.checked);
                     $("#restrictions\\.maxOpenPrice").attr("readonly", !this.checked);
-                    $("#restrictions\\.maxOpenPrice").attr("disabled", !this.checked);
                 });
 
                 $("#restrictions\\.buyerIdRequired").change(function() {
@@ -105,7 +102,7 @@
                 if (index != null) {
                     var selector = "#variants\\[" +index +"\\]\\.";
 
-                    params["variantId"] = $(selector + "id").val();
+                    params["id"] = $(selector + "id").val();
                     params["itemCode"] = $(selector + "itemCode").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
@@ -145,13 +142,14 @@
 
             // Handle the "Ok" of the add/edit variant modal which puts the values into the form ready for submission as part of the whole page.
             function saveVariant(index) {
+                var id = $("#addVariantId").val();
                 var itemCode = $("#addVariantItemCode").val();
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var size = $("#addVariantSize").val();
                 var colour = $("#addVariantColour").val();
 
-                var params = { index: index, itemCode: itemCode, retailPrice: retailPrice, costPrice: costPrice, size: size, colour: colour };
+                var params = { index: index, id: id, itemCode: itemCode, retailPrice: retailPrice, costPrice: costPrice, size: size, colour: colour };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 addBarcodeContainers.each(function(loopIndex) {

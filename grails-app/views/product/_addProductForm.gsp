@@ -1,4 +1,4 @@
-<g:form method="post" url="${product?.id == 0 ? "./add" : "./maintenance?productId=" + product?.id}">
+<g:form method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
     <div id="accordion">
@@ -25,7 +25,7 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
-                                <g:textField name="description" class="col-9 form-control bottom-border" value="${product?.description}"/>
+                                <g:textField name="description" class="col-9 form-control bottom-border" value="${product?.description}" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
@@ -134,7 +134,7 @@
                         <div class="col-12 col-lg-6">
                             <div class="row form-group">
                                 <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
-                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" disabled="${product?.vatCode?.code != 'O'}" />
+                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
@@ -198,7 +198,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">&pound;</span>
                                     </div>
-                                    <g:textField name="restrictions.minOpenPrice" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money" readonly="${!product?.openPrice}" disabled="${!product?.openPrice}" />
+                                    <g:textField name="restrictions.minOpenPrice" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money" readonly="${!product?.openPrice}" />
                                 </div>
                             </div>
                             <div class="row form-group">
@@ -208,7 +208,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">&pound;</span>
                                     </div>
-                                    <g:textField name="restrictions.maxOpenPrice" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money" readonly="${!product?.openPrice}" disabled="${!product?.openPrice}" />
+                                    <g:textField name="restrictions.maxOpenPrice" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money" readonly="${!product?.openPrice}" />
                                 </div>
                             </div>
                         </div>

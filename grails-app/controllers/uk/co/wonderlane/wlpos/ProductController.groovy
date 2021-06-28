@@ -17,6 +17,7 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
 import java.lang.reflect.Type
@@ -73,8 +74,7 @@ class ProductController {
 
         boolean newProduct
 
-        // TODO check existing product, currently always newProduct
-        if (product) {
+        if (params.id && Integer.parseInt(params.id) > 0) {
             newProduct = false
         } else {
             newProduct = true
@@ -101,22 +101,19 @@ class ProductController {
                 }
             }
         } else {
-            def baseProduct = productService.getProduct(id)
+            // TODO This all needs finishing.
+            // TODO We should introduce an effective date entry.
 
-            if (params.retailPrice) {
-                baseProduct.variants.sort { it.effectiveDate }.reverse().find {
-                    it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= now
-                }.retailPrice = new BigDecimal(params.retailPrice)
+            product = productService.getProduct(Integer.parseInt(params.id))
+
+            // TODO ProductCommand and all of the sub objects need to be command objects as well.
+            def editedProduct = new ProductCommand()
+            bindData(editedProduct, params)
+
+            // TODO Only editing retail price for now, also only editing existing variants, not handling new ones added or any deletions.
+            editedProduct.variants?.each {editedVariant ->
+                product.variants?.find {existingVariant -> existingVariant.id == editedVariant.id }?.retailPrice = editedVariant.retailPrice
             }
-
-            if (params.costPrice) {
-                baseProduct.variants.sort { it.effectiveDate }.reverse().find {
-                    it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= now
-                }.costPrice = new BigDecimal(params.costPrice)
-            }
-
-            baseProduct.properties = product.properties as BindingResult
-            product = baseProduct
         }
 
 //        for (ProductVariant variant : product.variants) {
@@ -148,15 +145,6 @@ class ProductController {
         }
 
         if (!product.hasErrors()) {
-//            if (newProduct) {
-//                product.productDatas.get(0).id = product.id
-//                productService.saveProductData(product.productDatas.get(0))
-//            } else {
-//                product.productDatas.each {
-//                    productService.saveProductData(it)
-//                }
-//            }
-
 //            productService.populateCurrentProductData(product)
 
 //            if (!rabbitService.isOpen()) {
@@ -277,4 +265,52 @@ class AddPackCommand {
 class SupplierCommand {
     int id
     String name
+}
+
+class ProductCommand {
+    int id
+    int retailerId
+    String itemCode
+    String description
+    String receiptDescription
+    Category category
+    boolean dumpCode
+    String unitSize
+    boolean weightedItem
+    boolean openPrice
+    boolean zeroPrice
+    VatCode vatCode
+    BigDecimal vatPercentageOverride
+    Restrictions restrictions
+    String discreetMessage
+    ProductStatus status
+    String retailerProductId
+
+//    Collection<Tag> tags = new ArrayList<>()
+//    Collection<Message> saleMessages = new ArrayList<>()
+//    Collection<Message> refundMessages = new ArrayList<>()
+//    Collection<DiscountRate> discountRates = new ArrayList<>()
+    Collection<ProductVariantCommand> variants = new ArrayList<>()
+}
+
+class ProductVariantCommand {
+    int id
+    int storeId
+    String itemCode
+    BigDecimal retailPrice
+    BigDecimal costPrice
+    String size
+    String colour
+    int balanceOnHand
+    int balanceOnOrder
+    int minimumStockLevel
+    DateTime effectiveDate
+    DateTime createdDatetime
+    int createdUserId
+    DateTime updatedDatetime
+    int updatedUserId
+    boolean delete
+
+//    Collection<Barcode> barcodes = new ArrayList<>()
+//    Collection<Pack> packs = new ArrayList<>()
 }

@@ -370,8 +370,12 @@ a.no-underline:hover {
     box-shadow: inset 0 1px 1px rgba(230, 40, 59, 0.075), 0 0 8px rgba(230, 40, 59, 0.6);
 }
 
-.form-control.bottom-border:disabled {
+.form-control.bottom-border:read-only {
     background: #E9ECEF;
+}
+
+.form-check-input:read-only {
+    background: #E9ECEF !important;
 }
 
 .select-border {
