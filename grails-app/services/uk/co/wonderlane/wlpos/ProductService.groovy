@@ -22,9 +22,20 @@ class ProductService extends MySqlDal {
     }
 
     def getProductVariant(int id) {
-        def productVariant = ProductVariant.get(id)
+        def productVariant = ProductVariant.findByIdAndStoreId(id, springSecurityService.principal.storeId)
 
         return productVariant?.product?.retailerId == springSecurityService.principal.retailerId ? productVariant : null
+    }
+
+    def getProductVariant(long sku) {
+        return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
+            eq ("sku", sku)
+            eq ("storeId", springSecurityService.principal.storeId)
+            lte ("effectiveDate", DateTime.now(DateTimeZone.UTC))
+            product {
+                eq ("retailerId", springSecurityService.principal.retailerId)
+            }
+        }?.first() ?: null
     }
 
     def getProduct(int id) {

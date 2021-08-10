@@ -1,5 +1,5 @@
-function productSelected (id, itemCode, description) {
-    $("#buttonProductVariantId").val(id);
-    $("#itemCode").text(itemCode);
+function productSelected (id, sku, description) {
+    $("#buttonSku").val(sku);
+    $("#sku").text(sku);
     $("#productDescription").text(description);
 }

@@ -23,8 +23,8 @@ class ButtonController {
         if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
 
-            if (button.type == ButtonType.PRODUCT) {
-                productVariant = productService.getProductVariant(button.productVariantId)
+            if (button.type == ButtonType.PRODUCT && button.sku) {
+                productVariant = productService.getProductVariant(button.sku)
             }
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
@@ -87,8 +87,8 @@ class ButtonController {
 
                 def productVariant
 
-                if (button.type == ButtonType.PRODUCT && button.productVariantId) {
-                    productVariant = productService.getProductVariant(button.productVariantId)
+                if (button.type == ButtonType.PRODUCT && button.sku) {
+                    productVariant = productService.getProductVariant(button.sku)
                 }
 
                 // TODO Populate an error to display on screen.
@@ -105,8 +105,8 @@ class ButtonController {
 
             def productVariant
 
-            if (button.type == ButtonType.PRODUCT && button.productVariantId) {
-                productVariant = productService.getProductVariant(button.productVariantId)
+            if (button.type == ButtonType.PRODUCT && button.sku) {
+                productVariant = productService.getProductVariant(button.sku)
             }
 
             render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productSku: productVariant?.sku, productDescription: productVariant?.product?.description])

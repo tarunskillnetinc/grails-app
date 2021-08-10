@@ -564,3 +564,23 @@ li.breadcrumb-item a {
     display: none !important;
     visibility: hidden !important
 }
+
+/* width */
+.quicksell-scrollbar::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+.quicksell-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+.quicksell-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+.quicksell-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

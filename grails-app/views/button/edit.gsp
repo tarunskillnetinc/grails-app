@@ -74,7 +74,7 @@
                                 <g:hiddenField name="tenderType" value="" />
                                 <g:hiddenField name="process" value="" />
                                 <g:hiddenField name="subPageId" value="" />
-                                <g:hiddenField name="productVariantId" id="buttonProductVariantId" value="${button?.productVariantId}" />
+                                <g:hiddenField name="sku" id="buttonSku" value="${button?.sku}" />
 
                                 <div class="form-group row">
                                     <label for="description" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
@@ -92,9 +92,9 @@
 
                                 <div class="product-select-box">
                                     <div class="form-group row" style="padding-top: 15px;">
-                                        <label for="itemCode" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">SKU</label>
+                                        <label for="sku" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">SKU</label>
                                         <div class="col-4 my-auto">
-                                            <span id="itemCode">${productSku}</span>
+                                            <span id="sku">${productSku}</span>
                                         </div>
                                         <div class="col-4">
                                             <!-- Button trigger modal -->
@@ -142,7 +142,7 @@
                                 <g:hiddenField name="column" value="${button?.column}" />
                                 <g:hiddenField name="type" value="SUB_PAGE" />
                                 <g:hiddenField name="amount" value="" />
-                                <g:hiddenField name="productVariantId" value="" />
+                                <g:hiddenField name="sku" value="" />
                                 <g:hiddenField name="tenderType" value="" />
                                 <g:hiddenField name="quantity" value="" />
                                 <g:hiddenField name="process" value="" />
@@ -192,7 +192,7 @@
                                 <g:hiddenField name="type" value="PROCESS" />
                                 <g:hiddenField name="amount" value="" />
                                 <g:hiddenField name="quantity" value="" />
-                                <g:hiddenField name="productVariantId" value="" />
+                                <g:hiddenField name="sku" value="" />
                                 <g:hiddenField name="subPageId" value="" />
                                 <g:hiddenField name="tenderType" value="" />
 
@@ -242,7 +242,7 @@
                                 <g:hiddenField name="column" value="${button?.column}" />
                                 <g:hiddenField name="type" value="TENDER" />
                                 <g:hiddenField name="quantity" value="" />
-                                <g:hiddenField name="productVariantId" value="" />
+                                <g:hiddenField name="sku" value="" />
                                 <g:hiddenField name="subPageId" value="" />
                                 <g:hiddenField name="process" value="" />
 
