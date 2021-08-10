@@ -40,7 +40,7 @@ class ButtonController {
         def availableSubPages = ButtonGrid.findAllByTypeAndRetailerIdAndStoreId(ButtonGridType.OTHER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         def availableTenderTypes = TenderType.values()
 
-        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, productItemCode: productVariant?.itemCode, productDescription: productVariant?.product?.description, availableTenderTypes: availableTenderTypes]
+        [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, availableTenderTypes: availableTenderTypes]
     }
 
     def save() {
@@ -92,7 +92,7 @@ class ButtonController {
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: productVariant?.itemCode, productDescription: productVariant?.product?.description])
+                render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
             }
         } else {
             def availableProcesses = [ProcessType.NAVIGATE_SALES, ProcessType.NAVIGATE_QUICK_SELL, ProcessType.NAVIGATE_SEARCH, ProcessType.NAVIGATE_RECEIPTS, ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
@@ -106,10 +106,10 @@ class ButtonController {
             def productVariant
 
             if (button.type == ButtonType.PRODUCT && button.productVariantId) {
-                product = productService.getProductVariant(button.productVariantId)
+                productVariant = productService.getProductVariant(button.productVariantId)
             }
 
-            render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productItemCode: productVariant?.itemCode, productDescription: productVariant?.product?.description])
+            render (view: "edit", model: [button: button, availableProcesses: availableProcesses, availableSubPages: availableSubPages, availableTenderTypes: availableTenderTypes, productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
         }
     }
 

@@ -12,7 +12,7 @@ class Restrictions {
     Integer sellerAgeRestriction
     Boolean refundAllowed
     Boolean markdownAllowed
-    Boolean discountAllowed;
+    Boolean discountAllowed
     Boolean creditPaymentAllowed
     Boolean quantityChangeAllowed
     Boolean quantityChangeForced
@@ -39,12 +39,14 @@ class Restrictions {
     }
 
     static constraints = {
-        minOpenPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2
-        maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank: false, nullable: false, scale: 2, validator: {val, obj ->
+        minOpenPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, blank: true, nullable: true, scale: 2
+        maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank: true, nullable: true, scale: 2, validator: {val, obj ->
             return val != null && obj.minOpenPrice != null && val.compareTo(obj.minOpenPrice) > 0 ? true : ["error.Restrictions.maxMoreThanMin"]
         }
         buyerAgeRestriction min: 1, max: 25, blank: true, nullable: true
         buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
+        buyerIdRequired nullable: true
+        buyerIdForced nullable: true
         sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true
         refundAllowed nullable: true
         markdownAllowed nullable: true

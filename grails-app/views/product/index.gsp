@@ -63,7 +63,9 @@
         </section>
 
         <g:if test="${flash.message}">
-            <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+            <section id="alerts-container" class="container-fluid">
+                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            </section
         </g:if>
 
         <section id="maintenance-search" class="container-fluid">

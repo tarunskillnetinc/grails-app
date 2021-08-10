@@ -5,31 +5,46 @@
                 <g:hiddenField name="productModal-currentPromotionType" value=""/>
                 <h3 class="product-search-header">Select product</h3>
 
-                <div class="row mt-4 ml-0 mr-0">
-                    <div class="input-group offset-2 col-8">
+                <div class="row product-search-filters">
+                    <div class="input-group col-8">
                         <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
 
                         <div class="input-group-append">
                             <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
-                            <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="productSearchButtonClicked()" class="wl-search-button" />
                         </div>
+                    </div>
+
+                    <div class="col-2">
+                        <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="productSearchButtonClicked()" class="wl-search-button" />
                     </div>
                 </div>
 
-                <div class="row mt-5 mb-2 ml-0 mr-0">
+%{--                <div class="row mt-4 ml-0 mr-0">--}%
+%{--                    <div class="input-group offset-2 col-8">--}%
+%{--                        <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />--}%
+%{----}%
+%{--                        <div class="input-group-append">--}%
+%{--                            <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />--}%
+%{--                            <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="productSearchButtonClicked()" class="wl-search-button" />--}%
+%{--                        </div>--}%
+%{--                    </div>--}%
+%{--                </div>--}%
+
+                <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                     <div class="col-2 font-weight-bold">Item Code</div>
-                    <div class="col-6 font-weight-bold">Description</div>
-                    <div class="col-1 font-weight-bold">Price</div>
+                    <div class="col-4 font-weight-bold">Description</div>
                     <div class="col-2 font-weight-bold">Category</div>
+                    <div class="col-2 font-weight-bold">Cost Price</div>
+                    <div class="col-2 font-weight-bold">Retail Price</div>
                 </div>
 
                 <div id="product-search-results" class="align-content-center">
-
+                    <g:render template="/product/productSearchResults" model="${[ products: products ]}" />
                 </div>
 
                 <div class="row mt-3">
                     <span class="col-12 text-right">
-                        <button class="btn btn-danger" data-dismiss="modal" style="margin-right: 13px;">Cancel</button>
+                        <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
                     </span>
                 </div>
             </div>

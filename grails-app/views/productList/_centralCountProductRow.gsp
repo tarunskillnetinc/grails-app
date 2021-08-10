@@ -2,7 +2,7 @@
     <g:hiddenField name="productVariantId" value="${productVariant?.id}" />
 
     <div class="col-1 my-auto">${productVariant?.id}</div>
-    <div class="col-2 my-auto">${productVariant?.itemCode}</div>
+    <div class="col-2 my-auto">${productVariant?.sku}</div>
     <div class="col my-auto">${productVariant?.product?.description}</div>
     <div class="col-1 my-auto">${productVariant?.colour ?: 'N/A'}</div>
     <div class="col-1 my-auto">${productVariant?.size ?: 'N/A'}</div>

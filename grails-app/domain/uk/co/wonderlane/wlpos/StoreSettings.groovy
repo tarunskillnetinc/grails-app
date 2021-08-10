@@ -32,6 +32,7 @@ class StoreSettings {
     Integer createdUserId
     Date updatedDatetime
     Integer updatedUserId
+    PriceBand priceBand
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public StoreSettings() { }
@@ -62,6 +63,7 @@ class StoreSettings {
         varianceQuantity column: "varianceQuantity"
         varianceValue column: "varianceValue"
         pickListForceZeroCount column: "pickListForceZeroCount"
+        priceBand column: "priceBandId"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
@@ -90,6 +92,7 @@ class StoreSettings {
         varianceQuantity nullable: true, min: 1, max: 999
         varianceValue nullable:true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
+        priceBand nullable: false
         createdDatetime nullable: true
         createdUserId nullable: true
         updatedDatetime nullable: true

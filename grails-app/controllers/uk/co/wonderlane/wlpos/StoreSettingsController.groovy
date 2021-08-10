@@ -14,8 +14,9 @@ class StoreSettingsController {
 
     def index() {
         def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        [storeSettings: storeSettings, availablePrintReceiptOptions: PrintReceiptOption.values()]
+        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availablePrintReceiptOptions: PrintReceiptOption.values()]
     }
 
     def save() {

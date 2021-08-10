@@ -93,7 +93,7 @@
                 })
             });
 
-            function addPromotionProduct(id, itemcode, description) {
+            function productSelected(id, itemcode, description) {
                 var promoType = $('#productModal-currentPromotionType').val();
                 var countRequiredDOM = $('#' + promoType + '-count-required');
 

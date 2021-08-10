@@ -50,12 +50,12 @@
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
             function itemCodeChanged(itemCode) {
-                var sku = $("#variants\\[0\\]\\.itemCode");
+                var sku = $("#variants\\[0\\]\\.sku");
 
                 if (sku != null && (sku.val() === null || sku.val() === "")) {
                     sku.val(itemCode);
 
-                    $("#variants\\[0\\]\\.itemCodeText").html(itemCode);
+                    $("#variants\\[0\\]\\.skuText").html(itemCode);
                 }
             }
 
@@ -103,7 +103,7 @@
                     var selector = "#variants\\[" +index +"\\]\\.";
 
                     params["id"] = $(selector + "id").val();
-                    params["itemCode"] = $(selector + "itemCode").val();
+                    params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
                     params["size"] = $(selector + "size").val();
@@ -143,13 +143,13 @@
             // Handle the "Ok" of the add/edit variant modal which puts the values into the form ready for submission as part of the whole page.
             function saveVariant(index) {
                 var id = $("#addVariantId").val();
-                var itemCode = $("#addVariantItemCode").val();
+                var sku = $("#addVariantSku").val();
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var size = $("#addVariantSize").val();
                 var colour = $("#addVariantColour").val();
 
-                var params = { index: index, id: id, itemCode: itemCode, retailPrice: retailPrice, costPrice: costPrice, size: size, colour: colour };
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, size: size, colour: colour };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 addBarcodeContainers.each(function(loopIndex) {

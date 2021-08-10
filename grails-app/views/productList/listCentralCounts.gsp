@@ -55,7 +55,7 @@
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
+                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
             <div class="row mt-4 ml-0 mr-0">

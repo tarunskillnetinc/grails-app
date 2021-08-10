@@ -9,10 +9,10 @@
         <g:hiddenField name="addVariantId" value="${variant?.id ?: ''}" />
 
         <div class="row form-group mb-4">
-            <label for="addVariantItemCode" class="col-3 offset-1 col-form-label text-right">SKU</label>
+            <label for="addVariantSku" class="col-3 offset-1 col-form-label text-right">SKU</label>
 
             <div class="input-group col-4">
-                <g:textField name="addVariantItemCode" value="${variant?.itemCode}" class="form-control bottom-border" />
+                <g:textField name="addVariantSku" value="${variant?.sku}" class="form-control bottom-border" />
             </div>
         </div>
 

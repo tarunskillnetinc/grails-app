@@ -1,5 +1,3 @@
-<%@ page import="java.util.stream.Collectors" %>
-
 <g:if test="${products == null}">
     <div class="row ml-0 mr-0 text-center">
         <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>

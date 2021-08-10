@@ -18,26 +18,21 @@
                     </div>
                 </div>
 
-                <table class="table product-search-table" style="margin-top: 30px;">
-                    <thead>
-                    <tr>
-                        <th scope="col">Item Code</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Cost Price</th>
-                        <th scope="col">Retail Price</th>
-                        <th scope="col">VAT</th>
-                        <th scope="col">&nbsp;</th>
-                    </tr>
-                    </thead>
-                    <tbody id="productSearchResults">
-                        <g:render template="/product/productSearchResults" model="${[ products: products ]}" />
-                    </tbody>
-                </table>
+                <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+                    <div class="col-2 font-weight-bold">Item Code</div>
+                    <div class="col-4 font-weight-bold">Description</div>
+                    <div class="col-2 font-weight-bold">Category</div>
+                    <div class="col-2 font-weight-bold">Cost Price</div>
+                    <div class="col-2 font-weight-bold">Retail Price</div>
+                </div>
 
-                <div class="row">
+                <div id="productSearchResults" class="align-content-center">
+                    <g:render template="/product/productSearchResults" model="${[ products: products ]}" />
+                </div>
+
+                <div class="row mt-3">
                     <span class="col-12 text-right">
-                        <button class="btn btn-danger" data-dismiss="modal" style="margin-right: 13px;">Cancel</button>
+                        <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
                     </span>
                 </div>
             </div>

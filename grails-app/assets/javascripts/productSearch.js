@@ -5,6 +5,12 @@ $(document).ready(function() {
     $('#productSearchButton').click(function() {
         var url = event.target.getAttribute("data-url");
 
+        $('#productSearchResults').html("<div class=\"d-flex justify-content-center\">\n" +
+            "  <div class=\"spinner-border\" role=\"status\">\n" +
+            "    <span class=\"sr-only\">Loading...</span>\n" +
+            "  </div>\n" +
+            "</div>");
+
         $.ajax({
             url: url,
             data: { searchTerm: $("#productSearchTerm").val(), searchBy: $("#productSearchBy").val() },

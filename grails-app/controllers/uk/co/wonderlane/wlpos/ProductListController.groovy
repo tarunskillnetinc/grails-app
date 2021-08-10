@@ -46,8 +46,8 @@ class ProductListController {
         productList.retailerId = springSecurityService.principal.retailerId
         productList.storeId = springSecurityService.principal.storeId
 
-        params.productVariantId?.each {
-            def productVariant = productService.getProductVariant(Integer.parseInt(it))
+        cmd.productVariantId?.each {
+            def productVariant = productService.getProductVariant(it)
 
             if (productVariant) {
                 productList.addToProductListItems(new ProductListItem(productVariant: productVariant))

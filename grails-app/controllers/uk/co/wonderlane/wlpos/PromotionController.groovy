@@ -44,7 +44,7 @@ class PromotionController {
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
                 if (it.productId != null) {
-                    productsRequired.add([product: Product.findById(it.productId), quantity: it.requiredQuantity, value: it.value])
+                    productsRequired.add([product: ProductVariant.findById(it.productId).product, quantity: it.requiredQuantity, value: it.value])
                 } else if (it.categoryId != null) {
                     categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                 } else {
@@ -52,7 +52,7 @@ class PromotionController {
                 }
             } else {
                 if (it.productId != null) {
-                    productsOffer.add([product: Product.findById(it.productId), quantity: it.requiredQuantity, value: it.value])
+                    productsOffer.add([product: ProductVariant.findById(it.productId).product, quantity: it.requiredQuantity, value: it.value])
                 } else if (it.categoryId != null) {
                     categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                 } else {
@@ -333,13 +333,9 @@ class PromotionController {
     }
 
     def productSearch() {
-        def products = productService.searchProductsNew(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
-        int totalResults = products[-1].getId()
-
-        products.removeLast()
-
-        render(template: "/promotion/productSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
+        render(template: "/promotion/productSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults:  products.totalCount])
     }
 
     def categorySearch() {

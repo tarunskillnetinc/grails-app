@@ -60,16 +60,20 @@ class ProductService extends MySqlDal {
             if (searchBy == "everything") {
                 or {
                     like ("itemCode", "%$searchTerm%")
-                    variants {
-                        like ("itemCode", "%$searchTerm%")
+                    if (searchTerm.isNumber()) {
+                        variants {
+                            eq ("sku", Long.parseLong(searchTerm))
+                        }
                     }
                     like ("description", "%$searchTerm%")
                 }
             } else if (searchBy == "itemCode") {
                 or {
                     like("itemCode", "%$searchTerm%")
-                    variants {
-                        like("itemCode", "%$searchTerm%")
+                    if (searchTerm.isNumber()) {
+                        variants {
+                            eq ("sku", Long.parseLong(searchTerm))
+                        }
                     }
                 }
             } else if (searchBy == "description") {
@@ -168,7 +172,7 @@ class ProductService extends MySqlDal {
                 while (rs.next()) {
                     uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
                     productVariant.setId(rs.getInt("id"))
-                    productVariant.setItemCode(rs.getString("itemCode"))
+                    productVariant.setSku(rs.getString("sku"))
                     productVariant.setProductId(rs.getInt("productId"))
                     productVariant.setStoreId(rs.getInt("storeId"))
                     productVariant.setSize(rs.getString("size"))
@@ -305,12 +309,10 @@ class ProductService extends MySqlDal {
 
         product.setId(resultSet.getInt("id"))
         product.setRetailerId(resultSet.getInt("retailerId"))
-        product.setStoreId(resultSet.getInt("storeId"))
         product.setItemCode(resultSet.getString("itemCode"))
         product.setDescription(resultSet.getString("description"))
         product.setReceiptDescription(resultSet.getString("receiptDescription"))
         product.setCategory(categories.get(resultSet.getInt("categoryId")))
-        product.setDumpCode(resultSet.getBoolean("dumpCode"))
         product.setOpenPrice(resultSet.getBoolean("openPrice"))
         product.setZeroPrice(resultSet.getBoolean("zeroPrice"))
         product.setVatCode(vatCodes.get(resultSet.getInt("vatCodeId")))
@@ -318,10 +320,7 @@ class ProductService extends MySqlDal {
         product.setWeightedItem(resultSet.getBoolean("weightedItem"))
         product.setVatPercentageOverride(resultSet.getBigDecimal("vatPercentageOverride"))
         product.setDiscreetMessage(resultSet.getString("discreetMessage"))
-        product.setRetailPrice(resultSet.getBigDecimal("price"))
-        product.setCostPrice(resultSet.getBigDecimal("costPrice"))
         product.setStatus(ProductStatus.valueOf(resultSet.getString("status")))
-        product.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC)) //LocalDateTime.fromDateFields(resultSet.getTimestamp("effectiveDate")).toDateTime())
         product.setRestrictions(mapRestrictions(resultSet))
         product.setLocal(false)
 
@@ -350,7 +349,6 @@ class ProductService extends MySqlDal {
         category.setDescription(resultSet.getString("description"))
         category.setShortDescription(resultSet.getString("shortDescription"))
         category.setRetailerCategoryCode(resultSet.getString("retailerCategoryCode"))
-        category.setRetailerParentCategoryCode(resultSet.getString("retailerParentCategoryCode"))
         category.setRestrictions(mapRestrictions(resultSet))
 
         return category

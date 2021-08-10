@@ -24,6 +24,32 @@
                 }
             });
         }
+
+        function purgeQueue(storeId, tillId) {
+            if (confirm("This will clear all messages from the queue for store " +storeId +", till " +tillId +".")) {
+                $.ajax({
+                    url: purgeQueueUrl,
+                    method: "DELETE",
+                    data: { storeId: storeId, tillId: tillId },
+                    success: function(resp) {
+                        getQueues();
+                    }
+                });
+            }
+        }
+
+        function deleteQueue(storeId, tillId) {
+            if (confirm("This will fully delete the queue for store " +storeId +", till " +tillId +".")) {
+                $.ajax({
+                    url: deleteQueueUrl,
+                    method: "DELETE",
+                    data: { storeId: storeId, tillId: tillId },
+                    success: function(resp) {
+                        getQueues();
+                    }
+                });
+            }
+        }
     </script>
 </head>
 <body>
@@ -62,17 +88,22 @@
 
     <section id="queues-container" class="container-fluid">
         <div class="row mt-4 ml-0 mr-0">
-            <div class="col-2 offset-10 px-0 text-right">
+            <div class="col-8 offset-2 text-center">
+                <p>This page displays the current status of the RabbitMQ till messaging system.</p>
+            </div>
+
+            <div class="col-2 px-0 text-right">
                 <a href="#" class="btn btn-wl" onclick="getQueues();">Refresh</a>
             </div>
         </div>
 
         <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-            <div class="col-2 offset-1 font-weight-bold">Store Number</div>
-            <div class="col-2 font-weight-bold">Till Number</div>
+            <div class="col-2 font-weight-bold">Store ID</div>
+            <div class="col-2 font-weight-bold">Till ID</div>
             <div class="col-2 font-weight-bold">Messages Waiting</div>
             <div class="col-2 font-weight-bold">Latest Queue Activity</div>
             <div class="col-2 font-weight-bold">Status</div>
+            <div class="col-2 font-weight-bold">&nbsp;</div>
         </div>
 
         <div id="results-container">

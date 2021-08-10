@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
 class Product {
@@ -11,7 +10,6 @@ class Product {
     String description
     String receiptDescription
     Category category
-    boolean dumpCode
     String unitSize
     boolean weightedItem
     boolean openPrice
@@ -44,7 +42,6 @@ class Product {
         description column: "`description`"
         receiptDescription column: "receiptDescription"
         category column: "categoryId"
-        dumpCode column: "dumpCode"
         unitSize column: "unitSize"
         weightedItem column: "weightedItem"
         openPrice column: "openPrice"
@@ -69,7 +66,7 @@ class Product {
         receiptDescription size: 1..50, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
         unitSize size: 1..50, blank: false, nullable:false
-        vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: false, nullable: false, scale: 2
+        vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
         vatCode nullable: false
         status nullable: false
         category nullable: false
@@ -96,27 +93,22 @@ class Product {
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {
         uk.co.wonderlane.wlpos.entities.Product product = new uk.co.wonderlane.wlpos.entities.Product()
-        ProductVariant productVariant = variants.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= new Date() }
+//        ProductVariant productVariant = variants.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= DateTime.now(DateTimeZone.UTC) }
 
         product.setId(id)
         product.setRetailerId(retailerId)
-        product.setStoreId(storeId)
         product.setItemCode(itemCode)
         product.setDescription(description)
         product.setReceiptDescription(receiptDescription)
         product.setCategory(category.getCategory())
-        product.setDumpCode(false)
         product.setUnitSize(unitSize)
         product.setWeightedItem(weightedItem)
         product.setOpenPrice(openPrice)
         product.setZeroPrice(zeroPrice)
         product.setVatCode(vatCode.getVatCode())
         product.setVatPercentageOverride(vatPercentageOverride)
-        product.setRetailPrice(productVariant.retailPrice)
-        product.setCostPrice(productVariant.costPrice)
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
-        product.setEffectiveDate(new DateTime(productVariant.effectiveDate))
         product.setStatus(status)
         tags.each {
             product.getTags().add(it.getTag())

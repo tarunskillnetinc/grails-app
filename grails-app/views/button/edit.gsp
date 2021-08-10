@@ -60,7 +60,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseProductButton" class="collapse show" aria-labelledby="productButton" data-parent="#accordion">
+                    <div id="collapseProductButton" class="collapse ${!button?.type || button?.type?.name() == 'PRODUCT' ? 'show' : ''}" aria-labelledby="productButton" data-parent="#accordion">
                         <div class="card-body py-5">
                             <g:form name="save-button" action="save" novalidate="novalidate">
                                 <g:hiddenField name="id" value="${button?.id}" />
@@ -92,9 +92,9 @@
 
                                 <div class="product-select-box">
                                     <div class="form-group row" style="padding-top: 15px;">
-                                        <label for="itemCode" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Item code</label>
-                                        <div class="col-4">
-                                            <label id="itemCode" class="col-form-label value">${productItemCode}</label>
+                                        <label for="itemCode" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">SKU</label>
+                                        <div class="col-4 my-auto">
+                                            <span id="itemCode">${productSku}</span>
                                         </div>
                                         <div class="col-4">
                                             <!-- Button trigger modal -->
@@ -106,8 +106,8 @@
 
                                     <div class="form-group row" style="margin-top: 0px; padding-bottom: 10px;">
                                         <label for="productDescription" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
-                                        <div class="col-8">
-                                            <label id="productDescription" class="col-form-label value">${productDescription}</label>
+                                        <div class="col-8 my-auto">
+                                            <span id="productDescription">${productDescription}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseNavigationButton" class="collapse" aria-labelledby="navigationButton" data-parent="#accordion">
+                    <div id="collapseNavigationButton" class="collapse ${button?.type?.name() == 'SUB_PAGE' ? 'show' : ''}" aria-labelledby="navigationButton" data-parent="#accordion">
                         <div class="card-body py-5">
                             <g:form name="save-button" action="save" novalidate="novalidate">
                                 <g:hiddenField name="id" value="${button?.id}" />
@@ -180,7 +180,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseActionButton" class="collapse" aria-labelledby="actionButton" data-parent="#accordion">
+                    <div id="collapseActionButton" class="collapse ${button?.type?.name() == 'PROCESS' ? 'show' : ''}" aria-labelledby="actionButton" data-parent="#accordion">
                         <div class="card-body py-5">
                             <g:form name="save-button" action="save" novalidate="novalidate">
                                 <g:hiddenField name="id" value="${button?.id}" />

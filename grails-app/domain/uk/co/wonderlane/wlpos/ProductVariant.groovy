@@ -10,7 +10,7 @@ class ProductVariant implements Serializable {
 
     int id
     int storeId
-    String itemCode
+    long sku
     BigDecimal retailPrice
     BigDecimal costPrice
     String size
@@ -38,7 +38,7 @@ class ProductVariant implements Serializable {
 
         product column: "productId"
         storeId column: "storeId"
-        itemCode column: "itemCode"
+        sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"
         size column:"size"
@@ -56,7 +56,7 @@ class ProductVariant implements Serializable {
     }
 
     static constraints = {
-        itemCode size: 1..50, blank: false, nullable: false
+        sku nullable: false
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: false, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true
@@ -71,13 +71,27 @@ class ProductVariant implements Serializable {
         delete bindable: true
     }
 
+    List<ProductPrice> getPrices() {
+        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC))
+    }
+
+    BigDecimal getCurrentPrice() {
+        if (retailPrice != null) {
+            return retailPrice
+        } else {
+            def storeSettings = StoreSettings.findByStoreId(storeId)
+
+            return ProductPrice.findAllBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])?.first()?.price ?: BigDecimal.ZERO
+        }
+    }
+
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {
         uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
 
         productVariant.setId(id)
         productVariant.setProductId(product.id)
         productVariant.setStoreId(storeId)
-        productVariant.setItemCode(itemCode)
+        productVariant.setSku(sku)
         productVariant.setRetailPrice(retailPrice)
         productVariant.setCostPrice(costPrice)
         productVariant.setSize(size)

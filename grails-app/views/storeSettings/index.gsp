@@ -186,6 +186,13 @@
                                     </div>
                                     <small id="valuePromptHelp" class="form-text text-muted">Changing the price of any item by this value will trigger a confirmation prompt.</small>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label for="priceBand.id" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Price Band</label>
+                                    <div class="col-7 col-lg-2">
+                                        <g:select name="priceBand.id" from="${availablePriceBands}" value="${storeSettings?.priceBand?.id}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

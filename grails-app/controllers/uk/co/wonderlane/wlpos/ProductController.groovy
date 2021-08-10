@@ -110,10 +110,20 @@ class ProductController {
             def editedProduct = new ProductCommand()
             bindData(editedProduct, params)
 
-            // TODO Only editing retail price for now, also only editing existing variants, not handling new ones added or any deletions.
             editedProduct.variants?.each {editedVariant ->
                 product.variants?.find {existingVariant -> existingVariant.id == editedVariant.id }?.retailPrice = editedVariant.retailPrice
             }
+
+            copyRestrictions(editedProduct.restrictions, product.restrictions)
+
+            product.vatCode = editedProduct.vatCode
+            product.vatPercentageOverride = editedProduct.vatPercentageOverride
+            product.discreetMessage = editedProduct.discreetMessage
+            product.status = editedProduct.status
+            product.weightedItem = editedProduct.weightedItem
+            product.openPrice = editedProduct.openPrice
+            product.zeroPrice = editedProduct.zeroPrice
+            // TODO Handle saving over the rest of the properties in a product, also handle adding new variants and such.
         }
 
 //        for (ProductVariant variant : product.variants) {
@@ -132,8 +142,8 @@ class ProductController {
 //                        }
 //                    }
 //
-//                    if ((variant.itemCode == null || variant.itemCode?.isEmpty() || variant.itemCode?.isAllWhitespace()) && (!product.itemCode?.isEmpty() || !product.itemCode?.isAllWhitespace())) {
-//                        variant.itemCode = product.itemCode
+//                    if ((variant.sku == null || variant.sku?.isEmpty() || variant.sku?.isAllWhitespace()) && (!product.itemCode?.isEmpty() || !product.itemCode?.isAllWhitespace())) {
+//                        variant.sku = product.itemCode
 //                    }
 //                }
 //            }
@@ -145,33 +155,32 @@ class ProductController {
         }
 
         if (!product.hasErrors()) {
-//            productService.populateCurrentProductData(product)
+            if (!rabbitService.isOpen()) {
+                throw new Exception("Rabbit MQ not available")
+            }
 
-//            if (!rabbitService.isOpen()) {
-//                throw new Exception("Rabbit MQ not available")
-//            }
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+            syncMessage.setInsert(true)
 
-//            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
-//            syncMessage.setInsert(true)
-//            List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
-//            products.add(product.getProduct(springSecurityService.principal.storeId))
-//            syncMessage.setProducts(products)
+            List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
+            products.add(product.getProduct(springSecurityService.principal.storeId))
+            syncMessage.setProducts(products)
 
-//            Gson gson = new GsonBuilder()
-//                    .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
-//                        @Override
-//                        public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-//                            return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-//                        }
-//                    })
-//                    .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-//                        @Override
-//                        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-//                            return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
-//                        }
-//                    }).create()
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
+                        @Override
+                        public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
+                            return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
+                        }
+                    })
+                    .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
+                        @Override
+                        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                            return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
+                        }
+                    }).create()
 
-//            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
         }
 
         if (!product.hasErrors()) {
@@ -218,12 +227,31 @@ class ProductController {
     def ajaxSavePack(SuppliersCommand cmd) {
         render (template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs])
     }
+
+    private void copyRestrictions(Restrictions from, Restrictions to) {
+        to.minOpenPrice = from.minOpenPrice
+        to.maxOpenPrice = from.maxOpenPrice
+        to.buyerIdRequired = from.buyerIdRequired
+        to.buyerIdForced = from.buyerIdForced
+        to.buyerAgeRestriction = from.buyerAgeRestriction
+        to.buyerChallengeAge = from.buyerChallengeAge
+        to.sellerAgeRestriction = from.sellerAgeRestriction
+        to.refundAllowed = from.refundAllowed
+        to.markdownAllowed = from.markdownAllowed
+        to.discountAllowed = from.discountAllowed
+        to.creditPaymentAllowed = from.creditPaymentAllowed
+        to.quantityChangeAllowed = from.quantityChangeAllowed
+        to.quantityChangeForced = from.quantityChangeForced
+        to.receiptPrintForced = from.receiptPrintForced
+    }
 }
 
 class AddVariantCommand {
+    def springSecurityService
+
     int index
     Integer id
-    String itemCode
+    Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
     String size
@@ -231,6 +259,16 @@ class AddVariantCommand {
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodes
     List<AddPackCommand> packs
+
+    BigDecimal getCurrentPrice() {
+        if (retailPrice != null) {
+            return retailPrice
+        } else {
+            def storeSettings = StoreSettings.findByStoreId(springSecurityService.principal.storeId)
+
+            return ProductPrice.findAllBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])?.first()?.price ?: BigDecimal.ZERO
+        }
+    }
 }
 
 class AddBarcodeCommand {
@@ -296,7 +334,7 @@ class ProductCommand {
 class ProductVariantCommand {
     int id
     int storeId
-    String itemCode
+    String sku
     BigDecimal retailPrice
     BigDecimal costPrice
     String size
