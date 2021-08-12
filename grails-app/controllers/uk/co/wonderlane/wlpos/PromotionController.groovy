@@ -43,16 +43,16 @@ class PromotionController {
 
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
-                if (it.productId != null) {
-                    productsRequired.add([product: ProductVariant.findById(it.productId).product, quantity: it.requiredQuantity, value: it.value])
+                if (it.sku != null) {
+                    productsRequired.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
                 } else if (it.categoryId != null) {
                     categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                 } else {
                     tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
                 }
             } else {
-                if (it.productId != null) {
-                    productsOffer.add([product: ProductVariant.findById(it.productId).product, quantity: it.requiredQuantity, value: it.value])
+                if (it.sku != null) {
+                    productsOffer.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
                 } else if (it.categoryId != null) {
                     categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                 } else {
@@ -84,16 +84,16 @@ class PromotionController {
         if (promo != null) {
             promo.groups.each {
                 if (it.type == PromotionGroupType.REQUIRED) {
-                    if (it.productId != null) {
-                        productsRequired.add([product: Product.findById(it.productId), quantity: it.requiredQuantity, value: it.value])
+                    if (it.sku != null) {
+                        productsRequired.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
                     } else if (it.categoryId != null) {
                         categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                     } else {
                         tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
                     }
                 } else {
-                    if (it.productId != null) {
-                        productsOffer.add([product: Product.findById(it.productId), quantity: it.requiredQuantity, value: it.value])
+                    if (it.sku != null) {
+                        productsOffer.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
                     } else if (it.categoryId != null) {
                         categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                     } else {
@@ -202,11 +202,11 @@ class PromotionController {
             }
         }
 
-        switch(params.promotionType) {
+        switch (params.promotionType) {
             case "bogof":
                 if (newPromotion || oldType != promotion.type || !params.boolean('bogof-noItemChange')) {
-                    def promoRequiredGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.REQUIRED, requiredQuantity: 1, productId: params."bogof-product-required-1-productId", categoryId: params."bogof-category-required-1-categoryId", tagId: params."bogof-tag-required-1-tagId", value: null)
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion,type: PromotionGroupType.OFFER, requiredQuantity: 1, productId: params."bogof-product-required-1-productId", categoryId: params."bogof-category-required-1-categoryId", tagId: params."bogof-tag-required-1-tagId", value: null)
+                    def promoRequiredGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.REQUIRED, requiredQuantity: 1, sku: params."bogof-product-required-1-sku", categoryId: params."bogof-category-required-1-categoryId", tagId: params."bogof-tag-required-1-tagId", value: null)
+                    def promoOfferGroup = new PromotionGroup(promotion: promotion,type: PromotionGroupType.OFFER, requiredQuantity: 1, sku: params."bogof-product-required-1-sku", categoryId: params."bogof-category-required-1-categoryId", tagId: params."bogof-tag-required-1-tagId", value: null)
 
                     if ((promoRequiredGroup != null && promoRequiredGroup.validate()) && (promoOfferGroup != null && promoOfferGroup.validate())) {
                         promotion.groups*.delete()
@@ -224,8 +224,8 @@ class PromotionController {
                 break
             case "xfory":
                 if (newPromotion || oldType != promotion.type || !params.boolean('xfory-noItemChange')) {
-                    def promoRequiredGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.REQUIRED, requiredQuantity: params."xfory-${params.'xfory-promotionItemsType'}-required-1-quantity", productId: params."xfory-product-required-1-productId", categoryId: params."xfory-category-required-1-categoryId", tagId: params."xfory-tag-required-1-tagId", value: null)
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."xfory-${params.'xfory-promotionItemsType'}-offer-1-quantity", productId: params."xfory-product-offer-1-productId", categoryId: params."xfory-category-offer-1-categoryId", tagId: params."xfory-tag-offer-1-tagId", value: null)
+                    def promoRequiredGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.REQUIRED, requiredQuantity: params."xfory-${params.'xfory-promotionItemsType'}-required-1-quantity", sku: params."xfory-product-required-1-sku", categoryId: params."xfory-category-required-1-categoryId", tagId: params."xfory-tag-required-1-tagId", value: null)
+                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."xfory-${params.'xfory-promotionItemsType'}-offer-1-quantity", sku: params."xfory-product-offer-1-sku", categoryId: params."xfory-category-offer-1-categoryId", tagId: params."xfory-tag-offer-1-tagId", value: null)
 
                     if ((promoRequiredGroup != null && promoRequiredGroup.validate()) && (promoOfferGroup != null && promoOfferGroup.validate())) {
                         promotion.groups*.delete()
@@ -243,7 +243,7 @@ class PromotionController {
                 break
             case "percentage":
                 if (newPromotion || oldType != promotion.type || !params.boolean('percentage-noItemChange')) {
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."percentage-${params.'percentage-promotionItemsType'}-required-1-quantity", productId: params."percentage-product-required-1-productId", categoryId: params."percentage-category-required-1-categoryId", tagId: params."percentage-tag-required-1-tagId", value: null)
+                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."percentage-${params.'percentage-promotionItemsType'}-required-1-quantity", sku: params."percentage-product-required-1-sku", categoryId: params."percentage-category-required-1-categoryId", tagId: params."percentage-tag-required-1-tagId", value: null)
 
                     if ((promoOfferGroup != null && promoOfferGroup.validate())) {
                         promotion.groups*.delete()
@@ -259,7 +259,7 @@ class PromotionController {
                 break
             case "fixedAmount":
                 if (newPromotion || oldType != promotion.type || !params.boolean('fixedAmount-noItemChange')) {
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-quantity" == "" ? null : params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-quantity", productId: params."fixedAmount-product-required-1-productId", categoryId: params."fixedAmount-category-required-1-categoryId", tagId: params."fixedAmount-tag-required-1-tagId", value: params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-value" == "" ? null : new BigDecimal(params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-value").setScale(2, RoundingMode.HALF_UP))
+                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-quantity" == "" ? null : params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-quantity", sku: params."fixedAmount-product-required-1-sku", categoryId: params."fixedAmount-category-required-1-categoryId", tagId: params."fixedAmount-tag-required-1-tagId", value: params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-value" == "" ? null : new BigDecimal(params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-value").setScale(2, RoundingMode.HALF_UP))
 
                     if ((promoOfferGroup != null && promoOfferGroup.validate())) {
                         promotion.groups*.delete()
@@ -287,7 +287,7 @@ class PromotionController {
                             count++
                             param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
                         }
-                        promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", productId: params."fixedPrice-product-required-${count}-productId", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
+                        promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", sku: params."fixedPrice-product-required-${count}-sku", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
                         count++
                     }
 

@@ -9,7 +9,7 @@ class PromotionGroup {
     int id
     PromotionGroupType type
     Promotion promotion
-    Integer productId
+    Long sku
     Integer categoryId
     Integer requiredQuantity
     Integer tagId
@@ -24,7 +24,7 @@ class PromotionGroup {
         id column: "id"
         type column: "type", sqlType: "enum", enumType: 'string'
         promotion column: "promotionId"
-        productId column: "productId"
+        sku column: "sku"
         categoryId column: "productCategoryId"
         requiredQuantity column: "requiredQuantity"
         tagId column: "tagId"
@@ -35,7 +35,7 @@ class PromotionGroup {
 
     static constraints = {
         type nullable: false
-        productId nullable: true
+        sku nullable: true
         categoryId nullable: true
         tagId nullable: true
         requiredQuantity nullable: true, range:1..999999999
@@ -48,7 +48,7 @@ class PromotionGroup {
         promotionGroup.setId(id)
         promotionGroup.setPromotionGroupType(type)
         promotionGroup.setPromotionId(promotion.id)
-        promotionGroup.setProductId(productId)
+        promotionGroup.setSku(sku)
         promotionGroup.setProductCategoryId(categoryId)
         promotionGroup.setTagId(tagId)
         promotionGroup.setRequiredQuantity(requiredQuantity)

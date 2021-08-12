@@ -62,9 +62,11 @@
             </nav>
         </section>
 
-        <g:if test="${flash.message}">
-            <div class="alert alert-success alert-wl" role="alert">${flash.message}</div>
-        </g:if>
+        <section id="alerts-container" class="container-fluid">
+            <g:if test="${flash.message}">
+                <div class="alert alert-success" role="alert">${flash.message}</div>
+            </g:if>
+        </section>
 
         <section id="promo-maintenance-search" class="container-fluid">
             <div class="header-wl mt-3">
