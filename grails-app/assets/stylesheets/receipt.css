@@ -1,0 +1,60 @@
+.receipt {
+    font-family: Courier, sans-serif;
+    font-size: 12px;
+    margin: 25px;
+    padding: 25px;
+    border: 1px solid black;
+    /*text-align: center;*/
+}
+
+.receipt img {
+    max-width: 100%;
+    height: auto;
+}
+
+.receipt img.logo {
+    max-width: 50%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+
+.receipt .header {
+    line-height: 0.5;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.receipt .message {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.receipt hr.dotted {
+    border-top: 1px dashed #000000;
+    font-weight: normal;
+}
+
+.receipt .qty {
+    text-align: left;
+}
+
+.receipt .desc {
+    text-align: left;
+    margin-left: 10px;
+}
+
+.receipt .total {
+    float: right;
+}
+
+.receipt .tenderHeading {
+    font-weight: bold;
+}
+
+/*"span.vatTotalHeading { float: right; margin-right: 25px; }" +*/
+/*"span.vatTotal { float: right; margin-right: 10px; }" +*/

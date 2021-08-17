@@ -75,6 +75,8 @@ dependencies {
     implementation 'joda-time:joda-time:2.10.1'
     implementation group: 'org.jadira.usertype', name: 'usertype.core', version: '6.0.1.GA' // Mappings for Joda time to Hibernate.
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
+    implementation 'com.google.zxing:core:3.4.1'
+    implementation 'com.google.zxing:javase:3.4.1'
 
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile "org.grails:grails-gorm-testing-support"

@@ -99,6 +99,7 @@
                             <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales</g:link>
                             <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotions</g:link>
                             <g:link controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
+                            <g:link controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
                         </div>

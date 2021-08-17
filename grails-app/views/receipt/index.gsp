@@ -1,0 +1,170 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<html>
+    <head>
+        <meta name="layout" content="main" />
+
+        <title>WonderLane Receipt Viewer</title>
+
+        <asset:stylesheet src="receipt.css" />
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
+
+        <script type='text/javascript'>
+            var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
+            var getReceiptUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipt')}";
+
+            $(function() {
+                $('#startDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
+                    endDate: "${new Date().format("dd/MM/yyyy")}",
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
+                $('#endDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
+                    endDate: "${new Date().format("dd/MM/yyyy")}",
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
+                getReceipts();
+            });
+
+            function getReceipts(offset, max) {
+                $("#search-results").hide();
+                $("#loading-indicator").show();
+
+                var startDate = $("#startDate").val();
+                var endDate = $("#endDate").val();
+                var tillId = $("#tillId").val();
+                var transactionId = $("#transactionId").val();
+
+                $.ajax({
+                    url: getReceiptsUrl,
+                    method: "GET",
+                    data: { startDate: startDate, endDate: endDate, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
+                    success: function(resp) {
+                        $("#results-container").html(resp);
+                    }
+                });
+            }
+
+            function showReceiptModal(receiptId) {
+                $("#receiptModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#receiptModal').modal({ show: true });
+
+                $.ajax({
+                    url: getReceiptUrl,
+                    method: "GET",
+                    data: { receiptId: receiptId },
+                    success: function(resp) {
+                        $("#receiptModalContent").html(resp);
+                    }
+                });
+            }
+        </script>
+    </head>
+
+    <body>
+        <section id="breadcrumb-container" class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <div class="row mt-4">
+                    <div class="col">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li class="breadcrumb-item active" aria-current="page">Receipt Viewer</li>
+                        </ol>
+                    </div>
+                </div>
+            </nav>
+        </section>
+
+        <section id="shifts-container" class="container-fluid">
+            <div class="header-wl mt-3">
+                <h2 class="mx-auto">Receipt Viewer</h2>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-5">
+                    <div class="card bg-light border-wl">
+                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                            <div class="row">
+                                <div class="col-10">Filters</div>
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body collapse" id="filterCollapse">
+                            <g:form name="filtersForm" id="filtersForm">
+                                <div class="form-group row">
+                                    <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
+                                    <div class="col-4">
+                                        <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    </div>
+
+                                    <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
+                                    <div class="col-4">
+                                        <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
+                                    <div class="col-4">
+                                        <g:field type="number" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                    </div>
+
+                                    <label for="transactionId" class="col-2 col-form-label text-right">Transaction Number</label>
+                                    <div class="col-4">
+                                        <g:field type="number" name="transactionId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-4 offset-8 text-right">
+                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getReceipts();">Filter</button>
+                                    </div>
+                                </div>
+                            </g:form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results-container" class="align-content-center">
+                <g:render template="receiptViewerResults" />
+            </div>
+        </section>
+
+        <section id="receipt-modal" class="container-fluid">
+            <!-- Receipt modal -->
+            <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Receipt Viewer</h2>
+                        </div>
+
+                        <div id="receiptModalContent"></div>
+
+                        <div class="modal-footer">
+                            <button type="button" id="closeReceiptModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
