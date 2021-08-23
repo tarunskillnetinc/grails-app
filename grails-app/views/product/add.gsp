@@ -16,6 +16,7 @@
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+            var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
             $(document).ready(function () {
                 // Enable the VAT override when "Other" is selected.
@@ -45,7 +46,10 @@
                 });
 
                 $(".mask-money").maskMoney({ allowZero: true });
-                // $(".mask-money").maskMoney('mask');
+
+                $('#collapsePromotions').on('show.bs.collapse', function () {
+                    getPromotions(${product?.id});
+                });
             });
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
@@ -342,6 +346,23 @@
                         packsContainer.html(resp);
 
                         $('#suppliersModal').modal("hide");
+                    }
+                });
+            }
+
+            function getPromotions(productId) {
+                $('#promotionsContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                    "  <div class=\"spinner-border\" role=\"status\">\n" +
+                    "    <span class=\"sr-only\">Loading...</span>\n" +
+                    "  </div>\n" +
+                    "</div>");
+
+                $.ajax({
+                    url: getPromotionsUrl,
+                    method: "GET",
+                    data: { productId: productId },
+                    success: function(resp) {
+                        $("#promotionsContainer").html(resp);
                     }
                 });
             }

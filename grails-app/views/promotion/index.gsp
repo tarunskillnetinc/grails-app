@@ -83,13 +83,13 @@
                     </div>
                 </div>
 
-                <div class="col-2 text-right">
+                <div class="col-2 text-right px-0">
                     <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
                 </div>
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">Promotion Id</div>
+                <div class="col-2 font-weight-bold">Promotion ID</div>
                 <div class="col-5 font-weight-bold">Description</div>
                 <div class="col-1 font-weight-bold">Active</div>
                 <div class="col-2 font-weight-bold">Type</div>

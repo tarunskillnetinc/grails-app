@@ -118,7 +118,7 @@
             <div id="bogof-summary" class="row mt-3">
                 <h2 class="col-1 mr-2">Summary</h2>
                 <div class="promotion-products-container col-10 offset-1">
-                    <h5 class="text-center m-3">Incomplete Promotion</h5>
+%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
                 </div>
             </div>
             <div class="row my-5">
@@ -259,7 +259,7 @@
             <div id="xfory-summary" class="row mt-3">
                 <h2 class="col-1 mr-2">Summary</h2>
                 <div class="promotion-products-container col-10 offset-1">
-                    <h5 class="text-center m-3">Incomplete Promotion</h5>
+%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
                 </div>
             </div>
             <div class="row my-5">
@@ -373,7 +373,7 @@
             <div id="percentage-summary" class="row mt-3">
                 <h2 class="col-1 mr-2">Summary</h2>
                 <div class="promotion-products-container col-10 offset-1">
-                    <h5 class="text-center m-3">Incomplete Promotion</h5>
+%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
                 </div>
             </div>
             <div class="row my-5">
@@ -494,7 +494,7 @@
             <div id="fixedAmount-summary" class="row mt-3">
                 <h2 class="col-1 mr-2">Summary</h2>
                 <div class="promotion-products-container col-10 offset-1">
-                    <h5 class="text-center m-3">Incomplete Promotion</h5>
+%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
                 </div>
             </div>
             <div class="row my-5">
@@ -615,7 +615,7 @@
             <div id="fixedPrice-summary" class="row mt-3">
                 <h2 class="col-1 mr-2">Summary</h2>
                 <div class="promotion-products-container col-10 offset-1">
-                    <h5 class="text-center m-3">Incomplete Promotion</h5>
+%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
                 </div>
             </div>
             <div class="row my-5">

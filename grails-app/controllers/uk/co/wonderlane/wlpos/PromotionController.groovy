@@ -44,7 +44,7 @@ class PromotionController {
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
                 if (it.sku != null) {
-                    productsRequired.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
+                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
                 } else if (it.categoryId != null) {
                     categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                 } else {
@@ -52,7 +52,7 @@ class PromotionController {
                 }
             } else {
                 if (it.sku != null) {
-                    productsOffer.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
+                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
                 } else if (it.categoryId != null) {
                     categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                 } else {
@@ -85,7 +85,7 @@ class PromotionController {
             promo.groups.each {
                 if (it.type == PromotionGroupType.REQUIRED) {
                     if (it.sku != null) {
-                        productsRequired.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
+                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
                     } else if (it.categoryId != null) {
                         categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                     } else {
@@ -93,7 +93,7 @@ class PromotionController {
                     }
                 } else {
                     if (it.sku != null) {
-                        productsOffer.add([product: ProductVariant.findBySkuAndStoreId(it.sku, springSecurityService.principal.storeId)?.first()?.product, quantity: it.requiredQuantity, value: it.value])
+                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
                     } else if (it.categoryId != null) {
                         categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
                     } else {
@@ -405,5 +405,9 @@ class PromotionController {
 
         flash.message = "Promotion saved successfully"
         redirect(action: "index", params: params)
+    }
+
+    def ajaxGetPromotionsForProduct() {
+        render (view: "/product/promotions", model: [promotions: promotionService.getPromotionsForProduct(Integer.parseInt(params.productId))])
     }
 }
