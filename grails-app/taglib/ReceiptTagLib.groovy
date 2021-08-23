@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
+import java.math.RoundingMode
 import java.text.NumberFormat
 
 class ReceiptTagLib {
@@ -19,9 +20,28 @@ class ReceiptTagLib {
 
         switch (receiptLine.type) {
             case ReceiptLineType.IMAGE:
+//            case ReceiptLineType.IMAGE_FROM_FILE:
                 out << """<div style="text-align: center;">${asset.image(src: "receipt_logo.png", class: "logo")}</div>"""
 
                 break
+//            case ReceiptLineType.PP_IMAGE:
+//                byte[] imageBytes = hexStringToByteArray(receiptLine.getText())
+//
+//                String dataUrl = "data:image/png;base64," + imageBytes.encodeBase64().toString()
+//
+//                out << """<div><img src="${dataUrl}" /></div>"""
+//
+//                break
+//            case ReceiptLineType.PP_IMAGE_ORIGINAL_ONLY:
+//                if (!attrs.duplicate) {
+//                    byte[] imageBytes = hexStringToByteArray(receiptLine.getText())
+//
+//                    String dataUrl = "data:image/png;base64," + imageBytes.encodeBase64().toString()
+//
+//                    out << """<div><img src="${dataUrl}" /></div>"""
+//                }
+//
+//                break
             case ReceiptLineType.HEADER:
             case ReceiptLineType.MODIFIER:
                 out << """<p class="header">${receiptLine.text}</p>"""
@@ -32,21 +52,53 @@ class ReceiptTagLib {
                 } else if (receiptLine.text.contains("-")) {
                     out << """<hr class="dotted" />"""
                 } else {
-                    out << """<div><span class="qty">QTY</span><span class="desc">DESC</span><span class="total">TOTAL</span></div>"""
+                    out << """<div><span class="qty">QTY</span><span class="desc">DESC</span><span class="total">UNIT"""
+
+                    for (int i = 0 ; i < Math.max(attrs.maxTotalLength - 3, 1) ; i++) {
+                        out << """&nbsp;"""
+                    }
+
+                    out << """TOTAL</span></div>"""
                 }
+
                 break
             case ReceiptLineType.BASKET_ITEM:
                 out << """<div><span class="qty">"""
 
-                int spaces = 3 - receiptLine.quantity.toString().length()
-                while (spaces > 0) {
-                    out << """&nbsp;"""
-                    spaces--
+                if (receiptLine.quantity != null) {
+                    BigDecimal quantity = receiptLine.quantity
+
+                    if (quantity.movePointRight(3).intValue() % 1000 == 0) {
+                        quantity = quantity.setScale(0)
+                    }
+
+                    int spaces = 3 - quantity.toString().length()
+                    while (spaces > 0) {
+                        out << """&nbsp;"""
+                        spaces--
+                    }
+
+                    out << """${quantity.toString()}</span>"""
+                } else {
+                    out << """&nbsp;&nbsp;&nbsp;"""
                 }
 
-                out << """${receiptLine.quantity.toString()}</span>"""
                 out << """<span class="desc">${receiptLine.text.substring(0, Math.min(BASKET_ITEM_LENGTH - currencyFormatter.format(receiptLine.getTotal()).length(), receiptLine.getText().length()))}</span>"""
-                out << """<span class="total"${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}</span></div>"""
+                out << """<span class="total">"""
+
+                if (receiptLine.quantity && receiptLine.total) {
+                    out << """${currencyFormatter.format(receiptLine.total.divide(receiptLine.quantity, 2, RoundingMode.HALF_UP))}"""
+
+                    for (int i = 0 ; i < Math.max(attrs.maxTotalLength - receiptLine.total.toString().length() + 1, 1) ; i++) {
+                        out << """&nbsp;"""
+                    }
+                }
+
+                if (receiptLine.total) {
+                    out << """${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}"""
+                }
+
+                out << """</span></div>"""
 
                 break
             case ReceiptLineType.TENDER_ITEM:
@@ -100,22 +152,88 @@ class ReceiptTagLib {
                 }
 
                 break
+//            case ReceiptLineType.BARCODE_CODE_128_A_ORIGINAL_ONLY:
+//            case ReceiptLineType.BARCODE_CODE_128_C_ORIGINAL_ONLY:
+//            case ReceiptLineType.BARCODE_EAN_13_ORIGINAL_ONLY:
+//                if (!attrs.duplicate) {
+//                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
+//
+//                    try {
+//                        BitMatrix bitMatrix = new Code128Writer().encode(receiptLine.getText(), BarcodeFormat.CODE_128, RECEIPT_BARCODE_WIDTH, RECEIPT_BARCODE_HEIGHT)
+//
+//                        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", byteArrayOutputStream)
+//
+//                        String dataUrl = "data:image/png;base64," + byteArrayOutputStream.toByteArray().encodeBase64().toString()
+//
+//                        out << """<div style="text-align: center;"><img src="${dataUrl}" /></div>"""
+//                    } catch (Exception e) {
+//                        e.printStackTrace()
+//                    } finally {
+//                        byteArrayOutputStream.close()
+//                    }
+//                }
+//
+//                break
             case ReceiptLineType.BARCODE_TEXT:
                 out << """<div class="message">${receiptLine.text}</div>"""
 
                 break
             case ReceiptLineType.VAT_ITEM:
-                out << """<div><span class="qty">${receiptLine.text}</span><span class="total">${currencyFormatter.format(receiptLine.quantity)}</span></div><br />"""
+                out << """<div><span class="qty">${receiptLine.text}</span><span class="total">${currencyFormatter.format(receiptLine.quantity.setScale(2, RoundingMode.HALF_UP))}"""
+
+                for (int i = 0 ; i < Math.max(attrs.maxVatLength - receiptLine.total.toString().length() + 1, 1) ; i++) {
+                    out << """&nbsp;"""
+                }
+
+                out << """${currencyFormatter.format(receiptLine.total)}</span></div>"""
 
                 break
             case ReceiptLineType.VAT_HEADINGS:
-                out << """<div><span class="qty">DESCRIPTION</span><span class="total">TOTAL&nbsp;&nbsp;&nbsp;&nbsp;VAT</span></div> """
+                out << """<div><span class="qty">DESCRIPTION</span><span class="total">TOTAL"""
+
+                for (int i = 0 ; i < Math.max(attrs.maxVatLength - 1, 1) ; i++) {
+                    out << """&nbsp;"""
+                }
+
+                out << """VAT</span></div>"""
 
                 break
+//            case ReceiptLineType.PP_SINGLE:
+//                out << """<div class="ppmessage">${receiptLine.text}</div>"""
+//
+//                break
+//            case ReceiptLineType.PP_DOUBLE:
+//                out << """<div class="ppdouble">${receiptLine.text}</div>"""
+//
+//                break
+//            case ReceiptLineType.PP_SINGLE_ORIGINAL_ONLY:
+//                if (!attrs.duplicate) {
+//                    out << """<div class="ppmessage">${receiptLine.text}</div>"""
+//                }
+//
+//                break
+//            case ReceiptLineType.PP_DOUBLE_ORIGINAL_ONLY:
+//                if (!attrs.duplicate) {
+//                    out << """<div class="ppdouble">${receiptLine.text}</div>"""
+//                }
+//
+//                break
             default:
                 out << """<div>DEFAULT - ${receiptLine.text}</div>"""
 
                 break
         }
+    }
+
+    private static byte[] hexStringToByteArray(String s) {
+        int len = s.length()
+
+        byte[] data = new byte[len / 2]
+
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16))
+        }
+
+        return data
     }
 }

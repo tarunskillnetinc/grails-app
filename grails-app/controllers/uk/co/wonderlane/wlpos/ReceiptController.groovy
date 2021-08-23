@@ -12,7 +12,7 @@ class ReceiptController {
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1)
+        DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [startDate: startDate, endDate: endDate]
     }
@@ -22,8 +22,8 @@ class ReceiptController {
 
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
         int max = params.max ? Integer.parseInt(params.max) : 50
-        DateTime startDate = DateTime.parse(params.startDate, dateFormatter)
-        DateTime endDate = DateTime.parse(params.endDate, dateFormatter)
+        DateTime startDate = DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay()
+        DateTime endDate = DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1)
         Integer tillId = null
         Integer transactionId = null
 
@@ -51,6 +51,8 @@ class ReceiptController {
 
         render (template: "receipt", model: [receipt: receipt,
                                              containsModifiers: receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
-                                             firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1])
+                                             firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
+                                             maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length(),
+                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length()])
     }
 }

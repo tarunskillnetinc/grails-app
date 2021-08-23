@@ -1,27 +1,17 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.common.BitMatrix
-import com.google.zxing.oned.Code128Writer
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.enums.ReceiptLineType
-
-import java.text.NumberFormat
 
 @Transactional("transactions")
 class ReceiptService {
 
     def springSecurityService
 
-    private final int BASKET_ITEM_LENGTH = 23
-    private final int RECEIPT_BARCODE_WIDTH = 450
-    private final int RECEIPT_BARCODE_HEIGHT = 75
-
     def getReceipts(DateTime fromDate, DateTime toDate, Integer tillId, Integer transactionId, int offset, int max) {
         def receiptsCriteria = Receipt.createCriteria()
 
-        def results = receiptsCriteria.list([offset: offset, max: max]) {
+        def results = receiptsCriteria.list([offset: offset, max: max, sort: "dateGenerated", order: "DESC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("storeId", springSecurityService.principal.storeId)
 
@@ -35,8 +25,6 @@ class ReceiptService {
             if (transactionId) {
                 eq("transactionId", transactionId)
             }
-
-            order("dateGenerated", "DESC")
         }
 
         // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.

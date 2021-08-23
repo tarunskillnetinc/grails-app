@@ -4,7 +4,6 @@
     margin: 25px;
     padding: 25px;
     border: 1px solid black;
-    /*text-align: center;*/
 }
 
 .receipt img {
@@ -16,9 +15,7 @@
     max-width: 50%;
     height: auto;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px;
+    margin: 20px auto;
 }
 
 .receipt .header {
@@ -32,6 +29,17 @@
     text-align: center;
     margin-top: 0;
     margin-bottom: 0;
+}
+
+.receipt .ppmessage {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.receipt .ppdouble {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 18px;
 }
 
 .receipt hr.dotted {
@@ -55,6 +63,3 @@
 .receipt .tenderHeading {
     font-weight: bold;
 }
-
-/*"span.vatTotalHeading { float: right; margin-right: 25px; }" +*/
-/*"span.vatTotal { float: right; margin-right: 10px; }" +*/
