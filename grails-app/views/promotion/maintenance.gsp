@@ -9,7 +9,7 @@
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="moment-with-locales.min.js"/>
         <script type='text/javascript'>
-            $(function(){
+            $(function() {
                 $('.input-group.date.startDate').datepicker({
                     format: "DD dd MM yyyy",
                     weekStart: 1,
@@ -90,7 +90,7 @@
 
                 $('.promo-amount').on("change", function() {
                     $('.promo-amount').removeClass("is-invalid");
-                })
+                });
             });
 
             function productSelected(id, sku, description) {
@@ -467,6 +467,7 @@
 
             function deleteThis(DOM, promoType, groupType) {
                 DOM.parentElement.remove();
+
                 var countDOM = $('#' + promoType + '-count-' + groupType);
                 countDOM.val(parseInt(countDOM.val()) - 1);
 

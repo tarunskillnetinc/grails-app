@@ -31,6 +31,7 @@
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
             <g:hiddenField name="bogof-promotionItemsType" value="product"/>
             <g:hiddenField name="bogof-noItemChange" value="true"/>
+
             <div id="bogof-details">
                 <h2 class="row col-1">Details</h2>
                 <div class="row">
@@ -93,6 +94,7 @@
                                 <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
                             </div>
                         </g:if>
+
                         <g:if test="${!categoriesRequired.isEmpty() || !categoriesOffer.isEmpty()}">
                             <div id="bogof-category1" class="offset-1 promotion-product-container mt-3">
                                 <g:hiddenField name="bogof-category-required-1-categoryId" value="${categoriesRequired.isEmpty() ? categoriesOffer.first().category.id : categoriesRequired.first().category.id}"/>
@@ -100,11 +102,34 @@
                                 <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
                             </div>
                         </g:if>
+
                         <g:if test="${!tagsRequired.isEmpty() || !tagsOffer.isEmpty()}">
-                            <div id="bogof-tag1" class="offset-1 promotion-product-container mt-3">
+                            <div id="bogof-tag1" class="card bg-light border-wl offset-1 mt-3">
                                 <g:hiddenField name="bogof-tag-required-1-tagId" value="${tagsRequired.isEmpty() ? tagsOffer.first().tag.id : tagsRequired.first().tag.id}"/>
-                                Quantity 1 x ${tagsRequired.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}
-                                <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+
+                                <div class="card-header pointer" data-toggle="collapse" data-target="#bogofTagCollapse" aria-expanded="false" aria-controls="bogofTagCollapse">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+
+                                            <label for="bogof-tag-required-1-quantity" class="">Quantity</label>
+                                            <g:field type="number" name="bogof-tag-required-1-quantity" value="1" class="py-1 pl-1 mx-1 col-2" disabled="true" />
+                                            <span class="mr-3">x ${tagsRequired.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
+                                        </div>
+                                        <div class="col-2 text-right">
+                                            <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse" id="bogofTagCollapse">
+                                    <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.products : tagsRequired.first().tag.products}" var="product" status="i">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: product.id)}';">
+                                            <div class="col-12">${product.itemCode} - ${product.description}</div>
+                                        </div>
+                                    </g:each>
+                                </div>
                             </div>
                         </g:if>
                     </div>
@@ -129,10 +154,11 @@
     </div>
     <div class="tab-pane fade show ${promoType.equals('x_for_y') ? 'active' : ''}" id="xfory" role="tabpanel" aria-labelledby="xfory-tab">
         <g:form method="post" action="save" class="mt-5" name="xfory-form">
-            <g:hiddenField name="promotionType" value="xfory"/>
-            <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="xfory-promotionItemsType" value="product"/>
-            <g:hiddenField name="xfory-noItemChange" value="true"/>
+            <g:hiddenField name="promotionType" value="xfory" />
+            <g:hiddenField name="promotionId" value="${promotion?.id}" />
+            <g:hiddenField name="xfory-promotionItemsType" value="product" />
+            <g:hiddenField name="xfory-noItemChange" value="true" />
+
             <div id="xfory-details">
                 <h2 class="row col-1">Details</h2>
                 <div class="row">
@@ -207,12 +233,31 @@
                             </div>
                         </g:if>
                         <g:if test="${!tagsRequired.isEmpty() || !tagsOffer.isEmpty()}">
-                            <div id="xfory-tag1" class="offset-1 promotion-product-container form-inline mt-3">
+                            <div id="xfory-tag1" class="card bg-light border-wl offset-1 mt-3">
                                 <g:hiddenField name="xfory-tag-required-1-tagId" value="${tagsRequired.isEmpty() ? tagsOffer.first().tag.id : tagsRequired.first().tag.id}"/>
-                                <label for="xfory-tag-required-1-quantity" class="">Quantity</label>
-                                <g:field type="number" name="xfory-tag-required-1-quantity" value="${tagsRequired.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
-                                <label for="xfory-tag-required-1-quantity" class="mr-3">x ${tagsRequired.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</label>
-                                <a href="#" onclick="return deleteThis(this, 'xfory', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+
+                                <div class="card-header pointer" data-toggle="collapse" data-target="#xforyRequiredTagCollapse" aria-expanded="false" aria-controls="xforyRequiredTagCollapse">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+                                            <label for="xfory-tag-required-1-quantity" class="">Quantity</label>
+                                            <g:field type="number" name="xfory-tag-required-1-quantity" value="${tagsRequired.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" class="py-1 pl-1 mx-1 col-2" onChange="quantityChange(this, 'xfory');"/>
+                                            <span class="mr-3">x ${tagsRequired.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
+                                        </div>
+                                        <div class="col-2 text-right">
+                                            <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'xfory', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse" id="xforyRequiredTagCollapse">
+                                    <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.products : tagsRequired.first().tag.products}" var="product" status="i">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: product.id)}';">
+                                            <div class="col-12">${product.itemCode} - ${product.description}</div>
+                                        </div>
+                                    </g:each>
+                                </div>
                             </div>
                         </g:if>
                     </div>
@@ -245,12 +290,32 @@
                             </div>
                         </g:if>
                         <g:if test="${!tagsOffer.isEmpty() || !tagsRequired.isEmpty()}">
-                            <div id="xfory-tag1" class="offset-1 promotion-product-container form-inline mt-3">
+                            <div id="xfory-tag1" class="card bg-light border-wl offset-1 mt-3">
                                 <g:hiddenField name="xfory-tag-offer-1-tagId" value="${tagsOffer.isEmpty() ? tagsRequired.first().tag.id : tagsOffer.first().tag.id}"/>
-                                <label for="xfory-tag-offer-1-quantity" class="">Quantity</label>
-                                <g:field type="number" name="xfory-tag-offer-1-quantity" value="${tagsOffer.isEmpty() ? tagsRequired.first().quantity : tagsOffer.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
-                                <label for="xfory-tag-offer-1-quantity" class="mr-3">x ${tagsOffer.isEmpty() ? tagsRequired.first().tag.description : tagsOffer.first().tag.description}</label>
-                                <a href="#" onclick="return deleteThis(this, 'xfory', 'offer');" class="ml-3 text-dark"><sup>X</sup></a>
+
+                                <div class="card-header pointer" data-toggle="collapse" data-target="#xforyOfferTagCollapse" aria-expanded="false" aria-controls="xforyOfferTagCollapse">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+
+                                            <label for="xfory-tag-offer-1-quantity" class="">Quantity</label>
+                                            <g:field type="number" name="xfory-tag-offer-1-quantity" value="${tagsOffer.isEmpty() ? tagsRequired.first().quantity : tagsOffer.first().quantity}" class="py-1 pl-1 mx-1 col-2" onChange="quantityChange(this, 'xfory');"/>
+                                            <span class="mr-3">x ${tagsOffer.isEmpty() ? tagsRequired.first().tag.description : tagsOffer.first().tag.description}</span>
+                                        </div>
+                                        <div class="col-2 text-right">
+                                            <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'xfory', 'offer');" class="ml-3 text-dark"><sup>X</sup></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse" id="xforyOfferTagCollapse">
+                                    <g:each in="${tagsOffer.isEmpty() ? tagsRequired.first().tag.products : tagsOffer.first().tag.products}" var="product" status="i">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: product.id)}';">
+                                            <div class="col-12">${product.itemCode} - ${product.description}</div>
+                                        </div>
+                                    </g:each>
+                                </div>
                             </div>
                         </g:if>
                     </div>
@@ -274,6 +339,7 @@
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
             <g:hiddenField name="percentage-promotionItemsType" value="product"/>
             <g:hiddenField name="percentage-noItemChange" value="true"/>
+
             <div id="percentage-details">
                 <h2 class="row col-1">Details</h2>
                 <div class="row">
@@ -354,12 +420,31 @@
                             </div>
                         </g:if>
                         <g:if test="${!tagsRequired.isEmpty() || !tagsOffer.isEmpty()}">
-                            <div id="percentage-tag1" class="offset-1 promotion-product-container form-inline mt-3">
+                            <div id="percentage-tag1" class="card bg-light border-wl offset-1 mt-3">
                                 <g:hiddenField name="percentage-tag-required-1-tagId" value="${tagsRequired.isEmpty() ? tagsOffer.first().tag.id : tagsRequired.first().tag.id}"/>
-                                <label for="percentage-tag-required-1-quantity" class="">Quantity</label>
-                                <g:field type="number" name="percentage-tag-required-1-quantity" value="${tagsRequired.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'percentage');"/>
-                                <label for="percentage-tag-required-1-quantity" class="mr-3">x ${tagsRequired.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</label>
-                                <a href="#" onclick="return deleteThis(this, 'percentage', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+
+                                <div class="card-header pointer" data-toggle="collapse" data-target="#percentageTagCollapse" aria-expanded="false" aria-controls="percentageTagCollapse">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+                                            <label for="percentage-tag-required-1-quantity" class="">Quantity</label>
+                                            <g:field type="number" name="percentage-tag-required-1-quantity" value="${tagsRequired.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" class="py-1 pl-1 mx-1 col-2" onChange="quantityChange(this, 'percentage');"/>
+                                            <span class="mr-3">x ${tagsRequired.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
+                                        </div>
+                                        <div class="col-2 text-right">
+                                            <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'percentage', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse" id="percentageTagCollapse">
+                                    <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.products : tagsRequired.first().tag.products}" var="product" status="i">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: product.id)}';">
+                                            <div class="col-12">${product.itemCode} - ${product.description}</div>
+                                        </div>
+                                    </g:each>
+                                </div>
                             </div>
                         </g:if>
                     </div>
@@ -384,10 +469,11 @@
     </div>
     <div class="tab-pane fade show ${promoType.equals('fixed_amount_discount') ? 'active' : ''}" id="fixedAmount" role="tabpanel" aria-labelledby="fixedAmount-tab">
         <g:form method="post" action="save" class="mt-5" name="fixedAmount-form">
-            <g:hiddenField name="promotionType" value="fixedAmount"/>
-            <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="fixedAmount-promotionItemsType" value="product"/>
-            <g:hiddenField name="fixedAmount-noItemChange" value="true"/>
+            <g:hiddenField name="promotionType" value="fixedAmount" />
+            <g:hiddenField name="promotionId" value="${promotion?.id}" />
+            <g:hiddenField name="fixedAmount-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedAmount-noItemChange" value="true" />
+
             <div id="fixedAmount-details">
                 <h2 class="row col-1">Details</h2>
                 <div class="row">
@@ -450,6 +536,7 @@
                     <h3 class="mt-1 ml-3">Customer Buys & Receives Amount Off</h3>
                     <div id="fixedAmount-productsRequiredContainer" class="row my-2">
                         <g:hiddenField name="fixedAmount-count-required" value="${productsRequired.isEmpty() && categoriesRequired.isEmpty() && tagsRequired.isEmpty() ? productsOffer.size() + categoriesOffer.size() + tagsOffer.size() : productsRequired.size() + categoriesRequired.size() + tagsRequired.size()}"/>
+
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="fixedAmount-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="fixedAmount-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
@@ -473,14 +560,34 @@
                             </div>
                         </g:if>
                         <g:if test="${!tagsRequired?.isEmpty() || !tagsOffer.isEmpty()}">
-                            <div id="fixedAmount-tag1" class="offset-1 promotion-product-container form-inline mt-3">
+                            <div id="fixedAmount-tag1" class="card bg-light border-wl offset-1 mt-3">
                                 <g:hiddenField name="fixedAmount-tag-required-1-tagId" value="${tagsRequired?.isEmpty() ? tagsOffer.first().tag.id : tagsRequired.first().tag.id}"/>
-                                <label for="fixedAmount-tag-required-1-value" class="">Value</label>
-                                <g:field type="number" name="fixedAmount-tag-required-1-value" value="${tagsRequired?.isEmpty() ? tagsOffer.first().value : tagsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
-                                <label for="fixedAmount-tag-required-1-quantity" class=""> or Quantity</label>
-                                <g:field type="number" name="fixedAmount-tag-required-1-quantity" value="${tagsRequired?.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityValueChange(this, 'quantity');"/>
-                                <label for="fixedAmount-tag-required-1-quantity" class="mr-3"> x ${tagsRequired?.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</label>
-                                <a href="#" onclick="return deleteThis(this, 'fixedAmount', 'required');" class="text-dark"><sup>X</sup></a>
+
+                                <div class="card-header pointer" data-toggle="collapse" data-target="#fixedAmountTagCollapse" aria-expanded="false" aria-controls="fixedAmountTagCollapse">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                            </svg>
+
+                                            <label for="fixedAmount-tag-required-1-value" class="">Value</label>
+                                            <g:field type="number" name="fixedAmount-tag-required-1-value" value="${tagsRequired?.isEmpty() ? tagsOffer.first().value : tagsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 col-2 promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                            <label for="fixedAmount-tag-required-1-quantity" class=""> or Quantity</label>
+                                            <g:field type="number" name="fixedAmount-tag-required-1-quantity" value="${tagsRequired?.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 col-2 promo-quantity" onChange="quantityValueChange(this, 'quantity');"/>
+                                            <span class="mr-3"> x ${tagsRequired?.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
+                                        </div>
+                                        <div class="col-2 text-right">
+                                            <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'fixedAmount', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse" id="fixedAmountTagCollapse">
+                                    <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.products : tagsRequired.first().tag.products}" var="product" status="i">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: product.id)}';">
+                                            <div class="col-12">${product.itemCode} - ${product.description}</div>
+                                        </div>
+                                    </g:each>
+                                </div>
                             </div>
                         </g:if>
                     </div>
@@ -505,10 +612,11 @@
     </div>
     <div class="tab-pane fade show ${promoType.equals('fixed_price') ? 'active' : ''}" id="fixedPrice" role="tabpanel" aria-labelledby="fixedPrice-tab">
         <g:form method="post" action="save" class="mt-5" name="fixedPrice-form">
-            <g:hiddenField name="promotionType" value="fixedPrice"/>
-            <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="fixedPrice-promotionItemsType" value="product"/>
-            <g:hiddenField name="fixedPrice-noItemChange" value="true"/>
+            <g:hiddenField name="promotionType" value="fixedPrice" />
+            <g:hiddenField name="promotionId" value="${promotion?.id}" />
+            <g:hiddenField name="fixedPrice-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedPrice-noItemChange" value="true" />
+
             <div id="fixedPrice-details">
                 <h2 class="row col-1">Details</h2>
                 <div class="row">
@@ -595,12 +703,32 @@
                         </g:if>
                         <g:if test="${!tagsRequired?.isEmpty() || !tagsOffer.isEmpty()}">
                             <g:each in="${tagsRequired.isEmpty() ? tagsOffer : tagsRequired}" var="tag" status="i">
-                                <div id="fixedPrice-tag${i}" class="offset-1 promotion-product-container form-inline mt-3">
-                                    <g:hiddenField name="fixedPrice-tag-required-${i}-tagId" value="${tag.tag.id}" class="promo-itemId"/>
-                                    <label for="fixedPrice-tag-required-${i}-quantity" class="">Quantity</label>
-                                    <g:field type="number" name="fixedPrice-tag-required-${i}-quantity" value="${tag.quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'fixedPrice');"/>
-                                    <label for="fixedPrice-tag-required-${i}-quantity" class="mr-3"> x ${tag.tag.description}</label>
-                                    <a href="#" onclick="return deleteThis(this, 'fixedPrice', 'required');" class="text-dark"><sup>X</sup></a>
+                                <div id="fixedPrice-tag${i}" class="card bg-light border-wl offset-1 mt-3">
+                                    <g:hiddenField name="fixedPrice-tag-required-${i}-tagId" value="${tag.tag.id}" class="promo-itemId" />
+
+                                    <div class="card-header pointer" data-toggle="collapse" data-target="#fixedPriceTag${i}Collapse" aria-expanded="false" aria-controls="fixedPriceTag${i}Collapse">
+                                        <div class="row">
+                                            <div class="col-10">
+                                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                                </svg>
+
+                                                <label for="fixedPrice-tag-required-${i}-quantity" class="">Quantity</label>
+                                                <g:field type="number" name="fixedPrice-tag-required-${i}-quantity" value="${tag.quantity}" class="py-1 pl-1 mx-1 col-2" onChange="quantityChange(this, 'fixedPrice');"/>
+                                                <span class="mr-3"> x ${tag.tag.description}</span>
+                                            </div>
+                                            <div class="col-2 text-right">
+                                                <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'fixedPrice', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body collapse" id="fixedPriceTag${i}Collapse">
+                                        <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.products : tagsRequired.first().tag.products}" var="product" status="ind">
+                                            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${ind%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: product.id)}';">
+                                                <div class="col-12">${product.itemCode} - ${product.description}</div>
+                                            </div>
+                                        </g:each>
+                                    </div>
                                 </div>
                             </g:each>
                         </g:if>
