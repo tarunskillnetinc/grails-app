@@ -584,3 +584,13 @@ li.breadcrumb-item a {
 .quicksell-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.unstyled-link {
+    color: #575756;
+    text-decoration: none;
+}
+
+.unstyled-link:hover {
+    color: #575756;
+    text-decoration: none;
+}

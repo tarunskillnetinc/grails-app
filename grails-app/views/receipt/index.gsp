@@ -109,24 +109,24 @@
                         <div class="card-body collapse" id="filterCollapse">
                             <g:form name="filtersForm" id="filtersForm">
                                 <div class="form-group row">
-                                    <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
+                                    <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                     <div class="col-4">
                                         <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
                                     </div>
 
-                                    <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
+                                    <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                     <div class="col-4">
                                         <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
+                                    <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID</label>
                                     <div class="col-4">
                                         <g:field type="number" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" />
                                     </div>
 
-                                    <label for="transactionId" class="col-2 col-form-label text-right">Transaction Number</label>
+                                    <label for="transactionId" class="col-2 col-form-label-sm text-right">Transaction Number</label>
                                     <div class="col-4">
                                         <g:field type="number" name="transactionId" step="1" class="form-control bottom-border" autocomplete="off" />
                                     </div>

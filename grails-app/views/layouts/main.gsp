@@ -117,8 +117,13 @@
                         </div>
                     </li>
 
-                    <li class="nav-item">
-                        <g:link controller="monitoring" class="nav-link">Monitoring</g:link>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="monitoringDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Monitoring</a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="monitoringDropdown">
+                            <g:link controller="monitoring" action="tillConnectivity" class="dropdown-item">Till Connectivity</g:link>
+                            <g:link controller="monitoring" action="transactionServiceStatus" class="dropdown-item">Transaction Service Status</g:link>
+                        </div>
                     </li>
                 </ul>
             </div>

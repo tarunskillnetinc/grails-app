@@ -263,3 +263,8 @@ mysql:
         username: root
         password: Pa**W0rd01
         database: transactions
+
+wlpos:
+    transactionProcessorQueue: "TransactionProcessor"
+    receiptServiceQueue: "ReceiptService"
+    rawTransactionWriterQueue: "RawTransactionWriter"

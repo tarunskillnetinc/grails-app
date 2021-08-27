@@ -41,7 +41,41 @@ class BackOfficeRabbitService extends RabbitService {
         init()
     }
 
-    List<RabbitQueue> getQueues() {
+    List<RabbitQueue> getStoreQueues() {
+        def allRabbitQueues = getQueues()
+
+        def rabbitQueues = []
+
+        // Only return the queues for our retailer.
+        allRabbitQueues?.each {
+            if (it.name?.startsWith("R2_S") && it.name?.count("_") == 2) {
+                it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
+                it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
+                it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
+
+                rabbitQueues.add(it)
+            }
+        }
+
+        return rabbitQueues
+    }
+
+    List<RabbitQueue> getServiceQueues(String... queueNames) {
+        def allRabbitQueues = getQueues()
+
+        def rabbitQueues = []
+
+        // Only return the queues for our retailer.
+        allRabbitQueues?.each {
+            if (queueNames.contains(it.name)) {
+                rabbitQueues.add(it)
+            }
+        }
+
+        return rabbitQueues
+    }
+
+    private List<RabbitQueue> getQueues() {
         // Open a connection to the RabbitMQ REST API.
         def url = apiUrl.toURL()
 
@@ -53,20 +87,6 @@ class BackOfficeRabbitService extends RabbitService {
         // Convert the response JSON into a list of RabbitQueue objects.
         Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType();
 
-        def allRabbitQueues = gson.fromJson(responseJson, listType)
-        def rabbitQueues = []
-
-        // Only return the queues for our retailer.
-        allRabbitQueues?.each {
-            if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
-                it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
-                it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
-                it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
-
-                rabbitQueues.add(it)
-            }
-        }
-
-        return rabbitQueues
+        return gson.fromJson(responseJson, listType)
     }
 }

@@ -18,20 +18,76 @@
         </nav>
     </section>
 
-    <div class="row">
-        <div class="col-12 header-wl">
-            <h2>Welcome to WonderLane</h2>
+    <section id="main-container" class="container-fluid">
+        <div class="row">
+            <div class="col-12 header-wl">
+                <h2>Welcome to WonderLane!</h2>
+            </div>
         </div>
-    </div>
 
-    <div class="row" style="margin-top: 30px;">
-        <div class="col-12 col-md-6 offset-md-3">
-            <p>Welcome to the hub of your new WonderLane EPOS device. Here you can access store settings and button grid administration.</p>
-
-            <p>We'll be adding more features over the coming weeks and months. In the meantime we appreciate your patience and welcome any feedback you may have.</p>
-
-            <p>If you need any help along the way please contact us <a href="http://www.wonderlane.co.uk">here</a>.</p>
+        <div class="row mt-4">
+            <p class="col-12 text-center">Quick access functionality below.</p>
         </div>
-    </div>
+
+        <div class="row mt-5">
+            <div class="col-2 offset-3">
+                <g:link controller="product" class="unstyled-link">
+                    <div class="card bg-light border-wl mx-1 py-5">
+                        <div class="card-body text-center">
+                            <h3>Products</h3>
+                        </div>
+                    </div>
+                </g:link>
+            </div>
+            <div class="col-2">
+                <g:link controller="promotion" class="unstyled-link">
+                    <div class="card bg-light border-wl mx-1 py-5">
+                        <div class="card-body text-center">
+                            <h3>Promotions</h3>
+                        </div>
+                    </div>
+                </g:link>
+            </div>
+            <div class="col-2">
+                <g:link controller="buttonGrid" action="show" params="[type: 'SALES']" class="unstyled-link">
+                    <div class="card bg-light border-wl mx-1 py-5">
+                        <div class="card-body text-center">
+                            <h3>Buttons</h3>
+                        </div>
+                    </div>
+                </g:link>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-2 offset-3">
+                <g:link controller="shift" class="unstyled-link">
+                    <div class="card bg-light border-wl mx-1 py-5">
+                        <div class="card-body text-center">
+                            <h3>Cash</h3>
+                        </div>
+                    </div>
+                </g:link>
+            </div>
+            <div class="col-2">
+                <g:link controller="reporting" action="salesDepartment" class="unstyled-link">
+                    <div class="card bg-light border-wl mx-1 py-5">
+                        <div class="card-body text-center">
+                            <h3>Reporting</h3>
+                        </div>
+                    </div>
+                </g:link>
+            </div>
+            <div class="col-2">
+                <g:link controller="monitoring" action="tillConnectivity" class="unstyled-link">
+                    <div class="card bg-light border-wl mx-1 py-5">
+                        <div class="card-body text-center">
+                            <h3>Monitoring</h3>
+                        </div>
+                    </div>
+                </g:link>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
