@@ -9,6 +9,6 @@
             <button class="btn btn-secondary" disabled>Unassign</button>
         </g:else>
 
-        <g:submitButton class="btn btn-success" name="save" value="Save" />
+        <button class="btn btn-success" name="save" onclick="document.querySelector('#submission-form').submit()">Save</button>
     </div>
 </div>

@@ -22,6 +22,11 @@ class Button {
     ProcessType process
     TenderType tenderType
 
+    String bgColour
+    String textColour
+    boolean imageDisplay
+    boolean textDisplay
+
     Date createdDatetime
     Integer createdUserId
     Date updateDatetime
@@ -44,6 +49,10 @@ class Button {
         sku column: "sku"
         subPageId column: "subPageId"
         tenderType column: "tenderType"
+        bgColour column: "bgColour"
+        textColour column: "textColour"
+        imageDisplay column: "imageDisplay"
+        textDisplay column: "textDisplay"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
         updateDatetime column: "updateDatetime"
@@ -82,6 +91,10 @@ class Button {
                 return false; // Tender type is not nullable for tender buttons.
             }
         }
+        bgColour nullable: false
+        textColour nullable: false
+        imageDisplay nullable: false
+        textDisplay nullable: false
         createdDatetime nullable: true
         createdUserId nullable: true
         updateDatetime nullable: true
@@ -130,6 +143,10 @@ class Button {
         button.setSubPageId(subPageId)
         button.setProcess(process)
         button.setTenderType(tenderType)
+        button.setBgColour(bgColour)
+        button.setTextColour(textColour)
+        button.setImageDisplay(imageDisplay)
+        button.setTextDisplay(textDisplay)
 
         return button
     }

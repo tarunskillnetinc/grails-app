@@ -294,6 +294,72 @@ a .button-grid-button.blank:hover {
     color: #FFFFFF;
 }
 
+.colourBox {
+    border: 1px solid #004C6A;
+    display:inline-flex;
+}
+
+.button-example {
+    height:10rem;
+    width:15rem;
+    display: flex;
+    border: 1px solid #000000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.button-image {
+    width:100%;
+    min-height: 60%;
+    object-fit: scale-down;
+    display:block;
+}
+
+.button-example-text {
+    width: 100%;
+    height:auto;
+    display: block;
+    font-size: xx-large;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+input[type="color"] {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 1px;
+    cursor: pointer;
+    height: 2rem;
+    padding: 0;
+    width: 3rem;
+}
+
+*:focus{
+    border-radius: 0;
+    outline: none;
+}
+
+::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+::-webkit-color-swatch{
+    border: 0;
+    border-radius: 0;
+}
+
+::-moz-color-swatch,
+::-moz-focus-inner{
+    border: 0;
+}
+
+::-moz-focus-inner{
+    padding: 0;
+}
+
 a.no-underline:hover {
     text-decoration: none;
 }
