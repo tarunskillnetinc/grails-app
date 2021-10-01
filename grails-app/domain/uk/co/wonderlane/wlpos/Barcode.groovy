@@ -4,9 +4,8 @@ import org.joda.time.DateTime
 
 class Barcode {
 
-    static belongsTo = [ productVariant: ProductVariant ]
-
     int id
+    long sku
     String barcode
     DateTime effectiveDate
     char recordStatus
@@ -15,13 +14,14 @@ class Barcode {
         table "barcode"
         version false
 
-        productVariant column: "productVariantId"
+        sku column: "sku"
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"
     }
 
     static constraints = {
+        sku nullable: false
         barcode size: 1..20, blank: false, nullable: false
         effectiveDate nullable: false
         recordStatus nullable: false

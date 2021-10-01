@@ -12,12 +12,10 @@ import com.google.gson.JsonSerializer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.ISODateTimeFormat
-import org.springframework.validation.BindingResult
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
-import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
 import java.lang.reflect.Type
@@ -69,6 +67,77 @@ class ProductController {
         render(template: "/product/maintenanceSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
     }
 
+    def prices() {
+        def categories = categoryService.getFullCategoryHierarchy()
+        def tags = []
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        [categories: categories, tags: tags, priceBands: priceBands]
+    }
+
+    def pricesSearch() {
+        String searchTerm = params.searchTerm
+        Integer categoryId = params.category ? Integer.parseInt(params.category) : null
+        Integer tagId = params.tag ? Integer.parseInt(params.category) : null
+
+        def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        render(template: "/product/pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
+    }
+
+    def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
+        def now = DateTime.now(DateTimeZone.UTC)
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        def productPrices = []
+        def priceUpdates = [:]
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
+                    @Override
+                    public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
+                        return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
+                    }
+                })
+                .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
+                    @Override
+                    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                        return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
+                    }
+                }).create()
+
+        cmd.priceChanges?.each {priceChange ->
+            if (!priceUpdates.containsKey(priceChange.priceBandId)) {
+                priceUpdates[priceChange.priceBandId] = []
+            }
+
+            ProductPrice productPrice = new ProductPrice(priceBand: priceBands.find { it.id == priceChange.priceBandId }, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
+            productPrices.add(productPrice)
+
+            priceUpdates[priceChange.priceBandId].add(productPrice.getProductPrice())
+        }
+
+        productService.saveProductPrices(productPrices)
+
+        priceUpdates.each { priceBandId, priceChanges ->
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+            syncMessage.setInsert(true)
+            syncMessage.setProductPrices(priceChanges)
+
+            def stores = StoreSettings.findAllByRetailerIdAndPriceBand(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
+
+            stores?.each { store ->
+                syncMessage.setStoreId(store.storeId)
+
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+            }
+        }
+
+        render "OK"
+    }
+
     def save() {
         def product
 
@@ -92,9 +161,10 @@ class ProductController {
                 it.createdUserId = springSecurityService.principal.id
                 it.updatedUserId = springSecurityService.principal.id
 
-                it.barcodes?.each { barcode ->
-                    barcode.effectiveDate = barcode.effectiveDate ?: now
-                }
+                // TODO Won't work anymore.
+//                it.barcodes?.each { barcode ->
+//                    barcode.effectiveDate = barcode.effectiveDate ?: now
+//                }
 
                 it.packs?.each { pack ->
                     pack.effectiveDate = pack.effectiveDate ?: now
@@ -351,4 +421,14 @@ class ProductVariantCommand {
 
 //    Collection<Barcode> barcodes = new ArrayList<>()
 //    Collection<Pack> packs = new ArrayList<>()
+}
+
+class SavePriceChangesCommand {
+    List<PriceChangeCommand> priceChanges
+}
+
+class PriceChangeCommand {
+    long sku
+    int priceBandId
+    BigDecimal price
 }

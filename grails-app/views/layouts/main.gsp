@@ -87,7 +87,16 @@
                                 </div>
                             </div>
 
-                            <g:link controller="product" class="dropdown-item">Products</g:link>
+                            <div class="dropdown-submenu">
+                                <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="productsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Products</a>
+
+                                <div class="dropdown-menu" aria-labelledby="productsDropdown">
+                                    <g:link controller="product" class="dropdown-item">Product Maintenance</g:link>
+                                    <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
+                                </div>
+                            </div>
+
+
                             <g:link controller="promotion" class="dropdown-item">Promotions</g:link>
                         </div>
                     </li>

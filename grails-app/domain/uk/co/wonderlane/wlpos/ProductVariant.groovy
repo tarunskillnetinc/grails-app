@@ -25,12 +25,11 @@ class ProductVariant implements Serializable {
     int updatedUserId
     boolean delete
 
-    Collection<Barcode> barcodes = new ArrayList<>()
     Collection<Pack> packs = new ArrayList<>()
 
     static transients = ['delete']
 
-    static hasMany = [barcodes: Barcode, packs: Pack]
+    static hasMany = [packs: Pack]
 
     static mapping = {
         table "productvariant"
@@ -51,13 +50,12 @@ class ProductVariant implements Serializable {
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
         updatedUserId column: "updatedUserId"
-        barcodes cascade: "all-delete-orphan"
         packs cascade: "all-delete-orphan"
     }
 
     static constraints = {
         sku nullable: false
-        retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: false, scale: 2
+        retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true
         colour size: 0..45, blank: true, nullable: true
@@ -66,7 +64,6 @@ class ProductVariant implements Serializable {
         createdDatetime nullable: true
         updatedUserId nullable: true
         updatedDatetime nullable: true
-        barcodes nullable: true
         packs nullable: true
         delete bindable: true
     }
@@ -85,6 +82,10 @@ class ProductVariant implements Serializable {
         }
     }
 
+    List<Barcode> getBarcodes() {
+        return Barcode.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC))
+    }
+
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {
         uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
 
@@ -101,7 +102,7 @@ class ProductVariant implements Serializable {
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
 
-        barcodes?.each {
+        getBarcodes()?.each {
             productVariant.getBarcodes().add(it.barcode)
         }
 

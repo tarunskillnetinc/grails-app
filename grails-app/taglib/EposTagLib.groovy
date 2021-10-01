@@ -1,5 +1,6 @@
 import uk.co.wonderlane.wlpos.ButtonGrid
 import uk.co.wonderlane.wlpos.Group
+import uk.co.wonderlane.wlpos.Category
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
@@ -175,5 +176,30 @@ class EposTagLib {
         }
 
         out << breadcrumb
+    }
+
+    def categorySelect = { attrs, body ->
+        out << """<select name="${attrs.name}" id=${attrs.name} class="form-control select-border">"""
+        out << """<option value=""></option>"""
+
+        attrs.categories?.each {
+            categorySelectChildren(it, 0)
+        }
+
+        out << """</select>"""
+    }
+
+    private void categorySelectChildren(Category category, int indent) {
+        out << """<option value="${category.id}">"""
+
+        for (int i = 0 ; i < (indent * 5) ; i++) {
+            out << "&nbsp;"
+        }
+
+        out << """${category.description}</option>"""
+
+        category.childCategories?.each {
+            categorySelectChildren(it, indent + 1)
+        }
     }
 }

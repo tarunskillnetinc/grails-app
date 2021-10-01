@@ -36,6 +36,7 @@ beans = {
                    grailsApplication.config.getProperty('mysql.wlpos.password')) {
 
         springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
     }
 
     shiftService(ShiftService,

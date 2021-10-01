@@ -1,6 +1,9 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+
+import org.hibernate.Session
+import org.hibernate.Transaction
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
@@ -16,6 +19,7 @@ import java.sql.Types
 class ProductService extends MySqlDal {
 
     def springSecurityService
+    def sessionFactory
 
     ProductService(String host, int port, String database, String username, String password) {
         super(host, port, database, username, password)
@@ -50,6 +54,24 @@ class ProductService extends MySqlDal {
 
     def saveProductVariant(ProductVariant productVariant) {
         productVariant.save()
+    }
+
+    def saveProductPrices(List<ProductPrice> productPrices) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = session.beginTransaction()
+
+        productPrices.eachWithIndex { productPrice, index ->
+            session.save(productPrice)
+
+            // Clear the session for speed purposes.
+            if (index.mod(100) == 0) {
+                session.flush()
+                session.clear()
+            }
+        }
+
+        transaction.commit()
+        session.close()
     }
 
     def populateCurrentProductVariant(def product) {
@@ -104,6 +126,58 @@ class ProductService extends MySqlDal {
         int totalCount = results.totalCount
 
         return results
+    }
+
+    def searchProductPrices(String searchTerm, Integer categoryId, Integer tagId) {
+        def results = []
+
+        Connection conn = getConnection()
+        CallableStatement cstmt = conn.prepareCall("{ call getProductPrices(?, ?, ?, ?, ?) }")
+
+        try {
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setInt(2, springSecurityService.principal.storeId)
+
+            if (searchTerm != null) {
+                cstmt.setString(3, searchTerm ?: "")
+            } else {
+                cstmt.setNull(3, Types.VARCHAR)
+            }
+
+            if (categoryId != null) {
+                cstmt.setInt(4, categoryId ?: 0)
+            } else {
+                cstmt.setNull(4, Types.INTEGER)
+            }
+
+            if (tagId != null) {
+                cstmt.setInt(5, tagId ?: 0)
+            } else {
+                cstmt.setNull(5, Types.INTEGER)
+            }
+
+            ResultSet rs = cstmt.executeQuery()
+
+            try {
+                while (rs.next()) {
+                    def result = [:]
+                    result.productId = rs.getInt("id")
+                    result.sku = rs.getLong("sku")
+                    result.productDescription = rs.getString("productDescription")
+                    result.price = rs.getBigDecimal("price")
+                    result.priceBandDescription = rs.getString("priceBandDescription")
+
+                    results.add(result)
+                }
+            } finally {
+                rs.close()
+            }
+        } finally {
+            cstmt.close()
+            conn.close();
+        }
+
+        return results.groupBy { it.sku }
     }
 
     def searchProductsNew(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {

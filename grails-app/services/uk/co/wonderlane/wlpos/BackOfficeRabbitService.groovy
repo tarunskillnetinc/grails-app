@@ -89,4 +89,8 @@ class BackOfficeRabbitService extends RabbitService {
 
         return gson.fromJson(responseJson, listType)
     }
+
+    void declareExchange(String exchange) {
+        this.channel.exchangeDeclare(exchange, "fanout", true);
+    }
 }
