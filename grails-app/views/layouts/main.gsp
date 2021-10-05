@@ -96,8 +96,9 @@
                                 </div>
                             </div>
 
-
                             <g:link controller="promotion" class="dropdown-item">Promotions</g:link>
+                            <g:link controller="tag" class="dropdown-item">Tags</g:link>
+                            <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                         </div>
                     </li>
 

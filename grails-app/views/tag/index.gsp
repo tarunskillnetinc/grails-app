@@ -3,11 +3,11 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Central Count Management</title>
+        <title>WonderLane Tag Management</title>
 
         <script type="text/javascript">
             $(document).ready(function () {
-                $('#centralCountSearchTerm').on('keyup', function(event) {
+                $('#tagSearchTerm').on('keyup', function(event) {
                     if (event.key === 'Enter') {
                         search();
                     }
@@ -15,8 +15,8 @@
             });
 
             function search() {
-                var URL = "${createLink(controller: 'productList', action: 'ajaxGetCentralCounts')}";
-                var searchTerm = $('#centralCountSearchTermSearchTerm').val();
+                var URL = "${createLink(controller: 'tag', action: 'ajaxGetTags')}";
+                var searchTerm = $('#tagSearchTerm').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -42,7 +42,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Central Counts</li>
+                            <li class="breadcrumb-item active" aria-current="page">Tag Management</li>
                         </ol>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
 
         <section id="central-count-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Central Count Management</h2>
+                <h2 class="mx-auto">Tag Management</h2>
             </div>
 
             <g:if test="${flash.message}">
@@ -60,29 +60,26 @@
 
             <div class="row mt-4 ml-0 mr-0">
                 <div class="input-group offset-2 col-8">
-                    <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+                    <g:textField id="tagSearchTerm" name="tagSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
 
                     <div class="input-group-append">
-                        <asset:image src="search.png" id="centralCountSearchButton" name="centralCountSearchButton" onclick="search()" class="wl-search-button" />
+                        <asset:image src="search.png" id="tagSearchButton" name="tagSearchButton" onclick="search()" class="wl-search-button" />
                     </div>
                 </div>
 
                 <div class="col-2 px-0 text-right">
-                    <g:link controller="productList" action="addCentralCount" class="btn btn-wl">Add New Central Count</g:link>
+                    <g:link controller="product" action="addTag" class="btn btn-wl">Add New Tag</g:link>
                 </div>
             </div>
 
-            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-1 font-weight-bold">ID</div>
-                <div class="col font-weight-bold">Description</div>
-                <div class="col font-weight-bold">Status</div>
-                <div class="col font-weight-bold">Start Date</div>
-                <div class="col font-weight-bold">End Date</div>
-                <div class="col font-weight-bold">Current Owner</div>
+            <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
+                <div class="col-3 font-weight-bold">Tag ID</div>
+                <div class="col-6 font-weight-bold">Description</div>
+                <div class="col-3 font-weight-bold">Product Count</div>
             </div>
 
             <div id="search-results" class="align-content-center">
-                <g:render template="centralCountSearchResults" model="[productLists: productLists]" />
+                <g:render template="tagSearchResults" model="[tags: tags]" />
             </div>
         </section>
     </body>
