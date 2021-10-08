@@ -133,7 +133,7 @@
 
                                     <label for="tag" class="col-2 col-form-label-sm text-right">Tag</label>
                                     <div class="col-4">
-                                        <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="id" optionKey="description" class="form-control select-border" />
+                                        <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
                                     </div>
                                 </div>
 

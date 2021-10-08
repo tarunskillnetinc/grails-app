@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 @Transactional
 class TagService {
@@ -25,5 +24,13 @@ class TagService {
 
     def saveTag(Tag tag) {
         tag.save()
+    }
+
+    def deleteTagProduct(TagProduct tagProduct) {
+        tagProduct.delete()
+    }
+
+    def deleteTagProduct(int tagId, long sku) {
+        TagProduct.executeUpdate("delete TagProduct tp where tp.tag.id = :tagId and tp.sku = :sku", [tagId: tagId, sku: sku])
     }
 }

@@ -13,8 +13,11 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="tag" action="index">Tag Management</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${tag?.description ?: "Add Tag"}</li>
+                            <li class="breadcrumb-item"><g:link controller="tag" action="index">Tag Management</g:link></li>
+                            <g:if test="${params.action == 'edit'}">
+                                <li class="breadcrumb-item"><g:link controller="tag" action="show" id="${tag.id}">${tag.description}</g:link></li>
+                            </g:if>
+                            <li class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
                         </ol>
                     </div>
                 </div>
@@ -22,8 +25,16 @@
         </section>
 
         <section id="central-count-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Tag Management</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto">Tag Management</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
+
+                    <button class="btn btn-success" name="save" onclick="$('#tag-form').submit();">Save</button>
+                </div>
             </div>
 
             <g:if test="${flash.message}">
@@ -36,20 +47,15 @@
                 </div>
             </g:hasErrors>
 
-            <g:form name="central-count-form" action="save" novalidate="novalidate" class="mt-4">
-                <g:hiddenField name="id" value="${tag?.id}" />
-
+            <g:form name="tag-form" action="save" novalidate="novalidate" class="mt-4">
                 <div class="form-group row col-12 col-lg-6 mt-4">
-                    <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                    <g:textField name="description" class="col-6 form-control bottom-border" value="${tag?.description}" />
+                    <label for="id" class="col-4 col-form-label text-right pr-4">ID</label>
+                    <g:textField name="id" class="col-5 form-control bottom-border" value="${tag?.id}" disabled="disabled" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
-                    <div class="offset-lg-4">
-                        <g:link action="index" role="button" class="btn btn-danger">Cancel</g:link>
-
-                        <g:submitButton class="btn btn-success" name="save" value="Save" />
-                    </div>
+                    <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
+                    <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" />
                 </div>
 
                 <div class="header-wl mt-5">
@@ -57,7 +63,7 @@
                 </div>
 
                 <div class="row mt-4 mx-0">
-                    <div class="col-2 offset-10 text-right px-0">
+                    <div class="col-2 offset-8 text-right px-0">
                         <!-- Button trigger modal -->
                         <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                             Add Product
@@ -65,22 +71,20 @@
                     </div>
                 </div>
 
-                <div class="row mt-4 ml-0 mr-0 bottom-border">
-                    <div class="col-1 font-weight-bold">Product ID</div>
-                    <div class="col-2 font-weight-bold">Item Code</div>
+                <div class="row col-8 offset-2 mt-4 table-wl bottom-border">
+                    <div class="col-2 font-weight-bold">Product ID</div>
+                    <div class="col-3 font-weight-bold">SKU</div>
                     <div class="col font-weight-bold">Description</div>
-                    <div class="col-1 font-weight-bold">Colour</div>
-                    <div class="col-1 font-weight-bold">Size</div>
                     <div class="col-1 font-weight-bold">&nbsp;</div>
                 </div>
 
                 <div id="productList" class="align-content-center mb-5">
-                    <g:if test="${!tag?.products || tag?.products?.size() == 0}">
-                        <div id="noResultsRow" class="col pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
+                    <g:if test="${!tag?.tagProducts || tag?.tagProducts?.size() == 0}">
+                        <div id="noResultsRow" class="col-8 offset-2 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                     </g:if>
 
-                    <g:each in="${tag?.products}" var="product" status="i">
-                        <g:render template="tagProductRow" model="[product: product, i: i]" />
+                    <g:each in="${tag?.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
+                        <g:render template="tagProductRow" model="[tagProduct: tagProduct, i: i]" />
                     </g:each>
                 </div>
             </g:form>

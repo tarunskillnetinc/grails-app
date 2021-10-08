@@ -1,9 +1,12 @@
 package uk.co.wonderlane.wlpos
 
+import org.springframework.validation.FieldError
+
 class TagController {
 
     def tagService
     def productService
+    def springSecurityService
 
     def index() {
         def tags = tagService.getTags()
@@ -14,6 +17,19 @@ class TagController {
     def show(int id) {
         def tag = tagService.getTag(id)
 
+        if (!tag) {
+            flash.error = "Tag not found."
+            redirect(action: "index")
+            return
+        }
+
+        def products = productService.getProductVariants(tag?.tagProducts?.collect { it.sku })
+
+        tag?.tagProducts?.each {tagProduct ->
+            tagProduct.productVariantId = products?.find { it.sku == tagProduct.sku }?.id
+            tagProduct.productDescription = products?.find { it.sku == tagProduct.sku }?.product?.description
+        }
+
         [tag: tag]
     }
 
@@ -23,13 +39,108 @@ class TagController {
         render (template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm])
     }
 
-    def addTag() {
+    def add() {
 
     }
 
-    def ajaxAddProduct(int productId) {
-        def product = productService.getProduct(productId)
+    def edit(int id) {
+        def tag = tagService.getTag(id)
 
-        render (template: "tagProductRow", model: [product: product])
+        if (!tag) {
+            flash.error = "Tag not found."
+            redirect(action: "index")
+            return
+        }
+
+        def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
+
+        tag.tagProducts.each { tagProduct ->
+            tagProduct.productVariantId = productVariants.find { it.sku == tagProduct.sku }?.id
+            tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
+        }
+
+        render (view: "add", model: [tag: tag])
+    }
+
+    def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
+        def tagProduct = new TagProduct()
+        tagProduct.sku = sku
+        tagProduct.productVariantId = productVariantId
+        tagProduct.productDescription = productDescription
+
+        render (template: "tagProductRow", model: [tagProduct: tagProduct])
+    }
+
+    def save(SaveTagCommand cmd) {
+        def tag
+
+        if (cmd.id) {
+            tag = tagService.getTag(cmd.id)
+
+            if (!tag) {
+                flash.error = "Tag not found."
+                render (action: "index")
+                return
+            }
+
+            // Remove any TagProducts which are no longer in the tag.
+            def tagProductsToRemove = tag.tagProducts?.findAll { !cmd.sku.contains(it.sku) }
+
+            tagProductsToRemove?.each {
+                tagService.deleteTagProduct(tag.id, it.sku)
+            }
+        } else {
+            tag = new Tag()
+        }
+
+        tag.retailerId = springSecurityService.principal.retailerId
+        tag.description = cmd.description
+
+        def skusInTag = tag.tagProducts?.collect { it.sku }
+
+        cmd.sku?.each {
+            if (!cmd.id || !skusInTag.contains(it)) {
+                def tagProduct = new TagProduct()
+                tagProduct.sku = it
+
+                tag.addToTagProducts(tagProduct)
+            }
+        }
+
+        if (cmd.validate() && tag.validate()) {
+            tagService.saveTag(tag)
+
+            flash.message = "Tag saved successfully."
+
+            redirect(action: "show", id: tag.id)
+        } else {
+            cmd.errors.allErrors.each { FieldError error ->
+                final String field = error.field?.replace('profile.', '')
+                final String code = "tag.$field.$error.code"
+
+                tag.errors.rejectValue((field == "sku" ? "tagProducts" : field), code)
+            }
+
+            def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
+
+            tag.tagProducts.each { tagProduct ->
+                tagProduct.productVariantId = productVariants.find { it.sku == tagProduct.sku }?.id
+                tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
+            }
+
+            render(view: "add", model: [tag: tag])
+        }
+    }
+}
+
+class SaveTagCommand {
+
+    int id
+    String description
+    Long[] sku
+
+    static constraints = {
+        description nullable: false, blank: false, maxSize: 100
+        sku nullable: false
     }
 }

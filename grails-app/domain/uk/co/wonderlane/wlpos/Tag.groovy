@@ -7,8 +7,7 @@ class Tag {
     String description
     boolean hidden
 
-    static hasMany = [ products: Product ]
-    //static belongsTo = Product
+    static hasMany = [ tagProducts: TagProduct ]
 
     static mapping = {
         table "tag"
@@ -17,8 +16,7 @@ class Tag {
         retailerId column: "retailerId"
         description column: "`description`"
         hidden column: "hidden"
-
-        products joinTable: [name: 'tagproduct', key: 'tagId', column: 'productId']
+        tagProducts cascade: "all,delete-orphan"
     }
 
     public uk.co.wonderlane.wlpos.entities.Tag getTag() {

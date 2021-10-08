@@ -26,6 +26,7 @@ class ProductVariant implements Serializable {
     boolean delete
 
     Collection<Pack> packs = new ArrayList<>()
+    Collection<Pack> tags = new ArrayList<>()
 
     static transients = ['delete']
 
@@ -109,6 +110,9 @@ class ProductVariant implements Serializable {
         packs?.each {
             productVariant.getPacks().add(it.getPack())
         }
+
+        // TODO Set tags
+//        productVariant.getTags().add(it.getTag())
 
         return productVariant
     }

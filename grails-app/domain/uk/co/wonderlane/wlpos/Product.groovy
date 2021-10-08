@@ -21,7 +21,6 @@ class Product {
     ProductStatus status
     String retailerProductId
 
-    Collection<Tag> tags = new ArrayList<>()
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
     Collection<DiscountRate> discountRates = new ArrayList<>()
@@ -29,7 +28,7 @@ class Product {
 
     ProductVariant currentProductVariant
 
-    static hasMany = [ tags: Tag, saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
+    static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
 
     static transients = ['currentProductVariant']
 
@@ -54,7 +53,6 @@ class Product {
         retailerProductId column: "retailerProductId"
         variants cascade: "save-update,delete"
 
-        tags joinTable: [name: 'tagproduct', key: 'productId', column: 'tagId']
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         discountRates joinTable: [name: 'productdiscount', key: 'productId', column: 'discountRateId']
@@ -110,9 +108,6 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
-        tags.each {
-            product.getTags().add(it.getTag())
-        }
         variants.each {
             if (it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant())

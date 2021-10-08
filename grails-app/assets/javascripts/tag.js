@@ -1,19 +1,19 @@
-function productSelected (id, itemCode, description) {
-    // Add product to list.
+function productSelected (id, sku, description) {
+    // Add product variant to list.
     $.ajax({
         url: addProductUrl,
-        data: { productId: id },
+        data: { productVariantId: id, sku: sku, productDescription: description },
         success: function(resp) {
             $("#productList").append(resp);
 
             $('#noResultsRow').hide();
 
-            $('#product' +id).addClass("wl-striped" +($('#productList').children().length % 2));
+            $('#productVariant' +id).addClass("wl-striped" +($('#productList').children().length % 2));
         }
     });
 }
 
-function removeProduct(productId) {
+function removeProduct(productVariantId) {
     $('#productVariant' +productVariantId).remove();
 
     var productList = $('#productList');
@@ -23,6 +23,7 @@ function removeProduct(productId) {
 
         noResultsRow.removeClass("wl-striped0");
         noResultsRow.removeClass("wl-striped1");
+        noResultsRow.addClass("wl-striped0");
         noResultsRow.show();
     } else {
         for (var i = 1 ; i <= productList.children().length ; i++) {

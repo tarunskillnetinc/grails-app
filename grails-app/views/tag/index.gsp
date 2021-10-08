@@ -50,12 +50,22 @@
         </section>
 
         <section id="central-count-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Tag Management</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto">Tag Management</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link controller="tag" action="add" class="btn btn-wl">Add New Tag</g:link>
+                </div>
             </div>
 
             <g:if test="${flash.message}">
                 <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            </g:if>
+
+            <g:if test="${flash.error}">
+                <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
             </g:if>
 
             <div class="row mt-4 ml-0 mr-0">
@@ -65,10 +75,6 @@
                     <div class="input-group-append">
                         <asset:image src="search.png" id="tagSearchButton" name="tagSearchButton" onclick="search()" class="wl-search-button" />
                     </div>
-                </div>
-
-                <div class="col-2 px-0 text-right">
-                    <g:link controller="product" action="addTag" class="btn btn-wl">Add New Tag</g:link>
                 </div>
             </div>
 

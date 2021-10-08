@@ -42,6 +42,27 @@ class ProductService extends MySqlDal {
         }?.first() ?: null
     }
 
+    // TODO make this method only return the current effective date. Currently it will return any which exist (sorted so that the active one is first (unless the description has changed)).
+    def getProductVariants(List<Long> skus) {
+        def criteria = ProductVariant.createCriteria()
+
+        return criteria.list {
+            "in" ("sku", skus)
+            eq ("storeId", springSecurityService.principal.storeId)
+            lte ("effectiveDate", DateTime.now(DateTimeZone.UTC))
+            product {
+                eq ("retailerId", springSecurityService.principal.retailerId)
+            }
+
+            and {
+                product {
+                    order ("description", "asc")
+                }
+                order ("effectiveDate", "desc")
+            }
+        }
+    }
+
     def getProduct(int id) {
         def product = Product.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
 
@@ -138,20 +159,20 @@ class ProductService extends MySqlDal {
             cstmt.setInt(1, springSecurityService.principal.retailerId)
             cstmt.setInt(2, springSecurityService.principal.storeId)
 
-            if (searchTerm != null) {
-                cstmt.setString(3, searchTerm ?: "")
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                cstmt.setString(3, searchTerm)
             } else {
                 cstmt.setNull(3, Types.VARCHAR)
             }
 
             if (categoryId != null) {
-                cstmt.setInt(4, categoryId ?: 0)
+                cstmt.setInt(4, categoryId)
             } else {
                 cstmt.setNull(4, Types.INTEGER)
             }
 
             if (tagId != null) {
-                cstmt.setInt(5, tagId ?: 0)
+                cstmt.setInt(5, tagId)
             } else {
                 cstmt.setNull(5, Types.INTEGER)
             }

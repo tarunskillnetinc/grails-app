@@ -26,6 +26,7 @@ class ProductController {
 
     def productService
     def categoryService
+    def tagService
     def rabbitService
 
     def index() {
@@ -69,7 +70,7 @@ class ProductController {
 
     def prices() {
         def categories = categoryService.getFullCategoryHierarchy()
-        def tags = []
+        def tags = tagService.getTags()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
 
         [categories: categories, tags: tags, priceBands: priceBands]
@@ -78,7 +79,7 @@ class ProductController {
     def pricesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer tagId = params.tag ? Integer.parseInt(params.category) : null
+        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
 
         def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
