@@ -48,9 +48,11 @@
             </g:hasErrors>
 
             <g:form name="tag-form" action="save" novalidate="novalidate" class="mt-4">
+                <g:hiddenField name="id" value="${tag?.id}" />
+
                 <div class="form-group row col-12 col-lg-6 mt-4">
-                    <label for="id" class="col-4 col-form-label text-right pr-4">ID</label>
-                    <g:textField name="id" class="col-5 form-control bottom-border" value="${tag?.id}" disabled="disabled" />
+                    <label for="tagId" class="col-4 col-form-label text-right pr-4">ID</label>
+                    <g:textField name="tagId" class="col-5 form-control bottom-border" value="${tag?.id}" disabled="disabled" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">

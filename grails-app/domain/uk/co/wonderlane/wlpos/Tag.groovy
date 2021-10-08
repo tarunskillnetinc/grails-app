@@ -24,6 +24,10 @@ class Tag {
         tag.setId(id)
         tag.setDescription(description)
 
+        tagProducts?.each {
+            tag.getTagProducts().add(it.getTagProduct())
+        }
+
         return tag
     }
 }

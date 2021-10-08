@@ -20,4 +20,13 @@ class TagProduct implements Serializable {
         tag column: "tagId"
         sku column: "sku"
     }
+
+    public uk.co.wonderlane.wlpos.entities.TagProduct getTagProduct() {
+        uk.co.wonderlane.wlpos.entities.TagProduct tagProduct = new uk.co.wonderlane.wlpos.entities.TagProduct()
+
+        tagProduct.setTagId(tag.id)
+        tagProduct.setSku(sku)
+
+        return tagProduct
+    }
 }

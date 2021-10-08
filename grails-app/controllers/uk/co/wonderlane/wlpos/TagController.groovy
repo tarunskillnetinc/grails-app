@@ -1,12 +1,16 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.Gson
 import org.springframework.validation.FieldError
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 class TagController {
 
     def tagService
     def productService
     def springSecurityService
+    def rabbitService
 
     def index() {
         def tags = tagService.getTags()
@@ -110,6 +114,9 @@ class TagController {
         if (cmd.validate() && tag.validate()) {
             tagService.saveTag(tag)
 
+            // Send this update to the whole Retailer exchange!
+            sendTag(tag)
+
             flash.message = "Tag saved successfully."
 
             redirect(action: "show", id: tag.id)
@@ -129,6 +136,23 @@ class TagController {
             }
 
             render(view: "add", model: [tag: tag])
+        }
+    }
+
+    private void sendTag(Tag tag) {
+        Gson gson = new Gson()
+        // Make sure the RabbitMQ connection is available, otherwise reject the save.
+        try {
+            if (!rabbitService.isOpen()) {
+                throw new Exception("Rabbit MQ not available")
+            }
+
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.TAG, springSecurityService.principal.retailerId, 0, 0)
+            syncMessage.setInsert(true)
+            syncMessage.setTag(tag.getTag())
+            rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gson.toJson(syncMessage))
+        } catch (Exception e) {
+            e.printStackTrace()
         }
     }
 }
