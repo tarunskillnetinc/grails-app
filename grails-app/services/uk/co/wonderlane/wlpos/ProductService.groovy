@@ -95,6 +95,36 @@ class ProductService extends MySqlDal {
         session.close()
     }
 
+    def saveRangeProducts(List<RangeProduct> rangeProducts) {
+        saveOrDeleteRangeProducts(rangeProducts, true, false)
+    }
+
+    def deleteRangeProducts(List<RangeProduct> rangeProducts) {
+        saveOrDeleteRangeProducts(rangeProducts, false, true)
+    }
+
+    private void saveOrDeleteRangeProducts(List<RangeProduct> rangeProducts, boolean save, boolean delete) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = session.beginTransaction()
+
+        rangeProducts.eachWithIndex { rangeProduct, index ->
+            if (save) {
+                session.save(rangeProduct)
+            } else if (delete) {
+                session.delete(rangeProduct)
+            }
+
+            // Clear the session for speed purposes.
+            if (index.mod(100) == 0) {
+                session.flush()
+                session.clear()
+            }
+        }
+
+        transaction.commit()
+        session.close()
+    }
+
     def populateCurrentProductVariant(def product) {
         product.currentProductVariant = product.variants.sort { it.effectiveDate }.reverse().find { it.storeId == springSecurityService.principal.storeId && it.effectiveDate <= new Date() }
     }
@@ -107,7 +137,10 @@ class ProductService extends MySqlDal {
         def results = productSearchCriteria.list([offset: startIndex, max: maxResults]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             variants {
-                eq ("storeId", springSecurityService.principal.storeId)
+                or {
+                    isNull("storeId")
+                    eq("storeId", springSecurityService.principal.storeId)
+                }
                 lte ("effectiveDate", now)
             }
 
@@ -157,7 +190,12 @@ class ProductService extends MySqlDal {
 
         try {
             cstmt.setInt(1, springSecurityService.principal.retailerId)
-            cstmt.setInt(2, springSecurityService.principal.storeId)
+
+            if (springSecurityService.principal.storeId != null) {
+                cstmt.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                cstmt.setNull(2, Types.INTEGER)
+            }
 
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 cstmt.setString(3, searchTerm)
@@ -195,10 +233,74 @@ class ProductService extends MySqlDal {
             }
         } finally {
             cstmt.close()
-            conn.close();
+            conn.close()
         }
 
         return results.groupBy { it.sku }
+    }
+
+    def searchRangeProducts(String searchTerm, Integer categoryId, Integer tagId) {
+        def results = []
+
+        Connection conn = getConnection()
+        CallableStatement cstmt = conn.prepareCall("{ call getRangeProducts(?, ?, ?, ?, ?) }")
+
+        try {
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+
+            if (springSecurityService.principal.storeId != null) {
+                cstmt.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                cstmt.setNull(2, Types.INTEGER)
+            }
+
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                cstmt.setString(3, searchTerm)
+            } else {
+                cstmt.setNull(3, Types.VARCHAR)
+            }
+
+            if (categoryId != null) {
+                cstmt.setInt(4, categoryId)
+            } else {
+                cstmt.setNull(4, Types.INTEGER)
+            }
+
+            if (tagId != null) {
+                cstmt.setInt(5, tagId)
+            } else {
+                cstmt.setNull(5, Types.INTEGER)
+            }
+
+            ResultSet rs = cstmt.executeQuery()
+
+            try {
+                while (rs.next()) {
+                    def result = [:]
+                    result.productId = rs.getInt("id")
+                    result.productItemCode = rs.getString("productItemCode")
+                    result.productDescription = rs.getString("productDescription")
+                    result.rangeId = rs.getInt("rangeId")
+
+                    results.add(result)
+                }
+            } finally {
+                rs.close()
+            }
+        } finally {
+            cstmt.close()
+            conn.close()
+        }
+
+        return results.groupBy { it.productId }
+    }
+
+    def deleteRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.delete()
+    }
+
+    def saveRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.save()
     }
 
     def searchProductsNew(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {

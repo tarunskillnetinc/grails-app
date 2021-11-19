@@ -18,7 +18,7 @@ class Category {
         table "category"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         description column: "`description`"
         shortDescription column: "shortDescription"
         retailerCategoryCode column: "retailerCategoryCode"

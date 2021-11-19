@@ -15,7 +15,7 @@ class Group {
         table '`group`'
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         name column: "`name`"
         level column: "level"
         parentGroup column: "parentId"

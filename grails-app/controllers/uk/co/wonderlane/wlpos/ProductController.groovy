@@ -1,24 +1,12 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import com.google.gson.JsonPrimitive
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.ISODateTimeFormat
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Supplier
-
-import java.lang.reflect.Type
 
 class ProductController {
 
@@ -28,6 +16,7 @@ class ProductController {
     def categoryService
     def tagService
     def rabbitService
+    def gsonProvider
 
     def index() {
         render(view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
@@ -36,12 +25,23 @@ class ProductController {
     def show(int id) {
         def product = productService.getProduct(id)
 
+        def ranges = []
+        def priceBands = []
+
+        def userRoles = springSecurityService.principal.authorities*.authority
+        if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+            priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+            ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+        }
+
         render(view: "add", model: [product: product,
-                                            storeId: springSecurityService.principal.storeId,
-                                            statusValues: ProductStatus.values(),
-                                            categoryValues: categoryService.getFullCategoryHierarchy(),
-                                            vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
-                                            navlink: "details"])
+                                    storeId: springSecurityService.principal.storeId,
+                                    statusValues: ProductStatus.values(),
+                                    categoryValues: categoryService.getFullCategoryHierarchy(),
+                                    vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    ranges: ranges,
+                                    priceBands: priceBands,
+                                    navlink: "details"])
     }
 
     def add() {
@@ -87,26 +87,31 @@ class ProductController {
         render(template: "/product/pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
     }
 
+    def ranges() {
+        def categories = categoryService.getFullCategoryHierarchy()
+        def tags = tagService.getTags()
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        [categories: categories, tags: tags, ranges: ranges]
+    }
+
+    def rangesSearch() {
+        String searchTerm = params.searchTerm
+        Integer categoryId = params.category ? Integer.parseInt(params.category) : null
+        Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
+
+        def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, tagId)
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])
+    }
+
     def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
         def now = DateTime.now(DateTimeZone.UTC)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
 
         def productPrices = []
         def priceUpdates = [:]
-
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
-                    @Override
-                    public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                        return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-                    }
-                })
-                .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-                    @Override
-                    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
-                    }
-                }).create()
 
         cmd.priceChanges?.each {priceChange ->
             if (!priceUpdates.containsKey(priceChange.priceBandId)) {
@@ -132,14 +137,73 @@ class ProductController {
                 syncMessage.setStoreId(store.storeId)
 
                 rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
             }
         }
 
         render "OK"
     }
 
-    def save() {
+    def ajaxSaveRangeProducts(SaveRangeProductsCommand cmd) {
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        def newlyRangedProducts = []
+        def noLongerRangedProducts = []
+
+        def rangedProductsMap = [:]
+
+        cmd.rangeProducts?.each {rangeProduct ->
+            def existingRangeProduct = RangeProduct.findByProductIdAndRange(rangeProduct.productId, ranges.find { it.id == rangeProduct.rangeId })
+
+            if (rangeProduct.isRanged() && !existingRangeProduct) {
+                existingRangeProduct = new RangeProduct(range: ranges.find { it.id == rangeProduct.rangeId }, productId: rangeProduct.productId)
+
+                newlyRangedProducts.add(existingRangeProduct)
+
+                if (!rangedProductsMap.containsKey(rangeProduct.rangeId)) {
+                    rangedProductsMap[rangeProduct.rangeId] = []
+                }
+
+                rangedProductsMap[rangeProduct.rangeId].add(rangeProduct)
+            } else if (!rangeProduct.isRanged() && existingRangeProduct) {
+                noLongerRangedProducts.add(existingRangeProduct)
+            }
+        }
+
+        productService.saveRangeProducts(newlyRangedProducts)
+        productService.deleteRangeProducts(noLongerRangedProducts)
+
+        // Send down those products for addition to the relevant stores for each range. Do not delete any products as stores may need to sell through stock etc.
+        rangedProductsMap.each { rangeId, rangeProductChanges ->
+            def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId })
+
+            def allProducts = []
+
+            rangeProductChanges.each { RangeProductCommand rangeProductCommand ->
+                allProducts.add(productService.getProduct(rangeProductCommand.productId))
+            }
+
+            stores?.each { StoreSettings store ->
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, 0)
+                syncMessage.setInsert(true)
+
+                def storeProducts = []
+                allProducts.each {
+                    storeProducts.add(it.getProduct(store.storeId))
+                }
+
+                syncMessage.setProducts(storeProducts)
+
+                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
+            }
+        }
+
+        render "OK"
+    }
+
+    def save(ProductCommand editedProduct) {
         def product
 
         boolean newProduct
@@ -178,22 +242,29 @@ class ProductController {
             product = productService.getProduct(Integer.parseInt(params.id))
 
             // TODO ProductCommand and all of the sub objects need to be command objects as well.
-            def editedProduct = new ProductCommand()
-            bindData(editedProduct, params)
+//            def editedProduct = new ProductCommand()
+//            bindData(editedProduct, params)
 
             editedProduct.variants?.each {editedVariant ->
                 product.variants?.find {existingVariant -> existingVariant.id == editedVariant.id }?.retailPrice = editedVariant.retailPrice
             }
 
-            copyRestrictions(editedProduct.restrictions, product.restrictions)
-
+            product.itemCode = editedProduct.itemCode
+            product.description = editedProduct.description
+            product.receiptDescription = editedProduct.receiptDescription
+            //product.category = editedProduct.category // TODO
+            product.unitSize = editedProduct.unitSize
+            product.weightedItem = editedProduct.weightedItem
+            product.openPrice = editedProduct.openPrice
+            product.zeroPrice = editedProduct.zeroPrice
             product.vatCode = editedProduct.vatCode
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
             product.discreetMessage = editedProduct.discreetMessage
             product.status = editedProduct.status
-            product.weightedItem = editedProduct.weightedItem
-            product.openPrice = editedProduct.openPrice
-            product.zeroPrice = editedProduct.zeroPrice
+            product.retailerProductId = editedProduct.retailerProductId
+
+            copyRestrictions(editedProduct.restrictions, product.restrictions)
+
             // TODO Handle saving over the rest of the properties in a product, also handle adding new variants and such.
         }
 
@@ -222,36 +293,32 @@ class ProductController {
 
         if (product.validate()) {
             productService.saveProduct(product)
+
+            def userRoles = springSecurityService.principal.authorities*.authority
+            if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+                savePriceUpdates(product.variants?.findAll { it.storeId == null }, editedProduct.priceChanges)
+                saveRangeUpdates(product, editedProduct.rangeId)
+            }
+
             flash.message = "Product saved successfully"
         }
 
         if (!product.hasErrors()) {
-            if (!rabbitService.isOpen()) {
-                throw new Exception("Rabbit MQ not available")
+            // TODO Send this update to all tills which are ranged.
+            if (springSecurityService.principal.storeId) {
+                if (!rabbitService.isOpen()) {
+                    throw new Exception("Rabbit MQ not available")
+                }
+
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeId ?: 0, 0)
+                syncMessage.setInsert(true)
+
+                List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
+                products.add(product.getProduct(springSecurityService.principal.storeId))
+                syncMessage.setProducts(products)
+
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
             }
-
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
-            syncMessage.setInsert(true)
-
-            List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
-            products.add(product.getProduct(springSecurityService.principal.storeId))
-            syncMessage.setProducts(products)
-
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
-                        @Override
-                        public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                            return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-                        }
-                    })
-                    .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-                        @Override
-                        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                            return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
-                        }
-                    }).create()
-
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
         }
 
         if (!product.hasErrors()) {
@@ -262,6 +329,73 @@ class ProductController {
                                         statusValues  : ProductStatus.values(),
                                         categoryValues: categoryService.getFullCategoryHierarchy(),
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
+        }
+    }
+
+    private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges) {
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def now = DateTime.now(DateTimeZone.UTC)
+
+        def changedProductPrices = []
+
+        variants?.each { ProductVariant variant ->
+            def prices = variant.prices
+
+            priceChanges.findAll { it.sku == variant.sku }?.each { PriceChangeCommand priceChange ->
+                ProductPrice currentPrice = prices.find { it.priceBand.id == priceChange.priceBandId }
+
+                if (!currentPrice || currentPrice.price != priceChange.price) {
+                    def priceBand = priceBands.find { it.id == priceChange.priceBandId }
+
+                    ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
+
+                    changedProductPrices.add(productPrice)
+                }
+            }
+        }
+
+        productService.saveProductPrices(changedProductPrices)
+    }
+
+    private void saveRangeUpdates(Product product, int[] savedRanges) {
+        def rangesRemovedFrom = []
+        def rangesAddedTo = []
+
+        def rangeProducts = RangeProduct.findAllByProductId(product.id)
+        rangeProducts.each { RangeProduct rangeProduct ->
+            if (!savedRanges?.contains(rangeProduct.rangeId)) {
+                rangesRemovedFrom.add(rangeProduct.rangeId)
+            }
+        }
+
+        savedRanges?.each { Integer rangeId ->
+            if (!rangeProducts.any { it.rangeId == rangeId }) {
+                rangesAddedTo.add(rangeId)
+            }
+        }
+
+        rangesRemovedFrom.each { Integer rangeId ->
+            productService.deleteRangeProduct(rangeProducts.find { it.rangeId == rangeId })
+        }
+
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+        rangesAddedTo.each { Integer rangeId ->
+            RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
+
+            productService.saveRangeProduct(rangeProduct)
+
+            def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId })
+
+            stores?.each { StoreSettings store ->
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, 0)
+                syncMessage.setInsert(true)
+
+                syncMessage.setProducts([product.getProduct(store.storeId)])
+
+                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
+            }
         }
     }
 
@@ -397,6 +531,9 @@ class ProductCommand {
     ProductStatus status
     String retailerProductId
 
+    List<PriceChangeCommand> priceChanges // When editing price bands as a head office user or engineer.
+    int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
+
 //    Collection<Tag> tags = new ArrayList<>()
 //    Collection<Message> saleMessages = new ArrayList<>()
 //    Collection<Message> refundMessages = new ArrayList<>()
@@ -434,4 +571,14 @@ class PriceChangeCommand {
     long sku
     int priceBandId
     BigDecimal price
+}
+
+class SaveRangeProductsCommand {
+    List<RangeProductCommand> rangeProducts
+}
+
+class RangeProductCommand {
+    int productId
+    int rangeId
+    boolean ranged
 }

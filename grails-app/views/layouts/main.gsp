@@ -28,7 +28,14 @@
 
         <sec:ifLoggedIn>
             <div class="col-12 col-sm-9 text-right">
-                <span style="margin-right: 50px;">Store:&nbsp;<sec:loggedInUserInfo field="storeId" /></span>
+                <span style="margin-right: 50px;">Store:&nbsp;
+                    <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                        <sec:loggedInUserInfo field="storeId" />
+                    </g:if>
+                    <g:else>
+                        Head Office
+                    </g:else>
+                </span>
 
                 <asset:image src="user_icon.png" width="25" style="margin-right: 10px;" />
 
@@ -71,7 +78,9 @@
 
                                 <div class="dropdown-menu" aria-labelledby="productsDropdown">
                                     <g:link controller="product" class="dropdown-item">Product Maintenance</g:link>
+                                    <div class="dropdown-divider"></div>
                                     <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
+                                    <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
                                 </div>
                             </div>
 

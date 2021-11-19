@@ -13,7 +13,7 @@ class VatCode {
         table "vatcode"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         code column: "`code`"
         description column: "`description`"
         percentage column: "`percentage`"

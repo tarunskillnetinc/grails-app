@@ -9,20 +9,14 @@ class ProductVariant implements Serializable {
     static belongsTo = [product: Product]
 
     int id
-    int storeId
+    Integer storeId
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
     String size
     String colour
-    int balanceOnHand
-    int balanceOnOrder
     int minimumStockLevel
     DateTime effectiveDate
-    DateTime createdDatetime
-    int createdUserId
-    DateTime updatedDatetime
-    int updatedUserId
     boolean delete
 
     Collection<Pack> packs = new ArrayList<>()
@@ -43,34 +37,25 @@ class ProductVariant implements Serializable {
         costPrice column: "costPrice"
         size column:"size"
         colour column:"colour"
-        balanceOnHand column:"balanceOnHand"
-        balanceOnOrder column: "balanceOnOrder"
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
-        createdDatetime column: "createdDatetime"
-        createdUserId column: "createdUserId"
-        updatedDatetime column: "updatedDatetime"
-        updatedUserId column: "updatedUserId"
         packs cascade: "all-delete-orphan"
     }
 
     static constraints = {
+        storeId nullable: true
         sku nullable: false
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true
         colour size: 0..45, blank: true, nullable: true
         effectiveDate nullable: false
-        createdUserId nullable: true
-        createdDatetime nullable: true
-        updatedUserId nullable: true
-        updatedDatetime nullable: true
         packs nullable: true
         delete bindable: true
     }
 
     List<ProductPrice> getPrices() {
-        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC))
+        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
     }
 
     BigDecimal getCurrentPrice() {
@@ -99,8 +84,6 @@ class ProductVariant implements Serializable {
         productVariant.setCostPrice(costPrice)
         productVariant.setSize(size)
         productVariant.setColour(colour)
-        productVariant.setBalanceOnHand(balanceOnHand)
-        productVariant.setBalanceOnOrder(balanceOnOrder)
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
 
@@ -118,17 +101,6 @@ class ProductVariant implements Serializable {
         return productVariant
     }
 
-    def beforeInsert() {
-        def now = DateTime.now(DateTimeZone.UTC)
-
-        createdDatetime = now
-        updatedDatetime = now
-    }
-
-    def beforeUpdate() {
-        updatedDatetime = DateTime.now(DateTimeZone.UTC)
-    }
-
     @Override
     boolean equals(Object obj) {
         ProductVariant that = (ProductVariant)obj
@@ -142,7 +114,7 @@ class ProductVariant implements Serializable {
         int result = 1
 
         result = prime * result + id
-        result = prime * result + storeId
+        result = prime * result + (storeId ?: 0)
         result = prime * result + productId
         result = prime * result + effectiveDate.hashCode()
 

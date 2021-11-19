@@ -13,7 +13,7 @@ class Tag {
         table "tag"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         description column: "`description`"
         hidden column: "hidden"
         tagProducts cascade: "all,delete-orphan"

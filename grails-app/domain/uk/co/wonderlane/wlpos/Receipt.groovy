@@ -22,7 +22,7 @@ class Receipt {
         table "receipt"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         tillId column: "tillId"
         transactionId column: "transactionId"

@@ -12,7 +12,7 @@ class GroupLevel {
         table 'grouplevel'
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         level column: "level"
         name column: "`name`"
     }

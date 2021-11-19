@@ -312,6 +312,103 @@ environments:
                 password: Pa**W0rd01
                 database: wlpos
 
+    kermit:
+        dataSource:
+            pooled: true
+            dbCreate: "validate"
+            url: "jdbc:mysql://192.168.2.107:3306/wlpos"
+            driverClassName: "com.mysql.cj.jdbc.Driver"
+            dialect: org.hibernate.dialect.MySQLInnoDBDialect
+            username: "root"
+            password: "Pa**W0rd01"
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 10 * 60000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: "SELECT 1"
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+        dataSources:
+            reporting:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://192.168.2.107:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "root"
+                password: "Pa**W0rd01"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+            transactions:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://192.168.2.107:3306/transactions"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "root"
+                password: "Pa**W0rd01"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+        rabbitmq:
+            host: 192.168.2.107
+            port: 5672
+            apiPort: 15672
+            username: rabbituser
+            password: Pa**W0rd01
+
+        mysql:
+            wlpos:
+                host: 192.168.2.107
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                database: wlpos
+
     production:
         dataSource:
             dbCreate: none

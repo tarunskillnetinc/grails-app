@@ -13,7 +13,7 @@ class DiscountRate {
         version false
 
         cardTypeId column: "cardTypeId"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         rate column: "`rate`"
         description column: "`description`"
     }

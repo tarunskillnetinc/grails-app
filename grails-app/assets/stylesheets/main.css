@@ -367,18 +367,18 @@ a.no-underline:hover {
 .prevLink, .step, .nextLink, .currentStep {
     margin: 0 0 0 3px;
     padding: 7px 10px;
-    background-color: #004C6A;
+    background-color: #575756;
     color: #FFFFFF;
 }
 
 .prevLink:hover, .step:hover, .nextLink:hover {
     color: #FFFFFF;
-    background-color: #105F7F;
+    background-color: #35343F;
     text-decoration: none;
 }
 
 .currentStep {
-    background-color: #319CAA;
+    background-color: #35343F;
 }
 
 .btn-wl {

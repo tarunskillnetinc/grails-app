@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -11,6 +10,7 @@ class StoreSettingsController {
 
     def storeSettingsService
     def rabbitService
+    def gsonProvider
 
     def index() {
         def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
@@ -38,9 +38,7 @@ class StoreSettingsController {
             syncMessage.setInsert(true)
             syncMessage.setStoreSettings(storeSettings.getStoreSettings());
 
-            Gson gson = new Gson()
-
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
 
             flash.message = "Store settings saved successfully."
 

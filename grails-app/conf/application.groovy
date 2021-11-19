@@ -40,7 +40,7 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 ]
 
 grails.plugin.springsecurity.providerNames = [
-	'wellAuthenticationProvider',
+	'wonderLaneAuthenticationProvider',
 	'anonymousAuthenticationProvider',
 	'rememberMeAuthenticationProvider'
 ]

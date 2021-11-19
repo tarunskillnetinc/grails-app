@@ -28,7 +28,7 @@ class Promotion {
         version false
 
         id column: "id"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         description column: "description"
         receiptDescription column: "receiptDescription"
         startDate column: "startDate", sqlType: "datetime"

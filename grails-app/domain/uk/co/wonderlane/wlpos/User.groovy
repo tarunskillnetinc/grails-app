@@ -31,7 +31,7 @@ class User {
         version false
 
         id column: "id"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         username column: "username"
         password column: "password"
         defaultStoreId column: "defaultStoreId"

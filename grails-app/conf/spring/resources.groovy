@@ -1,18 +1,19 @@
-import uk.co.wonderlane.wlpos.WellUserDetailsService
-import uk.co.wonderlane.wlpos.WellAuthenticationProvider
-import uk.co.wonderlane.wlpos.WellAuthenticationDetailsSource
+import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
+import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
+import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
 import uk.co.wonderlane.wlpos.StoreNumberValidatorService
 import uk.co.wonderlane.wlpos.ProductService
 import uk.co.wonderlane.wlpos.ShiftService
 import uk.co.wonderlane.wlpos.GroupService
 import uk.co.wonderlane.wlpos.BackOfficeRabbitService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
+import uk.co.wonderlane.wlpos.GsonProvider
 
 // Place your Spring DSL code here
 beans = {
-    userDetailsService(WellUserDetailsService)
+    userDetailsService(WonderLaneUserDetailsService)
 
-    wellAuthenticationProvider(WellAuthenticationProvider) {
+    wonderLaneAuthenticationProvider(WonderLaneAuthenticationProvider) {
         storeNumberValidator = ref('storeNumberValidator')
         userDetailsService = ref('userDetailsService')
         passwordEncoder = ref('passwordEncoder')
@@ -25,7 +26,7 @@ beans = {
 
     userPasswordEncoderListener(UserPasswordEncoderListener)
 
-    authenticationDetailsSource(WellAuthenticationDetailsSource)
+    authenticationDetailsSource(WonderLaneAuthenticationDetailsSource)
     storeNumberValidator(StoreNumberValidatorService)
 
     productService(ProductService,
@@ -62,4 +63,6 @@ beans = {
     groupService(GroupService) {
         springSecurityService = ref('springSecurityService')
     }
+
+    gsonProvider(GsonProvider)
 }

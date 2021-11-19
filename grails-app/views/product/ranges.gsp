@@ -20,7 +20,7 @@
             }
 
             function search() {
-                var URL = "${createLink(controller: 'product', action: 'pricesSearch')}";
+                var URL = "${createLink(controller: 'product', action: 'rangesSearch')}";
 
                 var searchTerm = $('#searchTerm').val();
                 var category = $('#category').val();
@@ -41,26 +41,30 @@
                 });
             }
 
-            function savePriceChanges() {
+            function saveRanges() {
+                var saveButton = $("save-changes-button");
+                saveButton.prop("disabled", true);
+
                 var data = { };
 
-                var checkedBoxes = $("input:checked");
+                var checkedBoxes = $("input.selections:checked");
 
                 checkedBoxes.each(function(i, checkbox) {
-                    var prices = $("[id^=price-" +$(checkbox).attr("id").substring(8) +"-]");
+                    var ranges = $("[id^=range-" +$(checkbox).attr("id").substring(8) +"-]");
 
-                    prices.each(function(index, price) {
-                        var id = $(price).attr("id");
-                        var sku = id.substring(6, id.lastIndexOf("-"));
-                        var priceBandId = id.substring(id.lastIndexOf("-") + 1);
+                    ranges.each(function(index, range) {
+                        var id = $(range).attr("id");
 
-                        data["priceChanges[" +((i * 3) + index) +"].sku"] = sku;
-                        data["priceChanges[" +((i * 3) + index) +"].priceBandId"] = priceBandId;
-                        data["priceChanges[" +((i * 3) + index) +"].price"] = $(price).val();
+                        var productId = id.substring(6, id.lastIndexOf("-"));
+                        var rangeId = id.substring(id.lastIndexOf("-") + 1);
+
+                        data["rangeProducts[" +((i * 3) + index) +"].productId"] = productId;
+                        data["rangeProducts[" +((i * 3) + index) +"].rangeId"] = rangeId;
+                        data["rangeProducts[" +((i * 3) + index) +"].ranged"] = $(range).prop("checked");
                     });
                 });
 
-                var url = "${createLink(controller: 'product', action: 'ajaxSavePriceChanges')}";
+                var url = "${createLink(controller: 'product', action: 'ajaxSaveRangeProducts')}";
 
                 $.ajax({
                     url: url,
@@ -68,6 +72,12 @@
                     data: data,
                     success: function(resp) {
                         alert("OK");
+
+                        checkedBoxes.each(function(i, checkbox) {
+                            $(checkbox).prop("checked", false);
+                        });
+
+                        saveButton.prop("disabled", false);
                     }
                 });
             }
@@ -96,7 +106,7 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Product Price Changes</h2>
+                <h2 class="mx-auto">Product Ranges</h2>
             </div>
 
             <div class="row mt-4">
@@ -113,52 +123,49 @@
                             </div>
                         </div>
                         <div class="card-body collapse" id="filterCollapse">
-%{--                            <g:form name="filtersForm" id="filtersForm">--}%
-                                <div class="form-group row">
-                                    <label for="searchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
-                                    <div class="col-10">
-                                        <g:textField name="searchTerm" class="form-control bottom-border" value="${searchTerm}" autocomplete="off" />
-                                    </div>
+                            <div class="form-group row">
+                                <label for="searchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <div class="col-10">
+                                    <g:textField name="searchTerm" class="form-control bottom-border" value="${searchTerm}" autocomplete="off" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="category" class="col-2 col-form-label-sm text-right">Category</label>
+                                <div class="col-4">
+                                    <g:categorySelect name="category" categories="${categories}" />
                                 </div>
 
-                                <div class="form-group row">
-                                    <label for="category" class="col-2 col-form-label-sm text-right">Category</label>
-                                    <div class="col-4">
-                                        <g:categorySelect name="category" categories="${categories}" />
-%{--                                        <g:select name="category" from="${categories}" noSelection="['':'']" value="${category}" optionValue="description" optionKey="id" class="form-control select-border" />--}%
-                                    </div>
-
-                                    <label for="tag" class="col-2 col-form-label-sm text-right">Tag</label>
-                                    <div class="col-4">
-                                        <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
-                                    </div>
+                                <label for="tag" class="col-2 col-form-label-sm text-right">Tag</label>
+                                <div class="col-4">
+                                    <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
                                 </div>
+                            </div>
 
-                                <div class="form-group row">
-                                    <div class="col-4 offset-8 text-right">
-                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
-                                    </div>
+                            <div class="form-group row">
+                                <div class="col-4 offset-8 text-right">
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                 </div>
-%{--                            </g:form>--}%
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-2 offset-5 text-right">
-                    <button class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
+                    <button id="save-changes-button" class="btn btn-wl" onclick="saveRanges();">Save Changes</button>
                 </div>
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-2 font-weight-bold">Item Code</div>
                 <div class="col-6 font-weight-bold">Description</div>
-                <g:each in="${priceBands}" var="priceBand">
-                    <div class="col font-weight-bold">${priceBand.description}</div>
+                <g:each in="${ranges}" var="range">
+                    <div class="col font-weight-bold text-center">${range.description}</div>
                 </g:each>
             </div>
 
             <div id="search-results" class="align-content-center">
-                <g:render template="pricesSearchResults" />
+                <g:render template="rangesSearchResults" />
             </div>
         </section>
     </body>

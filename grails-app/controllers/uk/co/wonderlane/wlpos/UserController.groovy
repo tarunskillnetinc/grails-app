@@ -1,23 +1,9 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import com.google.gson.JsonPrimitive
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import grails.databinding.BindingFormat
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.format.ISODateTimeFormat
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.Role
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
-
-import java.lang.reflect.Type
 
 class UserController {
 
@@ -25,6 +11,7 @@ class UserController {
 
     def userService
     def rabbitService
+    def gsonProvider
 
     def index() {
         [users: userService.getUsers("", 0, 50), searchTerm: ""]
@@ -76,21 +63,7 @@ class UserController {
             syncMessage.setInsert(true)
             syncMessage.setUsers(users)
 
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
-                        @Override
-                        public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                            return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-                        }
-                    })
-                    .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-                        @Override
-                        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                            return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
-                        }
-                    }).create()
-
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
 
             redirect (action: "index")
         } else {

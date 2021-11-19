@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
 import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -11,6 +10,7 @@ class TagController {
     def productService
     def springSecurityService
     def rabbitService
+    def gsonProvider
 
     def index() {
         def tags = tagService.getTags()
@@ -140,7 +140,6 @@ class TagController {
     }
 
     private void sendTag(Tag tag) {
-        Gson gson = new Gson()
         // Make sure the RabbitMQ connection is available, otherwise reject the save.
         try {
             if (!rabbitService.isOpen()) {
@@ -150,7 +149,7 @@ class TagController {
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.TAG, springSecurityService.principal.retailerId, 0, 0)
             syncMessage.setInsert(true)
             syncMessage.setTag(tag.getTag())
-            rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gson.toJson(syncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
         } catch (Exception e) {
             e.printStackTrace()
         }

@@ -8,7 +8,7 @@ class StoreSettings {
 
     int id
     int retailerId
-    int storeId
+    Integer storeId
     String receiptMessage1
     String receiptMessage2
     String vatRegistrationNumber
@@ -33,6 +33,7 @@ class StoreSettings {
     Date updatedDatetime
     Integer updatedUserId
     PriceBand priceBand
+    Range range
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public StoreSettings() { }
@@ -42,8 +43,8 @@ class StoreSettings {
         table "storesettings"
         version false
 
-        id column: "id"
-        retailerId column: "retailerId"
+        id column: "id", sqlType: "smallint"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         receiptMessage1 column: "receiptMessage1"
         receiptMessage2 column: "receiptMessage2"
@@ -64,6 +65,7 @@ class StoreSettings {
         varianceValue column: "varianceValue"
         pickListForceZeroCount column: "pickListForceZeroCount"
         priceBand column: "priceBandId"
+        range column: "rangeId"
         createdDatetime column: "createdDatetime"
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
@@ -73,7 +75,7 @@ class StoreSettings {
     static constraints = {
         id nullable: true
         retailerId nullable: false
-        storeId nullable: false
+        storeId nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
         vatRegistrationNumber nullable: true, maxSize: 45
@@ -93,6 +95,7 @@ class StoreSettings {
         varianceValue nullable:true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         priceBand nullable: false
+        range nullable: false
         createdDatetime nullable: true
         createdUserId nullable: true
         updatedDatetime nullable: true

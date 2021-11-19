@@ -19,7 +19,7 @@ class ButtonGrid {
         table "buttongrid"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         type sqlType: "enum", enumType: "string"
         description column: "`description`"

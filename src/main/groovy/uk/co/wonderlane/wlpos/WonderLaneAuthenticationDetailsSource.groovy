@@ -5,11 +5,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 
 import javax.servlet.http.HttpServletRequest
 
-class WellAuthenticationDetailsSource extends WebAuthenticationDetailsSource {
+class WonderLaneAuthenticationDetailsSource extends WebAuthenticationDetailsSource {
 
     @Override
     WebAuthenticationDetails buildDetails(HttpServletRequest context) {
-        def details = new WellAuthenticationDetails(context)
+        def details = new WonderLaneAuthenticationDetails(context)
 
         details.storeId = context.getParameter('storeId')
 

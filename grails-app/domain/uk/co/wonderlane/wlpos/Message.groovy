@@ -20,7 +20,7 @@ class Message {
         table "message"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         message column: "`message`"
         retailerMessageCode column: "retailerMessageCode"
         startDate column: "startDate"

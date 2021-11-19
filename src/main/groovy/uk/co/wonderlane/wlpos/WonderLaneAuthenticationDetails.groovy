@@ -4,11 +4,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails
 
 import javax.servlet.http.HttpServletRequest
 
-class WellAuthenticationDetails extends WebAuthenticationDetails {
+class WonderLaneAuthenticationDetails extends WebAuthenticationDetails {
 
     String storeId
 
-    WellAuthenticationDetails(HttpServletRequest request) {
+    WonderLaneAuthenticationDetails(HttpServletRequest request) {
         super(request)
     }
 }

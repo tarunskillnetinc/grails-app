@@ -1,11 +1,8 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
 import uk.co.wonderlane.wlpos.entities.SymbolGroupMessage
-import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
-import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
@@ -15,6 +12,7 @@ class SupplierController {
 
     def supplierService
     def rabbitService
+    def gsonProvider
 
     def index() { }
 
@@ -100,10 +98,8 @@ class SupplierController {
                 // TODO Not always REGISTRATION
                 SymbolGroupMessage symbolGroupMessage = new SymbolGroupMessage(SymbolGroupMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
-                Gson gson = new Gson()
-
                 // TODO Considering using routing key to reach Nisa?
-                rabbitService.sendExchangeMessage("SymbolGroups", gson.toJson(symbolGroupMessage))
+                rabbitService.sendExchangeMessage("SymbolGroups", gsonProvider.gson.toJson(symbolGroupMessage))
 
                 render "OK"
             } catch (Exception e) {

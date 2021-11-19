@@ -1,10 +1,8 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.Gson
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.enums.ButtonType
-import uk.co.wonderlane.wlpos.enums.ProcessType
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
@@ -15,6 +13,7 @@ class ButtonController {
     def buttonService
     def imageService
     def rabbitService
+    def gsonProvider
 
     def edit() {
         def button
@@ -72,7 +71,6 @@ class ButtonController {
                 }
             }
 
-            Gson gson = new Gson()
             // Make sure the RabbitMQ connection is available, otherwise reject the save.
             try {
                 if (!rabbitService.isOpen()) {
@@ -90,7 +88,7 @@ class ButtonController {
                         syncMessage.setInsert(false)
                     }
                     try {
-                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
                     } catch (Exception e) {
                         // TODO handle this better
                         e.printStackTrace()
@@ -100,7 +98,7 @@ class ButtonController {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
                 syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
 
                 redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id)
             } catch (Exception e) {
@@ -150,19 +148,17 @@ class ButtonController {
                 throw new Exception("Rabbit MQ not available")
             }
 
-            Gson gson = new Gson()
-
             SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
             removeImageSyncMessage.setTransactionId(id)
             removeImageSyncMessage.setInsert(false)
 
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", removeImageSyncMessage.getRetailerId(), removeImageSyncMessage.getStoreId()), gson.toJson(removeImageSyncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", removeImageSyncMessage.getRetailerId(), removeImageSyncMessage.getStoreId()), gsonProvider.gson.toJson(removeImageSyncMessage))
 
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
             syncMessage.setInsert(true)
             syncMessage.setButtonGrid(ButtonGrid.get(buttonGridId).getButtonGrid())
 
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gson.toJson(syncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
         } catch (Exception e) {
             e.printStackTrace()
         }

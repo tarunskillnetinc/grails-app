@@ -4,7 +4,8 @@ class ProductListItem {
 
     int id
     ProductVariant productVariant
-    int productBalanceOnHand
+    int productQuantityShopFloor
+    int productQuantityStockroom
     int quantity
     int fillQuantity = 0
     int parentQuantity
@@ -16,7 +17,8 @@ class ProductListItem {
         version false
 
         productVariant column: "productVariantId", cascade: "save-update"
-        productBalanceOnHand column: "productBalanceOnHand"
+        productQuantityShopFloor column: "productQuantityShopFloor"
+        productQuantityStockroom column: "productQuantityStockroom"
         quantity column: "quantity"
         fillQuantity column: "fillQuantity"
         parentQuantity column: "parentQuantity"

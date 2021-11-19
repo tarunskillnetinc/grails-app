@@ -397,7 +397,7 @@
                         <g:renderErrors bean="${product.restrictions}" as="list" />
                     </g:hasErrors>
 
-                    <g:each in="${product.variants.findAll{it.storeId == storeId}}" var="variant" status="i">
+                    <g:each in="${product.variants.findAll { it.storeId == null || it.storeId == storeId }}" var="variant" status="i">
                         <g:hasErrors bean="${variant}">
                             <div class="ml-3 pl-3 border">
                                 Variant ${i+1}

@@ -1,13 +1,13 @@
 package uk.co.wonderlane.wlpos
 
-class PriceBand {
+class Range {
 
     int id
     int retailerId
     String description
 
     static mapping = {
-        table "priceband"
+        table "`range`"
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
@@ -16,6 +16,6 @@ class PriceBand {
 
     static constraints = {
         retailerId nullable: false
-        description size: 1..45, blank: false, nullable: false
+        description size: 1..100, blank: false, nullable: false
     }
 }

@@ -24,7 +24,7 @@ class Supplier {
         table "supplier"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         name column: "name"
         reference column: "reference"

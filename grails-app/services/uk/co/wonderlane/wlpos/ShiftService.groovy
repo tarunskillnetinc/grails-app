@@ -1,21 +1,10 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
-import com.google.gson.JsonPrimitive
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.format.ISODateTimeFormat
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 
-import java.lang.reflect.Type
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
@@ -25,26 +14,12 @@ import java.sql.Types
 class ShiftService extends MySqlDal {
 
     def springSecurityService
-    def gson
+    def gsonProvider
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
     ShiftService(String host, int port, String database, String username, String password) {
         super(host, port, database, username, password)
-
-        gson = new GsonBuilder()
-                .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
-                    @Override
-                    public JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
-                        return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json));
-                    }
-                })
-                .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
-                    @Override
-                    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC);
-                    }
-                }).create()
     }
 
     def getShifts(DateTime fromDate, DateTime toDate, Integer tillId) {
@@ -72,7 +47,7 @@ class ShiftService extends MySqlDal {
                 while (rs.next()) {
                     String shiftJson = rs.getString("shift")
 
-                    shifts.add(gson.fromJson(shiftJson, Shift.class))
+                    shifts.add(gsonProvider.gson.fromJson(shiftJson, Shift.class))
                 }
             } finally {
                 rs.close()
@@ -100,7 +75,7 @@ class ShiftService extends MySqlDal {
                 if (rs.next()) {
                     String shiftJson = rs.getString("shift")
 
-                    return gson.fromJson(shiftJson, Shift.class)
+                    return gsonProvider.gson.fromJson(shiftJson, Shift.class)
                 }
             } finally {
                 rs.close()
@@ -124,7 +99,7 @@ class ShiftService extends MySqlDal {
                 saveShiftStatement.setNull(1, Types.INTEGER)
             }
 
-            saveShiftStatement.setString(2, gson.toJson(shift, Shift.class))
+            saveShiftStatement.setString(2, gsonProvider.gson.toJson(shift, Shift.class))
 
             saveShiftStatement.executeUpdate()
         } finally {

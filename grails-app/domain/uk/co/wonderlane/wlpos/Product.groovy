@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
 class Product {
@@ -36,7 +38,7 @@ class Product {
         table "product"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         itemCode column: "itemCode"
         description column: "`description`"
         receiptDescription column: "receiptDescription"
@@ -87,6 +89,10 @@ class Product {
 //            return noError ? true : ["error.Product.badVariants"]
             return true
         }
+    }
+
+    List<RangeProduct> getRanges() {
+        return RangeProduct.findAllByProductId(id)
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {

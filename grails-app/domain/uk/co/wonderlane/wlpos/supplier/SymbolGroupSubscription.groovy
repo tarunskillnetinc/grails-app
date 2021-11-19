@@ -26,7 +26,7 @@ class SymbolGroupSubscription {
         table "symbolgroupsubscription"
         version false
 
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         symbolGroup column: "symbolGroupId"
         active column: "active"

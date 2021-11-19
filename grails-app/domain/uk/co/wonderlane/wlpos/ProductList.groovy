@@ -32,7 +32,7 @@ class ProductList {
         version false
 
         userId column: "userId"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         type column: "`type`"
         status column: "`status`"
