@@ -8,6 +8,7 @@ import uk.co.wonderlane.wlpos.GroupService
 import uk.co.wonderlane.wlpos.BackOfficeRabbitService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 import uk.co.wonderlane.wlpos.GsonProvider
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 
 // Place your Spring DSL code here
 beans = {
@@ -30,24 +31,27 @@ beans = {
     storeNumberValidator(StoreNumberValidatorService)
 
     productService(ProductService,
-                   grailsApplication.config.getProperty('mysql.wlpos.host'),
-                   grailsApplication.config.getProperty('mysql.wlpos.port'),
-                   grailsApplication.config.getProperty('mysql.wlpos.database'),
-                   grailsApplication.config.getProperty('mysql.wlpos.username'),
-                   grailsApplication.config.getProperty('mysql.wlpos.password')) {
+                    new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                            Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                            grailsApplication.config.getProperty('mysql.wlpos.username'),
+                            grailsApplication.config.getProperty('mysql.wlpos.password'),
+                            grailsApplication.config.getProperty('mysql.wlpos.database'))
+                   ) {
 
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
     }
 
     shiftService(ShiftService,
-            grailsApplication.config.getProperty('mysql.transactions.host'),
-            grailsApplication.config.getProperty('mysql.transactions.port'),
-            grailsApplication.config.getProperty('mysql.transactions.database'),
-            grailsApplication.config.getProperty('mysql.transactions.username'),
-            grailsApplication.config.getProperty('mysql.transactions.password')) {
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))
+            ) {
 
         springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
     }
 
     rabbitService(BackOfficeRabbitService,
@@ -58,6 +62,7 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.password')) {
 
         springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
     }
 
     groupService(GroupService) {

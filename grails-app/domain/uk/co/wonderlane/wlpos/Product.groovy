@@ -115,7 +115,7 @@ class Product {
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
         variants.each {
-            if (it.storeId == storeId) {
+            if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant())
             }
         }

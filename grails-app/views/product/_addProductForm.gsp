@@ -281,93 +281,97 @@
 
         <!-- Product prices. -->
         <sec:ifAnyGranted roles="ROLE_HEAD_OFFICE,ROLE_ENGINEER">
-            <div class="card bg-light border-wl accordion-card">
-                <div class="card-header pointer" id="productPrices" data-toggle="collapse" data-target="#collapsePrices" aria-expanded="true" aria-controls="collapsePrices">
-                    <div class="row">
-                        <div class="col-10"><strong>Product Prices</strong></div>
-                        <div class="col-2 text-right">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                            </svg>
+            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                <div class="card bg-light border-wl accordion-card">
+                    <div class="card-header pointer" id="productPrices" data-toggle="collapse" data-target="#collapsePrices" aria-expanded="true" aria-controls="collapsePrices">
+                        <div class="row">
+                            <div class="col-10"><strong>Product Prices</strong></div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div id="collapsePrices" class="collapse collapsed" aria-labelledby="productPrices" data-parent="#accordion">
-                    <div class="card-body py-5">
-                        <div class="row mx-5">This product is priced as follows:</div>
+                    <div id="collapsePrices" class="collapse collapsed" aria-labelledby="productPrices" data-parent="#accordion">
+                        <div class="card-body py-5">
+                            <div class="row mx-5">This product is priced as follows:</div>
 
-                        <div class="row mx-5 mt-4 table-wl bottom-border">
-                            <div class="col-3 font-weight-bold">SKU</div>
+                            <div class="row mx-5 mt-4 table-wl bottom-border">
+                                <div class="col-3 font-weight-bold">SKU</div>
 
-                            <g:each in="${priceBands}" var="priceBand">
-                                <div class="col font-weight-bold">${priceBand.description}</div>
-                            </g:each>
-                        </div>
-
-                        <%
-                            def index = 0
-                        %>
-                        <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
-                            <div class="row mx-5 pt-2 pb-2 wl-striped${i % 2} hoverable">
-                                <div class="col-3 my-auto">${variant.sku}</div>
-
-                                <%
-                                    def variantPrices = variant.prices
-                                %>
                                 <g:each in="${priceBands}" var="priceBand">
-                                    <div class="col">
-                                        <g:hiddenField name="priceChanges[${index}].sku" value="${variant.sku}" />
-                                        <g:hiddenField name="priceChanges[${index}].priceBandId" value="${priceBand.id}" />
-
-                                        <g:textField name="priceChanges[${index}].price" value="${variantPrices.find { it.priceBand.id == priceBand.id }?.price}" class="form-control" />
-                                    </div>
-                                    <%
-                                        index++
-                                    %>
+                                    <div class="col font-weight-bold">${priceBand.description}</div>
                                 </g:each>
                             </div>
-                        </g:each>
-                    </div>
-                </div>
-            </div>
-        </sec:ifAnyGranted>
 
-        <!-- Product ranges. -->
-        <sec:ifAnyGranted roles="ROLE_HEAD_OFFICE,ROLE_ENGINEER">
-            <div class="card bg-light border-wl accordion-card">
-                <div class="card-header pointer" id="productRanges" data-toggle="collapse" data-target="#collapseRanges" aria-expanded="true" aria-controls="collapseRanges">
-                    <div class="row">
-                        <div class="col-10"><strong>Product Ranges</strong></div>
-                        <div class="col-2 text-right">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="collapseRanges" class="collapse collapsed" aria-labelledby="productRanges" data-parent="#accordion">
-                    <div class="card-body py-5">
-                        <div class="row mx-5">This product is assigned to the following product ranges:</div>
-
-                        <div class="row mx-5 mt-4">
                             <%
-                                def productRanges = product.ranges*.rangeId
+                                def index = 0
                             %>
-                            <g:each in="${ranges}" var="range">
-                                <div class="col">
-                                    <label class="radio-container">${range.description}
-                                        <g:checkBox name="rangeId" id="rangeId" checked="${productRanges.contains(range.id)}" value="${range.id}" class="form-check-input" />
+                            <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
+                                <div class="row mx-5 pt-2 pb-2 wl-striped${i % 2} hoverable">
+                                    <div class="col-3 my-auto">${variant.sku}</div>
 
-                                        <span class="checkmark"></span>
-                                    </label>
+                                    <%
+                                        def variantPrices = variant.prices
+                                    %>
+                                    <g:each in="${priceBands}" var="priceBand">
+                                        <div class="col">
+                                            <g:hiddenField name="priceChanges[${index}].sku" value="${variant.sku}" />
+                                            <g:hiddenField name="priceChanges[${index}].priceBandId" value="${priceBand.id}" />
+
+                                            <g:textField name="priceChanges[${index}].price" value="${variantPrices.find { it.priceBand.id == priceBand.id }?.price}" class="form-control" />
+                                        </div>
+                                        <%
+                                            index++
+                                        %>
+                                    </g:each>
                                 </div>
                             </g:each>
                         </div>
                     </div>
                 </div>
-            </div>
+            </g:if>
+        </sec:ifAnyGranted>
+
+        <!-- Product ranges. -->
+        <sec:ifAnyGranted roles="ROLE_HEAD_OFFICE,ROLE_ENGINEER">
+            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                <div class="card bg-light border-wl accordion-card">
+                    <div class="card-header pointer" id="productRanges" data-toggle="collapse" data-target="#collapseRanges" aria-expanded="true" aria-controls="collapseRanges">
+                        <div class="row">
+                            <div class="col-10"><strong>Product Ranges</strong></div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseRanges" class="collapse collapsed" aria-labelledby="productRanges" data-parent="#accordion">
+                        <div class="card-body py-5">
+                            <div class="row mx-5">This product is assigned to the following product ranges:</div>
+
+                            <div class="row mx-5 mt-4">
+                                <%
+                                    def productRanges = product.ranges*.rangeId
+                                %>
+                                <g:each in="${ranges}" var="range">
+                                    <div class="col">
+                                        <label class="radio-container">${range.description}
+                                            <g:checkBox name="rangeId" id="rangeId" checked="${productRanges.contains(range.id)}" value="${range.id}" class="form-check-input" />
+
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                </g:each>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </g:if>
         </sec:ifAnyGranted>
 
         <!-- Product history. -->

@@ -6,6 +6,7 @@ import org.hibernate.Session
 import org.hibernate.Transaction
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
@@ -21,8 +22,8 @@ class ProductService extends MySqlDal {
     def springSecurityService
     def sessionFactory
 
-    ProductService(String host, int port, String database, String username, String password) {
-        super(host, port, database, username, password)
+    ProductService(DatabaseCredentials databaseCredentials) {
+        super(databaseCredentials)
     }
 
     def getProductVariant(int id) {

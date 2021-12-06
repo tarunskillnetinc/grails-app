@@ -20,7 +20,7 @@ class ProductVariant implements Serializable {
     boolean delete
 
     Collection<Pack> packs = new ArrayList<>()
-    Collection<Pack> tags = new ArrayList<>()
+//    Collection<Tag> tags = new ArrayList<>()
 
     static transients = ['delete']
 

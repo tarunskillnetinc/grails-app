@@ -6,7 +6,7 @@ class ButtonGrid {
 
     int id
     int retailerId
-    int storeId
+    Integer storeId
     ButtonGridType type
     String description
     int rows
@@ -30,7 +30,7 @@ class ButtonGrid {
 
     static constraints = {
         retailerId nullable: false
-        storeId nullable: false
+        storeId nullable: true
         type nullable: false
         description nullable: true, blank: true, maxSize: 45, validator: { val, obj ->
             if (obj.type == ButtonGridType.OTHER && !val) {

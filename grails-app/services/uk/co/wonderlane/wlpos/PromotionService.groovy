@@ -30,7 +30,13 @@ class PromotionService {
         }
 
         def allSkus = product.variants?.collect { it.sku }
-        def allTags = product.tags?.collect { it.id }
+
+        def tagCriteria = Tag.createCriteria()
+        def allTags = tagCriteria.list() {
+            tagProducts {
+                "in" ("sku", allSkus)
+            }
+        }
 
         def promotionCriteria = Promotion.createCriteria()
 

@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 
@@ -18,8 +19,8 @@ class ShiftService extends MySqlDal {
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
-    ShiftService(String host, int port, String database, String username, String password) {
-        super(host, port, database, username, password)
+    ShiftService(DatabaseCredentials databaseCredentials) {
+        super(databaseCredentials)
     }
 
     def getShifts(DateTime fromDate, DateTime toDate, Integer tillId) {

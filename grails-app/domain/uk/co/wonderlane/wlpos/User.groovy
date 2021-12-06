@@ -57,16 +57,6 @@ class User {
         retailerUserId nullable: true, maxSize: 30
     }
 
-//    def beforeInsert() {
-//        password = springSecurityService.encodePassword(password)
-//    }
-//
-//    def beforeUpdate() {
-//        if (isDirty("password")) {
-//            password = springSecurityService.encodePassword(password)
-//        }
-//    }
-
     public uk.co.wonderlane.wlpos.entities.User getUser() {
         uk.co.wonderlane.wlpos.entities.User user = new uk.co.wonderlane.wlpos.entities.User()
 

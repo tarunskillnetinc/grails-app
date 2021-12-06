@@ -22,11 +22,39 @@ class ButtonService {
     }
 
     def getButtonGrid(int buttonGridId) {
-        return ButtonGrid.findByIdAndRetailerIdAndStoreId(buttonGridId, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        return ButtonGrid.findByIdAndRetailerId(buttonGridId, springSecurityService.principal.retailerId)
     }
 
     def getButtonGrid(ButtonGridType type) {
-        return ButtonGrid.findByTypeAndRetailerIdAndStoreId(type, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def buttonGridCriteria = ButtonGrid.createCriteria()
+
+        def buttonGrids = buttonGridCriteria.list() {
+            eq ("type", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            or {
+                eq ("storeId", springSecurityService.principal.storeId)
+                isNull ("storeId")
+            }
+        }
+
+        return buttonGrids?.sort { storeId }?.last()
+    }
+
+    def getOtherButtonGrids() {
+        def buttonGridCriteria = ButtonGrid.createCriteria()
+
+        def buttonGrids = buttonGridCriteria.list() {
+            eq ("type", ButtonGridType.OTHER)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            or {
+                eq ("storeId", springSecurityService.principal.storeId)
+                isNull ("storeId")
+            }
+            order ("description")
+        }
+
+        // TODO Need to find the store override of each grid, if it exists, otherwise the null one.
+        return buttonGrids
     }
 
     def getAvailableProcesses() {

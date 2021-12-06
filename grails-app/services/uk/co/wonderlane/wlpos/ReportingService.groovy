@@ -22,7 +22,9 @@ class ReportingService {
 
         return salesCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeId != null) {
+                eq("storeId", springSecurityService.principal.storeId)
+            }
             between ("dateCreated", startDate, endDate)
         }
     }

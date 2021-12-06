@@ -127,11 +127,11 @@ class ProductController {
         productService.saveProductPrices(productPrices)
 
         priceUpdates.each { priceBandId, priceChanges ->
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0)
             syncMessage.setInsert(true)
             syncMessage.setProductPrices(priceChanges)
 
-            def stores = StoreSettings.findAllByRetailerIdAndPriceBand(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
+            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
 
             stores?.each { store ->
                 syncMessage.setStoreId(store.storeId)
@@ -223,8 +223,6 @@ class ProductController {
             product.variants?.each {
                 it.storeId = springSecurityService.principal.storeId
                 it.effectiveDate = now
-                it.createdUserId = springSecurityService.principal.id
-                it.updatedUserId = springSecurityService.principal.id
 
                 // TODO Won't work anymore.
 //                it.barcodes?.each { barcode ->
@@ -295,7 +293,7 @@ class ProductController {
             productService.saveProduct(product)
 
             def userRoles = springSecurityService.principal.authorities*.authority
-            if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+            if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
                 savePriceUpdates(product.variants?.findAll { it.storeId == null }, editedProduct.priceChanges)
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
@@ -318,6 +316,8 @@ class ProductController {
                 syncMessage.setProducts(products)
 
                 rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
+            } else {
+                def rangeProducts = RangeProduct.findAllByProductId(product.id)
             }
         }
 
@@ -355,6 +355,22 @@ class ProductController {
         }
 
         productService.saveProductPrices(changedProductPrices)
+
+        def priceChangesGroupedByPriceBand = changedProductPrices.groupBy { it.priceBand }
+        priceChangesGroupedByPriceBand?.each {
+            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key)
+
+            stores?.each { StoreSettings store ->
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, 0)
+                syncMessage.setInsert(true)
+
+                syncMessage.setProductPrices(it.value)
+
+                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
+            }
+        }
     }
 
     private void saveRangeUpdates(Product product, int[] savedRanges) {

@@ -207,14 +207,22 @@ environments:
                 username: root
                 password: Pa**W0rd01
                 database: wlpos
+            transactions:
+                host: localhost
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                database: transactions
         wlpos:
             imageDirectory: "D:\\WLPOS Files\\Platform\\Images\\"
             receiptImageDirectory: "D:\\WLPOS Files\\Platform\\Receipts\\"
             buttonImageDirectory: "D:\\WLPOS Files\\Platform\\Buttons\\"
+
     test:
         dataSource:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+
     piggy:
         dataSource:
             pooled: true
@@ -311,6 +319,12 @@ environments:
                 username: root
                 password: Pa**W0rd01
                 database: wlpos
+            transactions:
+                host: 192.168.2.108
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                database: transactions
 
     kermit:
         dataSource:
@@ -408,6 +422,12 @@ environments:
                 username: root
                 password: Pa**W0rd01
                 database: wlpos
+            transactions:
+                host: 192.168.2.107
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                database: transactions
 
     production:
         dataSource:
@@ -455,26 +475,26 @@ environments:
                     jdbcInterceptors: ConnectionState
                     defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
 
-rabbitmq:
-    host: localhost
-    port: 5672
-    apiPort: 15672
-    username: rabbituser
-    password: Pa**W0rd01
+        rabbitmq:
+            host: localhost
+            port: 5672
+            apiPort: 15672
+            username: rabbituser
+            password: Pa**W0rd01
 
-mysql:
-    wlpos:
-        host: localhost
-        port: 3306
-        username: root
-        password: Pa**W0rd01
-        database: wlpos
-    transactions:
-        host: localhost
-        port: 3306
-        username: root
-        password: Pa**W0rd01
-        database: transactions
+        mysql:
+            wlpos:
+                host: localhost
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                database: wlpos
+            transactions:
+                host: localhost
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                database: transactions
 
 wlpos:
     imageDirectory: "/opt/BackOffice/Images/"
