@@ -56,7 +56,7 @@
 
                 <g:if test="${shift.reconciliationTotals.sum { it.variance } ?: 0 != 0}">
                     <div class="row ml-0 mr-0 pt-5 pb-2">
-                        <p class="mx-auto">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance }}" type="currency" />.</p>
+                        <p class="mx-auto">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance.abs() }}" type="currency" />.</p>
                     </div>
                     <div class="row ml-0 mr-0 pt-2 pb-2">
                         <p class="mx-auto">Please select a reason:</p>

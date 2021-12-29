@@ -5,6 +5,8 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
+import uk.co.wonderlane.wlpos.entities.cash.Snapshot
+import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
 
@@ -12,6 +14,7 @@ class ShiftController {
 
     def springSecurityService
     def shiftService
+    def snapshotService
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
@@ -130,6 +133,9 @@ class ShiftController {
             shift.reconciliationTotals.add(vouchersTotal)
         }
 
+        vouchersTotal.value = cashUpCommand.vouchersTotal
+        vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll {it.tenderType == TenderType.VOUCHER }?.sum{ it.value } ?: BigDecimal.ZERO)
+
         shiftService.saveShift(shift)
 
         render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values() ])
@@ -156,6 +162,31 @@ class ShiftController {
         }
 
         shiftService.saveShift(shift)
+
+        Snapshot latestSnapshot = snapshotService.getSafeSnapshot()
+        ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
+        if (cashTotal != null) {
+            TenderTotal cashExpected = latestSnapshot.expectedTotals.find{it.tenderType == TenderType.CASH} ?: null
+            if (cashExpected == null) {
+                cashExpected = new TenderTotal(TenderType.CASH)
+                latestSnapshot.expectedTotals.add(cashExpected)
+            }
+
+            cashExpected.value = cashExpected.value.add(cashTotal.value)
+        }
+
+        ReconciliationTotal voucherTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
+        if (voucherTotal != null) {
+            TenderTotal voucherExpected = latestSnapshot.expectedTotals.find{it.tenderType == TenderType.VOUCHER} ?: null
+            if (voucherExpected == null) {
+                voucherExpected = new TenderTotal(TenderType.VOUCHER)
+                latestSnapshot.expectedTotals.add(voucherExpected)
+            }
+
+            voucherExpected.value = voucherExpected.value.add(voucherTotal.value)
+        }
+
+        snapshotService.saveSnapshot(latestSnapshot)
 
         render(template: "cashUpSummaryModal", model: [ shift: shift ])
     }

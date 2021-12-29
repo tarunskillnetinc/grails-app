@@ -4,6 +4,7 @@ import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
 import uk.co.wonderlane.wlpos.StoreNumberValidatorService
 import uk.co.wonderlane.wlpos.ProductService
 import uk.co.wonderlane.wlpos.ShiftService
+import uk.co.wonderlane.wlpos.SnapshotService
 import uk.co.wonderlane.wlpos.GroupService
 import uk.co.wonderlane.wlpos.BackOfficeRabbitService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
@@ -49,6 +50,18 @@ beans = {
                     grailsApplication.config.getProperty('mysql.transactions.password'),
                     grailsApplication.config.getProperty('mysql.transactions.database'))
             ) {
+
+        springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
+    }
+
+    snapshotService(SnapshotService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))
+    ) {
 
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")

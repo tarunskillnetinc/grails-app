@@ -74,6 +74,6 @@
     </div>
 
     <div class="row form-group mb-4">
-        <g:render template="textField" model="[name: 'vouchersTotal', label: 'Vouchers', value: values?.vouchersTotal ?: 0.00]" />
+        <g:render template="/shift/textField" model="[name: 'vouchersTotal', label: 'Vouchers', value: values?.vouchersTotal ?: 0.00]" />
     </div>
 </g:form>
