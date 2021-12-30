@@ -34,7 +34,7 @@ class User {
         retailerId column: "retailerId", sqlType: "tinyint"
         username column: "username"
         password column: "password"
-        defaultStoreId column: "defaultStoreId"
+        defaultStoreId column: "defaultStoreId", sqlType: "smallint"
         name column: "`name`"
         dateOfBirth column: "dateOfBirth"
         active column: "`active`"

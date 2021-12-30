@@ -146,9 +146,10 @@ class TagController {
                 throw new Exception("Rabbit MQ not available")
             }
 
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.TAG, springSecurityService.principal.retailerId, 0, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.TAG, springSecurityService.principal.retailerId, 0, 0, 0)
             syncMessage.setInsert(true)
             syncMessage.setTag(tag.getTag())
+
             rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
         } catch (Exception e) {
             e.printStackTrace()

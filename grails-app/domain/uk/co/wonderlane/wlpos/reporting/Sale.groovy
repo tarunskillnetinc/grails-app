@@ -43,8 +43,8 @@ class Sale {
         version false
 
         quantity column: "quantity"
-        retailerId column: "retailerId"
-        storeId column: "storeId"
+        retailerId column: "retailerId", sqlType: "tinyint"
+        storeId column: "storeId", sqlType: "smallint"
         tillId column: "tillId"
         costPrice column: "costPrice"
         retailPrice column: "retailPrice"

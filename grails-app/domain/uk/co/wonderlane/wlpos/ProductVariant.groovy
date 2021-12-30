@@ -31,7 +31,7 @@ class ProductVariant implements Serializable {
         version false
 
         product column: "productId"
-        storeId column: "storeId"
+        storeId column: "storeId", sqlType: "smallint"
         sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"

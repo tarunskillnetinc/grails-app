@@ -23,7 +23,7 @@ class Receipt {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "storeId"
+        storeId column: "storeId", sqlType: "smallint"
         tillId column: "tillId"
         transactionId column: "transactionId"
         usersName column: "usersName"

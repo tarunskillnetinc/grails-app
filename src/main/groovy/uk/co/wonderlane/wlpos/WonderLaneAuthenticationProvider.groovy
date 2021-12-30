@@ -31,13 +31,18 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
             if (!roles.contains("ROLE_ENGINEER") && !roles.contains("ROLE_HEAD_OFFICE")) {
                 throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.notHeadOffice", "You are not permitted to log in at head office level."))
             }
-        } else if (!(userDetails instanceof WonderLaneUserDetails) && !wonderLaneAuthenticationDetails.storeId || wonderLaneAuthenticationDetails.storeId.length() > 10 || !wonderLaneAuthenticationDetails.storeId.isNumber() || ((userDetails instanceof WonderLaneUserDetails) && !storeNumberValidator.isValidStoreNumber(((WonderLaneUserDetails)userDetails).retailerId, Integer.parseInt(wonderLaneAuthenticationDetails.storeId)))) {
-            throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.badStoreId", "Store number not recognised."))
-        }
+        } else if (userDetails instanceof WonderLaneUserDetails && wonderLaneAuthenticationDetails.storeId.length() < 10 && wonderLaneAuthenticationDetails.storeId.isNumber()) {
+            def storeId = storeNumberValidator.getStoreId(((WonderLaneUserDetails)userDetails).retailerId, Integer.parseInt(wonderLaneAuthenticationDetails.storeId))
 
-        // Add the store number to our user details object.
-        if (userDetails instanceof WonderLaneUserDetails && wonderLaneAuthenticationDetails.storeId) {
-            ((WonderLaneUserDetails)userDetails).storeId = Integer.parseInt(wonderLaneAuthenticationDetails.storeId)
+            if (storeId > 0) {
+                // Add the store number and store ID to our user details object.
+                ((WonderLaneUserDetails)userDetails).storeNumber = Integer.parseInt(wonderLaneAuthenticationDetails.storeId)
+                ((WonderLaneUserDetails)userDetails).storeId = storeId
+            } else {
+                throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.storeNotFound", "Store number not found."))
+            }
+        } else {
+            throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.badStoreId", "Invalid store number."))
         }
     }
 }

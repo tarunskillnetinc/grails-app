@@ -25,7 +25,7 @@ class Supplier {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "storeId"
+        storeId column: "storeId", sqlType: "smallint"
         name column: "name"
         reference column: "reference"
         contactName column: "contactName"

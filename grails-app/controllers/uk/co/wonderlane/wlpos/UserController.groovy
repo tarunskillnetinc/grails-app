@@ -59,11 +59,11 @@ class UserController {
             List<uk.co.wonderlane.wlpos.entities.User> users = new ArrayList<uk.co.wonderlane.wlpos.entities.User>()
             users.add(user.getUser())
 
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.USER, springSecurityService.principal.retailerId, springSecurityService.principal.storeId, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.USER, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
             syncMessage.setInsert(true)
             syncMessage.setUsers(users)
 
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreId()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
 
             redirect (action: "index")
         } else {

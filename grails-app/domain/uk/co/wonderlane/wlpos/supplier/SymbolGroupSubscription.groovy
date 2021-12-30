@@ -27,7 +27,7 @@ class SymbolGroupSubscription {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "storeId"
+        storeId column: "storeId", sqlType: "smallint"
         symbolGroup column: "symbolGroupId"
         active column: "active"
         storeIdentifier column: "storeIdentifier"

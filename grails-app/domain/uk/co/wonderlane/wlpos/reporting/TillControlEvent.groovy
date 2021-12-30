@@ -28,8 +28,8 @@ class TillControlEvent {
         version false
 
         id column: "id"
-        retailerId column: "retailerId"
-        storeId column: "storeId"
+        retailerId column: "retailerId", sqlType: "tinyint"
+        storeId column: "storeId", sqlType: "smallint"
         tillId column: "tillId"
         transactionId column: "transactionId"
         type column: "`type`"

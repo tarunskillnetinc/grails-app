@@ -20,7 +20,7 @@ class ButtonGrid {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "storeId"
+        storeId column: "storeId", sqlType: "smallint"
         type sqlType: "enum", enumType: "string"
         description column: "`description`"
         rows column: "`rows`"

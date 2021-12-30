@@ -45,7 +45,7 @@ class StoreSettings {
 
         id column: "id", sqlType: "smallint"
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "storeId"
+        storeId column: "storeId", sqlType: "smallint"
         receiptMessage1 column: "receiptMessage1"
         receiptMessage2 column: "receiptMessage2"
         vatRegistrationNumber column: "vatRegistrationNumber"
