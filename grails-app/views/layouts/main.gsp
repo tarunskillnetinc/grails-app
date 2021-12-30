@@ -30,7 +30,7 @@
             <div class="col-12 col-sm-9 text-right">
                 <span style="margin-right: 50px;">Store:&nbsp;
                     <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                        <sec:loggedInUserInfo field="storeId" />
+                        <sec:loggedInUserInfo field="storeNumber" />
                     </g:if>
                     <g:else>
                         Head Office
@@ -78,9 +78,11 @@
 
                                 <div class="dropdown-menu" aria-labelledby="productsDropdown">
                                     <g:link controller="product" class="dropdown-item">Product Maintenance</g:link>
-                                    <div class="dropdown-divider"></div>
-                                    <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
-                                    <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                    <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                        <div class="dropdown-divider"></div>
+                                        <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
+                                        <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                    </sec:ifAnyGranted>
                                 </div>
                             </div>
 

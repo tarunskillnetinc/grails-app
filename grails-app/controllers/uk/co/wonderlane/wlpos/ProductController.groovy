@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.annotation.Secured
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -68,6 +69,7 @@ class ProductController {
         render(template: "/product/maintenanceSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
         def categories = categoryService.getFullCategoryHierarchy()
         def tags = tagService.getTags()
@@ -76,6 +78,7 @@ class ProductController {
         [categories: categories, tags: tags, priceBands: priceBands]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def pricesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
@@ -87,6 +90,7 @@ class ProductController {
         render(template: "/product/pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
         def categories = categoryService.getFullCategoryHierarchy()
         def tags = tagService.getTags()
@@ -95,6 +99,7 @@ class ProductController {
         [categories: categories, tags: tags, ranges: ranges]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def rangesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
@@ -106,6 +111,7 @@ class ProductController {
         render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
         def now = DateTime.now(DateTimeZone.UTC)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
@@ -144,6 +150,7 @@ class ProductController {
         render "OK"
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveRangeProducts(SaveRangeProductsCommand cmd) {
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
 

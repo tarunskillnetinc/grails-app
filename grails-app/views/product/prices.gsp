@@ -42,6 +42,9 @@
             }
 
             function savePriceChanges() {
+                var saveButton = $("save-changes-button");
+                saveButton.prop("disabled", true);
+
                 var data = { };
 
                 var checkedBoxes = $("input:checked");
@@ -67,7 +70,13 @@
                     method: "POST",
                     data: data,
                     success: function(resp) {
-                        alert("OK");
+                        $('#confirmModal').modal({ show: true });
+
+                        checkedBoxes.each(function(i, checkbox) {
+                            $(checkbox).prop("checked", false);
+                        });
+
+                        saveButton.prop("disabled", false);
                     }
                 });
             }
@@ -145,7 +154,7 @@
                 </div>
 
                 <div class="col-2 offset-5 text-right">
-                    <button class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
+                    <button id="save-changes-button" class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
                 </div>
             </div>
 
@@ -159,6 +168,25 @@
 
             <div id="search-results" class="align-content-center">
                 <g:render template="pricesSearchResults" />
+            </div>
+        </section>
+
+        <!-- Confirmation modal -->
+        <section id="confirm-modal" class="container-fluid">
+            <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Success</h2>
+                        </div>
+
+                        <div class="modal-body">Price changes saved successfully.</div>
+
+                        <div class="modal-footer">
+                            <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </body>
