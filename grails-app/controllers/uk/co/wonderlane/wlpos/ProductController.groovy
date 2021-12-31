@@ -26,8 +26,23 @@ class ProductController {
     def show(int id) {
         def product = productService.getProduct(id)
 
+        if (!product) {
+            flash.message = "Product not found"
+            redirect(action: "index")
+            return
+        }
+
         def ranges = []
         def priceBands = []
+
+        def productCategoryList = []
+
+        def category = product.category
+        while (category) {
+            productCategoryList.add(category.id)
+
+            category = category.parentCategory
+        }
 
         def userRoles = springSecurityService.principal.authorities*.authority
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
@@ -39,6 +54,7 @@ class ProductController {
                                     storeId: springSecurityService.principal.storeId,
                                     statusValues: ProductStatus.values(),
                                     categoryValues: categoryService.getFullCategoryHierarchy(),
+                                    productCategoryList: productCategoryList,
                                     vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges: ranges,
                                     priceBands: priceBands,
@@ -258,7 +274,7 @@ class ProductController {
             product.itemCode = editedProduct.itemCode
             product.description = editedProduct.description
             product.receiptDescription = editedProduct.receiptDescription
-            //product.category = editedProduct.category // TODO
+            product.category = editedProduct.category
             product.unitSize = editedProduct.unitSize
             product.weightedItem = editedProduct.weightedItem
             product.openPrice = editedProduct.openPrice

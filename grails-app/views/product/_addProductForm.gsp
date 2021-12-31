@@ -43,6 +43,7 @@
 
                                 <div class="col-lg-9 pt-2" style="max-height: 300px; overflow-y: scroll;">
                                     <g:render template="categorySelect" model="[categories: categoryValues, selectedCategoryId: product?.category?.id, level: 1]" />
+                                    <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1]" />
                                 </div>
                             </div>
                         </div>

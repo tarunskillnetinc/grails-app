@@ -429,6 +429,7 @@
                                                         storeId: storeId,
                                                         statusValues: statusValues,
                                                         categoryValues: categoryValues,
+                                                        productCategoryList: productCategoryList,
                                                         vatValues: vatValues,
                                                         isNewProduct: isNewProduct]"/>
         </section>
