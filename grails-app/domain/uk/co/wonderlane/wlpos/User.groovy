@@ -48,7 +48,7 @@ class User {
         username nullable: false, blank: false, minSize: 3, maxSize: 40
         password nullable: false, blank: false, password: true, minSize: 5, maxSize: 70
         defaultStoreId nullable: false
-        name nullable: true, maxSize: 50
+        name nullable: false, maxSize: 50
         dateOfBirth nullable: true
         active nullable: false
         ageRelatedSaleAllowed nullable: true
