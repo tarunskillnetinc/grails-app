@@ -13,14 +13,15 @@ class StoreSettingsController {
     def gsonProvider
 
     def index() {
-        def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def availableProductRanges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availablePrintReceiptOptions: PrintReceiptOption.values()]
+        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values()]
     }
 
     def save() {
-        def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
         bindData(storeSettings, params)
 
@@ -44,7 +45,10 @@ class StoreSettingsController {
 
             redirect(action: "index")
         } else {
-            render(view: "index", model: [storeSettings: storeSettings, availablePrintReceiptOptions: PrintReceiptOption.values()])
+            def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+            def availableProductRanges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+            render(view: "index", model: [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values()])
         }
     }
 }

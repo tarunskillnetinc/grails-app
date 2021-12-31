@@ -35,7 +35,10 @@ class ProductService extends MySqlDal {
     def getProductVariant(long sku) {
         return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
             eq ("sku", sku)
-            eq ("storeId", springSecurityService.principal.storeId)
+            or {
+                isNull("storeId")
+                eq("storeId", springSecurityService.principal.storeId)
+            }
             lte ("effectiveDate", DateTime.now(DateTimeZone.UTC))
             product {
                 eq ("retailerId", springSecurityService.principal.retailerId)
@@ -49,7 +52,10 @@ class ProductService extends MySqlDal {
 
         return criteria.list {
             "in" ("sku", skus)
-            eq ("storeId", springSecurityService.principal.storeId)
+            or {
+                isNull("storeId")
+                eq("storeId", springSecurityService.principal.storeId)
+            }
             lte ("effectiveDate", DateTime.now(DateTimeZone.UTC))
             product {
                 eq ("retailerId", springSecurityService.principal.retailerId)

@@ -39,25 +39,33 @@
         </section>
 
         <section id="add-user-section" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Add User</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">Add User</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+
+                    <button class="btn btn-success" name="save" onclick="$('#add-user-form').submit();">Save</button>
+                </div>
             </div>
 
             <g:if test="${flash.message}">
-                <section id="errors-container" class="container-fluid">
+                <section id="errors-container">
                     <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
                 </section>
             </g:if>
 
             <g:hasErrors bean="${user}">
-                <section id="errors-container" class="container-fluid">
+                <section id="errors-container">
                     <div class="alert alert-danger alert-wl mx-0" role="alert">
                         <g:renderErrors bean="${user}" as="list" />
                     </div>
                 </section>
             </g:hasErrors>
 
-            <g:form name="save-button" action="save" novalidate="novalidate" class="mt-4">
+            <g:form name="add-user-form" action="save" novalidate="novalidate" class="mt-4">
                 <g:hiddenField name="id" value="${user?.id ?: 0}" />
 
                 <div class="form-group row col-12 col-lg-6">
@@ -109,14 +117,6 @@
                 <div class="form-group row col-12 col-lg-6">
                     <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
                     <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" autocomplete="off" />
-                </div>
-
-                <div class="form-group row col-12 col-lg-6">
-                    <div class="offset-lg-4">
-                        <g:link controller="user" action="index" role="button" class="btn btn-danger">Cancel</g:link>
-
-                        <g:submitButton class="btn btn-success" name="save" value="Save" />
-                    </div>
                 </div>
             </g:form>
         </section>

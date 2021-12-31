@@ -384,9 +384,18 @@
             </nav>
         </section>
 
-        <div class="header-wl mt-3">
-            <h2 class="mx-auto">Product Maintenance</h2>
-        </div>
+        <section id="header-container" class="container-fluid">
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">Product Maintenance</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <button class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
+                </div>
+            </div>
+        </section>
 
         <g:hasErrors bean="${product}">
             <section id="errors-container" class="container-fluid">
@@ -431,7 +440,9 @@
                                                         categoryValues: categoryValues,
                                                         productCategoryList: productCategoryList,
                                                         vatValues: vatValues,
-                                                        isNewProduct: isNewProduct]"/>
+                                                        ranges: ranges,
+                                                        priceBands: priceBands,
+                                                        isNewProduct: isNewProduct]" />
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

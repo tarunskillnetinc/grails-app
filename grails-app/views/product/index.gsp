@@ -69,8 +69,14 @@
         </g:if>
 
         <section id="maintenance-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Product Search</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">Product Search</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link controller="product" action="add" class="btn btn-wl">Add New Product</g:link>
+                </div>
             </div>
 
             <div class="row mt-4 ml-0 mr-0">
@@ -81,10 +87,6 @@
                         <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
                         <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="searchButtonClicked()" class="wl-search-button" />
                     </div>
-                </div>
-
-                <div class="col-2 px-0 text-right">
-                    <g:link controller="product" action="add" class="btn btn-wl">Add New Product</g:link>
                 </div>
             </div>
 

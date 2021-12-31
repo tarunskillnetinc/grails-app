@@ -34,7 +34,7 @@ class CategoryService {
     }
 
     def getFullCategoryHierarchy() {
-        return Category.findAllByRetailerIdAndParentCategory(springSecurityService.principal.retailerId, null, [sort: 'description', order: 'asc'])
+        return Category.findAllByRetailerIdAndParentCategoryIsNull(springSecurityService.principal.retailerId, [sort: 'description', order: 'asc'])
     }
 
     def getAllCategories() {

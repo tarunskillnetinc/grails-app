@@ -50,8 +50,14 @@
         </section>
 
         <section id="users-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">User Management</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto">User Management</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link controller="user" action="add" class="btn btn-wl">Add New User</g:link>
+                </div>
             </div>
 
             <g:if test="${flash.message}">
@@ -66,10 +72,6 @@
                         <g:select id="userSearchBy" name="userSearchBy" from="${['everything']}" value="everything" valueMessagePrefix="UserSearchBy" class="form-control select-border" style="z-index: 0;" />
                         <asset:image src="search.png" id="userSearchButton" name="userSearchButton" onclick="search()" class="wl-search-button" />
                     </div>
-                </div>
-
-                <div class="col-2 text-right px-0">
-                    <g:link controller="user" action="add" class="btn btn-wl">Add New User</g:link>
                 </div>
             </div>
 

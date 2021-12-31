@@ -62,7 +62,7 @@ class ProductVariant implements Serializable {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def storeSettings = StoreSettings.findByStoreId(storeId)
+            def storeSettings = storeId ? StoreSettings.findById(storeId) : StoreSettings.findByRetailerIdAndStoreIdIsNull(product.retailerId)
             def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
 
             return productPrice?.price ?: BigDecimal.ZERO

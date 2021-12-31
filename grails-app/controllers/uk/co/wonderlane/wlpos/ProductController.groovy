@@ -62,10 +62,21 @@ class ProductController {
     }
 
     def add() {
+        def ranges = []
+        def priceBands = []
+
+        def userRoles = springSecurityService.principal.authorities*.authority
+        if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+            priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+            ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+        }
+
         render(view: "add", model: [storeId: springSecurityService.principal.storeId,
                                     statusValues: ProductStatus.values(),
                                     categoryValues: categoryService.getFullCategoryHierarchy(),
                                     vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    ranges: ranges,
+                                    priceBands: priceBands,
                                     isNewProduct: true])
     }
 
@@ -89,7 +100,7 @@ class ProductController {
     def prices() {
         def categories = categoryService.getFullCategoryHierarchy()
         def tags = tagService.getTags()
-        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         [categories: categories, tags: tags, priceBands: priceBands]
     }
@@ -101,7 +112,7 @@ class ProductController {
         Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
 
         def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
-        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "/product/pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
     }
@@ -110,7 +121,7 @@ class ProductController {
     def ranges() {
         def categories = categoryService.getFullCategoryHierarchy()
         def tags = tagService.getTags()
-        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         [categories: categories, tags: tags, ranges: ranges]
     }
@@ -122,7 +133,7 @@ class ProductController {
         Integer tagId = params.tag ? Integer.parseInt(params.tag) : null
 
         def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, tagId)
-        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])
     }
@@ -509,9 +520,15 @@ class AddVariantCommand {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def storeSettings = StoreSettings.findByStoreId(springSecurityService.principal.storeId)
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
+            def storeSettings
 
+            if (springSecurityService.principal.storeId) {
+                storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            } else {
+                storeSettings = StoreSettings.findByRetailerIdAndStoreIdIsNull(springSecurityService.principal.retailerId)
+            }
+
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
 
             return productPrice?.price ?: BigDecimal.ZERO
         }

@@ -1,4 +1,4 @@
-<g:form method="post" action="save">
+<g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
     <div id="accordion">
@@ -42,7 +42,6 @@
                                 <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
 
                                 <div class="col-lg-9 pt-2" style="max-height: 300px; overflow-y: scroll;">
-                                    <g:render template="categorySelect" model="[categories: categoryValues, selectedCategoryId: product?.category?.id, level: 1]" />
                                     <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1]" />
                                 </div>
                             </div>
@@ -357,12 +356,12 @@
 
                             <div class="row mx-5 mt-4">
                                 <%
-                                    def productRanges = product.ranges*.rangeId
+                                    def productRanges = product?.ranges*.rangeId
                                 %>
                                 <g:each in="${ranges}" var="range">
                                     <div class="col">
                                         <label class="radio-container">${range.description}
-                                            <g:checkBox name="rangeId" id="rangeId" checked="${productRanges.contains(range.id)}" value="${range.id}" class="form-check-input" />
+                                            <g:checkBox name="rangeId" id="rangeId" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
 
                                             <span class="checkmark"></span>
                                         </label>
@@ -394,10 +393,5 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row my-5">
-        <g:actionSubmit action="index" type="button" class="btn btn-danger col-1 offset-1" value="Cancel"/>
-        <g:actionSubmit action="save" name="save-button" value="Save" class="btn btn-success col-1 offset-8"/>
     </div>
 </g:form>

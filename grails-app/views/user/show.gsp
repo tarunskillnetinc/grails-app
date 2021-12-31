@@ -22,8 +22,14 @@
         </section>
 
         <section id="add-user-section" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">View User</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">View User</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                </div>
             </div>
 
             <g:if test="${flash.message}">
@@ -78,12 +84,6 @@
                 <div class="form-group row col-12 col-lg-6">
                     <label for="retailerUserId" class="col-4 col-form-label text-right pr-4">Retailer User ID</label>
                     <g:textField name="retailerUserId" class="col-5 form-control bottom-border" value="${user?.retailerUserId}" disabled="disabled" />
-                </div>
-
-                <div class="form-group row col-12 col-lg-6">
-                    <div class="offset-lg-4">
-                        <g:link controller="user" action="index" role="button" class="btn btn-danger">Cancel</g:link>
-                    </div>
                 </div>
             </g:if>
         </section>
