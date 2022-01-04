@@ -382,6 +382,6 @@ class PromotionController {
     }
 
     def ajaxGetPromotionsForProduct() {
-        render (view: "/product/_promotions", model: [promotions: promotionService.getPromotionsForProduct(Integer.parseInt(params.productId))])
+        render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
     }
 }
