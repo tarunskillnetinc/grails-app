@@ -190,14 +190,14 @@
                                 <div class="form-group row">
                                     <label for="priceBand.id" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Price Band</label>
                                     <div class="col-7 col-lg-2">
-                                        <g:select name="priceBand.id" from="${availablePriceBands}" value="${storeSettings?.priceBand?.id}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                        <g:select name="priceBand.id" from="${availablePriceBands}" value="${storeSettings?.priceBand?.id}" optionValue="description" optionKey="id" class="form-control select-border" disabled="${sec.ifAnyGranted([roles:'ROLE_ENGINEER,ROLE_HEAD_OFFICE'])}" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="range.id" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Product Range</label>
                                     <div class="col-7 col-lg-2">
-                                        <g:select name="range.id" from="${availableProductRanges}" value="${storeSettings?.range?.id}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                        <g:select name="range.id" from="${availableProductRanges}" value="${storeSettings?.range?.id}" optionValue="description" optionKey="id" class="form-control select-border" disabled="${sec.ifAnyGranted([roles:'ROLE_ENGINEER,ROLE_HEAD_OFFICE'])}" />
                                     </div>
                                 </div>
                             </div>
