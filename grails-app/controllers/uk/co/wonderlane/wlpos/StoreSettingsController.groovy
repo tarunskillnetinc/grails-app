@@ -26,7 +26,7 @@ class StoreSettingsController {
         bindData(storeSettings, params)
 
         storeSettings.retailerId = springSecurityService.principal.retailerId
-        storeSettings.storeId = springSecurityService.principal.storeId
+        storeSettings.id = springSecurityService.principal.storeId
 
         if (storeSettings.validate()) {
             storeSettingsService.saveStoreSettings(storeSettings)
