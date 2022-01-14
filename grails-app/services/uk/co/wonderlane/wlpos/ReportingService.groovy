@@ -35,12 +35,22 @@ class ReportingService {
                                 FROM Sale s
                                 JOIN SaleCategory sc ON s.id = sc.sales
                                 WHERE sc.categoryId = :categoryId
-                                AND s.retailerId = :retailerId
-                                AND s.storeId = :storeId
-                                AND s.dateCreated >= :startDate
-                                AND s.dateCreated <= :endDate"""
+                                AND s.retailerId = :retailerId """
 
-        return Sale.executeQuery(searchQuery, [categoryId: categoryId, retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, startDate: startDate, endDate: endDate])
+        if (springSecurityService.principal.storeId != null) {
+            searchQuery += """AND s.storeId = :storeId """
+        }
+
+        searchQuery += """AND s.dateCreated >= :startDate
+                          AND s.dateCreated <= :endDate"""
+
+        def queryParams = [categoryId: categoryId, retailerId: springSecurityService.principal.retailerId, startDate: startDate, endDate: endDate]
+
+        if (springSecurityService.principal.storeId != null) {
+            queryParams.storeId = springSecurityService.principal.storeId
+        }
+
+        return Sale.executeQuery(searchQuery, queryParams)
     }
 
     def getSaleCategory(int categoryId) {
@@ -70,27 +80,47 @@ class ReportingService {
         String searchQuery = """SELECT s
                                 FROM Sale s
                                 WHERE s.productId = :productId
-                                AND s.retailerId = :retailerId
-                                AND s.storeId = :storeId
-                                AND s.dateCreated >= :startDate
-                                AND s.dateCreated < :endDate
-                                AND CONCAT(s.productItemCode, s.productDescription) LIKE :descriptionFilter
-                                ORDER BY ${sort}"""
+                                AND s.retailerId = :retailerId """
 
-        return Sale.executeQuery(searchQuery, [productId: productId, retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate, max: maxResults, offset: startIndex])
+        if (springSecurityService.principal.storeId != null) {
+            searchQuery += """AND s.storeId = :storeId """
+        }
+
+        searchQuery += """AND s.dateCreated >= :startDate
+                          AND s.dateCreated < :endDate
+                          AND CONCAT(s.productItemCode, s.productDescription) LIKE :descriptionFilter
+                          ORDER BY ${sort}"""
+
+        def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate, max: maxResults, offset: startIndex]
+
+        if (springSecurityService.principal.storeId != null) {
+            queryParams.storeId = springSecurityService.principal.storeId
+        }
+
+        return Sale.executeQuery(searchQuery, queryParams)
     }
 
     def countSalesForProduct(int productId, Date startDate, Date endDate, String descriptionFilter) {
         String searchQuery = """SELECT COUNT(s)
                                 FROM Sale s
                                 WHERE s.productId = :productId
-                                AND s.retailerId = :retailerId
-                                AND s.storeId = :storeId
-                                AND s.dateCreated >= :startDate
-                                AND s.dateCreated < :endDate
-                                AND CONCAT(s.productItemCode, s.productDescription) LIKE :descriptionFilter"""
+                                AND s.retailerId = :retailerId """
 
-        return Sale.executeQuery(searchQuery, [productId: productId, retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate])[0]
+        if (springSecurityService.principal.storeId != null) {
+            searchQuery += """AND s.storeId = :storeId """
+        }
+
+        searchQuery += """AND s.dateCreated >= :startDate
+                          AND s.dateCreated < :endDate
+                          AND CONCAT(s.productItemCode, s.productDescription) LIKE :descriptionFilter"""
+
+        def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate]
+
+        if (springSecurityService.principal.storeId != null) {
+            queryParams.storeId = springSecurityService.principal.storeId
+        }
+
+        return Sale.executeQuery(searchQuery, queryParams)[0]
     }
 
     // For promotions grouped report. No pagination here as we're going to group them, but the filtering can be done in the database.
@@ -99,7 +129,9 @@ class ReportingService {
 
         return promotionsCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeId != null) {
+                eq("storeId", springSecurityService.principal.storeId)
+            }
             if (descriptionFilter) {
                 like ("description", "%"+descriptionFilter+"%")
             }
@@ -116,7 +148,9 @@ class ReportingService {
 
         def results = promotionsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeId != null) {
+                eq("storeId", springSecurityService.principal.storeId)
+            }
             between ("dateCreated", startDate, endDate)
             eq ("promotionId", promotionId)
         }
@@ -135,7 +169,9 @@ class ReportingService {
         def results = promotionProductsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             promotion {
                 eq ("retailerId", springSecurityService.principal.retailerId)
-                eq ("storeId", springSecurityService.principal.storeId)
+                if (springSecurityService.principal.storeId != null) {
+                    eq("storeId", springSecurityService.principal.storeId)
+                }
                 eq ("id", promotionSaleId)
             }
             if (productFilter) {
@@ -159,7 +195,9 @@ class ReportingService {
         return promotionSaleCriteria.get() {
             eq ("id", promotionSaleId)
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeId != null) {
+                eq("storeId", springSecurityService.principal.storeId)
+            }
         }
     }
 
@@ -168,7 +206,9 @@ class ReportingService {
 
         return tillControlEventsCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeId != null) {
+                eq ("storeId", springSecurityService.principal.storeId)
+            }
             between ("dateCreated", startDate, endDate)
         }
     }
@@ -179,7 +219,11 @@ class ReportingService {
         def results = tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             eq ("type", type)
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+
+            if (springSecurityService.principal.storeId != null) { // TODO OR storeId is passed in as a filter (to be added).
+                eq("storeId", springSecurityService.principal.storeId)
+            }
+
             between ("dateCreated", startDate, endDate)
         }
 

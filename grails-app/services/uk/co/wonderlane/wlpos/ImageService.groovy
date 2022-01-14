@@ -68,15 +68,16 @@ class ImageService {
         }
     }
 
-    def getImageFromFile(String directory, String filename) {
-        if (directory != null && !directory.isEmpty() && filename != null && !filename.isEmpty()) {
-            File file = new File(directory + filename)
+    def getImageFromFile(String filename) {
+        if (filename != null && !filename.isEmpty()) {
+            File file = new File(filename)
             if (file.exists()) {
                 return file.getBytes()
             } else {
                 return null
             }
         }
+
         return null
     }
 

@@ -31,7 +31,11 @@ class ShiftService extends MySqlDal {
 
         try {
             getShiftsStatement.setInt(1, springSecurityService.principal.retailerId)
-            getShiftsStatement.setInt(2, springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeId != null) {
+                getShiftsStatement.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                getShiftsStatement.setNull(2, Types.INTEGER)
+            }
 
             if (tillId != null) {
                 getShiftsStatement.setInt(3, tillId)

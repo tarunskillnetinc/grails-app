@@ -28,7 +28,8 @@ class ProductListItem {
 
     static constraints = {
         productVariant nullable: false
-        productBalanceOnHand nullable: true
+        productQuantityShopFloor nullable: true
+        productQuantityStockroom nullable: true
         quantity nullable: true
         fillQuantity nullable: false
         parentQuantity nullable: true

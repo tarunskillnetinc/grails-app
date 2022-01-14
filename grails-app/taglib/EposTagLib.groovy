@@ -1,8 +1,8 @@
-import uk.co.wonderlane.wlpos.ButtonGrid
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.Category
-import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.reporting.ReportType
+
+import java.nio.file.Path
 
 class EposTagLib {
 
@@ -12,6 +12,7 @@ class EposTagLib {
     def categoryService
     def productService
     def promotionService
+    def imageService
 
     def quicksellMenu = { attrs, body ->
         def buttonGrids = buttonService.getOtherButtonGrids()
@@ -72,27 +73,47 @@ class EposTagLib {
 
                 break;
             case ReportType.SALES_CATEGORY:
-                def categories = categoryService.getCategoryHierarchy(attrs.categoryId)
+                def category = categoryService.getCategory(attrs.categoryId)
+
+                def hierarchy = [category]
+
+                while (category.parentCategory != null) {
+                    hierarchy.add(category.parentCategory)
+
+                    category = category.parentCategory
+                }
+
+                hierarchy = hierarchy.reverse()
 
                 out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
 
-                categories.each { category ->
-                    if (category.id == attrs.categoryId) {
-                        out << """<li class="breadcrumb-item active" aria-current="page">${category.description}</li>"""
+                hierarchy.each { cat ->
+                    if (cat.id == attrs.categoryId) {
+                        out << """<li class="breadcrumb-item active" aria-current="page">${cat.description}</li>"""
                     } else {
-                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: category.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { category.description }}"""
+                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat.description }}"""
                     }
                 }
 
                 break;
             case ReportType.SALES_PRODUCT:
                 def product = productService.getProduct(attrs.productId)
-                def categories = categoryService.getCategoryHierarchy(product.category.id)
+                def category = product.category
+
+                def hierarchy = [category]
+
+                while (category.parentCategory != null) {
+                    hierarchy.add(category.parentCategory)
+
+                    category = category.parentCategory
+                }
+
+                hierarchy = hierarchy.reverse()
 
                 out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
 
-                categories.each { category ->
-                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: category.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { category.description }}"""
+                hierarchy.each { cat ->
+                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat.description }}"""
                 }
 
                 out << """<li class="breadcrumb-item active" aria-current="page">${product.description}</li>"""
@@ -201,6 +222,16 @@ class EposTagLib {
 
         category.childCategories?.each {
             categorySelectChildren(it, indent + 1)
+        }
+    }
+
+    def buttonImage = {attrs, body ->
+        def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(attrs.buttonId) + ".png", File.separator)
+
+        def buttonImage = imageService.getImageFromFile(path.toString())
+
+        if (buttonImage != null) {
+            out << """<img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="mx-auto my-auto button-grid-button-image" />"""
         }
     }
 }

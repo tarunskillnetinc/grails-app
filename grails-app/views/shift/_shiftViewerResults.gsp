@@ -5,7 +5,14 @@
 %{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('status', ${sortColumn == 'status' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Status</a></div>--}%
 %{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('total', ${sortColumn == 'total' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Total</a></div>--}%
 %{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('variance', ${sortColumn == 'variance' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Variance</a></div>--}%
-    <div class="col-2 font-weight-bold">Till Number</div>
+    <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+        <div class="col-1 font-weight-bold">Store Number</div>
+        <div class="col-1 font-weight-bold">Till Number</div>
+    </g:if>
+    <g:else>
+        <div class="col-2 font-weight-bold">Till Number</div>
+    </g:else>
+
     <div class="col-2 font-weight-bold">Shift Number</div>
     <div class="col-2 font-weight-bold">Shift Date</div>
     <div class="col-2 font-weight-bold">Status</div>
@@ -26,7 +33,14 @@
 
     <g:each in="${shifts}" var="shift" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
-            <div class="col-2 my-auto">${shift.tillId}</div>
+            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                <div class="col-1 my-auto">${shift.storeId}</div>
+                <div class="col-1 my-auto">${shift.tillId}</div>
+            </g:if>
+            <g:else>
+                <div class="col-2 my-auto">${shift.tillId}</div>
+            </g:else>
+
             <div class="col-2 my-auto">${shift.id}</div><!-- TODO shift.shiftNumber? -->
             <div class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
             <div class="col-2 my-auto">${shift.reconciledDate != null ? "Reconciled" : "Unreconciled"}</div>

@@ -111,7 +111,7 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3306/wlpos"
+            url: "jdbc:mysql://192.168.2.108:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "root"
@@ -140,7 +140,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/reporting"
+                url: "jdbc:mysql://192.168.2.108:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -168,7 +168,7 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/transactions"
+                url: "jdbc:mysql://192.168.2.108:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -194,7 +194,7 @@ environments:
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
-            host: localhost
+            host: 192.168.2.108
             port: 5672
             apiPort: 15672
             username: rabbituser
@@ -202,21 +202,21 @@ environments:
 
         mysql:
             wlpos:
-                host: localhost
+                host: 192.168.2.108
                 port: 3306
                 username: root
                 password: Pa**W0rd01
                 database: wlpos
             transactions:
-                host: localhost
+                host: 192.168.2.108
                 port: 3306
                 username: root
                 password: Pa**W0rd01
                 database: transactions
         wlpos:
-            imageDirectory: "D:\\WLPOS Files\\Platform\\Images\\"
-            receiptImageDirectory: "D:\\WLPOS Files\\Platform\\Receipts\\"
-            buttonImageDirectory: "D:\\WLPOS Files\\Platform\\Buttons\\"
+            imageDirectory: "C:\\WLPOS Files\\Images"
+            receiptImageDirectory: "C:\\WLPOS Files\\Receipts"
+            buttonImageDirectory: "C:\\WLPOS Files\\Button Images"
 
     test:
         dataSource:
@@ -502,5 +502,11 @@ wlpos:
     buttonImageDirectory: "/opt/BackOffice/Buttons/"
 
     transactionProcessorQueue: "TransactionProcessor"
+    dataSyncServiceQueue: "DataSyncService"
+    kpiProcessorQueue: "KpiProcessor"
+    reportingProcessorQueue: "ReportingProcessor"
+    shiftProcessorQueue: "ShiftProcessor"
+    stockProcessorQueue: "StockProcessor"
+    nisaServiceQueue: "NisaService"
     receiptServiceQueue: "ReceiptService"
     rawTransactionWriterQueue: "RawTransactionWriter"

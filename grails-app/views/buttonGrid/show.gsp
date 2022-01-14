@@ -68,8 +68,22 @@
                     </g:elseif>
                     <g:else><!-- All other assigned buttons -->
                         <g:link controller="button" action="edit" id="${button.id}" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                            <div class="button-grid-button">
-                                ${button.description}
+                            <div class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px solid black;">
+                                <g:if test="${button.imageDisplay && button.textDisplay}">
+                                    <div class="button-grid-image-container">
+                                        <g:buttonImage buttonId="${button.id}" />
+                                    </div>
+                                    <div class="button-grid-text-container">
+                                        ${button.description}
+                                    </div>
+                                </g:if>
+                                <g:elseif test="${button.imageDisplay}">
+                                    <g:buttonImage buttonId="${button.id}" />
+                                </g:elseif>
+                                <g:else>
+                                    ${button.description}
+                                </g:else>
+
                             </div>
                         </g:link>
                     </g:else>

@@ -75,7 +75,6 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.password')) {
 
         springSecurityService = ref('springSecurityService')
-        gsonProvider = ref("gsonProvider")
     }
 
     groupService(GroupService) {

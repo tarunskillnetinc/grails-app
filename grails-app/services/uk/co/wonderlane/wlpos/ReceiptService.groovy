@@ -13,7 +13,10 @@ class ReceiptService {
 
         def results = receiptsCriteria.list([offset: offset, max: max, sort: "dateGenerated", order: "DESC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
-            eq("storeId", springSecurityService.principal.storeId)
+
+            if (springSecurityService.principal.storeId != null) {
+                eq("storeId", springSecurityService.principal.storeId)
+            }
 
             gte("dateGenerated", fromDate)
             lt("dateGenerated", toDate)
@@ -36,6 +39,15 @@ class ReceiptService {
     }
 
     def getReceipt(int receiptId) {
-        return Receipt.findByIdAndRetailerIdAndStoreId(receiptId, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def receiptCriteria = Receipt.createCriteria()
+
+        return receiptCriteria.get() {
+            eq ("id", receiptId)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+
+            if (springSecurityService.principal.storeId != null) {
+                eq ("storeId", springSecurityService.principal.storeId)
+            }
+        }
     }
 }

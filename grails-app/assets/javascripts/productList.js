@@ -23,6 +23,7 @@ function removeProduct(productVariantId) {
 
         noResultsRow.removeClass("wl-striped0");
         noResultsRow.removeClass("wl-striped1");
+        noResultsRow.addClass("wl-striped0");
         noResultsRow.show();
     } else {
         for (var i = 1 ; i <= productList.children().length ; i++) {

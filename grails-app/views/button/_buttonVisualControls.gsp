@@ -37,7 +37,7 @@
     <div class="col-12 d-flex justify-content-center">
         <div class="button-example">
             <g:if test="${buttonImage}">
-                <img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="justify-content-center button-image"/>
+                <img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="justify-content-center button-image" />
             </g:if>
             <g:else>
                 <img src="" hidden class="justify-content-center button-image"/>

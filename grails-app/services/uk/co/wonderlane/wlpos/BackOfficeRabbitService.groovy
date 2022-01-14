@@ -1,6 +1,12 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.monitoring.RabbitQueue
 
 import javax.xml.bind.DatatypeConverter
@@ -11,7 +17,7 @@ class BackOfficeRabbitService extends RabbitService {
 
     def springSecurityService
 
-    def gsonProvider
+    def gson
 
     private String apiUrl
     private String apiAuthorization
@@ -23,6 +29,14 @@ class BackOfficeRabbitService extends RabbitService {
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
 
         def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+        gson = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
+                    @Override
+                    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                        return new DateTime(dateTimeFormat.parse(json.getAsString()).getTime())
+                    }
+                }).create()
 
         init()
     }
@@ -73,7 +87,7 @@ class BackOfficeRabbitService extends RabbitService {
         // Convert the response JSON into a list of RabbitQueue objects.
         Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType();
 
-        return gsonProvider.gson.fromJson(responseJson, listType)
+        return gson.fromJson(responseJson, listType)
     }
 
     void declareExchange(String exchange) {

@@ -6,6 +6,8 @@ import uk.co.wonderlane.wlpos.enums.ButtonType
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
+import java.nio.file.Path
+
 class ButtonController {
 
     def springSecurityService
@@ -27,7 +29,9 @@ class ButtonController {
             }
 
             if (button.imageDisplay) {
-                buttonImage = imageService.getImageFromFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), params.id + ".png")
+                def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(params.id) + ".png", File.separator)
+
+                buttonImage = imageService.getImageFromFile(path.toString())
             }
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
@@ -35,7 +39,7 @@ class ButtonController {
             button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type <=> ButtonGridType.TENDER ?  ButtonType.TENDER: ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
         }
 
-        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getAvailableSubPages(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description]
+        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description]
     }
 
     def save() {
@@ -81,7 +85,10 @@ class ButtonController {
                     SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                     syncMessage.setTransactionId(it.id)
                     if (it.imageDisplay) {
-                        byte[] image = imageService.getImageFromFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), it.id + ".png")
+                        def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(it.id) + ".png", File.separator)
+
+                        byte[] image = imageService.getImageFromFile(path.toString())
+
                         syncMessage.setInsert(true)
                         syncMessage.setByteArray(image)
                     } else {
@@ -112,7 +119,9 @@ class ButtonController {
                 }
 
                 if (button.imageDisplay) {
-                    buttonImage = imageService.getImageFromFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), params.id + ".png")
+                    def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(params.id) + ".png", File.separator)
+
+                    buttonImage = imageService.getImageFromFile(path.toString())
                 }
 
                 // TODO Populate an error to display on screen.
@@ -127,7 +136,9 @@ class ButtonController {
             }
 
             if (button.imageDisplay) {
-                buttonImage = imageService.getImageFromFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), params.id + ".png")
+                def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(params.id) + ".png", File.separator)
+
+                buttonImage = imageService.getImageFromFile(path.toString())
             }
 
             render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getAvailableSubPages(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])

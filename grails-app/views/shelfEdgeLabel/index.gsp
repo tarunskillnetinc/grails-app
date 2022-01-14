@@ -61,17 +61,17 @@
 
                     <div class="align-content-center">
                         <div class="row col-8 offset-2 pt-2 pb-2 wl-striped0 hoverable pointer" title="Click to view.">
-                            <div class="col-6">05/10/2021</div>
+                            <div class="col-6">${dates[2]}</div>
                             <div class="col-3">108</div>
                         </div>
 
                         <div class="row col-8 offset-2 pt-2 pb-2 wl-striped1 hoverable pointer" title="Click to view.">
-                            <div class="col-6">06/10/2021</div>
+                            <div class="col-6">${dates[1]}</div>
                             <div class="col-3">56</div>
                         </div>
 
                         <div class="row col-8 offset-2 pt-2 pb-2 wl-striped0 hoverable pointer" title="Click to view.">
-                            <div class="col-6">07/10/2021</div>
+                            <div class="col-6">${dates[0]}</div>
                             <div class="col-3">219</div>
                         </div>
                     </div>

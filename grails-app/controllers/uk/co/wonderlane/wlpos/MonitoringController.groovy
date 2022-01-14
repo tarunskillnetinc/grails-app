@@ -47,9 +47,23 @@ class MonitoringController {
             throw new Exception("Rabbit MQ not available")
         }
 
-        def rabbitQueues = rabbitService.getServiceQueues(grailsApplication.config.getProperty('wlpos.transactionProcessorQueue'), grailsApplication.config.getProperty('wlpos.receiptServiceQueue'), grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue'))
+        def rabbitQueues = rabbitService.getServiceQueues(grailsApplication.config.getProperty('wlpos.transactionProcessorQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.dataSyncServiceQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.kpiProcessorQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.reportingProcessorQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.shiftProcessorQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.stockProcessorQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.nisaServiceQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.receiptServiceQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue'))
 
         render (template: "transactionServiceStatus", model: [transactionProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.transactionProcessorQueue') },
+                                                              dataSyncServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.dataSyncServiceQueue') },
+                                                              kpiProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.kpiProcessorQueue') },
+                                                              reportingProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.reportingProcessorQueue') },
+                                                              shiftProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.shiftProcessorQueue') },
+                                                              stockProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.stockProcessorQueue') },
+                                                              nisaServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.nisaServiceQueue') },
                                                               receiptServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.receiptServiceQueue') },
                                                               rawTransactionWriterQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue') }])
     }
