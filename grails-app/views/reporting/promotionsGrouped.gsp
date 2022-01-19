@@ -100,7 +100,7 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-10 position-fixed z-index-1">
+            <div class="col-2 offset-5">
                 <div class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                         <div class="row">
