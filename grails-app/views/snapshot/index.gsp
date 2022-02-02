@@ -6,15 +6,19 @@
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
+    <asset:javascript src="money-mask.js" />
     <asset:javascript src="snapshotUrls.js"/>
 
     <script type='text/javascript'>
         $(function() {
-            SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
+            SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxSelectSafe')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
-                "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxStartCashLift')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}");
 
             $('#startDate').datepicker({
                 format: "dd/mm/yyyy",
@@ -102,6 +106,9 @@
             </div>
             <div class="offset-2 col-5">
                 <div class="row justify-content-end">
+                    <div class="offset-4 col-4">
+                        <button id="cash-lift-button" type="button" class="btn btn-wl text-center w-100" onclick="showCashLiftModal()">Cash Lift</button>
+                    </div>
                     <div class="col-4">
                         <g:link controller="shift" action="index"  class="w-100">
                             <button id="shift-viewer-button" type="button" class="btn btn-wl text-center w-100">Shift Viewer</button>
@@ -130,6 +137,20 @@
                     <div class="modal-footer">
                         <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cashLift-modal" class="container-fluid">
+        <div class="modal fade" id="cashLiftModal" tabindex="-1" role="dialog" aria-labelledby="cashLiftModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Cash Lift</h2>
+                    </div>
+
+                    <div id="cashLiftModalContent"></div>
                 </div>
             </div>
         </div>

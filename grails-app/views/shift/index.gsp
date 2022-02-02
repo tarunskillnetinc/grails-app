@@ -19,11 +19,13 @@
                     "${createLink(controller: 'shift', action: 'ajaxSaveCash')}",
                     "${createLink(controller: 'shift', action: 'ajaxSaveShift')}");
 
-                SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
+                SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxSelectSafe')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
+                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxStartCashLift')}");
 
                 $('#startDate').datepicker({
                     format: "dd/mm/yyyy",
@@ -118,7 +120,7 @@
                 <div class="offset-2 col-5">
                     <div class="row">
                         <div class="offset-4 col-4">
-                            <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showSafeModal()">Count Safe</button>
+                            <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showSafeSelectionModal()">Count Safe</button>
                         </div>
                         <div class="col-4">
                             <g:link controller="snapshot" action="index"  class="w-100">

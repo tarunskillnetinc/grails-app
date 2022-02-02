@@ -1,13 +1,16 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.reporting.Sale
 import uk.co.wonderlane.wlpos.reporting.SaleCategory
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 import uk.co.wonderlane.wlpos.reporting.TillControlEvent
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 
@@ -232,6 +235,49 @@ class ReportingService {
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
         int totalCount = results.totalCount
         return results
+    }
+
+    def getTenderMovements(DateTime startDate, DateTime endDate) {
+        def tenderMovementCriteria = TenderMovement.createCriteria()
+
+        return tenderMovementCriteria.list() {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            if (springSecurityService.principal.storeId != null) {
+                eq ("storeId", springSecurityService.principal.storeId)
+            }
+            between ("timestamp", startDate, endDate)
+        }
+    }
+
+    def getTenderMovements(DateTime startDate, DateTime endDate, TenderType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def tenderMovementCriteria = TenderMovement.createCriteria()
+
+        def results = tenderMovementCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
+            eq ("tenderType", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            if (springSecurityService.principal.storeId != null) {
+                eq ("storeId", springSecurityService.principal.storeId)
+            }
+            between ("timestamp", startDate, endDate)
+        }
+
+        // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
+        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
+        // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
+        int totalCount = results.totalCount
+        return results
+    }
+
+    def saveTenderMovement(TenderMovement tenderMovement) {
+        if (tenderMovement.validate()) {
+            tenderMovement.save()
+            return true
+        } else {
+            tenderMovement.errors.each {
+                System.out.println(it.toString())
+            }
+            return false
+        }
     }
 
     def getReportColumns(ReportType reportType) {

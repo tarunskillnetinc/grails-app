@@ -33,3 +33,36 @@ function showSnapshotModal(snapshotId) {
     });
 }
 
+function showCashLiftModal() {
+    $("#cashLiftModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#cashLiftModal').modal({ show: true });
+
+    $.ajax({
+        url: SnapshotUrls.startCashLiftUrl(),
+        method: "POST",
+        data: {},
+        success: function(resp) {
+            $("#cashLiftModalContent").html(resp);
+
+            $(".mask-money").maskMoney({ allowZero: true });
+            $(".mask-money").maskMoney('mask');
+        }
+    });
+}
+
+function saveCashLift() {
+    var formValues = $("#cashLiftForm").serialize();
+
+    $.ajax({
+        url: SnapshotUrls.saveCashLiftUrl(),
+        method: "POST",
+        data: formValues,
+        success: function(resp) {
+            $("#cashLiftModalContent").html(resp);
+
+            $(".mask-money").maskMoney({ allowZero: true });
+            $(".mask-money").maskMoney('mask');
+        }
+    });
+}
+

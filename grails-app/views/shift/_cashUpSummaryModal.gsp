@@ -77,6 +77,16 @@
                     <g:hiddenField name="tenderReconciliationVarianceReason" value="null" />
                     <g:hiddenField name="tenderReconciliationVarianceReasonText" value="null" />
                 </g:else>
+
+                <g:if test="${safeLocations?.collect()?.size() > 1}">
+                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
+
+                    </div>
+                </g:if>
+                <g:elseif test="${safeLocations?.collect()?.size() == 1}">
+                <!-- TODO add a safe selection spinner here if there are multiple safe locations -->
+                    <g:hiddenField name="safeLocationId" value="${safeLocations?.collect()[0].id}"/>
+                </g:elseif>
             </g:form>
         </g:if>
         <g:else>

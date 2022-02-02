@@ -9,12 +9,16 @@ import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.reporting.Location
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 class ShiftController {
 
     def springSecurityService
     def shiftService
     def snapshotService
+    def reportingService
+    def locationService
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
@@ -138,7 +142,9 @@ class ShiftController {
 
         shiftService.saveShift(shift)
 
-        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values() ])
+        def safeLocations = locationService.getStoreSafeLocations()
+
+        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
     }
 
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
@@ -163,7 +169,7 @@ class ShiftController {
 
         shiftService.saveShift(shift)
 
-        Snapshot latestSnapshot = snapshotService.getSafeSnapshot()
+        Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
         ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
         if (cashTotal != null) {
             TenderTotal cashExpected = latestSnapshot.expectedTotals.find{it.tenderType == TenderType.CASH} ?: null
@@ -187,6 +193,29 @@ class ShiftController {
         }
 
         snapshotService.saveSnapshot(latestSnapshot)
+
+        def tillLocation = locationService.getTillLocation(shift.tillId)
+        def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+
+        for (ReconciliationTotal total : shift.reconciliationTotals) {
+            if (total.value > BigDecimal.ZERO) { // don't want any 0 value tender movements clogging things up
+                TenderMovement tenderMovement = new TenderMovement()
+                tenderMovement.retailerId = springSecurityService.principal.retailerId
+                tenderMovement.storeId = springSecurityService.principal.storeId
+                tenderMovement.tenderType = total.tenderType
+                tenderMovement.amount = total.value
+                tenderMovement.fromLocation = tillLocation as Location
+                tenderMovement.toLocation = safeLocation as Location
+                tenderMovement.type = "CASH_UP"
+                tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+
+                if (reportingService.saveTenderMovement(tenderMovement)) {
+                    System.out.println("Success tender movement save")
+                } else {
+                    System.out.println("Error tender movement save")
+                }
+            }
+        }
 
         render(template: "cashUpSummaryModal", model: [ shift: shift ])
     }
@@ -217,6 +246,7 @@ class CashUpCommand {
 class SaveShiftCommand {
 
     int shiftId
+    Integer safeLocationId
     TenderReconciliationVarianceReason tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
 }

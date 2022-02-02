@@ -6,13 +6,19 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
+import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.reporting.Location
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 class SnapshotController {
 
     def springSecurityService
     def snapshotService
+    def locationService
+    def reportingService
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
@@ -29,8 +35,18 @@ class SnapshotController {
         render (template: "snapshotViewerResults", model: [snapshots: snapshotService.getSnapshots(startDate, endDate)])
     }
 
+    def ajaxSelectSafe() {
+        def locations = locationService.getStoreSafeLocations()
+
+        if (locations.collect().size() == 1) {
+            redirect(action: "ajaxGetSafe", params:[locationId: locations.collect()[0].id])
+        } else {
+            render(template: "safeSelection", model: [safeLocations: locations])
+        }
+    }
+
     def ajaxGetSafe() {
-        Snapshot safeSnapshot = snapshotService.getSafeSnapshot()
+        Snapshot safeSnapshot = snapshotService.getSnapshotForLocation(Integer.parseInt(params.locationId))
 
         if (safeSnapshot) {
             render(template: "snapshotModal", model: [snapshot: safeSnapshot])
@@ -50,7 +66,7 @@ class SnapshotController {
     }
 
     def ajaxSaveSafeCount(SaveSafeCommand safeCommand) {
-        def snapshot = snapshotService.getSafeSnapshot()
+        def snapshot = snapshotService.getSnapshot(safeCommand.snapshotId)
 
         ReconciliationTotal cashTotal = snapshot.totals.find { it.tenderType == TenderType.CASH } ?: null
         if (cashTotal == null) {
@@ -84,7 +100,7 @@ class SnapshotController {
         render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
     }
 
-    def ajaxSaveSnapshot(saveSnapshotCommand snapshotCommand) {
+    def ajaxSaveSnapshot(SaveSnapshotCommand snapshotCommand) {
         def snapshot = snapshotService.getSnapshot(snapshotCommand.snapshotId)
 
         if (snapshotCommand.varianceReason != null) {
@@ -100,9 +116,112 @@ class SnapshotController {
 
         render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
     }
+
+    def ajaxStartCashLift() {
+        def safeLocations = locationService.getStoreSafeLocations()
+
+        render(template: "cashLiftModal", model: [safeLocations: safeLocations])
+    }
+
+    def ajaxSaveCashLift(CashLiftCommand cashLiftCommand) {
+        def safeLocations = locationService.getStoreSafeLocations()
+        if (cashLiftCommand.movementType == TenderMovementType.CASH_LIFT && !cashLiftCommand.toLocation) {
+            render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "A Cash Lift operation requires the second safe location to be set."])
+            return
+        }
+
+        if (cashLiftCommand.cashTotal == BigDecimal.ZERO && cashLiftCommand.vouchersTotal == BigDecimal.ZERO) {
+            render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "At least one tender total must be non-zero."])
+            return
+        }
+
+        Snapshot fromSnapshot = snapshotService.getSnapshotForLocation(cashLiftCommand.fromLocation)
+
+        if (cashLiftCommand.cashTotal > BigDecimal.ZERO) {
+            TenderTotal cashExpected = fromSnapshot.expectedTotals.find{it.tenderType == TenderType.CASH} ?: null
+            if (cashExpected == null || cashExpected.value.subtract(cashLiftCommand.cashTotal) < BigDecimal.ZERO) {
+                // expected value would become below zero. Advise to count safe first
+                render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "The amount entered for Cash is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
+                return
+            }
+
+            TenderMovement tenderMovement = new TenderMovement()
+            tenderMovement.retailerId = springSecurityService.principal.retailerId
+            tenderMovement.storeId = springSecurityService.principal.storeId
+            tenderMovement.userId = springSecurityService.principal.id
+            tenderMovement.userName = springSecurityService.principal.usersName
+            tenderMovement.type = cashLiftCommand.movementType
+            tenderMovement.tenderType = TenderType.CASH
+            tenderMovement.fromLocation = locationService.getLocation(cashLiftCommand.fromLocation) as Location
+            if (cashLiftCommand.movementType == TenderMovementType.CASH_LIFT) {
+                tenderMovement.toLocation = locationService.getLocation(cashLiftCommand.toLocation) as Location
+            }
+            tenderMovement.amount = cashLiftCommand.cashTotal
+            tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+            reportingService.saveTenderMovement(tenderMovement)
+
+            cashExpected.value = cashExpected.value.subtract(cashLiftCommand.cashTotal)
+        }
+
+        if (cashLiftCommand.vouchersTotal > BigDecimal.ZERO) {
+            TenderTotal voucherExpected = fromSnapshot.expectedTotals.find{it.tenderType == TenderType.VOUCHER} ?: null
+            if (voucherExpected == null || voucherExpected.value.subtract(cashLiftCommand.vouchersTotal) < BigDecimal.ZERO) {
+                // expected value would become below zero. Advise to count safe first
+                render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "The amount entered for Voucher is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
+                return
+            }
+
+            TenderMovement tenderMovement = new TenderMovement()
+            tenderMovement.retailerId = springSecurityService.principal.retailerId
+            tenderMovement.storeId = springSecurityService.principal.storeId
+            tenderMovement.userId = springSecurityService.principal.id
+            tenderMovement.userName = springSecurityService.principal.usersName
+            tenderMovement.type = cashLiftCommand.movementType
+            tenderMovement.tenderType = TenderType.VOUCHER
+            tenderMovement.fromLocation = locationService.getLocation(cashLiftCommand.fromLocation) as Location
+            if (cashLiftCommand.movementType == TenderMovementType.CASH_LIFT) {
+                tenderMovement.toLocation = locationService.getLocation(cashLiftCommand.toLocation) as Location
+            }
+            tenderMovement.amount = cashLiftCommand.vouchersTotal
+            tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+            reportingService.saveTenderMovement(tenderMovement)
+
+            voucherExpected.value = voucherExpected.value.subtract(cashLiftCommand.vouchersTotal)
+        }
+
+        snapshotService.saveSnapshot(fromSnapshot)
+
+        if (cashLiftCommand.movementType == TenderMovementType.CASH_LIFT) {
+            Snapshot toSnapshot = snapshotService.getSnapshotForLocation(cashLiftCommand.toLocation)
+
+            if (cashLiftCommand.cashTotal > BigDecimal.ZERO) {
+                TenderTotal cashExpected = toSnapshot.expectedTotals.find{it.tenderType == TenderType.CASH} ?: null
+                if (cashExpected == null) {
+                    cashExpected = new TenderTotal(TenderType.CASH)
+                    toSnapshot.expectedTotals.add(cashExpected)
+                }
+
+                cashExpected.value = cashExpected.value.add(cashLiftCommand.cashTotal)
+            }
+            if (cashLiftCommand.vouchersTotal > BigDecimal.ZERO) {
+                TenderTotal voucherExpected = toSnapshot.expectedTotals.find{it.tenderType == TenderType.VOUCHER} ?: null
+                if (voucherExpected == null) {
+                    voucherExpected = new TenderTotal(TenderType.VOUCHER)
+                    toSnapshot.expectedTotals.(voucherExpected)
+                }
+                voucherExpected.value = voucherExpected.value.add(cashLiftCommand.vouchersTotal)
+            }
+
+            snapshotService.saveSnapshot(toSnapshot)
+        } else {
+
+        }
+        // TODO display a summary
+    }
 }
 
 class SaveSafeCommand {
+    int snapshotId
     String type // Type being navigated TO.
     String cashUpBy // Type being navigated FROM.
     BigDecimal fiftyPounds = BigDecimal.ZERO
@@ -122,8 +241,16 @@ class SaveSafeCommand {
     BigDecimal vouchersTotal = BigDecimal.ZERO
 }
 
-class saveSnapshotCommand {
+class SaveSnapshotCommand {
     int snapshotId
     TenderReconciliationVarianceReason varianceReason
     String varianceReasonText
+}
+
+class CashLiftCommand {
+    TenderMovementType movementType
+    Integer fromLocation
+    Integer toLocation
+    BigDecimal cashTotal = BigDecimal.ZERO
+    BigDecimal vouchersTotal = BigDecimal.ZERO
 }

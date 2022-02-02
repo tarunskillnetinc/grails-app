@@ -1,7 +1,10 @@
 package uk.co.wonderlane.wlpos
 
 import groovy.json.JsonSlurper
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
 import uk.co.wonderlane.wlpos.reporting.ReportColumn
@@ -22,6 +25,8 @@ class ReportingController {
     private static final PROMOTION_REPORT_SORT_COLUMNS = [ "itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat" ]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
     private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "type", "usersName", "reason", "dateCreated", "amount" ]
+    private static final TENDER_MOVEMENT_TYPE_REPORT_SORT_COLUMNS = ["tenderType","quantity"]
+    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "timestamp"]
 
     def index() {
 
@@ -446,6 +451,96 @@ class ReportingController {
         def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate + 1, type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
         render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+    }
+
+    def tenderMovements() {
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, DateTimeFormat.forPattern("dd/MM/yyyy")) : DateTime.now().withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, DateTimeFormat.forPattern("dd/MM/yyyy")).withTime(23,59,59,0) : DateTime.now().withTime(23,59,59,0)
+
+
+        [reportType: ReportType.TENDER_MOVEMENTS_GROUPED, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS_GROUPED), startDate: startDate.toDate(), endDate: endDate.toDate()]
+    }
+
+    def ajaxTenderMovements(SortParams sortParams) {
+        sortParams.validateParams(TENDER_MOVEMENT_TYPE_REPORT_SORT_COLUMNS)
+
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, DateTimeFormat.forPattern("dd/MM/yyyy")) : DateTime.now().withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, DateTimeFormat.forPattern("dd/MM/yyyy")).withTime(23,59,59,0) : DateTime.now().withTime(23,59,59,0)
+
+        def tenderMovements = reportingService.getTenderMovements(startDate, endDate)
+
+        def groupedTenderMovements = tenderMovements.groupBy { it.tenderType }
+
+        // Sort into the required order.
+        Comparator comparator
+
+        if (sortParams.sortColumn == "tenderType") {
+            comparator = [ compare: { a, b ->
+                if (sortParams.sortOrder == "desc") {
+                    a.compareTo(b)
+                } else {
+                    b.compareTo(a)
+                }
+            }] as Comparator
+
+            groupedTenderMovements = groupedTenderMovements.sort(comparator)
+        } else if (sortParams.sortColumn == "quantity") {
+            comparator = [ compare: { a, b ->
+                if (sortParams.sortOrder == "desc") {
+                    if (groupedTenderMovements.get(b).size() < groupedTenderMovements.get(a).size()) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                } else {
+                    if (groupedTenderMovements.get(a).size() < groupedTenderMovements.get(b).size()) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                }
+            }] as Comparator
+
+            groupedTenderMovements = groupedTenderMovements.sort(comparator)
+        }
+
+        int totalResults = groupedTenderMovements.size()
+
+        render (template: "tenderMovementsResults", model: [tenderMovements: groupedTenderMovements, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS_GROUPED), sortParams: sortParams, startDate: startDate.toDate(), endDate: endDate.toDate(), totalResults: totalResults])
+    }
+
+    def tenderMovement() {
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, DateTimeFormat.forPattern("dd/MM/yyyy")) : DateTime.now().withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, DateTimeFormat.forPattern("dd/MM/yyyy")).withTime(23,59,59,0) : DateTime.now().withTime(23,59,59,0)
+
+        TenderType type = null;
+
+        try {
+            type = TenderType.valueOf(params.tenderMovementType)
+        } catch (Exception e) {
+            // No action, simply return no results.
+        }
+
+        [reportType: ReportType.TENDER_MOVEMENTS, tenderMovementType: type, startDate: startDate.toDate(), endDate: endDate.toDate(), userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
+    }
+
+    def ajaxTenderMovement(SortParams sortParams) {
+        TenderType type = null;
+
+        try {
+            type = TenderType.valueOf(params.tenderMovementType)
+        } catch (Exception e) {
+            // No action, simply return no results.
+        }
+
+        sortParams.validateParams(TENDER_MOVEMENT_REPORT_SORT_COLUMNS)
+
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, DateTimeFormat.forPattern("dd/MM/yyyy")) : DateTime.now().withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, DateTimeFormat.forPattern("dd/MM/yyyy")).withTime(23,59,59,0) : DateTime.now().withTime(23,59,59,0)
+
+        def tenderMovements = reportingService.getTenderMovements(startDate, endDate, type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+        render (template: "tenderMovementResults", model: [tenderMovements: tenderMovements, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS), sortParams: sortParams, startDate: startDate.toDate(), endDate: endDate.toDate(), totalResults: tenderMovements.totalCount])
     }
 
     def ajaxSaveReportColumns() {
