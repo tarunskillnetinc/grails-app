@@ -32,19 +32,19 @@ class PromotionController {
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
                 if (it.sku != null) {
-                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                 } else if (it.categoryId != null) {
-                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
-                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                 }
             } else {
                 if (it.sku != null) {
-                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                 } else if (it.categoryId != null) {
-                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
-                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                 }
             }
         }
@@ -73,19 +73,19 @@ class PromotionController {
             promo.groups.each {
                 if (it.type == PromotionGroupType.REQUIRED) {
                     if (it.sku != null) {
-                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                     } else if (it.categoryId != null) {
-                        categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                        categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                     } else {
-                        tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                        tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                     }
                 } else {
                     if (it.sku != null) {
-                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                     } else if (it.categoryId != null) {
-                        categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                        categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                     } else {
-                        tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                        tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                     }
                 }
             }
