@@ -12,6 +12,7 @@
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
             var addBarcodeUrl = "${createLink(controller: 'product', action: 'ajaxAddBarcode')}";
             var saveVariantUrl = "${createLink(controller: 'product', action: 'ajaxSaveVariant')}";
+            var addPriceUrl = "${createLink(controller: 'product', action: 'ajaxAddPrice')}";
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
@@ -56,10 +57,25 @@
             function itemCodeChanged(itemCode) {
                 var sku = $("#variants\\[0\\]\\.sku");
 
+                // Only change the SKU the first time we change the main item code.
                 if (sku != null && (sku.val() === null || sku.val() === "")) {
                     sku.val(itemCode);
-
                     $("#variants\\[0\\]\\.skuText").html(itemCode);
+
+                    // If the "Price Changes" section is enabled (logged in as HO), then update the SKU there too.
+                    var priceChangeSku = $("#priceChanges\\[0\\]\\.skuText");
+
+                    if (priceChangeSku !== null) {
+                        priceChangeSku.html(itemCode);
+                    }
+
+                    var bandSkus = $('[id ^="priceChanges\\[0\\]"][id $="\\]\\.sku"]')
+
+                    if (bandSkus !== null && bandSkus.length > 0) {
+                        bandSkus.each(function() {
+                            $(this).val(itemCode);
+                        })
+                    }
                 }
             }
 
@@ -181,6 +197,8 @@
                         }
 
                         variantContainer.html(resp);
+
+                        skuChanged(index, sku);
                     }
                 });
 
@@ -202,6 +220,38 @@
                     stripedDiv.removeClass("wl-striped1");
                     stripedDiv.addClass("wl-striped" +(i % 2));
                 });
+            }
+
+            // If we change the SKU we may need to update the SKU in the price changes section too.
+            function skuChanged(index, skuValue) {
+                var skuText = $("#priceChanges\\[" +index +"\\]\\.skuText");
+
+                if (skuText !== null) {
+                    skuText.html(skuValue);
+                }
+
+                var bandSkus = $('[id ^="priceChanges\\[' +index +'\\]"][id $="\\]\\.sku"]');
+
+                if (bandSkus !== null && bandSkus.length > 0) {
+                    bandSkus.each(function() {
+                        $(this).val(skuValue);
+                    });
+                } else {
+                    var params = { index: index, sku: skuValue };
+
+                    $.ajax({
+                        url: addPriceUrl,
+                        method: "POST",
+                        data: params,
+                        success: function(resp) {
+                            var pricesContainer = $("#pricesContainer");
+
+                            if (pricesContainer !== null) {
+                                pricesContainer.append(resp);
+                            }
+                        }
+                    });
+                }
             }
 
             // Add barcode button was clicked, this just adds a new empty textbox.

@@ -15,6 +15,7 @@ class ProductController {
 
     def productService
     def categoryService
+    def restrictionsService
     def tagService
     def rabbitService
     def gsonProvider
@@ -270,7 +271,7 @@ class ProductController {
             }
         } else {
             // TODO This all needs finishing.
-            // TODO We should introduce an effective date entry.
+            // TODO We need to introduce an effective date entry.
 
             product = productService.getProduct(Integer.parseInt(params.id))
 
@@ -325,11 +326,17 @@ class ProductController {
 //        }
 
         if (product.validate()) {
+            restrictionsService.saveRestrictions(product.restrictions) // Restrictions are validated as part of product.validate()
             productService.saveProduct(product)
 
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
-                savePriceUpdates(product.variants?.findAll { it.storeId == null }, editedProduct.priceChanges)
+                def priceChanges = []
+                editedProduct?.priceChanges?.each {
+                    priceChanges.addAll(it.priceChanges)
+                }
+
+                savePriceUpdates(product.variants?.findAll { it.storeId == null }, priceChanges)
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
 
@@ -382,28 +389,38 @@ class ProductController {
                 if (!currentPrice || currentPrice.price != priceChange.price) {
                     def priceBand = priceBands.find { it.id == priceChange.priceBandId }
 
-                    ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
+                    if (priceBand && priceChange.sku && priceChange.price) {
+                        ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
 
-                    changedProductPrices.add(productPrice)
+                        changedProductPrices.add(productPrice)
+                    }
                 }
             }
         }
 
-        productService.saveProductPrices(changedProductPrices)
+        if (changedProductPrices.size() > 0) {
+            productService.saveProductPrices(changedProductPrices)
 
-        def priceChangesGroupedByPriceBand = changedProductPrices.groupBy { it.priceBand }
-        priceChangesGroupedByPriceBand?.each {
-            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key)
+            def priceChangesGroupedByPriceBand = changedProductPrices.groupBy { it.priceBand }
+            priceChangesGroupedByPriceBand?.each {
+                def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key)
 
-            stores?.each { StoreSettings store ->
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                syncMessage.setInsert(true)
+                // Change from our domain objects into a ProductPrice object from the Common library.
+                def commonProductPrices = []
+                it.value.each { ProductPrice pp ->
+                    commonProductPrices.add(pp.getProductPrice())
+                }
 
-                syncMessage.setProductPrices(it.value)
+                stores?.each { StoreSettings store ->
+                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+                    syncMessage.setInsert(true)
 
-                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                    syncMessage.setProductPrices(commonProductPrices)
+
+                    // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                }
             }
         }
     }
@@ -466,6 +483,12 @@ class ProductController {
 
     def ajaxSaveVariant(AddVariantCommand cmd) {
         render (template: "variant", model: [index: cmd.index, variant: cmd])
+    }
+
+    def ajaxAddPrice(int index, long sku) {
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+
+        render (template: "addPrice", model: [skuIndex: index, sku: sku, variant: null, priceBands: priceBands])
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
@@ -588,7 +611,7 @@ class ProductCommand {
     ProductStatus status
     String retailerProductId
 
-    List<PriceChangeCommand> priceChanges // When editing price bands as a head office user or engineer.
+    List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
 
 //    Collection<Tag> tags = new ArrayList<>()

@@ -295,7 +295,7 @@
                     </div>
 
                     <div id="collapsePrices" class="collapse collapsed" aria-labelledby="productPrices" data-parent="#accordion">
-                        <div class="card-body py-5">
+                        <div class="card-body py-5" id="pricesContainer">
                             <div class="row mx-5">This product is priced as follows:</div>
 
                             <div class="row mx-5 mt-4 table-wl bottom-border">
@@ -306,28 +306,12 @@
                                 </g:each>
                             </div>
 
-                            <%
-                                def index = 0
-                            %>
+                            <g:if test="${isNewProduct}">
+                                <g:render template="addPrice" model="[skuIndex: 0, variant: null, sku: null, priceBands: priceBands]" />
+                            </g:if>
+
                             <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
-                                <div class="row mx-5 pt-2 pb-2 wl-striped${i % 2} hoverable">
-                                    <div class="col-3 my-auto">${variant.sku}</div>
-
-                                    <%
-                                        def variantPrices = variant.prices
-                                    %>
-                                    <g:each in="${priceBands}" var="priceBand">
-                                        <div class="col">
-                                            <g:hiddenField name="priceChanges[${index}].sku" value="${variant.sku}" />
-                                            <g:hiddenField name="priceChanges[${index}].priceBandId" value="${priceBand.id}" />
-
-                                            <g:textField name="priceChanges[${index}].price" value="${variantPrices.find { it.priceBand.id == priceBand.id }?.price}" class="form-control" />
-                                        </div>
-                                        <%
-                                            index++
-                                        %>
-                                    </g:each>
-                                </div>
+                                <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands]" />
                             </g:each>
                         </div>
                     </div>
