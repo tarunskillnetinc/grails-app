@@ -36,7 +36,7 @@ class ButtonController {
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
 
-            button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type <=> ButtonGridType.TENDER ?  ButtonType.TENDER: ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
+            button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type == ButtonGridType.TENDER ?  ButtonType.TENDER : ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
         }
 
         [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description]
@@ -59,7 +59,7 @@ class ButtonController {
             buttonService.saveButtonGrid(button.buttonGrid)
 
             if (params.removeImage) {
-                imageService.deleteFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), button.id + ".png")
+                imageService.deleteFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.retailerId), button.id + ".png")
                 button.imageDisplay = false
                 button.textDisplay = true
                 buttonService.saveButtonGrid(button.buttonGrid)
@@ -68,22 +68,18 @@ class ButtonController {
                     byte[] image = params.image.bytes
 
                     if (image.length > 0 && params.image.contentType.equals("image/png")) {
-                        imageService.saveImageToFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), button.id + ".png", image)
+                        imageService.saveImageToFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.retailerId), button.id + ".png", image)
                         button.imageDisplay = true
                         buttonService.saveButtonGrid(button.buttonGrid)
                     }
                 }
             }
 
-            // Make sure the RabbitMQ connection is available, otherwise reject the save.
             try {
-                if (!rabbitService.isOpen()) {
-                    throw new Exception("Rabbit MQ not available")
-                }
-
                 button.buttonGrid.buttons.forEach({
-                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
+                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
                     syncMessage.setTransactionId(it.id)
+
                     if (it.imageDisplay) {
                         def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(it.id) + ".png", File.separator)
 
@@ -94,19 +90,15 @@ class ButtonController {
                     } else {
                         syncMessage.setInsert(false)
                     }
-                    try {
-                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                    } catch (Exception e) {
-                        // TODO handle this better
-                        e.printStackTrace()
-                    }
+
+                    rabbitService.sendMessage(syncMessage)
                 })
 
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
                 syncMessage.setInsert(true)
                 syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
 
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                rabbitService.sendMessage(syncMessage)
 
                 redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id)
             } catch (Exception e) {
@@ -125,7 +117,7 @@ class ButtonController {
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getAvailableSubPages(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
+                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
             }
         } else {
             def productVariant
@@ -141,7 +133,7 @@ class ButtonController {
                 buttonImage = imageService.getImageFromFile(path.toString())
             }
 
-            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getAvailableSubPages(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
+            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
         }
     }
 
@@ -154,26 +146,17 @@ class ButtonController {
 
         buttonService.deleteButton(button)
 
-        // Make sure the RabbitMQ connection is available, otherwise reject the save.
-        try {
-            if (!rabbitService.isOpen()) {
-                throw new Exception("Rabbit MQ not available")
-            }
+        SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+        removeImageSyncMessage.setTransactionId(id)
+        removeImageSyncMessage.setInsert(false)
 
-            SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
-            removeImageSyncMessage.setTransactionId(id)
-            removeImageSyncMessage.setInsert(false)
+        rabbitService.sendMessage(removeImageSyncMessage)
 
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", removeImageSyncMessage.getRetailerId(), removeImageSyncMessage.getStoreNumber()), gsonProvider.gson.toJson(removeImageSyncMessage))
+        SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+        syncMessage.setInsert(true)
+        syncMessage.setButtonGrid(ButtonGrid.get(buttonGridId).getButtonGrid())
 
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setButtonGrid(ButtonGrid.get(buttonGridId).getButtonGrid())
-
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-        } catch (Exception e) {
-            e.printStackTrace()
-        }
+        rabbitService.sendMessage(syncMessage)
 
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId)
     }

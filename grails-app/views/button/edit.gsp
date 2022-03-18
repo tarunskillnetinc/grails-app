@@ -112,7 +112,9 @@
         })
 
         function onTypeChange(newType) {
-            if (newType !== $("#type").val()) {
+            var type = $("#type");
+
+            if (newType !== type.val()) {
                 $("#quantity").val("");
                 $("#buttonProductId").val("");
                 $("#itemCode").html("");
@@ -121,13 +123,14 @@
                 $("#process").val("");
                 $("#amount").val("");
                 $("#tenderType").val("");
+
                 $("input[id*=quantityInput]").val("");
                 $("input[id*=subPageIdInput]").val("");
                 $("input[id*=processInput]").val("");
                 $("input[id*=amountInput]").val("");
                 $("input[id*=tenderTypeInput]").val("");
 
-                $("#type").val(newType);
+                type.val(newType);
             } else if (newType === "${button?.type}") {
                 $("#quantity").val("${button?.quantity}");
                 $("#buttonProductId").val("${button?.sku}");
@@ -137,12 +140,14 @@
                 $("#process").val("${button?.process}");
                 $("#amount").val("${button?.amount}");
                 $("#tenderType").val("${button?.tenderType}");
+
                 $("input[id*=quantityInput]").val("${button?.quantity}");
                 $("input[id*=subPageIdInput]").val("${button?.subPageId}");
                 $("input[id*=processInput]").val("${button?.process}");
                 $("input[id*=amountInput]").val("${button?.amount}");
                 $("input[id*=tenderTypeInput]").val("${button?.tenderType}");
-                $("#type").val(newType);
+
+                type.val(newType);
             }
         }
     </script>
@@ -382,6 +387,7 @@
                 <g:hiddenField name="imageDisplay" value="${button?.imageDisplay}" />
                 <g:hiddenField name="textDisplay" value="${button?.textDisplay}" />
                 <g:hiddenField name="removeImage" value=""/>
+
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
             </g:form>
         </div>

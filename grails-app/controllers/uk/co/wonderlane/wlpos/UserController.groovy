@@ -52,10 +52,6 @@ class UserController {
 
             flash.message = "User saved successfully"
 
-            if (!rabbitService.isOpen()) {
-                throw new Exception("Rabbit MQ not available")
-            }
-
             List<uk.co.wonderlane.wlpos.entities.User> users = new ArrayList<uk.co.wonderlane.wlpos.entities.User>()
             users.add(user.getUser())
 
@@ -63,7 +59,7 @@ class UserController {
             syncMessage.setInsert(true)
             syncMessage.setUsers(users)
 
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendMessage(syncMessage)
 
             redirect (action: "index")
         } else {

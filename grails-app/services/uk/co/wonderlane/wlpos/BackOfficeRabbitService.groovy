@@ -5,8 +5,13 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
 import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.monitoring.RabbitQueue
 
 import javax.xml.bind.DatatypeConverter
@@ -31,12 +36,19 @@ class BackOfficeRabbitService extends RabbitService {
         def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
         gson = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
+                    @Override
+                    JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
+                        return new JsonPrimitive(ISODateTimeFormat.dateTime().print(json))
+                    }
+                })
                 .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
                     @Override
-                    public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                    DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
                         return new DateTime(dateTimeFormat.parse(json.getAsString()).getTime())
                     }
-                }).create()
+                })
+                .create()
 
         init()
     }
@@ -85,16 +97,52 @@ class BackOfficeRabbitService extends RabbitService {
         def responseJson = urlConnection.inputStream.text
 
         // Convert the response JSON into a list of RabbitQueue objects.
-        Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType();
+        Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
 
         return gson.fromJson(responseJson, listType)
     }
 
     void declareExchange(String exchange) {
-        this.channel.exchangeDeclare(exchange, "fanout", true);
+        this.channel.exchangeDeclare(exchange, "fanout", true)
     }
 
     void declareQueue(String queue, String exchange) {
         this.channel.queueBind(queue, exchange, "")
+    }
+
+    void sendMessage(SyncMessage syncMessage) throws IOException {
+        if (!channel.isOpen()) {
+            init()
+
+            if (!channel.isOpen()) {
+                throw new IOException("Rabbit MQ not available.")
+            }
+        }
+
+        if (syncMessage.getStoreNumber() > 0 && syncMessage.getTillId() > 0) {
+            String exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
+            String queueName = String.format("R%d_S%d_T%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber(), syncMessage.getTillId())
+
+            declareExchange(exchangeName)
+            declareQueue(queueName, exchangeName)
+
+            sendQueueMessage(queueName, gson.toJson(syncMessage))
+        } else {
+            sendExchangeMessage(syncMessage)
+        }
+    }
+
+    void sendExchangeMessage(SyncMessage syncMessage) throws IOException {
+        String exchangeName
+
+        if (syncMessage.getStoreNumber() > 0) {
+            exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
+        } else {
+            exchangeName = String.format("R%d", syncMessage.getRetailerId())
+        }
+
+        // TODO Note that whilst we will declare the exchange if it is missing, we are not declaring any queues, which means that the message will still not go anywhere.
+        declareExchange(exchangeName)
+        sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
     }
 }

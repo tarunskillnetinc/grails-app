@@ -5,5 +5,5 @@ import groovy.transform.CompileStatic
 @CompileStatic
 interface StoreNumberValidator {
 
-    int getStoreId(int retailerId, int storeNumber)
+    Integer getStoreId(int retailerId, Integer storeNumber)
 }
