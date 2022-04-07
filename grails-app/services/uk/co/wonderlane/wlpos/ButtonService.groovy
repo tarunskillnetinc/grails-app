@@ -61,6 +61,7 @@ class ButtonService {
         return [ProcessType.NAVIGATE_SALES, ProcessType.NAVIGATE_QUICK_SELL, ProcessType.NAVIGATE_SEARCH, ProcessType.NAVIGATE_RECEIPTS, ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
                 ProcessType.NAVIGATE_CUSTOMER_REFUSAL, ProcessType.NAVIGATE_BACK, ProcessType.NAVIGATE_REFUND, ProcessType.NAVIGATE_ADD_FLOAT, ProcessType.NAVIGATE_CASH_LIFT,
                 ProcessType.NAVIGATE_PAID_OUT, ProcessType.NAVIGATE_TRAINING, ProcessType.NAVIGATE_CREATE_DOCKET, ProcessType.NAVIGATE_COMPLETE_DOCKET, ProcessType.NAVIGATE_DISCOUNT,
-                ProcessType.SAVE_BASKET, ProcessType.NAVIGATE_RETRIEVE_BASKET, ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF, ProcessType.NAVIGATE_TO_WLIM]
+                ProcessType.SAVE_BASKET, ProcessType.NAVIGATE_RETRIEVE_BASKET, ProcessType.LOCK_TILL, ProcessType.VOID_BASKET, ProcessType.NO_SALE, ProcessType.LOG_OFF, ProcessType.NAVIGATE_TO_WLIM,
+                ProcessType.NAVIGATE_PAYPOINT, ProcessType.NAVIGATE_PAYPOINT_ADMIN, ProcessType.NAVIGATE_PAYPOINT_EOD]
     }
 }
