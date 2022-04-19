@@ -18,6 +18,7 @@ class ProductVariant implements Serializable {
     int minimumStockLevel
     DateTime effectiveDate
     boolean delete
+    int shelLifeDays
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<Tag> tags = new ArrayList<>()
@@ -37,6 +38,7 @@ class ProductVariant implements Serializable {
         costPrice column: "costPrice"
         size column:"size"
         colour column:"colour"
+        shelLifeDays column: "shelfLifeDays"
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
         packs cascade: "all-delete-orphan"

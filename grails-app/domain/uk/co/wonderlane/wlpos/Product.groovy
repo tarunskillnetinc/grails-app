@@ -16,6 +16,8 @@ class Product {
     boolean weightedItem
     boolean openPrice
     boolean zeroPrice
+    boolean pricePerKg
+    boolean deliItem
     VatCode vatCode
     BigDecimal vatPercentageOverride
     Restrictions restrictions
@@ -44,6 +46,8 @@ class Product {
         receiptDescription column: "receiptDescription"
         category column: "categoryId"
         unitSize column: "unitSize"
+        pricePerKg column: "pricePerKg"
+        deliItem column: "deliItem"
         weightedItem column: "weightedItem"
         openPrice column: "openPrice"
         zeroPrice column: "zeroPrice"
