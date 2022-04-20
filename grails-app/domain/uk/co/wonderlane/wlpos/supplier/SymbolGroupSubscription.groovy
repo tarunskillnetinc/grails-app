@@ -8,7 +8,7 @@ class SymbolGroupSubscription {
 
     int id
     int retailerId
-    int storeId
+    Integer storeId
     SymbolGroup symbolGroup
     boolean active
     String storeIdentifier
@@ -43,6 +43,7 @@ class SymbolGroupSubscription {
     }
 
     static constraints = {
+        storeId nullable: true
         storeIdentifier nullable: true, maxSize: 50
         organisationIdentifier nullable: true, maxSize: 50
         username nullable: true, maxSize: 50

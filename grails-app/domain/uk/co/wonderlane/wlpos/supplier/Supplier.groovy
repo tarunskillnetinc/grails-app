@@ -4,7 +4,7 @@ class Supplier {
 
     int id
     int retailerId
-    int storeId
+    Integer storeId
     String name
     String reference
     String contactName
@@ -43,6 +43,7 @@ class Supplier {
     }
 
     static constraints = {
+        storeId nullable: true
         reference nullable: true, maxSize: 40
         contactName nullable: true, maxSize: 50
         phoneNumber nullable: true, maxSize: 30
