@@ -60,7 +60,7 @@ class BackOfficeRabbitService extends RabbitService {
 
         // Only return the queues for our retailer.
         allRabbitQueues?.each {
-            if (it.name?.startsWith("R2_S") && it.name?.count("_") == 2) {
+            if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
                 it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
                 it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
                 it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
