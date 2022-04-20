@@ -110,7 +110,7 @@
                             </div>
 
                             <g:link controller="tag" class="dropdown-item">Tags</g:link>
-                            <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
+                            <g:link controller="shelfEdgeLabel" class="dropdown-item disabled">Shelf Edge Labels</g:link>
                         </div>
                     </li>
 
@@ -132,10 +132,10 @@
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
                             <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
-                            <g:link controller="group" class="dropdown-item">User Groups</g:link>
+                            <g:link controller="group" class="dropdown-item disabled">User Groups</g:link>
                             <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
                             <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
-                            <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
+                            <g:link controller="productList" class="dropdown-item disabled">Central Counts</g:link>
                         </div>
                     </li>
 
