@@ -72,7 +72,12 @@ class SupplierController {
     def ajaxEditSymbolGroupSubscription(int symbolGroupSubscriptionId) {
         def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupSubscriptionId)
 
-        render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: supplierService.getSymbolGroups()])
+        def symbolGroups = supplierService.getSymbolGroups()
+        def subscribedSymbolGroupIds = supplierService.getSymbolGroupSubscriptions()?.collect { it.symbolGroup.id }
+
+        symbolGroups.removeAll {subscribedSymbolGroupIds.contains(it.id) && it.id != symbolGroupSubscription.symbolGroup.id }
+
+        render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: symbolGroups])
     }
 
     def ajaxSaveSymbolGroupSubscription() {
@@ -110,10 +115,20 @@ class SupplierController {
             } catch (Exception e) {
                 e.printStackTrace()
 
-                render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: supplierService.getSymbolGroups()])
+                def symbolGroups = supplierService.getSymbolGroups()
+                def subscribedSymbolGroupIds = supplierService.getSymbolGroupSubscriptions()?.collect { it.symbolGroup.id }
+
+                symbolGroups.removeAll {subscribedSymbolGroupIds.contains(it.id) && it.id != symbolGroupSubscription.symbolGroup.id }
+
+                render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: symbolGroups])
             }
         } else {
-            render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: supplierService.getSymbolGroups()])
+            def symbolGroups = supplierService.getSymbolGroups()
+            def subscribedSymbolGroupIds = supplierService.getSymbolGroupSubscriptions()?.collect { it.symbolGroup.id }
+
+            symbolGroups.removeAll {subscribedSymbolGroupIds.contains(it.id) && it.id != symbolGroupSubscription.symbolGroup?.id }
+
+            render (template: "addSymbolGroupSubscription", model: [symbolGroupSubscription: symbolGroupSubscription, symbolGroups: symbolGroups])
         }
     }
 }
