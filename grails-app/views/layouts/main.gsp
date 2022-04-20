@@ -65,8 +65,8 @@
                         <g:link uri="/" class="nav-link">Home</g:link>
                     </li>
 
-                    <li class="nav-item">
-                        <g:link controller="user" class="nav-link">Users</g:link>
+                    <li class="nav-item disabled">
+                        <g:link controller="user" class="nav-link disabled">Users</g:link>
                     </li>
 
                     <li class="nav-item dropdown">
@@ -134,7 +134,9 @@
                             <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
                             <g:link controller="group" class="dropdown-item">User Groups</g:link>
                             <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
-                            <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                            </g:if>
                             <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
                         </div>
                     </li>
