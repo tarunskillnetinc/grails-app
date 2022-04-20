@@ -9,14 +9,20 @@
         var getQueuesUrl = "${createLink(controller: 'monitoring', action: 'ajaxGetQueues')}";
         var purgeQueueUrl = "${createLink(controller: 'monitoring', action: 'ajaxPurgeQueue')}";
         var deleteQueueUrl = "${createLink(controller: 'monitoring', action: 'ajaxDeleteQueue')}";
+        var forceSyncUrl = "${createLink(controller: 'monitoring', action: 'ajaxForceSync')}";
+
+        var intervalMillis = 10000;
+        var intervalId = setInterval(getQueues, intervalMillis);
 
         $(function() {
-            getQueues();
+            getQueues(false);
         });
 
-        function getQueues() {
-            $("#search-results").hide();
-            $("#loading-indicator").show();
+        function getQueues(silent) {
+            if (silent === false) {
+                $("#search-results").hide();
+                $("#loading-indicator").show();
+            }
 
             // Retrieve our filters.
             var filterParams = { };
@@ -33,8 +39,13 @@
                 url: getQueuesUrl,
                 method: "GET",
                 data: filterParams,
-                success: function(resp) {
-                    $("#results-container").html(resp);
+                success: function (data, textStatus, resp) {
+                    $("#results-container").html(data);
+                    $("#errors-container").html('');
+                },
+                error: function (resp) {
+                    $("#results-container").html("");
+                    $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
                 }
             });
         }
@@ -45,8 +56,13 @@
                     url: purgeQueueUrl,
                     method: "DELETE",
                     data: { storeId: storeId, tillId: tillId },
-                    success: function(resp) {
-                        getQueues();
+                    success: function (data, textStatus, resp) {
+                        $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        resetInterval();
+                    },
+                    error: function (resp) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        resetInterval();
                     }
                 });
             }
@@ -58,8 +74,31 @@
                     url: deleteQueueUrl,
                     method: "DELETE",
                     data: { storeId: storeId, tillId: tillId },
-                    success: function(resp) {
-                        getQueues();
+                    success: function (data, textStatus, resp) {
+                        $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        resetInterval();
+                    },
+                    error: function (resp) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        resetInterval();
+                    }
+                });
+            }
+        }
+
+        function forceSync(storeId, tillId) {
+            if (confirm("This will force the queue for store " + storeId + ", till " + tillId + " to synchronise.")) {
+                $.ajax({
+                    url: forceSyncUrl,
+                    method: "POST",
+                    data: { storeId: storeId, tillId: tillId },
+                    success: function (data, textStatus, resp) {
+                        $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        resetInterval();
+                    },
+                    error: function (resp) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        resetInterval();
                     }
                 });
             }
@@ -69,8 +108,15 @@
             $("#storeIdFilter").val("");
             $("#tillIdFilter").val("");
             $("#statusFilter").val("");
+            $("#errors-container").html('');
+            getQueues(false);
+        }
 
-            getQueues();
+        function resetInterval() {
+            clearInterval(intervalId);
+            intervalId = setInterval(function() {
+                getQueues(true);
+            }, intervalMillis);
         }
     </script>
 </head>
@@ -93,30 +139,24 @@
         <div class="header-wl mt-3">
             <h2 class="mx-auto">Till Connectivity</h2>
         </div>
-    </section>
 
-    <g:if test="${flash.error}">
-        <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
-        </section>
-    </g:if>
-
-    <g:if test="${flash.message}">
-        <section id="errors-container2" class="container-fluid">
-            <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-        </section>
-    </g:if>
-
-    <section id="heading-container-2" class="container-fluid">
         <div class="row mt-4 ml-0 mr-0">
             <div class="col-8 offset-2 text-center">
                 <p>This page displays the current status of the RabbitMQ till messaging system.</p>
-            </div>
-
-            <div class="col-2 px-0 text-right">
-                <a href="#" class="btn btn-wl" onclick="getQueues();">Refresh</a>
+                <p>The Clear button will remove all messages currently on the queue for the affected till.
+                    <br />The Sync button will send a message to the till to force it to synchronise with the central database.
+                    <br />Any action taken here can be destructive and should only be performed with notice to the affected store.</p>
             </div>
         </div>
+
+        <section id="errors-container" class="container-fluid">
+            <g:if test="${flash.error}">
+                <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+            </g:if>
+            <g:if test="${flash.message}">
+                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            </g:if>
+        </section>
     </section>
 
     <section id="filters-section" class="container-fluid">
@@ -162,17 +202,20 @@
                     </div>
                 </div>
             </div>
+            <div class="col-2 text-right">
+                <a href="#" class="btn btn-wl mt-1" onclick="getQueues(true);">Refresh</a>
+            </div>
         </div>
     </section>
 
-    <section id="queues-container" class="container-fluid">
+    <section id="queues-container" class="container-fluid mb-3">
         <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-            <div class="col-2 font-weight-bold">Store ID</div>
-            <div class="col-2 font-weight-bold">Till ID</div>
-            <div class="col-2 font-weight-bold">Messages Waiting</div>
-            <div class="col-2 font-weight-bold">Latest Queue Activity</div>
-            <div class="col-2 font-weight-bold">Status</div>
-            <div class="col-2 font-weight-bold">&nbsp;</div>
+            <div class="col-1 font-weight-bold text-center">Store ID</div>
+            <div class="col-1 font-weight-bold text-center">Till ID</div>
+            <div class="col-2 font-weight-bold text-center">Messages Waiting</div>
+            <div class="col-2 font-weight-bold text-center">Latest Queue Activity</div>
+            <div class="col-1 font-weight-bold text-center">Status</div>
+            <div class="col-3 font-weight-bold">&nbsp;</div>
         </div>
 
         <div id="results-container">
