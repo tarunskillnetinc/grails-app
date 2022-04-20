@@ -61,7 +61,12 @@ class SupplierController {
     }
 
     def ajaxAddSymbolGroupSubscription() {
-        render (template: "addSymbolGroupSubscription", model: [symbolGroups: supplierService.getSymbolGroups()])
+        def symbolGroups = supplierService.getSymbolGroups()
+        def subscribedSymbolGroupIds = supplierService.getSymbolGroupSubscriptions()?.collect { it.symbolGroup.id }
+
+        symbolGroups.removeAll {subscribedSymbolGroupIds.contains(it.id) }
+
+        render (template: "addSymbolGroupSubscription", model: [symbolGroups: symbolGroups])
     }
 
     def ajaxEditSymbolGroupSubscription(int symbolGroupSubscriptionId) {
