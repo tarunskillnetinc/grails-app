@@ -134,7 +134,9 @@
                             <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
                             <g:link controller="group" class="dropdown-item disabled">User Groups</g:link>
                             <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
-                            <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                            </g:if>
                             <g:link controller="productList" class="dropdown-item disabled">Central Counts</g:link>
                         </div>
                     </li>

@@ -91,6 +91,10 @@ p {
     color: #FFFFFF !important;
 }
 
+.nav-wl .nav-item .disabled {
+    color: #808080 !important;
+}
+
 .nav-wl .nav-item a:hover {
     color: #FFFFFF !important;
 }
