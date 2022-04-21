@@ -20,14 +20,21 @@ class VatCode {
         retailerVatCode column: "retailerVatCode"
     }
 
+    static constraints = {
+        description nullable: true
+        retailerVatCode nullable: true
+    }
+
     public uk.co.wonderlane.wlpos.entities.VatCode getVatCode() {
         uk.co.wonderlane.wlpos.entities.VatCode vatCode = new uk.co.wonderlane.wlpos.entities.VatCode()
+
         vatCode.setId(id)
         vatCode.setRetailerId(retailerId)
         vatCode.setCode(code)
         vatCode.setDescription(description)
         vatCode.setPercentage(percentage)
         vatCode.setRetailerVatCode(retailerVatCode)
+
         return vatCode
     }
 }

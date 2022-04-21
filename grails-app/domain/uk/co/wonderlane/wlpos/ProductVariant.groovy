@@ -51,7 +51,7 @@ class ProductVariant implements Serializable {
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true
         colour size: 0..45, blank: true, nullable: true
-        shelfLifeDays nullable: false
+        shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
         delete bindable: true
