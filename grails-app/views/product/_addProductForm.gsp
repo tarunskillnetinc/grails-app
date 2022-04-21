@@ -20,8 +20,8 @@
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
-                                <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code</label>
-                                <g:textField name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
+                                <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
+                                <g:field type="number" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>

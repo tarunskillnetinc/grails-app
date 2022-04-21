@@ -12,7 +12,7 @@
             <label for="addVariantSku" class="col-3 offset-1 col-form-label text-right">SKU</label>
 
             <div class="input-group col-4">
-                <g:textField name="addVariantSku" value="${variant?.sku}" class="form-control bottom-border" />
+                <g:field type="number" name="addVariantSku" value="${variant?.sku}" class="form-control bottom-border" />
             </div>
         </div>
 

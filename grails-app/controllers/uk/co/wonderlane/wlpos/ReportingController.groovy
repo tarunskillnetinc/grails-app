@@ -46,7 +46,7 @@ class ReportingController {
         startDate.clearTime()
         endDate.clearTime()
 
-        // Find all sales involving this category in the date range.
+        // Find all sales in the date range.
         def sales = reportingService.getSales(startDate, endDate + 1)
 
         // Filter our results.
