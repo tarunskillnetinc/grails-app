@@ -20,7 +20,7 @@
             <label for="addVariantRetailPrice" class="col-3 offset-1 col-form-label text-right">Retail Price</label>
 
             <div class="input-group col-4">
-                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control bottom-border" />
+                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control bottom-border" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
             </div>
         </div>
 
