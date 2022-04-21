@@ -23,6 +23,9 @@ class StoreSettingsController {
     def save() {
         def storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
+        def oldPriceBand = storeSettings.priceBand.id
+        def oldProductRange = storeSettings.range.id
+
         bindData(storeSettings, params)
 
         storeSettings.retailerId = springSecurityService.principal.retailerId
@@ -41,7 +44,11 @@ class StoreSettingsController {
 
             rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
 
-            flash.message = "Store settings saved successfully."
+            if (oldPriceBand != storeSettings.priceBand.id || oldProductRange != storeSettings.range.id) {
+                flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.","Please perform this operation from the Till Connectivity page in the Monitoring menu."]
+            } else {
+                flash.message = ["Store settings saved successfully."]
+            }
 
             redirect(action: "index")
         } else {

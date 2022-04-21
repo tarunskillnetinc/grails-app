@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat
 class BackOfficeRabbitService extends RabbitService {
 
     def springSecurityService
-
     def gson
 
     private String apiUrl
@@ -30,7 +29,7 @@ class BackOfficeRabbitService extends RabbitService {
     BackOfficeRabbitService(String host, int port, int apiPort, String username, String password) {
         super(host, port, username, password, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
 
-        apiUrl = "http://${host}:${apiPort}/api/queues"
+        apiUrl = "http://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
 
         def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -89,7 +88,7 @@ class BackOfficeRabbitService extends RabbitService {
 
     private List<RabbitQueue> getQueues() {
         // Open a connection to the RabbitMQ REST API.
-        def url = apiUrl.toURL()
+        def url = (apiUrl + "queues").toURL()
 
         def urlConnection = url.openConnection()
         urlConnection.addRequestProperty("Authorization", "Basic ${apiAuthorization}")
@@ -108,6 +107,14 @@ class BackOfficeRabbitService extends RabbitService {
 
     void declareQueue(String queue, String exchange) {
         this.channel.queueBind(queue, exchange, "")
+    }
+
+    def purgeQueue(int retailerId, int storeId, int tillId) {
+        channel.queuePurge(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
+    }
+
+    def deleteQueue(int retailerId, int storeId, int tillId) {
+        channel.queueDelete(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     void sendMessage(SyncMessage syncMessage) throws IOException {
@@ -144,5 +151,9 @@ class BackOfficeRabbitService extends RabbitService {
         // TODO Note that whilst we will declare the exchange if it is missing, we are not declaring any queues, which means that the message will still not go anywhere.
         declareExchange(exchangeName)
         sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
+    }
+
+    def reInitialise() {
+        init()
     }
 }

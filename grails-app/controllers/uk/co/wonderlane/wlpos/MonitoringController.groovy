@@ -1,8 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
+
 class MonitoringController {
 
+    def springSecurityService
     def rabbitService
+    def gsonProvider
 
     def tillConnectivity() {
 
@@ -69,22 +74,46 @@ class MonitoringController {
     }
 
     def ajaxPurgeQueue(int storeId, int tillId) {
-        if (!rabbitService.isOpen()) {
-            throw new Exception("Rabbit MQ not available")
+        try {
+            if (!rabbitService.isOpen()) {
+                render status: 500, text: "Unable to open connection to RabbitMQ."
+            }
+
+            rabbitService.purgeQueue(springSecurityService.principal.retailerId, storeId, tillId)
+
+            render status: 200, text: "The queue for till" + tillId + " in store " + storeId + " has been cleared."
+        } catch (Exception e) {
+            // Assume Rabbit not available.
+            render status: 500, text: "Error connecting to RabbitMQ."
         }
-
-        rabbitService.purgeQueue(storeId, tillId)
-
-        render status: 200
     }
 
     def ajaxDeleteQueue(int storeId, int tillId) {
+        try {
+            if (!rabbitService.isOpen()) {
+                render status: 500, text: "Unable to open connection to RabbitMQ."
+            }
+
+            rabbitService.deleteQueue(springSecurityService.principal.retailerId, storeId, tillId)
+
+            render status: 200, text: "The queue for till" + tillId + " in store " + storeId + " has been deleted."
+        } catch (Exception e) {
+            // Assume Rabbit not available.
+            render status: 500, text: "Error connecting to RabbitMQ."
+        }
+    }
+
+    def ajaxForceSync() {
+        SyncMessage syncMessage = new SyncMessage(SyncMessageType.FORCE_DATA_SYNC, springSecurityService.principal.retailerId, Integer.parseInt(params.storeId), null, Integer.parseInt(params.tillId))
+        syncMessage.setInsert(false)
+
         if (!rabbitService.isOpen()) {
-            throw new Exception("Rabbit MQ not available")
+            render status: 500, text: "Unable to open connection to RabbitMQ."
+            return
         }
 
-        rabbitService.deleteQueue(storeId, tillId)
+        rabbitService.sendQueueMessage(String.format("R%d_S%d_T%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber(), syncMessage.getTillId()), gsonProvider.gson.toJson(syncMessage))
 
-        render status: 200
+        render status: 200, text: "Sync should begin shortly for Till " + params.tillId + " in Store " + params.storeId + "."
     }
 }

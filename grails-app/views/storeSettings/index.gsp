@@ -33,7 +33,11 @@
 
     <g:if test="${flash.message}">
         <section id="errors-container2" class="container-fluid">
-            <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            <div class="alert alert-success alert-wl mx-0" role="alert">
+                <g:each in="${flash.message}" var="message" status="i">
+                    ${message}<br/>
+                </g:each>
+            </div>
         </section>
     </g:if>
 
