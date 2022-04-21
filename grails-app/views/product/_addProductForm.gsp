@@ -119,7 +119,7 @@
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group">
                                 <label for="vatCode" class="col-3 col-form-label text-right pr-4">VAT Code</label>
-                                <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="description" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
+                                <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="${{(it?.description ? it.description + ' (' +it.percentage.setScale(1) +'%)' : String.valueOf(it.code) + ' (' +it.percentage.setScale(1) +'%)')}}" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
                             </div>
                             <div class="row mt-1 form-group">
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
