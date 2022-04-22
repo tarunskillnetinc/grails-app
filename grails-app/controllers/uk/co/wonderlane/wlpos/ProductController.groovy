@@ -256,16 +256,16 @@ class ProductController {
             product = new Product(params)
             product.retailerId = springSecurityService.principal.retailerId
 
-            product.variants?.each {
-                it.storeId = springSecurityService.principal.storeId
-                it.effectiveDate = now
+            product.variants?.each { variant ->
+                variant.storeId = springSecurityService.principal.storeId
+                variant.effectiveDate = now
 
-                // TODO Won't work anymore.
-//                it.barcodes?.each { barcode ->
-//                    barcode.effectiveDate = barcode.effectiveDate ?: now
-//                }
+                variant.barcodez?.each { barcode ->
+                    barcode.sku = variant.sku
+                    barcode.effectiveDate = barcode.effectiveDate ?: now
+                }
 
-                it.packs?.each { pack ->
+                variant.packs?.each { pack ->
                     pack.effectiveDate = pack.effectiveDate ?: now
                 }
             }
@@ -302,32 +302,13 @@ class ProductController {
             // TODO Handle saving over the rest of the properties in a product, also handle adding new variants and such.
         }
 
-//        for (ProductVariant variant : product.variants) {
-//            if (variant.storeId == springSecurityService.principal.storeId) {
-//                List<Barcode> barcodes = variant.barcodes.collect()
-//                if (variant.delete) {
-//                    for (Barcode barcode : barcodes) {
-//                        variant.removeFromBarcodes(barcode)
-//                    }
-//
-//                    product.removeFromVariants(variant)
-//                } else {
-//                    for (Barcode barcode : barcodes) {
-//                        if (barcode.delete) {
-//                            variant.removeFromBarcodes(barcode)
-//                        }
-//                    }
-//
-//                    if ((variant.sku == null || variant.sku?.isEmpty() || variant.sku?.isAllWhitespace()) && (!product.itemCode?.isEmpty() || !product.itemCode?.isAllWhitespace())) {
-//                        variant.sku = product.itemCode
-//                    }
-//                }
-//            }
-//        }
-
         if (product.validate()) {
             restrictionsService.saveRestrictions(product.restrictions) // Restrictions are validated as part of product.validate()
             productService.saveProduct(product)
+
+            if (newProduct) {
+                productService.saveBarcodes(product)
+            }
 
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
@@ -533,8 +514,7 @@ class AddVariantCommand {
     Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
-    String size
-    String colour
+    Integer shelfLifeDays
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodes
     List<AddPackCommand> packs

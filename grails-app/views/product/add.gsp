@@ -133,10 +133,10 @@
                     barcodeContainers.each(function(loopIndex) {
                         var barcodeIndex = parseInt($(this).attr("id").substring(16));
 
-                        params["barcodes[" +loopIndex +"].id"] = $(selector + "barcodes\\[" +barcodeIndex +"\\]\\.id").val();
-                        params["barcodes[" +loopIndex +"].barcode"] = $(selector + "barcodes\\[" +barcodeIndex +"\\]\\.barcode").val();
-                        params["barcodes[" +loopIndex +"].effectiveDate"] = $(selector + "barcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
-                        params["barcodes[" +loopIndex +"].recordStatus"] = $(selector + "barcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                        params["barcodez[" +loopIndex +"].id"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.id").val();
+                        params["barcodez[" +loopIndex +"].barcode"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.barcode").val();
+                        params["barcodez[" +loopIndex +"].effectiveDate"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
+                        params["barcodez[" +loopIndex +"].recordStatus"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.recordStatus").val();
                     });
                 } else {
                     var lastVariantContainer = $("#variantsContainer > div:last-child");
@@ -166,10 +166,9 @@
                 var sku = $("#addVariantSku").val();
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
-                var size = $("#addVariantSize").val();
-                var colour = $("#addVariantColour").val();
+                var shelfLifeDays = $("#addVariantShelfLifeDays").val();
 
-                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, size: size, colour: colour };
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 addBarcodeContainers.each(function(loopIndex) {

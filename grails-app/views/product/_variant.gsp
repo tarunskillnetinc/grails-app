@@ -3,8 +3,7 @@
     <g:hiddenField name="variants[${index}].sku" value="${variant?.sku}" />
     <g:hiddenField name="variants[${index}].retailPrice" value="${variant?.retailPrice}" />
     <g:hiddenField name="variants[${index}].costPrice" value="${variant?.costPrice}" />
-    <g:hiddenField name="variants[${index}].size" value="${variant?.size}" />
-    <g:hiddenField name="variants[${index}].colour" value="${variant?.colour}" />
+    <g:hiddenField name="variants[${index}].shelfLifeDays" value="${variant?.shelfLifeDays}" />
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
 
     <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku}</div>

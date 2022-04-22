@@ -23,7 +23,9 @@ class ProductVariant implements Serializable {
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<Tag> tags = new ArrayList<>()
 
-    static transients = ['delete']
+    Collection<Barcode> barcodez = new ArrayList<>()
+
+    static transients = ['delete', 'barcodez']
 
     static hasMany = [packs: Pack]
 
@@ -55,6 +57,7 @@ class ProductVariant implements Serializable {
         effectiveDate nullable: false
         packs nullable: true
         delete bindable: true
+        barcodez bindable: true
     }
 
     List<ProductPrice> getPrices() {
