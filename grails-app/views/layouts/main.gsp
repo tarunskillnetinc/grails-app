@@ -78,10 +78,13 @@
 
                                 <div class="dropdown-menu" aria-labelledby="productsDropdown">
                                     <g:link controller="product" class="dropdown-item">Product Maintenance</g:link>
+
                                     <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
-                                        <div class="dropdown-divider"></div>
-                                        <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
-                                        <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                            <div class="dropdown-divider"></div>
+                                            <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
+                                            <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                        </g:if>
                                     </sec:ifAnyGranted>
                                 </div>
                             </div>
