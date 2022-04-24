@@ -43,11 +43,23 @@ class Restrictions {
         maxOpenPrice min: 0.01 as BigDecimal, max: 99999.99 as BigDecimal, blank: true, nullable: true, scale: 2, validator: {val, obj ->
             return val != null && obj.minOpenPrice != null && val.compareTo(obj.minOpenPrice) > 0 ? true : ["error.Restrictions.maxMoreThanMin"]
         }
-        buyerAgeRestriction min: 1, max: 25, blank: true, nullable: true
-        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
+        buyerAgeRestriction min: 1, max: 25, blank: true, nullable: true, validator: { val, obj ->
+            if (obj.buyerIdRequired && val == null) {
+                return ["restrictions.buyerAgeRestriction.nullable"]
+            }
+        }
+        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true, validator: { val, obj ->
+            if (obj.buyerIdRequired && val == null) {
+                return ["restrictions.buyerChallengeAge.nullable"]
+            }
+        }
         buyerIdRequired nullable: true
         buyerIdForced nullable: true
-        sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true
+        sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true, validator: { val, obj ->
+            if (obj.buyerIdRequired && val == null) {
+                return ["restrictions.sellerAgeRestriction.nullable"]
+            }
+        }
         refundAllowed nullable: true
         markdownAllowed nullable: true
         discountAllowed nullable: true
