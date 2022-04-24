@@ -13,7 +13,8 @@ class StoreSettingsController {
     def gsonProvider
 
     def index() {
-        def storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def storeSettings = springSecurityService.principal.storeId ? StoreSettings.findById(springSecurityService.principal.storeId) : StoreSettings.findByRetailerIdAndStoreIdIsNull(springSecurityService.principal.retailerId)
+
         def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def availableProductRanges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
 
@@ -21,15 +22,14 @@ class StoreSettingsController {
     }
 
     def save() {
-        def storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        def storeSettings = springSecurityService.principal.storeId ? StoreSettings.findById(springSecurityService.principal.storeId) : StoreSettings.findByRetailerIdAndStoreIdIsNull(springSecurityService.principal.retailerId)
 
-        def oldPriceBand = storeSettings.priceBand.id
-        def oldProductRange = storeSettings.range.id
+        def oldPriceBand = storeSettings?.priceBand?.id
+        def oldProductRange = storeSettings?.range?.id
 
         bindData(storeSettings, params)
 
         storeSettings.retailerId = springSecurityService.principal.retailerId
-        storeSettings.id = springSecurityService.principal.storeId
 
         if (storeSettings.validate()) {
             storeSettingsService.saveStoreSettings(storeSettings)
