@@ -58,7 +58,7 @@
                 var sku = $("#variants\\[0\\]\\.sku");
 
                 // Only change the SKU the first time we change the main item code.
-                if (sku != null && (sku.val() === null || sku.val() === "")) {
+                if (sku != null && (sku.val() === null || sku.val() === "" || sku.val() === "0")) {
                     sku.val(itemCode);
                     $("#variants\\[0\\]\\.skuText").html(itemCode);
 
