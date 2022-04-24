@@ -5,11 +5,15 @@
         def variantPrices = variant?.prices
     %>
     <g:each in="${priceBands}" var="priceBand" status="index">
-        <div class="col">
+        <div class="col input-group">
             <g:hiddenField name="priceChanges[${skuIndex}].priceChanges[${index}].sku" value="${sku}" />
             <g:hiddenField name="priceChanges[${skuIndex}].priceChanges[${index}].priceBandId" value="${priceBand.id}" />
 
-            <g:textField name="priceChanges[${skuIndex}].priceChanges[${index}].price" value="${variantPrices?.find { it.priceBand.id == priceBand.id }?.price}" class="form-control" />
+            <div class="input-group-prepend">
+                <span class="input-group-text">&pound;</span>
+            </div>
+
+            <g:textField name="priceChanges[${skuIndex}].priceChanges[${index}].price" value="${variantPrices?.find { it.priceBand.id == priceBand.id }?.price}" class="form-control mask-money" />
         </div>
     </g:each>
 </div>

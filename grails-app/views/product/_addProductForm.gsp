@@ -88,7 +88,7 @@
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${variant.storeId == null || variant.storeId == storeId}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodes]" />
                                 </div>
                             </g:if>
                         </g:each>
@@ -169,6 +169,8 @@
             </div>
 
             <div id="collapseRestrictions" class="collapse collapsed" aria-labelledby="productRestrictions" data-parent="#accordion">
+                <g:hiddenField name="restrictions.id" value="${product?.restrictions?.id}" />
+
                 <div class="card-body py-5">
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">

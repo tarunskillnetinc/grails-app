@@ -68,7 +68,7 @@ class Pack {
         pack.setEffectiveDate(effectiveDate)
         pack.setEffectiveEndDate(effectiveEndDate)
         pack.setStatus(status)
-        pack.setMaximumOrderQuantity(maximumOrderQuantity)
+        pack.setMaximumOrderQuantity(maximumOrderQuantity != null ? maximumOrderQuantity : 0)
         pack.setAllowSubstitutes(allowSubstitutes)
 
         return pack

@@ -126,8 +126,7 @@
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
-                    params["size"] = $(selector + "size").val();
-                    params["colour"] = $(selector + "colour").val();
+                    params["shelfLifeDays"] = $(selector + "shelfLifeDays").val();
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -156,6 +155,8 @@
                     data: params,
                     success: function(resp) {
                         $("#addVariantContent").html(resp);
+
+                        $("#addVariantContent .mask-money").maskMoney({ allowZero: true });
                     }
                 });
             }
@@ -171,16 +172,38 @@
                 var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
+
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
 
-                    params["barcodes[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
-                    params["barcodes[" +loopIndex +"].barcode"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val();
-                    params["barcodes[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
-                    params["barcodes[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                    params["barcodez[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
+                    params["barcodez[" +loopIndex +"].barcode"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val();
+                    params["barcodez[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
+                    params["barcodez[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
                 });
 
-                // TODO Go and look for existing packs and add those to the params otherwise they will be lost.
+                // Need to add all of the pack data for this variant to the save call otherwise we lose the packs from the screen when re-rendering the variant row.
+                var packContainers = $("#variants\\[" +index +"\\]\\.packsContainer > div");
+
+                packContainers.each(function(loopIndex) {
+                    var packIndex = $(this).attr("id").substring(13);
+                    var packSelector = "#variants\\[" +index +"\\]\\.packs\\[" +packIndex +"\\]";
+
+                    params["packs[" +loopIndex +"].index"] = loopIndex;
+                    params["packs[" +loopIndex +"].id"] = $(packSelector +"\\.id").val();
+                    params["packs[" +loopIndex +"].supplier.id"] = $(packSelector +"\\.supplier\\.id").val();
+                    params["packs[" +loopIndex +"].supplier.name"] = $(packSelector +"\\.supplier\\.name").val();
+                    params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
+                    params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
+                    params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();
+                    params["packs[" +loopIndex +"].barcode"] = $(packSelector +"\\.barcode").val();
+                    params["packs[" +loopIndex +"].recommendedRetailPrice"] = $(packSelector +"\\.recommendedRetailPrice").val();
+                    params["packs[" +loopIndex +"].effectiveDate"] = $(packSelector +"\\.effectiveDate").val();
+                    params["packs[" +loopIndex +"].effectiveEndDate"] = $(packSelector +"\\.effectiveEndDate").val();
+                    params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
+                    params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
+                    params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                });
 
                 $.ajax({
                     url: saveVariantUrl,
@@ -247,6 +270,8 @@
 
                             if (pricesContainer !== null) {
                                 pricesContainer.append(resp);
+
+                                $("#pricesContainer .mask-money").maskMoney({ allowZero: true });
                             }
                         }
                     });
@@ -273,7 +298,7 @@
                         var barcodeContainer = $("#addBarcodesContainer > #addBarcode" +index);
 
                         if (barcodeContainer.length === 0) {
-                            $("#addBarcodesContainer").append("<div id=\"addBarcode" +index +"\"></div>");
+                            $("#addBarcodesContainer").append("<div id=\"addBarcode" +index +"\" class=\"input-group py-1\"></div>");
 
                             barcodeContainer = $("#addBarcodesContainer > #addBarcode" +index);
                         }
@@ -285,6 +310,10 @@
 
             // Delete barcode button was clicked, we just remove the div.
             function deleteBarcode(index) {
+                if (!confirm("This barcode will be deleted.")) {
+                    return;
+                }
+
                 $("#addBarcodesContainer > #addBarcode" +index).remove();
             }
 

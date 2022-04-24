@@ -11,7 +11,7 @@
     <div class="col-2 my-auto" id="variants[${index}].costPriceText"><g:formatNumber number="${variant?.costPrice}" type="currency" /></div>
 
     <div id="variants[${index}].barcodesContainer" class="col-2 my-auto">
-        <g:each in="${variant?.barcodes}" var="barcode" status="i">
+        <g:each in="${barcodes}" var="barcode" status="i">
             <div id="barcodeContainer${i}">
                 <g:render template="barcode" model="[variantIndex: index, barcodeIndex: i, barcode: barcode]" />
             </div>
