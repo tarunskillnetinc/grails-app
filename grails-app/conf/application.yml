@@ -431,8 +431,13 @@ environments:
 
     production:
         dataSource:
-            dbCreate: none
-            url: jdbc:h2:./prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            pooled: true
+            dbCreate: "validate"
+            url: "jdbc:mysql://localhost:3306/wlpos"
+            driverClassName: "com.mysql.cj.jdbc.Driver"
+            dialect: org.hibernate.dialect.MySQLInnoDBDialect
+            username: "wonderlane"
+            password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -440,22 +445,27 @@ environments:
                 minIdle: 5
                 maxIdle: 25
                 maxWait: 10000
-                maxAge: 600000
+                maxAge: 10 * 60000
                 timeBetweenEvictionRunsMillis: 5000
                 minEvictableIdleTimeMillis: 60000
-                validationQuery: SELECT 1
+                validationQuery: "SELECT 1"
                 validationQueryTimeout: 3
                 validationInterval: 15000
                 testOnBorrow: true
                 testWhileIdle: true
                 testOnReturn: false
-                jdbcInterceptors: ConnectionState
-                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+                jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         dataSources:
             reporting:
-                dbCreate: none
-                url: jdbc:h2:./prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://localhost:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -463,37 +473,63 @@ environments:
                     minIdle: 5
                     maxIdle: 25
                     maxWait: 10000
-                    maxAge: 600000
+                    maxAge: 10 * 60000
                     timeBetweenEvictionRunsMillis: 5000
                     minEvictableIdleTimeMillis: 60000
-                    validationQuery: SELECT 1
+                    validationQuery: "SELECT 1"
                     validationQueryTimeout: 3
                     validationInterval: 15000
                     testOnBorrow: true
                     testWhileIdle: true
                     testOnReturn: false
-                    jdbcInterceptors: ConnectionState
-                    defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+            transactions:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://localhost:3306/transactions"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
             host: localhost
             port: 5672
             apiPort: 15672
-            username: rabbituser
-            password: Pa**W0rd01
+            username: wonderlane
+            password: 0TS51aZARfjTC3VjOYP6
 
         mysql:
             wlpos:
                 host: localhost
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: wonderlane
+                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
                 database: wlpos
             transactions:
                 host: localhost
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: wonderlane
+                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
                 database: transactions
 
 wlpos:
