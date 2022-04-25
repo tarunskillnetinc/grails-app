@@ -71,13 +71,13 @@ class EposTagLib {
             case ReportType.SALES_DEPARTMENT:
                 out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
 
-                break;
+                break
             case ReportType.SALES_CATEGORY:
                 def category = categoryService.getCategory(attrs.categoryId)
 
                 def hierarchy = [category]
 
-                while (category.parentCategory != null) {
+                while (category?.parentCategory != null) {
                     hierarchy.add(category.parentCategory)
 
                     category = category.parentCategory
@@ -88,21 +88,21 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
 
                 hierarchy.each { cat ->
-                    if (cat.id == attrs.categoryId) {
-                        out << """<li class="breadcrumb-item active" aria-current="page">${cat.description}</li>"""
+                    if (cat == null || cat?.id == attrs.categoryId) {
+                        out << """<li class="breadcrumb-item active" aria-current="page">${cat?.description ?: "Invalid Category"}</li>"""
                     } else {
-                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat.description }}"""
+                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
                     }
                 }
 
-                break;
+                break
             case ReportType.SALES_PRODUCT:
                 def product = productService.getProduct(attrs.productId)
-                def category = product.category
+                def category = product?.category
 
                 def hierarchy = [category]
 
-                while (category.parentCategory != null) {
+                while (category?.parentCategory != null) {
                     hierarchy.add(category.parentCategory)
 
                     category = category.parentCategory
@@ -113,23 +113,23 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
 
                 hierarchy.each { cat ->
-                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat.description }}"""
+                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
                 }
 
-                out << """<li class="breadcrumb-item active" aria-current="page">${product.description}</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">${product?.description ?: "Invalid Product"}</li>"""
 
-                break;
+                break
             case ReportType.PROMOTIONS_GROUPED:
                 out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
 
-                break;
+                break
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
 
                 out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
-                break;
+                break
             case ReportType.PROMOTION:
                 def promotionSale = reportingService.getPromotionSale(attrs.promotionSaleId)
                 def promotion = promotionService.getPromotion(promotionSale.promotionId)
@@ -138,20 +138,20 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { promotion.description }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
-                break;
+                break
             case ReportType.TILL_CONTROL_EVENTS:
                 out << """<li class="breadcrumb-item active" aria-current="page">All Events</li>"""
 
-                break;
+                break
             case ReportType.TILL_CONTROL_EVENT:
                 out << """<li class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Events" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${g.message(code: 'TillControlEventType.' +attrs.tillControlEventType)}</li>"""
 
-                break;
+                break
             default:
                 out << ""
 
-                break;
+                break
         }
 
         out << """</ol></div></div></nav>"""
