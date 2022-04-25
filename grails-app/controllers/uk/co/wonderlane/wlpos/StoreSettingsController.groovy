@@ -34,15 +34,14 @@ class StoreSettingsController {
         if (storeSettings.validate()) {
             storeSettingsService.saveStoreSettings(storeSettings)
 
-            if (!rabbitService.isOpen()) {
-                throw new Exception("Rabbit MQ not available")
+            // Only need to push this out if it's a store level change, there are no head office controlled settings.
+            if (springSecurityService.principal.storeId) {
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setStoreSettings(storeSettings.getStoreSettings());
+
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
             }
-
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setStoreSettings(storeSettings.getStoreSettings());
-
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
 
             if (oldPriceBand != storeSettings.priceBand.id || oldProductRange != storeSettings.range.id) {
                 flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.","Please perform this operation from the Till Connectivity page in the Monitoring menu."]

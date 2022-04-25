@@ -140,8 +140,6 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     void sendMessage(SyncMessage syncMessage) throws IOException {
-        checkChannelAvailability()
-
         if (syncMessage.getStoreNumber() > 0 && syncMessage.getTillId() > 0) {
             String exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
             String queueName = String.format("R%d_S%d_T%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber(), syncMessage.getTillId())
