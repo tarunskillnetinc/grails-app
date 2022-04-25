@@ -480,10 +480,20 @@ class ProductController {
 
             redirect(action: "index")
         } else {
+            def productCategoryList = []
+
+            def category = product.category
+            while (category) {
+                productCategoryList.add(category.id)
+
+                category = category.parentCategory
+            }
+
             render(view: "add", model: [product       : product,
                                         storeId       : springSecurityService.principal.storeId,
                                         statusValues  : ProductStatus.values(),
                                         categoryValues: categoryService.getFullCategoryHierarchy(),
+                                        productCategoryList: productCategoryList,
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
         }
     }
