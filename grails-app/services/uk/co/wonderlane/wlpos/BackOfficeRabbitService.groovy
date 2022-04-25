@@ -52,7 +52,19 @@ class BackOfficeRabbitService extends RabbitService {
         init()
     }
 
+    private void checkChannelAvailability() {
+        if (channel == null || !channel.isOpen()) {
+            init()
+
+            if (channel == null || !channel.isOpen()) {
+                throw new IOException("Rabbit MQ not available.")
+            }
+        }
+    }
+
     List<RabbitQueue> getStoreQueues() {
+        checkChannelAvailability()
+
         def allRabbitQueues = getQueues()
 
         def rabbitQueues = []
@@ -72,6 +84,8 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     List<RabbitQueue> getServiceQueues(String... queueNames) {
+        checkChannelAvailability()
+
         def allRabbitQueues = getQueues()
 
         def rabbitQueues = []
@@ -102,29 +116,31 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     void declareExchange(String exchange) {
+        checkChannelAvailability()
+
         this.channel.exchangeDeclare(exchange, "fanout", true)
     }
 
     void declareQueue(String queue, String exchange) {
+        checkChannelAvailability()
+
         this.channel.queueBind(queue, exchange, "")
     }
 
     def purgeQueue(int retailerId, int storeId, int tillId) {
+        checkChannelAvailability()
+
         channel.queuePurge(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     def deleteQueue(int retailerId, int storeId, int tillId) {
+        checkChannelAvailability()
+
         channel.queueDelete(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     void sendMessage(SyncMessage syncMessage) throws IOException {
-        if (!channel.isOpen()) {
-            init()
-
-            if (!channel.isOpen()) {
-                throw new IOException("Rabbit MQ not available.")
-            }
-        }
+        checkChannelAvailability()
 
         if (syncMessage.getStoreNumber() > 0 && syncMessage.getTillId() > 0) {
             String exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
@@ -140,6 +156,8 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     void sendExchangeMessage(SyncMessage syncMessage) throws IOException {
+        checkChannelAvailability()
+
         String exchangeName
 
         if (syncMessage.getStoreNumber() > 0) {
@@ -151,9 +169,5 @@ class BackOfficeRabbitService extends RabbitService {
         // TODO Note that whilst we will declare the exchange if it is missing, we are not declaring any queues, which means that the message will still not go anywhere.
         declareExchange(exchangeName)
         sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
-    }
-
-    def reInitialise() {
-        init()
     }
 }

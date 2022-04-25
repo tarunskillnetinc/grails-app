@@ -456,6 +456,7 @@ class ProductController {
                 products.add(product.getProduct(springSecurityService.principal.storeId))
                 syncMessage.setProducts(products)
 
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
                 rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
             } else {
                 // TODO
