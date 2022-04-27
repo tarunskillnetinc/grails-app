@@ -96,7 +96,7 @@
             Qty
         </div>
         <div class="col-7">
-            Description
+            Category
         </div>
         <div class="col-3 text-right">
             Total
@@ -132,7 +132,7 @@
             Qty
         </div>
         <div class="col-7">
-            Description
+            Category
         </div>
         <div class="col-3 text-right">
             Total
@@ -168,7 +168,7 @@
             Qty
         </div>
         <div class="col-7">
-            Description
+            Type
         </div>
         <div class="col-3 text-right">
             Total
