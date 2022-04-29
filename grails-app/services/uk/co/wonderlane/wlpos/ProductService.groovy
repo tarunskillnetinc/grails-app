@@ -87,6 +87,18 @@ class ProductService extends MySqlDal {
         product.save()
     }
 
+    def saveBarcodes(Product product) {
+        product?.variants?.each { variant ->
+            variant.barcodez?.each { barcode ->
+                if (barcode.delete) {
+                    barcode.delete()
+                } else {
+                    barcode.save()
+                }
+            }
+        }
+    }
+
     def saveProductVariant(ProductVariant productVariant) {
         productVariant.save()
     }

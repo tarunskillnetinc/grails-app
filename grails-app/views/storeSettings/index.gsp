@@ -19,9 +19,18 @@
         </nav>
     </section>
 
-    <div class="header-wl mt-3">
-        <h2 class="mx-auto">Settings</h2>
-    </div>
+    <section id="header-container" class="container-fluid">
+        <div class="row header-wl mt-3">
+            <div class="col-8 offset-2">
+                <h2 class="mx-auto my-auto">Settings</h2>
+            </div>
+
+            <div class="col-2 text-right">
+                <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                <button class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
+            </div>
+        </div>
+    </section>
 
     <g:hasErrors bean="${storeSettings}">
         <section id="errors-container" class="container-fluid">
@@ -33,7 +42,11 @@
 
     <g:if test="${flash.message}">
         <section id="errors-container2" class="container-fluid">
-            <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            <div class="alert alert-success alert-wl mx-0" role="alert">
+                <g:each in="${flash.message}" var="message" status="i">
+                    ${message}<br/>
+                </g:each>
+            </div>
         </section>
     </g:if>
 
@@ -257,11 +270,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="my-5">
-                <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <g:submitButton class="btn btn-success col-1 offset-8" name="save" value="Save" />
             </div>
         </g:form>
     </section>

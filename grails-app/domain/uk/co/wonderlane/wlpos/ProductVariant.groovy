@@ -18,11 +18,14 @@ class ProductVariant implements Serializable {
     int minimumStockLevel
     DateTime effectiveDate
     boolean delete
+    Integer shelfLifeDays
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<Tag> tags = new ArrayList<>()
 
-    static transients = ['delete']
+    Collection<Barcode> barcodez = new ArrayList<>()
+
+    static transients = ['delete', 'barcodez']
 
     static hasMany = [packs: Pack]
 
@@ -37,6 +40,7 @@ class ProductVariant implements Serializable {
         costPrice column: "costPrice"
         size column:"size"
         colour column:"colour"
+        shelfLifeDays column: "shelfLifeDays"
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
         packs cascade: "all-delete-orphan"
@@ -49,9 +53,11 @@ class ProductVariant implements Serializable {
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true
         colour size: 0..45, blank: true, nullable: true
+        shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
         delete bindable: true
+        barcodez bindable: true
     }
 
     List<ProductPrice> getPrices() {

@@ -32,19 +32,19 @@ class PromotionController {
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
                 if (it.sku != null) {
-                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                 } else if (it.categoryId != null) {
-                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
-                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                 }
             } else {
                 if (it.sku != null) {
-                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                 } else if (it.categoryId != null) {
-                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
-                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                 }
             }
         }
@@ -73,19 +73,19 @@ class PromotionController {
             promo.groups.each {
                 if (it.type == PromotionGroupType.REQUIRED) {
                     if (it.sku != null) {
-                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                     } else if (it.categoryId != null) {
-                        categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                        categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                     } else {
-                        tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                        tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                     }
                 } else {
                     if (it.sku != null) {
-                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.value])
+                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
                     } else if (it.categoryId != null) {
-                        categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.value])
+                        categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                     } else {
-                        tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.value])
+                        tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                     }
                 }
             }
@@ -366,16 +366,18 @@ class PromotionController {
     }
 
     def sendToTill() {
-        if (!rabbitService.isOpen()) {
-            throw new Exception("Rabbit MQ not available")
-        }
-
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.PROMOTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
         syncMessage.setInsert(true)
+
         uk.co.wonderlane.wlpos.entities.Promotion tillPromo = Promotion.findById(Integer.parseInt(params.promotionId)).getPromotion()
+
         syncMessage.setPromotion(tillPromo)
 
-        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        if (springSecurityService.principal.storeId) {
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        } else {
+            rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
+        }
 
         flash.message = "Promotion saved successfully"
         redirect(action: "index", params: params)

@@ -6,15 +6,21 @@ class Barcode {
 
     int id
     long sku
+    int retailerId
     String barcode
     DateTime effectiveDate
     char recordStatus
+
+    boolean delete
+
+    static transients = ['delete']
 
     static mapping = {
         table "barcode"
         version false
 
         sku column: "sku"
+        retailerId column: "retailerId"
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"

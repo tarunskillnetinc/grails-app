@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.4"
+version "1.5"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"eclipse"
@@ -29,6 +29,9 @@ configurations {
     runtimeClasspath {
         extendsFrom developmentOnly
     }
+    all {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    }
 }
 
 repositories {
@@ -40,11 +43,17 @@ repositories {
 
 dependencies {
     developmentOnly "org.springframework.boot:spring-boot-devtools"
-    compile "org.springframework.boot:spring-boot-starter-logging"
+//    compile ("org.springframework.boot:spring-boot-starter-logging"){
+//        exclude module: "logback-classic"
+//    }
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile ("org.springframework.boot:spring-boot-starter-actuator") {
+        exclude module: "logback-classic"
+    }
+    compile ("org.springframework.boot:spring-boot-starter-tomcat") {
+        exclude module: "logback-classic"
+    }
     compile "org.grails:grails-web-boot"
     compile "org.grails:grails-logging"
     compile "org.grails:grails-plugin-rest"
@@ -53,7 +62,7 @@ dependencies {
     compile "org.grails:grails-plugin-services"
     compile "org.grails:grails-plugin-url-mappings"
     compile "org.grails:grails-plugin-interceptors"
-    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:cache:4.0.1"
     compile "org.grails.plugins:async:4.0.0"
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:events"

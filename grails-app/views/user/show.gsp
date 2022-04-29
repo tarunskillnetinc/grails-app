@@ -78,7 +78,7 @@
 
                 <div class="form-group row col-12 col-lg-6">
                     <label for="role" class="col-4 col-form-label text-right pr-4">Role</label>
-                    <g:select name="role" class="col-3 form-control select-border" from="${[user?.role ?: ""]}" value="${user?.role}" disabled="disabled" />
+                    <g:select name="role" class="col-3 form-control select-border" from="${[user?.role ?: ""]}" value="${user?.role}" disabled="disabled" valueMessagePrefix="Role" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6">

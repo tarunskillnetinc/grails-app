@@ -78,10 +78,13 @@
 
                                 <div class="dropdown-menu" aria-labelledby="productsDropdown">
                                     <g:link controller="product" class="dropdown-item">Product Maintenance</g:link>
+
                                     <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
-                                        <div class="dropdown-divider"></div>
-                                        <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
-                                        <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                            <div class="dropdown-divider"></div>
+                                            <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
+                                            <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                        </g:if>
                                     </sec:ifAnyGranted>
                                 </div>
                             </div>
@@ -110,7 +113,7 @@
                             </div>
 
                             <g:link controller="tag" class="dropdown-item">Tags</g:link>
-                            <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
+                            <g:link controller="shelfEdgeLabel" class="dropdown-item disabled">Shelf Edge Labels</g:link>
                         </div>
                     </li>
 
@@ -133,10 +136,12 @@
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
                             <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
-                            <g:link controller="group" class="dropdown-item">User Groups</g:link>
+                            <g:link controller="group" class="dropdown-item disabled">User Groups</g:link>
                             <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
-                            <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
-                            <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
+                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                            </g:if>
+                            <g:link controller="productList" class="dropdown-item disabled">Central Counts</g:link>
                         </div>
                     </li>
 

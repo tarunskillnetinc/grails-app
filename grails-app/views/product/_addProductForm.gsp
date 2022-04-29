@@ -1,3 +1,4 @@
+<%@ page import="java.math.RoundingMode" %>
 <g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
@@ -20,8 +21,8 @@
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
-                                <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code</label>
-                                <g:textField name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
+                                <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
+                                <g:field type="number" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
@@ -87,7 +88,7 @@
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${variant.storeId == null || variant.storeId == storeId}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodes]" />
                                 </div>
                             </g:if>
                         </g:each>
@@ -119,7 +120,7 @@
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group">
                                 <label for="vatCode" class="col-3 col-form-label text-right pr-4">VAT Code</label>
-                                <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="description" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
+                                <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="${{(it?.description ? it.description + ' (' +it.percentage.setScale(1, java.math.RoundingMode.HALF_UP) +'%)' : String.valueOf(it.code) + ' (' +it.percentage.setScale(1, java.math.RoundingMode.HALF_UP) +'%)')}}" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
                             </div>
                             <div class="row mt-1 form-group">
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
@@ -168,6 +169,8 @@
             </div>
 
             <div id="collapseRestrictions" class="collapse collapsed" aria-labelledby="productRestrictions" data-parent="#accordion">
+                <g:hiddenField name="restrictions.id" value="${product?.restrictions?.id}" />
+
                 <div class="card-body py-5">
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">
@@ -295,7 +298,7 @@
                     </div>
 
                     <div id="collapsePrices" class="collapse collapsed" aria-labelledby="productPrices" data-parent="#accordion">
-                        <div class="card-body py-5">
+                        <div class="card-body py-5" id="pricesContainer">
                             <div class="row mx-5">This product is priced as follows:</div>
 
                             <div class="row mx-5 mt-4 table-wl bottom-border">
@@ -306,28 +309,12 @@
                                 </g:each>
                             </div>
 
-                            <%
-                                def index = 0
-                            %>
+                            <g:if test="${isNewProduct}">
+                                <g:render template="addPrice" model="[skuIndex: 0, variant: null, sku: null, priceBands: priceBands]" />
+                            </g:if>
+
                             <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
-                                <div class="row mx-5 pt-2 pb-2 wl-striped${i % 2} hoverable">
-                                    <div class="col-3 my-auto">${variant.sku}</div>
-
-                                    <%
-                                        def variantPrices = variant.prices
-                                    %>
-                                    <g:each in="${priceBands}" var="priceBand">
-                                        <div class="col">
-                                            <g:hiddenField name="priceChanges[${index}].sku" value="${variant.sku}" />
-                                            <g:hiddenField name="priceChanges[${index}].priceBandId" value="${priceBand.id}" />
-
-                                            <g:textField name="priceChanges[${index}].price" value="${variantPrices.find { it.priceBand.id == priceBand.id }?.price}" class="form-control" />
-                                        </div>
-                                        <%
-                                            index++
-                                        %>
-                                    </g:each>
-                                </div>
+                                <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands]" />
                             </g:each>
                         </div>
                     </div>

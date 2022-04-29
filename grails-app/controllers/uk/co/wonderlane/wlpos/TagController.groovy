@@ -128,11 +128,13 @@ class TagController {
                 tag.errors.rejectValue((field == "sku" ? "tagProducts" : field), code)
             }
 
-            def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
+            if (tag.tagProducts && tag.tagProducts?.size() > 0) {
+                def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
 
-            tag.tagProducts.each { tagProduct ->
-                tagProduct.productVariantId = productVariants.find { it.sku == tagProduct.sku }?.id
-                tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
+                tag.tagProducts.each { tagProduct ->
+                    tagProduct.productVariantId = productVariants.find { it.sku == tagProduct.sku }?.id
+                    tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
+                }
             }
 
             render(view: "add", model: [tag: tag])

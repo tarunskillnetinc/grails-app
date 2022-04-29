@@ -41,7 +41,7 @@
                 <div class="col-2 my-auto">${shift.tillId}</div>
             </g:else>
 
-            <div class="col-2 my-auto">${shift.id}</div><!-- TODO shift.shiftNumber? -->
+            <div class="col-2 my-auto">${shift.shiftNumber ?: 0}</div>
             <div class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
             <div class="col-2 my-auto">${shift.reconciledDate != null ? "Reconciled" : "Unreconciled"}</div>
             <div class="col-2 my-auto"><g:formatNumber number="${(shift.sales.sum { it.value } ?: BigDecimal.ZERO) - (shift.refunds.sum { it.value } ?: BigDecimal.ZERO)}" type="currency" /></div>

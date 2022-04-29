@@ -96,7 +96,7 @@
             Qty
         </div>
         <div class="col-7">
-            Description
+            Category
         </div>
         <div class="col-3 text-right">
             Total
@@ -132,7 +132,7 @@
             Qty
         </div>
         <div class="col-7">
-            Description
+            Category
         </div>
         <div class="col-3 text-right">
             Total
@@ -168,7 +168,7 @@
             Qty
         </div>
         <div class="col-7">
-            Description
+            Type
         </div>
         <div class="col-3 text-right">
             Total
@@ -271,7 +271,7 @@
         </div>
 
         <div class="col-6 text-right">
-            <g:formatNumber number="${shift.tenderTotals.find{ it.tenderType.name() == 'CASH' }?.value ?: 0}" type="currency" />
+            <g:formatNumber number="${shift.cashInDrawer ?: 0}" type="currency" />
         </div>
     </div>
 
@@ -280,7 +280,7 @@
             Customer count:
         </div>
 
-        <div class="col-6 text-right">${shift.sales.sum{ it.quantity } ?: 0}</div>
+        <div class="col-6 text-right">${shift.customerCount ?: 0}</div>
     </div>
 
     <div class="row">
@@ -289,7 +289,7 @@
         </div>
 
         <div class="col-6 text-right">
-            <g:formatNumber number="${(shift.sales.sum{ it.value } ?: 0) / (shift.sales.sum{ it.quantity } ?: 1)}" type="currency" />
+            <g:formatNumber number="${(shift.sales.sum{ it.value } ?: 0) / (shift.customerCount ?: 1)}" type="currency" />
         </div>
     </div>
 </div>
