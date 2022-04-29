@@ -6,6 +6,7 @@ class Barcode {
 
     int id
     long sku
+    int retailerId
     String barcode
     DateTime effectiveDate
     char recordStatus
@@ -19,6 +20,7 @@ class Barcode {
         version false
 
         sku column: "sku"
+        retailerId column: "retailerId"
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"

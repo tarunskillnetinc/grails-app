@@ -368,6 +368,7 @@ class ProductController {
                         if (!existingBarcode) {
                             Barcode barcode = new Barcode()
                             barcode.sku = existingVariant.sku
+                            barcode.retailerId = existingBarcode.retailerId
                             barcode.barcode = editedBarcode.barcode
                             barcode.effectiveDate = now
                             barcode.recordStatus = 'C'
@@ -821,6 +822,7 @@ class PackCommand {
 class BarcodeCommand {
     int id
     long sku
+    int retailerId
     String barcode
     DateTime effectiveDate
     char recordStatus
