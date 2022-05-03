@@ -52,6 +52,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li class="breadcrumb-item"><g:link controller="shift" action="index">ShiftManagement</g:link></li>
                         <li class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
                     </ol>
                 </div>
@@ -97,15 +98,6 @@
                                 </div>
                             </div>
                         </g:form>
-                    </div>
-                </div>
-            </div>
-            <div class="offset-2 col-5">
-                <div class="row justify-content-end">
-                    <div class="col-4">
-                        <g:link controller="shift" action="index"  class="w-100">
-                            <button id="shift-viewer-button" type="button" class="btn btn-wl text-center w-100">Shift Viewer</button>
-                        </g:link>
                     </div>
                 </div>
             </div>

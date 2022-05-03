@@ -1,7 +1,7 @@
 <div class="row mt-3 mb-2">
     <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
         <div class="row">
-            <p class="mx-auto">Reconciliation for shift number ${shift.shiftNumber} (<g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" />).</p>
+            <p class="mx-auto">Reconciliation for shift number ${shift.shiftNumber} (<g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" />)</p>
         </div>
 
         <div class="row mt-3 mb-2 ml-0 mr-0 table-wl">
@@ -56,7 +56,7 @@
 
                 <g:if test="${shift.reconciliationTotals.sum { it.variance } ?: 0 != 0}">
                     <div class="row ml-0 mr-0 pt-5 pb-2">
-                        <p class="mx-auto">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance.abs() }}" type="currency" />.</p>
+                        <p class="mx-auto">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
                     </div>
                     <div class="row ml-0 mr-0 pt-2 pb-2">
                         <p class="mx-auto">Please select a reason:</p>
