@@ -265,6 +265,7 @@ class ProductController {
                 variant.effectiveDate = now
 
                 variant.barcodez?.each { barcode ->
+                    barcode.retailerId = springSecurityService.principal.retailerId
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: now
                 }
@@ -368,7 +369,7 @@ class ProductController {
                         if (!existingBarcode) {
                             Barcode barcode = new Barcode()
                             barcode.sku = existingVariant.sku
-                            barcode.retailerId = existingBarcode.retailerId
+                            barcode.retailerId = editedBarcode.retailerId
                             barcode.barcode = editedBarcode.barcode
                             barcode.effectiveDate = now
                             barcode.recordStatus = 'C'

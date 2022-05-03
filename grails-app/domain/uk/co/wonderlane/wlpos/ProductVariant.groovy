@@ -76,7 +76,7 @@ class ProductVariant implements Serializable {
     }
 
     List<Barcode> getBarcodes() {
-        return Barcode.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC))
+        return Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, product.retailerId, DateTime.now(DateTimeZone.UTC))
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {

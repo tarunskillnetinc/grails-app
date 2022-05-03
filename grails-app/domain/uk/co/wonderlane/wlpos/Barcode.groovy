@@ -20,7 +20,7 @@ class Barcode {
         version false
 
         sku column: "sku"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"
@@ -28,6 +28,7 @@ class Barcode {
 
     static constraints = {
         sku nullable: false
+        retailerId nullable: false
         barcode size: 1..20, blank: false, nullable: false
         effectiveDate nullable: false
         recordStatus nullable: false
