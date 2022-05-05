@@ -369,7 +369,7 @@ class ProductController {
                         if (!existingBarcode) {
                             Barcode barcode = new Barcode()
                             barcode.sku = existingVariant.sku
-                            barcode.retailerId = editedBarcode.retailerId
+                            barcode.retailerId = springSecurityService.principal.retailerId
                             barcode.barcode = editedBarcode.barcode
                             barcode.effectiveDate = now
                             barcode.recordStatus = 'C'
