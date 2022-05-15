@@ -20,6 +20,8 @@ class Pack {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
+    boolean priceMarked
+    DateTime updateDatetime
 
     static mapping = {
         table "pack"
@@ -37,6 +39,8 @@ class Pack {
         status column: "status"
         maximumOrderQuantity column: "maximumOrderQuantity"
         allowSubstitutes column: "allowSubstitutes"
+        priceMarked column: "priceMarked"
+        updateDatetime column: "updateDatetime"
     }
 
     static constraints = {
@@ -52,6 +56,8 @@ class Pack {
         status nullable: false
         maximumOrderQuantity nullable: true
         allowSubstitutes nullable: false
+        priceMarked nullable: false
+        updateDatetime nullable: false
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Pack getPack() {
@@ -70,6 +76,8 @@ class Pack {
         pack.setStatus(status)
         pack.setMaximumOrderQuantity(maximumOrderQuantity != null ? maximumOrderQuantity : 0)
         pack.setAllowSubstitutes(allowSubstitutes)
+        pack.setPriceMarked(priceMarked)
+        pack.setUpdateDate(updateDatetime)
 
         return pack
     }
