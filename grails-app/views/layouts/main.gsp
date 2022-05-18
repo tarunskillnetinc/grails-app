@@ -84,6 +84,8 @@
                                             <div class="dropdown-divider"></div>
                                             <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
                                             <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                            <div class="dropdown-divider"></div>
+                                            <g:link controller="product" action="supplierUpdates" class="dropdown-item">Supplier Updates</g:link>
                                         </g:if>
                                     </sec:ifAnyGranted>
                                 </div>

@@ -5,25 +5,58 @@
 
         <title>WonderLane Supplier Updates</title>
 
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
+        <asset:javascript src="money-mask.js" />
+
         <script type="text/javascript">
             $(document).ready(function () {
-                $('#searchTerm').on('keyup', function(event) {
-                    if (event.key === 'Enter') {
-                        searchButtonClicked2();
-                    }
+                $('#sinceDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: "${(new Date() - 30).format("dd/MM/yyyy")}",
+                    endDate: "${new Date().format("dd/MM/yyyy")}",
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
                 });
+
+                $('#effectiveDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: "${new Date().format("dd/MM/yyyy")}",
+                    endDate: "${(new Date() + 14).format("dd/MM/yyyy")}",
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
+                search();
             });
 
+            function resetButtonClicked() {
+                $('#supplier').prop("selectedIndex", 0);
+                $('#sinceDate').val("${new Date().format("dd/MM/yyyy")}");
+
+                search();
+            }
+
             function searchButtonClicked2() {
-                $('#offset').val(0);
+                search();
+            }
+
+            function priceBandChanged() {
                 search();
             }
 
             function search() {
                 var URL = "${createLink(controller: 'product', action: 'supplierUpdatesSearch')}";
 
-                var searchTerm = $('#searchTerm').val();
-                var category = $('#category').val();
+                var supplierId = $('#supplier').val();
+                var sinceDate = $('#sinceDate').val();
+                var priceBandId = $('#priceBand').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -33,9 +66,35 @@
 
                 $.ajax({
                     url: URL,
-                    data: { searchTerm: searchTerm, category: category },
+                    data: { supplierId: supplierId, sinceDate: sinceDate, priceBandId: priceBandId },
                     success: function(resp) {
                         $('#search-results').html(resp);
+
+                        $(".mask-money").maskMoney({ allowZero: true });
+                        $(".mask-money").maskMoney('mask');
+                    }
+                });
+            }
+
+            function saveRrpsButtonClicked() {
+                $('#confirmModal').modal({ show: true });
+            }
+
+            function confirmRrps() {
+                var URL = "${createLink(controller: 'product', action: 'ajaxSaveRrps')}";
+
+                var supplierId = $('#supplier').val();
+                var sinceDate = $('#sinceDate').val();
+                var priceBandId = $('#priceBand').val();
+
+                $("#confirmModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+
+                $.ajax({
+                    url: URL,
+                    data: { supplierId: supplierId, sinceDate: sinceDate, priceBandId: priceBandId },
+                    success: function(resp) {
+                        $('#confirmModal').modal("hide");
+                        $('#successModal').modal({ show: true });
                     }
                 });
             }
@@ -102,11 +161,20 @@
             </section
         </g:if>
 
-        <section id="maintenance-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Supplier Updates</h2>
-            </div>
+        <section id="header-container" class="container-fluid">
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">Supplier Price Updates</h2>
+                </div>
 
+                <div class="col-2 text-right">
+                    <button id="accept-rrps-button" class="btn btn-wl" onclick="saveRrpsButtonClicked();">Accept RRPs</button>
+                    <button id="save-changes-button" class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="maintenance-search" class="container-fluid">
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
@@ -121,53 +189,56 @@
                             </div>
                         </div>
                         <div class="card-body collapse" id="filterCollapse">
-%{--                            <g:form name="filtersForm" id="filtersForm">--}%
-                                <div class="form-group row">
-                                    <label for="searchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
-                                    <div class="col-10">
-                                        <g:textField name="searchTerm" class="form-control bottom-border" value="${searchTerm}" autocomplete="off" />
-                                    </div>
+                            <div class="form-group row">
+                                <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
+                                <div class="col-4">
+                                    <g:select name="supplier" from="${suppliers}" noSelection="['':'All Suppliers']" value="${supplier}" optionValue="name" optionKey="id" class="form-control select-border" />
                                 </div>
 
-                                <div class="form-group row">
-                                    <label for="category" class="col-2 col-form-label-sm text-right">Category</label>
-                                    <div class="col-4">
-%{--                                        <g:categorySelect name="category" categories="${categories}" />--}%
-                                    </div>
-
-                                    <label for="tag" class="col-2 col-form-label-sm text-right">Tag</label>
-                                    <div class="col-4">
-%{--                                        <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />--}%
-                                    </div>
+                                <label for="sinceDate" class="col-2 col-form-label-sm text-right">Updates Since</label>
+                                <div class="col-4">
+                                    <g:textField name="sinceDate" class="form-control bottom-border" value="${new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
+                            </div>
 
-                                <div class="form-group row">
-                                    <div class="col-4 offset-8 text-right">
-                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
-                                    </div>
+                            <div class="form-group row">
+                                <div class="col-4 offset-8 text-right">
+                                    <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                 </div>
-%{--                            </g:form>--}%
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-2 offset-5 text-right">
-                    <button id="save-changes-button" class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
+                <div class="col-3 offset-4">
+                    <div class="form-group row mt-5">
+                        <label for="priceBand" class="col-4 col-form-label-sm text-right">Price Band</label>
+                        <div class="col-8">
+                            <g:select name="priceBand" from="${priceBands}" optionValue="description" optionKey="id" class="form-control select-border" onchange="priceBandChanged();" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="effectiveDate" class="col-4 col-form-label-sm text-right">Effective Date</label>
+                        <div class="col-8">
+                            <g:textField name="effectiveDate" class="form-control bottom-border" value="${(new Date() + 1).format("dd/MM/yyyy")}" autocomplete="off" />
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-1 font-weight-bold">&nbsp;</div>
-                <div class="col-2 font-weight-bold">Product</div>
-                <div class="col-1 font-weight-bold">Pack Size</div>
-                <div class="col-1 font-weight-bold">Effective Date</div>
-                <div class="col-1 font-weight-bold">Price Marked</div>
-                <div class="col-1 font-weight-bold">Old Pack Cost Price</div>
-                <div class="col-1 font-weight-bold">New Pack Cost Price</div>
-                <div class="col-1 font-weight-bold">New RRP</div>
-                <div class="col-1 font-weight-bold">Margin</div>
-                <div class="col-1 font-weight-bold">Retail Price</div>
-                <div class="col-1 font-weight-bold">Difference</div>
+                <div class="col-3 font-weight-bold">Product</div>
+                <div class="col-1 text-center font-weight-bold">Pack Size</div>
+                <div class="col-1 text-center font-weight-bold">Effective Date</div>
+                <div class="col-1 text-center font-weight-bold">Price Marked</div>
+                <div class="col-1 text-center font-weight-bold">Old Pack Cost Price</div>
+                <div class="col-1 text-center font-weight-bold">New Pack Cost Price</div>
+                <div class="col-1 text-center font-weight-bold">New RRP</div>
+                <div class="col-1 text-center font-weight-bold">Margin</div>
+                <div class="col-1 text-center font-weight-bold">Retail Price</div>
             </div>
 
             <div id="search-results" class="align-content-center">
@@ -181,13 +252,33 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
+                            <h2>Accept RRPs?</h2>
+                        </div>
+
+                        <div class="modal-body" id="confirmModalContent">Are you sure you wish to accept the recommended retail price for all products?</div>
+
+                        <div class="modal-footer">
+                            <button type="button" id="confirmModalNoButton" class="btn btn-secondary" data-dismiss="modal">No</button>
+                            <button type="button" id="confirmModalYesButton" class="btn btn-secondary" onclick="confirmRrps();">Yes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Success modal -->
+        <section id="success-modal" class="container-fluid">
+            <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                             <h2>Success</h2>
                         </div>
 
-                        <div class="modal-body">Price changes saved successfully.</div>
+                        <div class="modal-body">Prices saved successfully.</div>
 
                         <div class="modal-footer">
-                            <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" id="closeSuccessModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

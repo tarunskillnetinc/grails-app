@@ -22,7 +22,7 @@ class SnapshotController {
     }
 
     def ajaxGetSnapshots() {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
         DateTime startDate = DateTime.parse(params.startDate, dateFormatter)
         DateTime endDate = DateTime.parse(params.endDate, dateFormatter)
 

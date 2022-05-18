@@ -3,6 +3,8 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.annotation.Secured
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductStatus
@@ -17,6 +19,7 @@ class ProductController {
     def productService
     def categoryService
     def restrictionsService
+    def supplierService
     def tagService
     def rabbitService
     def gsonProvider
@@ -138,6 +141,46 @@ class ProductController {
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         render(template: "/product/rangesSearchResults", model: [rangeProducts: rangeProducts, ranges: ranges])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def supplierUpdates() {
+        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description"])
+
+        [suppliers: suppliers, priceBands: priceBands]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def supplierUpdatesSearch() {
+        Integer supplierId = params.supplierId ? Integer.parseInt(params.supplierId) : null
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        DateTime sinceDate = params.sinceDate ? DateTime.parse(params.sinceDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        Integer priceBandId = params.priceBandId ? Integer.parseInt(params.priceBandId) : null
+        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        int max = params.max ? Integer.parseInt(params.max) : 50
+
+        def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBandId, supplierId, offset, max)
+
+        render(template: "/product/supplierUpdatesSearchResults", model: [supplierPriceUpdates: supplierPriceUpdates.results, totalCount: supplierPriceUpdates.totalCount])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveRrps() {
+        Integer supplierId = params.supplierId ? Integer.parseInt(params.supplierId) : null
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        DateTime sinceDate = params.sinceDate ? DateTime.parse(params.sinceDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        Integer priceBandId = params.priceBandId ? Integer.parseInt(params.priceBandId) : null
+        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        int max = 100000
+
+        def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBandId, supplierId, offset, max)
+
+        if (supplierPriceUpdates.totalCount > 0) {
+//            supplierService.saveRecommendedRetailPrices(supplierPriceUpdates.results, priceBandId, DateTime.now(DateTimeZone.UTC))
+        }
+
+        response.status = 204
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

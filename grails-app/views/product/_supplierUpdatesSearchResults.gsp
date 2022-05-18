@@ -1,31 +1,36 @@
-<g:if test="${supplierUpdates == null}">
+<g:if test="${supplierPriceUpdates == null}">
     <div class="row ml-0 mr-0 text-center">
         <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>
     </div>
 </g:if>
 
-<g:if test="${supplierUpdates?.size() == 0}">
+<g:if test="${supplierPriceUpdates?.size() == 0}">
     <div class="row ml-0 mr-0 text-center">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </div>
 </g:if>
 
-<g:each in="${supplierUpdates}" var="supplierUpdate" status="i">
+<g:each in="${supplierPriceUpdates}" var="supplierPriceUpdate" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
         <div class="col-1 my-auto">
-            <g:checkBox name="product-${i}" class="col-12 form-check-input wl-checkbox my-auto" />
+            <g:checkBox name="product-${i}" class="col-12 wl-checkbox my-auto" />
         </div>
 
-        <div class="col-2 my-auto">${supplierUpdate.productVariant?.sku} - ${supplierUpdate.productVariant?.product?.description}</div>
-        <div class="col-1 my-auto">${supplierUpdate.quantity}</div>
-        <div class="col-1 my-auto">${supplierUpdate.effectiveDate.toString("dd/MM/yyyy HH:mm")}</div>
-        <div class="col-1 my-auto">${supplierUpdate.priceMarked ? "Yes" : "No"}</div>
-        <div class="col-1 my-auto">Old Pack Cost Price</div>
-        <div class="col-1 my-auto"><g:formatNumber number="${supplierUpdate.price}" type="currency" /></div>
-        <div class="col-1 my-auto"><g:formatNumber number="${supplierUpdate.recommendedRetailPrice}" type="currency" /></div>
-        <div class="col-1 my-auto">Margin</div>
-        <div class="col-1 my-auto">Retail Price</div>
-        <div class="col-1 my-auto">Difference</div>
+        <div class="col-3 my-auto">${supplierPriceUpdate.sku} - ${supplierPriceUpdate.description}</div>
+        <div class="col-1 my-auto text-center">${supplierPriceUpdate.quantity}</div>
+        <div class="col-1 my-auto text-center">${supplierPriceUpdate.effectiveDate.toString("dd/MM/yyyy")}</div>
+        <div class="col-1 my-auto text-center">${supplierPriceUpdate.priceMarked ? "Yes" : "No"}</div>
+        <div class="col-1 my-auto text-center"><g:formatNumber number="${supplierPriceUpdate.oldPackPrice}" type="currency" /></div>
+        <div class="col-1 my-auto text-center"><g:formatNumber number="${supplierPriceUpdate.newPackPrice}" type="currency" /></div>
+        <div class="col-1 my-auto text-center"><g:formatNumber number="${supplierPriceUpdate.recommendedRetailPrice}" type="currency" /></div>
+        <div class="col-1 my-auto text-center"><g:getMargin retailPrice="${supplierPriceUpdate.recommendedRetailPrice}" costPrice="${supplierPriceUpdate.newPackPrice}" quantity="${supplierPriceUpdate.quantity}" /></div>
+        <div class="col-1 my-auto text-center input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">&pound;</span>
+            </div>
+
+            <g:textField name="retailPrice[${i}]" value="${supplierPriceUpdate.retailPrice}" class="form-control mask-money" />
+        </div>
     </div>
 </g:each>
 
