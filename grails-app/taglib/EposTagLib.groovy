@@ -119,6 +119,9 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item active" aria-current="page">${product?.description ?: "Invalid Product"}</li>"""
 
                 break
+            case ReportType.SALES:
+                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
+                break
             case ReportType.PROMOTIONS_GROUPED:
                 out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
 

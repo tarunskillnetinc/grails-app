@@ -18,6 +18,7 @@ class ReportingController {
 
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
     private static final SALES_REPORT_PRODUCT_SORT_COLUMNS = [ "usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated" ]
+    private static final SALES_REPORT_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
     private static final PROMOTIONS_REPORT_SORT_COLUMNS = [ "type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated" ]
     private static final PROMOTION_REPORT_SORT_COLUMNS = [ "itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat" ]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
@@ -230,6 +231,69 @@ class ReportingController {
             render getSalesByProductCsv(sales)
         } else {
             render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        }
+    }
+
+    def sales() {
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        [reportType: ReportType.SALES, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.SALES)]
+    }
+
+    def ajaxSales(SortParams sortParams) {
+        Integer storeId = springSecurityService.principal.storeId ?: params.storeId
+
+        sortParams.validateParams(SALES_REPORT_SORT_COLUMNS)
+
+        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
+        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        startDate.clearTime()
+        endDate.clearTime()
+
+        // Find all sales in the date range.
+        def sales = reportingService.getSales(storeId, startDate, endDate + 1)
+
+        def filteredProductSales = params.descriptionFilter ? sales.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.descriptionFilter.toLowerCase()) } : sales
+
+        def finalSales = []
+
+        def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
+
+        filteredGroupedProductSales?.each { groupedProductSale ->
+            groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity }
+            groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.costPrice }
+            groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.retailPrice }
+            groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.vatAmount }
+            groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.margin }
+
+            finalSales.add(groupedProductSale.value[0])
+        }
+
+        // Sort into the required order.
+        if (sortParams.sortColumn == "description") {
+            finalSales.sort { it.productItemCode ? it.productItemCode + it.productDescription : it.productDescription }
+        } else {
+            finalSales.sort { it."${sortParams.sortColumn}" }
+        }
+
+        if (sortParams.sortOrder == "desc") {
+            finalSales = finalSales.reverse()
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "Sales-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getSalesCsv(finalSales)
+        } else {
+            // Restrict the number of results.
+            int totalResults = finalSales.size()
+            finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
+
+            render (template: "salesResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
         }
     }
 
@@ -526,6 +590,31 @@ class ReportingController {
             stringBuilder.append(it.usersName)
             stringBuilder.append(",")
             stringBuilder.append(it.dateCreated?.format("dd/MM/yy HH:mm:ss"))
+            stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getSalesCsv(List<Sale> sales) {
+        StringBuilder stringBuilder = new StringBuilder()
+
+        stringBuilder.append("Description,Total Quantity,Avg Cost Price,Avg Sales Price,Total Sales,VAT Amount,Avg Margin\n")
+
+        sales?.each {
+            stringBuilder.append(it.productDescription?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.quantity)
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.avgCostPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.avgRetailPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.retailPrice?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.vatAmount?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append(it.avgMargin?.setScale(2) + "%")
             stringBuilder.append("\n")
         }
 

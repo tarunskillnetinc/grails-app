@@ -53,6 +53,27 @@ class ReportingService {
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
+    def getSales(Integer storeId, Date startDate, Date endDate) {
+        String searchQuery = """SELECT s
+                                FROM Sale s
+                                WHERE s.retailerId = :retailerId """
+
+        if (storeId != null) {
+            searchQuery += """AND s.storeId = :storeId """
+        }
+
+        searchQuery += """AND s.dateCreated >= :startDate
+                          AND s.dateCreated <= :endDate"""
+
+        def queryParams = [retailerId: springSecurityService.principal.retailerId, startDate: startDate, endDate: endDate]
+
+        if (storeId != null) {
+            queryParams.storeId = storeId
+        }
+
+        return Sale.executeQuery(searchQuery, queryParams)
+    }
+
     def getSaleCategory(int categoryId) {
         def saleCategoryCriteria = SaleCategory.createCriteria()
 

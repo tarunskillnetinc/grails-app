@@ -84,6 +84,8 @@
                                             <div class="dropdown-divider"></div>
                                             <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
                                             <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                            <div class="dropdown-divider"></div>
+                                            <g:link controller="product" action="supplierUpdates" class="dropdown-item">Supplier Price Updates</g:link>
                                         </g:if>
                                     </sec:ifAnyGranted>
                                 </div>
@@ -121,7 +123,8 @@
                         <a class="nav-link dropdown-toggle" href="#" id="reportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reporting</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="reportingDropdown">
-                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales</g:link>
+                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Department Sales</g:link>
+                            <g:link controller="reporting" action="sales" class="dropdown-item">Sales</g:link>
                             <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotions</g:link>
                             <g:link controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <g:link controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
