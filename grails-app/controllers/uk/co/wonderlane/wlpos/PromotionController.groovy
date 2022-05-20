@@ -371,6 +371,49 @@ class PromotionController {
 
         uk.co.wonderlane.wlpos.entities.Promotion tillPromo = Promotion.findById(Integer.parseInt(params.promotionId)).getPromotion()
 
+        List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
+        for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
+            if (offerGroup.getTagId() != null) {
+                List<TagProduct> tps = Tag.findById(offerGroup.id).tagProducts
+                for (TagProduct tagProduct : tps) {
+                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup();
+                    promotionGroup.setId(offerGroup.getId());
+                    promotionGroup.setPromotionId(offerGroup.getPromotionId());
+                    promotionGroup.setRequiredValue(offerGroup.getRequiredValue());
+                    promotionGroup.setType(offerGroup.getType());
+                    promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity());
+                    promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity());
+                    promotionGroup.setTagId(offerGroup.getTagId());
+                    promotionGroup.setSku(tagProduct.sku);
+
+                    tagGroups.add(promotionGroup);
+                }
+            }
+        }
+        tillPromo.getPromotionOfferGroups().addAll(tagGroups)
+        tagGroups.clear()
+
+        for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
+            if (requiredGroup.getTagId() != null) {
+                List<TagProduct> tps = Tag.findById(requiredGroup.id).tagProducts
+                for (TagProduct tagProduct : tps) {
+                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup();
+                    promotionGroup.setId(requiredGroup.getId());
+                    promotionGroup.setPromotionId(requiredGroup.getPromotionId());
+                    promotionGroup.setRequiredValue(requiredGroup.getRequiredValue());
+                    promotionGroup.setType(requiredGroup.getType());
+                    promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity());
+                    promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity());
+                    promotionGroup.setTagId(requiredGroup.getTagId());
+                    promotionGroup.setSku(tagProduct.sku);
+
+                    tagGroups.add(promotionGroup);
+                }
+            }
+        }
+
+        tillPromo.getPromotionRequiredGroups().addAll(tagGroups)
+
         syncMessage.setPromotion(tillPromo)
 
         if (springSecurityService.principal.storeId) {
