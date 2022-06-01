@@ -91,10 +91,6 @@ class ReportingController {
             finalSales = finalSales.reverse()
         }
 
-        // Restrict the number of results.
-        int totalResults = finalSales.size()
-        finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
-
         if (params.csv != null && params.csv == "true") {
             def fileName = "SalesByDepartment-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
@@ -102,6 +98,10 @@ class ReportingController {
 
             render getSalesByCategoryCsv(finalSales)
         } else {
+            // Restrict the number of results.
+            int totalResults = finalSales.size()
+            finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
+
             render(template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate, sortParams: sortParams, totalResults: totalResults])
         }
     }
@@ -185,10 +185,6 @@ class ReportingController {
             finalSales = finalSales.reverse()
         }
 
-        // Restrict the number of results.
-        int totalResults = finalSales.size()
-        finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
-
         if (params.csv != null && params.csv == "true") {
             def fileName = "SalesByCategory-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
@@ -196,6 +192,10 @@ class ReportingController {
 
             render getSalesByCategoryCsv(finalSales)
         } else {
+            // Restrict the number of results.
+            int totalResults = finalSales.size()
+            finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
+
             render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
         }
     }

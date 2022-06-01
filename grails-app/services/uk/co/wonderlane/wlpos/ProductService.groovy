@@ -411,8 +411,6 @@ class ProductService extends MySqlDal {
                     productVariant.setStoreId(rs.getInt("storeId"))
                     productVariant.setSize(rs.getString("size"))
                     productVariant.setColour(rs.getString("colour"))
-                    productVariant.setBalanceOnHand(rs.getInt("balanceOnHand"))
-                    productVariant.setBalanceOnOrder(rs.getInt("balanceOnOrder"))
                     productVariant.setMinimumStockLevel(rs.getInt("minimumStockLevel"))
 
                     productVariants.put(productVariant.getId(), productVariant)

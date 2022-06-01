@@ -2,6 +2,7 @@ import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.Category
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
+import java.math.RoundingMode
 import java.nio.file.Path
 
 class EposTagLib {
@@ -205,7 +206,7 @@ class EposTagLib {
 
     def categorySelect = { attrs, body ->
         out << """<select name="${attrs.name}" id=${attrs.name} class="form-control select-border">"""
-        out << """<option value=""></option>"""
+        out << """<option value="">${attrs.noSelectionValue ?: ""}</option>"""
 
         attrs.categories?.each {
             categorySelectChildren(it, 0)
@@ -235,6 +236,16 @@ class EposTagLib {
 
         if (buttonImage != null) {
             out << """<img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="mx-auto my-auto button-grid-button-image" />"""
+        }
+    }
+
+    def getMargin = { attrs, body ->
+        def retailPrice = attrs.retailPrice
+        def costPrice = attrs.costPrice
+        def quantity = attrs.quantity
+
+        if (retailPrice && costPrice && quantity) {
+            out << """${retailPrice.subtract(costPrice.divide(quantity, 2, RoundingMode.HALF_UP)).divide(retailPrice, 4, RoundingMode.HALF_UP).multiply(100).setScale(2)}%"""
         }
     }
 }
