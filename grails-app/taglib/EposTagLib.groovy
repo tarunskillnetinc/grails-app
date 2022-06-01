@@ -203,7 +203,7 @@ class EposTagLib {
 
     def categorySelect = { attrs, body ->
         out << """<select name="${attrs.name}" id=${attrs.name} class="form-control select-border">"""
-        out << """<option value=""></option>"""
+        out << """<option value="">${attrs.noSelectionValue ?: ""}</option>"""
 
         attrs.categories?.each {
             categorySelectChildren(it, 0)

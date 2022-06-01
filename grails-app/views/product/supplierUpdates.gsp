@@ -33,21 +33,30 @@
                     orientation: "bottom auto"
                 });
 
+                $('#checkAllCheckbox').change(function() {
+                    if (this.checked) {
+                        var uncheckedBoxes = $("input:not(:checked)");
+
+                        uncheckedBoxes.each(function(i, checkbox) {
+                            $(checkbox).prop("checked", true);
+                        });
+                    } else {
+                        var checkedBoxes = $("input:checked");
+
+                        checkedBoxes.each(function(i, checkbox) {
+                            $(checkbox).prop("checked", false);
+                        });
+                    }
+                });
+
                 search();
             });
 
             function resetButtonClicked() {
                 $('#supplier').prop("selectedIndex", 0);
+                $('#category').prop("selectedIndex", 0);
                 $('#sinceDate').val("${new Date().format("dd/MM/yyyy")}");
 
-                search();
-            }
-
-            function searchButtonClicked2() {
-                search();
-            }
-
-            function priceBandChanged() {
                 search();
             }
 
@@ -55,6 +64,7 @@
                 var URL = "${createLink(controller: 'product', action: 'supplierUpdatesSearch')}";
 
                 var supplierId = $('#supplier').val();
+                var categoryId = $('#category').val();
                 var sinceDate = $('#sinceDate').val();
                 var priceBandId = $('#priceBand').val();
 
@@ -64,9 +74,11 @@
                     "  </div>\n" +
                     "</div>");
 
+                $('#checkAllCheckbox').prop("checked", false);
+
                 $.ajax({
                     url: URL,
-                    data: { supplierId: supplierId, sinceDate: sinceDate, priceBandId: priceBandId },
+                    data: { supplierId: supplierId, categoryId: categoryId, sinceDate: sinceDate, priceBandId: priceBandId },
                     success: function(resp) {
                         $('#search-results').html(resp);
 
@@ -76,65 +88,71 @@
                 });
             }
 
-            function saveRrpsButtonClicked() {
+            function savePricesButtonClicked(acceptRrps) {
+                var checkedBoxes = $("input:checked:not(#checkAllCheckbox)");
+
+                // Change the confirm message depending which button you pressed and whether you have any products selected.
+                if (checkedBoxes.length > 0 && acceptRrps) {
+                    $("#confirmModalHeader").html("Accept RRPs");
+                    $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for the selected products?");
+                } else if (checkedBoxes.length === 0 && acceptRrps) {
+                    $("#confirmModalHeader").html("Accept RRPs");
+                    $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for ALL products?");
+                } else if (checkedBoxes.length > 0 && !acceptRrps) {
+                    $("#confirmModalHeader").html("Save Prices");
+                    $("#confirmModalContent").html("Are you sure you wish to accept the entered retail price for the selected products?");
+                } else {
+                    alert("Please select some products.");
+                    return;
+                }
+
+                $('#confirmModalYesButton').click(function() {
+                    $('#confirmModalYesButton').off("click");
+
+                    confirmRrps(acceptRrps);
+                });
+
                 $('#confirmModal').modal({ show: true });
             }
 
-            function confirmRrps() {
-                var URL = "${createLink(controller: 'product', action: 'ajaxSaveRrps')}";
+            function confirmRrps(acceptRrps) {
+                $("#confirmModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+
+                var URL = "${createLink(controller: 'product', action: 'ajaxSaveSupplierPriceUpdates')}";
 
                 var supplierId = $('#supplier').val();
                 var sinceDate = $('#sinceDate').val();
                 var priceBandId = $('#priceBand').val();
+                var effectiveDate = $('#effectiveDate').val();
 
-                $("#confirmModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                var data = { supplierId: supplierId, sinceDate: sinceDate, priceBandId: priceBandId, effectiveDate: effectiveDate, acceptRrps: acceptRrps };
+
+                var checkedBoxes = $("input:checked:not(#checkAllCheckbox)");
+
+                checkedBoxes.each(function(i, checkbox) {
+                    var packId = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-packId]").val();
+                    var sku = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-sku]").val();
+                    var rrp = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-rrp]").val();
+                    var price = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-price]").val();
+
+                    data["priceChanges[" +i +"].packId"] = packId;
+                    data["priceChanges[" +i +"].sku"] = sku;
+
+                    if (acceptRrps) {
+                        data["priceChanges[" +i +"].price"] = rrp;
+                    } else {
+                        data["priceChanges[" +i +"].price"] = price;
+                    }
+                });
 
                 $.ajax({
                     url: URL,
-                    data: { supplierId: supplierId, sinceDate: sinceDate, priceBandId: priceBandId },
+                    data: data,
                     success: function(resp) {
                         $('#confirmModal').modal("hide");
                         $('#successModal').modal({ show: true });
-                    }
-                });
-            }
 
-            function saveSupplierPriceChanges() {
-                var saveButton = $("save-changes-button");
-                saveButton.prop("disabled", true);
-
-                var data = { };
-
-                var checkedBoxes = $("input:checked");
-
-                checkedBoxes.each(function(i, checkbox) {
-                    var prices = $("[id^=price-" +$(checkbox).attr("id").substring(8) +"-]");
-
-                    prices.each(function(index, price) {
-                        var id = $(price).attr("id");
-                        var sku = id.substring(6, id.lastIndexOf("-"));
-                        var priceBandId = id.substring(id.lastIndexOf("-") + 1);
-
-                        data["priceChanges[" +((i * 3) + index) +"].sku"] = sku;
-                        data["priceChanges[" +((i * 3) + index) +"].priceBandId"] = priceBandId;
-                        data["priceChanges[" +((i * 3) + index) +"].price"] = $(price).val();
-                    });
-                });
-
-                var url = "${createLink(controller: 'product', action: 'ajaxSaveSupplierPriceChanges')}";
-
-                $.ajax({
-                    url: url,
-                    method: "POST",
-                    data: data,
-                    success: function(resp) {
-                        $('#confirmModal').modal({ show: true });
-
-                        checkedBoxes.each(function(i, checkbox) {
-                            $(checkbox).prop("checked", false);
-                        });
-
-                        saveButton.prop("disabled", false);
+                        search();
                     }
                 });
             }
@@ -148,7 +166,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Supplier Updates</li>
+                            <li class="breadcrumb-item active" aria-current="page">Supplier Price Updates</li>
                         </ol>
                     </div>
                 </div>
@@ -168,8 +186,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <button id="accept-rrps-button" class="btn btn-wl" onclick="saveRrpsButtonClicked();">Accept RRPs</button>
-                    <button id="save-changes-button" class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
+                    <button id="accept-rrps-button" class="btn btn-wl mr-3" onclick="savePricesButtonClicked(true);">Accept RRPs</button>
+                    <button id="save-changes-button" class="btn btn-wl" onclick="savePricesButtonClicked(false);">Save Prices</button>
                 </div>
             </div>
         </section>
@@ -202,9 +220,14 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4 offset-8 text-right">
+                                <label for="category" class="col-2 col-form-label-sm text-right">Category</label>
+                                <div class="col-4">
+                                    <g:categorySelect name="category" categories="${categories}" noSelectionValue="All Categories" />
+                                </div>
+
+                                <div class="col-4 offset-2 text-right">
                                     <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                                 </div>
                             </div>
                         </div>
@@ -215,7 +238,7 @@
                     <div class="form-group row mt-5">
                         <label for="priceBand" class="col-4 col-form-label-sm text-right">Price Band</label>
                         <div class="col-8">
-                            <g:select name="priceBand" from="${priceBands}" optionValue="description" optionKey="id" class="form-control select-border" onchange="priceBandChanged();" />
+                            <g:select name="priceBand" from="${priceBands}" optionValue="description" optionKey="id" class="form-control select-border" onchange="search();" />
                         </div>
                     </div>
 
@@ -229,16 +252,18 @@
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-1 font-weight-bold">&nbsp;</div>
-                <div class="col-3 font-weight-bold">Product</div>
-                <div class="col-1 text-center font-weight-bold">Pack Size</div>
-                <div class="col-1 text-center font-weight-bold">Effective Date</div>
-                <div class="col-1 text-center font-weight-bold">Price Marked</div>
-                <div class="col-1 text-center font-weight-bold">Old Pack Cost Price</div>
-                <div class="col-1 text-center font-weight-bold">New Pack Cost Price</div>
-                <div class="col-1 text-center font-weight-bold">New RRP</div>
-                <div class="col-1 text-center font-weight-bold">Margin</div>
-                <div class="col-1 text-center font-weight-bold">Retail Price</div>
+                <div class="col-1 font-weight-bold my-auto">
+                    <g:checkBox name="checkAllCheckbox" class="col-12 wl-checkbox my-auto" />
+                </div>
+                <div class="col-3 font-weight-bold my-auto">Product</div>
+                <div class="col-1 text-center font-weight-bold my-auto">Pack Size</div>
+                <div class="col-1 text-center font-weight-bold my-auto">Effective Date</div>
+                <div class="col-1 text-center font-weight-bold my-auto">Price Marked</div>
+                <div class="col-1 text-center font-weight-bold my-auto">Old Pack Cost Price</div>
+                <div class="col-1 text-center font-weight-bold my-auto">New Pack Cost Price</div>
+                <div class="col-1 text-center font-weight-bold my-auto">New RRP</div>
+                <div class="col-1 text-center font-weight-bold my-auto">Margin</div>
+                <div class="col-1 text-center font-weight-bold my-auto">Retail Price</div>
             </div>
 
             <div id="search-results" class="align-content-center">
@@ -252,14 +277,14 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h2>Accept RRPs?</h2>
+                            <h2 id="confirmModalHeader">Accept RRPs?</h2>
                         </div>
 
                         <div class="modal-body" id="confirmModalContent">Are you sure you wish to accept the recommended retail price for all products?</div>
 
                         <div class="modal-footer">
-                            <button type="button" id="confirmModalNoButton" class="btn btn-secondary" data-dismiss="modal">No</button>
-                            <button type="button" id="confirmModalYesButton" class="btn btn-secondary" onclick="confirmRrps();">Yes</button>
+                            <button type="button" id="confirmModalNoButton" class="btn btn-wl" data-dismiss="modal">No</button>
+                            <button type="button" id="confirmModalYesButton" class="btn btn-success">Yes</button>
                         </div>
                     </div>
                 </div>

@@ -128,7 +128,7 @@ class PromotionController {
         promotion.endDate = (params."${type}-doesNotExpire" ? null : DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-endDate").toDate())
 
         promotion.updateDatetime = new Date()
-        promotion.active = params."${type}-active"
+        promotion.active = (params."${type}-active" == null ? false : true)
         promotion.retailerPromotionId = params."${type}-retailerPromoId" ? Integer.parseInt(params."${type}-retailerPromoId") : null
 
         switch (type) {

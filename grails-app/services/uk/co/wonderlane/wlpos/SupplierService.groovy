@@ -9,6 +9,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierPriceUpdate
 import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
@@ -78,11 +79,11 @@ class SupplierService extends MySqlDal {
         }
     }
 
-    def getSupplierPriceUpdates(DateTime sinceDate, int priceBandId, Integer supplierId, int offset, int max) {
+    def getSupplierPriceUpdates(DateTime sinceDate, int priceBandId, Integer supplierId, Integer categoryId, int offset, int max) {
         def results = [results: [], totalCount:0]
 
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call getSupplierPriceUpdates(?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement cstmt = conn.prepareCall("{ call getSupplierPriceUpdates(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
             cstmt.setInt(1, springSecurityService.principal.retailerId)
@@ -103,14 +104,21 @@ class SupplierService extends MySqlDal {
                 cstmt.setNull(5, Types.INTEGER)
             }
 
-            cstmt.setInt(6, offset)
-            cstmt.setInt(7, max)
+            if (categoryId != null) {
+                cstmt.setInt(6, categoryId)
+            } else {
+                cstmt.setNull(6, Types.INTEGER)
+            }
+
+            cstmt.setInt(7, offset)
+            cstmt.setInt(8, max)
 
             ResultSet rs = cstmt.executeQuery()
 
             try {
                 while (rs.next()) {
                     def result = [:]
+                    result.packId = rs.getInt("packId")
                     result.sku = rs.getLong("sku")
                     result.description = rs.getString("description")
                     result.quantity = rs.getInt("quantity")
@@ -141,22 +149,38 @@ class SupplierService extends MySqlDal {
         return results
     }
 
-    def saveRecommendedRetailPrices(List supplierPriceUpdates, int priceBandId, DateTime effectiveDate) {
+    def saveSupplierPriceUpdates(List supplierPriceUpdates, int priceBandId, DateTime effectiveDate) {
         PriceBand priceBand = PriceBand.findByIdAndRetailerId(priceBandId, springSecurityService.principal.retailerId)
+
+        DateTime now = DateTime.now(DateTimeZone.UTC)
 
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
 
         supplierPriceUpdates.eachWithIndex { priceUpdate, index ->
-            if (priceUpdate.recommendedRetailPrice) {
-                ProductPrice productPrice = new ProductPrice()
-                productPrice.sku = priceUpdate.sku
+            ProductPrice productPrice = new ProductPrice()
+            productPrice.sku = priceUpdate.sku
+            productPrice.effectiveDate = effectiveDate
+            productPrice.priceBand = priceBand
+
+            if (priceUpdate instanceof PriceChangeCommand) {
+                productPrice.price = priceUpdate.price
+
+                session.save(productPrice)
+            } else if (priceUpdate.recommendedRetailPrice) {
                 productPrice.price = priceUpdate.recommendedRetailPrice
-                productPrice.effectiveDate = effectiveDate
-                productPrice.priceBand = priceBand
 
                 session.save(productPrice)
             }
+
+            SupplierPriceUpdate supplierPriceUpdate = new SupplierPriceUpdate()
+            supplierPriceUpdate.packId = priceUpdate.packId
+            supplierPriceUpdate.storeId = springSecurityService.principal.storeId
+            supplierPriceUpdate.priceBandId = priceBandId
+            supplierPriceUpdate.updateDatetime = now
+
+            session.save(supplierPriceUpdate)
+
 
             // Clear the session for speed purposes.
             if (index.mod(100) == 0) {

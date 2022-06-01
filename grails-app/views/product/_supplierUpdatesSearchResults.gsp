@@ -12,6 +12,10 @@
 
 <g:each in="${supplierPriceUpdates}" var="supplierPriceUpdate" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
+        <g:hiddenField name="product-${i}-packId" value="${supplierPriceUpdate.packId}" />
+        <g:hiddenField name="product-${i}-rrp" value="${supplierPriceUpdate.recommendedRetailPrice}" />
+        <g:hiddenField name="product-${i}-sku" value="${supplierPriceUpdate.sku}" />
+
         <div class="col-1 my-auto">
             <g:checkBox name="product-${i}" class="col-12 wl-checkbox my-auto" />
         </div>
@@ -29,7 +33,7 @@
                 <span class="input-group-text">&pound;</span>
             </div>
 
-            <g:textField name="retailPrice[${i}]" value="${supplierPriceUpdate.retailPrice}" class="form-control mask-money" />
+            <g:textField name="product-${i}-price" value="${supplierPriceUpdate.retailPrice}" class="form-control mask-money" />
         </div>
     </div>
 </g:each>
