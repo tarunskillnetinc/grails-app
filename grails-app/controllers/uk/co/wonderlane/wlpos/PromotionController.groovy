@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
@@ -17,7 +18,18 @@ class PromotionController {
     def rabbitService
     def gsonProvider
 
-    def index() { }
+    def index() {
+        List<uk.co.wonderlane.wlpos.enums.PromotionType> promotionTypes = new ArrayList<>()
+        promotionTypes.add(PromotionType.BOGOF)
+        promotionTypes.add(PromotionType.FIXED_AMOUNT_DISCOUNT)
+        promotionTypes.add(PromotionType.PERCENTAGE_DISCOUNT)
+        promotionTypes.add(PromotionType.X_FOR_Y)
+        promotionTypes.add(PromotionType.FIXED_PRICE)
+
+        render (view: "index", model: [
+                types: promotionTypes
+        ])
+    }
 
     def maintenance() {
         List<Map> productsRequired = new ArrayList<>()
@@ -124,11 +136,11 @@ class PromotionController {
     def setupBasePromotion(Promotion promotion, String type) {
         promotion.description = params."${type}-description"
         promotion.receiptDescription = params."${type}-receiptDescription"
-        promotion.startDate = DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-startDate").toDate()
-        promotion.endDate = (params."${type}-doesNotExpire" ? null : DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-endDate").toDate())
+        promotion.startDate = DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-startDate")
+        promotion.endDate = (params."${type}-doesNotExpire" ? null : DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-endDate"))
 
-        promotion.updateDatetime = new Date()
-        promotion.active = (params."${type}-active" == null ? false : true)
+        promotion.updateDatetime = new DateTime()
+        promotion.active = params."${type}-active" != null
         promotion.retailerPromotionId = params."${type}-retailerPromoId" ? Integer.parseInt(params."${type}-retailerPromoId") : null
 
         switch (type) {
@@ -354,15 +366,21 @@ class PromotionController {
         def promos
         def totalResults
 
-        if (params.searchBy.equals("description")) {
-            promos = Promotion.findAllByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId, "%${params.searchTerm}%", [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-            totalResults = Promotion.countByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId,  "%${params.searchTerm}%")
-        } else {
-            promos = Promotion.findAllByRetailerIdAndRpidAsStringLike(springSecurityService.principal.retailerId, "${params.searchTerm}%", [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-            totalResults = Promotion.countByRetailerIdAndRpidAsStringLike(springSecurityService.principal.retailerId, "${params.searchTerm}%")
-        }
+        promos = promotionService.searchPromotions(springSecurityService.principal.retailerId, params.startDate, params.endDate, params.updatedSince,
+                params.type, "%${params.searchTerm}%", params.searchBy == "description", params.max, params.offset)
+        totalResults = promos.totalCount
 
-        render(template: "/promotion/promotionSearchResults", model: [promotions: promos, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
+        render(template: "/promotion/promotionSearchResults", model: [promotions  : promos,
+                                                                      storeId     : springSecurityService.principal.storeId,
+                                                                      startDate   : params.startDate,
+                                                                      endDate     : params.endDate,
+                                                                      updatedSince: params.updatedSince,
+                                                                      type        : params.type,
+                                                                      searchTerm  : params.searchTerm,
+                                                                      searchBy    : params.searchBy,
+                                                                      max         : params.max ?: 50,
+                                                                      offset      : params.offset,
+                                                                      totalResults: totalResults])
     }
 
     def sendToTill() {

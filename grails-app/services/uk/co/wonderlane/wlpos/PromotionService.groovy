@@ -3,6 +3,9 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.enums.PromotionType
 
 @Transactional
 class PromotionService {
@@ -65,5 +68,78 @@ class PromotionService {
         }
 
         return relevantPromotions.unique()
+    }
+
+    def searchPromotions(int retailerId, String startDateString, String endDateString, String updatedSinceString,
+                         String typeString, String searchTerm, boolean descriptionSearch, String max, String offset) {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+
+        DateTime startDate
+        if (startDateString != null && startDateString != "") {
+            startDate = DateTime.parse(startDateString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
+        }
+
+        def endDate
+        if (endDateString != null && endDateString != "") {
+            endDate = DateTime.parse(endDateString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
+        }
+
+        def updatedDate
+        if (updatedSinceString != null && updatedSinceString != "") {
+            updatedDate = DateTime.parse(updatedSinceString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
+        }
+
+        PromotionType promotionType
+        if (typeString != null && typeString != "") {
+            promotionType = determinePromotionTypeFromString(typeString)
+        }
+
+        def promotions
+        def criteria = Promotion.createCriteria()
+
+        promotions = criteria.list([max: max ? Integer.parseInt(max) : 50, offset: offset ? Integer.parseInt(offset) : 0, sort: "description", order: "ASC"]) {
+            eq("retailerId", retailerId)
+
+            if (startDate != null) {
+                gte("startDate", startDate)
+            }
+
+            if (endDate != null) {
+                lte("endDate", endDate)
+            }
+
+            if (updatedDate != null) {
+                gte("updateDatetime", updatedDate)
+            }
+
+            if (promotionType != null) {
+                eq("type", promotionType)
+            }
+
+            if (searchTerm != "") {
+                if (descriptionSearch) {
+                    like("description", searchTerm)
+                } else {
+                    like("retailerPromotionId", searchTerm)
+                }
+            }
+        }
+
+        return promotions
+    }
+
+    def determinePromotionTypeFromString(String type) {
+        switch (type) {
+            case "BOGOF":
+                return PromotionType.BOGOF
+            case "X_FOR_Y":
+                return PromotionType.X_FOR_Y
+            case "PERCENTAGE_DISCOUNT":
+                return PromotionType.PERCENTAGE_DISCOUNT
+            case "FIXED_AMOUNT_DISCOUNT":
+                return PromotionType.FIXED_AMOUNT_DISCOUNT
+            case "FIXED_PRICE":
+                return PromotionType.FIXED_PRICE
+        }
     }
 }

@@ -10,13 +10,13 @@ class Promotion {
     int retailerId
     String description
     String receiptDescription
-    Date startDate
-    Date endDate
+    DateTime startDate
+    DateTime endDate
     PromotionType type
     BigDecimal amount
     Integer lossCategoryId
     boolean active
-    Date updateDatetime
+    DateTime updateDatetime
     Integer retailerPromotionId
     Collection<PromotionGroup> groups = new ArrayList<>()
     String rpidAsString
