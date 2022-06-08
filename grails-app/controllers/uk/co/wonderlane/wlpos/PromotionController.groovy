@@ -282,7 +282,14 @@ class PromotionController {
 
                     def count = 1
                     for (int i = 0; i < itemNo; i++) {
-                        def param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
+
+                        def param
+                        if (params."fixedPrice-promotionItemsType" == "product") {
+                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-sku/$
+                        } else {
+                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
+                        }
+
                         while(!params.containsKey(param.toString())) {
                             count++
                             param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
