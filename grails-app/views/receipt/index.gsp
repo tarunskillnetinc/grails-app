@@ -13,6 +13,20 @@
             var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
             var getReceiptUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipt')}";
 
+            $(document).ready(function () {
+                $('#startDate').on("change", function () {
+                    $('#startDate').val(this.value);
+                    $('#startDate').removeClass('is-invalid');
+                    $('#endDate').datepicker('setStartDate', this.value);
+                });
+
+                $('#endDate').on("change", function () {
+                    $('#endDate').val(this.value);
+                    $('#endDate').removeClass('is-invalid');
+                    $('#startDate').datepicker('setEndDate', this.value);
+                });
+            })
+
             $(function() {
                 $('#startDate').datepicker({
                     format: "dd/mm/yyyy",
@@ -106,17 +120,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body collapse" id="filterCollapse">
+                        <div class="card-body collapse show" id="filterCollapse">
                             <g:form name="filtersForm" id="filtersForm">
                                 <div class="form-group row">
                                     <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                     <div class="col-4">
-                                        <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                        <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
                                     </div>
 
                                     <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                     <div class="col-4">
-                                        <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                        <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
                                     </div>
                                 </div>
 

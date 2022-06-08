@@ -81,12 +81,12 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 

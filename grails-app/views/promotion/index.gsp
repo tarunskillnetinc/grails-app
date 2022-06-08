@@ -156,19 +156,19 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label for="updatedDate" class="col-2 col-form-label-sm text-right">Updated Since</label>
                                 <div class="col-4">
-                                    <g:textField name="updatedDate" id="updatedDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:textField name="updatedDate" onkeydown="return false" id="updatedDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
 
                                 <label for="types" class="col-2 col-form-label-sm text-right">Type</label>
