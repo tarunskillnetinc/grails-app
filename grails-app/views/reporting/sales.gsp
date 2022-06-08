@@ -15,6 +15,18 @@
         var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
 
         $(document).ready(function () {
+            $('#startDate').on("change", function () {
+                $('#startDate').val(this.value);
+                $('#startDate').removeClass('is-invalid');
+                $('#endDate').datepicker('setStartDate', this.value);
+            });
+
+            $('#endDate').on("change", function () {
+                $('#endDate').val(this.value);
+                $('#endDate').removeClass('is-invalid');
+                $('#startDate').datepicker('setEndDate', this.value);
+            });
+
             filterReport();
         });
 
@@ -64,7 +76,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body collapse" id="filterCollapse">
+                    <div class="card-body collapse show" id="filterCollapse">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
