@@ -61,6 +61,22 @@ class PromotionController {
             }
         }
 
+        tagsRequired?.each { tagRequired ->
+            tagRequired.get("tag").tagProducts?.each { tagProduct ->
+                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+                tagProduct.productId = product.getId()
+                tagProduct.productDescription = product.getDescription()
+            }
+        }
+
+        tagsOffer?.each { tagOffer ->
+            tagOffer.get("tag").tagProducts?.each { tagProduct ->
+                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+                tagProduct.productId = product.getId()
+                tagProduct.productDescription = product.getDescription()
+            }
+        }
+
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
                                             productsRequired: productsRequired,

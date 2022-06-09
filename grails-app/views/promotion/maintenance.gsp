@@ -655,7 +655,14 @@
 
             </div>
 
-            <g:render template="maintenanceForm" model="[]"/>
+            <g:render template="maintenanceForm" model="[promotion: promotion,
+                                                         promoType: promoType,
+                                                         productsRequired: productsRequired,
+                                                         productsOffer: productsOffer,
+                                                         categoriesRequired: categoriesRequired,
+                                                         categoriesOffer: categoriesOffer,
+                                                         tagsRequired: tagsRequired,
+                                                         tagsOffer: tagsOffer]"/>
         </section>
 
         <g:render template="productSearch"/>
