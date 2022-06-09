@@ -45,7 +45,7 @@
             $('#endDate').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
+                startDate: "${new Date().format("dd/MM/yyyy")}",
                 endDate: "${new Date().format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
@@ -60,7 +60,7 @@
             $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById("endDate").value = "${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
-            $('#endDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
             $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('descriptionFilter').value = null;
