@@ -389,8 +389,10 @@ class PromotionController {
         def promos
         def totalResults
 
+        String searchTerm = params.searchTerm == null ? null : "%${params.searchTerm}%"
+
         promos = promotionService.searchPromotions(springSecurityService.principal.retailerId, params.startDate, params.endDate, params.updatedSince,
-                params.type, "%${params.searchTerm}%", params.searchBy == "description", params.max, params.offset)
+                params.type, searchTerm, params.searchBy == "description", params.max, params.offset)
         totalResults = promos.totalCount
 
         render(template: "/promotion/promotionSearchResults", model: [promotions  : promos,

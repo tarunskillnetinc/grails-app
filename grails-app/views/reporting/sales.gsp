@@ -53,6 +53,18 @@
                 orientation: "bottom auto"
             });
         });
+
+        function resetForm() {
+            document.getElementById('startDate').value = "${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 7).format("dd/MM/yyyy")}");
+            $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById("endDate").value = "${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+            $('#endDate').datepicker('setStartDate', "${(new Date() - 7).format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById('descriptionFilter').value = null;
+        }
     </script>
 </head>
 <body>
@@ -81,23 +93,32 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField id="startDate" name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField id="endDate" name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
-                                <div class="col-6">
-                                    <g:textField name="descriptionFilter" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
+                                <div class="col">
+                                    <g:textField id="descriptionFilter" name="descriptionFilter" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group col text-left">
+                                    <button type="button" class="btn btn-wl text-left"
+                                            onclick="resetForm()">Reset Filters</button>
                                 </div>
 
-                                <div class="col-4 text-right">
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                                <div class="form-group col text-right">
+                                    <button id="filter-submit-button" type="button"
+                                            class="btn btn-wl text-right"
+                                            onclick="filterReport()">Search</button>
                                 </div>
                             </div>
                         </g:form>

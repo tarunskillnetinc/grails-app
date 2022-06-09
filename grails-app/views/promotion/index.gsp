@@ -109,7 +109,18 @@
                 search();
             }
 
+            function resetForm() {
+                document.getElementById('startDateFilter').value = null;
+                $('#startDateFilter').datepicker('setEndDate', null);
 
+                document.getElementById("endDateFilter").value = null;
+                $('#endDateFilter').datepicker('setStartDate', null);
+
+                document.getElementById('updatedDateFilter').value = null;
+                document.getElementById('typeFilter').value = null;
+                document.getElementById('searchTermFilter').value = null;
+                document.getElementById('promotionSearchBy').value = 'description';
+            }
         </script>
     </head>
 
@@ -184,6 +195,7 @@
                                                      class="form-control"
                                                      placeholder="Enter a search term."
                                                      aria-describedby="select-addon2"
+                                                     id="searchTermFilter"
                                                      value="${session.PROMOTION_SEARCH_TERM}"/>
                                         <div class="input-group-append">
                                             <g:select id="promotionSearchBy" name="productSearchBy"
@@ -196,10 +208,17 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-4 offset-8 text-right">
-                                <button id="filter-submit-button" type="button"
-                                        class="btn btn-wl text-right"
-                                        onclick="searchButtonClicked2()">Search</button>
+                            <div class="row">
+                                <div class="form-group col text-left">
+                                    <button type="button" class="btn btn-wl text-left"
+                                            onclick="resetForm()">Reset Filters</button>
+                                </div>
+
+                                <div class="form-group col text-right">
+                                    <button id="filter-submit-button" type="button"
+                                            class="btn btn-wl text-right"
+                                            onclick="searchButtonClicked2()">Search</button>
+                                </div>
                             </div>
                         </div>
                     </div>

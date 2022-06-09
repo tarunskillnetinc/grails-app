@@ -85,6 +85,19 @@
                     }
                 });
             }
+
+            function resetForm() {
+                document.getElementById('startDate').value = "${startDate.toString("dd/MM/yyyy")}";
+                $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
+                $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+                document.getElementById("endDate").value = "${endDate.toString("dd/MM/yyyy")}";
+                $('#endDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
+                $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+                document.getElementById('tillId').value = null;
+                document.getElementById('transactionId').value = null;
+            }
         </script>
     </head>
 
@@ -146,9 +159,16 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
-                                    <div class="col-4 offset-8 text-right">
-                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getReceipts();">Filter</button>
+                                <div class="row">
+                                    <div class="form-group col text-left">
+                                        <button type="button" class="btn btn-wl text-left"
+                                                onclick="resetForm()">Reset Filters</button>
+                                    </div>
+
+                                    <div class="form-group col text-right">
+                                        <button id="filter-submit-button" type="button"
+                                                class="btn btn-wl text-right"
+                                                onclick="getReceipts();">Filter</button>
                                     </div>
                                 </div>
                             </g:form>

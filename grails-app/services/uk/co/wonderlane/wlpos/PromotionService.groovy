@@ -79,12 +79,12 @@ class PromotionService {
             startDate = DateTime.parse(startDateString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
         }
 
-        def endDate
+        DateTime endDate
         if (endDateString != null && endDateString != "") {
             endDate = DateTime.parse(endDateString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
         }
 
-        def updatedDate
+        DateTime updatedDate
         if (updatedSinceString != null && updatedSinceString != "") {
             updatedDate = DateTime.parse(updatedSinceString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
         }
@@ -116,7 +116,7 @@ class PromotionService {
                 eq("type", promotionType)
             }
 
-            if (searchTerm != "") {
+            if (searchTerm != null && searchTerm != "") {
                 if (descriptionSearch) {
                     like("description", searchTerm)
                 } else {
