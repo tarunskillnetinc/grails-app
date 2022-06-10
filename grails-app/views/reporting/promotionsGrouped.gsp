@@ -15,6 +15,18 @@
         var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
 
         $(document).ready(function () {
+            $('#startDate').on("change", function () {
+                $('#startDate').val(this.value);
+                $('#startDate').removeClass('is-invalid');
+                $('#endDate').datepicker('setStartDate', this.value);
+            });
+
+            $('#endDate').on("change", function () {
+                $('#endDate').val(this.value);
+                $('#endDate').removeClass('is-invalid');
+                $('#startDate').datepicker('setEndDate', this.value);
+            });
+
             filterReport();
         });
 
@@ -33,7 +45,7 @@
             $('#endDate').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
+                startDate: "${new Date().format("dd/MM/yyyy")}",
                 endDate: "${new Date().format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
@@ -41,6 +53,18 @@
                 orientation: "bottom auto"
             });
         });
+
+        function resetForm() {
+            document.getElementById('startDate').value = "${new Date().format("dd/MM/yyyy")}";
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
+            $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById("endDate").value = "${new Date().format("dd/MM/yyyy")}";
+            $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById('promotionTypeFilter').value = null;
+            document.getElementById('descriptionFilter').value = null;
+        }
     </script>
 </head>
 <body>
@@ -69,30 +93,46 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate.format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate.format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
-                                <div class="col-6">
-                                    <g:textField name="descriptionFilter" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
+                                <label for="descriptionFilter"
+                                       class="col-form-label-sm text-right">Description</label>
+
+                                <div class="col">
+                                    <g:textField name="descriptionFilter" maxlength="100"
+                                                 value="${descriptionFilter}" class="form-control bottom-border"
+                                                 autocomplete="off"/>
+                                </div>
+
+                                <label for="promotionTypeFilter"
+                                       class="col-form-label-sm text-right">Type</label>
+
+                                <div class="col">
+                                    <g:select name="promotionTypeFilter" from="${promotionTypes}"
+                                              noSelection="['': '']" value="${promotionTypeFilter}"
+                                              valueMessagePrefix="PromotionType"
+                                              class="form-control select-border"/>
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <label for="promotionTypeFilter" class="col-2 col-form-label-sm text-right">Type</label>
-                                <div class="col-4">
-                                    <g:select name="promotionTypeFilter" from="${promotionTypes}" noSelection="['':'']" value="${promotionTypeFilter}" valueMessagePrefix="PromotionType" class="form-control select-border" />
+                            <div class="row">
+                                <div class="form-group col text-left">
+                                    <button type="button" class="btn btn-wl text-left"
+                                            onclick="resetForm()">Reset Filters</button>
                                 </div>
 
-                                <div class="col-6 text-right">
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                                <div class="form-group col text-right">
+                                    <button id="filter-submit-button" type="button"
+                                            class="btn btn-wl text-right"
+                                            onclick="filterReport();">Filter</button>
                                 </div>
                             </div>
                         </g:form>

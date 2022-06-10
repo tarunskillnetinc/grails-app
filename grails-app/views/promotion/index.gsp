@@ -42,8 +42,8 @@
             function search() {
                 var URL = "${createLink(controller: 'promotion', action: 'promotionSearch')}";
 
-                var searchTerm = $('#promotionSearchTerm').val();
-                var searchBy = $('#promotionSearchBy').val();
+                let searchTerm = $('#searchTermFilter').val();
+                let searchBy = $('#promotionSearchBy').val();
 
                 let startDate = $('#startDateFilter').val();
                 let endDate = $('#endDateFilter').val();
