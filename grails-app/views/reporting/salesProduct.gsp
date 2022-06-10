@@ -72,7 +72,7 @@
         <g:reportBreadcrumb reportType="${reportType}" productId="${productId}" startDate="${startDate}" endDate="${endDate}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Sales Report</h2>
+            <h2 class="mx-auto">Department Sales Report</h2>
         </div>
 
         <div class="row mt-4">
@@ -120,7 +120,7 @@
                                 <div class="form-group col text-right">
                                     <button id="filter-submit-button" type="button"
                                             class="btn btn-wl text-right"
-                                            onclick="getReceipts();">Filter</button>
+                                            onclick="filterReport();">Filter</button>
                                 </div>
                             </div>
                         </g:form>

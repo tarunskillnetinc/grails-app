@@ -3,13 +3,7 @@ package uk.co.wonderlane.wlpos
 import groovy.json.JsonSlurper
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
-import uk.co.wonderlane.wlpos.reporting.PromotionSale
-import uk.co.wonderlane.wlpos.reporting.ReportColumn
-import uk.co.wonderlane.wlpos.reporting.ReportColumns
-import uk.co.wonderlane.wlpos.reporting.ReportType
-import uk.co.wonderlane.wlpos.reporting.Sale
-import uk.co.wonderlane.wlpos.reporting.SaleCategory
-import uk.co.wonderlane.wlpos.reporting.SortParams
+import uk.co.wonderlane.wlpos.reporting.*
 
 class ReportingController {
 
@@ -35,7 +29,10 @@ class ReportingController {
         startDate.clearTime()
         endDate.clearTime()
 
-        [reportType: ReportType.SALES_DEPARTMENT, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate]
+        [reportType : ReportType.SALES_DEPARTMENT,
+         userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT),
+         startDate  : startDate,
+         endDate    : endDate]
     }
 
     def ajaxSalesDepartment(SortParams sortParams) {
@@ -102,7 +99,12 @@ class ReportingController {
             int totalResults = finalSales.size()
             finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-            render(template: "salesDepartmentResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT), startDate: startDate, endDate: endDate, sortParams: sortParams, totalResults: totalResults])
+            render(template: "salesDepartmentResults", model: [sales       : finalSales,
+                                                               userColumns : reportingService.getReportColumns(ReportType.SALES_DEPARTMENT),
+                                                               startDate   : startDate,
+                                                               endDate     : endDate,
+                                                               sortParams  : sortParams,
+                                                               totalResults: totalResults])
         }
     }
 
@@ -111,7 +113,11 @@ class ReportingController {
         Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
         Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
 
-        [reportType: ReportType.SALES_CATEGORY, categoryId: categoryId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
+        [reportType : ReportType.SALES_CATEGORY,
+         categoryId : categoryId,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
     }
 
     def ajaxSalesCategory(SortParams sortParams) {
@@ -126,13 +132,30 @@ class ReportingController {
         endDate.clearTime()
 
         // Find all sales involving this category in the date range.
-        def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate + 1)
+        def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate + 1, false)
 
         // Group them by the next level down category ID if the sale is not directly in this category.
         def salesGrouped = sales?.groupBy { sale ->
             sale.salesCategories.find { saleCategory ->
                 saleCategory.categoryLevel == (sale.salesCategories.find { saleCategory2 -> saleCategory2.categoryId == categoryId }.categoryLevel + 1)
             }?.categoryId
+        }
+
+        boolean includeRefunds = false
+        for (def salesGroup : salesGrouped) {
+            if (salesGroup.key == null) {
+                sales = reportingService.getSalesForCategory(categoryId, startDate, endDate + 1, true)
+                includeRefunds = true
+                break
+            }
+        }
+
+        if (includeRefunds) {
+            salesGrouped = sales?.groupBy { sale ->
+                sale.salesCategories.find { saleCategory ->
+                    saleCategory.categoryLevel == (sale.salesCategories.find { saleCategory2 -> saleCategory2.categoryId == categoryId }.categoryLevel + 1)
+                }?.categoryId
+            }
         }
 
         def finalSales = []
@@ -196,7 +219,13 @@ class ReportingController {
             int totalResults = finalSales.size()
             finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-            render (template: "salesCategoryResults", model: [categoryId: categoryId, sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+            render (template: "salesCategoryResults", model: [categoryId  : categoryId,
+                                                              sales       : finalSales,
+                                                              userColumns : reportingService.getReportColumns(ReportType.SALES_CATEGORY),
+                                                              sortParams  : sortParams,
+                                                              startDate   : startDate,
+                                                              endDate     : endDate,
+                                                              totalResults: totalResults])
         }
     }
 
@@ -205,7 +234,11 @@ class ReportingController {
         Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
         Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
 
-        [reportType: ReportType.SALES_PRODUCT, productId: productId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
+        [reportType : ReportType.SALES_PRODUCT,
+         productId  : productId,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
     }
 
     def ajaxSalesProduct(SortParams sortParams) {
@@ -230,7 +263,12 @@ class ReportingController {
 
             render getSalesByProductCsv(sales)
         } else {
-            render (template: "salesProductResults", model: [sales: sales, userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+            render (template: "salesProductResults", model: [sales       : sales,
+                                                             userColumns : reportingService.getReportColumns(ReportType.SALES_PRODUCT),
+                                                             sortParams  : sortParams,
+                                                             startDate   : startDate,
+                                                             endDate     : endDate,
+                                                             totalResults: totalResults])
         }
     }
 
@@ -238,7 +276,10 @@ class ReportingController {
         Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
         Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
 
-        [reportType: ReportType.SALES, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.SALES)]
+        [reportType : ReportType.SALES,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.SALES)]
     }
 
     def ajaxSales(SortParams sortParams) {
@@ -293,7 +334,12 @@ class ReportingController {
             int totalResults = finalSales.size()
             finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
-            render (template: "salesResults", model: [sales: finalSales, userColumns: reportingService.getReportColumns(ReportType.SALES), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+            render (template: "salesResults", model: [sales       : finalSales,
+                                                      userColumns : reportingService.getReportColumns(ReportType.SALES),
+                                                      sortParams  : sortParams,
+                                                      startDate   : startDate,
+                                                      endDate     : endDate,
+                                                      totalResults: totalResults])
         }
     }
 

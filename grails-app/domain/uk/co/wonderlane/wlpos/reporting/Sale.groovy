@@ -68,14 +68,14 @@ class Sale {
     }
 
     BigDecimal getAvgCostPrice() {
-        return costPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
+        return quantity == 0 ? costPrice.divide(BigDecimal.valueOf(1), 2, RoundingMode.HALF_UP) : costPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
     }
 
     BigDecimal getAvgRetailPrice() {
-        return retailPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
+        return quantity == 0 ? retailPrice.divide(BigDecimal.valueOf(1), 2, RoundingMode.HALF_UP) : retailPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
     }
 
     BigDecimal getAvgMargin() {
-        return margin.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
+        return quantity == 0 ? margin.divide(BigDecimal.valueOf(1), 2, RoundingMode.HALF_UP) : margin.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
     }
 }
