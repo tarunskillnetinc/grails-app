@@ -12,6 +12,8 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
+import java.sql.Types
+
 class ProductController {
 
     def springSecurityService
@@ -171,7 +173,7 @@ class ProductController {
     def ajaxSaveSupplierPriceUpdates() {
         Integer supplierId = params.supplierId ? Integer.parseInt(params.supplierId) : null
         Integer categoryId = params.categoryId ? Integer.parseInt(params.categoryId) : null
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
         DateTime sinceDate = params.sinceDate ? DateTime.parse(params.sinceDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         Integer priceBandId = params.priceBandId ? Integer.parseInt(params.priceBandId) : null
         DateTime effectiveDate = params.effectiveDate ? DateTime.parse(params.effectiveDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
@@ -182,24 +184,81 @@ class ProductController {
         SavePriceChangesCommand savePriceChangesCommand = new SavePriceChangesCommand()
         bindData(savePriceChangesCommand, params)
 
+        PriceBand priceBand = PriceBand.findByIdAndRetailerId(priceBandId, springSecurityService.principal.retailerId)
+
+        if (!priceBand) {
+            response.status = 400 // TODO Figure out how to handle errors with messages on the page.
+            return
+        }
+
         if (savePriceChangesCommand.priceChanges && savePriceChangesCommand.priceChanges.size() > 0 && acceptRrps) {
+            log.println("Saving ${savePriceChangesCommand.priceChanges.size()} supplier price updates for retailer ${springSecurityService.principal.retailerId} accepting RRPs")
+
             // We were sent exact products to accept RRPs for.
-            supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBandId, effectiveDate)
+            supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
+
+            syncSupplierPriceUpdates(savePriceChangesCommmand.priceChanges, priceBand, effectiveDate)
         } else if (savePriceChangesCommand.priceChanges && savePriceChangesCommand.priceChanges.size() > 0) {
+            log.println("Saving ${savePriceChangesCommand.priceChanges.size()} supplier price updates for retailer ${springSecurityService.principal.retailerId}")
+
             // We were sent exact products and their prices.
-            supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBandId, effectiveDate)
+            supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
+
+            syncSupplierPriceUpdates(savePriceChangesCommmand.priceChanges, priceBand, effectiveDate)
         } else if (acceptRrps) {
             // We were not sent any specific products, but it was the "Accept RRPs" button which was used.
-            def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBandId, supplierId, categoryId, offset, max)
+            def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBand.id, supplierId, categoryId, offset, max)
 
             if (supplierPriceUpdates.totalCount > 0) {
-                supplierService.saveSupplierPriceUpdates(supplierPriceUpdates.results, priceBandId, effectiveDate)
+                log.println("Saving ${supplierPriceUpdates.totalCount} supplier price updates for retailer ${springSecurityService.principal.retailerId} accepting all RRPs")
+
+                supplierService.saveSupplierPriceUpdates(supplierPriceUpdates.results, priceBand, effectiveDate)
+
+                syncSupplierPriceUpdates(supplierPriceUpdates.results, priceBand, effectiveDate)
             }
         } else {
             // We didn't select any products, and we used the "Save" button so we do nothing.
         }
 
         response.status = 204
+    }
+
+    private void syncSupplierPriceUpdates(List supplierPriceUpdates, PriceBand priceBand, DateTime effectiveDate) {
+        def productPrices = []
+
+        supplierPriceUpdates.eachWithIndex { priceUpdate, index ->
+            uk.co.wonderlane.wlpos.entities.ProductPrice productPrice = new uk.co.wonderlane.wlpos.entities.ProductPrice()
+            //productPrice.setId(id) CHECK IF THIS IS USED ON THE TILL, ASSUMING NOT.
+            productPrice.setSku(priceUpdate.sku)
+            productPrice.setPriceBandId(priceBand.id)
+            productPrice.setEffectiveDate(effectiveDate)
+
+            if (priceUpdate instanceof PriceChangeCommand) {
+                productPrice.setPrice(priceUpdate.price)
+            } else if (priceUpdate.recommendedRetailPrice) {
+                productPrice.setPrice(priceUpdate.recommendedRetailPrice)
+            } else {
+                return // Note this is return from this closure, i.e. more like a "continue" for the loop.
+            }
+
+            productPrices.add(productPrice)
+        }
+
+        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
+        syncMessage.setInsert(true)
+        syncMessage.setProductPrices(productPrices)
+
+        def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand)
+
+        stores?.each { store ->
+            log.println("Syncing ${productPrices.size()} supplier price updates to store ${store.storeId}")
+
+            syncMessage.setStoreNumber(store.storeId)
+            syncMessage.setStoreId(store.id)
+
+            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        }
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

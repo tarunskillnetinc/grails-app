@@ -13,7 +13,6 @@ import uk.co.wonderlane.wlpos.supplier.SupplierPriceUpdate
 import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
-import java.math.RoundingMode
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
@@ -149,47 +148,50 @@ class SupplierService extends MySqlDal {
         return results
     }
 
-    def saveSupplierPriceUpdates(List supplierPriceUpdates, int priceBandId, DateTime effectiveDate) {
-        PriceBand priceBand = PriceBand.findByIdAndRetailerId(priceBandId, springSecurityService.principal.retailerId)
-
+    def saveSupplierPriceUpdates(List supplierPriceUpdates, PriceBand priceBand, DateTime effectiveDate) {
         DateTime now = DateTime.now(DateTimeZone.UTC)
 
-        Session session = sessionFactory.openSession()
-        Transaction transaction = session.beginTransaction()
+        Connection conn = getConnection()
+        CallableStatement cstmt = conn.prepareCall("{ call saveSupplierPriceUpdate(?, ?, ?, ?, ?, ?, ?) }")
 
-        supplierPriceUpdates.eachWithIndex { priceUpdate, index ->
-            ProductPrice productPrice = new ProductPrice()
-            productPrice.sku = priceUpdate.sku
-            productPrice.effectiveDate = effectiveDate
-            productPrice.priceBand = priceBand
+        try {
+            supplierPriceUpdates.eachWithIndex { priceUpdate, index ->
+                cstmt.clearParameters()
 
-            if (priceUpdate instanceof PriceChangeCommand) {
-                productPrice.price = priceUpdate.price
+                cstmt.setLong(1, priceUpdate.sku)
+                cstmt.setString(2, effectiveDate.toString(DATE_TIME_FORMAT))
+                cstmt.setInt(3, priceBand.id)
 
-                session.save(productPrice)
-            } else if (priceUpdate.recommendedRetailPrice) {
-                productPrice.price = priceUpdate.recommendedRetailPrice
+                if (priceUpdate instanceof PriceChangeCommand) {
+                    cstmt.setBigDecimal(4, priceUpdate.price)
+                } else if (priceUpdate.recommendedRetailPrice) {
+                    cstmt.setBigDecimal(4, priceUpdate.recommendedRetailPrice)
+                } else {
+                    cstmt.setNull(4, Types.DECIMAL)
+                }
 
-                session.save(productPrice)
+                cstmt.setInt(5, priceUpdate.packId)
+
+                if (springSecurityService.principal.storeId) {
+                    cstmt.setInt(6, springSecurityService.principal.storeId)
+                } else {
+                    cstmt.setNull(6, Types.INTEGER)
+                }
+
+                cstmt.setString(7, now.toString(DATE_TIME_FORMAT))
+
+                cstmt.addBatch()
+
+                // Clear the session for speed purposes.
+                if (index.mod(200) == 0) {
+                    cstmt.executeBatch()
+                }
             }
 
-            SupplierPriceUpdate supplierPriceUpdate = new SupplierPriceUpdate()
-            supplierPriceUpdate.packId = priceUpdate.packId
-            supplierPriceUpdate.storeId = springSecurityService.principal.storeId
-            supplierPriceUpdate.priceBandId = priceBandId
-            supplierPriceUpdate.updateDatetime = now
-
-            session.save(supplierPriceUpdate)
-
-
-            // Clear the session for speed purposes.
-            if (index.mod(100) == 0) {
-                session.flush()
-                session.clear()
-            }
+            cstmt.executeBatch()
+        } finally {
+            cstmt.close()
+            conn.close()
         }
-
-        transaction.commit()
-        session.close()
     }
 }
