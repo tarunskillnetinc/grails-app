@@ -41,6 +41,18 @@
                 orientation: "bottom auto"
             });
         });
+
+        function resetForm() {
+            document.getElementById('startDate').value = "${new Date().format("dd/MM/yyyy")}";
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
+            $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById("endDate").value = "${new Date().format("dd/MM/yyyy")}";
+            $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById('promotionTypeFilter').value = null;
+            document.getElementById('descriptionFilter').value = null;
+        }
     </script>
 </head>
 <body>
@@ -71,18 +83,19 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-12 text-right">
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                            <div class="row">
+                                <div class="col-4 offset-8 text-right">
+                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
                         </g:form>

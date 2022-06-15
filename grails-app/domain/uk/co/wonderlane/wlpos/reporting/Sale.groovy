@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos.reporting
 
+import org.joda.time.DateTime
+
 import java.math.RoundingMode
 
 class Sale {
@@ -22,7 +24,7 @@ class Sale {
     String vatCodeDescription
     int userId
     String usersName
-    Date dateCreated
+    DateTime dateCreated
 
     BigDecimal avgCostPrice // Calculated value, marked transient below.
     BigDecimal avgRetailPrice // Calculated value, marked transient below.

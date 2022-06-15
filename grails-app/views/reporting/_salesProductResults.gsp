@@ -66,7 +66,7 @@
                 <div class="col my-auto">${sale.usersName}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div class="col my-auto"><g:formatDate date="${sale.dateCreated}" format="dd/MM/yyyy HH:mm:ss" /></div>
+                <div class="col my-auto">${sale.dateCreated?.toString("dd/MM/yyyy HH:mm:ss")}</div>
             </g:if>
         </div>
     </g:each>

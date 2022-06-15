@@ -34,7 +34,7 @@
     </g:if>
 
     <g:each in="${sales}" var="sale" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId, startDate: startDate.format("dd/MM/yyyy"), endDate: endDate.format("dd/MM/yyyy")])}';">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div class="col-4 my-auto">${sale.productDescription}</div>
             </g:if>

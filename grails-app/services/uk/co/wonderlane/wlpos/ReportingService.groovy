@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
@@ -17,7 +18,7 @@ class ReportingService {
     def springSecurityService
 
     // For sales report grouped by department, no pagination on here as the results are grouped into categories. Needs to be moved into a procedure or HQL at some point.
-    def getSales(Date startDate, Date endDate) {
+    def getSales(DateTime startDate, DateTime endDate) {
         def salesCriteria = Sale.createCriteria()
 
         return salesCriteria.list() {
@@ -32,7 +33,7 @@ class ReportingService {
     }
 
     // For sales report grouped by category, no pagination on here as the results can still be grouped into categories. Needs to be moved into a procedure or HQL at some point.
-    def getSalesForCategory(int categoryId, Date startDate, Date endDate, boolean includeRefunds) {
+    def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate, boolean includeRefunds) {
         String searchQuery = """SELECT s
                                 FROM Sale s
                                 JOIN SaleCategory sc ON s.id = sc.sales
@@ -59,7 +60,7 @@ class ReportingService {
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
-    def getSales(Integer storeId, Date startDate, Date endDate) {
+    def getSales(Integer storeId, DateTime startDate, DateTime endDate) {
         String searchQuery = """SELECT s
                                 FROM Sale s
                                 WHERE s.retailerId = :retailerId """
@@ -89,7 +90,7 @@ class ReportingService {
     }
 
     // For sales report product level. Paginated and filtered.
-    def getSalesForProduct(int productId, Date startDate, Date endDate, int maxResults, int startIndex, String sortColumn, String sortOrder, String descriptionFilter) {
+    def getSalesForProduct(int productId, DateTime startDate, DateTime endDate, int maxResults, int startIndex, String sortColumn, String sortOrder, String descriptionFilter) {
         String sort
 
         if (sortColumn == "description") {
@@ -127,7 +128,7 @@ class ReportingService {
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
-    def countSalesForProduct(int productId, Date startDate, Date endDate, String descriptionFilter) {
+    def countSalesForProduct(int productId, DateTime startDate, DateTime endDate, String descriptionFilter) {
         String searchQuery = """SELECT COUNT(s)
                                 FROM Sale s
                                 WHERE s.productId = :productId
@@ -151,7 +152,7 @@ class ReportingService {
     }
 
     // For promotions grouped report. No pagination here as we're going to group them, but the filtering can be done in the database.
-    def getPromotionSales(Date startDate, Date endDate, String descriptionFilter, PromotionType promotionTypeFilter) {
+    def getPromotionSales(DateTime startDate, DateTime endDate, String descriptionFilter, PromotionType promotionTypeFilter) {
         def promotionsCriteria = PromotionSale.createCriteria()
 
         return promotionsCriteria.list() {
@@ -170,7 +171,7 @@ class ReportingService {
     }
 
     // For promotions report at promotion level. Filtered and paginated.
-    def getPromotionSales(Date startDate, Date endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getPromotionSales(DateTime startDate, DateTime endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def promotionsCriteria = PromotionSale.createCriteria()
 
         def results = promotionsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
@@ -228,7 +229,7 @@ class ReportingService {
         }
     }
 
-    def getTillControlEvents(Date startDate, Date endDate) {
+    def getTillControlEvents(DateTime startDate, DateTime endDate) {
         def tillControlEventsCriteria = TillControlEvent.createCriteria()
 
         return tillControlEventsCriteria.list() {
@@ -240,7 +241,7 @@ class ReportingService {
         }
     }
 
-    def getTillControlEvents(Date startDate, Date endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getTillControlEvents(DateTime startDate, DateTime endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def tillControlEventsCriteria = TillControlEvent.createCriteria()
 
         def results = tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {

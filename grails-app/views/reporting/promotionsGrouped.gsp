@@ -93,29 +93,27 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="descriptionFilter"
-                                       class="col-form-label-sm text-right">Description</label>
+                                <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
 
-                                <div class="col">
+                                <div class="col-4">
                                     <g:textField name="descriptionFilter" maxlength="100"
                                                  value="${descriptionFilter}" class="form-control bottom-border"
                                                  autocomplete="off"/>
                                 </div>
 
-                                <label for="promotionTypeFilter"
-                                       class="col-form-label-sm text-right">Type</label>
+                                <label for="promotionTypeFilter" class="col-2 col-form-label-sm text-right">Type</label>
 
-                                <div class="col">
+                                <div class="col-4">
                                     <g:select name="promotionTypeFilter" from="${promotionTypes}"
                                               noSelection="['': '']" value="${promotionTypeFilter}"
                                               valueMessagePrefix="PromotionType"
@@ -124,15 +122,9 @@
                             </div>
 
                             <div class="row">
-                                <div class="form-group col text-left">
-                                    <button type="button" class="btn btn-wl text-left"
-                                            onclick="resetForm()">Reset Filters</button>
-                                </div>
-
-                                <div class="form-group col text-right">
-                                    <button id="filter-submit-button" type="button"
-                                            class="btn btn-wl text-right"
-                                            onclick="filterReport();">Filter</button>
+                                <div class="col-4 offset-8 text-right">
+                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
                         </g:form>

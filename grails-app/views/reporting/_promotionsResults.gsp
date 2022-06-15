@@ -37,7 +37,7 @@
     </g:if>
 
     <g:each in="${promotionSales}" var="promotionSale" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id, startDate: startDate?.format('dd/MM/yyyy'), endDate: endDate?.format('dd/MM/yyyy')])}';">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotion', params: [promotionSaleId: promotionSale.id, startDate: startDate?.toString('dd/MM/yyyy'), endDate: endDate?.toString('dd/MM/yyyy')])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div class="col-2 my-auto">${promotionSale.description}</div>
             </g:if>
@@ -60,7 +60,7 @@
                 <div class="col my-auto"><g:formatNumber number="${promotionSale.vat}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div class="col my-auto"><g:formatDate date="${promotionSale.dateCreated}" format="dd/MM/yyyy HH:mm" /></div>
+                <div class="col my-auto">${promotionSale.dateCreated?.toString("dd/MM/yyyy HH:mm")}</div>
             </g:if>
         </div>
     </g:each>

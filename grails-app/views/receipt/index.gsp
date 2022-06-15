@@ -160,15 +160,9 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="form-group col text-left">
-                                        <button type="button" class="btn btn-wl text-left"
-                                                onclick="resetForm()">Reset Filters</button>
-                                    </div>
-
-                                    <div class="form-group col text-right">
-                                        <button id="filter-submit-button" type="button"
-                                                class="btn btn-wl text-right"
-                                                onclick="getReceipts();">Filter</button>
+                                    <div class="col-4 offset-8 text-right">
+                                        <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
+                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getReceipts();">Search</button>
                                     </div>
                                 </div>
                             </g:form>

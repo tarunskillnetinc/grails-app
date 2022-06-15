@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos.reporting
 
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 
 class TillControlEvent {
@@ -19,7 +20,7 @@ class TillControlEvent {
     Integer overrideUserId
     String overrideUsersName
     BigDecimal amount
-    Date dateCreated
+    DateTime dateCreated
 
     static mapping = {
         datasources (["reporting"])

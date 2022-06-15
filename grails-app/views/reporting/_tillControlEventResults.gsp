@@ -45,7 +45,7 @@
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div class="col my-auto"><g:formatDate date="${tillControlEvent.dateCreated}" format="dd/MM/yy HH:mm:ss" /></div>
+                <div class="col my-auto">${tillControlEvent.dateCreated.toString("dd/MM/yy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
                 <div class="col my-auto">

@@ -86,13 +86,13 @@ class EposTagLib {
 
                 hierarchy = hierarchy.reverse()
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
 
                 hierarchy.each { cat ->
                     if (cat == null || cat?.id == attrs.categoryId) {
                         out << """<li class="breadcrumb-item active" aria-current="page">${cat?.description ?: "Invalid Category"}</li>"""
                     } else {
-                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
+                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
                     }
                 }
 
@@ -111,10 +111,10 @@ class EposTagLib {
 
                 hierarchy = hierarchy.reverse()
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
 
                 hierarchy.each { cat ->
-                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
+                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
                 }
 
                 out << """<li class="breadcrumb-item active" aria-current="page">${product?.description ?: "Invalid Product"}</li>"""
@@ -130,7 +130,7 @@ class EposTagLib {
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break
@@ -138,8 +138,8 @@ class EposTagLib {
                 def promotionSale = reportingService.getPromotionSale(attrs.promotionSaleId)
                 def promotion = promotionService.getPromotion(promotionSale.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Sales" }}"""
-                out << """<li class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { promotion.description }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { promotion.description }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break
@@ -148,7 +148,7 @@ class EposTagLib {
 
                 break
             case ReportType.TILL_CONTROL_EVENT:
-                out << """<li class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.format('dd/MM/yyyy'), endDate: attrs.endDate?.format('dd/MM/yyyy')]) { "All Events" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Events" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${g.message(code: 'TillControlEventType.' +attrs.tillControlEventType)}</li>"""
 
                 break

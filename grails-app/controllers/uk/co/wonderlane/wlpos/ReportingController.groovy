@@ -1,6 +1,10 @@
 package uk.co.wonderlane.wlpos
 
 import groovy.json.JsonSlurper
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.*
@@ -23,11 +27,9 @@ class ReportingController {
     }
 
     def salesDepartment() {
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType : ReportType.SALES_DEPARTMENT,
          userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT),
@@ -38,14 +40,12 @@ class ReportingController {
     def ajaxSalesDepartment(SortParams sortParams) {
         sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all sales in the date range.
-        def sales = reportingService.getSales(startDate, endDate + 1)
+        def sales = reportingService.getSales(startDate,endDate.plusDays(1))
 
         // Filter our results.
         if (params.descriptionFilter) {
@@ -110,8 +110,9 @@ class ReportingController {
 
     def salesCategory() {
         int categoryId = getIntegerParam(params.categoryId)
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType : ReportType.SALES_CATEGORY,
          categoryId : categoryId,
@@ -125,14 +126,12 @@ class ReportingController {
 
         sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all sales involving this category in the date range.
-        def sales = reportingService.getSalesForCategory(categoryId, startDate, endDate + 1, false)
+        def sales = reportingService.getSalesForCategory(categoryId, startDate,endDate.plusDays(1), false)
 
         // Group them by the next level down category ID if the sale is not directly in this category.
         def salesGrouped = sales?.groupBy { sale ->
@@ -144,7 +143,7 @@ class ReportingController {
         boolean includeRefunds = false
         for (def salesGroup : salesGrouped) {
             if (salesGroup.key == null) {
-                sales = reportingService.getSalesForCategory(categoryId, startDate, endDate + 1, true)
+                sales = reportingService.getSalesForCategory(categoryId, startDate,endDate.plusDays(1), true)
                 includeRefunds = true
                 break
             }
@@ -231,8 +230,9 @@ class ReportingController {
 
     def salesProduct() {
         int productId = getIntegerParam(params.productId)
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType : ReportType.SALES_PRODUCT,
          productId  : productId,
@@ -246,15 +246,13 @@ class ReportingController {
 
         sortParams.validateParams(SALES_REPORT_PRODUCT_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        startDate.clearTime()
-        endDate.clearTime()
+        def sales = reportingService.getSalesForProduct(productId, startDate,endDate.plusDays(1), sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, params.descriptionFilter)
 
-        def sales = reportingService.getSalesForProduct(productId, startDate, endDate + 1, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, params.descriptionFilter)
-
-        def totalResults = reportingService.countSalesForProduct(productId, startDate, endDate + 1, params.descriptionFilter)
+        def totalResults = reportingService.countSalesForProduct(productId, startDate,endDate.plusDays(1), params.descriptionFilter)
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "SalesByProduct-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
@@ -273,8 +271,9 @@ class ReportingController {
     }
 
     def sales() {
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType : ReportType.SALES,
          startDate  : startDate,
@@ -287,14 +286,12 @@ class ReportingController {
 
         sortParams.validateParams(SALES_REPORT_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all sales in the date range.
-        def sales = reportingService.getSales(storeId, startDate, endDate + 1)
+        def sales = reportingService.getSales(storeId, startDate,endDate.plusDays(1))
 
         def filteredProductSales = params.descriptionFilter ? sales.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.descriptionFilter.toLowerCase()) } : sales
 
@@ -344,11 +341,9 @@ class ReportingController {
     }
 
     def promotionsGrouped() {
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType: ReportType.PROMOTIONS_GROUPED, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), promotionTypes: PromotionType.values(), startDate: startDate, endDate: endDate]
     }
@@ -356,11 +351,9 @@ class ReportingController {
     def ajaxPromotionsGrouped(SortParams sortParams) {
         sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Validate the promotion type filter if passed in.
         if (!params.promotionTypeFilter?.isAllWhitespace()) {
@@ -374,7 +367,7 @@ class ReportingController {
         }
 
         // Find all promotion sales in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate, endDate + 1, params.descriptionFilter, params.promotionTypeFilter)
+        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), params.descriptionFilter, params.promotionTypeFilter)
 
         // Group them by promotion ID.
         def promotionSalesGrouped = promotionSales.groupBy { it.promotionId }
@@ -416,8 +409,9 @@ class ReportingController {
 
     def promotions() {
         int promotionId = getIntegerParam(params.promotionId)
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType: ReportType.PROMOTIONS, promotionId: promotionId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS)]
     }
@@ -427,22 +421,22 @@ class ReportingController {
 
         sortParams.validateParams(PROMOTIONS_REPORT_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all promotion sales for this promotion in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate, endDate + 1, promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
         render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
     }
 
     def promotion() {
         int promotionSaleId = getIntegerParam(params.promotionSaleId)
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType: ReportType.PROMOTION, promotionSaleId: promotionSaleId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.PROMOTION)]
     }
@@ -459,8 +453,9 @@ class ReportingController {
     }
 
     def tillControlEvents() {
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType: ReportType.TILL_CONTROL_EVENTS, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), startDate: startDate, endDate: endDate]
     }
@@ -468,14 +463,12 @@ class ReportingController {
     def ajaxTillControlEvents(SortParams sortParams) {
         sortParams.validateParams(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate + 1)
+        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1))
 
         // Group them by type.
         def tillControlEventsGrouped = tillControlEvents.groupBy { it.type }
@@ -521,8 +514,9 @@ class ReportingController {
     }
 
     def tillControlEvent() {
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
 
         TillControlEventType type = null
 
@@ -546,14 +540,12 @@ class ReportingController {
 
         sortParams.validateParams(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS)
 
-        Date startDate = params.startDate ? Date.parse("dd/MM/yyyy", params.startDate) : new Date()
-        Date endDate = params.endDate ? Date.parse("dd/MM/yyyy", params.endDate): new Date()
-
-        startDate.clearTime()
-        endDate.clearTime()
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate + 1, type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1), type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
         render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
     }

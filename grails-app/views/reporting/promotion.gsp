@@ -15,6 +15,10 @@
         $(document).ready(function () {
             filterReport();
         });
+
+        function resetForm() {
+            $("#descriptionFilter").val("");
+        }
     </script>
 </head>
 <body>
@@ -49,7 +53,8 @@
                                 </div>
 
                                 <div class="col-4 text-right">
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
                         </g:form>

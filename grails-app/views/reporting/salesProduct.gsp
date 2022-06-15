@@ -95,12 +95,12 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.format("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
@@ -109,18 +109,10 @@
                                 <div class="col-6">
                                     <g:textField id="descriptionFilter" name="descriptionFilter" onkeydown="return false" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
                                 </div>
-                            </div>
 
-                            <div class="row">
-                                <div class="form-group col text-left">
-                                    <button type="button" class="btn btn-wl text-left"
-                                            onclick="resetForm()">Reset Filters</button>
-                                </div>
-
-                                <div class="form-group col text-right">
-                                    <button id="filter-submit-button" type="button"
-                                            class="btn btn-wl text-right"
-                                            onclick="filterReport();">Filter</button>
+                                <div class="col-4 text-right">
+                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
                         </g:form>
