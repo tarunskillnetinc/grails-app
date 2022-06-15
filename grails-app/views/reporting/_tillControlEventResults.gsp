@@ -41,6 +41,8 @@
                     <g:elseif test="${tillControlEvent.type.name() == 'CUSTOMER_REFUSAL'}"><g:message code="CustomerRefusalReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:elseif test="${tillControlEvent.type.name() == 'REFUND'}"><g:message code="RefundReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:elseif test="${tillControlEvent.type.name() == 'MARKDOWN'}"><g:message code="MarkdownReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:elseif test="${tillControlEvent.type.name() == 'LINE_VOID'}"><g:message code="LineVoidReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:elseif test="${tillControlEvent.type.name() == 'PAID_OUT'}"><g:message code="PaidOutReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:else>${tillControlEvent.reason}</g:else>
                 </div>
             </g:if>

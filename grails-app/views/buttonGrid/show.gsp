@@ -57,18 +57,18 @@
                         </g:link>
                     </g:if>
                     <g:elseif test="${button.type.name() == 'TENDER' && button.tenderType.name() == 'CASH' && !button.description}"><!-- Exact cash button -->
-                        <div class=" col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
+                        <div id="buttonId-${button.id}" class=" col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
                             <div class="button-grid-button blank">Exact</div>
                         </div>
                     </g:elseif>
                     <g:elseif test="${button.buttonGrid?.type?.name() == 'TENDER' && button.type.name() == 'PROCESS'}"><!-- Tender back button -->
-                        <div class="col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
+                        <div id="buttonId-${button.id}" class="col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
                             <div class="button-grid-button blank">${button.description}</div>
                         </div>
                     </g:elseif>
                     <g:else><!-- All other assigned buttons -->
                         <g:link controller="button" action="edit" id="${button.id}" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                            <div class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px solid black;">
+                            <div id="buttonId-${button.id}" class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px solid black;">
                                 <g:if test="${button.imageDisplay && button.textDisplay}">
                                     <div class="button-grid-image-container">
                                         <g:buttonImage buttonId="${button.id}" />

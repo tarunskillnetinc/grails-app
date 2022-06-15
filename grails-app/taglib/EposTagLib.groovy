@@ -26,19 +26,19 @@ class EposTagLib {
     def paginateReport = { attrs, body ->
         if (attrs.totalResults > attrs.max) {
             if (attrs.offset > 0) {
-                out << """<a class="prevLink" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${attrs.offset - attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">Previous</a>"""
+                out << """<a id="page-prev-btn" class="prevLink" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${attrs.offset - attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">Previous</a>"""
             }
 
             for (int i = 0 ; (i * attrs.max) < attrs.totalResults ; i++) {
                 if (attrs.offset >= (i * attrs.max) && attrs.offset < ((i + 1) * attrs.max)) {
                     out << """<span class="currentStep">${i + 1}</span>"""
                 } else {
-                    out << """<a class="step" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${(i) * attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">${i + 1}</a>"""
+                    out << """<a id="page-${i + 1}-btn" class="step" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${(i) * attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">${i + 1}</a>"""
                 }
             }
 
             if ((attrs.offset + attrs.max) < attrs.totalResults) {
-                out << """<a class="nextLink" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${attrs.offset + attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">Next</a>"""
+                out << """<a id="page-next-btn" class="nextLink" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${attrs.offset + attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">Next</a>"""
             }
         }
     }
@@ -46,19 +46,19 @@ class EposTagLib {
     def wlPagination = { attrs, body ->
         if (attrs.totalResults > attrs.max) {
             if (attrs.offset > 0) {
-                out << """<a class="prevLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset - attrs.max}, ${attrs.max});">Previous</a>"""
+                out << """<a id="page-prev-btn" class="prevLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset - attrs.max}, ${attrs.max});">Previous</a>"""
             }
 
             for (int i = 0 ; (i * attrs.max) < attrs.totalResults ; i++) {
                 if (attrs.offset >= (i * attrs.max) && attrs.offset < ((i + 1) * attrs.max)) {
                     out << """<span class="currentStep">${i + 1}</span>"""
                 } else {
-                    out << """<a class="step" href="#" onclick="${attrs.searchFunction}(${i * attrs.max}, ${attrs.max});">${i + 1}</a>"""
+                    out << """<a id="page-${i + 1}-btn" class="step" href="#" onclick="${attrs.searchFunction}(${i * attrs.max}, ${attrs.max});">${i + 1}</a>"""
                 }
             }
 
             if ((attrs.offset + attrs.max) < attrs.totalResults) {
-                out << """<a class="nextLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset + attrs.max}, ${attrs.max});">Next</a>"""
+                out << """<a id="page-next-btn" class="nextLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset + attrs.max}, ${attrs.max});">Next</a>"""
             }
         }
     }
