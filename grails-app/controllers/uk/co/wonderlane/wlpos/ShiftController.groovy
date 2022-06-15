@@ -17,6 +17,12 @@ class ShiftController {
     def snapshotService
 
     def index() {
+        if (!springSecurityService.principal.storeId) {
+            flash.error = "You do not have access to this page."
+            redirect (uri: "/")
+            return
+        }
+
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
         DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 

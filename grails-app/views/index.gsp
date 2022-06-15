@@ -18,6 +18,12 @@
         </nav>
     </section>
 
+    <g:if test="${flash.error}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+        </section>
+    </g:if>
+
     <section id="main-container" class="container-fluid">
         <div class="row">
             <div class="col-12 header-wl">
