@@ -61,13 +61,22 @@
 
         <div class="row mt-5">
             <div class="col-2 offset-3">
-                <g:link controller="shift" class="unstyled-link">
-                    <div class="card bg-light border-wl mx-1 py-5">
+                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                    <g:link controller="shift" class="unstyled-link">
+                        <div class="card bg-light border-wl mx-1 py-5">
+                            <div class="card-body text-center">
+                                <h3>Cash</h3>
+                            </div>
+                        </div>
+                    </g:link>
+                </g:if>
+                <g:else>
+                    <div class="card bg-light border-wl-disabled mx-1 py-5">
                         <div class="card-body text-center">
-                            <h3>Cash</h3>
+                            <h3 style="color: #A9A9A9;">Cash</h3>
                         </div>
                     </div>
-                </g:link>
+                </g:else>
             </div>
             <div class="col-2">
                 <g:link controller="reporting" action="salesDepartment" class="unstyled-link">

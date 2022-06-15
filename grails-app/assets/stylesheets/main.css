@@ -604,6 +604,10 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
     border-color: #575756 !important;
 }
 
+.border-wl-disabled {
+    border-color: #A9A9A9 !important;
+}
+
 .table-wl a {
     color: #575756;
 }
