@@ -9,10 +9,10 @@
         <div class="col-1 my-auto">${promotion.id}</div>
         <div class="col-2 my-auto"><g:message code="PromotionType.${promotion.type.name()}" /></div>
         <div class="col-5 my-auto">${promotion.description}</div>
-        <div class="col-1 my-auto"><g:formatDate format="dd/MM/yyyy" date="${promotion.startDate}" /></div>
+        <div class="col-1 my-auto"><g:formatDate format="dd/MM/yyyy" date="${promotion.startDate.toDate()}" /></div>
         <div class="col-1 my-auto">
             <g:if test="${promotion.endDate}">
-                <g:formatDate format="dd/MM/yyyy" date="${promotion.endDate}" />
+                <g:formatDate format="dd/MM/yyyy" date="${promotion.endDate.toDate()}" />
             </g:if>
             <g:else>
                 None
