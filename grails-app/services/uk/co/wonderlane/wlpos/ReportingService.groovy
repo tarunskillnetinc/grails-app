@@ -27,22 +27,16 @@ class ReportingService {
                 eq("storeId", springSecurityService.principal.storeId)
             }
             between ("dateCreated", startDate, endDate)
-
-            gte("quantity", 0)
         }
     }
 
     // For sales report grouped by category, no pagination on here as the results can still be grouped into categories. Needs to be moved into a procedure or HQL at some point.
-    def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate, boolean includeRefunds) {
+    def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate) {
         String searchQuery = """SELECT s
                                 FROM Sale s
                                 JOIN SaleCategory sc ON s.id = sc.sales
                                 WHERE sc.categoryId = :categoryId
                                 AND s.retailerId = :retailerId """
-
-        if (!includeRefunds) {
-            searchQuery += "AND s.quantity >= 0"
-        }
 
         if (springSecurityService.principal.storeId != null) {
             searchQuery += """AND s.storeId = :storeId """

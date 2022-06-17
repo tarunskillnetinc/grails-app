@@ -50,7 +50,7 @@
             </g:else>
         </g:if>
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-            <div class="col-1 my-auto">${sale.quantity}</div>
+            <div class="col-1 my-auto">${sale.quantity + sale.refundQuantity} (${sale.refundQuantity} refunds)</div>
         </g:if>
         <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
             <div class="col my-auto">&pound;${sale.avgCostPrice}</div>

@@ -51,13 +51,13 @@
                 <div class="col my-auto">&pound;${sale.costPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "netTotal" }?.enabled}">
-                <div class="col my-auto">&pound;${sale.retailPrice >= 0 ? sale.retailPrice.subtract(sale.costPrice).subtract(sale.vatAmount) : (sale.retailPrice.negate().subtract(sale.costPrice).subtract(sale.vatAmount)).negate()}</div>
+                <div class="col my-auto">&pound;${sale.retailPrice >= 0 ? sale.retailPrice.subtract(sale.costPrice) : (sale.retailPrice.negate().subtract(sale.costPrice)).negate()}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatAmount" }?.enabled}">
                 <div class="col my-auto">&pound;${sale.vatAmount}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "profit" }?.enabled}">
-                <div class="col my-auto">&pound;${sale.retailPrice >= 0 ? sale.retailPrice.subtract(sale.costPrice).subtract(sale.vatAmount) : (sale.retailPrice.negate().subtract(sale.costPrice).subtract(sale.vatAmount)).negate()}</div>
+                <div class="col my-auto">&pound;${sale.retailPrice >= 0 ? sale.retailPrice.subtract(sale.costPrice).subtract(sale.vatAmount) : (sale.retailPrice.negate().subtract(sale.costPrice).add(sale.vatAmount)).negate()}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
                 <div class="col my-auto">${sale.margin}&#37;</div>

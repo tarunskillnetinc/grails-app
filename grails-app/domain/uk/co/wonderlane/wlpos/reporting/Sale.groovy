@@ -26,6 +26,7 @@ class Sale {
     String usersName
     DateTime dateCreated
 
+    int refundQuantity
     BigDecimal avgCostPrice // Calculated value, marked transient below.
     BigDecimal avgRetailPrice // Calculated value, marked transient below.
     BigDecimal avgMargin // Calculated value, marked transient below.
@@ -36,7 +37,7 @@ class Sale {
 
     static fetchMode = [ salesCategories: 'eager' ]
 
-    static transients = [ 'avgCostPrice', 'avgRetailPrice', 'avgMargin' ]
+    static transients = [ 'refundQuantity', 'avgCostPrice', 'avgRetailPrice', 'avgMargin' ]
 
     static mapping = {
         datasources (["reporting"])
