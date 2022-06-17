@@ -91,12 +91,23 @@ class SaveUserCommand {
         confirmPassword blank: false, nullable: false, validator: { val, obj ->
             return (val == obj.password) ? true : ["error.User.passwordsDoNotMatch"]
         }
+
         dateOfBirth blank: false, nullable: false, validator: { val, obj ->
             if (val >= new Date()) {
                 return ["error.User.dateOfBirthInFuture"]
             }
 
              return true
+        }
+
+        username blank: false, validator: {val, obj ->
+            if (obj.id == 0) {
+                def user = User.findByUsername(val)
+
+                return user == null
+            }
+
+            return true
         }
     }
 }
