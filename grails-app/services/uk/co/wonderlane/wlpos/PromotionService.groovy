@@ -43,13 +43,15 @@ class PromotionService {
 
         def promotionCriteria = Promotion.createCriteria()
 
-        def promotions = promotionCriteria.list([sort: "description", order: "ASC"]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("active", true)
-            lte ("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().toDate())
+        def promotions = promotionCriteria.list([sort : "description",
+                                                 order: "ASC"]) {
+
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("active", true)
+            lte("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
             or {
-                eq ("endDate", null)
-                gte ("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1).toDate())
+                eq("endDate", null)
+                gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1))
             }
         }
 
