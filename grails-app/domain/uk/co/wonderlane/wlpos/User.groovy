@@ -49,7 +49,7 @@ class User {
         password nullable: false, blank: false, password: true, minSize: 5, maxSize: 70
         defaultStoreId nullable: false
         name nullable: false, maxSize: 50
-        dateOfBirth nullable: true
+        dateOfBirth nullable: false
         active nullable: false
         ageRelatedSaleAllowed nullable: true
         securityKey nullable: true, minSize: 8, maxSize: 50
