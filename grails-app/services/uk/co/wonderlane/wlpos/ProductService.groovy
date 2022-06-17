@@ -89,6 +89,11 @@ class ProductService extends MySqlDal {
 
     def saveBarcodes(Product product) {
         product?.variants?.each { variant ->
+
+            if (variant.getBarcodes().isEmpty()) { // Prevents crashing on if the barcodes is empty by comparing barcodes
+                return
+            }
+
             variant.barcodez?.each { barcode ->
                 if (barcode.delete) {
                     barcode.delete()
