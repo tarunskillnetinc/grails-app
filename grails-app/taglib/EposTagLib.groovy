@@ -120,17 +120,20 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item active" aria-current="page">${product?.description ?: "Invalid Product"}</li>"""
 
                 break
+            case ReportType.CATEGORY_SALES:
+                out << """<li class="breadcrumb-item active" aria-current="page">All Category Sales</li>"""
+                break
             case ReportType.SALES:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Product Sales</li>"""
                 break
             case ReportType.PROMOTIONS_GROUPED:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Promotional Sales</li>"""
 
                 break
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Promotional Sales" }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break
@@ -138,7 +141,7 @@ class EposTagLib {
                 def promotionSale = reportingService.getPromotionSale(attrs.promotionSaleId)
                 def promotion = promotionService.getPromotion(promotionSale.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Promotional Sales" }}"""
                 out << """<li class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { promotion.description }}"""
                 out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
@@ -159,6 +162,10 @@ class EposTagLib {
         }
 
         out << """</ol></div></div></nav>"""
+    }
+
+    def categorySalesIndent = { attrs, body ->
+        out << "padding-left: ${attrs.categoryLevel > 0 ? attrs.categoryLevel * 30 : 15}px;"
     }
 
     def groupHierarchyPadding = { attrs, body ->

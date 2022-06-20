@@ -26,6 +26,7 @@ class ReportingController {
 
     }
 
+    // The top level of the main sales report.
     def salesDepartment() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
@@ -37,6 +38,7 @@ class ReportingController {
          endDate    : endDate]
     }
 
+    // The top level of the main sales report.
     def ajaxSalesDepartment(SortParams sortParams) {
         sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
 
@@ -110,6 +112,7 @@ class ReportingController {
         }
     }
 
+    // The middle level of the main sales report.
     def salesCategory() {
         int categoryId = getIntegerParam(params.categoryId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
@@ -123,6 +126,7 @@ class ReportingController {
          userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
     }
 
+    // The middle level of the main sales report.
     def ajaxSalesCategory(SortParams sortParams) {
         int categoryId = getIntegerParam(params.categoryId)
 
@@ -215,6 +219,7 @@ class ReportingController {
         }
     }
 
+    // The bottom level of the main sales report.
     def salesProduct() {
         int productId = getIntegerParam(params.productId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
@@ -228,6 +233,7 @@ class ReportingController {
          userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
     }
 
+    // The bottom level of the main sales report.
     def ajaxSalesProduct(SortParams sortParams) {
         int productId = getIntegerParam(params.productId)
 
@@ -257,6 +263,93 @@ class ReportingController {
         }
     }
 
+    // The standalone category sales report.
+    def categorySales() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        [reportType : ReportType.CATEGORY_SALES,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.CATEGORY_SALES)]
+    }
+
+    // The standalone category sales report.
+    def ajaxCategorySales(SortParams sortParams) {
+        sortParams.validateParams(SALES_REPORT_CATEGORY_SORT_COLUMNS)
+
+        int maxCategoryLevel = getIntegerParam(params.maxCategoryLevel)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        // Find all sales in the date range.
+        def sales = reportingService.getSales(springSecurityService.principal.storeId, startDate, endDate.plusDays(1))
+
+        sales = sales.sort { it.salesCategories?.first()?.categoryDescription }
+
+        // Group them by the next level down category ID if the sale is not directly in this category.
+        def salesGrouped = sales?.groupBy { sale ->
+            sale.salesCategories?.sort{ it.categoryLevel }?.first()?.categoryId
+        }
+
+        def finalSales = []
+
+        populateCategorySalesFinalSales(0, salesGrouped, finalSales, maxCategoryLevel)
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "CategorySales-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getSalesByCategoryCsv(finalSales)
+        } else {
+            int totalResults = finalSales.size()
+            finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
+
+            render (template: "categorySalesResults", model: [sales       : finalSales,
+                                                              userColumns : reportingService.getReportColumns(ReportType.CATEGORY_SALES),
+                                                              sortParams  : sortParams,
+                                                              startDate   : startDate,
+                                                              endDate     : endDate,
+                                                              totalResults: totalResults])
+        }
+    }
+
+    private void populateCategorySalesFinalSales(int currentCategoryLevel, salesGroupedByDepartment, List finalSales, int maxCategoryLevel) {
+        salesGroupedByDepartment?.each { salesGroup ->
+            // Anything with a null key is a group of sales from the level above so ignore it here, it should have already been added by the previous iteration of this method.
+            if (salesGroup.key == null) {
+                return
+            }
+
+            Sale groupedSale = new Sale(
+                    quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
+                    costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO },
+                    retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO },
+                    vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO },
+                    margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO },
+                    productDescription: salesGroup.value[0].salesCategories.find { it.categoryLevel == currentCategoryLevel }?.categoryDescription,
+                    productUnitSize: ""
+            )
+            groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+
+            // Also add a dummy category object so we know which category this is in the view.
+            groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key, categoryLevel: currentCategoryLevel))
+
+            finalSales.add(groupedSale)
+
+            def salesGroupedCurrentLevel = salesGroup.value.groupBy { Sale sale -> sale.salesCategories?.find {it.categoryLevel == currentCategoryLevel + 1 }?.categoryId }
+
+            if (salesGroupedCurrentLevel.size() > 1 && currentCategoryLevel < maxCategoryLevel) {
+                populateCategorySalesFinalSales(currentCategoryLevel + 1, salesGroupedCurrentLevel, finalSales, maxCategoryLevel)
+            }
+        }
+    }
+
+    // The standalone product sales report.
     def sales() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
@@ -268,8 +361,9 @@ class ReportingController {
          userColumns: reportingService.getReportColumns(ReportType.SALES)]
     }
 
+    // The standalone product sales report.
     def ajaxSales(SortParams sortParams) {
-        Integer storeId = springSecurityService.principal.storeId ?: params.storeId
+        Integer storeId = springSecurityService.principal.storeId
 
         sortParams.validateParams(SALES_REPORT_SORT_COLUMNS)
 
@@ -278,7 +372,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all sales in the date range.
-        def sales = reportingService.getSales(storeId, startDate,endDate.plusDays(1))
+        def sales = reportingService.getSales(storeId, startDate, endDate.plusDays(1))
 
         def filteredProductSales = params.descriptionFilter ? sales.findAll { (it.productItemCode.toLowerCase() + it.productDescription.toLowerCase()).contains(params.descriptionFilter.toLowerCase()) } : sales
 

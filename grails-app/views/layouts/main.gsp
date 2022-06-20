@@ -123,11 +123,20 @@
                         <a class="nav-link dropdown-toggle" href="#" id="reportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reporting</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="reportingDropdown">
-                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Department Sales</g:link>
-                            <g:link controller="reporting" action="sales" class="dropdown-item">Sales</g:link>
-                            <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotions</g:link>
+                            <span class="dropdown-header">Sales Reports</span>
+
+                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales Report</g:link>
+                            <g:link controller="reporting" action="categorySales" class="dropdown-item">Category Sales</g:link>
+                            <g:link controller="reporting" action="sales" class="dropdown-item">Product Sales</g:link>
+                            <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotional Sales</g:link>
+
+                            <div class="dropdown-divider"></div>
+
+                            <span class="dropdown-header">Other Reports</span>
+
                             <g:link controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <g:link controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Tender Movement</a>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
                         </div>

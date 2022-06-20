@@ -17,7 +17,7 @@ class ReportingService {
 
     def springSecurityService
 
-    // For sales report grouped by department, no pagination on here as the results are grouped into categories. Needs to be moved into a procedure or HQL at some point.
+    // For sales report grouped by department, no pagination on here as the results are grouped into categories.
     def getSales(DateTime startDate, DateTime endDate) {
         def salesCriteria = Sale.createCriteria()
 
@@ -30,7 +30,7 @@ class ReportingService {
         }
     }
 
-    // For sales report grouped by category, no pagination on here as the results can still be grouped into categories. Needs to be moved into a procedure or HQL at some point.
+    // For sales report grouped by category, no pagination on here as the results can still be grouped into categories.
     def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate) {
         String searchQuery = """SELECT s
                                 FROM Sale s

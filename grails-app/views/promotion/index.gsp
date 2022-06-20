@@ -150,7 +150,7 @@
             </div>
 
             <div class="row mt-4">
-                <div class="col-5">
+                <div class="col-6">
                     <div class="card bg-light border-wl">
                         <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
@@ -164,6 +164,17 @@
                         </div>
 
                         <div class="card-body collapse show" id="filterCollapse">
+                            <div class="form-group row">
+                                <label for="promotionSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <div class="col-10 input-group">
+                                    <g:textField id="searchTermFilter" name="promotionSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+
+                                    <div class="input-group-append">
+                                        <g:select id="promotionSearchBy" name="productSearchBy" from="${['description', 'promotionId']}" value="everything" valueMessagePrefix="PromotionSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
@@ -188,43 +199,17 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="align-content-end">
-                                    <div class="input-group">
-                                        <g:textField name="promotionSearchTerm" maxlength="100"
-                                                     class="form-control"
-                                                     placeholder="Enter a search term."
-                                                     aria-describedby="select-addon2"
-                                                     id="searchTermFilter"
-                                                     value="${session.PROMOTION_SEARCH_TERM}"/>
-                                        <div class="input-group-append">
-                                            <g:select id="promotionSearchBy" name="productSearchBy"
-                                                      from="${['description', 'promotionId']}"
-                                                      value="everything"
-                                                      valueMessagePrefix="PromotionSearchBy"
-                                                      class="form-control select-border" style="z-index: 0;"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="form-group col text-left">
-                                    <button type="button" class="btn btn-wl text-left"
-                                            onclick="resetForm()">Reset Filters</button>
-                                </div>
-
-                                <div class="form-group col text-right">
-                                    <button id="filter-submit-button" type="button"
-                                            class="btn btn-wl text-right"
-                                            onclick="searchButtonClicked2()">Search</button>
+                            <div class="form-group row">
+                                <div class="col-4 offset-8 text-right">
+                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-2 offset-5 text-right">
+                <div class="col-2 offset-4 text-right">
                     <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
                 </div>
             </div>

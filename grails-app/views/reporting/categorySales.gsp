@@ -11,7 +11,7 @@
 
     <script type='text/javascript'>
         var reportType = "${reportType}";
-        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxSales')}";
+        var getDataUrl = "${createLink(controller: 'reporting', action: 'ajaxCategorySales')}";
         var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
 
         $(document).ready(function () {
@@ -57,16 +57,16 @@
         function resetForm() {
             $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
-            $('#descriptionFilter').val("");
+            $('#categoryLevelFilter').prop("selectedIndex", 1);
         }
     </script>
 </head>
 <body>
     <section id="reporting-container" class="container-fluid">
-        <g:reportBreadcrumb reportType="${reportType}" />
+        <g:reportBreadcrumb reportType="${reportType}" startDate="${startDate}" endDate="${endDate}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Sales Report</h2>
+            <h2 class="mx-auto">Category Sales Report</h2>
         </div>
 
         <div class="row mt-4">
@@ -82,27 +82,27 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body collapse show" id="filterCollapse">
+                    <div class="card-body collapse" id="filterCollapse">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField id="startDate" name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" onkeydown="return false" class="form-control bottom-border" value="${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField id="endDate" name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" onkeydown="return false" class="form-control bottom-border" value="${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
-                                <div class="col-6">
-                                    <g:textField id="descriptionFilter" name="descriptionFilter" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
+                                <label for="categoryLevelFilter" class="col-2 col-form-label-sm text-right">Maximum Category Level</label>
+                                <div class="col-4">
+                                    <g:select id="categoryLevelFilter"  name="maxCategoryLevel" from="${[0:'Department', 1:'Level 1', 2:'Level 2', 999:'No Limit'].entrySet()}" value="999" optionKey="key" optionValue="value" class="form-control select-border" style="z-index: 0;" />
                                 </div>
 
-                                <div class="col-4 text-right">
+                                <div class="col-6 text-right">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
@@ -167,7 +167,7 @@
         </div>
 
         <div id="results-container" class="align-content-center">
-            <g:render template="salesResults" />
+            <g:render template="salesCategoryResults" />
         </div>
     </section>
 </body>
