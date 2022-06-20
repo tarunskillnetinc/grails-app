@@ -59,6 +59,16 @@ function getReportData(sortParams, filterParams) {
     });
 }
 
+function exportToPPCsv() {
+    if (!$("#storeFilter").val()) {
+        alert("Please enter a valid store Id filter for this report.")
+        return
+    }
+
+    var params = { reportType: reportType, csv: true, standard: true, storeFilter: $("#storeFilter").val() };
+    window.location = getDataUrl + "?" + $.param(params);
+}
+
 function exportToCsv() {
     var params = { reportType: reportType, csv: true };
     $.extend(params, globalSortParams, globalFilterParams);

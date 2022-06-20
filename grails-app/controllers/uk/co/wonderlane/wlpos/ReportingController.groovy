@@ -21,6 +21,7 @@ class ReportingController {
     private static final PROMOTION_REPORT_SORT_COLUMNS = [ "itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat" ]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
     private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "type", "usersName", "reason", "dateCreated", "amount" ]
+    private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = ["storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status", "transactionDate"]
 
     def index() {
 
@@ -632,6 +633,64 @@ class ReportingController {
         render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
     }
 
+    def paypointSales() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+
+        [reportType : ReportType.PAYPOINT_SALES,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.PAYPOINT_SALES)]
+    }
+
+    def ajaxPayPointSales(SortParams sortParams) {
+        sortParams.validateParams(PAYPOINT_SALE_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        String description = params.descriptionFilter ? ("%" + params.descriptionFilter + "%") : null
+        Integer storeId = null
+        if (params.storeFilter && !params.storeFilter.isEmpty()) {
+            StoreSettings storeSettings = StoreSettings.findByStoreId(Integer.parseInt(params.storeFilter))
+            storeId = storeSettings ? storeSettings.id : -1
+        }
+        String status = null
+        if (params.statusFilter && !params.statusFilter.isEmpty()) {
+            status = params.statusFilter == "Success" ? "SUCCESS" : "FAILURE"
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            if (params.standard != null && params.standard == "true") {
+                def sales = reportingService.getPayPointSales(DateTime.now(DateTimeZone.UTC).minusDays(7).withTimeAtStartOfDay(), DateTime.now(DateTimeZone.UTC).plusDays(1).withTimeAtStartOfDay(), storeId, null, null, Integer.MAX_VALUE, 0, 'transactionDate', 'ASC')
+
+                def fileName = "PayPointWeeklyReport-" + params.storeFilter + "-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+                response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+                response.setHeader("Content-Type", "text/csv;")
+
+                render getPayPointWeeklyReportCsv(sales)
+            } else {
+                def sales = reportingService.getPayPointSales(startDate, endDate.plusDays(1), storeId, status, description, Integer.MAX_VALUE, 0, sortParams.sortColumn, sortParams.sortOrder)
+                def fileName = "PayPoint-Filtered-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+                response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+                response.setHeader("Content-Type", "text/csv;")
+
+                render getPayPointSalesCsv(sales)
+            }
+        } else {
+            def sales = reportingService.getPayPointSales(startDate, endDate.plusDays(1), storeId, status, description, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+            render(template: "paypointSalesResults",
+                    model: [sales       : sales,
+                            totalResults: sales.totalCount,
+                            userColumns : reportingService.getReportColumns(ReportType.PAYPOINT_SALES),
+                            sortParams  : sortParams]
+            )
+        }
+    }
+
     def ajaxSaveReportColumns() {
         try {
             if (params.reportColumns && params.reportType) {
@@ -738,6 +797,117 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.avgMargin?.setScale(2) + "%")
             stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getPayPointWeeklyReportCsv(List<PayPointSale> sales) {
+        StringBuilder stringBuilder = new StringBuilder()
+
+        stringBuilder.append("Date,Time,PP TID,PP TXN ID,Description,Amount,Status\n")
+
+        sales?.each {
+            stringBuilder.append(it.getTransactionDate().toString("dd/MM/yyyy"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.getTransactionDate().toString("HH:mm:ss"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.getTerminalId())
+            stringBuilder.append(",")
+            stringBuilder.append(it.getPpTransactionId())
+            stringBuilder.append(",")
+            stringBuilder.append(it.getDescription())
+            stringBuilder.append(",")
+            stringBuilder.append("£").append(it.getValue().toString())
+            stringBuilder.append(",")
+            stringBuilder.append(it.getStatus() == "SUCCESS" ? "Success" : "Failure")
+            stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getPayPointSalesCsv(List<PayPointSale> sales) {
+        StringBuilder stringBuilder = new StringBuilder()
+        List<String> enabledCols = new ArrayList<>();
+
+        def columns = reportingService.getReportColumns(ReportType.PAYPOINT_SALES)
+
+        if (columns.columns?.find { it.column == "storeId" }?.enabled) {
+            stringBuilder.append("Store Id").append(",")
+            enabledCols.add("storeId")
+        }
+        if (columns.columns?.find { it.column == "wlTransactionId" }?.enabled) {
+            stringBuilder.append("Txn Id").append(",")
+            enabledCols.add("wlTransactionId")
+        }
+        if (columns.columns?.find { it.column == "ppTransactionId" }?.enabled) {
+            stringBuilder.append("PP Txn Id").append(",")
+            enabledCols.add("ppTransactionId")
+        }
+        if (columns.columns?.find { it.column == "terminalId" }?.enabled) {
+            stringBuilder.append("Terminal Id").append(",")
+            enabledCols.add("terminalId")
+        }
+        if (columns.columns?.find { it.column == "description" }?.enabled) {
+            stringBuilder.append("Description").append(",")
+            enabledCols.add("description")
+        }
+        if (columns.columns?.find { it.column == "type" }?.enabled) {
+            stringBuilder.append("Type").append(",")
+            enabledCols.add("type")
+        }
+        if (columns.columns?.find { it.column == "value" }?.enabled) {
+            stringBuilder.append("Value").append(",")
+            enabledCols.add("value")
+        }
+        if (columns.columns?.find { it.column == "status" }?.enabled) {
+            stringBuilder.append("Status").append(",")
+            enabledCols.add("status")
+        }
+        if (columns.columns?.find { it.column == "transactionDate" }?.enabled) {
+            stringBuilder.append("Transaction Date").append(",")
+            enabledCols.add("transactionDate")
+        }
+
+        if (stringBuilder.length() > 0) {
+            // all columns aren't disabled, continue
+            stringBuilder.replace(stringBuilder.length() - 1, stringBuilder.length(), "\n")
+
+            sales.each {
+                for (String col : enabledCols) {
+                    switch (col) {
+                        case "storeId":
+                            stringBuilder.append(it.visibleStoreId).append(",")
+                            break
+                        case "wlTransactionId":
+                            stringBuilder.append(it.wlTransactionId).append(",")
+                            break
+                        case "ppTransactionId":
+                            stringBuilder.append(it.ppTransactionId).append(",")
+                            break
+                        case "terminalId":
+                            stringBuilder.append(it.terminalId).append(",")
+                            break
+                        case "description":
+                            stringBuilder.append(it.description).append(",")
+                            break
+                        case "type":
+                            stringBuilder.append(it.type).append(",")
+                            break
+                        case "value":
+                            stringBuilder.append("£" + it.value.toString()).append(",")
+                            break
+                        case "status":
+                            stringBuilder.append(it.getStatus() == "SUCCESS" ? "Success" : "Failure").append(",")
+                            break
+                        case "transactionDate":
+                            stringBuilder.append(it.transactionDate.toString("dd/MM/yyyy HH:mm:ss")).append(",")
+                            break;
+                    }
+                }
+                stringBuilder.replace(stringBuilder.length() - 1, stringBuilder.length(), "\n")
+            }
         }
 
         return stringBuilder.toString()

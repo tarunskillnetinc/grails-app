@@ -128,6 +128,11 @@
                             <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales Report</g:link>
                             <g:link controller="reporting" action="categorySales" class="dropdown-item">Category Sales</g:link>
                             <g:link controller="reporting" action="sales" class="dropdown-item">Product Sales</g:link>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:link controller="reporting" action="paypointSales" class="dropdown-item">PayPoint Sales</g:link>
+                                </g:if>
+                            </sec:ifAnyGranted>
                             <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotional Sales</g:link>
 
                             <div class="dropdown-divider"></div>
