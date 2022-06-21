@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import java.math.RoundingMode
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
@@ -97,8 +98,14 @@ class ProductVariant implements Serializable {
             productVariant.getBarcodes().add(it.barcode)
         }
 
-        packs?.each {
-            productVariant.getPacks().add(it.getPack())
+        packs?.eachWithIndex { pack, i ->
+            // If a cost price isn't set then take it from the first pack.
+            // TODO This should be taken from the "preffered supplier/pack" when this exists.
+            if (i == 0 && costPrice == null && pack.price != null && pack.quantity > 0) {
+                productVariant.setCostPrice(pack.price.divide(BigDecimal.valueOf(pack.quantity), 2, RoundingMode.HALF_UP))
+            }
+
+            productVariant.getPacks().add(pack.getPack())
         }
 
         // TODO Set tags
