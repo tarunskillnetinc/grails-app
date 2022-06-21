@@ -66,7 +66,7 @@
         <g:reportBreadcrumb reportType="${reportType}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Sales Report</h2>
+            <h2 class="mx-auto">Product Sales Report</h2>
         </div>
 
         <div class="row mt-4">
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body collapse show" id="filterCollapse">
+                    <div class="card-body collapse" id="filterCollapse">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>

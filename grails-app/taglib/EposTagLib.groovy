@@ -155,6 +155,10 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item active" aria-current="page">${g.message(code: 'TillControlEventType.' +attrs.tillControlEventType)}</li>"""
 
                 break
+            case ReportType.PAYPOINT_SALES:
+                out << """<li class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
+
+                break
             default:
                 out << ""
 
