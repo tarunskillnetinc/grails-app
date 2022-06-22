@@ -197,14 +197,14 @@ class ProductController {
             // We were sent exact products to accept RRPs for.
             supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
 
-            syncSupplierPriceUpdates(savePriceChangesCommmand.priceChanges, priceBand, effectiveDate)
+            syncSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
         } else if (savePriceChangesCommand.priceChanges && savePriceChangesCommand.priceChanges.size() > 0) {
             log.println("Saving ${savePriceChangesCommand.priceChanges.size()} supplier price updates for retailer ${springSecurityService.principal.retailerId}")
 
             // We were sent exact products and their prices.
             supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
 
-            syncSupplierPriceUpdates(savePriceChangesCommmand.priceChanges, priceBand, effectiveDate)
+            syncSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
         } else if (acceptRrps) {
             // We were not sent any specific products, but it was the "Accept RRPs" button which was used.
             def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBand.id, supplierId, categoryId, offset, max)
@@ -393,6 +393,7 @@ class ProductController {
 
                 variant.packs?.each { pack ->
                     pack.effectiveDate = pack.effectiveDate ?: now
+                    pack.updateDatetime = now
                 }
             }
         } else {
@@ -456,6 +457,7 @@ class ProductController {
                             existingPack.status = editedPack.status
                             existingPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
                             existingPack.allowSubstitutes = editedPack.allowSubstitutes
+                            existingPack.updateDatetime = now
                         } else {
                             Pack newPack = new Pack()
                             newPack.supplier = editedPack.supplier
@@ -469,6 +471,7 @@ class ProductController {
                             newPack.status = editedPack.status
                             newPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
                             newPack.allowSubstitutes = editedPack.allowSubstitutes
+                            newPack.updateDatetime = now
 
                             existingVariant.addToPacks(newPack)
                         }
@@ -534,6 +537,7 @@ class ProductController {
                         newPack.status = editedPack.status
                         newPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
                         newPack.allowSubstitutes = editedPack.allowSubstitutes
+                        newPack.updateDatetime = now
 
                         newVariant.addToPacks(newPack)
                     }
