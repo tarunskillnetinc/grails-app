@@ -20,8 +20,8 @@ class ReportingController {
     private static final PROMOTIONS_REPORT_SORT_COLUMNS = [ "type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated" ]
     private static final PROMOTION_REPORT_SORT_COLUMNS = [ "itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat" ]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
-    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "type", "usersName", "reason", "dateCreated", "amount" ]
-    private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = ["storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status", "transactionDate"]
+    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "dateCreated", "type", "usersName", "reason", "amount" ]
+    private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = [ "transactionDate", "storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status" ]
 
     def index() {
 
