@@ -96,27 +96,56 @@
                     $("#confirmModalHeader").html("Accept RRPs");
                     $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for the selected products?");
                 } else if (checkedBoxes.length === 0 && acceptRrps) {
+                    if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
+                        alert("No products found.");
+                        return;
+                    }
+
                     $("#confirmModalHeader").html("Accept RRPs");
                     $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for ALL products?");
                 } else if (checkedBoxes.length > 0 && !acceptRrps) {
                     $("#confirmModalHeader").html("Save Prices");
                     $("#confirmModalContent").html("Are you sure you wish to accept the entered retail price for the selected products?");
                 } else {
+                    if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
+                        alert("No products found.");
+                        return;
+                    }
+
                     alert("Please select some products.");
                     return;
                 }
 
-                $('#confirmModalYesButton').click(function() {
-                    $('#confirmModalYesButton').off("click");
+                var confirmModalYesButton = $('#confirmModalYesButton');
+                var confirmModalNoButton = $('#confirmModalNoButton');
 
-                    confirmRrps(acceptRrps);
-                });
+                confirmModalYesButton.click({acceptRrps: acceptRrps}, confirmModalYesButtonClicked);
+                confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.click(confirmModalNoButtonClicked);
+                confirmModalNoButton.prop("disabled", false);
 
                 $('#confirmModal').modal({ show: true });
             }
 
+            function confirmModalYesButtonClicked(event) {
+                var confirmModalYesButton = $('#confirmModalYesButton');
+                var confirmModalNoButton = $('#confirmModalNoButton');
+
+                confirmModalYesButton.off("click");
+                confirmModalYesButton.prop("disabled", true);
+
+                confirmModalNoButton.off("click");
+                confirmModalNoButton.prop("disabled", true);
+
+                confirmRrps(event.data.acceptRrps);
+            }
+
+            function confirmModalNoButtonClicked() {
+                $('#confirmModal').modal("hide");
+            }
+
             function confirmRrps(acceptRrps) {
-                $("#confirmModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $("#confirmModalContent").html("<div class=\"modal-body\"><div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait...</h3></div></div><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
 
                 var URL = "${createLink(controller: 'product', action: 'ajaxSaveSupplierPriceUpdates')}";
 
