@@ -256,7 +256,11 @@ class EposTagLib {
         def quantity = attrs.quantity
 
         if (retailPrice && costPrice && quantity) {
-            out << """${retailPrice.subtract(costPrice.divide(quantity, 2, RoundingMode.HALF_UP)).divide(retailPrice, 4, RoundingMode.HALF_UP).multiply(100).setScale(2)}%"""
+            BigDecimal margin = retailPrice.subtract(costPrice.divide(quantity, 2, RoundingMode.HALF_UP)).divide(retailPrice, 4, RoundingMode.HALF_UP).multiply(100).setScale(2)
+
+            out << """${margin.compareTo(BigDecimal.ZERO) < 0 ? "0.00" : margin}%"""
+        } else {
+            out << "0.00%"
         }
     }
 }

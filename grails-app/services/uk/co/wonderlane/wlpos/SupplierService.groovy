@@ -1,15 +1,14 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-import org.hibernate.Session
-import org.hibernate.Transaction
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
-import uk.co.wonderlane.wlpos.supplier.SupplierPriceUpdate
 import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
@@ -115,13 +114,15 @@ class SupplierService extends MySqlDal {
             ResultSet rs = cstmt.executeQuery()
 
             try {
+                DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.UTC)
+
                 while (rs.next()) {
                     def result = [:]
                     result.packId = rs.getInt("packId")
                     result.sku = rs.getLong("sku")
                     result.description = rs.getString("description")
                     result.quantity = rs.getInt("quantity")
-                    result.effectiveDate = new DateTime(rs.getTimestamp("effectiveDate"), DateTimeZone.UTC)
+                    result.effectiveDate = DateTime.parse(rs.getString("effectiveDate"), dateFormatter)
                     result.priceMarked = rs.getBoolean("priceMarked")
                     result.oldPackPrice = rs.getBigDecimal("oldPackPrice")
                     result.newPackPrice = rs. getBigDecimal("newPackPrice")

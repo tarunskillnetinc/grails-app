@@ -158,7 +158,7 @@ class ProductController {
     def supplierUpdatesSearch() {
         Integer supplierId = params.supplierId ? Integer.parseInt(params.supplierId) : null
         Integer categoryId = params.categoryId ? Integer.parseInt(params.categoryId) : null
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
         DateTime sinceDate = params.sinceDate ? DateTime.parse(params.sinceDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         Integer priceBandId = params.priceBandId ? Integer.parseInt(params.priceBandId) : null
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
