@@ -9,6 +9,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierPriceUpdate
 import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
@@ -155,8 +156,18 @@ class SupplierService extends MySqlDal {
         Connection conn = getConnection()
         CallableStatement cstmt = conn.prepareCall("{ call saveSupplierPriceUpdate(?, ?, ?, ?, ?, ?, ?) }")
 
+        def savedSkus = []
+
         try {
             supplierPriceUpdates.eachWithIndex { priceUpdate, index ->
+                // There could be multiple packs for the same SKU in the list which causes a duplicate primary key due to lack of transaction here, so bypass the rest of the save and mark this pack as dealt with.
+                if (savedSkus.contains(priceUpdate.sku)) {
+                    SupplierPriceUpdate supplierPriceUpdate = new SupplierPriceUpdate(packId: priceUpdate.packId, priceBandId: priceBand.id, storeId: springSecurityService.principal.storeId, updateDatetime: now)
+                    supplierPriceUpdate.save()
+
+                    return
+                }
+
                 cstmt.clearParameters()
 
                 cstmt.setLong(1, priceUpdate.sku)
@@ -182,6 +193,8 @@ class SupplierService extends MySqlDal {
                 cstmt.setString(7, now.toString(DATE_TIME_FORMAT))
 
                 cstmt.addBatch()
+
+                savedSkus.add(priceUpdate.sku)
 
                 // Clear the session for speed purposes.
                 if (index.mod(200) == 0) {
