@@ -724,12 +724,14 @@ class ReportingController {
     private String getSalesByCategoryCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
 
-        stringBuilder.append("Description,Total Quantity,Avg Cost Price,Avg Sales Price,Total Sales,VAT Amount,Avg Margin\n")
+        stringBuilder.append("Description,Total Quantity,Refund Quantity,Avg Cost Price,Avg Sales Price,Total Sales,VAT Amount,Avg Margin\n")
 
         sales?.each {
             stringBuilder.append(it.productDescription?.replace("'", "\\'"))
             stringBuilder.append(",")
-            stringBuilder.append(it.quantity)
+            stringBuilder.append(it.quantity + it.refundQuantity)
+            stringBuilder.append(",")
+            stringBuilder.append(it.refundQuantity)
             stringBuilder.append(",")
             stringBuilder.append("£" + it.avgCostPrice?.setScale(2))
             stringBuilder.append(",")
