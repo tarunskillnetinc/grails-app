@@ -72,7 +72,7 @@
         <g:reportBreadcrumb reportType="${reportType}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Promotion Sales Report</h2>
+            <h2 class="mx-auto">Promotional Sales Report</h2>
         </div>
 
         <div class="row mt-4">

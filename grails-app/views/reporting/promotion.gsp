@@ -26,7 +26,7 @@
         <g:reportBreadcrumb reportType="${reportType}" promotionSaleId="${promotionSaleId}" startDate="${startDate}" endDate="${endDate}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Promotion Sales Report</h2>
+            <h2 class="mx-auto">Promotional Sales Report</h2>
         </div>
 
         <div class="row mt-4">

@@ -66,10 +66,10 @@ class ReportingController {
         salesGrouped.each { salesGroup ->
             Sale groupedSale = new Sale(
                     quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
-                    costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO.setScale(2) },
-                    retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO.setScale(2) },
-                    vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO.setScale(2) },
-                    margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO.setScale(2) },
+                    costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice.setScale(2) : BigDecimal.ZERO.setScale(2) },
+                    retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice.setScale(2) : BigDecimal.ZERO.setScale(2) },
+                    vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount.setScale(2) : BigDecimal.ZERO.setScale(2) },
+                    margin: salesGroup.value.sum { it.quantity > 0 ? it.margin.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
                     productUnitSize: ""
             )
@@ -160,10 +160,10 @@ class ReportingController {
                 filteredGroupedProductSales?.each { groupedProductSale ->
                     groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity > 0 ? it.quantity : 0 }
                     groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
-                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO.setScale(2) }
-                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO.setScale(2) }
-                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO.setScale(2) }
-                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO.setScale(2) }
+                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
 
                     finalSales.add(groupedProductSale.value[0])
                 }
@@ -171,10 +171,10 @@ class ReportingController {
                 if (!params.descriptionFilter || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.descriptionFilter?.toLowerCase())) {
                     Sale groupedSale = new Sale(
                             quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
-                            costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO.setScale(2) },
-                            retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO.setScale(2) },
-                            vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO.setScale(2) },
-                            margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO.setScale(2) },
+                            costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
+                            retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
+                            vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
+                            margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
                             productUnitSize: ""
                     )
@@ -328,10 +328,10 @@ class ReportingController {
 
             Sale groupedSale = new Sale(
                     quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
-                    costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO.setScale(2) },
-                    retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO.setScale(2) },
-                    vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO.setScale(2) },
-                    margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO.setScale(2) },
+                    costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
+                    retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
+                    vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
+                    margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                     productDescription: salesGroup.value[0].salesCategories.find { it.categoryLevel == currentCategoryLevel }?.categoryDescription,
                     productUnitSize: ""
             )
@@ -384,10 +384,10 @@ class ReportingController {
         filteredGroupedProductSales?.each { groupedProductSale ->
             groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity > 0 ? it.quantity : 0 }
             groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
-            groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO.setScale(2) }
-            groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO.setScale(2) }
-            groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO.setScale(2) }
-            groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO.setScale(2) }
+            groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
+            groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
+            groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
+            groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
 
             finalSales.add(groupedProductSale.value[0])
         }

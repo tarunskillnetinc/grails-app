@@ -57,7 +57,7 @@
         function resetForm() {
             $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
-            $('#categoryLevelFilter').prop("selectedIndex", 1);
+            $('#categoryLevelFilter').prop("selectedIndex", 3);
         }
     </script>
 </head>
