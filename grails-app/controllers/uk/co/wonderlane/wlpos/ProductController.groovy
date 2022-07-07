@@ -809,15 +809,7 @@ class AddVariantCommand {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def storeSettings
-
-            if (springSecurityService.principal.storeId) {
-                storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-            } else {
-                storeSettings = StoreSettings.findByRetailerIdAndStoreIdIsNull(springSecurityService.principal.retailerId)
-            }
-
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
 
             return productPrice?.price ?: BigDecimal.ZERO
         }

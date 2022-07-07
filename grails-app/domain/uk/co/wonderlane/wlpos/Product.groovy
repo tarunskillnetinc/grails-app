@@ -6,6 +6,8 @@ import uk.co.wonderlane.wlpos.enums.ProductStatus
 
 class Product {
 
+    def springSecurityService
+
     int id
     int retailerId
     String itemCode
@@ -36,7 +38,11 @@ class Product {
 
     static transients = ['currentProductVariant']
 
+    // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
+    public Product() { }
+
     static mapping = {
+        autowire true
         table "product"
         version false
 
@@ -97,6 +103,22 @@ class Product {
 
     List<RangeProduct> getRanges() {
         return RangeProduct.findAllByProductId(id)
+    }
+
+    BigDecimal getCostPrice() {
+        def sortedVariants = variants.sort { a,b ->
+            a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
+        }
+
+        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.costPrice
+    }
+
+    BigDecimal getRetailPrice() {
+        def sortedVariants = variants.sort { a,b ->
+            a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
+        }
+
+        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {

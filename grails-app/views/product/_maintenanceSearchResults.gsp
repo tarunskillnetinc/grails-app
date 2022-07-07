@@ -13,9 +13,11 @@
 <g:each in="${products}" var="product" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: product.id)}';">
         <div class="col-2">${product.itemCode}</div>
-        <div class="col-6">${product.description}</div>
-        <div class="col-2">${product.unitSize}</div>
+        <div class="col-5">${product.description}</div>
+        <div class="col-1">${product.unitSize}</div>
         <div class="col-2">${product.category?.description}</div>
+        <div class="col-1">&pound;${product.costPrice}</div>
+        <div class="col-1">&pound;${product.retailPrice}</div>
     </div>
 </g:each>
 

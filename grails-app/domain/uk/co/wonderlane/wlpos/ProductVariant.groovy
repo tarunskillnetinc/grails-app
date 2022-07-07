@@ -7,6 +7,8 @@ import uk.co.wonderlane.wlpos.supplier.Pack
 
 class ProductVariant implements Serializable {
 
+    def springSecurityService
+
     static belongsTo = [product: Product]
 
     int id
@@ -30,7 +32,11 @@ class ProductVariant implements Serializable {
 
     static hasMany = [packs: Pack]
 
+    // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
+    public ProductVariant() { }
+
     static mapping = {
+        autowire true
         table "productvariant"
         version false
 
@@ -65,14 +71,24 @@ class ProductVariant implements Serializable {
         return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
     }
 
+    BigDecimal getCostPrice() {
+        if (costPrice != null) {
+            return costPrice
+        } else if (packs == null || packs.isEmpty()) {
+            return BigDecimal.ZERO.setScale(2)
+        } else {
+            // TODO Need to return the preferred supplier/pack.
+            return packs.first().price.divide(BigDecimal.valueOf(packs.first().quantity), 2, RoundingMode.HALF_UP)
+        }
+    }
+
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def storeSettings = storeId ? StoreSettings.findById(storeId) : StoreSettings.findByRetailerIdAndStoreIdIsNull(product.retailerId)
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
 
-            return productPrice?.price ?: BigDecimal.ZERO
+            return productPrice?.price ?: BigDecimal.ZERO.setScale(2)
         }
     }
 
