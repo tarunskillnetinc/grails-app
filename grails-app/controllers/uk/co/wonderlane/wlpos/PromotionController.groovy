@@ -5,6 +5,7 @@ import org.joda.time.format.DateTimeFormat
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import java.math.RoundingMode
@@ -26,8 +27,11 @@ class PromotionController {
         promotionTypes.add(PromotionType.X_FOR_Y)
         promotionTypes.add(PromotionType.FIXED_PRICE)
 
+        def symbolGroups = SymbolGroup.findAll([sort: "name", order: "asc"])
+
         render (view: "index", model: [
-                types: promotionTypes
+                types: promotionTypes,
+                symbolGroups: symbolGroups
         ])
     }
 
@@ -360,7 +364,7 @@ class PromotionController {
 
         render(template: "/promotion/productSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults:  products.totalCount])
     }
-
+    
     def categorySearch() {
         def categories
         def totalResults
@@ -392,7 +396,8 @@ class PromotionController {
         String searchTerm = params.searchTerm == null ? null : "%${params.searchTerm}%"
 
         promos = promotionService.searchPromotions(springSecurityService.principal.retailerId, params.startDate, params.endDate, params.updatedSince,
-                params.type, searchTerm, params.searchBy == "description", params.max, params.offset)
+                params.type, searchTerm, params.searchBy == "description", params.max, params.offset, params.supplier != 0 ? Integer.parseInt(params.supplier) : null)
+
         totalResults = promos.totalCount
 
         render(template: "/promotion/promotionSearchResults", model: [promotions  : promos,

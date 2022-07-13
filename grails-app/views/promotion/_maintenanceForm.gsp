@@ -671,6 +671,14 @@
                         <g:field type="number" step="0.01" min="0" max="99999.99" name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="fixedPrice-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="fixedPrice-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+            </div>
             </div>
             <div id="fixedPrice-products" class="collapsible-products row mt-3">
                 <h2 class="col-1 mr-2">Products</h2>

@@ -6,6 +6,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.enums.SupplierType
 
 @Transactional
 class PromotionService {
@@ -73,7 +74,7 @@ class PromotionService {
     }
 
     def searchPromotions(int retailerId, String startDateString, String endDateString, String updatedSinceString,
-                         String typeString, String searchTerm, boolean descriptionSearch, String max, String offset) {
+                         String typeString, String searchTerm, boolean descriptionSearch, String max, String offset, Integer supplierId) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
         DateTime startDate
@@ -118,6 +119,47 @@ class PromotionService {
                 eq("type", promotionType)
             }
 
+            if (supplierId != null && supplierId > 0) {
+                symbolGroupPromotion {
+                    symbolGroup {
+                        eq("id", supplierId)
+                    }
+                }
+            }
+
+            if (searchTerm != null && searchTerm != "") {
+                if (descriptionSearch) {
+                    like("description", searchTerm)
+                } else {
+                    like("retailerPromotionId", searchTerm)
+                }
+            }
+        }
+        return promotions
+    }
+
+    def getSymbolGroupPromotion(Object val) {
+        def symbolGroupPromotion = SymbolGroupPromotion.createCriteria()
+
+        promotions = criteria.list([max: max ? Integer.parseInt(max) : 50, offset: offset ? Integer.parseInt(offset) : 0, sort: "description", order: "ASC"]) {
+            eq("retailerId", retailerId)
+
+            if (startDate != null) {
+                gte("startDate", startDate)
+            }
+
+            if (endDate != null) {
+                lte("endDate", endDate)
+            }
+
+            if (updatedDate != null) {
+                gte("updateDatetime", updatedDate)
+            }
+
+            if (promotionType != null) {
+                eq("type", promotionType)
+            }
+
             if (searchTerm != null && searchTerm != "") {
                 if (descriptionSearch) {
                     like("description", searchTerm)
@@ -142,6 +184,17 @@ class PromotionService {
                 return PromotionType.FIXED_AMOUNT_DISCOUNT
             case "FIXED_PRICE":
                 return PromotionType.FIXED_PRICE
+        }
+    }
+
+    def determineSupplierTypeFromString(String supplier) {
+        switch (supplier) {
+            case "Nisa":
+                return SupplierType.NISA
+            case "Costcutter":
+                return SupplierType.COSTCUTTER
+            case "Booker":
+                return SupplierType.BOOKER
         }
     }
 }

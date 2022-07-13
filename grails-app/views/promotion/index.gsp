@@ -49,6 +49,7 @@
                 let endDate = $('#endDateFilter').val();
                 let updatedSince = $('#updatedDateFilter').val();
                 let type = $('#typeFilter').val();
+                let supplier = $('#supplierFilter').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -64,7 +65,8 @@
                         startDate: startDate,
                         endDate: endDate,
                         updatedSince: updatedSince,
-                        type: type
+                        type: type,
+                        supplier: supplier
                     },
                     success: function(resp) {
                         $('#search-results').html(resp);
@@ -118,6 +120,7 @@
 
                 document.getElementById('updatedDateFilter').value = null;
                 document.getElementById('typeFilter').value = null;
+                document.getElementById('supplierFilter').value = null;
                 document.getElementById('searchTermFilter').value = null;
                 document.getElementById('promotionSearchBy').value = 'description';
             }
@@ -200,6 +203,13 @@
                             </div>
 
                             <div class="form-group row">
+                                <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
+                                <div class="col-4">
+                                    <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['0': '']" class="form-control select-border"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
                                 <div class="col-4 offset-8 text-right">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
@@ -222,7 +232,8 @@
                 <div class="col-1 font-weight-bold">End Date</div>
                 <div class="col-1 font-weight-bold">Active</div>
                 <div class="col-2 font-weight-bold">Type</div>
-                <div class="col-2 font-weight-bold">Discount Amount</div>
+                <div class="col-1 font-weight-bold">Discount Amount</div>
+                <div class="col-1 font-weight-bold">Supplier Name</div>
             </div>
 
             <div id="search-results" class="align-content-center">

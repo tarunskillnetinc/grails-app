@@ -23,6 +23,8 @@ class Promotion {
 
     static hasMany = [groups: PromotionGroup]
 
+    static hasOne = [symbolGroupPromotion : SymbolGroupPromotion]
+
     static mapping = {
         table "promotion"
         version false
