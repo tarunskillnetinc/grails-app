@@ -12,6 +12,7 @@ import uk.co.wonderlane.wlpos.reporting.*
 class ReportingController {
 
     def reportingService
+    def productListService
     def springSecurityService
 
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = [ "description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin" ]
@@ -613,6 +614,104 @@ class ReportingController {
     }
 
     def ajaxTillControlEvent(SortParams sortParams) {
+        TillControlEventType type = null
+
+        try {
+            type = TillControlEventType.valueOf(params.tillControlEventType)
+        } catch (Exception e) {
+            // No action, simply return no results.
+        }
+
+        sortParams.validateParams(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        // Find all till control events in the date range.
+        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1), type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+        render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+    }
+
+    def orders() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        [reportType: ReportType.ORDERS, userColumns: reportingService.getReportColumns(ReportType.ORDERS), startDate: startDate, endDate: endDate]
+    }
+
+    def ajaxOrders(SortParams sortParams) {
+        sortParams.validateParams(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        // Find all till control events in the date range.
+        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1))
+
+        // Group them by type.
+        def tillControlEventsGrouped = tillControlEvents.groupBy { it.type }
+
+        // Sort into the required order.
+        Comparator comparator
+
+        if (sortParams.sortColumn == "type") {
+            comparator = [ compare: { a, b ->
+                if (sortParams.sortOrder == "desc") {
+                    a.compareTo(b)
+                } else {
+                    b.compareTo(a)
+                }
+            }] as Comparator
+
+            tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
+        } else if (sortParams.sortColumn == "quantity") {
+            comparator = [ compare: { a, b ->
+                if (sortParams.sortOrder == "desc") {
+                    if (tillControlEventsGrouped.get(b).size() < tillControlEventsGrouped.get(a).size()) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                } else {
+                    if (tillControlEventsGrouped.get(a).size() < tillControlEventsGrouped.get(b).size()) {
+                        return -1
+                    } else {
+                        return 1
+                    }
+                }
+            }] as Comparator
+
+            tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
+        }
+
+        // Restrict the number of results.
+        int totalResults = tillControlEventsGrouped.size()
+//        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
+
+        render (template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+    }
+
+    def order() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+
+        TillControlEventType type = null
+
+        try {
+            type = TillControlEventType.valueOf(params.type)
+        } catch (Exception e) {
+            // No action, simply return no results.
+        }
+
+        [reportType: ReportType.TILL_CONTROL_EVENT, tillControlEventType: type, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT)]
+    }
+
+    def ajaxOrder(SortParams sortParams) {
         TillControlEventType type = null
 
         try {

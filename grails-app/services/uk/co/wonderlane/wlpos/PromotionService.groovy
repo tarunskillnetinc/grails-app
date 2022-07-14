@@ -6,7 +6,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
-import uk.co.wonderlane.wlpos.enums.SupplierType
 
 @Transactional
 class PromotionService {

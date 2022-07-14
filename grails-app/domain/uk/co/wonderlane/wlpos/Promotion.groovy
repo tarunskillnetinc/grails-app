@@ -56,6 +56,7 @@ class Promotion {
         active nullable: false
         updateDatetime nullable: false
         retailerPromotionId nullable: true, range: 0..999999999
+        symbolGroupPromotion nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.Promotion getPromotion() {
