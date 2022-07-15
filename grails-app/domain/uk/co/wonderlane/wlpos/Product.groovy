@@ -4,6 +4,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
+import java.math.RoundingMode
+
 class Product {
 
     def springSecurityService
@@ -33,10 +35,11 @@ class Product {
     Collection<ProductVariant> variants = new ArrayList<>()
 
     ProductVariant currentProductVariant
+    BigDecimal retailPrice
 
     static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
 
-    static transients = ['currentProductVariant']
+    static transients = ['currentProductVariant', 'retailPrice']
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public Product() { }
@@ -116,11 +119,30 @@ class Product {
     }
 
     BigDecimal getRetailPrice() {
+        if (retailPrice) {
+            return retailPrice
+        }
+
         def sortedVariants = variants.sort { a,b ->
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 
-        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
+        retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
+
+        return retailPrice
+    }
+
+    BigDecimal getVat() {
+        BigDecimal divisor = BigDecimal.ONE.add(vatCode.percentage.divide(BigDecimal.valueOf(100)));
+        BigDecimal price = getRetailPrice()
+
+        return price.subtract(price.divide(divisor, 2, RoundingMode.HALF_UP));
+    }
+
+    BigDecimal getMargin() {
+        BigDecimal netSellingPrice = getRetailPrice().subtract(getVat());
+
+        return netSellingPrice.compareTo(BigDecimal.ZERO) > 0 ? netSellingPrice.subtract(getCostPrice()).divide(netSellingPrice, 4, RoundingMode.HALF_UP).movePointRight(2) : BigDecimal.ZERO.setScale(2);
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {

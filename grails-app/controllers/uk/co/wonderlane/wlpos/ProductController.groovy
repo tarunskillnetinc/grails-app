@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
+import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -11,8 +12,9 @@ import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
-
-import java.sql.Types
+import uk.co.wonderlane.wlpos.reporting.ReportType
+import uk.co.wonderlane.wlpos.reporting.ReportColumns
+import uk.co.wonderlane.wlpos.reporting.ReportColumn
 
 class ProductController {
 
@@ -26,8 +28,11 @@ class ProductController {
     def rabbitService
     def gsonProvider
 
+    /**
+     * Landing page of the controller action - displays the product search screen.
+     */
     def index() {
-        render(view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
+        [userColumns: productService.getColumns()]
     }
 
     def show(int id) {
@@ -92,15 +97,25 @@ class ProductController {
 
         def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
-        render(template: "/product/productSearchResults", model: [ products: products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId ])
+        render(template: "addProductSearchResults", model: [ products: products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId ])
     }
 
-    def maintenanceSearch() {
+    /**
+     * Called from the main product maintenance search screen.
+     */
+    def ajaxSearchProducts() {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
 
         def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
-        render(template: "/product/maintenanceSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
+        render(template: "productSearchResults", model: [products: products,
+                                                         storeId: springSecurityService.principal.storeId,
+                                                         userColumns: productService.getColumns(),
+                                                         searchTerm: params.searchTerm,
+                                                         searchBy: params.searchBy,
+                                                         max: params.max ?: 50,
+                                                         offset: params.offset,
+                                                         totalResults: products.totalCount])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -121,7 +136,7 @@ class ProductController {
         def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        render(template: "/product/pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
+        render(template: "pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -755,6 +770,39 @@ class ProductController {
 
     def ajaxSavePack(SuppliersCommand cmd) {
         render (template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs])
+    }
+
+    /**
+     * Action for saving selected columns on product search screen.
+     */
+    def ajaxSaveColumns() {
+        try {
+            if (params.reportColumns && params.reportType) {
+                def userReportColumns = new JsonSlurper().parseText(params.reportColumns)
+                def reportType = ReportType.valueOf(params.reportType)
+
+                def reportColumns = productService.getColumns()
+
+                if (!reportColumns) {
+                    reportColumns = new ReportColumns(userId: springSecurityService.principal.id, reportType: reportType)
+                }
+
+                userReportColumns?.each { userReportColumn ->
+                    if (reportColumns?.columns?.find { it.column == userReportColumn.key }) {
+                        reportColumns?.columns?.find { it.column == userReportColumn.key }?.enabled = userReportColumn.value
+                    } else {
+                        reportColumns.addToColumns(new ReportColumn(column: userReportColumn.key, enabled: userReportColumn.value))
+                    }
+                }
+
+                productService.saveColumns(reportColumns)
+
+                render (status: 200)
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            render (status: 500, text: "An error occurred saving your report column preferences.")
+        }
     }
 
     private boolean isRestrictionsChanged(RestrictionsCommand first, Restrictions second) {

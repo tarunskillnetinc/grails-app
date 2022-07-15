@@ -9,6 +9,8 @@ import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.reporting.ReportColumns
+import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -327,6 +329,16 @@ class ProductService extends MySqlDal {
 
     def saveRangeProduct(RangeProduct rangeProduct) {
         rangeProduct?.save()
+    }
+
+    @Transactional("reporting")
+    def getColumns() {
+        return ReportColumns.findByUserIdAndReportType(springSecurityService.principal.id, ReportType.PRODUCT_SEARCH)
+    }
+
+    @Transactional("reporting")
+    def saveColumns(ReportColumns reportColumns) {
+        reportColumns.save()
     }
 
     def searchProductsNew(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {

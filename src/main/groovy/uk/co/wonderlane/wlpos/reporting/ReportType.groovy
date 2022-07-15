@@ -2,6 +2,8 @@ package uk.co.wonderlane.wlpos.reporting
 
 enum ReportType {
 
+    PRODUCT_SEARCH,
+    PROMOTION_SEARCH,
     SALES_DEPARTMENT,
     SALES_CATEGORY,
     SALES_PRODUCT,

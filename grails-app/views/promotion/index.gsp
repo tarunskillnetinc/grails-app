@@ -148,8 +148,14 @@
         </section>
 
         <section id="promo-maintenance-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Promotion Search</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">Promotion Search</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
+                </div>
             </div>
 
             <div class="row mt-4">
@@ -207,20 +213,14 @@
                                 <div class="col-4">
                                     <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
-                                <div class="col-4 offset-8 text-right">
+                                <div class="col-4 offset-2 text-right">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="col-2 offset-4 text-right">
-                    <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
                 </div>
             </div>
 
