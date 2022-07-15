@@ -24,7 +24,7 @@
         </div>
         <div class="col-2"><g:message code="PromotionType.${promotion.type}" /></div>
         <div class="col-1">${promotion.amount}</div>
-        <div class="col-1">${promotion.symbolGroupPromotion?.symbolGroup?.name} ${promotion.symbolGroupPromotion?.leafletPromotion ? " - Leaflet" : ""}</div>
+        <div class="col-1">${promotion.symbolGroupPromotion?.symbolGroup?.name} ${promotion.symbolGroupPromotion?.isLeaflet ? " - Leaflet" : ""}</div>
     </div>
 </g:each>
 

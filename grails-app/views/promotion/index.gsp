@@ -205,7 +205,7 @@
                             <div class="form-group row">
                                 <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
                                 <div class="col-4">
-                                    <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['0': '']" class="form-control select-border"/>
+                                    <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
                             </div>
 
