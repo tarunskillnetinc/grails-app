@@ -75,7 +75,7 @@ class Product {
 
     static constraints = {
         itemCode size: 1..50, blank: false, nullable: false, validator: { val, obj ->
-            return countByRetailerIdAndItemCodeAndIdNotEqual(obj.retailerId, obj.itemCode, obj.id) > 0 ? true : ["error.product.duplicateItemCode"]
+            return Product.countByRetailerIdAndItemCodeAndIdNotEqual(obj.retailerId, obj.itemCode, obj.id) > 0 ? ["error.product.duplicateItemCode"] : true
         }
         description size: 1..100, blank: false, nullable: false
         receiptDescription size: 1..50, blank: false, nullable: false
