@@ -80,6 +80,14 @@
                         <g:checkBox name="bogof-active" class="col-1 form-check-input wl-checkbox promo-active" checked="${promotion ? promotion.active : true}"/>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="bogof-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="bogof-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                </div>
             </div>
             <div id="bogof-products" class="collapsible-products row mt-3">
                 <h2 class="col-1 mr-2">Products</h2>
@@ -205,6 +213,14 @@
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
                         <g:checkBox name="xfory-active" class="col-1 form-check-input wl-checkbox promo-active" checked="${promotion ? promotion.active : true}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="xfory-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="xfory-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
                 </div>
             </div>
@@ -394,6 +410,14 @@
                         <g:field type="number" step="0.01" min="0" max="100.00" name="percentage-amount" class="col-5 form-control bottom-border" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="percentage-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="percentage-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                </div>
             </div>
             <div id="percentage-products" class="collapsible-products row mt-3">
                 <h2 class="col-1 mr-2">Products</h2>
@@ -528,7 +552,14 @@
                         <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="fixedAmount-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="fixedAmount-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                </div>
             </div>
             <div id="fixedAmount-products" class="collapsible-products row mt-3">
                 <h2 class="col-1 mr-2">Products</h2>
@@ -678,7 +709,7 @@
                                  class="col-5 form-control bottom-border promo-amount" required="false"
                                  value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
-            </div>
+                </div>
             </div>
             <div id="fixedPrice-products" class="collapsible-products row mt-3">
                 <h2 class="col-1 mr-2">Products</h2>
