@@ -729,7 +729,7 @@ class ProductController {
                     if (priceBand && priceChange.sku && priceChange.price) {
                         def fromValue = currentPrice ? currentPrice.price : null
                         ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
-                        ProductHistory productHistory =  new ProductHistory(productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal()?.username, effectiveDate: now, updateDate: now)
+                        ProductHistory productHistory =  new ProductHistory(productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.username, effectiveDate: now, updateDate: now)
 
                         changedProductPrices.add(productPrice)
                         productHistories.add(productHistory)
