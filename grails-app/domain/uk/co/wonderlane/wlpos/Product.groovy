@@ -115,7 +115,7 @@ class Product {
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 
-        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.costPrice
+        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.costPrice ?: BigDecimal.ZERO.setScale(2)
     }
 
     BigDecimal getRetailPrice() {
@@ -129,7 +129,7 @@ class Product {
 
         retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
 
-        return retailPrice
+        return retailPrice ?: BigDecimal.ZERO.setScale(2)
     }
 
     BigDecimal getVat() {
