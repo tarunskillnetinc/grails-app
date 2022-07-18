@@ -28,7 +28,7 @@ class ProductHistoryBuilder {
             productHistory.field = property
             productHistory.productHistoryType = ProductHistoryType.FIELD
             productHistory.productId = productId
-            productHistory.usersName = springSecurityService.principal.username
+            productHistory.usersName = springSecurityService.principal.usersName
             productHistory.userId = springSecurityService.principal.id
             productHistory.storeId = springSecurityService.principal.storeId
             productHistory.updateDate = now
