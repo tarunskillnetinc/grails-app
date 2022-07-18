@@ -142,7 +142,7 @@
                                 <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}"/>
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
-                                <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Price Per KG</label>
+                                <label for="pricePerKg" class="col-3 col-form-label text-right pr-4">Price Per KG</label>
                                 <g:checkBox name="pricePerKg" class="col-1 form-check-input wl-checkbox" checked="${product?.pricePerKg}"/>
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">

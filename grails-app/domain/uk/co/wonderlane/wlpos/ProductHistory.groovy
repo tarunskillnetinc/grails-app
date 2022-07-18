@@ -20,7 +20,7 @@ class ProductHistory {
     Integer productVariantId
 
     static mapping = {
-        table "productHistory"
+        table "producthistory"
         version false
 
         productId column: "productId", sqlType: "smallint"
