@@ -80,6 +80,8 @@ dependencies {
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
     implementation 'com.google.zxing:core:3.4.1'
     implementation 'com.google.zxing:javase:3.4.1'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.26'
+    implementation 'org.apache.pdfbox:pdfbox-tools:2.0.26'
 
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile "org.grails:grails-gorm-testing-support"

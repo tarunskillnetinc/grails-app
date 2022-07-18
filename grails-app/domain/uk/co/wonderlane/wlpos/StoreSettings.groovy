@@ -34,6 +34,8 @@ class StoreSettings {
     Integer updatedUserId
     PriceBand priceBand
     Range range
+    BigDecimal selMarginLeft
+    BigDecimal selMarginTop
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public StoreSettings() { }
@@ -70,6 +72,8 @@ class StoreSettings {
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
         updatedUserId column: "updatedUserId"
+        selMarginLeft column: "selMarginLeft"
+        selMarginTop column: "selMarginTop"
     }
 
     static constraints = {
@@ -100,6 +104,8 @@ class StoreSettings {
         createdUserId nullable: true
         updatedDatetime nullable: true
         updatedUserId nullable: true
+        selMarginLeft nullable: true
+        selMarginTop nullable: true
     }
 
     def beforeInsert() {

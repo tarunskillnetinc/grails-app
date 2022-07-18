@@ -4,6 +4,43 @@
         <meta name="layout" content="main" />
 
         <title>WonderLane Shelf Edge Labels</title>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                getAdHocBatches();
+                getScheduledBatches();
+            });
+
+            function getAdHocBatches() {
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxGetAdHocBatches')}";
+
+                $("#ad-hoc-results").hide();
+                $("#ad-hoc-loading-indicator").show();
+
+                $.ajax({
+                    url: url,
+                    // data: { },
+                    success: function(resp) {
+                        $('#ad-hoc-container').html(resp);
+                    }
+                });
+            }
+
+            function getScheduledBatches() {
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxGetScheduledBatches')}";
+
+                $("#scheduled-results").hide();
+                $("#scheduled-loading-indicator").show();
+
+                $.ajax({
+                    url: url,
+                    // data: { },
+                    success: function(resp) {
+                        $('#scheduled-container').html(resp);
+                    }
+                });
+            }
+        </script>
     </head>
 
     <body>
@@ -38,16 +75,8 @@
                         <div class="col-3 font-weight-bold">Label Count</div>
                     </div>
 
-                    <div class="align-content-center">
-                        <div class="row col-8 offset-2 pt-2 pb-2 wl-striped0 hoverable pointer" title="Click to view.">
-                            <div class="col-6">Damaged labels</div>
-                            <div class="col-3">36</div>
-                        </div>
-
-                        <div class="row col-8 offset-2 pt-2 pb-2 wl-striped1 hoverable pointer" title="Click to view.">
-                            <div class="col-6">Incorrect prices</div>
-                            <div class="col-3">11</div>
-                        </div>
+                    <div id="ad-hoc-container" class="align-content-center">
+                        <g:render template="adHocResults" />
                     </div>
                 </div>
 
@@ -59,21 +88,8 @@
                         <div class="col-3 font-weight-bold">Label Count</div>
                     </div>
 
-                    <div class="align-content-center">
-                        <div class="row col-8 offset-2 pt-2 pb-2 wl-striped0 hoverable pointer" title="Click to view.">
-                            <div class="col-6">${dates[2]}</div>
-                            <div class="col-3">108</div>
-                        </div>
-
-                        <div class="row col-8 offset-2 pt-2 pb-2 wl-striped1 hoverable pointer" title="Click to view.">
-                            <div class="col-6">${dates[1]}</div>
-                            <div class="col-3">56</div>
-                        </div>
-
-                        <div class="row col-8 offset-2 pt-2 pb-2 wl-striped0 hoverable pointer" title="Click to view.">
-                            <div class="col-6">${dates[0]}</div>
-                            <div class="col-3">219</div>
-                        </div>
+                    <div id="scheduled-container" class="align-content-center">
+                        <g:render template="scheduledResults" />
                     </div>
                 </div>
             </div>

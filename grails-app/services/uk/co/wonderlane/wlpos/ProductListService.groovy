@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 @Transactional
@@ -36,6 +37,15 @@ class ProductListService {
             eq ("type", ProductListType.ORDER)
 
             between ("dateStarted", startDate, endDate)
+        }
+    }
+
+    def getAdHocBatches() {
+        return ProductList.createCriteria().list([sort: "dateStarted", order: "DESC"]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+            eq ("type", ProductListType.AD_HOC_SEL_BATCH)
+            eq ("status", ProductListStatus.IN_PROGRESS)
         }
     }
 

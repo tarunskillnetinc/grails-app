@@ -115,7 +115,7 @@
                             </div>
 
                             <g:link controller="tag" class="dropdown-item">Tags</g:link>
-                            <g:link controller="shelfEdgeLabel" class="dropdown-item disabled">Shelf Edge Labels</g:link>
+                            <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                         </div>
                     </li>
 
