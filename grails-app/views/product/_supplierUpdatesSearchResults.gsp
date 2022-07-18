@@ -15,6 +15,8 @@
         <g:hiddenField name="product-${i}-packId" value="${supplierPriceUpdate.packId}" />
         <g:hiddenField name="product-${i}-rrp" value="${supplierPriceUpdate.recommendedRetailPrice}" />
         <g:hiddenField name="product-${i}-sku" value="${supplierPriceUpdate.sku}" />
+        <g:hiddenField name="product-${i}-oldPrice" value="${supplierPriceUpdate.retailPrice}" />
+        <g:hiddenField name="product-${i}-productId" value="${supplierPriceUpdate.productId}" />
 
         <div class="col-1 my-auto">
             <g:checkBox name="product-${i}" class="col-12 wl-checkbox my-auto" />

@@ -2,12 +2,17 @@ package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.json.JsonSlurper
+import org.apache.commons.lang3.builder.ReflectionDiffBuilder
+import org.apache.commons.lang3.builder.ToStringStyle
+import org.apache.commons.lang3.reflect.FieldUtils
+import org.apache.log4j.Logger
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
+import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.supplier.Pack
@@ -282,6 +287,7 @@ class ProductController {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
 
         def productPrices = []
+        def productHistories = []
         def priceUpdates = [:]
 
         cmd.priceChanges?.each {priceChange ->
@@ -292,10 +298,15 @@ class ProductController {
             ProductPrice productPrice = new ProductPrice(priceBand: priceBands.find { it.id == priceChange.priceBandId }, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
             productPrices.add(productPrice)
 
+            if (!priceChange.oldPrice.equals(priceChange.price)) {
+                ProductHistory productHistory = new ProductHistory(productId: priceChange.productId, fromValue: priceChange.oldPrice.toString(), toValue: priceChange.price.toString(), productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal.username, effectiveDate: now, updateDate: now)
+                productHistories.add(productHistory)
+            }
+
             priceUpdates[priceChange.priceBandId].add(productPrice.getProductPrice())
         }
 
-        productService.saveProductPrices(productPrices)
+        productService.saveProductPrices(productPrices, productHistories)
 
         priceUpdates.each { priceBandId, priceChanges ->
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
@@ -415,6 +426,8 @@ class ProductController {
             // TODO We need to introduce an effective date entry.
 
             product = productService.getProduct(Integer.parseInt(params.id))
+
+            doComparison(product, editedProduct)
 
             product.itemCode = editedProduct.itemCode
             product.description = editedProduct.description
@@ -639,11 +652,70 @@ class ProductController {
         }
     }
 
+    private void doComparison(Product product, ProductCommand editedProduct) {
+        def builder = new ProductHistoryBuilder(product.id, springSecurityService)
+        builder.compare("itemCode", product.itemCode, editedProduct.itemCode)
+        builder.compare("description", product.description, editedProduct.description)
+        builder.compare("receiptDescription", product.receiptDescription, editedProduct.receiptDescription)
+        builder.compare("unitSize", product.unitSize, editedProduct.unitSize)
+        builder.compare("weightedItem", product.weightedItem, editedProduct.weightedItem)
+        builder.compare("pricePerKg", product.pricePerKg, editedProduct.pricePerKg)
+        builder.compare("deliItem", product.deliItem, editedProduct.deliItem)
+        builder.compare("openPrice", product.openPrice, editedProduct.openPrice)
+        builder.compare("zeroPrice", product.zeroPrice, editedProduct.zeroPrice)
+        builder.compare("vatPercentageOverride", product.vatPercentageOverride, editedProduct.vatPercentageOverride)
+        builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
+        builder.compare("status", product.status, editedProduct.status)
+
+        builder.compare("category", product.category.category.description, editedProduct.category.category.description)
+
+        // Restrictions
+        builder.compare("minOpenPrice", product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
+        builder.compare("maxOpenPrice", product.restrictions.maxOpenPrice, editedProduct.restrictions.maxOpenPrice)
+        builder.compare("buyerIdRequired", product.restrictions.buyerIdRequired, editedProduct.restrictions.buyerIdRequired)
+        builder.compare("buyerIdForced", product.restrictions.buyerIdForced, editedProduct.restrictions.buyerIdForced)
+        builder.compare("buyerAgeRestriction", product.restrictions.buyerAgeRestriction, editedProduct.restrictions.buyerAgeRestriction)
+        builder.compare("buyerChallengeAge", product.restrictions.buyerChallengeAge, editedProduct.restrictions.buyerChallengeAge)
+        builder.compare("sellerAgeRestriction", product.restrictions.sellerAgeRestriction, editedProduct.restrictions.sellerAgeRestriction)
+        builder.compare("refundAllowed", product.restrictions.refundAllowed, editedProduct.restrictions.refundAllowed)
+        builder.compare("markdownAllowed", product.restrictions.markdownAllowed, editedProduct.restrictions.markdownAllowed)
+        builder.compare("discountAllowed", product.restrictions.discountAllowed, editedProduct.restrictions.discountAllowed)
+        builder.compare("creditPaymentAllowed", product.restrictions.creditPaymentAllowed, editedProduct.restrictions.creditPaymentAllowed)
+        builder.compare("quantityChangeAllowed", product.restrictions.quantityChangeAllowed, editedProduct.restrictions.quantityChangeAllowed)
+        builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
+        builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
+
+        editedProduct.variants.forEach({ variant ->
+            product.variants.stream().filter({ v -> v.id == variant.id}).findAny().ifPresentOrElse({ oldVariant ->
+                if (variant.delete) {
+                    doVariantComparison(builder, variant.id, oldVariant, new ProductVariantCommand())
+                } else {
+                    doVariantComparison(builder, variant.id, oldVariant, variant)
+                }
+            }, {
+                doVariantComparison(builder, variant.id, new ProductVariant(), variant)
+            })
+        })
+
+        productService.saveProductHistories(builder.productHistories)
+    }
+
+    private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant) {
+        builder.compare(id, "sku", oldVariant.sku, variant.sku)
+        builder.compare(id, "retailPrice", oldVariant.retailPrice, variant.retailPrice)
+        builder.compare(id, "costPrice", oldVariant.costPrice, variant.costPrice)
+        builder.compare(id, "size", oldVariant.size, variant.size)
+        builder.compare(id, "colour", oldVariant.colour, variant.colour)
+        builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
+        builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
+    }
+
     private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges) {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def now = DateTime.now(DateTimeZone.UTC)
 
         def changedProductPrices = []
+        def productHistories = []
 
         variants?.each { ProductVariant variant ->
             def prices = variant.prices
@@ -655,16 +727,19 @@ class ProductController {
                     def priceBand = priceBands.find { it.id == priceChange.priceBandId }
 
                     if (priceBand && priceChange.sku && priceChange.price) {
+                        def fromValue = currentPrice ? currentPrice.price : null
                         ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
+                        ProductHistory productHistory =  new ProductHistory(productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal()?.username, effectiveDate: now, updateDate: now)
 
                         changedProductPrices.add(productPrice)
+                        productHistories.add(productHistory)
                     }
                 }
             }
         }
 
         if (changedProductPrices.size() > 0) {
-            productService.saveProductPrices(changedProductPrices)
+            productService.saveProductPrices(changedProductPrices, productHistories)
 
             def priceChangesGroupedByPriceBand = changedProductPrices.groupBy { it.priceBand }
             priceChangesGroupedByPriceBand?.each {
@@ -1003,6 +1078,8 @@ class PriceChangeCommand {
     int packId // Used on the supplier price updates screen only.
     int priceBandId
     BigDecimal price
+    BigDecimal oldPrice
+    Integer productId
 }
 
 class SaveRangeProductsCommand {

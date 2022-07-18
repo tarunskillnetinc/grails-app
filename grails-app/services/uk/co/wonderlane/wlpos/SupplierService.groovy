@@ -7,6 +7,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.supplier.SupplierPriceUpdate
@@ -129,6 +130,7 @@ class SupplierService extends MySqlDal {
                     result.newPackPrice = rs. getBigDecimal("newPackPrice")
                     result.retailPrice = rs. getBigDecimal("retailPrice")
                     result.recommendedRetailPrice = rs.getBigDecimal("recommendedRetailPrice")
+                    result.productId = rs.getBigDecimal("productId")
 
                     results.results.add(result)
                 }
@@ -154,7 +156,8 @@ class SupplierService extends MySqlDal {
         DateTime now = DateTime.now(DateTimeZone.UTC)
 
         Connection conn = getConnection()
-        CallableStatement cstmt = conn.prepareCall("{ call saveSupplierPriceUpdate(?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement supplierPriceUpdateStmt = conn.prepareCall("{ call saveSupplierPriceUpdate(?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement saveProductHistoryStmt = conn.prepareCall("{ call saveProductHistoryItem(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         def savedSkus = []
 
@@ -168,43 +171,67 @@ class SupplierService extends MySqlDal {
                     return
                 }
 
-                cstmt.clearParameters()
+                supplierPriceUpdateStmt.clearParameters()
+                saveProductHistoryStmt.clearParameters()
 
-                cstmt.setLong(1, priceUpdate.sku)
-                cstmt.setString(2, effectiveDate.toString(DATE_TIME_FORMAT))
-                cstmt.setInt(3, priceBand.id)
+                saveProductHistoryStmt.setInt(1, priceUpdate.productId.intValue())
+                saveProductHistoryStmt.setDate(4, new java.sql.Date(effectiveDate.toDateTime().getMillis()))
+                saveProductHistoryStmt.setString(5, ProductHistoryType.PRICE.toString())
+                saveProductHistoryStmt.setNull(6, Types.VARCHAR)
+                saveProductHistoryStmt.setInt(9, springSecurityService.principal.id)
+                saveProductHistoryStmt.setString(10, springSecurityService.principal.username)
+
+                if (priceUpdate.oldPrice) {
+                    saveProductHistoryStmt.setString(7, priceUpdate.oldPrice.toString())
+                } else {
+                    saveProductHistoryStmt.setNull(7, Types.VARCHAR)
+                }
+
+                supplierPriceUpdateStmt.setLong(1, priceUpdate.sku)
+                supplierPriceUpdateStmt.setString(2, effectiveDate.toString(DATE_TIME_FORMAT))
+                supplierPriceUpdateStmt.setInt(3, priceBand.id)
 
                 if (priceUpdate instanceof PriceChangeCommand) {
-                    cstmt.setBigDecimal(4, priceUpdate.price)
+                    supplierPriceUpdateStmt.setBigDecimal(4, priceUpdate.price)
+                    saveProductHistoryStmt.setString(8, priceUpdate.price.toString())
                 } else if (priceUpdate.recommendedRetailPrice) {
-                    cstmt.setBigDecimal(4, priceUpdate.recommendedRetailPrice)
+                    supplierPriceUpdateStmt.setBigDecimal(4, priceUpdate.recommendedRetailPrice)
+                    saveProductHistoryStmt.setString(8, priceUpdate.recommendedRetailPrice.toString())
                 } else {
-                    cstmt.setNull(4, Types.DECIMAL)
+                    supplierPriceUpdateStmt.setNull(4, Types.DECIMAL)
+                    saveProductHistoryStmt.setNull(8, Types.VARCHAR)
                 }
 
-                cstmt.setInt(5, priceUpdate.packId)
+                supplierPriceUpdateStmt.setInt(5, priceUpdate.packId)
 
                 if (springSecurityService.principal.storeId) {
-                    cstmt.setInt(6, springSecurityService.principal.storeId)
+                    supplierPriceUpdateStmt.setInt(6, springSecurityService.principal.storeId)
+                    saveProductHistoryStmt.setInt(2, springSecurityService.principal.storeId)
                 } else {
-                    cstmt.setNull(6, Types.INTEGER)
+                    supplierPriceUpdateStmt.setNull(6, Types.INTEGER)
+                    saveProductHistoryStmt.setNull(2, Types.INTEGER)
                 }
 
-                cstmt.setString(7, now.toString(DATE_TIME_FORMAT))
+                supplierPriceUpdateStmt.setString(7, now.toString(DATE_TIME_FORMAT))
+                saveProductHistoryStmt.setDate(3, new java.sql.Date(now.toDateTime().getMillis()))
 
-                cstmt.addBatch()
+                supplierPriceUpdateStmt.addBatch()
+                saveProductHistoryStmt.addBatch()
 
                 savedSkus.add(priceUpdate.sku)
 
                 // Clear the session for speed purposes.
                 if (index.mod(200) == 0) {
-                    cstmt.executeBatch()
+                    supplierPriceUpdateStmt.executeBatch()
+                    saveProductHistoryStmt.executeBatch()
                 }
             }
 
-            cstmt.executeBatch()
+            supplierPriceUpdateStmt.executeBatch()
+            saveProductHistoryStmt.executeBatch()
         } finally {
-            cstmt.close()
+            supplierPriceUpdateStmt.close()
+            saveProductHistoryStmt.close()
             conn.close()
         }
     }

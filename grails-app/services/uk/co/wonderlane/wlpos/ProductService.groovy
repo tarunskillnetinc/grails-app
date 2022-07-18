@@ -92,7 +92,7 @@ class ProductService extends MySqlDal {
     def saveBarcodes(Product product) {
         product?.variants?.each { variant ->
             variant.barcodez?.each { barcode ->
-                if (barcode.delete) {
+                if (barcode.hasProperty('delete') && barcode.delete) {
                     barcode.delete()
                 } else {
                     barcode.save()
@@ -105,13 +105,21 @@ class ProductService extends MySqlDal {
         productVariant.save()
     }
 
-    def saveProductPrices(List<ProductPrice> productPrices) {
+    def saveProductPrices(List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
 
         productPrices.eachWithIndex { productPrice, index ->
             session.save(productPrice)
+            // Clear the session for speed purposes.
+            if (index.mod(100) == 0) {
+                session.flush()
+                session.clear()
+            }
+        }
 
+        productHistories.eachWithIndex { productHistory, index ->
+            session.save(productHistory)
             // Clear the session for speed purposes.
             if (index.mod(100) == 0) {
                 session.flush()
@@ -129,6 +137,24 @@ class ProductService extends MySqlDal {
 
     def deleteRangeProducts(List<RangeProduct> rangeProducts) {
         saveOrDeleteRangeProducts(rangeProducts, false, true)
+    }
+
+    def saveProductHistories(List<ProductHistory> productHistories) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = session.beginTransaction()
+
+        productHistories.eachWithIndex { productHistory, index ->
+            log.info("" + productHistory.productId + " " + productHistory.fromValue + " " + productHistory.toValue + " " + productHistory.storeId + " " + productHistory.userId + " " + productHistory.usersName)
+            session.save(productHistory)
+            // Clear the session for speed purposes.
+            if (index.mod(100) == 0) {
+                session.flush()
+                session.clear()
+            }
+        }
+
+        transaction.commit()
+        session.close()
     }
 
     private void saveOrDeleteRangeProducts(List<RangeProduct> rangeProducts, boolean save, boolean delete) {

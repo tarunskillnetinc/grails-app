@@ -163,9 +163,13 @@
                     var sku = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-sku]").val();
                     var rrp = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-rrp]").val();
                     var price = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-price]").val();
+                    var oldPrice = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-oldPrice]").val();
+                    var productId = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-productId]").val();
 
                     data["priceChanges[" +i +"].packId"] = packId;
                     data["priceChanges[" +i +"].sku"] = sku;
+                    data["priceChanges[" +i +"].oldPrice"] = oldPrice;
+                    data["priceChanges[" +i +"].productId"] = productId;
 
                     if (acceptRrps) {
                         data["priceChanges[" +i +"].price"] = rrp;

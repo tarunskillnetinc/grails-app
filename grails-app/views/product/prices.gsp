@@ -56,10 +56,14 @@
                         var id = $(price).attr("id");
                         var sku = id.substring(6, id.lastIndexOf("-"));
                         var priceBandId = id.substring(id.lastIndexOf("-") + 1);
+                        var oldPrice = $("[id^=oldPrice-" + sku + "-" + priceBandId + "]").val();
+                        var productId = $("[id^=productId-" + sku + "-" + priceBandId + "]").val();
 
                         data["priceChanges[" +((i * 3) + index) +"].sku"] = sku;
                         data["priceChanges[" +((i * 3) + index) +"].priceBandId"] = priceBandId;
                         data["priceChanges[" +((i * 3) + index) +"].price"] = $(price).val();
+                        data["priceChanges[" +((i * 3) + index) +"].oldPrice"] = oldPrice;
+                        data["priceChanges[" +((i * 3) + index) +"].productId"] = productId;
                     });
                 });
 
