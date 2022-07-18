@@ -393,7 +393,7 @@ class PromotionController {
         def promos
         def totalResults
 
-        String searchTerm = params.searchTerm == null ? null : "%${params.searchTerm}%"
+        String searchTerm = params.searchTerm == null ? null : "${params.searchTerm}"
 
         promos = promotionService.searchPromotions(springSecurityService.principal.retailerId, params.startDate, params.endDate, params.updatedSince,
                 params.type, searchTerm, params.searchBy == "description", params.max, params.offset, params.supplier ? Integer.parseInt(params.supplier) : null)

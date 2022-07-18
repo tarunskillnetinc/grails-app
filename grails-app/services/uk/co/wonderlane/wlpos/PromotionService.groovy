@@ -98,7 +98,6 @@ class PromotionService {
 
         def promotions
         def criteria = Promotion.createCriteria()
-
         promotions = criteria.list([max: max ? Integer.parseInt(max) : 50, offset: offset ? Integer.parseInt(offset) : 0, sort: "description", order: "ASC"]) {
             eq("retailerId", retailerId)
 
@@ -128,12 +127,16 @@ class PromotionService {
 
             if (searchTerm != null && searchTerm != "") {
                 if (descriptionSearch) {
-                    like("description", searchTerm)
+                    like("description", "%$searchTerm%")
+                } else if (searchTerm.isNumber()) {
+                    sqlRestriction "cast( retailerPromotionId AS char( 256 )) like '%${searchTerm}%'";
                 } else {
-                    like("retailerPromotionId", searchTerm)
+                    // This block is only hit when the user selects to search by promotion ID but then enters a non-numeric entry in the search box.
+                    like("description", "%$searchTerm%")
                 }
             }
         }
+        
         return promotions
     }
 
