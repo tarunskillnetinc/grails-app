@@ -180,6 +180,7 @@
 
                 $.ajax({
                     url: URL,
+                    method: "POST",
                     data: data,
                     success: function(resp) {
                         $('#confirmModal').modal("hide");
