@@ -50,7 +50,7 @@ class ProductListService {
     }
 
     def getProductList(int id) {
-        return ProductList.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
+        return ProductList.findByIdAndRetailerIdAndStoreId(id, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
     }
 
     def saveProductList(ProductList productList) {

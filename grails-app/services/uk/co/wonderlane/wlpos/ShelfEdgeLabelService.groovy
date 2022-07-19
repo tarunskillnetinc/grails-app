@@ -522,7 +522,7 @@ class ShelfEdgeLabelService {
                         double fieldX = storeSettings.selMarginLeft + labelTemplate.marginLeft + (col * labelTemplate.labelWidth) + (col * labelTemplate.marginBetweenColumns) + field.x
                         double fieldY = storeSettings.selMarginTop + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRows) + field.y
                         double lineFieldX2 = storeSettings.selMarginLeft + labelTemplate.marginLeft + (col * labelTemplate.labelWidth) + (col * labelTemplate.marginBetweenColumns) + field.width
-                        double lineFieldY2 = storeSettings.selMarginTop + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRow) + field.height
+                        double lineFieldY2 = storeSettings.selMarginTop + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRows) + field.height
 
                         switch (field.type) {
                             case LabelTemplateFieldType.PRODUCT_DESCRIPTION:
@@ -1075,6 +1075,10 @@ class ShelfEdgeLabelService {
     }
 
     private float mm(float point) {
+        return point * 0.3527777f;
+    }
+
+    private float mm(double point) {
         return point * 0.3527777f;
     }
 

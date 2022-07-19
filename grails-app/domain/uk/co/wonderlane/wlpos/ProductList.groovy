@@ -65,4 +65,8 @@ class ProductList {
         startDate nullable: true
         endDate nullable: true
     }
+
+    def getLabelCount() {
+        return productListItems?.sum { it.quantity } ?: 0
+    }
 }

@@ -115,7 +115,9 @@
                             </div>
 
                             <g:link controller="tag" class="dropdown-item">Tags</g:link>
-                            <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
+                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
+                            </g:if>
                         </div>
                     </li>
 

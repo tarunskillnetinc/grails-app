@@ -5,6 +5,8 @@
 
         <title>WonderLane Shelf Edge Labels</title>
 
+        <asset:stylesheet href="radio.css" />
+
         <script type="text/javascript">
             $(document).ready(function () {
                 getAdHocBatches();
@@ -40,6 +42,26 @@
                     }
                 });
             }
+
+            function printAdHocBatch(productListId, labelTemplateId) {
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxGenerateAdHocPdf')}";
+
+                var params = { productListId: productListId, labelTemplateId: labelTemplateId, printProcess: 'SHELF_EDGE_LABEL_BATCH', printType: 'PDF' };
+
+                window.location = url + "?" + $.param(params);
+
+                // $.ajax({
+                //     url: url,
+                //     data: params,
+                //     success: function(data) {
+                //         var blob=new Blob([data]);
+                //         var link=document.createElement('a');
+                //         link.href=window.URL.createObjectURL(blob);
+                //         link.download="SomePdf.pdf";
+                //         link.click();
+                //     }
+                // });
+            }
         </script>
     </head>
 
@@ -70,18 +92,23 @@
                 <div class="col-6">
                     <div class="header-wl mt-3"><h3>Ad-hoc batches</h3></div>
 
-                    <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
-                        <div class="col-6 font-weight-bold">Description</div>
+                    <div class="row col-8 offset-2 mt-5 px-0 pb-2 table-wl bottom-border">
+%{--                        <div class="col-1 font-weight-bold">&nbsp;</div>--}%
+                        <div class="col-9 font-weight-bold">Description</div>
                         <div class="col-3 font-weight-bold">Label Count</div>
                     </div>
 
                     <div id="ad-hoc-container" class="align-content-center">
                         <g:render template="adHocResults" />
                     </div>
+
+                    <div class="row col-8 offset-2">
+                        <button class="btn btn-wl" onclick="printAdHocBatch(2731, 1);">Print</button>
+                    </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="header-wl mt-3"><h3>Scheduled batches</h3></div>
+                    <div class="header-wl mt-3"><h3>Scheduled changes</h3></div>
 
                     <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
                         <div class="col-6 font-weight-bold">Effective Date</div>
