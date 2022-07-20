@@ -396,7 +396,7 @@ class PromotionController {
         String searchTerm = params.searchTerm == null ? null : "${params.searchTerm}"
 
         promos = promotionService.searchPromotions(springSecurityService.principal.retailerId, params.startDate, params.endDate, params.updatedSince,
-                params.type, searchTerm, params.searchBy == "description", params.max, params.offset, params.supplier ? Integer.parseInt(params.supplier) : null)
+                params.type, searchTerm, params.searchBy == "description", params.max, params.offset, params.supplier ? Integer.parseInt(params.supplier) : null, params.status)
 
         totalResults = promos.totalCount
 
@@ -411,6 +411,7 @@ class PromotionController {
                                                                       max         : params.max ?: 50,
                                                                       offset      : params.offset,
                                                                       supplier    : params.supplier,
+                                                                      status      : params.status,
                                                                       totalResults: totalResults])
     }
 

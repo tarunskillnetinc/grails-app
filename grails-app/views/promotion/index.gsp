@@ -50,6 +50,7 @@
                 let updatedSince = $('#updatedDateFilter').val();
                 let type = $('#typeFilter').val();
                 let supplier = $('#supplierFilter').val();
+                let status = $('#statusFilter').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -66,7 +67,8 @@
                         endDate: endDate,
                         updatedSince: updatedSince,
                         type: type,
-                        supplier: supplier
+                        supplier: supplier,
+                        status: status
                     },
                     success: function(resp) {
                         $('#search-results').html(resp);
@@ -121,6 +123,7 @@
                 document.getElementById('updatedDateFilter').value = null;
                 document.getElementById('typeFilter').value = null;
                 document.getElementById('supplierFilter').value = null;
+                document.getElementById('statusFilter').value = null;
                 document.getElementById('searchTermFilter').value = null;
                 document.getElementById('promotionSearchBy').value = 'description';
             }
@@ -214,7 +217,14 @@
                                     <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
 
-                                <div class="col-4 offset-2 text-right">
+                                <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
+                                <div class="col-4">
+                                    <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 offset-8 text-right">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                 </div>

@@ -35,5 +35,6 @@
                                                                                                                                                            endDate: endDate,
                                                                                                                                                            updatedSince: updatedSince,
                                                                                                                                                            type: type,
-                                                                                                                                                           supplier: supplier]" />
+                                                                                                                                                           supplier: supplier,
+                                                                                                                                                           status: status]" />
 </div>

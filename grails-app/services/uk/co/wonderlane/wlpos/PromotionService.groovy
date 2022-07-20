@@ -73,7 +73,7 @@ class PromotionService {
     }
 
     def searchPromotions(int retailerId, String startDateString, String endDateString, String updatedSinceString,
-                         String typeString, String searchTerm, boolean descriptionSearch, String max, String offset, Integer supplierId) {
+                         String typeString, String searchTerm, boolean descriptionSearch, String max, String offset, Integer supplierId, String status) {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
         DateTime startDate
@@ -123,6 +123,10 @@ class PromotionService {
                         eq("id", supplierId)
                     }
                 }
+            }
+
+            if (status != null && !status.isBlank()) {
+                eq ("active", status == "ACTIVE")
             }
 
             if (searchTerm != null && searchTerm != "") {
