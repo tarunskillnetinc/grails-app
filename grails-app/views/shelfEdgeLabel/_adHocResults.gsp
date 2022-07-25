@@ -6,21 +6,17 @@
 
 <div id="ad-hoc-results">
     <g:if test="${productLists?.size() == 0}">
-        <div class="row col-8 offset-2 px-0 text-center">
+        <div class="row col-10 offset-1 px-0 text-center">
             <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No pending ad-hoc batches.</div>
         </div>
     </g:if>
 
     <g:each in="${productLists}" var="productList" status="i">
-        <div class="row col-8 offset-2 px-0 py-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(action:'showAdHocBatch', id: productList.id)}';">
-%{--            <div class="col-1 px-0">--}%
-%{--                <label class="radio-container">--}%
-%{--                    <g:radio name="productListId" id="productList-${productList.id}" value="${productList.id}" class="form-check-input" />--}%
-%{--                    <span class="checkmark checkmark-alternate-colour"></span>--}%
-%{--                </label>--}%
-%{--            </div>--}%
-            <div class="col-9">${productList.reasonDescription}</div>
-            <div class="col-3">${productList.labelCount}</div>
+        <div class="row col-10 offset-1 px-0 py-1 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(action:'showAdHocBatch', id: productList.id)}';">
+            <div class="col-5 my-auto">${productList.reasonDescription}</div>
+            <div class="col-2 my-auto">${productList.dateStarted?.toString('dd/MM HH:mm')}</div>
+            <div class="col-2 my-auto">${productList.labelCount}</div>
+            <div class="col-3 my-auto"><g:select name="labelTemplate" from="${labelTemplates}" noSelection="${[0: 'Select Label']}" optionKey="id" optionValue="name" class="form-control select-border" onclick="event.stopPropagation();" onChange="adHocBatchTemplateSelected(${productList.id}, this);" /></div>
         </div>
     </g:each>
 </div>

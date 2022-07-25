@@ -4,6 +4,7 @@ import grails.web.http.HttpHeaders
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.wlim.PrintProcess
 import uk.co.wonderlane.wlpos.enums.wlim.PrintType
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.labelling.LabelTemplate
 
 class ShelfEdgeLabelController {
@@ -13,15 +14,14 @@ class ShelfEdgeLabelController {
     def shelfEdgeLabelService
 
     def index() {
-        def labelTemplates = shelfEdgeLabelService.getLabelTemplates(PrintProcess.SHELF_EDGE_LABEL_BATCH, PrintType.PDF)
 
-        [labelTemplates: labelTemplates]
     }
 
     def ajaxGetAdHocBatches() {
         def adHocBatches = productListService.getAdHocBatches()
+        def labelTemplates = shelfEdgeLabelService.getLabelTemplates(PrintProcess.SHELF_EDGE_LABEL_BATCH, PrintType.PDF)
 
-        render (template: "adHocResults", model: [productLists: adHocBatches])
+        render (template: "adHocResults", model: [productLists: adHocBatches, labelTemplates: labelTemplates])
     }
 
     def ajaxGetScheduledBatches() {
@@ -44,5 +44,13 @@ class ShelfEdgeLabelController {
         response.outputStream << documentBytes
         response.outputStream.flush()
         response.outputStream.close()
+    }
+
+    def confirmAdHocBatchPrintSuccessful() {
+        ProductList productList = productListService.getProductList(Integer.parseInt(params.productListId))
+        productList.status = ProductListStatus.COMPLETE
+        productListService.saveProductList(productList)
+
+        response.status = 204
     }
 }

@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import grails.databinding.BindingFormat
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
@@ -13,17 +13,15 @@ class ProductList {
     ProductListType type
     ProductListStatus status
     Integer parentId
-    Date dateStarted
-    Date dateCompleted
+    DateTime dateStarted
+    DateTime dateCompleted
     String ownerUserId
     String ownerUsersName
     String description
     String reasonId
     String reasonDescription
-    @BindingFormat('dd/MM/yyyy')
-    Date startDate
-    @BindingFormat('dd/MM/yyyy')
-    Date endDate
+    DateTime startDate
+    DateTime endDate
 
     static hasMany = [ productListItems: ProductListItem ]
 
