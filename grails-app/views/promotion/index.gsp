@@ -16,16 +16,9 @@
                     }
                 });
 
-                $('#startDateFilter').on("change", function () {
-                    $('#startDateFilter').val(this.value);
-                    $('#startDateFilter').removeClass('is-invalid');
-                    $('#endDateFilter').datepicker('setStartDate', this.value);
-                });
-
-                $('#endDateFilter').on("change", function () {
-                    $('#endDateFilter').val(this.value);
-                    $('#endDateFilter').removeClass('is-invalid');
-                    $('#startDateFilter').datepicker('setEndDate', this.value);
+                $('#validDateFilter').on("change", function () {
+                    $('#validDateFilter').val(this.value);
+                    $('#validDateFilter').removeClass('is-invalid');
                 });
 
                 var existingSearchTerm = $('#promotionSearchTerm').val();
@@ -34,44 +27,43 @@
                 }
             });
 
-            function searchButtonClicked() {
-                $('#offset').val(0);
-                search();
+            function searchButtonClicked(sortParams) {
+                search(sortParams);
             }
 
-            function search() {
+            function search(sortParams) {
+                $("#search-results").hide();
+                $("#loading-indicator").show();
+
                 var URL = "${createLink(controller: 'promotion', action: 'promotionSearch')}";
 
-                let searchTerm = $('#searchTermFilter').val();
+                let searchTerm = $('#promotionSearchTerm').val();
                 let searchBy = $('#promotionSearchBy').val();
 
-                let startDate = $('#startDateFilter').val();
-                let endDate = $('#endDateFilter').val();
+                let validDate = $('#validDateFilter').val();
                 let updatedSince = $('#updatedDateFilter').val();
                 let type = $('#typeFilter').val();
                 let supplier = $('#supplierFilter').val();
                 let status = $('#statusFilter').val();
-
-                $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
-                    "  <div class=\"spinner-border\" role=\"status\">\n" +
-                    "    <span class=\"sr-only\">Loading...</span>\n" +
-                    "  </div>\n" +
-                    "</div>");
 
                 $.ajax({
                     url: URL,
                     data: {
                         searchTerm: searchTerm,
                         searchBy: searchBy,
-                        startDate: startDate,
-                        endDate: endDate,
+                        validDate: validDate,
                         updatedSince: updatedSince,
                         type: type,
                         supplier: supplier,
-                        status: status
+                        status: status,
+                        max: sortParams ? sortParams["max"] : null,
+                        offset: sortParams ? sortParams.offset : null,
+                        sortColumn: sortParams ? sortParams.sortColumn : null,
+                        sortOrder: sortParams ? sortParams.sortOrder : null
                     },
                     success: function(resp) {
-                        $('#search-results').html(resp);
+                        $('#search-results-container').html(resp);
+
                         $('#promotionSearchTerm').data('prev',$('#promotionSearchTerm').val());
                         $('#promotionSearchBy').data('prev', $('#promotionSearchBy').val());
                     }
@@ -79,7 +71,7 @@
             }
 
             $(function() {
-                $('#startDateFilter').datepicker({
+                $('#validDateFilter').datepicker({
                     format: "dd/mm/yyyy",
                     weekStart: 1,
                     todayHighlight: true,
@@ -87,16 +79,6 @@
                     todayBtn: "linked",
                     orientation: "bottom auto"
                 });
-
-                $('#endDateFilter').datepicker({
-                    format: "dd/mm/yyyy",
-                    weekStart: 1,
-                    todayHighlight: true,
-                    autoclose: true,
-                    todayBtn: "linked",
-                    orientation: "bottom auto"
-                });
-
 
                 $('#updatedDateFilter').datepicker({
                     format: "dd/mm/yyyy",
@@ -108,24 +90,16 @@
                 });
             });
 
-            function searchButtonClicked2() {
-                $('#offset').val(0);
-                search();
-            }
-
             function resetForm() {
-                document.getElementById('startDateFilter').value = null;
-                $('#startDateFilter').datepicker('setEndDate', null);
-
-                document.getElementById("endDateFilter").value = null;
-                $('#endDateFilter').datepicker('setStartDate', null);
-
+                document.getElementById('validDateFilter').value = null;
                 document.getElementById('updatedDateFilter').value = null;
                 document.getElementById('typeFilter').value = null;
                 document.getElementById('supplierFilter').value = null;
                 document.getElementById('statusFilter').value = null;
-                document.getElementById('searchTermFilter').value = null;
+                document.getElementById('promotionSearchTerm').value = null;
                 document.getElementById('promotionSearchBy').value = 'description';
+
+                search();
             }
         </script>
     </head>
@@ -179,7 +153,7 @@
                             <div class="form-group row">
                                 <label for="promotionSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
                                 <div class="col-10 input-group">
-                                    <g:textField id="searchTermFilter" name="promotionSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+                                    <g:textField id="promotionSearchTerm" name="promotionSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
 
                                     <div class="input-group-append">
                                         <g:select id="promotionSearchBy" name="productSearchBy" from="${['description', 'promotionId']}" value="everything" valueMessagePrefix="PromotionSearchBy" class="form-control select-border" style="z-index: 0;" />
@@ -188,45 +162,38 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
+                                <label for="validDate" class="col-2 col-form-label-sm text-right">Date Valid</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" onkeydown="return false" id="startDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:textField name="validDate" onkeydown="return false" id="validDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
 
-                                <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
-                                <div class="col-4">
-                                    <g:textField name="endDate" onkeydown="return false" id="endDateFilter" class="form-control bottom-border" autocomplete="off"/>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
                                 <label for="updatedDate" class="col-2 col-form-label-sm text-right">Updated Since</label>
                                 <div class="col-4">
                                     <g:textField name="updatedDate" onkeydown="return false" id="updatedDateFilter" class="form-control bottom-border" autocomplete="off"/>
                                 </div>
+                            </div>
 
+                            <div class="form-group row">
                                 <label for="types" class="col-2 col-form-label-sm text-right">Type</label>
                                 <div class="col-4">
                                     <g:select name="types" id="typeFilter" placeholder="Please Select" from="${types}" optionValue="friendlyName" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
                                 <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
                                 <div class="col-4">
                                     <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
+                            </div>
 
+                            <div class="form-group row">
                                 <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
                                 <div class="col-4">
                                     <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
-                                <div class="col-4 offset-8 text-right">
+                                <div class="col-4 offset-2 text-right">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                                 </div>
                             </div>
                         </div>
@@ -234,19 +201,7 @@
                 </div>
             </div>
 
-            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-1 font-weight-bold">Promotion ID</div>
-                <div class="col-3 font-weight-bold">Description</div>
-                <div class="col-1 font-weight-bold">Last Updated</div>
-                <div class="col-1 font-weight-bold">Start Date</div>
-                <div class="col-1 font-weight-bold">End Date</div>
-                <div class="col-1 font-weight-bold">Active</div>
-                <div class="col-2 font-weight-bold">Type</div>
-                <div class="col-1 font-weight-bold">Discount Amount</div>
-                <div class="col-1 font-weight-bold">Supplier Name</div>
-            </div>
-
-            <div id="search-results" class="align-content-center">
+            <div id="search-results-container" class="align-content-center">
                 <g:render template="promotionSearchResults" />
             </div>
         </section>

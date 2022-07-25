@@ -1,7 +1,9 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -190,12 +192,14 @@ class PromotionController {
         return promotion
     }
 
-    def failPromotion(Promotion promotion, PromotionType oldType) {
+    private Promotion failPromotion(Promotion promotion, PromotionType oldType) {
         if (oldType) {
             promotion.type = oldType
         }
+
         flash.promotion = promotion
         flash.badPromoMessage = "error.Promotion.badPromoValidation"
+
         return promotion
     }
 
@@ -388,19 +392,61 @@ class PromotionController {
     }
 
     def promotionSearch() {
+        DateTime validDate
+        DateTime updatedSince
+        PromotionType type
+        Integer supplierId
+        Integer max
+        Integer offset
+        String sortColumn
+        String sortOrder
+
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+
+            validDate = params.validDate ? DateTime.parse(params.validDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC)
+            updatedSince = params.updatedSince ? DateTime.parse(params.updatedSince, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            type = params.type ? PromotionType.valueOf(params.type) : null
+            supplierId = params.supplier ? Integer.parseInt(params.supplier) : null
+            max = params.max ? Integer.parseInt(params.max) : null
+            offset = params.offset ? Integer.parseInt(params.offset) : null
+            sortColumn = validateSortColumn(params.sortColumn)
+            sortOrder = validateSortOrder(params.sortOrder)
+        } catch (Exception e) {
+            e.printStackTrace()
+
+            response.status = 400
+            return
+        }
+
         session.PROMOTION_SEARCH_TERM = params.searchTerm
 
-        def promos
-        def totalResults
+        // Having to completely custom do the sorting and pagination when sorting by supplier name.
+        if (sortColumn == "supplierName") {
+            offset = 0
+            max = 10000
+        }
 
-        String searchTerm = params.searchTerm == null ? null : "${params.searchTerm}"
+        def promotions = promotionService.searchPromotions(validDate, updatedSince, type, params.searchTerm, params.searchBy == "description",
+                max, offset, sortColumn, sortOrder, supplierId, params.status)
 
-        promos = promotionService.searchPromotions(springSecurityService.principal.retailerId, params.startDate, params.endDate, params.updatedSince,
-                params.type, searchTerm, params.searchBy == "description", params.max, params.offset, params.supplier ? Integer.parseInt(params.supplier) : null, params.status)
+        int totalCount = promotions.totalCount
 
-        totalResults = promos.totalCount
+        // Having to completely custom do the sorting and pagination when sorting by supplier name.
+        if (sortColumn == "supplierName") {
+            max = params.max ? Integer.parseInt(params.max) : 50
+            offset = params.offset ? Integer.parseInt(params.offset) : 0
 
-        render(template: "/promotion/promotionSearchResults", model: [promotions  : promos,
+            promotions = promotions?.sort { a, b -> ("" + a?.symbolGroupPromotion?.symbolGroup?.name + a?.symbolGroupPromotion?.isLeaflet) <=> ("" + b?.symbolGroupPromotion?.symbolGroup?.name + b?.symbolGroupPromotion?.isLeaflet) }
+
+            if (sortOrder == "asc") {
+                promotions = promotions?.reverse()
+            }
+
+            promotions = offset < promotions.size() ? promotions.subList(offset, (offset + max < promotions.size() ? offset + max : promotions.size())) : []
+        }
+
+        render(template: "/promotion/promotionSearchResults", model: [promotions  : promotions,
                                                                       storeId     : springSecurityService.principal.storeId,
                                                                       startDate   : params.startDate,
                                                                       endDate     : params.endDate,
@@ -408,11 +454,13 @@ class PromotionController {
                                                                       type        : params.type,
                                                                       searchTerm  : params.searchTerm,
                                                                       searchBy    : params.searchBy,
-                                                                      max         : params.max ?: 50,
+                                                                      max         : params.max,
                                                                       offset      : params.offset,
+                                                                      sortOrder   : params.sortOrder,
+                                                                      sortColumn  : params.sortColumn,
                                                                       supplier    : params.supplier,
                                                                       status      : params.status,
-                                                                      totalResults: totalResults])
+                                                                      totalResults: totalCount])
     }
 
     def sendToTill() {
@@ -476,5 +524,29 @@ class PromotionController {
 
     def ajaxGetPromotionsForProduct() {
         render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
+    }
+
+    private String validateSortColumn(String sortColumn) {
+        def availableColumns = [ "retailerPromotionId", "description", "updateDatetime", "startDate", "endDate", "active", "type", "amount", "supplierName" ]
+
+        if (!sortColumn) {
+            return null
+        } else if (availableColumns.contains(sortColumn)) {
+            return sortColumn
+        } else {
+            throw new RuntimeException("Bad request")
+        }
+    }
+
+    private String validateSortOrder(String sortOrder) {
+        def availableOrders = [ "asc", "desc" ]
+
+        if (!sortOrder) {
+            return null
+        } else if (availableOrders.contains(sortOrder.toLowerCase())) {
+            return sortOrder
+        } else {
+            throw new RuntimeException("Bad request")
+        }
     }
 }

@@ -72,45 +72,25 @@ class PromotionService {
         return relevantPromotions.unique()
     }
 
-    def searchPromotions(int retailerId, String startDateString, String endDateString, String updatedSinceString,
-                         String typeString, String searchTerm, boolean descriptionSearch, String max, String offset, Integer supplierId, String status) {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+    def searchPromotions(DateTime validDate, DateTime updatedSince, PromotionType promotionType, String searchTerm, boolean descriptionSearch,
+                         Integer max, Integer offset, String sortColumn, String sortOrder, Integer supplierId, String status) {
 
-        DateTime startDate
-        if (startDateString != null && startDateString != "") {
-            startDate = DateTime.parse(startDateString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
-        }
-
-        DateTime endDate
-        if (endDateString != null && endDateString != "") {
-            endDate = DateTime.parse(endDateString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
-        }
-
-        DateTime updatedDate
-        if (updatedSinceString != null && updatedSinceString != "") {
-            updatedDate = DateTime.parse(updatedSinceString, dateFormatter).withZoneRetainFields(DateTimeZone.UTC)
-        }
-
-        PromotionType promotionType
-        if (typeString != null && typeString != "") {
-            promotionType = determinePromotionTypeFromString(typeString)
-        }
+        max = max ?: 50
+        offset = offset ?: 0
 
         def promotions
         def criteria = Promotion.createCriteria()
-        promotions = criteria.list([max: max ? Integer.parseInt(max) : 50, offset: offset ? Integer.parseInt(offset) : 0, sort: "description", order: "ASC"]) {
-            eq("retailerId", retailerId)
 
-            if (startDate != null) {
-                gte("startDate", startDate)
+        promotions = criteria.list([max: max, offset: offset]) {
+            eq("retailerId", springSecurityService.principal.retailerId)
+
+            if (validDate != null) {
+                lte("startDate", validDate)
+                gte ("endDate", validDate)
             }
 
-            if (endDate != null) {
-                lte("endDate", endDate)
-            }
-
-            if (updatedDate != null) {
-                gte("updateDatetime", updatedDate)
+            if (updatedSince != null) {
+                gte("updateDatetime", updatedSince)
             }
 
             if (promotionType != null) {
@@ -139,8 +119,12 @@ class PromotionService {
                     like("description", "%$searchTerm%")
                 }
             }
+
+            if (sortColumn != "supplierName") {
+                order (sortColumn ?: "description", sortOrder ?: "asc")
+            }
         }
-        
+
         return promotions
     }
 
@@ -176,31 +160,5 @@ class PromotionService {
         }
 
         return promotions
-    }
-
-    def determinePromotionTypeFromString(String type) {
-        switch (type) {
-            case "BOGOF":
-                return PromotionType.BOGOF
-            case "X_FOR_Y":
-                return PromotionType.X_FOR_Y
-            case "PERCENTAGE_DISCOUNT":
-                return PromotionType.PERCENTAGE_DISCOUNT
-            case "FIXED_AMOUNT_DISCOUNT":
-                return PromotionType.FIXED_AMOUNT_DISCOUNT
-            case "FIXED_PRICE":
-                return PromotionType.FIXED_PRICE
-        }
-    }
-
-    def determineSupplierTypeFromString(String supplier) {
-        switch (supplier) {
-            case "Nisa":
-                return SupplierType.NISA
-            case "Costcutter":
-                return SupplierType.COSTCUTTER
-            case "Booker":
-                return SupplierType.BOOKER
-        }
     }
 }
