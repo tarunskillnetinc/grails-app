@@ -299,7 +299,7 @@ class ProductController {
             productPrices.add(productPrice)
 
             if (!priceChange.oldPrice.equals(priceChange.price)) {
-                ProductHistory productHistory = new ProductHistory(productId: priceChange.productId, fromValue: priceChange.oldPrice.toString(), toValue: priceChange.price.toString(), productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal.username, effectiveDate: now, updateDate: now)
+                ProductHistory productHistory = new ProductHistory(productId: priceChange.productId, fromValue: priceChange.oldPrice.toString(), toValue: priceChange.price.toString(), productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal.usersName, effectiveDate: now, updateDate: now)
                 productHistories.add(productHistory)
             }
 
@@ -685,6 +685,8 @@ class ProductController {
         builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
 
+        builder.compare("vatCode", product.vatCode.description, editedProduct.vatCode.description)
+
         editedProduct.variants.forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id}).findAny().ifPresentOrElse({ oldVariant ->
                 if (variant.delete) {
@@ -729,7 +731,7 @@ class ProductController {
                     if (priceBand && priceChange.sku && priceChange.price) {
                         def fromValue = currentPrice ? currentPrice.price : null
                         ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
-                        ProductHistory productHistory =  new ProductHistory(productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.username, effectiveDate: now, updateDate: now)
+                        ProductHistory productHistory =  new ProductHistory(productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: now, updateDate: now)
 
                         changedProductPrices.add(productPrice)
                         productHistories.add(productHistory)

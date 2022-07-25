@@ -157,7 +157,7 @@ class SupplierService extends MySqlDal {
 
         Connection conn = getConnection()
         CallableStatement supplierPriceUpdateStmt = conn.prepareCall("{ call saveSupplierPriceUpdate(?, ?, ?, ?, ?, ?, ?) }")
-        CallableStatement saveProductHistoryStmt = conn.prepareCall("{ call saveProductHistoryItem(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement saveProductHistoryStmt = conn.prepareCall("{ call saveProductHistoryItem(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         def savedSkus = []
 
@@ -179,7 +179,7 @@ class SupplierService extends MySqlDal {
                 saveProductHistoryStmt.setString(5, ProductHistoryType.PRICE.toString())
                 saveProductHistoryStmt.setNull(6, Types.VARCHAR)
                 saveProductHistoryStmt.setInt(9, springSecurityService.principal.id)
-                saveProductHistoryStmt.setString(10, springSecurityService.principal.username)
+                saveProductHistoryStmt.setString(10, springSecurityService.principal.usersName)
 
                 if (priceUpdate.oldPrice) {
                     saveProductHistoryStmt.setString(7, priceUpdate.oldPrice.toString())
@@ -190,6 +190,7 @@ class SupplierService extends MySqlDal {
                 supplierPriceUpdateStmt.setLong(1, priceUpdate.sku)
                 supplierPriceUpdateStmt.setString(2, effectiveDate.toString(DATE_TIME_FORMAT))
                 supplierPriceUpdateStmt.setInt(3, priceBand.id)
+                saveProductHistoryStmt.setInt(11, priceBand.id)
 
                 if (priceUpdate instanceof PriceChangeCommand) {
                     supplierPriceUpdateStmt.setBigDecimal(4, priceUpdate.price)
