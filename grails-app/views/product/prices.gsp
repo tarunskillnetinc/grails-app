@@ -37,6 +37,9 @@
                     data: { searchTerm: searchTerm, category: category, tag: tag },
                     success: function(resp) {
                         $('#search-results').html(resp);
+
+                        $(".mask-money").maskMoney({ allowZero: true });
+                        $(".mask-money").maskMoney('mask');
                     }
                 });
             }
