@@ -5,6 +5,5 @@ import groovy.transform.CompileStatic
 @CompileStatic
 interface RetailerProvider {
 
-    Retailer getRetailer(String username)
-
+    Retailer getRetailer(int retailerId)
 }

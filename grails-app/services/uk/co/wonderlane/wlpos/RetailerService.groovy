@@ -6,7 +6,7 @@ import grails.gorm.transactions.Transactional
 class RetailerService implements RetailerProvider {
 
     @Override
-    Retailer getRetailer(String username) {
-        return Retailer.findById(User.findByUsername(username).retailerId)
+    Retailer getRetailer(int retailerId) {
+        return Retailer.findById(retailerId)
     }
 }

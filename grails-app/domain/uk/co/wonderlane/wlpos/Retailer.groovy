@@ -16,7 +16,7 @@ class Retailer {
     }
 
     static constraints = {
-        retailerId nullable: false
+        id nullable: false
         snappyShopperEnabled nullable: false
         twoStageSel nullable: false
     }

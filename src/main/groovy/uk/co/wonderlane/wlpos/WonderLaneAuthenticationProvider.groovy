@@ -35,7 +35,7 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
             }
 
             def store = storeNumberValidator.getStore(((WonderLaneUserDetails)userDetails).retailerId, null)
-            ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(userDetails.getUsername())
+            ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(((WonderLaneUserDetails)userDetails).retailerId)
 
             if (store) {
                 ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
@@ -48,7 +48,7 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
                 ((WonderLaneUserDetails)userDetails).storeNumber = Integer.parseInt(wonderLaneAuthenticationDetails.storeId)
                 ((WonderLaneUserDetails)userDetails).storeId = store.id
                 ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
-                ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(userDetails.getUsername())
+                ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(((WonderLaneUserDetails)userDetails).retailerId)
             } else {
                 throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.storeNotFound", "Store number not found."))
             }
