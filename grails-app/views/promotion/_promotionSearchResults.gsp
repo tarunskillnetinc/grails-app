@@ -47,14 +47,13 @@
 
     <div class="my-3 text-right">
         <util:remotePaginate action="promotionSearch" total="${totalResults ?: 0}" update="search-results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: searchTerm,
-                                                                                                                                                              searchBy: searchBy,
-                                                                                                                                                              startDate: startDate,
-                                                                                                                                                              endDate: endDate,
-                                                                                                                                                              updatedSince: updatedSince,
-                                                                                                                                                              type: type,
-                                                                                                                                                              sortColumn: sortColumn,
-                                                                                                                                                              sortOrder: sortOrder,
-                                                                                                                                                              supplier: supplier,
-                                                                                                                                                              status: status]" />
+                                                                                                                                                                         searchBy: searchBy,
+                                                                                                                                                                         validDate: validDate,
+                                                                                                                                                                         updatedSince: updatedSince,
+                                                                                                                                                                         type: type,
+                                                                                                                                                                         sortColumn: sortColumn,
+                                                                                                                                                                         sortOrder: sortOrder,
+                                                                                                                                                                         supplier: supplier,
+                                                                                                                                                                         status: status]" />
     </div>
 </div>

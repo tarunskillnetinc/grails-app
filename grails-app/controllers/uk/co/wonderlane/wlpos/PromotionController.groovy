@@ -448,8 +448,7 @@ class PromotionController {
 
         render(template: "/promotion/promotionSearchResults", model: [promotions  : promotions,
                                                                       storeId     : springSecurityService.principal.storeId,
-                                                                      startDate   : params.startDate,
-                                                                      endDate     : params.endDate,
+                                                                      validDate   : params.validDate,
                                                                       updatedSince: params.updatedSince,
                                                                       type        : params.type,
                                                                       searchTerm  : params.searchTerm,
