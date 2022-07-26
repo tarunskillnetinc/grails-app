@@ -45,7 +45,7 @@ class ProductListService {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
             eq ("type", ProductListType.AD_HOC_SEL_BATCH)
-            eq ("status", ProductListStatus.IN_PROGRESS)
+            "in" ("status", [ProductListStatus.IN_PROGRESS, ProductListStatus.PARTIALLY_COMPLETE])
         }
     }
 
