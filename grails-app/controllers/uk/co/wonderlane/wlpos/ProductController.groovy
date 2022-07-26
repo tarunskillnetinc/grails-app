@@ -667,7 +667,7 @@ class ProductController {
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
 
-        builder.compare("category", product.category.category.description, editedProduct.category.category.description)
+        builder.compare("category", product.category?.description, editedProduct.category?.description)
 
         // Restrictions
         builder.compare("minOpenPrice", product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
@@ -685,7 +685,7 @@ class ProductController {
         builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
 
-        builder.compare("vatCode", product.vatCode.description, editedProduct.vatCode.description)
+        builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
         editedProduct.variants.forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id}).findAny().ifPresentOrElse({ oldVariant ->
