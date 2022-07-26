@@ -10,9 +10,10 @@ class WonderLaneUserDetails extends GrailsUser {
     Integer storeId
     String usersName
     PriceBand priceBand
+    Retailer retailer
 
     public WonderLaneUserDetails(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired,
-                                 boolean accountNonLocked, Collection<GrantedAuthority> authorities, id, int retailerId, Integer storeNumber, Integer storeId, String usersName, PriceBand priceBand) {
+                                 boolean accountNonLocked, Collection<GrantedAuthority> authorities, id, int retailerId, Integer storeNumber, Integer storeId, String usersName, PriceBand priceBand, Retailer retailer) {
 
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities, id)
 
@@ -21,5 +22,6 @@ class WonderLaneUserDetails extends GrailsUser {
         this.storeId = storeId
         this.usersName = usersName
         this.priceBand = priceBand
+        this.retailer = retailer
     }
 }

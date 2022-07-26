@@ -28,7 +28,7 @@ class WonderLaneUserDetailsService implements GrailsUserDetailsService {
             throw new NoStackUsernameNotFoundException()
         }
 
-        return new WonderLaneUserDetails(user.username, user.password, user.active, true, true, true, getRole(user.role), user.id, user.retailerId, null, null, user.name, null)
+        return new WonderLaneUserDetails(user.username, user.password, user.active, true, true, true, getRole(user.role), user.id, user.retailerId, null, null, user.name, null, null)
     }
 
     static def getRole(Role role) {

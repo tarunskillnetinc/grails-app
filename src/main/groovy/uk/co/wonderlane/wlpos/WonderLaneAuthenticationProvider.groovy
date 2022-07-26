@@ -10,6 +10,8 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
 
     def storeNumberValidator
 
+    def retailerProvider
+
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         // If we reach here then a user with the username was found.
         // This line will include the password check.
@@ -33,6 +35,7 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
             }
 
             def store = storeNumberValidator.getStore(((WonderLaneUserDetails)userDetails).retailerId, null)
+            ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(userDetails.getUsername())
 
             if (store) {
                 ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
@@ -45,6 +48,7 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
                 ((WonderLaneUserDetails)userDetails).storeNumber = Integer.parseInt(wonderLaneAuthenticationDetails.storeId)
                 ((WonderLaneUserDetails)userDetails).storeId = store.id
                 ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
+                ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(userDetails.getUsername())
             } else {
                 throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.storeNotFound", "Store number not found."))
             }

@@ -1,3 +1,4 @@
+import uk.co.wonderlane.wlpos.RetailerService
 import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
@@ -18,6 +19,7 @@ beans = {
 
     wonderLaneAuthenticationProvider(WonderLaneAuthenticationProvider) {
         storeNumberValidator = ref('storeNumberValidator')
+        retailerProvider = ref('retailerProvider')
         userDetailsService = ref('userDetailsService')
         passwordEncoder = ref('passwordEncoder')
         userCache = ref('userCache')
@@ -31,6 +33,7 @@ beans = {
 
     authenticationDetailsSource(WonderLaneAuthenticationDetailsSource)
     storeNumberValidator(StoreNumberValidatorService)
+    retailerProvider(RetailerService)
 
     productService(ProductService,
                     new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),

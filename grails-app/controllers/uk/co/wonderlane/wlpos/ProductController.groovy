@@ -2,10 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
 import groovy.json.JsonSlurper
-import org.apache.commons.lang3.builder.ReflectionDiffBuilder
-import org.apache.commons.lang3.builder.ToStringStyle
-import org.apache.commons.lang3.reflect.FieldUtils
-import org.apache.log4j.Logger
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -264,20 +260,22 @@ class ProductController {
             productPrices.add(productPrice)
         }
 
-        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
-        syncMessage.setInsert(true)
-        syncMessage.setProductPrices(productPrices)
+        if (isSingleStageSel()) {
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
+            syncMessage.setInsert(true)
+            syncMessage.setProductPrices(productPrices)
 
-        def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand)
+            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand)
 
-        stores?.each { store ->
-            log.println("Syncing ${productPrices.size()} supplier price updates to store ${store.storeId}")
+            stores?.each { store ->
+                log.println("Syncing ${productPrices.size()} supplier price updates to store ${store.storeId}")
 
-            syncMessage.setStoreNumber(store.storeId)
-            syncMessage.setStoreId(store.id)
+                syncMessage.setStoreNumber(store.storeId)
+                syncMessage.setStoreId(store.id)
 
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            }
         }
     }
 
@@ -309,18 +307,20 @@ class ProductController {
         productService.saveProductPrices(productPrices, productHistories)
 
         priceUpdates.each { priceBandId, priceChanges ->
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProductPrices(priceChanges)
+            if (isSingleStageSel()) {
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setProductPrices(priceChanges)
 
-            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
+                def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
 
-            stores?.each { store ->
-                syncMessage.setStoreNumber(store.storeId)
-                syncMessage.setStoreId(store.id)
+                stores?.each { store ->
+                    syncMessage.setStoreNumber(store.storeId)
+                    syncMessage.setStoreId(store.id)
 
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                }
             }
         }
 
@@ -389,8 +389,10 @@ class ProductController {
 
     def save(ProductCommand editedProduct) {
         def product
+        def builder
 
         boolean newProduct
+        boolean changeAffectsSel = false
 
         if (params.id && Integer.parseInt(params.id) > 0) {
             newProduct = false
@@ -401,6 +403,7 @@ class ProductController {
         DateTime now = DateTime.now(DateTimeZone.UTC)
 
         if (newProduct) {
+            changeAffectsSel = true
             product = new Product(params)
             product.retailerId = springSecurityService.principal.retailerId
             product.restrictions = new Restrictions()
@@ -426,13 +429,16 @@ class ProductController {
             // TODO We need to introduce an effective date entry.
 
             product = productService.getProduct(Integer.parseInt(params.id))
+            builder = new ProductHistoryBuilder(product.id, springSecurityService)
 
-            doComparison(product, editedProduct)
+            doComparison(builder, product, editedProduct)
 
             product.itemCode = editedProduct.itemCode
+            changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.description, editedProduct.description)
             product.description = editedProduct.description
             product.receiptDescription = editedProduct.receiptDescription
             product.category = editedProduct.category
+            changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.unitSize, editedProduct.unitSize)
             product.unitSize = editedProduct.unitSize
             product.weightedItem = editedProduct.weightedItem
             product.openPrice = editedProduct.openPrice
@@ -462,6 +468,7 @@ class ProductController {
                     // Variant we saved is one which already exists, check for changes.
                     existingVariant.sku = editedVariant.sku
                     existingVariant.retailPrice = editedVariant.retailPrice
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
                     existingVariant.costPrice = editedVariant.costPrice
                     existingVariant.size = editedVariant.size
                     existingVariant.colour = editedVariant.colour
@@ -541,6 +548,7 @@ class ProductController {
                         }
                     }
                 } else {
+                    changeAffectsSel = true
                     ProductVariant newVariant = new ProductVariant()
                     newVariant.storeId = springSecurityService.principal.storeId
                     newVariant.sku = editedVariant.sku
@@ -583,6 +591,10 @@ class ProductController {
 
             productService.saveBarcodes(product)
 
+            if (builder && builder.productHistories) {
+                productService.saveProductHistories(builder.productHistories)
+            }
+
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
                 def priceChanges = []
@@ -599,39 +611,40 @@ class ProductController {
 
         if (!product.hasErrors()) {
             // TODO Send this update to all tills which are ranged.
-            if (springSecurityService.principal.storeId) {
-                if (!rabbitService.isOpen()) {
-                    throw new Exception("Rabbit MQ not available")
-                }
+            if (isSingleStageSel() || !changeAffectsSel) {
+                if (springSecurityService.principal.storeId) {
+                    if (!rabbitService.isOpen()) {
+                        throw new Exception("Rabbit MQ not available")
+                    }
 
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber ?: 0, springSecurityService.principal.storeId ?: 0, 0)
-                syncMessage.setInsert(true)
+                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber ?: 0, springSecurityService.principal.storeId ?: 0, 0)
+                    syncMessage.setInsert(true)
 
-                List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
-                products.add(product.getProduct(springSecurityService.principal.storeId))
-                syncMessage.setProducts(products)
+                    List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
+                    products.add(product.getProduct(springSecurityService.principal.storeId))
+                    syncMessage.setProducts(products)
 
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            } else {
-                def rangeProducts = RangeProduct.findAllByProductId(product.id)
+                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                } else {
+                    def rangeProducts = RangeProduct.findAllByProductId(product.id)
 
-                rangeProducts?.each { rangeProduct ->
-                    def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range)
+                    rangeProducts?.each { rangeProduct ->
+                        def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range)
 
-                    stores?.each { StoreSettings store ->
-                        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                        syncMessage.setInsert(true)
+                        stores?.each { StoreSettings store ->
+                            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+                            syncMessage.setInsert(true)
 
-                        syncMessage.setProducts([product.getProduct(store.storeId)])
+                            syncMessage.setProducts([product.getProduct(store.storeId)])
 
-                        // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                        rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                        }
                     }
                 }
             }
-
             redirect(action: "index")
         } else {
             def productCategoryList = []
@@ -652,8 +665,7 @@ class ProductController {
         }
     }
 
-    private void doComparison(Product product, ProductCommand editedProduct) {
-        def builder = new ProductHistoryBuilder(product.id, springSecurityService)
+    private void doComparison(ProductHistoryBuilder builder, Product product, ProductCommand editedProduct) {
         builder.compare("itemCode", product.itemCode, editedProduct.itemCode)
         builder.compare("description", product.description, editedProduct.description)
         builder.compare("receiptDescription", product.receiptDescription, editedProduct.receiptDescription)
@@ -698,8 +710,6 @@ class ProductController {
                 doVariantComparison(builder, variant.id, new ProductVariant(), variant)
             })
         })
-
-        productService.saveProductHistories(builder.productHistories)
     }
 
     private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant) {
@@ -754,14 +764,16 @@ class ProductController {
                 }
 
                 stores?.each { StoreSettings store ->
-                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                    syncMessage.setInsert(true)
+                    if (isSingleStageSel()) {
+                        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+                        syncMessage.setInsert(true)
 
-                    syncMessage.setProductPrices(commonProductPrices)
+                        syncMessage.setProductPrices(commonProductPrices)
 
-                    // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                        // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                        rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                    }
                 }
             }
         }
@@ -880,6 +892,23 @@ class ProductController {
             e.printStackTrace()
             render (status: 500, text: "An error occurred saving your report column preferences.")
         }
+    }
+
+    private boolean isSingleStageSel() {
+        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.twoStageSel) {
+            return false
+        }
+        return true
+    }
+
+    private boolean checkChangeAffectsSel(boolean changeAffectsSel, Object left, Object right) {
+        if (changeAffectsSel) {
+            return true
+        }
+        if (left == right) {
+            return false
+        }
+        return true
     }
 
     private boolean isRestrictionsChanged(RestrictionsCommand first, Restrictions second) {
