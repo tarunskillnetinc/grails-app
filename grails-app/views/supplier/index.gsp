@@ -14,6 +14,8 @@
             var addSymbolGroupSubscriptionUrl = "${createLink(controller: 'supplier', action: 'ajaxAddSymbolGroupSubscription')}";
             var editSymbolGroupSubscriptionUrl = "${createLink(controller: 'supplier', action: 'ajaxEditSymbolGroupSubscription')}";
             var saveSymbolGroupSubscriptionUrl = "${createLink(controller: 'supplier', action: 'ajaxSaveSymbolGroupSubscription')}";
+            var getSymbolGroupFormUrl = "${createLink(controller: 'supplier', action: 'ajaxGetSymbolGroupForm')}";
+            var symbolGroupActionUrl = "${createLink(controller: 'supplier', action: 'ajaxSymbolGroupAction')}"
 
             $(function() {
                 getSuppliers();
@@ -73,6 +75,20 @@
                 });
             }
 
+            function doSymbolGroupAction(symbolGroupId) {
+                $.ajax({
+                    url: symbolGroupActionUrl,
+                    method: "GET",
+                    data: { symbolGroupId: symbolGroupId },
+                    success: function(resp) {
+                        $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp + '</div>');
+                    },
+                    error: function (resp) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp + '</div>');
+                    }
+                });
+            }
+
             function saveSupplier() {
                 var formValues = $("#addSupplierForm").serialize();
 
@@ -108,13 +124,21 @@
             }
 
             function symbolGroupSubscripionSupplierChanged(symbolGroupId) {
-                var nisaForm = $("#nisaForm");
+                let form = $("#affiliationForm");
 
-                nisaForm.hide();
+                form.hide();
 
-                if (symbolGroupId === "1") {
-                    nisaForm.show();
-                }
+                $.ajax({
+                    url: getSymbolGroupFormUrl,
+                    method: "GET",
+                    data: {
+                        symbolGroupId: symbolGroupId,
+                    },
+                    success: function(resp) {
+                        form.html(resp);
+                        form.show();
+                    }
+                });
             }
 
             function editSymbolGroupSubscription(symbolGroupSubscriptionId) {
@@ -194,6 +218,8 @@
                     <a href="#" class="btn btn-wl" onclick="showAddSymbolGroupSubscriptionModal();">Add New Supplier Affiliation</a>
                 </div>
             </div>
+
+            <section id="errors-container" class="container-fluid"></section>
 
             <div id="subscriptions-results-container" class="align-content-center">
                 <g:render template="symbolGroupSubscriptionsSearchResults" />

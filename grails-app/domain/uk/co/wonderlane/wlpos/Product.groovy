@@ -21,6 +21,7 @@ class Product {
     boolean openPrice
     boolean zeroPrice
     boolean pricePerKg
+    boolean snappyProduct
     boolean deliItem
     VatCode vatCode
     BigDecimal vatPercentageOverride
@@ -56,6 +57,7 @@ class Product {
         category column: "categoryId"
         unitSize column: "unitSize"
         pricePerKg column: "pricePerKg"
+        snappyProduct column: "snappyProduct"
         deliItem column: "deliItem"
         weightedItem column: "weightedItem"
         openPrice column: "openPrice"

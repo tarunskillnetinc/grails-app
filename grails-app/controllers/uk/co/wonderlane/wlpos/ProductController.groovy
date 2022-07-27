@@ -444,6 +444,7 @@ class ProductController {
             product.openPrice = editedProduct.openPrice
             product.zeroPrice = editedProduct.zeroPrice
             product.pricePerKg = editedProduct.pricePerKg
+            product.snappyProduct = editedProduct.snappyProduct
             product.deliItem = editedProduct.deliItem
             product.vatCode = editedProduct.vatCode
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
@@ -672,6 +673,7 @@ class ProductController {
         builder.compare("unitSize", product.unitSize, editedProduct.unitSize)
         builder.compare("weightedItem", product.weightedItem, editedProduct.weightedItem)
         builder.compare("pricePerKg", product.pricePerKg, editedProduct.pricePerKg)
+        builder.compare("snappyProduct", product.snappyProduct, editedProduct.snappyProduct)
         builder.compare("deliItem", product.deliItem, editedProduct.deliItem)
         builder.compare("openPrice", product.openPrice, editedProduct.openPrice)
         builder.compare("zeroPrice", product.zeroPrice, editedProduct.zeroPrice)
@@ -1017,6 +1019,7 @@ class ProductCommand {
     boolean openPrice
     boolean zeroPrice
     boolean pricePerKg
+    boolean snappyProduct
     boolean deliItem
     VatCode vatCode
     BigDecimal vatPercentageOverride
