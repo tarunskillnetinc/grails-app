@@ -512,15 +512,16 @@
         </g:if>
 
         <section id="addProduct-section" class="container-fluid mt-4">
-            <g:render template="addProductForm" model="[product: product,
-                                                        storeId: storeId,
-                                                        statusValues: statusValues,
-                                                        categoryValues: categoryValues,
+            <g:render template="addProductForm" model="[product            : product,
+                                                        storeId            : storeId,
+                                                        statusValues       : statusValues,
+                                                        categoryValues     : categoryValues,
                                                         productCategoryList: productCategoryList,
-                                                        vatValues: vatValues,
-                                                        ranges: ranges,
-                                                        priceBands: priceBands,
-                                                        isNewProduct: isNewProduct]" />
+                                                        vatValues          : vatValues,
+                                                        ranges             : ranges,
+                                                        priceBands         : priceBands,
+                                                        isNewProduct       : isNewProduct,
+                                                        snappyEnabled      : snappyEnabled]"/>
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

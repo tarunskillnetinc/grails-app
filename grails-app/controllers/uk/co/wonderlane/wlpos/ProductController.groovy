@@ -63,15 +63,16 @@ class ProductController {
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
-        render(view: "add", model: [product: product,
-                                    storeId: springSecurityService.principal.storeId,
-                                    statusValues: ProductStatus.values(),
-                                    categoryValues: categoryService.getFullCategoryHierarchy(),
+        render(view: "add", model: [product            : product,
+                                    storeId            : springSecurityService.principal.storeId,
+                                    statusValues       : ProductStatus.values(),
+                                    categoryValues     : categoryService.getFullCategoryHierarchy(),
                                     productCategoryList: productCategoryList,
-                                    vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
-                                    ranges: ranges,
-                                    priceBands: priceBands,
-                                    navlink: "details"])
+                                    vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    ranges             : ranges,
+                                    priceBands         : priceBands,
+                                    navlink            : "details",
+                                    snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled()])
     }
 
     def add() {
