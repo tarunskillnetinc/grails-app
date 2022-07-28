@@ -83,11 +83,12 @@ class SupplierController {
     def ajaxEditSymbolGroupSubscription(int symbolGroupSubscriptionId) {
         def symbolGroupSubscription = supplierService.getSymbolGroupSubscription(symbolGroupSubscriptionId)
 
+        def symbolGroups = supplierService.getSymbolGroups()
+
         if (!springSecurityService.principal.storeId || !Retailer.findById(springSecurityService.principal.retailerId).snappyShopperEnabled) {
             symbolGroups.removeAll { it.id == 4 }
         }
 
-        def symbolGroups = supplierService.getSymbolGroups()
         def subscribedSymbolGroupIds = supplierService.getSymbolGroupSubscriptions()?.collect { it.symbolGroup.id }
 
         symbolGroups.removeAll { subscribedSymbolGroupIds.contains(it.id) && it.id != symbolGroupSubscription.symbolGroup.id }
