@@ -30,7 +30,8 @@ class SupplierController {
         def symbolGroups = supplierService.getSymbolGroups()
 
         if (!springSecurityService.principal.retailer.snappyShopperEnabled) {
-            symbolGroups.removeAll {it.id == 4 }
+            symbolGroupSubscriptions.removeAll { it.symbolGroup.id == 4 }
+            symbolGroups.removeAll {it.symbolGroup.id == 4 }
         }
 
         render(template: "symbolGroupSubscriptionsSearchResults", model: [symbolGroupSubscriptions: symbolGroupSubscriptions])
