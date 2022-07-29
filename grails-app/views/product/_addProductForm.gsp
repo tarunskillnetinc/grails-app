@@ -122,6 +122,10 @@
                                 <label for="vatCode" class="col-3 col-form-label text-right pr-4">VAT Code</label>
                                 <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="${{(it?.description ? it.description + ' (' +it.percentage.setScale(1, java.math.RoundingMode.HALF_UP) +'%)' : String.valueOf(it.code) + ' (' +it.percentage.setScale(1, java.math.RoundingMode.HALF_UP) +'%)')}}" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
                             </div>
+                            <div class="row form-group">
+                                <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
+                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" />
+                            </div>
                             <div class="row mt-1 form-group">
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
                                 <g:textField name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
@@ -133,17 +137,13 @@
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <div class="row form-group">
-                                <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
-                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" />
-                            </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
-                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}"/>
+                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}" disabled="${product?.openPrice || product?.zeroPrice}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="pricePerKg" class="col-3 col-form-label text-right pr-4">Price Per KG</label>
-                                <g:checkBox name="pricePerKg" class="col-1 form-check-input wl-checkbox" checked="${product?.pricePerKg}"/>
+                                <g:checkBox name="pricePerKg" class="col-1 form-check-input wl-checkbox" checked="${product?.pricePerKg && product?.weightedItem}" disabled="${!product?.weightedItem}" />
                             </div>
                             <fieldset ${(snappyEnabled?:"disabled")}>
                                 <div class="row mt-1 form-group form-check pl-0">
@@ -153,15 +153,15 @@
                             </fieldset>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="deliItem" class="col-3 col-form-label text-right pr-4">Deli Item</label>
-                                <g:checkBox name="deliItem" class="col-1 form-check-input wl-checkbox" checked="${product?.deliItem}"/>
+                                <g:checkBox name="deliItem" class="col-1 form-check-input wl-checkbox" checked="${product?.deliItem}" disabled="${product?.openPrice || product?.zeroPrice}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="openPrice" class="col-3 col-form-label text-right pr-4">Open Price</label>
-                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}"/>
+                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}" disabled="${product?.weightedItem || product?.deliItem}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="zeroPrice" class="col-3 col-form-label text-right pr-4">Zero Price</label>
-                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}"/>
+                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}" disabled="${product?.weightedItem || product?.deliItem}" />
                             </div>
                         </div>
                     </div>

@@ -46,6 +46,43 @@
                     $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
                 });
 
+                $("#weightedItem").change(function() {
+                    $("#pricePerKg").prop("checked", false);
+                    $("#pricePerKg").attr("disabled", !this.checked);
+
+                    var deliItem = $("#deliItem");
+
+                    $("#openPrice").prop("checked", false);
+                    $("#openPrice").attr("disabled", (this.checked || deliItem.prop("checked")));
+                    $("#zeroPrice").prop("checked", false);
+                    $("#zeroPrice").attr("disabled", (this.checked || deliItem.prop("checked")));
+                });
+
+                $("#deliItem").change(function() {
+                    var weightedItem = $("#weightedItem");
+
+                    $("#openPrice").prop("checked", false);
+                    $("#openPrice").attr("disabled", (this.checked || weightedItem.prop("checked")));
+                    $("#zeroPrice").prop("checked", false);
+                    $("#zeroPrice").attr("disabled", (this.checked || weightedItem.prop("checked")));
+                });
+
+                $("#openPrice").change(function() {
+                    $("#weightedItem").prop("checked", false);
+                    $("#weightedItem").attr("disabled", this.checked);
+                    $("#pricePerKg").prop("checked", false);
+                    $("#deliItem").prop("checked", false);
+                    $("#deliItem").attr("disabled", this.checked);
+                });
+
+                $("#zeroPrice").change(function() {
+                    $("#weightedItem").prop("checked", false);
+                    $("#weightedItem").attr("disabled", this.checked);
+                    $("#pricePerKg").prop("checked", false);
+                    $("#deliItem").prop("checked", false);
+                    $("#deliItem").attr("disabled", this.checked);
+                });
+
                 $(".mask-money").maskMoney({ allowZero: true });
 
                 $('#collapsePromotions').on('show.bs.collapse', function () {
@@ -335,6 +372,7 @@
                     params["packs[" +loopIndex +"].id"] = $(packSelector +"\\.id").val();
                     params["packs[" +loopIndex +"].supplier.id"] = $(packSelector +"\\.supplier\\.id").val();
                     params["packs[" +loopIndex +"].supplier.name"] = $(packSelector +"\\.supplier\\.name").val();
+                    params["packs[" +loopIndex +"].supplier.symbolGroupId"] = $(packSelector +"\\.supplier\\.symbolGroupId").val();
                     params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
                     params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
                     params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();
@@ -384,6 +422,8 @@
                             var addPackContainer = $("#addPackContainer-" +variantIndex +"-" +packIndex);
 
                             addPackContainer.append(resp);
+
+                            $("#addPackContainer-" +variantIndex +"-" +packIndex +" .mask-money").maskMoney({ allowZero: true });
                         }
                     });
                 }
@@ -402,6 +442,7 @@
                     params["packs[" +loopIndex +"].id"] = $(packSelector +"\\.id").val();
                     params["packs[" +loopIndex +"].supplier.id"] = $(packSelector +"\\.supplier\\.id").val();
                     params["packs[" +loopIndex +"].supplier.name"] = $(packSelector +"\\.supplier\\.name").val();
+                    params["packs[" +loopIndex +"].supplier.symbolGroupId"] = $(packSelector +"\\.supplier\\.symbolGroupId").val();
                     params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
                     params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
                     params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();

@@ -298,7 +298,7 @@ class ProductController {
             productPrices.add(productPrice)
 
             if (!priceChange.oldPrice.equals(priceChange.price)) {
-                ProductHistory productHistory = new ProductHistory(productId: priceChange.productId, fromValue: priceChange.oldPrice.toString(), toValue: priceChange.price.toString(), productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal.usersName, effectiveDate: now, updateDate: now)
+                ProductHistory productHistory = new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: priceChange.productId, fromValue: priceChange.oldPrice.toString(), toValue: priceChange.price.toString(), productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal.usersName, effectiveDate: now, updateDate: now)
                 productHistories.add(productHistory)
             }
 
@@ -612,7 +612,6 @@ class ProductController {
         }
 
         if (!product.hasErrors()) {
-            // TODO Send this update to all tills which are ranged.
             if (isSingleStageSel() || !changeAffectsSel) {
                 if (springSecurityService.principal.storeId) {
                     if (!rabbitService.isOpen()) {
@@ -744,7 +743,7 @@ class ProductController {
                     if (priceBand && priceChange.sku && priceChange.price) {
                         def fromValue = currentPrice ? currentPrice.price : null
                         ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
-                        ProductHistory productHistory =  new ProductHistory(productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: now, updateDate: now)
+                        ProductHistory productHistory =  new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: now, updateDate: now)
 
                         changedProductPrices.add(productPrice)
                         productHistories.add(productHistory)
@@ -851,11 +850,15 @@ class ProductController {
     def ajaxSuppliers(SuppliersCommand cmd) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
+        suppliers.removeAll { it.symbolGroup != null  }
+
         render (template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index])
     }
 
     def ajaxAddPack(int variantIndex, int packIndex) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        suppliers.removeAll { it.symbolGroup != null  }
 
         render (template: "addPack", model: [variantIndex: variantIndex, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
     }
@@ -1005,6 +1008,7 @@ class AddPackCommand {
 class SupplierCommand {
     int id
     String name
+    Integer symbolGroupId
 }
 
 class ProductCommand {

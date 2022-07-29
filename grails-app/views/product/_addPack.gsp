@@ -4,7 +4,14 @@
     <div class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
     <div class="col-2 my-auto">${pack?.orderCode}</div>
     <div class="col-2 my-auto">${pack?.status}</div>
-    <div class="col-1 my-auto"><a href="#" class="btn btn-wl" onclick="addPack(${variantIndex}, ${packIndex});">Edit</a></div>
+    <div class="col-1 my-auto">
+        <g:if test="${pack?.supplier?.symbolGroupId > 0}">
+            <button class="btn btn-wl disabled" title="You cannot edit packs from this supplier." disabled>Edit</button>
+        </g:if>
+        <g:else>
+            <a href="#" class="btn btn-wl" onclick="addPack(${variantIndex}, ${packIndex});">Edit</a>
+        </g:else>
+    </div>
 </div>
 
 <div id="addPackFieldsContainer-${variantIndex}-${packIndex}" class="${!isNewPack ? 'hidden' : ''}">
@@ -13,6 +20,7 @@
     <g:hiddenField name="addPack[${packIndex}].effectiveEndDate" value="${pack?.effectiveEndDate}" />
     <g:hiddenField name="addPack[${packIndex}].allowSubstitutes" value="${pack?.allowSubstitutes}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.name" value="${pack?.supplier?.name}" />
+    <g:hiddenField name="addPack[${packIndex}].supplier.symbolGroupId" value="${pack?.supplier?.symbolGroupId}" />
 
     <div class="row mx-4 pt-3 wl-striped${packIndex % 2}">
         <div class="col-3 my-auto">
@@ -22,7 +30,7 @@
             <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control bottom-border" />
+            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control bottom-border mask-money" />
         </div>
         <div class="col-2 my-auto">
             <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" />
@@ -39,7 +47,7 @@
 
     <div class="row mx-4 pt-2 pb-3 wl-striped${packIndex % 2}">
         <div class="col-2 offset-3 my-auto">
-            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control bottom-border" />
+            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control bottom-border mask-money" />
         </div>
         <div class="col-2 offset-2 my-auto">
             <g:textField name="addPack[${packIndex}].maximumOrderQuantity" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" />

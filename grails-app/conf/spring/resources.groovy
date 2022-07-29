@@ -4,6 +4,7 @@ import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
 import uk.co.wonderlane.wlpos.StoreNumberValidatorService
 import uk.co.wonderlane.wlpos.ProductService
+import uk.co.wonderlane.wlpos.ProductListService
 import uk.co.wonderlane.wlpos.SupplierService
 import uk.co.wonderlane.wlpos.ShiftService
 import uk.co.wonderlane.wlpos.SnapshotService
@@ -45,6 +46,17 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+    }
+
+    productListService(ProductListService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))
+    ) {
+
+        springSecurityService = ref('springSecurityService')
     }
 
     supplierService(SupplierService,

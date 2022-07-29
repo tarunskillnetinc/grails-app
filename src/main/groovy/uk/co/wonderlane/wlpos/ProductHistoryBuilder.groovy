@@ -22,7 +22,8 @@ class ProductHistoryBuilder {
 
     def compare(Integer productVariantId, String property, Object left, Object right) {
         if (left != right) {
-            def productHistory = new ProductHistory();
+            def productHistory = new ProductHistory()
+            productHistory.retailerId = springSecurityService.principal.retailerId
             productHistory.fromValue = left.toString().substring(0, left.toString().length() > 100 ? 99 : left.toString().length())
             productHistory.toValue = right.toString().substring(0, right.toString().length() > 100 ? 99 : right.toString().length())
             productHistory.field = property
