@@ -141,13 +141,24 @@
                                 <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
                                 <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}" disabled="${product?.openPrice || product?.zeroPrice}" />
                             </div>
-                            <div class="row mt-1 form-group form-check pl-0">
-                                <label for="pricePerKg" class="col-3 col-form-label text-right pr-4">Price Per KG</label>
-                                <g:checkBox name="pricePerKg" class="col-1 form-check-input wl-checkbox" checked="${product?.pricePerKg && product?.weightedItem}" disabled="${!product?.weightedItem}" />
+
+
+                            <div class="row mt-1 pl-0 form-group">
+                                <span class="col-3 col-form-label text-right pr-4">Pricing</span>
+
+                                <div class="col-1 form-check form-check-inline">
+                                    <g:radio class="form-check-input ml-2 wl-radio" type="radio" name="pricePerKg" id="pricePerKg" value="true" checked="${product?.pricePerKg && product?.weightedItem}" disabled="${!product?.weightedItem}" />
+                                    <label class="form-check-label" for="pricePerKg">/kg</label>
+                                </div>
+                                <div class="col-2 form-check form-check-inline">
+                                    <g:radio class="form-check-input wl-radio" type="radio" name="pricePerKg" id="pricePer100g" value="false" checked="${!product?.pricePerKg && product?.weightedItem}" disabled="${!product?.weightedItem}" />
+                                    <label class="form-check-label" for="pricePer100g">/100g</label>
+                                </div>
                             </div>
+
                             <fieldset ${(snappyEnabled?:"disabled")}>
                                 <div class="row mt-1 form-group form-check pl-0">
-                                    <label for="snappyProduct" class="col-3 col-form-label text-right pr-4">Snappy Product</label>
+                                    <label for="snappyProduct" class="col-3 col-form-label text-right pr-4">Snappy Shopper Item</label>
                                     <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
                                 </div>
                             </fieldset>

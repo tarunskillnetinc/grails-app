@@ -47,8 +47,10 @@
                 });
 
                 $("#weightedItem").change(function() {
-                    $("#pricePerKg").prop("checked", false);
+                    $("#pricePerKg").prop("checked", this.checked);
                     $("#pricePerKg").attr("disabled", !this.checked);
+                    $("#pricePer100g").prop("checked", false);
+                    $("#pricePer100g").attr("disabled", !this.checked);
 
                     var deliItem = $("#deliItem");
 
@@ -71,6 +73,7 @@
                     $("#weightedItem").prop("checked", false);
                     $("#weightedItem").attr("disabled", this.checked);
                     $("#pricePerKg").prop("checked", false);
+                    $("#pricePer100g").prop("checked", false);
                     $("#deliItem").prop("checked", false);
                     $("#deliItem").attr("disabled", this.checked);
                 });
@@ -79,6 +82,7 @@
                     $("#weightedItem").prop("checked", false);
                     $("#weightedItem").attr("disabled", this.checked);
                     $("#pricePerKg").prop("checked", false);
+                    $("#pricePer100g").prop("checked", false);
                     $("#deliItem").prop("checked", false);
                     $("#deliItem").attr("disabled", this.checked);
                 });
