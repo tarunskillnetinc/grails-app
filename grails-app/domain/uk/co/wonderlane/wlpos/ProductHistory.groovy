@@ -7,6 +7,7 @@ class ProductHistory {
 
     Integer id
     Integer productId
+    Integer retailerId
     Integer storeId
     DateTime updateDate
     DateTime effectiveDate
@@ -24,6 +25,7 @@ class ProductHistory {
         version false
 
         productId column: "productId", sqlType: "smallint"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId", sqlType: "smallint"
         updateDate column: "updateDate"
         effectiveDate column: "effectiveDate"
