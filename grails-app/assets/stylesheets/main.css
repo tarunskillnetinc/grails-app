@@ -534,6 +534,11 @@ a.no-underline:hover {
     margin-top: 10px;
 }
 
+.wl-radio {
+    height: 20px;
+    width: 20px;
+}
+
 .variant-display-item {
     height: 24px;
     margin-top: auto;
