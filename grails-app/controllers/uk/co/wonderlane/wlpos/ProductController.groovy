@@ -397,10 +397,15 @@ class ProductController {
         boolean newProduct
         boolean changeAffectsSel = false
 
+        boolean sendToSnappy = false
+
         if (params.id && Integer.parseInt(params.id) > 0) {
             newProduct = false
         } else {
             newProduct = true
+            if (editedProduct.isSnappyProduct()) {
+                sendToSnappy = true;
+            }
         }
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
@@ -432,6 +437,11 @@ class ProductController {
             // TODO We need to introduce an effective date entry.
 
             product = productService.getProduct(Integer.parseInt(params.id))
+
+            if (!product.isSnappyProduct() && editedProduct.isSnappyProduct()) {
+                sendToSnappy = true;
+            }
+
             builder = new ProductHistoryBuilder(product.id, springSecurityService)
 
             doComparison(builder, product, editedProduct)
@@ -612,7 +622,7 @@ class ProductController {
 
             flash.message = "Product saved successfully"
 
-            if (product.isSnappyProduct()) {
+            if (sendToSnappy) {
                 if (!springSecurityService.principal.storeId || springSecurityService.principal.retailer.snappyShopperEnabled) {
                     for (ProductVariant variant : product.getVariants()) {
                         for (Barcode barcode : variant.getBarcodes()) {
