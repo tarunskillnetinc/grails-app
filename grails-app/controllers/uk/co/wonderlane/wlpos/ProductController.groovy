@@ -623,7 +623,7 @@ class ProductController {
             flash.message = "Product saved successfully"
 
             if (sendToSnappy) {
-                if (!springSecurityService.principal.storeId || springSecurityService.principal.retailer.snappyShopperEnabled) {
+                if (springSecurityService.principal.retailer.snappyShopperEnabled) {
                     for (ProductVariant variant : product.getVariants()) {
                         for (Barcode barcode : variant.getBarcodes()) {
                             SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.PRODUCT_UPLOAD, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
