@@ -159,6 +159,7 @@ class Product {
         product.setCategory(category.getCategory())
         product.setUnitSize(unitSize)
         product.setWeightedItem(weightedItem)
+        product.setPricePerKg(pricePerKg)
         product.setOpenPrice(openPrice)
         product.setZeroPrice(zeroPrice)
         product.setVatCode(vatCode.getVatCode())
