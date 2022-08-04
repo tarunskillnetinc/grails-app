@@ -335,11 +335,11 @@
                             </div>
 
                             <g:if test="${isNewProduct}">
-                                <g:render template="addPrice" model="[skuIndex: 0, variant: null, sku: null, priceBands: priceBands]" />
+                                <g:render template="addPrice" model="[skuIndex: 0, variant: null, sku: null, priceBands: priceBands, zeroPrice: false]" />
                             </g:if>
 
                             <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
-                                <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands]" />
+                                <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands, zeroPrice: product?.zeroPrice]" />
                             </g:each>
                         </div>
                     </div>

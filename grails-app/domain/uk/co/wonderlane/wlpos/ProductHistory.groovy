@@ -6,8 +6,8 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 class ProductHistory {
 
     Integer id
+    int retailerId
     Integer productId
-    Integer retailerId
     Integer storeId
     DateTime updateDate
     DateTime effectiveDate
@@ -41,6 +41,7 @@ class ProductHistory {
 
     static constraints = {
         priceBandId nullable: true
+        retailerId nullable: false
         storeId nullable: true
         field nullable: true, maxSize: 45
         fromValue nullable: true, maxSize: 100

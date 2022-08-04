@@ -24,7 +24,7 @@
                     <span class="input-group-text">&pound;</span>
                 </div>
 
-                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
+                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId') || zeroPrice}" />
             </div>
         </div>
 

@@ -13,7 +13,7 @@
                 <span class="input-group-text">&pound;</span>
             </div>
 
-            <g:textField name="priceChanges[${skuIndex}].priceChanges[${index}].price" value="${variantPrices?.find { it.priceBand.id == priceBand.id }?.price}" class="form-control mask-money" />
+            <g:textField name="priceChanges[${skuIndex}].priceChanges[${index}].price" value="${variantPrices?.find { it.priceBand.id == priceBand.id }?.price}" class="form-control mask-money" disabled="${zeroPrice}" />
         </div>
     </g:each>
 </div>

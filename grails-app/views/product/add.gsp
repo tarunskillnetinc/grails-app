@@ -79,12 +79,19 @@
                 });
 
                 $("#zeroPrice").change(function() {
+                    var checked = this.checked;
+
                     $("#weightedItem").prop("checked", false);
-                    $("#weightedItem").attr("disabled", this.checked);
+                    $("#weightedItem").attr("disabled", checked);
                     $("#pricePerKg").prop("checked", false);
                     $("#pricePer100g").prop("checked", false);
                     $("#deliItem").prop("checked", false);
-                    $("#deliItem").attr("disabled", this.checked);
+                    $("#deliItem").attr("disabled", checked);
+
+
+                    $("#pricesContainer .mask-money").each(function() {
+                        $(this).prop("disabled", checked);
+                    });
                 });
 
                 $(".mask-money").maskMoney({ allowZero: true });
@@ -168,6 +175,7 @@
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
                     params["shelfLifeDays"] = $(selector + "shelfLifeDays").val();
+                    params["zeroPrice"] = $("#zeroPrice").prop("checked");
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -300,7 +308,7 @@
                         $(this).val(skuValue);
                     });
                 } else {
-                    var params = { index: index, sku: skuValue };
+                    var params = { index: index, sku: skuValue, zeroPrice: $("#zeroPrice").prop("checked") };
 
                     $.ajax({
                         url: addPriceUrl,

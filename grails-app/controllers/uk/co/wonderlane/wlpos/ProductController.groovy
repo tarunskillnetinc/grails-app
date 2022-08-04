@@ -859,7 +859,7 @@ class ProductController {
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {
-        render (template: "addVariant", model: [variant: cmd])
+        render (template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice])
     }
 
     def ajaxAddBarcode(int index) {
@@ -870,10 +870,10 @@ class ProductController {
         render (template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez])
     }
 
-    def ajaxAddPrice(int index, long sku) {
+    def ajaxAddPrice(int index, long sku, boolean zeroPrice) {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        render (template: "addPrice", model: [skuIndex: index, sku: sku, variant: null, priceBands: priceBands])
+        render (template: "addPrice", model: [skuIndex: index, sku: sku, variant: null, priceBands: priceBands, zeroPrice: zeroPrice])
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
@@ -993,6 +993,7 @@ class AddVariantCommand {
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez
     List<AddPackCommand> packs
+    boolean zeroPrice
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
