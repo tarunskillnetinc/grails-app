@@ -143,6 +143,7 @@
 
                             <g:link controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <g:link controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <g:link controller="reporting" action="orders" class="dropdown-item">Orders Report</g:link>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Tender Movement</a>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
                             <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>

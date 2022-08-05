@@ -159,6 +159,15 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
 
                 break
+            case ReportType.ORDERS:
+                out << """<li class="breadcrumb-item active" aria-current="page">All Orders</li>"""
+
+                break
+            case ReportType.ORDER:
+                out << """<li class="breadcrumb-item">${g.link(action:"orders", params:[productListId: attrs.productListId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Orders" }}"""
+                out << """<li class="breadcrumb-item active" aria-current="page">Order</li>"""
+
+                break
             default:
                 out << ""
 

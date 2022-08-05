@@ -6,11 +6,13 @@ class ProductListItem {
     ProductVariant productVariant
     int productQuantityShopFloor
     int productQuantityStockroom
-    int quantity
+    Integer quantity
     int fillQuantity = 0
-    int parentQuantity
+    Integer parentQuantity
 
     static belongsTo = [ productList: ProductList ]
+
+    static hasMany = [ packLines: PackLine ]
 
     static mapping = {
         table "productlistitem"

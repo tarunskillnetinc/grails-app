@@ -8,6 +8,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.*
+import uk.co.wonderlane.wlpos.supplier.Supplier
 
 class ReportingController {
 
@@ -23,6 +24,8 @@ class ReportingController {
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = [ "type", "quantity" ]
     private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = [ "dateCreated", "type", "usersName", "reason", "amount" ]
     private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = [ "transactionDate", "storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status" ]
+    private static final ORDERS_REPORT_SORT_COLUMNS = [ "orderId", "storeId", "status", "dateCompleted", "supplierName", "numberOfItems", "value" ]
+    private static final ORDER_REPORT_SORT_COLUMNS = [ "sku", "description", "orderedQuantity", "packQuantity", "lineValue" ]
 
     def index() {
 
@@ -634,102 +637,75 @@ class ReportingController {
         render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
     }
 
+    // The top level of the main orders report.
     def orders() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        [reportType: ReportType.ORDERS, userColumns: reportingService.getReportColumns(ReportType.ORDERS), startDate: startDate, endDate: endDate]
+        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+
+        [reportType : ReportType.ORDERS,
+         suppliers  : suppliers,
+         userColumns: reportingService.getReportColumns(ReportType.ORDERS),
+         startDate  : startDate,
+         endDate    : endDate]
     }
 
+    // The top level of the main orders report.
     def ajaxOrders(SortParams sortParams) {
-        sortParams.validateParams(TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS)
+        Integer storeId = getIntegerParam(params.storeId)
+        Integer supplierId = getIntegerParam(params.supplier)
+        sortParams.validateParams(ORDERS_REPORT_SORT_COLUMNS)
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1))
+        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
 
-        // Group them by type.
-        def tillControlEventsGrouped = tillControlEvents.groupBy { it.type }
-
-        // Sort into the required order.
-        Comparator comparator
-
-        if (sortParams.sortColumn == "type") {
-            comparator = [ compare: { a, b ->
-                if (sortParams.sortOrder == "desc") {
-                    a.compareTo(b)
-                } else {
-                    b.compareTo(a)
-                }
-            }] as Comparator
-
-            tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
-        } else if (sortParams.sortColumn == "quantity") {
-            comparator = [ compare: { a, b ->
-                if (sortParams.sortOrder == "desc") {
-                    if (tillControlEventsGrouped.get(b).size() < tillControlEventsGrouped.get(a).size()) {
-                        return -1
-                    } else {
-                        return 1
-                    }
-                } else {
-                    if (tillControlEventsGrouped.get(a).size() < tillControlEventsGrouped.get(b).size()) {
-                        return -1
-                    } else {
-                        return 1
-                    }
-                }
-            }] as Comparator
-
-            tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
-        }
-
-        // Restrict the number of results.
-        int totalResults = tillControlEventsGrouped.size()
-//        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
-
-        render (template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        render(template: "ordersResults", model: [orders      : orders,
+                                                  userColumns : reportingService.getReportColumns(ReportType.ORDERS),
+                                                  startDate   : startDate,
+                                                  endDate     : endDate,
+                                                  sortParams  : sortParams,
+                                                  totalResults: orders.totalCount])
     }
 
+    // The bottom level of the main orders report.
     def order() {
+        int productListId = getIntegerParam(params.productListId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
 
-        TillControlEventType type = null
+        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
-        try {
-            type = TillControlEventType.valueOf(params.type)
-        } catch (Exception e) {
-            // No action, simply return no results.
-        }
-
-        [reportType: ReportType.TILL_CONTROL_EVENT, tillControlEventType: type, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT)]
+        [reportType   : ReportType.ORDER,
+         productListId: productListId,
+         suppliers    : suppliers,
+         startDate    : startDate,
+         endDate      : endDate,
+         userColumns  : reportingService.getReportColumns(ReportType.ORDER)]
     }
 
+    // The bottom level of the main orders report.
     def ajaxOrder(SortParams sortParams) {
-        TillControlEventType type = null
-
-        try {
-            type = TillControlEventType.valueOf(params.tillControlEventType)
-        } catch (Exception e) {
-            // No action, simply return no results.
-        }
-
-        sortParams.validateParams(TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS)
+        int productListId = getIntegerParam(params.productListId)
+        sortParams.validateParams(ORDER_REPORT_SORT_COLUMNS)
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1), type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def orders = ProductList.findByIdAndRetailerId(productListId, springSecurityService.principal.retailerId)?.totalPackLines
 
-        render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+        render(template: "orderResults", model: [orders      : orders,
+                                                 userColumns : reportingService.getReportColumns(ReportType.ORDER),
+                                                 startDate   : startDate,
+                                                 endDate     : endDate,
+                                                 sortParams  : sortParams,
+                                                 totalResults: orders.size()])
     }
 
     def paypointSales() {
