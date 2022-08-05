@@ -29,7 +29,7 @@
         <g:form method="post" action="save" class="mt-5" name="bogof-form">
             <g:hiddenField name="promotionType" value="bogof"/>
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="bogof-promotionItemsType" value="product"/>
+            <g:hiddenField name="bogof-promotionItemsType" value="${productItemType}"/>
             <g:hiddenField name="bogof-noItemChange" value="true"/>
 
             <div id="bogof-details">
@@ -164,7 +164,7 @@
         <g:form method="post" action="save" class="mt-5" name="xfory-form">
             <g:hiddenField name="promotionType" value="xfory" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="xfory-promotionItemsType" value="product" />
+            <g:hiddenField name="xfory-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="xfory-noItemChange" value="true" />
 
             <div id="xfory-details">
@@ -353,7 +353,7 @@
         <g:form method="post" action="save" class="mt-5" name="percentage-form">
             <g:hiddenField name="promotionType" value="percentage"/>
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="percentage-promotionItemsType" value="product"/>
+            <g:hiddenField name="percentage-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="percentage-noItemChange" value="true"/>
 
             <div id="percentage-details">
@@ -495,7 +495,7 @@
         <g:form method="post" action="save" class="mt-5" name="fixedAmount-form">
             <g:hiddenField name="promotionType" value="fixedAmount" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="fixedAmount-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedAmount-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="fixedAmount-noItemChange" value="true" />
 
             <div id="fixedAmount-details">
@@ -645,7 +645,7 @@
         <g:form method="post" action="save" class="mt-5" name="fixedPrice-form">
             <g:hiddenField name="promotionType" value="fixedPrice" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="fixedPrice-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedPrice-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="fixedPrice-noItemChange" value="true" />
 
             <div id="fixedPrice-details">

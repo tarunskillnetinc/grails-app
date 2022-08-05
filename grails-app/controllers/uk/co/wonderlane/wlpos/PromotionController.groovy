@@ -70,17 +70,30 @@ class PromotionController {
         tagsRequired?.each { tagRequired ->
             tagRequired.get("tag").tagProducts?.each { tagProduct ->
                 def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
-                tagProduct.productId = product.getId()
-                tagProduct.productDescription = product.getDescription()
+
+                if (product) {
+                    tagProduct.productId = product.id
+                    tagProduct.productDescription = product.description
+                }
             }
         }
 
         tagsOffer?.each { tagOffer ->
             tagOffer.get("tag").tagProducts?.each { tagProduct ->
                 def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
-                tagProduct.productId = product.getId()
-                tagProduct.productDescription = product.getDescription()
+
+                if (product) {
+                    tagProduct.productId = product.id
+                    tagProduct.productDescription = product.description
+                }
             }
+        }
+
+        def productItemType = "product"
+        if (categoriesRequired?.size() > 0 || categoriesOffer?.size() > 0) {
+            productItemType = "category"
+        } else if (tagsRequired?.size() > 0 || tagsOffer?.size() > 0) {
+            productItemType = "tag"
         }
 
         render (view: 'maintenance', model:[promotion: promo,
@@ -90,7 +103,8 @@ class PromotionController {
                                             categoriesRequired: categoriesRequired,
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer])
+                                            tagsOffer: tagsOffer,
+                                            productItemType: productItemType])
     }
 
     def maintenanceError() {

@@ -68,7 +68,7 @@
                 <div class="col-1">&pound;${product.retailPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
-                <div class="col-1">&pound;${product.margin}%</div>
+                <div class="col-1">${product.margin}%</div>
             </g:if>
         </div>
     </g:each>
