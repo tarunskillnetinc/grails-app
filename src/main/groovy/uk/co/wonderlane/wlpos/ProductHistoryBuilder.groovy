@@ -15,13 +15,27 @@ class ProductHistoryBuilder {
 
     def now = DateTime.now(DateTimeZone.UTC)
 
-    ProductHistoryBuilder(Integer productId, SpringSecurityService springSecurityService) {
+    def effectiveDate
+
+    def productChanged
+
+    def productVariantChanged
+
+    ProductHistoryBuilder(Integer productId, SpringSecurityService springSecurityService, DateTime effectiveDate) {
         this.productId = productId
         this.springSecurityService = springSecurityService
+        this.effectiveDate = effectiveDate
+        this.productChanged = false
+        this.productVariantChanged = new ArrayList<Integer>()
     }
 
     def compare(Integer productVariantId, String property, Object left, Object right) {
         if (left != right) {
+            if (productVariantId == null) {
+                productChanged = true
+            } else {
+                productVariantChanged.add(productVariantId)
+            }
             def productHistory = new ProductHistory()
             productHistory.retailerId = springSecurityService.principal.retailerId
             productHistory.fromValue = left.toString().substring(0, left.toString().length() > 100 ? 99 : left.toString().length())
@@ -33,7 +47,7 @@ class ProductHistoryBuilder {
             productHistory.userId = springSecurityService.principal.id
             productHistory.storeId = springSecurityService.principal.storeId
             productHistory.updateDate = now
-            productHistory.effectiveDate = now
+            productHistory.effectiveDate = this.effectiveDate
             productHistory.productVariantId = productVariantId
             productHistories.add(productHistory)
         }
@@ -41,5 +55,13 @@ class ProductHistoryBuilder {
 
     def compare(String property, Object left, Object right) {
         compare(null, property, left, right)
+    }
+
+    def isProductChanged() {
+        return productChanged
+    }
+
+    def ArrayList<Integer> getChangedProductVariantIds() {
+        return productVariantChanged
     }
 }

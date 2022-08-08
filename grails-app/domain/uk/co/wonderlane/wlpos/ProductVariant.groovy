@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import org.grails.web.util.WebUtils
+
 import java.math.RoundingMode
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -39,6 +41,7 @@ class ProductVariant implements Serializable {
         autowire true
         table "productvariant"
         version false
+        sort effectiveDate: "desc"
 
         product column: "productId"
         storeId column: "storeId", sqlType: "smallint"
@@ -68,7 +71,11 @@ class ProductVariant implements Serializable {
     }
 
     List<ProductPrice> getPrices() {
-        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
+        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
+    }
+
+    List<ProductPrice> getAllPrices() {
+        return ProductPrice.findAllBySku(sku, [sort: "effectiveDate", order: "desc"])
     }
 
     BigDecimal getCostPrice() {
@@ -86,14 +93,40 @@ class ProductVariant implements Serializable {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc", max: 1])
 
             return productPrice?.price ?: BigDecimal.ZERO.setScale(2)
         }
     }
 
     List<Barcode> getBarcodes() {
-        return Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, product.retailerId, DateTime.now(DateTimeZone.UTC))
+        def barcodes = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
+        DateTime now = DateTime.now(DateTimeZone.UTC)
+
+        def barcodesToShow = new ArrayList<Barcode>()
+        def deletedBarcodes = new ArrayList<String>()
+
+        barcodes.forEach({ barcode ->
+            if (barcode.recordStatus == ('D' as char)) {
+                deletedBarcodes.add(barcode.barcode)
+            } else if (!deletedBarcodes.contains(barcode.barcode)) {
+                barcodesToShow.add(barcode)
+            }
+        })
+
+        return barcodesToShow
+    }
+
+    List<Barcode> getAllBarcodes() {
+        return Barcode.findAllBySkuAndRetailerId(sku, springSecurityService.principal.retailerId)
+    }
+
+    private DateTime getSessionEffectiveDate() {
+        try {
+            return WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1] ? new DateTime(WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]) : DateTime.now(DateTimeZone.UTC)
+        } catch (Exception e) {
+            return DateTime.now(DateTimeZone.UTC)
+        }
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {

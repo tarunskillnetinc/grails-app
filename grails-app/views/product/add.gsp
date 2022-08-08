@@ -99,6 +99,15 @@
                 $('#collapsePromotions').on('show.bs.collapse', function () {
                     getPromotions(${product?.id});
                 });
+
+                $('#effectiveDatesPicker').on('change', function () {
+                    var effectiveDate = $(this).val()
+                    var getProductUrl = '${createLink(controller: 'product', action: 'show')}/' + ${product?.id} + '?effectiveDate=' + encodeURI(effectiveDate);
+                    if (getProductUrl) { // require a URL
+                        window.location = getProductUrl; // redirect
+                    }
+                    return false;
+                });
             });
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
@@ -571,6 +580,7 @@
                                                         categoryValues     : categoryValues,
                                                         productCategoryList: productCategoryList,
                                                         vatValues          : vatValues,
+                                                        effectiveDateIndex : effectiveDateIndex,
                                                         ranges             : ranges,
                                                         priceBands         : priceBands,
                                                         isNewProduct       : isNewProduct,

@@ -2,13 +2,19 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
 import java.math.RoundingMode
+import java.util.stream.Collectors
+
+import org.springframework.context.i18n.LocaleContextHolder
 
 class Product {
 
     def springSecurityService
+    def messageSource
 
     int id
     int retailerId
@@ -35,12 +41,11 @@ class Product {
     Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
 
-    ProductVariant currentProductVariant
     BigDecimal retailPrice
 
     static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
 
-    static transients = ['currentProductVariant', 'retailPrice']
+    static transients = ['retailPrice']
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public Product() { }
@@ -145,6 +150,42 @@ class Product {
         BigDecimal netSellingPrice = getRetailPrice().subtract(getVat());
 
         return netSellingPrice.compareTo(BigDecimal.ZERO) > 0 ? netSellingPrice.subtract(getCostPrice()).divide(netSellingPrice, 4, RoundingMode.HALF_UP).movePointRight(2) : BigDecimal.ZERO.setScale(2);
+    }
+
+    boolean isCurrentProductVariant(DateTime effectiveDate, Integer variantId, Long sku) {
+        return variants.stream()
+                .filter({variant -> variant.effectiveDate <= effectiveDate && variant.sku == sku})
+                .max({ a,b -> a.effectiveDate <=> b.effectiveDate })
+                .filter({variant -> variant.id == variantId }).stream().findAny().present
+    }
+
+    private Set<DateTime> getEffectiveDates() {
+        def now = DateTime.now(DateTimeZone.UTC)
+        def effectiveDates = new HashSet<DateTime>()
+
+        variants.forEach(
+                {variant ->
+                    variant.getAllBarcodes().stream().filter({barcode -> barcode.effectiveDate > now}).forEach(
+                            {barcode ->
+                                effectiveDates.add(barcode.effectiveDate)
+                            })
+                    if (variant.effectiveDate > now) {
+                        effectiveDates.add(variant.effectiveDate)
+                    }
+                    variant.getAllPrices().stream().filter({ price -> price.effectiveDate > now}).forEach(
+                            {
+                                price -> effectiveDates.add(price.effectiveDate)
+                            }
+                    )
+                })
+        return effectiveDates.sort()
+    }
+
+    List<String> getEffectiveDatesForFutureChanges() {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy 'at' HH:mm:ss")
+        def results = getEffectiveDates().stream().map({date -> date.toString(formatter)}).collect(Collectors.toList())
+        results.add(0, messageSource.getMessage('product.effective.date.current', null, "Current", LocaleContextHolder.getLocale()))
+        return results
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {

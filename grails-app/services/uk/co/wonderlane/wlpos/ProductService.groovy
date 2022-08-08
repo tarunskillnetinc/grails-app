@@ -93,8 +93,14 @@ class ProductService extends MySqlDal {
         product?.variants?.each { variant ->
             variant.barcodez?.each { barcode ->
                 if (barcode.hasProperty('delete') && barcode.delete) {
-                    barcode.delete()
-                } else {
+                    Barcode deletedBarcode = new Barcode()
+                    deletedBarcode.sku = barcode.sku
+                    deletedBarcode.retailerId = barcode.retailerId
+                    deletedBarcode.barcode = barcode.barcode
+                    deletedBarcode.effectiveDate = barcode.effectiveDate
+                    deletedBarcode.recordStatus = 'D'
+                    deletedBarcode.save()
+                } else if (barcode instanceof Barcode) {
                     barcode.save()
                 }
             }

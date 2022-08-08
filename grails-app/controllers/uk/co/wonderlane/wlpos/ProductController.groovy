@@ -18,6 +18,7 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportColumn
+import org.grails.web.util.WebUtils
 
 class ProductController {
 
@@ -39,7 +40,10 @@ class ProductController {
     }
 
     def show(int id) {
+        setEffectiveDate()
         def product = productService.getProduct(id)
+
+        DateTime now = DateTime.now(DateTimeZone.UTC)
 
         if (!product) {
             flash.message = "Product not found"
@@ -73,8 +77,20 @@ class ProductController {
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges             : ranges,
                                     priceBands         : priceBands,
+                                    effectiveDateIndex : WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate"),
                                     navlink            : "details",
                                     snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled()])
+    }
+
+    private void setEffectiveDate() {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy 'at' HH:mm:ss")
+        def effectiveDateSelected = DateTime.now()
+        if (params.get("effectiveDate")) {
+            effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now() : formatter.withOffsetParsed().parseDateTime(params.get("effectiveDate"))
+            WebUtils.retrieveGrailsWebRequest().session.setAttribute("effectiveDate", [effectiveDateSelected.toString(formatter), effectiveDateSelected.toDate()])
+        } else {
+            WebUtils.retrieveGrailsWebRequest().session.setAttribute("effectiveDate", ["Current", DateTime.now().toDate()])
+        }
     }
 
     def add() {
@@ -394,6 +410,8 @@ class ProductController {
         def product
         def builder
 
+        def effectiveDate = new DateTime(params.date("effectiveDate"))
+
         boolean newProduct
         boolean changeAffectsSel = false
 
@@ -420,12 +438,12 @@ class ProductController {
 
             product.variants?.each { variant ->
                 variant.storeId = springSecurityService.principal.storeId
-                variant.effectiveDate = now
+                variant.effectiveDate = effectiveDate
 
                 variant.barcodez?.each { barcode ->
                     barcode.retailerId = springSecurityService.principal.retailerId
                     barcode.sku = variant.sku
-                    barcode.effectiveDate = barcode.effectiveDate ?: now
+                    barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
                 }
 
                 variant.packs?.each { pack ->
@@ -435,17 +453,13 @@ class ProductController {
             }
         } else {
             // TODO We need to introduce an effective date entry.
-
             product = productService.getProduct(Integer.parseInt(params.id))
-
             if (!product.isSnappyProduct() && editedProduct.isSnappyProduct()) {
                 sendToSnappy = true;
             }
 
-            builder = new ProductHistoryBuilder(product.id, springSecurityService)
-
+            builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
             doComparison(builder, product, editedProduct)
-
             product.itemCode = editedProduct.itemCode
             changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.description, editedProduct.description)
             product.description = editedProduct.description
@@ -480,86 +494,25 @@ class ProductController {
 
                 if (existingVariant) {
                     // Variant we saved is one which already exists, check for changes.
-                    existingVariant.sku = editedVariant.sku
-                    existingVariant.retailPrice = editedVariant.retailPrice
-                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
-                    existingVariant.costPrice = editedVariant.costPrice
-                    existingVariant.size = editedVariant.size
-                    existingVariant.colour = editedVariant.colour
-                    existingVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                    existingVariant.effectiveDate = now // TODO?
-                    existingVariant.shelfLifeDays = editedVariant.shelfLifeDays
-
-                    // Check for new/edited packs.
-                    editedVariant.packs?.each { editedPack ->
-                        def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
-
-                        if (existingPack) {
-                            existingPack.supplier = editedPack.supplier
-                            existingPack.quantity = editedPack.quantity
-                            existingPack.price = editedPack.price
-                            existingPack.orderCode = editedPack.orderCode
-                            existingPack.barcode = editedPack.barcode
-                            existingPack.recommendedRetailPrice = editedPack.recommendedRetailPrice
-                            existingPack.effectiveDate = now // TODO?
-                            existingPack.effectiveEndDate = editedPack.effectiveEndDate
-                            existingPack.status = editedPack.status
-                            existingPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
-                            existingPack.allowSubstitutes = editedPack.allowSubstitutes
-                            existingPack.updateDatetime = now
-                        } else {
-                            Pack newPack = new Pack()
-                            newPack.supplier = editedPack.supplier
-                            newPack.quantity = editedPack.quantity
-                            newPack.price = editedPack.price
-                            newPack.orderCode = editedPack.orderCode
-                            newPack.barcode = editedPack.barcode
-                            newPack.recommendedRetailPrice = editedPack.recommendedRetailPrice
-                            newPack.effectiveDate = now // TODO
-                            newPack.effectiveEndDate = editedPack.effectiveEndDate
-                            newPack.status = editedPack.status
-                            newPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
-                            newPack.allowSubstitutes = editedPack.allowSubstitutes
-                            newPack.updateDatetime = now
-
-                            existingVariant.addToPacks(newPack)
-                        }
-                    }
-
-                    // Remove any packs which no longer exist.
-                    existingVariant.packs?.each { existingPack ->
-                        def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
-
-                        if (!editedPack) {
-                            existingVariant.removeFromPacks(existingPack)
-                        }
-                    }
-
-                    // Add any newly added barcodes.
-                    editedVariant.barcodez?.each { editedBarcode ->
-                        def existingBarcode = existingVariant.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
-
-                        if (!existingBarcode) {
-                            Barcode barcode = new Barcode()
-                            barcode.sku = existingVariant.sku
-                            barcode.retailerId = springSecurityService.principal.retailerId
-                            barcode.barcode = editedBarcode.barcode
-                            barcode.effectiveDate = now
-                            barcode.recordStatus = 'C'
-
-                            existingVariant.barcodez.add(barcode)
-                        }
-                    }
-
-                    // Mark any barcodes which no longer exist as deleted.
-                    existingVariant.barcodes?.each { existingBarcode ->
-                        def editedBarcode = editedVariant.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
-
-                        if (!editedBarcode) {
-                            existingBarcode.delete = true
-
-                            existingVariant.barcodez.add(existingBarcode)
-                        }
+                    if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
+                        // Variant has changed
+                        ProductVariant newVariant = new ProductVariant()
+                        newVariant.storeId = springSecurityService.principal.storeId
+                        newVariant.sku = editedVariant.sku
+                        newVariant.retailPrice = editedVariant.retailPrice
+                        changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
+                        newVariant.costPrice = editedVariant.costPrice
+                        newVariant.size = editedVariant.size
+                        newVariant.colour = editedVariant.colour
+                        newVariant.minimumStockLevel = editedVariant.minimumStockLevel
+                        newVariant.effectiveDate = effectiveDate
+                        newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                        product.addToVariants(newVariant)
+                        checkProductVariantForPackChanges(newVariant, editedVariant, now)
+                        checkProductVariantForBarcodeChanges(newVariant, editedVariant, effectiveDate)
+                    } else {
+                        checkProductVariantForPackChanges(existingVariant, editedVariant, now)
+                        checkProductVariantForBarcodeChanges(existingVariant, editedVariant, effectiveDate)
                     }
                 } else {
                     changeAffectsSel = true
@@ -571,28 +524,25 @@ class ProductController {
                     newVariant.size = editedVariant.size
                     newVariant.colour = editedVariant.colour
                     newVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                    newVariant.effectiveDate = now // TODO?
+                    newVariant.effectiveDate = effectiveDate
                     newVariant.shelfLifeDays = editedVariant.shelfLifeDays
 
                     editedVariant.packs?.each { editedPack ->
                         Pack newPack = new Pack()
-                        newPack.supplier = editedPack.supplier
-                        newPack.quantity = editedPack.quantity
-                        newPack.price = editedPack.price
-                        newPack.orderCode = editedPack.orderCode
-                        newPack.barcode = editedPack.barcode
-                        newPack.recommendedRetailPrice = editedPack.recommendedRetailPrice
-                        newPack.effectiveDate = now // TODO?
-                        newPack.effectiveEndDate = editedPack.effectiveEndDate
-                        newPack.status = editedPack.status
-                        newPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
-                        newPack.allowSubstitutes = editedPack.allowSubstitutes
-                        newPack.updateDatetime = now
-
+                        updatePack(newPack, editedPack, now)
                         newVariant.addToPacks(newPack)
                     }
 
-                    newVariant.barcodez = editedVariant.barcodez
+                    editedVariant.barcodez.forEach({
+                        barcode ->
+                            Barcode newBarcode = new Barcode()
+                            newBarcode.sku = editedVariant.sku
+                            newBarcode.retailerId = springSecurityService.principal.retailerId
+                            newBarcode.barcode = barcode.barcode
+                            newBarcode.effectiveDate = effectiveDate
+                            newBarcode.recordStatus = 'C'
+                            newVariant.barcodez.add(newBarcode)
+                    })
 
                     product.addToVariants(newVariant)
                 }
@@ -616,7 +566,7 @@ class ProductController {
                     priceChanges.addAll(it.priceChanges)
                 }
 
-                savePriceUpdates(product.variants?.findAll { it.storeId == null }, priceChanges)
+                savePriceUpdates(product.variants?.findAll { it.storeId == null }, priceChanges, effectiveDate)
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
 
@@ -695,6 +645,76 @@ class ProductController {
         }
     }
 
+    private void checkProductVariantForBarcodeChanges(def existingVariant, def editedVariant, DateTime effectiveDate) {
+        // Add any newly added barcodes.
+        editedVariant.barcodez?.each { editedBarcode ->
+            def existingBarcode = existingVariant.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+
+            if (!existingBarcode) {
+                Barcode barcode = new Barcode()
+                barcode.sku = existingVariant.sku
+                barcode.retailerId = springSecurityService.principal.retailerId
+                barcode.barcode = editedBarcode.barcode
+                barcode.effectiveDate = effectiveDate
+                barcode.recordStatus = 'C'
+
+                existingVariant.barcodez.add(barcode)
+            }
+        }
+
+        // Mark any barcodes which no longer exist as deleted.
+        existingVariant.barcodes?.each { existingBarcode ->
+            def editedBarcode = editedVariant.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+
+            if (!editedBarcode) {
+                existingBarcode.delete = true
+                existingBarcode.effectiveDate = effectiveDate
+                existingVariant.barcodez.add(existingBarcode)
+            }
+        }
+    }
+
+    private void checkProductVariantForPackChanges(def existingVariant, def editedVariant, def now) {
+        // Check for new/edited packs.
+        editedVariant.packs?.each { editedPack ->
+            def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
+
+            if (existingPack) {
+                updatePack(existingPack, editedPack, now)
+            } else {
+                Pack newPack = new Pack()
+                updatePack(newPack, editedPack, now)
+                existingVariant.addToPacks(newPack)
+            }
+        }
+
+        // Remove any packs which no longer exist.
+        existingVariant.packs?.each { existingPack ->
+            def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+
+            if (!editedPack) {
+                existingVariant.removeFromPacks(existingPack)
+            }
+        }
+    }
+
+    private void updatePack(def packToBeUpdated, def editedPack, def now) {
+        packToBeUpdated.supplier = editedPack.supplier
+        packToBeUpdated.quantity = editedPack.quantity
+        packToBeUpdated.price = editedPack.price
+        packToBeUpdated.orderCode = editedPack.orderCode
+        packToBeUpdated.barcode = editedPack.barcode
+        packToBeUpdated.recommendedRetailPrice = editedPack.recommendedRetailPrice
+        packToBeUpdated.effectiveDate = now
+        packToBeUpdated.effectiveEndDate = editedPack.effectiveEndDate
+        packToBeUpdated.status = editedPack.status
+        packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
+        packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
+        if (packToBeUpdated.hasProperty('updateDatetime')) {
+            packToBeUpdated.updateDatetime = now
+        }
+    }
+
     private void doComparison(ProductHistoryBuilder builder, Product product, ProductCommand editedProduct) {
         builder.compare("itemCode", product.itemCode, editedProduct.itemCode)
         builder.compare("description", product.description, editedProduct.description)
@@ -753,7 +773,7 @@ class ProductController {
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
     }
 
-    private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges) {
+    private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def now = DateTime.now(DateTimeZone.UTC)
 
@@ -771,9 +791,8 @@ class ProductController {
 
                     if (priceBand && priceChange.sku && priceChange.price) {
                         def fromValue = currentPrice ? currentPrice.price : null
-                        ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
-                        ProductHistory productHistory =  new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: now, updateDate: now)
-
+                        ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: effectiveDate)
+                        ProductHistory productHistory =  new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: effectiveDate, updateDate: now)
                         changedProductPrices.add(productPrice)
                         productHistories.add(productHistory)
                     }
@@ -1062,6 +1081,7 @@ class ProductCommand {
     String discreetMessage
     ProductStatus status
     String retailerProductId
+    DateTime effectiveDate
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
