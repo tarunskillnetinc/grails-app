@@ -58,7 +58,7 @@ class ProductListService extends MySqlDal {
         return ProductList.createCriteria().list([sort: "dateStarted", order: "DESC"]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
-            eq ("type", ProductListType.AD_HOC_SEL_BATCH)
+            "in" ("type", [ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK])
             "in" ("status", [ProductListStatus.IN_PROGRESS, ProductListStatus.PARTIALLY_COMPLETE])
         }
     }
@@ -154,5 +154,11 @@ class ProductListService extends MySqlDal {
 
     def saveProductList(ProductList productList) {
         productList.save()
+    }
+
+    def deleteProductList(ProductList productList) {
+        if (productList) {
+            productList.delete()
+        }
     }
 }

@@ -20,6 +20,8 @@ class ProductHistory {
     String usersName
     Integer productVariantId
 
+    static hasMany = [ shelfEdgeLabels: ShelfEdgeLabel ]
+
     static mapping = {
         table "producthistory"
         version false

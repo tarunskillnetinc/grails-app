@@ -15,6 +15,9 @@ import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import org.apache.pdfbox.rendering.PDFRenderer
 import org.apache.pdfbox.util.Matrix
+import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.wlim.ShelfEdgeLabel
 import uk.co.wonderlane.wlpos.enums.wlim.LabelTemplateFieldType
 import uk.co.wonderlane.wlpos.enums.wlim.PrintProcess
@@ -26,14 +29,22 @@ import uk.co.wonderlane.wlpos.labelling.LabelTemplateMapping
 import java.awt.Graphics
 import java.awt.image.BufferedImage
 import java.math.RoundingMode
+import java.sql.CallableStatement
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.Types
 
 @Transactional
-class ShelfEdgeLabelService {
+class ShelfEdgeLabelService extends MySqlDal {
 
     def springSecurityService
 
-    private final float HELVETICA_HEIGHT_ADJUSTMENT = 0.855f;
-    private final float HELVETICA_BOLD_HEIGHT_ADJUSTMENT = 0.65f;
+    private final float HELVETICA_HEIGHT_ADJUSTMENT = 0.855f
+    private final float HELVETICA_BOLD_HEIGHT_ADJUSTMENT = 0.65f
+
+    ShelfEdgeLabelService(DatabaseCredentials databaseCredentials) {
+        super(databaseCredentials)
+    }
 
     def getLabelTemplateMappings(PrintProcess printProcess, PrintType printType) {
         return LabelTemplateMapping.findAllByRetailerIdAndPrintProcessAndPrintType(springSecurityService.principal.retailerId, printProcess, printType)
@@ -56,7 +67,45 @@ class ShelfEdgeLabelService {
     }
 
     def generatePdf(ProductList productList, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) {
-        PDDocument doc = generatePdfDocument(productList, labelTemplate, printProcess, printType, storeSettings)
+        // Find our labels.
+        List<ShelfEdgeLabel> shelfEdgeLabels = new ArrayList<>()
+
+        productList.productListItems?.each { ProductListItem productListItem ->
+            ShelfEdgeLabel shelfEdgeLabel = new ShelfEdgeLabel()
+
+            shelfEdgeLabel.setProductId(productListItem.productVariant?.product?.id)
+            shelfEdgeLabel.setItemCode(productListItem.productVariant?.product?.itemCode)
+            shelfEdgeLabel.setDescription(productListItem.productVariant?.product?.description)
+            shelfEdgeLabel.setUnitSize(productListItem.productVariant?.product?.unitSize)
+            shelfEdgeLabel.setEanCode(productListItem.productVariant?.barcodes?.size() > 0 ? productListItem.productVariant?.barcodes?.first()?.barcode : "")
+            shelfEdgeLabel.setPrice(productListItem.productVariant?.currentPrice)
+            shelfEdgeLabel.setWasPrice(null) // TODO How are we getting previous price?
+            shelfEdgeLabel.setUnitPrice(productListItem.productVariant?.currentPrice) // TODO Figure out what this is.
+            shelfEdgeLabel.setEmbeddedBarcode(false) // TODO How are we handling this?
+            shelfEdgeLabel.setWeightedItem(productListItem.productVariant?.product?.weightedItem)
+            shelfEdgeLabel.setPricePerKg(productListItem.productVariant?.product?.pricePerKg)
+            shelfEdgeLabel.setEffectiveDate(productListItem.productVariant?.effectiveDate)
+            shelfEdgeLabel.setPromotionEndDate(null)
+            shelfEdgeLabel.setWasPriceEffectiveDate(null)
+            shelfEdgeLabel.setQuantity(productListItem.quantity)
+            shelfEdgeLabel.setPrintProcess(printProcess)
+
+            shelfEdgeLabels.add(shelfEdgeLabel)
+        }
+
+        PDDocument doc = generatePdfDocument(shelfEdgeLabels, labelTemplate, printProcess, printType, storeSettings)
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        doc.save(out)
+        doc.close()
+
+        return out.toByteArray()
+    }
+
+    def generatePdf(DateTime effectiveDate, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) {
+        def labels = getShelfEdgeLabelsForDate(effectiveDate, printProcess)
+
+        PDDocument doc = generatePdfDocument(labels, labelTemplate, printProcess, printType, storeSettings)
 
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         doc.save(out)
@@ -92,36 +141,6 @@ class ShelfEdgeLabelService {
 //
 //        return out.toByteArray();
 //    }
-
-    private PDDocument generatePdfDocument(ProductList productList, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) {
-        // Find our labels.
-        List<ShelfEdgeLabel> shelfEdgeLabels = new ArrayList<>()
-
-        productList.productListItems?.each { ProductListItem productListItem ->
-            ShelfEdgeLabel shelfEdgeLabel = new ShelfEdgeLabel()
-
-            shelfEdgeLabel.setProductId(productListItem.productVariant?.product?.id)
-            shelfEdgeLabel.setItemCode(productListItem.productVariant?.product?.itemCode)
-            shelfEdgeLabel.setDescription(productListItem.productVariant?.product?.description)
-            shelfEdgeLabel.setUnitSize(productListItem.productVariant?.product?.unitSize)
-            shelfEdgeLabel.setEanCode(productListItem.productVariant?.barcodes?.size() > 0 ? productListItem.productVariant?.barcodes?.first()?.barcode : "")
-            shelfEdgeLabel.setPrice(productListItem.productVariant?.retailPrice)
-            shelfEdgeLabel.setWasPrice(null) // TODO How are we getting previous price?
-            shelfEdgeLabel.setUnitPrice(productListItem.productVariant?.retailPrice) // TODO Figure out what this is.
-            shelfEdgeLabel.setEmbeddedBarcode(false) // TODO How are we handling this?
-            shelfEdgeLabel.setWeightedItem(productListItem.productVariant?.product?.weightedItem)
-            shelfEdgeLabel.setPricePerKg(productListItem.productVariant?.product?.pricePerKg)
-            shelfEdgeLabel.setEffectiveDate(productListItem.productVariant?.effectiveDate)
-            shelfEdgeLabel.setPromotionEndDate(null)
-            shelfEdgeLabel.setWasPriceEffectiveDate(null)
-            shelfEdgeLabel.setQuantity(productListItem.quantity)
-            shelfEdgeLabel.setPrintProcess(printProcess)
-
-            shelfEdgeLabels.add(shelfEdgeLabel)
-        }
-
-        return generatePdfDocument(labelTemplate, shelfEdgeLabels, printProcess, printType, storeSettings)
-    }
 
 //    private PDDocument generatePdf(int templateId, String effectiveDate, TillSettings tillSettings, List<Integer> stockListLineIds, ProductListType stockListTypeEnum, int promotionId, PrintProcess printProcess, List<Integer> promotionIds) throws Exception {
         // Find our label template.
@@ -451,7 +470,7 @@ class ShelfEdgeLabelService {
 //        return builtLabelString;
 //    }
 
-    private PDDocument generatePdfDocument(LabelTemplate labelTemplate, List<ShelfEdgeLabel> shelfEdgeLabels, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) throws Exception {
+    private PDDocument generatePdfDocument(List<ShelfEdgeLabel> shelfEdgeLabels, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) throws Exception {
         PDDocument doc = new PDDocument()
 
         // Since the original logic was provided an expanded list of products (ie, the same product multiple times to account for multiple labels), I'm doing
@@ -557,6 +576,10 @@ class ShelfEdgeLabelService {
                                     productPrice = shelfEdgeLabel.getPrice();
                                 }
 
+                                if (!productPrice) {
+                                    continue
+                                }
+
                                 if (productPrice.compareTo(BigDecimal.ZERO) == 0) {
                                     penceOnlyPrice = false;
                                 } else if (productPrice.compareTo(BigDecimal.ONE) < 0) {
@@ -600,10 +623,10 @@ class ShelfEdgeLabelService {
 
                                     // Price is over one pound
                                     if (shelfEdgeLabel.getPrice().compareTo(BigDecimal.ZERO) == 0) {
-                                        price = (char) 163 + "0.00";
+                                        price = "${(char) 163}0.00";
                                         zeroPrice = true;
                                     } else {
-                                        price = (char) 163 + String.valueOf(shelfEdgeLabel.getPrice());
+                                        price = "${(char) 163}" + String.valueOf(shelfEdgeLabel.getPrice());
                                     }
 
                                     if (shelfEdgeLabel.isWeightedItem()) {
@@ -1253,5 +1276,125 @@ class ShelfEdgeLabelService {
         }
 
         return subWords;
+    }
+
+    def getShelfEdgeLabelsForDate(DateTime effectiveDate, PrintProcess printProcess) {
+        def results = []
+
+        Connection conn = getConnection()
+        CallableStatement cstmt = conn.prepareCall("{ call getShelfEdgeLabelsForDate(?, ?, ?, ?, ?) }")
+
+        try {
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setInt(2, springSecurityService.principal.storeId)
+            cstmt.setNull(3, Types.TINYINT)
+            cstmt.setString(4, effectiveDate.withTimeAtStartOfDay().toString(DATE_TIME_FORMAT))
+            cstmt.setString(5, effectiveDate.plusDays(1).withTimeAtStartOfDay().toString(DATE_TIME_FORMAT))
+
+            ResultSet rs = cstmt.executeQuery()
+
+            try {
+                def products = [:]
+                def variants = [:]
+
+                while (rs.next()) {
+                    def product = [:]
+                    product.id = rs.getInt("id")
+                    product.itemCode = rs.getString("itemCode")
+                    product.description = rs.getString("description")
+                    product.unitSize = rs.getString("unitSize")
+                    product.weightedItem = rs.getBoolean("weightedItem")
+                    product.pricePerKg = rs.getBoolean("pricePerKg")
+                    product.variants = []
+
+                    products.put(product.id, product)
+                }
+
+                cstmt.getMoreResults()
+
+                rs = cstmt.getResultSet()
+
+                while (rs.next()) {
+                    def variant = [:]
+                    variant.id = rs.getInt("id")
+                    variant.sku = rs.getLong("sku")
+                    variant.productId = rs.getInt("productId")
+                    variant.retailPrice = rs.getBigDecimal("retailPrice")
+                    variant.unitPrice = rs.getBigDecimal("unitPrice")
+                    variant.barcodes = []
+
+                    variants.put(variant.sku, variant)
+
+                    products.get(variant.productId)?.variants?.add(variant)
+                }
+
+                cstmt.getMoreResults()
+
+                rs = cstmt.getResultSet()
+
+                while (rs.next()) {
+                    def sku = rs.getLong("sku")
+                    def barcode = rs.getString("barcode")
+
+                    variants.get(sku)?.barcodes?.add(barcode)
+                }
+
+                for (Object product : products.values()) {
+                    ShelfEdgeLabel shelfEdgeLabel = new ShelfEdgeLabel()
+                    shelfEdgeLabel.productId = product.id
+                    shelfEdgeLabel.itemCode = product.itemCode
+                    shelfEdgeLabel.description = product.description
+                    shelfEdgeLabel.unitSize = product.unitSize
+                    shelfEdgeLabel.isWeightedItem = product.weightedItem
+                    shelfEdgeLabel.isPricePerKg = product.pricePerKg
+
+                    if (product.variants.size() > 0) {
+                        shelfEdgeLabel.price = product.variants[0].retailPrice
+                        shelfEdgeLabel.unitPrice = product.variants[0].retailPrice
+
+                        if (product.variants[0].barcodes.size() > 0) {
+                            shelfEdgeLabel.eanCode = product.variants[0].barcodes[0]
+                        }
+                    } else {
+                        continue
+                    }
+
+                    shelfEdgeLabel.isEmbeddedBarcode = false
+                    shelfEdgeLabel.effectiveDate = effectiveDate
+                    shelfEdgeLabel.promotionEndDate = null
+                    shelfEdgeLabel.wasPrice = null
+                    shelfEdgeLabel.wasPriceEffectiveDate = null
+                    shelfEdgeLabel.quantity = 1
+                    shelfEdgeLabel.printProcess = printProcess
+
+                    results.add(shelfEdgeLabel)
+                }
+            } finally {
+                rs.close()
+            }
+        } finally {
+            cstmt.close()
+            conn.close()
+        }
+
+        return results
+    }
+
+    def setProductHistoryPrintStatus(DateTime effectiveDate, int printStatus) {
+        Connection conn = getConnection()
+        CallableStatement cstmt = conn.prepareCall("{ call saveProductHistoryPrintStatus(?, ?, ?, ?, ?) }")
+
+        try {
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setInt(2, springSecurityService.principal.storeId)
+            cstmt.setString(3, effectiveDate.withTimeAtStartOfDay().toString(DATE_TIME_FORMAT))
+            cstmt.setString(4, effectiveDate.plusDays(1).withTimeAtStartOfDay().toString(DATE_TIME_FORMAT))
+            cstmt.setInt(5, printStatus)
+
+            cstmt.executeUpdate()
+        } finally {
+            cstmt.close()
+            conn.close()
+        }
     }
 }

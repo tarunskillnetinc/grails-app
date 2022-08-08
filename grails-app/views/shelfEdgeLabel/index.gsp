@@ -55,7 +55,27 @@
                 var confirmModalYesButton = $('#confirmPrintModalYesButton');
                 var confirmModalNoButton = $('#confirmPrintModalNoButton');
 
-                confirmModalYesButton.click({productListId: productListId, labelTemplateId: selectedLabelTemplate.value}, confirmPrintModalYesButtonClicked);
+                confirmModalYesButton.click({productListId: productListId, labelTemplateId: selectedLabelTemplate.value, type: "AD_HOC"}, confirmPrintModalYesButtonClicked);
+                confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.click(confirmPrintModalNoButtonClicked);
+                confirmModalNoButton.prop("disabled", false);
+
+                $('#confirmPrintModal').modal({ show: true });
+            }
+
+            function scheduledBatchTemplateSelected(effectiveDate, selectedLabelTemplate) {
+                if (selectedLabelTemplate.value === "0") {
+                    return;
+                }
+
+                var selectedTemplateDescription = selectedLabelTemplate.options[selectedLabelTemplate.selectedIndex].text
+
+                $("#confirmPrintModalContent").html("Are you sure you wish to generate a scheduled batch using the " +selectedTemplateDescription +" template?");
+
+                var confirmModalYesButton = $('#confirmPrintModalYesButton');
+                var confirmModalNoButton = $('#confirmPrintModalNoButton');
+
+                confirmModalYesButton.click({effectiveDate: effectiveDate, labelTemplateId: selectedLabelTemplate.value, type: "SCHEDULED"}, confirmPrintModalYesButtonClicked);
                 confirmModalYesButton.prop("disabled", false);
                 confirmModalNoButton.click(confirmPrintModalNoButtonClicked);
                 confirmModalNoButton.prop("disabled", false);
@@ -73,7 +93,11 @@
                 confirmModalNoButton.off("click");
                 confirmModalNoButton.prop("disabled", true);
 
-                printAdHocBatch(event.data.productListId, event.data.labelTemplateId);
+                if (event.data.type === "SCHEDULED") {
+                    printScheduledBatch(event.data.effectiveDate, event.data.labelTemplateId);
+                } else if (event.data.type === "AD_HOC") {
+                    printAdHocBatch(event.data.productListId, event.data.labelTemplateId);
+                }
             }
 
             function confirmPrintModalNoButtonClicked() {
@@ -110,8 +134,38 @@
                 });
             }
 
+            function printScheduledBatch(effectiveDate, labelTemplateId) {
+                $("#confirmPrintModalContent").html("<div class=\"modal-body\"><div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait...</h3></div></div><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxGenerateScheduledPdf')}";
+
+                var params = { effectiveDate: effectiveDate, labelTemplateId: labelTemplateId, printProcess: 'SHELF_EDGE_LABEL_BATCH', printType: 'PDF' };
+
+                var confirmSuccessModalYesButton = $('#confirmSuccessModalYesButton');
+
+                confirmSuccessModalYesButton.click({effectiveDate: effectiveDate}, confirmScheduledBatchPrintSuccessful);
+                confirmSuccessModalYesButton.prop("disabled", false);
+
+                $.post({
+                    url: url,
+                    xhrFields: { responseType: "blob" },
+                    data: params,
+                    success: function(data) {
+                        var blob = new Blob([data], {type: "application/pdf"});
+                        var blobUrl = URL.createObjectURL(blob);
+
+                        var link = $("<a>").attr({href: blobUrl, download: "ScheduledBatch-" +effectiveDate +".pdf"}).click();
+
+                        link[0].click();
+
+                        $('#confirmPrintModal').modal("hide");
+                        $('#confirmSuccessModal').modal({ show: true });
+                    }
+                });
+            }
+
             function confirmAdHocBatchPrintSuccessful(event) {
-                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'confirmAdHocBatchPrintSuccessful')}";
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxConfirmAdHocBatchPrintSuccessful')}";
 
                 var params = { productListId: event.data.productListId };
 
@@ -121,6 +175,64 @@
                     data: params,
                     success: function(resp) {
                         $('#confirmSuccessModal').modal("hide");
+
+                        getAdHocBatches();
+                    }
+                });
+            }
+
+            function confirmScheduledBatchPrintSuccessful(event) {
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxConfirmScheduledBatchPrintSuccessful')}";
+
+                var params = { effectiveDate: event.data.effectiveDate };
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: params,
+                    success: function(resp) {
+                        $('#confirmSuccessModal').modal("hide");
+
+                        getScheduledBatches();
+                    }
+                });
+            }
+
+            function deleteProductListButtonPressed(productListId) {
+                $("#confirmPrintModalContent").html("Are you sure you wish to delete this batch?");
+
+                var confirmModalYesButton = $('#confirmPrintModalYesButton');
+                var confirmModalNoButton = $('#confirmPrintModalNoButton');
+
+                confirmModalYesButton.click({productListId: productListId}, confirmDeleteProductList);
+                confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.click(confirmPrintModalNoButtonClicked);
+                confirmModalNoButton.prop("disabled", false);
+
+                $('#confirmPrintModal').modal({ show: true });
+            }
+
+            function confirmDeleteProductList(event) {
+                var confirmModalYesButton = $('#confirmModalYesButton');
+                var confirmModalNoButton = $('#confirmModalNoButton');
+
+                confirmModalYesButton.off("click");
+                confirmModalYesButton.prop("disabled", true);
+
+                confirmModalNoButton.off("click");
+                confirmModalNoButton.prop("disabled", true);
+
+                $("#confirmPrintModalContent").html("<div class=\"modal-body\"><div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait...</h3></div></div><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxDeleteProductList')}";
+
+                var params = { productListId: event.data.productListId };
+
+                $.ajax({
+                    url: url,
+                    data: params,
+                    success: function(data) {
+                        $('#confirmPrintModal').modal("hide");
 
                         getAdHocBatches();
                     }
@@ -154,13 +266,14 @@
 
             <div class="row mt-4 ml-0 mr-0">
                 <div class="col-6">
-                    <div class="header-wl mt-3"><h3>Ad-hoc batches</h3></div>
+                    <div class="header-wl mt-3"><h3>Handheld batches</h3></div>
 
                     <div class="row col-10 offset-1 mt-5 px-0 pb-2 table-wl bottom-border">
-                        <div class="col-5 font-weight-bold">Description</div>
+                        <div class="col-4 font-weight-bold">Description</div>
                         <div class="col-2 font-weight-bold">Date Started</div>
                         <div class="col-2 font-weight-bold">Label Count</div>
                         <div class="col-3 font-weight-bold">Print</div>
+                        <div class="col-1">&nbsp;</div>
                     </div>
 
                     <div id="ad-hoc-container" class="align-content-center">
@@ -169,11 +282,12 @@
                 </div>
 
                 <div class="col-6">
-                    <div class="header-wl mt-3"><h3>Scheduled changes</h3></div>
+                    <div class="header-wl mt-3"><h3>Scheduled product changes</h3></div>
 
-                    <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
+                    <div class="row col-10 offset-1 mt-5 px-0 pb-2 table-wl bottom-border">
                         <div class="col-6 font-weight-bold">Effective Date</div>
                         <div class="col-3 font-weight-bold">Label Count</div>
+                        <div class="col-3 font-weight-bold">Print / Confirm</div>
                     </div>
 
                     <div id="scheduled-container" class="align-content-center">
