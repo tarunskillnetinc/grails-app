@@ -1,10 +1,11 @@
 <%@ page import="java.math.RoundingMode" %>
+
 <g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
     <g:if test="${product?.getEffectiveDatesForFutureChanges()?.size() > 1}">
         <div id="effectiveDates">
-            <section id="effective-dates-container" class="container-fluid">
+            <section id="effective-dates-container" class="container-fluid px-0">
                 <div class="alert alert-warning alert-wl mx-0" role="alert">View changes to this product on: <g:select name="effectiveDatesPicker" from="${product?.getEffectiveDatesForFutureChanges()}" value="${effectiveDateIndex[0]}"/></div>
             </section>
         </div>
@@ -30,7 +31,8 @@
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
                                 <label for="effectiveDate" class="col-3 col-form-label text-right pr-4">Effective Date</label>
-                                <g:datePicker name="effectiveDate" class="col-5 form-control bottom-border" value="${effectiveDateIndex ? effectiveDateIndex[1] : new java.util.Date()}" />
+                                <g:textField name="effectiveDate" type="text" class="col-5 form-control bottom-border" value="${effectiveDateIndex ? effectiveDateIndex[1]?.toString('dd/MM/yyyy') : now?.toString('dd/MM/yyyy')}" autocomplete="off" />
+%{--                                <g:datePicker name="effectiveDate" class="col-5 form-control bottom-border" precision="day" value="${effectiveDateIndex ? effectiveDateIndex[1].toDate() : new java.util.Date()}" />--}%
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
@@ -98,7 +100,7 @@
                         </g:if>
 
                         <g:each in="${product?.variants}" var="variant" status="i">
-                            <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(new org.joda.time.DateTime(effectiveDateIndex[1]), variant.id, variant.sku)}">
+                            <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
                                     <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodes]" />
                                 </div>

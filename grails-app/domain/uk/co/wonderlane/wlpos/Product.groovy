@@ -182,9 +182,11 @@ class Product {
     }
 
     List<String> getEffectiveDatesForFutureChanges() {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy 'at' HH:mm:ss")
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+
         def results = getEffectiveDates().stream().map({date -> date.toString(formatter)}).collect(Collectors.toList())
         results.add(0, messageSource.getMessage('product.effective.date.current', null, "Current", LocaleContextHolder.getLocale()))
+
         return results
     }
 

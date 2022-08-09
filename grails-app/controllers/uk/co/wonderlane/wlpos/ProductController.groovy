@@ -18,7 +18,6 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportColumn
-import org.grails.web.util.WebUtils
 
 class ProductController {
 
@@ -41,6 +40,7 @@ class ProductController {
 
     def show(int id) {
         setEffectiveDate()
+
         def product = productService.getProduct(id)
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
@@ -77,23 +77,27 @@ class ProductController {
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges             : ranges,
                                     priceBands         : priceBands,
-                                    effectiveDateIndex : WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate"),
+                                    effectiveDateIndex : session.effectiveDate,
+                                    now                : now,
                                     navlink            : "details",
                                     snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled()])
     }
 
     private void setEffectiveDate() {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy 'at' HH:mm:ss")
-        def effectiveDateSelected = DateTime.now()
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy").withZone(DateTimeZone.UTC)
+
+        def effectiveDateSelected
         if (params.get("effectiveDate")) {
-            effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now() : formatter.withOffsetParsed().parseDateTime(params.get("effectiveDate"))
-            WebUtils.retrieveGrailsWebRequest().session.setAttribute("effectiveDate", [effectiveDateSelected.toString(formatter), effectiveDateSelected.toDate()])
+            effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
+            session.effectiveDate = [effectiveDateSelected.toString(formatter), effectiveDateSelected]
         } else {
-            WebUtils.retrieveGrailsWebRequest().session.setAttribute("effectiveDate", ["Current", DateTime.now().toDate()])
+            session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
         }
     }
 
     def add() {
+        setEffectiveDate()
+
         def ranges = []
         def priceBands = []
 
@@ -109,6 +113,7 @@ class ProductController {
                                     vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges: ranges,
                                     priceBands: priceBands,
+                                    now: DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
                                     isNewProduct: true])
     }
 
@@ -410,7 +415,8 @@ class ProductController {
         def product
         def builder
 
-        def effectiveDate = new DateTime(params.date("effectiveDate"))
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+        def effectiveDate = params.effectiveDate ? DateTime.parse(params.effectiveDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
 
         boolean newProduct
         boolean changeAffectsSel = false
@@ -452,7 +458,6 @@ class ProductController {
                 }
             }
         } else {
-            // TODO We need to introduce an effective date entry.
             product = productService.getProduct(Integer.parseInt(params.id))
             if (!product.isSnappyProduct() && editedProduct.isSnappyProduct()) {
                 sendToSnappy = true;
@@ -507,7 +512,9 @@ class ProductController {
                         newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                         newVariant.effectiveDate = effectiveDate
                         newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+
                         product.addToVariants(newVariant)
+
                         checkProductVariantForPackChanges(newVariant, editedVariant, now)
                         checkProductVariantForBarcodeChanges(newVariant, editedVariant, effectiveDate)
                     } else {
@@ -641,6 +648,7 @@ class ProductController {
                                         statusValues  : ProductStatus.values(),
                                         categoryValues: categoryService.getFullCategoryHierarchy(),
                                         productCategoryList: productCategoryList,
+                                        effectiveDateIndex : session.effectiveDate,
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
         }
     }
@@ -690,10 +698,13 @@ class ProductController {
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
-            def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+            // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
+            if (existingPack.id > 0) {
+                def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
 
-            if (!editedPack) {
-                existingVariant.removeFromPacks(existingPack)
+                if (!editedPack) {
+                    existingVariant.removeFromPacks(existingPack)
+                }
             }
         }
     }

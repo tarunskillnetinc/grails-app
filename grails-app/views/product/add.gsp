@@ -6,7 +6,9 @@
         <title>WonderLane Product Maintenance</title>
 
         <asset:stylesheet href="radio.css" />
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="money-mask.js" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
 
         <script type="text/javascript">
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
@@ -20,6 +22,16 @@
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
             $(document).ready(function () {
+                $('#effectiveDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: new Date().toString(),
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
                 // Enable the VAT override when "Other" is selected.
                 $('#vatCode').change(function() {
                     var vatCode = $('#vatCode option:selected').attr("data-code");
