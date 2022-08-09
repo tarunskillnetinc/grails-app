@@ -45,7 +45,7 @@
                 <div class="col-2 my-auto">${order.status}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCompleted" }?.enabled}">
-                <div class="col-2 my-auto">${order.dateCompleted}</div>
+                <div class="col-2 my-auto">${(order.dateCompleted - org.joda.time.DateTimeZone.getDefault().toTimeZone().getRawOffset()).toString("dd/MM/yyyy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
                 <div class="col-2 my-auto">${order.supplierReference}</div>
@@ -54,7 +54,7 @@
                 <div class="col-2 my-auto">${order.totalQuantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "value" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber number="${order.totalValue}" type="currency" /></div>
+                <div class="col-2 my-auto"><g:formatNumber number="${order.totalValue}" type="currency"/></div>
             </g:if>
         </div>
     </g:each>

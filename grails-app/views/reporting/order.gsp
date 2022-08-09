@@ -63,7 +63,7 @@
                 $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
                 $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
-                document.getElementById('supplier').value = null;
+                document.getElementById('supplier').value = "${null}";
                 document.getElementById('storeId').value = null;
             }
         </script>

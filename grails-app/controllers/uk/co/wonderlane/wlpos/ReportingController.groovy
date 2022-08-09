@@ -654,9 +654,17 @@ class ReportingController {
 
     // The top level of the main orders report.
     def ajaxOrders(SortParams sortParams) {
-        Integer storeId = getIntegerParam(params.storeId)
-        Integer supplierId = getIntegerParam(params.supplier)
         sortParams.validateParams(ORDERS_REPORT_SORT_COLUMNS)
+
+        Integer storeId = null
+        if (params.storeId && !params.storeId.isEmpty()) {
+            storeId = getIntegerParam(params.storeId)
+        }
+
+        Integer supplierId = null
+        if (params.supplier && !params.supplier.isEmpty()) {
+            supplierId = getIntegerParam(params.supplier)
+        }
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
@@ -691,16 +699,26 @@ class ReportingController {
 
     // The bottom level of the main orders report.
     def ajaxOrder(SortParams sortParams) {
-        int productListId = getIntegerParam(params.productListId)
         sortParams.validateParams(ORDER_REPORT_SORT_COLUMNS)
+        Integer productListId = getIntegerParam(params.productListId)
+
+        Integer storeId = null
+        if (params.storeId && !params.storeId.isEmpty()) {
+            storeId = getIntegerParam(params.storeId)
+        }
+
+        Integer supplierId = null
+        if (params.supplier && !params.supplier.isEmpty()) {
+            supplierId = getIntegerParam(params.supplier)
+        }
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def orders = ProductList.findByIdAndRetailerId(productListId, springSecurityService.principal.retailerId)?.totalPackLines
+        def orders = productListService.getOrder(productListId, storeId, supplierId, startDate, endDate.plusDays(1))
 
-        render(template: "orderResults", model: [orders      : orders,
+        render(template: "orderResults", model: [orders      : orders[0]?.totalPackLines,
                                                  userColumns : reportingService.getReportColumns(ReportType.ORDER),
                                                  startDate   : startDate,
                                                  endDate     : endDate,

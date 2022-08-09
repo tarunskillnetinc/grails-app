@@ -42,7 +42,7 @@
                 <div class="col-2 my-auto">${order.pack?.quantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "lineValue" }?.enabled}">
-                <div class="col-2 my-auto">${order.pack?.price?.multiply(order.quantity)}</div>
+                <div class="col-2 my-auto"><g:formatNumber number="${order.pack?.price?.multiply(order.quantity)}" type="currency"/></div>
             </g:if>
         </div>
     </g:each>

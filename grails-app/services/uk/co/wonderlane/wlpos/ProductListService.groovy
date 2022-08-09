@@ -37,16 +37,24 @@ class ProductListService extends MySqlDal {
         }
     }
 
-    def getOrders(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate, int offset = 0, int max = 50, String sort = "dateStarted", String order = "DESC") {
+    def getOrders(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate) {
+        return getOrder(null, storeId, supplierId, startDate, endDate)
+    }
+
+    def getOrder(Integer productListId, Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate, int offset = 0, int max = 50, String sort = "dateStarted", String order = "DESC") {
         return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("type", ProductListType.ORDER)
 
-            if (storeId > 0) {
+            if (productListId != null) {
+                eq("id", productListId)
+            }
+
+            if (storeId != null) {
                 eq("storeId", storeId)
             }
 
-            if (supplierId > 0) {
+            if (supplierId != null) {
                 eq("supplierId", String.valueOf(supplierId))
             }
 
