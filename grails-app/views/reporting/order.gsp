@@ -55,7 +55,7 @@
             });
 
             function resetForm() {
-                document.getElementById('startDate').value = "${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+                document.getElementById('startDate').value = "${new Date().format("dd/MM/yyyy")}";
                 $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
                 $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
