@@ -68,7 +68,7 @@ class PromotionController {
         }
 
         tagsRequired?.each { tagRequired ->
-            tagRequired.get("tag").tagProducts?.each { tagProduct ->
+            tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
                 def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
 
                 if (product) {
@@ -79,7 +79,7 @@ class PromotionController {
         }
 
         tagsOffer?.each { tagOffer ->
-            tagOffer.get("tag").tagProducts?.each { tagProduct ->
+            tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
                 def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
 
                 if (product) {
