@@ -442,15 +442,10 @@ class ProductController {
         boolean newProduct
         boolean changeAffectsSel = false
 
-        boolean sendToSnappy = false
-
         if (params.id && Integer.parseInt(params.id) > 0) {
             newProduct = false
         } else {
             newProduct = true
-            if (editedProduct.isSnappyProduct()) {
-                sendToSnappy = true;
-            }
         }
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
@@ -480,9 +475,6 @@ class ProductController {
             }
         } else {
             product = productService.getProduct(Integer.parseInt(params.id))
-            if (!product.isSnappyProduct() && editedProduct.isSnappyProduct()) {
-                sendToSnappy = true;
-            }
 
             builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
             doComparison(builder, product, editedProduct)
@@ -599,23 +591,6 @@ class ProductController {
             }
 
             flash.message = "Product saved successfully"
-
-            if (sendToSnappy) {
-                if (springSecurityService.principal.retailer.snappyShopperEnabled) {
-                    for (ProductVariant variant : product.getVariants()) {
-                        for (Barcode barcode : variant.getBarcodes()) {
-                            SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.PRODUCT_UPLOAD, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-
-                            snappyServiceMessage.setDescription(product.getDescription())
-                            snappyServiceMessage.setBarcode(barcode.getBarcode())
-                            snappyServiceMessage.setPrice(variant.getRetailPrice())
-                            snappyServiceMessage.setUnitSize(variant.getSize())
-
-                            rabbitService.sendQueueMessage("SnappyService", gsonProvider.gson.toJson(snappyServiceMessage))
-                        }
-                    }
-                }
-            }
         }
 
         if (!product.hasErrors()) {
