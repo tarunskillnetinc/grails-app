@@ -135,7 +135,7 @@ class ProductVariant implements Serializable {
         productVariant.setProductId(product.id)
         productVariant.setStoreId(storeId)
         productVariant.setSku(sku)
-        productVariant.setRetailPrice(retailPrice)
+        productVariant.setRetailPrice(getCurrentPrice())
         productVariant.setCostPrice(costPrice)
         productVariant.setSize(size)
         productVariant.setColour(colour)

@@ -116,11 +116,13 @@ class ProductService extends MySqlDal {
         Transaction transaction = session.beginTransaction()
 
         productPrices.eachWithIndex { productPrice, index ->
-            session.save(productPrice)
-            // Clear the session for speed purposes.
-            if (index.mod(100) == 0) {
-                session.flush()
-                session.clear()
+            if (productPrice?.price) {
+                session.save(productPrice)
+                // Clear the session for speed purposes.
+                if (index.mod(100) == 0) {
+                    session.flush()
+                    session.clear()
+                }
             }
         }
 
