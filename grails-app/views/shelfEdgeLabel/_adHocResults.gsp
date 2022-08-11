@@ -17,9 +17,12 @@
             <div class="col-2 my-auto">${productList.dateStarted?.toString('dd/MM HH:mm')}</div>
             <div class="col-2 my-auto">${productList.labelCount}</div>
             <div class="col-3 my-auto"><g:select name="labelTemplate" from="${labelTemplates}" noSelection="${[0: 'Select Label']}" optionKey="id" optionValue="name" class="form-control select-border" onclick="event.stopPropagation();" onChange="adHocBatchTemplateSelected(${productList.id}, this);" /></div>
-            <g:if test="${productList.status != uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus.IN_PROGRESS}">
-                <div class="col-1 my-auto"><asset:image src="trash.svg" width="32" height="32" class="pointer" onclick="deleteProductListButtonPressed(${productList.id});" title="Click to delete."/></div>
-            </g:if>
+            <div class="col-1 my-auto">
+                <g:if test="${deletableStatuses.contains(productList.status)}">
+                    <asset:image src="trash.svg" width="30" height="30" class="pointer" onclick="deleteProductListButtonPressed(${productList.id});" title="Click to delete." />
+                </g:if>
+                <g:else>&nbsp;</g:else>
+            </div>
         </div>
     </g:each>
 </div>

@@ -77,7 +77,10 @@ class ShelfEdgeLabelService extends MySqlDal {
             shelfEdgeLabel.setItemCode(productListItem.productVariant?.product?.itemCode)
             shelfEdgeLabel.setDescription(productListItem.productVariant?.product?.description)
             shelfEdgeLabel.setUnitSize(productListItem.productVariant?.product?.unitSize)
-            shelfEdgeLabel.setEanCode(productListItem.productVariant?.barcodes?.size() > 0 ? productListItem.productVariant?.barcodes?.first()?.barcode : "")
+
+            def barcodes = productListItem.productVariant?.barcodes
+            shelfEdgeLabel.setEanCode(barcodes?.size() > 0 ? barcodes?.first()?.barcode : "")
+
             shelfEdgeLabel.setPrice(productListItem.productVariant?.currentPrice)
             shelfEdgeLabel.setWasPrice(null) // TODO How are we getting previous price?
             shelfEdgeLabel.setUnitPrice(productListItem.productVariant?.currentPrice) // TODO Figure out what this is.
@@ -829,6 +832,10 @@ class ShelfEdgeLabelService extends MySqlDal {
     }
 
     private void addProductDescriptionField(PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, LabelTemplateField field, String productDescription, double fieldX, double fieldY) throws Exception {
+        if (productDescription == null || productDescription.isEmpty()) {
+            return
+        }
+
         PDFont font = PDType1Font.HELVETICA;
         int fontSize = field.getPreferredTextSize();
 
@@ -837,31 +844,50 @@ class ShelfEdgeLabelService extends MySqlDal {
         // Start working out how many lines we need to fit the text into the width provided.
         List<String> textLines = new ArrayList<>();
 
-        float textWidth = mm(font.getStringWidth(productDescription) / 1000 * fontSize);
+        String[] descriptionParts = productDescription.split(" ")
 
-        if (textWidth > field.getWidth()) {
-            int startPos = 0;
-            int endPos = productDescription.length();
+        boolean moreWords = true
 
-            // Keep removing characters until the line fits.
-            while (endPos < productDescription.length() + 1) {
-                textWidth = mm(font.getStringWidth(productDescription.substring(startPos, endPos)) / 1000 * fontSize);
+        while (moreWords) {
+            for (int i = descriptionParts.size(); i > 0; i--) {
+                StringBuilder stringBuilder = new StringBuilder();
 
-                while (textWidth > field.getWidth()) {
-                    endPos--;
-                    textWidth = mm(font.getStringWidth(productDescription.substring(startPos, endPos)) / 1000 * fontSize);
+                for (int j = 0; j < i; j++) {
+                    stringBuilder.append(descriptionParts[j])
+                    stringBuilder.append(" ")
                 }
 
-                textLines.add(productDescription.substring(startPos, endPos));
-                // Reset the positions and try to fit the remaining string on the next line.
-                startPos = endPos++;
-                if (endPos < productDescription.length() + 1) {
-                    endPos = productDescription.length();
+                String descriptionAttempt = stringBuilder.toString().trim()
+
+                float textWidth = mm(font.getStringWidth(descriptionAttempt) / 1000 * fontSize);
+
+                if (textWidth > field.getWidth()) {
+                    if (i == 0) {
+                        // Unable to fit this word in the space at all.
+                        moreWords = false
+                    }
+
+                    continue
+                } else {
+                    // All fits on the line.
+                    textLines.add(descriptionAttempt);
+
+                    if (i == descriptionParts.size()) {
+                        moreWords = false
+                    } else {
+                        stringBuilder = new StringBuilder()
+
+                        for (int j = i ; j < descriptionParts.size() ; j++) {
+                            stringBuilder.append(descriptionParts[i])
+                            stringBuilder.append(" ")
+                        }
+
+                        descriptionParts = stringBuilder.toString().trim().split(" ")
+                    }
+
+                    break
                 }
             }
-        } else {
-            // All fits on one line.
-            textLines.add(productDescription);
         }
 
         float y = (float)y(page.getMediaBox().getHeight(), pt(fieldY)) - fontHeight;
@@ -873,7 +899,7 @@ class ShelfEdgeLabelService extends MySqlDal {
             String textLine = textLines.get(i);
 
             // Calculate the actual X position of this line of text if it is set to be centrally aligned.
-            textWidth = mm(font.getStringWidth(textLine) / 1000 * fontSize);
+            float textWidth = mm(font.getStringWidth(textLine) / 1000 * fontSize);
             float x = field.isCentrallyAligned() ? (float)pt(fieldX + (field.getWidth() - textWidth) / 2) : (float)pt(fieldX);
 
             // Move the text to the correct location using a matrix.
@@ -977,7 +1003,7 @@ class ShelfEdgeLabelService extends MySqlDal {
             PDFont font = PDType1Font.HELVETICA;
             int fontSize = field.getPreferredTextSize();
 
-            BarcodeFormat format = null;
+            BarcodeFormat format = BarcodeFormat.CODE_128;
 
             // 29 is treated as an RTC barcode and has to use CODE128 as it doesn't have any checksums.
             if (barcode.startsWith("29")) {
@@ -985,23 +1011,33 @@ class ShelfEdgeLabelService extends MySqlDal {
             } else {
                 switch (barcode.length()) {
                     case 13:
-                        format = BarcodeFormat.EAN_13;
-                        break;
+                        format = BarcodeFormat.EAN_13
+                        break
                     case 8:
-                        format = BarcodeFormat.EAN_8;
-                        break;
+                        format = BarcodeFormat.EAN_8
+                        break
                     case 12:
-                        format = BarcodeFormat.UPC_A;
-                        break;
+                        format = BarcodeFormat.UPC_A
+                        break
                     default:
-                        throw new Exception("Invalid barcode length: " + barcode.length());
+                        format = BarcodeFormat.CODE_128
+//                        throw new Exception("Invalid barcode length: " + barcode.length());
                 }
             }
 
             // Work out the font height for the text below the barcode as we need to subtract this height from the barcode so that the whole lot fits into the space provided.
             float fontHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize * HELVETICA_HEIGHT_ADJUSTMENT;
 
-            BitMatrix bm = new MultiFormatWriter().encode(barcode, format, field.getWidth(), field.getHeight() - (int)mm(fontHeight));
+            BitMatrix bm
+
+            try {
+                bm = new MultiFormatWriter().encode(barcode, format, field.getWidth(), field.getHeight() - (int)mm(fontHeight));
+            } catch (Exception e) {
+                // Any errors, try again just using Code 128.
+                format = BarcodeFormat.CODE_128
+                bm = new MultiFormatWriter().encode(barcode, format, field.getWidth(), field.getHeight() - (int)mm(fontHeight));
+            }
+
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bm, "jpeg", outputStream);
 
@@ -1011,7 +1047,7 @@ class ShelfEdgeLabelService extends MySqlDal {
             float x = (float)pt(fieldX);
             float y = (float)y(page.getMediaBox().getHeight(), pt(fieldY + field.getHeight()) - (int)fontHeight);
 
-            contentStream.drawImage(img, x, y, (float)pt(field.getWidth()), (float)pt(field.getHeight()) - (int)fontHeight);
+            contentStream.drawImage(img, (Float)x, (Float)y, (Float)pt(field.getWidth()), (Float)((float)pt(field.getHeight()) - (int)fontHeight));
 
             // Now draw the actual digits below the barcode.
             float textWidth = mm(font.getStringWidth(barcode) / 1000 * fontSize);
@@ -1023,12 +1059,13 @@ class ShelfEdgeLabelService extends MySqlDal {
 
             // Move the barcode text to the correct location using a matrix.
             Matrix matrix = new Matrix();
-            matrix.translate(x, y - fontHeight);
+            matrix.translate((Float)x, (Float)(y - fontHeight));
             contentStream.setTextMatrix(matrix);
 
             contentStream.showText(barcode);
             contentStream.endText();
         } catch(Exception e) {
+            e.printStackTrace()
             // this is blank as we don't care if this errors, we just don't want the barcode added to the label
         }
     }

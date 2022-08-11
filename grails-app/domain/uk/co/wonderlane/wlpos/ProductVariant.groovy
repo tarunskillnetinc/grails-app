@@ -101,12 +101,11 @@ class ProductVariant implements Serializable {
 
     List<Barcode> getBarcodes() {
         def barcodes = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
-        DateTime now = DateTime.now(DateTimeZone.UTC)
 
         def barcodesToShow = new ArrayList<Barcode>()
         def deletedBarcodes = new ArrayList<String>()
 
-        barcodes.forEach({ barcode ->
+        barcodes?.forEach({ barcode ->
             if (barcode.recordStatus == ('D' as char)) {
                 deletedBarcodes.add(barcode.barcode)
             } else if (!deletedBarcodes.contains(barcode.barcode)) {

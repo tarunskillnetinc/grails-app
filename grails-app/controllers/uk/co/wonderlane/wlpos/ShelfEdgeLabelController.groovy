@@ -24,7 +24,7 @@ class ShelfEdgeLabelController {
         def adHocBatches = productListService.getAdHocBatches()
         def labelTemplates = shelfEdgeLabelService.getLabelTemplates(PrintProcess.SHELF_EDGE_LABEL_BATCH, PrintType.PDF)
 
-        render (template: "adHocResults", model: [productLists: adHocBatches, labelTemplates: labelTemplates])
+        render (template: "adHocResults", model: [productLists: adHocBatches, labelTemplates: labelTemplates, deletableStatuses: [ProductListStatus.PARTIALLY_COMPLETE]])
     }
 
     def ajaxGetScheduledBatches() {

@@ -192,6 +192,8 @@ class ProductService extends MySqlDal {
     def searchProducts(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def productSearchCriteria = Product.createCriteria()
 
+        searchTerm = searchTerm ? searchTerm.trim() : null
+
         def now = DateTime.now(DateTimeZone.UTC)
 
         def results = productSearchCriteria.list([offset: startIndex, max: maxResults]) {
