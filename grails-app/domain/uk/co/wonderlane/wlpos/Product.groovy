@@ -154,7 +154,7 @@ class Product {
 
     boolean isCurrentProductVariant(DateTime effectiveDate, Integer variantId, Long sku) {
         return variants.stream()
-                .filter({variant -> variant.effectiveDate <= effectiveDate && variant.sku == sku})
+                .filter({variant -> variant.effectiveDate <= effectiveDate && variant.sku == sku && (variant.storeId == null || variant.storeId == springSecurityService.principal.storeId)})
                 .max({ a,b -> a.effectiveDate <=> b.effectiveDate })
                 .filter({variant -> variant.id == variantId }).stream().findAny().present
     }

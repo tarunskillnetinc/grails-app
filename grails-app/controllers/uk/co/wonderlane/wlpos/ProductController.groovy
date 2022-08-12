@@ -93,7 +93,7 @@ class ProductController {
             effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
             session.effectiveDate = [effectiveDateSelected.toString(formatter), effectiveDateSelected]
         } else {
-            session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
+            session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()]
         }
     }
 
@@ -897,7 +897,6 @@ class ProductController {
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {
         def category = categoryService.getCategory(categoryId)
-
         render (template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId])
     }
 

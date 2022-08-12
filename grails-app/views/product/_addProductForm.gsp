@@ -353,7 +353,9 @@
                             </g:if>
 
                             <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
-                                <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands, zeroPrice: product?.zeroPrice]" />
+                                <g:if test="${product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
+                                    <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands, zeroPrice: product?.zeroPrice]" />
+                                </g:if>
                             </g:each>
                         </div>
                     </div>
