@@ -55,8 +55,10 @@
                 var confirmModalYesButton = $('#confirmPrintModalYesButton');
                 var confirmModalNoButton = $('#confirmPrintModalNoButton');
 
+                confirmModalYesButton.off("click");
                 confirmModalYesButton.click({productListId: productListId, labelTemplateId: selectedLabelTemplate.value, type: "AD_HOC"}, confirmPrintModalYesButtonClicked);
                 confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.off("click");
                 confirmModalNoButton.click(confirmPrintModalNoButtonClicked);
                 confirmModalNoButton.prop("disabled", false);
 
@@ -75,8 +77,10 @@
                 var confirmModalYesButton = $('#confirmPrintModalYesButton');
                 var confirmModalNoButton = $('#confirmPrintModalNoButton');
 
+                confirmModalYesButton.off("click");
                 confirmModalYesButton.click({effectiveDate: effectiveDate, labelTemplateId: selectedLabelTemplate.value, type: "SCHEDULED"}, confirmPrintModalYesButtonClicked);
                 confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.off("click");
                 confirmModalNoButton.click(confirmPrintModalNoButtonClicked);
                 confirmModalNoButton.prop("disabled", false);
 
@@ -113,6 +117,7 @@
 
                 var confirmSuccessModalYesButton = $('#confirmSuccessModalYesButton');
 
+                confirmSuccessModalYesButton.off("click");
                 confirmSuccessModalYesButton.click({productListId: productListId}, confirmAdHocBatchPrintSuccessful);
                 confirmSuccessModalYesButton.prop("disabled", false);
 
@@ -143,6 +148,7 @@
 
                 var confirmSuccessModalYesButton = $('#confirmSuccessModalYesButton');
 
+                confirmSuccessModalYesButton.off("click");
                 confirmSuccessModalYesButton.click({effectiveDate: effectiveDate}, confirmScheduledBatchPrintSuccessful);
                 confirmSuccessModalYesButton.prop("disabled", false);
 
@@ -204,8 +210,10 @@
                 var confirmModalYesButton = $('#confirmPrintModalYesButton');
                 var confirmModalNoButton = $('#confirmPrintModalNoButton');
 
+                confirmModalYesButton.off("click");
                 confirmModalYesButton.click({productListId: productListId}, confirmDeleteProductList);
                 confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.off("click");
                 confirmModalNoButton.click(confirmPrintModalNoButtonClicked);
                 confirmModalNoButton.prop("disabled", false);
 
@@ -326,7 +334,10 @@
                             <h2 id="confirmSuccessModalHeader">Generate Labels</h2>
                         </div>
 
-                        <div class="modal-body" id="confirmSuccessModalContent">Did the batch print successfully?</div>
+                        <div class="modal-body" id="confirmSuccessModalContent">
+                            <div>Did the batch PDF generate successfully?</div>
+                            <div class="mt-3">Ensure the correct paper is loaded into the printer before printing.</div>
+                        </div>
 
                         <div class="modal-footer">
                             <button type="button" id="confirmSuccessModalNoButton" class="btn btn-wl" data-dismiss="modal">No</button>

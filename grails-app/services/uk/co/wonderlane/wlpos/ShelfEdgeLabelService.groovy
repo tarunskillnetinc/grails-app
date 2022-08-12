@@ -16,6 +16,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import org.apache.pdfbox.rendering.PDFRenderer
 import org.apache.pdfbox.util.Matrix
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.wlim.ShelfEdgeLabel
@@ -70,6 +71,8 @@ class ShelfEdgeLabelService extends MySqlDal {
         // Find our labels.
         List<ShelfEdgeLabel> shelfEdgeLabels = new ArrayList<>()
 
+        def now = DateTime.now(DateTimeZone.UTC)
+
         productList.productListItems?.each { ProductListItem productListItem ->
             ShelfEdgeLabel shelfEdgeLabel = new ShelfEdgeLabel()
 
@@ -81,13 +84,26 @@ class ShelfEdgeLabelService extends MySqlDal {
             def barcodes = productListItem.productVariant?.barcodes
             shelfEdgeLabel.setEanCode(barcodes?.size() > 0 ? barcodes?.first()?.barcode : "")
 
-            shelfEdgeLabel.setPrice(productListItem.productVariant?.currentPrice)
+            def prices = productListItem.productVariant?.allPrices?.findAll { it.priceBand.id == springSecurityService.principal.priceBand.id }
+
+            def barcodeEffective = barcodes?.size() > 0 ? barcodes?.first()?.effectiveDate : null
+            def price = prices?.find { it.effectiveDate.isBefore(now) }
+
+            def effectiveDateToUse = productListItem.productVariant?.effectiveDate
+            if (barcodeEffective && barcodeEffective.isAfter(effectiveDateToUse)) {
+                effectiveDateToUse = barcodeEffective
+            }
+            if (price && !productListItem.productVariant?.retailPrice && price.effectiveDate.isAfter(effectiveDateToUse)) {
+                effectiveDateToUse = price.effectiveDate
+            }
+
+            shelfEdgeLabel.setPrice(productListItem.productVariant?.retailPrice ?: (price?.price ?: BigDecimal.ZERO.setScale(2)))
             shelfEdgeLabel.setWasPrice(null) // TODO How are we getting previous price?
-            shelfEdgeLabel.setUnitPrice(productListItem.productVariant?.currentPrice) // TODO Figure out what this is.
+            shelfEdgeLabel.setUnitPrice(productListItem.productVariant?.retailPrice ?: (price?.price ?: BigDecimal.ZERO.setScale(2))) // TODO Figure out what this is.
             shelfEdgeLabel.setEmbeddedBarcode(false) // TODO How are we handling this?
             shelfEdgeLabel.setWeightedItem(productListItem.productVariant?.product?.weightedItem)
             shelfEdgeLabel.setPricePerKg(productListItem.productVariant?.product?.pricePerKg)
-            shelfEdgeLabel.setEffectiveDate(productListItem.productVariant?.effectiveDate)
+            shelfEdgeLabel.setEffectiveDate(effectiveDateToUse)
             shelfEdgeLabel.setPromotionEndDate(null)
             shelfEdgeLabel.setWasPriceEffectiveDate(null)
             shelfEdgeLabel.setQuantity(productListItem.quantity)
@@ -878,7 +894,7 @@ class ShelfEdgeLabelService extends MySqlDal {
                         stringBuilder = new StringBuilder()
 
                         for (int j = i ; j < descriptionParts.size() ; j++) {
-                            stringBuilder.append(descriptionParts[i])
+                            stringBuilder.append(descriptionParts[j])
                             stringBuilder.append(" ")
                         }
 

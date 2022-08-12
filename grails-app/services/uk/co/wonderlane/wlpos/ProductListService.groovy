@@ -67,7 +67,7 @@ class ProductListService extends MySqlDal {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
             "in" ("type", [ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK])
-            "in" ("status", [ProductListStatus.IN_PROGRESS, ProductListStatus.PARTIALLY_COMPLETE])
+            eq ("status", ProductListStatus.PARTIALLY_COMPLETE)
         }
     }
 
