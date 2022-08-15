@@ -19,13 +19,13 @@ class ReportingService {
     def springSecurityService
 
     // For sales report grouped by department, no pagination on here as the results are grouped into categories.
-    def getSales(DateTime startDate, DateTime endDate) {
+    def getSales(DateTime startDate, DateTime endDate, Integer storeId) {
         def salesCriteria = Sale.createCriteria()
 
         return salesCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq("storeId", springSecurityService.principal.storeId)
+            if (storeId != null) {
+                eq("storeId", storeId)
             }
             between ("dateCreated", startDate, endDate)
         }
