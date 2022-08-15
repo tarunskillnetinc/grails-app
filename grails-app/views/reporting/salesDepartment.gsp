@@ -64,6 +64,8 @@
             $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('descriptionFilter').value = null;
+
+            document.getElementById('storeFilter').value = '';
         }
     </script>
 </head>
@@ -128,7 +130,7 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-1 text-right" style="margin-top: 8px;">
+            <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
                 <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
             </div>
 

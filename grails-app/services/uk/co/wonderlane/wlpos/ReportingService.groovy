@@ -32,7 +32,7 @@ class ReportingService {
     }
 
     // For sales report grouped by category, no pagination on here as the results can still be grouped into categories.
-    def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate) {
+    def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate, Integer storeId) {
         String searchQuery = """SELECT s
                                 FROM Sale s
                                 JOIN SaleCategory sc ON s.id = sc.sales
@@ -48,8 +48,8 @@ class ReportingService {
 
         def queryParams = [categoryId: categoryId, retailerId: springSecurityService.principal.retailerId, startDate: startDate, endDate: endDate]
 
-        if (springSecurityService.principal.storeId != null) {
-            queryParams.storeId = springSecurityService.principal.storeId
+        if (storeId != null) {
+            queryParams.storeId = storeId
         }
 
         return Sale.executeQuery(searchQuery, queryParams)
@@ -85,7 +85,8 @@ class ReportingService {
     }
 
     // For sales report product level. Paginated and filtered.
-    def getSalesForProduct(int productId, DateTime startDate, DateTime endDate, int maxResults, int startIndex, String sortColumn, String sortOrder, String descriptionFilter) {
+    def getSalesForProduct(int productId, DateTime startDate, DateTime endDate, int maxResults, int startIndex,
+                           String sortColumn, String sortOrder, String descriptionFilter, Integer storeId) {
         String sort
 
         if (sortColumn == "description") {
@@ -105,7 +106,7 @@ class ReportingService {
                                 WHERE s.productId = :productId
                                 AND s.retailerId = :retailerId """
 
-        if (springSecurityService.principal.storeId != null) {
+        if (storeId != null) {
             searchQuery += """AND s.storeId = :storeId """
         }
 

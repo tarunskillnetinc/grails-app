@@ -132,12 +132,14 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES_CATEGORY,
          categoryId : categoryId,
          startDate  : startDate,
          endDate    : endDate,
-         userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY)]
+         userColumns: reportingService.getReportColumns(ReportType.SALES_CATEGORY),
+         stores     : stores]
     }
 
     // The middle level of the main sales report.
@@ -150,8 +152,15 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+        }
+
         // Find all sales involving this category in the date range.
-        def sales = reportingService.getSalesForCategory(categoryId, startDate,endDate.plusDays(1))
+        def sales = reportingService.getSalesForCategory(categoryId, startDate,endDate.plusDays(1), storeId)
 
         // Group them by the next level down category ID if the sale is not directly in this category.
         def salesGrouped = sales?.groupBy { sale ->
@@ -239,12 +248,14 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES_PRODUCT,
          productId  : productId,
          startDate  : startDate,
          endDate    : endDate,
-         userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT)]
+         userColumns: reportingService.getReportColumns(ReportType.SALES_PRODUCT),
+         stores     : stores]
     }
 
     // The bottom level of the main sales report.
@@ -257,7 +268,15 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def sales = reportingService.getSalesForProduct(productId, startDate,endDate.plusDays(1), sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, params.descriptionFilter)
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+        }
+
+        def sales = reportingService.getSalesForProduct(productId, startDate,endDate.plusDays(1), sortParams.max,
+                sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, params.descriptionFilter, storeId)
 
         def totalResults = reportingService.countSalesForProduct(productId, startDate,endDate.plusDays(1), params.descriptionFilter)
 
@@ -282,11 +301,13 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.CATEGORY_SALES,
          startDate  : startDate,
          endDate    : endDate,
-         userColumns: reportingService.getReportColumns(ReportType.CATEGORY_SALES)]
+         userColumns: reportingService.getReportColumns(ReportType.CATEGORY_SALES),
+         stores     : stores]
     }
 
     // The standalone category sales report.
@@ -299,8 +320,15 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+        }
+
         // Find all sales in the date range.
-        def sales = reportingService.getSales(springSecurityService.principal.storeId, startDate, endDate.plusDays(1))
+        def sales = reportingService.getSales(storeId, startDate, endDate.plusDays(1))
 
         sales = sales.sort { it.salesCategories?.first()?.categoryDescription }
 
