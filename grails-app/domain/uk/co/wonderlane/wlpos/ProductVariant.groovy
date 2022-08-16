@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
 
+import java.time.LocalDate
+
 class ProductVariant implements Serializable {
 
     def springSecurityService
@@ -122,7 +124,12 @@ class ProductVariant implements Serializable {
 
     private DateTime getSessionEffectiveDate() {
         try {
-            return WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1] ? new DateTime(WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]) : DateTime.now(DateTimeZone.UTC)
+            DateTime effectiveDate = new DateTime(WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]);
+            if (effectiveDate?.toLocalDate() <=> LocalDate.now(DateTimeZone.UTC) == 0) {
+                return DateTime.now(DateTimeZone.UTC)
+            } else {
+                return WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1] ? new DateTime(WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]) : DateTime.now(DateTimeZone.UTC)
+            }
         } catch (Exception e) {
             return DateTime.now(DateTimeZone.UTC)
         }

@@ -121,6 +121,7 @@ class ProductController {
 
     def search() {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
+        session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
         def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
@@ -132,6 +133,7 @@ class ProductController {
      */
     def ajaxSearchProducts() {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
+        session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
         def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
