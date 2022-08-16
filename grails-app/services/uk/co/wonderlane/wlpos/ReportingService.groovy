@@ -148,13 +148,13 @@ class ReportingService {
     }
 
     // For promotions grouped report. No pagination here as we're going to group them, but the filtering can be done in the database.
-    def getPromotionSales(DateTime startDate, DateTime endDate, String descriptionFilter, PromotionType promotionTypeFilter) {
+    def getPromotionSales(DateTime startDate, DateTime endDate, String descriptionFilter, PromotionType promotionTypeFilter, Integer storeId) {
         def promotionsCriteria = PromotionSale.createCriteria()
 
         return promotionsCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq("storeId", springSecurityService.principal.storeId)
+            if (storeId != null) {
+                eq("storeId", storeId)
             }
             if (descriptionFilter) {
                 like ("description", "%"+descriptionFilter+"%")
@@ -167,13 +167,13 @@ class ReportingService {
     }
 
     // For promotions report at promotion level. Filtered and paginated.
-    def getPromotionSales(DateTime startDate, DateTime endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getPromotionSales(DateTime startDate, DateTime endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder, Integer storeId) {
         def promotionsCriteria = PromotionSale.createCriteria()
 
         def results = promotionsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq("storeId", springSecurityService.principal.storeId)
+            if (storeId != null) {
+                eq("storeId", storeId)
             }
             between ("dateCreated", startDate, endDate)
             eq ("promotionId", promotionId)

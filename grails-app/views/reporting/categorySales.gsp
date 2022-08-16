@@ -58,6 +58,8 @@
             $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#categoryLevelFilter').prop("selectedIndex", 3);
+
+            document.getElementById('storeFilter').value = '';
         }
     </script>
 </head>
@@ -102,7 +104,18 @@
                                     <g:select id="categoryLevelFilter"  name="maxCategoryLevel" from="${[0:'Department', 1:'Level 1', 2:'Level 2', 999:'No Limit'].entrySet()}" value="999" optionKey="key" optionValue="value" class="form-control select-border" style="z-index: 0;" />
                                 </div>
 
-                                <div class="col-6 text-right">
+                                <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
+                                <div class="col-3">
+                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                              optionKey="id"
+                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                              class="form-control select-border"
+                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-6 text-right offset-6">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>

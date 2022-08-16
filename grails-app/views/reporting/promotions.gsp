@@ -52,6 +52,8 @@
 
             document.getElementById('promotionTypeFilter').value = null;
             document.getElementById('descriptionFilter').value = null;
+
+            document.getElementById('storeFilter').value = '';
         }
     </script>
 </head>
@@ -93,7 +95,16 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-4 offset-8 text-right">
+                                <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
+                                <div class="col-3">
+                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                              optionKey="id"
+                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                              class="form-control select-border"
+                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                </div>
+
+                                <div class="col-4 offset-3 text-right">
                                     <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>

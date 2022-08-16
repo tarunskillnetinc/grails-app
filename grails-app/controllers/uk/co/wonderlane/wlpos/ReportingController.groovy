@@ -57,7 +57,7 @@ class ReportingController {
         if (springSecurityService.principal.storeId) {
             storeId = springSecurityService.principal.storeId
         } else {
-            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
         }
 
         // Find all sales in the date range.
@@ -156,7 +156,7 @@ class ReportingController {
         if (springSecurityService.principal.storeId) {
             storeId = springSecurityService.principal.storeId
         } else {
-            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
         }
 
         // Find all sales involving this category in the date range.
@@ -272,7 +272,7 @@ class ReportingController {
         if (springSecurityService.principal.storeId) {
             storeId = springSecurityService.principal.storeId
         } else {
-            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
         }
 
         def sales = reportingService.getSalesForProduct(productId, startDate,endDate.plusDays(1), sortParams.max,
@@ -323,7 +323,7 @@ class ReportingController {
         if (springSecurityService.principal.storeId) {
             storeId = springSecurityService.principal.storeId
         } else {
-            storeId = params.storeFilter ? StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, Integer.parseInt(params.storeFilter)).id : null
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
         }
 
         // Find all sales in the date range.
@@ -394,22 +394,29 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES,
          startDate  : startDate,
          endDate    : endDate,
-         userColumns: reportingService.getReportColumns(ReportType.SALES)]
+         userColumns: reportingService.getReportColumns(ReportType.SALES),
+         stores     : stores]
     }
 
     // The standalone product sales report.
     def ajaxSales(SortParams sortParams) {
-        Integer storeId = springSecurityService.principal.storeId
-
         sortParams.validateParams(SALES_REPORT_SORT_COLUMNS)
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
 
         // Find all sales in the date range.
         def sales = reportingService.getSales(storeId, startDate, endDate.plusDays(1))
@@ -466,8 +473,14 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
-        [reportType: ReportType.PROMOTIONS_GROUPED, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), promotionTypes: PromotionType.values(), startDate: startDate, endDate: endDate]
+        [reportType    : ReportType.PROMOTIONS_GROUPED,
+         userColumns   : reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED),
+         promotionTypes: PromotionType.values(),
+         startDate     : startDate,
+         endDate       : endDate,
+         stores        : stores]
     }
 
     def ajaxPromotionsGrouped(SortParams sortParams) {
@@ -488,8 +501,15 @@ class ReportingController {
             params.promotionTypeFilter = null;
         }
 
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
         // Find all promotion sales in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), params.descriptionFilter, params.promotionTypeFilter)
+        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), params.descriptionFilter, params.promotionTypeFilter, storeId)
 
         // Group them by promotion ID.
         def promotionSalesGrouped = promotionSales.groupBy { it.promotionId }
@@ -540,8 +560,14 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
-        [reportType: ReportType.PROMOTIONS, promotionId: promotionId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS)]
+        [reportType : ReportType.PROMOTIONS,
+         promotionId: promotionId,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS),
+         stores     : stores]
     }
 
     def ajaxPromotions(SortParams sortParams) {
@@ -553,8 +579,15 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
         // Find all promotion sales for this promotion in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)\
+        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, storeId)
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "Promotions-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
@@ -564,7 +597,6 @@ class ReportingController {
         }else {
             render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
         }
-
     }
 
     def promotion() {
