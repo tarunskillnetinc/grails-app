@@ -656,19 +656,18 @@ class ProductController {
     }
 
     private void checkProductVariantForBarcodeChanges(def existingVariant, def editedVariant, DateTime effectiveDate) {
-        // Add any newly added barcodes.
         editedVariant.barcodez?.each { editedBarcode ->
             def existingBarcode = existingVariant.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
-
-            if (!existingBarcode) {
+            if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
                 Barcode barcode = new Barcode()
                 barcode.sku = existingVariant.sku
                 barcode.retailerId = springSecurityService.principal.retailerId
                 barcode.barcode = editedBarcode.barcode
                 barcode.effectiveDate = effectiveDate
                 barcode.recordStatus = 'C'
-
                 existingVariant.barcodez.add(barcode)
+            } else { // If barcode do exists change update existing values
+                existingBarcode.barcode = editedBarcode.barcode
             }
         }
 
@@ -784,6 +783,24 @@ class ProductController {
         builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
+
+        //loop over edited variant barcodes to find out if barcode been edited or newly added
+        variant?.barcodez?.each { editedBarcode ->
+            def existingBarcode = oldVariant?.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+            if (existingBarcode){ //if barcode already existed
+                builder.compare("barcode", existingBarcode.barcode, editedBarcode.barcode)
+            } else {//if barcode is newly created
+                builder.compare("barcode", null, editedBarcode.barcode)
+            }
+        }
+
+        //loop over existing variant barcodes to find out if barcode been deleted
+        oldVariant?.barcodes?.each { existingBarcode ->
+            def editedBarcode = variant?.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+            if (!editedBarcode){ //if edited barcode not exists means old barcode has been deleted
+                builder.compare("barcode", existingBarcode.barcode, null)
+            }
+        }
     }
 
     private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
