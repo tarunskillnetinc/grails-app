@@ -124,6 +124,11 @@
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
             function itemCodeChanged(itemCode) {
+
+                if (itemCode.match(/[^0-9]/)) {
+                    return
+                }
+
                 var sku = $("#variants\\[0\\]\\.sku");
 
                 // Only change the SKU the first time we change the main item code.
