@@ -41,11 +41,13 @@ class PromotionService {
             }
         }
 
+        //loop over tags to get all tag ids
+        def tagIds = []
+        tagIds = allTags?.collect{Tag it -> it.id}
+
         def promotionCriteria = Promotion.createCriteria()
 
-        def promotions = promotionCriteria.list([sort : "description",
-                                                 order: "ASC"]) {
-
+        def promotions = promotionCriteria.list([sort : "description", order: "ASC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("active", true)
             lte("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
@@ -63,7 +65,7 @@ class PromotionService {
                     relevantPromotions.add(promotion)
                 } else if (promotionGroup.categoryId && promotionGroup.categoryId == product.category.id) {
                     relevantPromotions.add(promotion)
-                } else if (promotionGroup.tagId && allTags?.contains(promotionGroup.tagId)) {
+                } else if (promotionGroup.tagId && tagIds?.contains(promotionGroup.tagId)) {
                     relevantPromotions.add(promotion)
                 }
             }
