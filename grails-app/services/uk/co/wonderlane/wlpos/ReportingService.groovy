@@ -39,7 +39,7 @@ class ReportingService {
                                 WHERE sc.categoryId = :categoryId
                                 AND s.retailerId = :retailerId """
 
-        if (springSecurityService.principal.storeId != null) {
+        if (storeId != null) {
             searchQuery += """AND s.storeId = :storeId """
         }
 
@@ -117,20 +117,20 @@ class ReportingService {
 
         def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate, max: maxResults, offset: startIndex]
 
-        if (springSecurityService.principal.storeId != null) {
-            queryParams.storeId = springSecurityService.principal.storeId
+        if (storeId != null) {
+            queryParams.storeId = storeId
         }
 
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
-    def countSalesForProduct(int productId, DateTime startDate, DateTime endDate, String descriptionFilter) {
+    def countSalesForProduct(int productId, DateTime startDate, DateTime endDate, String descriptionFilter, Integer storeId) {
         String searchQuery = """SELECT COUNT(s)
                                 FROM Sale s
                                 WHERE s.productId = :productId
                                 AND s.retailerId = :retailerId """
 
-        if (springSecurityService.principal.storeId != null) {
+        if (storeId != null) {
             searchQuery += """AND s.storeId = :storeId """
         }
 
@@ -140,8 +140,8 @@ class ReportingService {
 
         def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate]
 
-        if (springSecurityService.principal.storeId != null) {
-            queryParams.storeId = springSecurityService.principal.storeId
+        if (storeId != null) {
+            queryParams.storeId = storeId
         }
 
         return Sale.executeQuery(searchQuery, queryParams)[0]

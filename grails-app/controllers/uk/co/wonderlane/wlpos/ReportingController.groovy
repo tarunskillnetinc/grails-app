@@ -278,7 +278,7 @@ class ReportingController {
         def sales = reportingService.getSalesForProduct(productId, startDate,endDate.plusDays(1), sortParams.max,
                 sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, params.descriptionFilter, storeId)
 
-        def totalResults = reportingService.countSalesForProduct(productId, startDate,endDate.plusDays(1), params.descriptionFilter)
+        def totalResults = reportingService.countSalesForProduct(productId, startDate,endDate.plusDays(1), params.descriptionFilter, storeId)
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "SalesByProduct-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
