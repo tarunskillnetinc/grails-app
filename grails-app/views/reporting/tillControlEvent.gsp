@@ -113,7 +113,11 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-5">
+            <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
+                <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
+            </div>
+
+            <div class="col-2">
                 <div class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                         <div class="row">

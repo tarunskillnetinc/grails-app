@@ -284,7 +284,6 @@ class ReportingController {
             def fileName = "SalesByProduct-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
             response.setHeader("Content-Type", "text/csv;")
-
             render getSalesByProductCsv(sales)
         } else {
             render (template: "salesProductResults", model: [sales       : sales,
@@ -345,7 +344,6 @@ class ReportingController {
             def fileName = "CategorySales-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
             response.setHeader("Content-Type", "text/csv;")
-
             render getSalesByCategoryCsv(finalSales)
         } else {
             int totalResults = finalSales.size()
@@ -383,7 +381,7 @@ class ReportingController {
 
             finalSales.add(groupedSale)
 
-            def salesGroupedCurrentLevel = salesGroup.value.groupBy { Sale sale -> sale.salesCategories?.find {it.categoryLevel == currentCategoryLevel + 1 }?.categoryId }
+            def salesGroupedCurrentLevel = salesGroup.value.groupBy { Sale sale -> sale.salesCategories?.find { it.categoryLevel == currentCategoryLevel + 1 }?.categoryId }
 
             if (salesGroupedCurrentLevel.size() > 1 && currentCategoryLevel < maxCategoryLevel) {
                 populateCategorySalesFinalSales(currentCategoryLevel + 1, salesGroupedCurrentLevel, finalSales, maxCategoryLevel)
@@ -524,11 +522,17 @@ class ReportingController {
             finalPromotionSales = finalPromotionSales.reverse()
         }
 
-        // Restrict the number of results.
-        int totalResults = finalPromotionSales.size()
-        finalPromotionSales = sortParams.offset < finalPromotionSales.size() ? finalPromotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalPromotionSales.size() ? sortParams.offset + sortParams.max : finalPromotionSales.size())) : []
-
-        render (template: "promotionsGroupedResults", model: [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "PromotionSalesGrouped-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getPromotionsGrouped(finalPromotionSales)
+        }else {
+            // Restrict the number of results.
+            int totalResults = finalPromotionSales.size()
+            finalPromotionSales = sortParams.offset < finalPromotionSales.size() ? finalPromotionSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalPromotionSales.size() ? sortParams.offset + sortParams.max : finalPromotionSales.size())) : []
+            render (template: "promotionsGroupedResults", model: [promotionSales: finalPromotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        }
     }
 
     def promotions() {
@@ -550,9 +554,17 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all promotion sales for this promotion in the date range.
-        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def promotionSales = reportingService.getPromotionSales(startDate,endDate.plusDays(1), promotionId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)\
 
-        render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "Promotions-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getPromotions(promotionSales)
+        }else {
+            render (template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
+        }
+
     }
 
     def promotion() {
@@ -573,7 +585,14 @@ class ReportingController {
         // Find all promotion sale products for this promotion sale.
         def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId, params.descriptionFilter, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
-        render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), sortParams: sortParams, totalResults: promotionSaleProducts.totalCount])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "Promotion-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getPromotionSaleProduct(promotionSaleProducts)
+        }else {
+            render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), sortParams: sortParams, totalResults: promotionSaleProducts.totalCount])
+        }
     }
 
     def tillControlEvents() {
@@ -592,7 +611,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all till control events in the date range.
-        def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1))
+        def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate.plusDays(1))
 
         // Group them by type.
         def tillControlEventsGrouped = tillControlEvents.groupBy { it.type }
@@ -601,7 +620,7 @@ class ReportingController {
         Comparator comparator
 
         if (sortParams.sortColumn == "type") {
-            comparator = [ compare: { a, b ->
+            comparator = [compare: { a, b ->
                 if (sortParams.sortOrder == "desc") {
                     a.compareTo(b)
                 } else {
@@ -611,7 +630,7 @@ class ReportingController {
 
             tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
         } else if (sortParams.sortColumn == "quantity") {
-            comparator = [ compare: { a, b ->
+            comparator = [compare: { a, b ->
                 if (sortParams.sortOrder == "desc") {
                     if (tillControlEventsGrouped.get(b).size() < tillControlEventsGrouped.get(a).size()) {
                         return -1
@@ -630,11 +649,17 @@ class ReportingController {
             tillControlEventsGrouped = tillControlEventsGrouped.sort(comparator)
         }
 
-        // Restrict the number of results.
-        int totalResults = tillControlEventsGrouped.size()
-//        tillControlEventsGrouped = offset < tillControlEventsGrouped.size() ? tillControlEventsGrouped.subList(offset, (offset + max < tillControlEventsGrouped.size() ? offset + max : tillControlEventsGrouped.size())) : []
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "TillControlEvents-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getTillControlEventsCsv(tillControlEventsGrouped)
+        } else {
+            // Restrict the number of results.
+            int totalResults = tillControlEventsGrouped.size()
+            render(template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
 
-        render (template: "tillControlEventsResults", model: [tillControlEvents: tillControlEventsGrouped, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: totalResults])
+        }
     }
 
     def tillControlEvent() {
@@ -671,7 +696,14 @@ class ReportingController {
         // Find all till control events in the date range.
         def tillControlEvents = reportingService.getTillControlEvents(startDate,endDate.plusDays(1), type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
-        render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "TillControlEvent-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getTillControlEventCsv(tillControlEvents)
+        }else {
+            render (template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+        }
     }
 
     // The top level of the main orders report.
@@ -709,12 +741,19 @@ class ReportingController {
 
         def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
 
-        render(template: "ordersResults", model: [orders      : orders,
-                                                  userColumns : reportingService.getReportColumns(ReportType.ORDERS),
-                                                  startDate   : startDate,
-                                                  endDate     : endDate,
-                                                  sortParams  : sortParams,
-                                                  totalResults: orders.totalCount])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "Orders-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getOrdersCsv(orders)
+        }else {
+            render(template: "ordersResults", model: [orders      : orders,
+                                                      userColumns : reportingService.getReportColumns(ReportType.ORDERS),
+                                                      startDate   : startDate,
+                                                      endDate     : endDate,
+                                                      sortParams  : sortParams,
+                                                      totalResults: orders.totalCount])
+        }
     }
 
     // The bottom level of the main orders report.
@@ -755,13 +794,41 @@ class ReportingController {
 
         def orders = productListService.getOrder(productListId, storeId, supplierId, startDate, endDate.plusDays(1))
 
-        render(template: "orderResults", model: [orders      : orders[0]?.totalPackLines,
-                                                 userColumns : reportingService.getReportColumns(ReportType.ORDER),
-                                                 startDate   : startDate,
-                                                 endDate     : endDate,
-                                                 sortParams  : sortParams,
-                                                 totalResults: orders.size()])
+
+        //sort pack lines based on sort column (sku / description / packQuantity / orderedQuantity / lineValue)
+        def packLines = []
+        packLines = orders[0]?.totalPackLines
+        if (sortParams.sortColumn == "description") {
+            packLines.sort { it.productListItem?.productVariant?.product?.description }
+        } else if (sortParams.sortColumn == "packQuantity") {
+            packLines.sort { it.pack?.quantity }
+        } else if (sortParams.sortColumn == "orderedQuantity") {
+            packLines.sort { it.pack?.quantity.multiply(it.quantity) }
+        } else if (sortParams.sortColumn == "lineValue") {
+            packLines.sort { it.pack?.price?.multiply(it.quantity) }
+        } else { //If no sort column found then by default sort by sku
+            packLines.sort { it.productListItem?.productVariant?.sku }
+        }
+
+        if (sortParams.sortOrder == "desc") {
+            packLines = packLines.reverse()
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "Order-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getOrderCsv(packLines)
+        } else {
+            render(template: "orderResults", model: [orders      : packLines,
+                                                     userColumns : reportingService.getReportColumns(ReportType.ORDER),
+                                                     startDate   : startDate,
+                                                     endDate     : endDate,
+                                                     sortParams  : sortParams,
+                                                     totalResults: orders.size()])
+        }
     }
+
 
     def paypointSales() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
@@ -853,9 +920,7 @@ class ReportingController {
 
     private String getSalesByCategoryCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
-
         stringBuilder.append("Description,Total Quantity,Refund Quantity,Avg Cost Price,Avg Sales Price,Total Sales,VAT Amount,Avg Margin\n")
-
         sales?.each {
             stringBuilder.append(it.productDescription?.replace("'", "\\'"))
             stringBuilder.append(",")
@@ -874,15 +939,12 @@ class ReportingController {
             stringBuilder.append(it.avgMargin?.setScale(2) + "%")
             stringBuilder.append("\n")
         }
-
         return stringBuilder.toString()
     }
 
     private String getSalesByProductCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
-
         stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
-
         sales?.each {
             stringBuilder.append(it.productItemCode?.replace("'", "\\'") + " - " + it.productDescription?.replace("'", "\\'") + " - " + it.productUnitSize?.replace("'", "\\'"))
             stringBuilder.append(",")
@@ -903,7 +965,6 @@ class ReportingController {
             stringBuilder.append(it.dateCreated?.format("dd/MM/yy HH:mm:ss"))
             stringBuilder.append("\n")
         }
-
         return stringBuilder.toString()
     }
 
@@ -1041,7 +1102,189 @@ class ReportingController {
                 stringBuilder.replace(stringBuilder.length() - 1, stringBuilder.length(), "\n")
             }
         }
+        return stringBuilder.toString()
+    }
 
+    private String getOrderCsv(List<PackLine> packLines) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Product SKU,Description,Ordered Quantity,Pack Quantity,Line Value\n")
+        packLines?.each {
+            stringBuilder.append(it.productListItem?.productVariant?.sku)
+            stringBuilder.append(",")
+            stringBuilder.append(it.productListItem?.productVariant?.product?.description)
+            stringBuilder.append(",")
+            stringBuilder.append(it.pack?.quantity.multiply(it.quantity))
+            stringBuilder.append(",")
+            stringBuilder.append(it.pack?.quantity)
+            stringBuilder.append(",")
+            //in reports line value represent in dollars ($)
+            stringBuilder.append("£" + (it.pack?.price?.multiply(it.quantity)))
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private String getOrdersCsv(List<ProductList> productListList) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Order ID,Store ID,Status,Date Completed,Supplier Name,Quantity,Value of Order\n")
+        productListList?.each {
+            stringBuilder.append(it.getOrderId())
+            stringBuilder.append(",")
+            stringBuilder.append(it.getStoreId())
+            stringBuilder.append(",")
+            stringBuilder.append(it.status)
+            stringBuilder.append(",")
+            stringBuilder.append(it.dateCompleted?.toString("dd/MM/yyyy HH:mm:ss"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.supplierReference)
+            stringBuilder.append(",")
+            stringBuilder.append(it.totalQuantity)
+            stringBuilder.append(",")
+            //in reports total value represent in dollars ($)
+            stringBuilder.append("£" + it.totalValue)
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private String getTillControlEventsCsv(TreeMap<TillControlEventType, ArrayList> tillControlEventMap) {
+        StringBuilder stringBuilder = new StringBuilder()
+        //load resource bundle to get value from messages properties file
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.US);
+        stringBuilder.append("Type,Total Quantity\n")
+        for (Map.Entry<TillControlEventType, ArrayList> set : tillControlEventMap.entrySet()) {
+            //build till event
+            String tillEventType = bundle.getString("TillControlEventType." + set.getKey()) != null ?
+                    bundle.getString("TillControlEventType." + set.getKey()) : "TillControlEventType." + set.getKey()
+            stringBuilder.append(tillEventType)
+            stringBuilder.append(",")
+            stringBuilder.append(set.getValue() != null ? set.getValue().size(): 0)
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private String getTillControlEventCsv(List<TillControlEvent> tillControlEventList) {
+        //load resource bundle to get value from messages properties file
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.US)
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Type,User,Reason,Date,Amount\n")
+        tillControlEventList?.each {
+            String type  = bundle.getString("TillControlEventType." + it.type) != null ?
+                    bundle.getString("TillControlEventType." + it.type) : "TillControlEventType." + it.type
+            stringBuilder.append(type.toString()?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.usersName?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            //build till event reason since
+            String reason = it.reason
+            if (it.reason == null){
+                reason = "N/A";
+            } else if (it.type.name() == "CUSTOMER_REFUSAL"){
+                reason = bundle.getString("CustomerRefusalReason." + it.reason) != null ?
+                        bundle.getString("CustomerRefusalReason." + it.reason) : "CustomerRefusalReason." + it.reason
+            } else if (it.type.name() == "REFUND"){
+                reason = bundle.getString("RefundReason." + it.reason) != null ?
+                        bundle.getString("RefundReason." + it.reason) : "RefundReason." +it.reason
+            } else if (it.type.name() == "MARKDOWN"){
+                reason = bundle.getString("MarkdownReason." + it.reason) != null ?
+                        bundle.getString("MarkdownReason." + it.reason) : "MarkdownReason." + it.reason
+            } else if (it.type.name() == "LINE_VOID"){
+                reason = bundle.getString("LineVoidReason." + it.reason) != null ?
+                        bundle.getString("LineVoidReason." + it.reason) : "LineVoidReason." + it.reason
+            } else if (it.type.name() == "PAID_OUT"){
+                reason = bundle.getString("PaidOutReason." + it.reason) != null ?
+                        bundle.getString("PaidOutReason." + it.reason) : "PaidOutReason." +  it.reason
+            } else {
+                reason = it.reason
+            }
+            stringBuilder.append(reason?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.dateCreated?.toString("dd/MM/yy HH:mm:ss"))
+            stringBuilder.append(",")
+            //in reports amount represent in dollars ($)
+            stringBuilder.append(it.amount != null ? "£" + it.amount : "N/A")
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private String getPromotionsGrouped(List<PromotionSale> promotionSales) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Description,Type,Quantity,Full Price,Discount,Profit,Margin,VAT\n")
+        promotionSales?.each {
+            stringBuilder.append(it.description?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.type?.getFriendlyName()?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.quantity)
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.profit != null ? it.profit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append(it.margin?.setScale(2) + "%")
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2)  : BigDecimal.ZERO))
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private String getPromotions(List<PromotionSale> promotionSales) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Description,Type,Full Price,Discount,Profit,Margin,VAT,Date\n")
+        promotionSales?.each {
+            stringBuilder.append(it.description?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.type?.getFriendlyName()?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.profit != null ? it.profit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append(it.margin?.setScale(2) + "%")
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append(it.dateCreated?.toString("dd/MM/yyyy HH:mm"))
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private String getPromotionSaleProduct(List<PromotionSaleProduct> promotionSaleProductList) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Item Code,Description,Cost Price,Full Price,Full Price Profit,Full Price Margin,Discount,Discounted Price," +
+                "Discounted Profit,Discounted Margin,VAT\n")
+        promotionSaleProductList?.each {
+            stringBuilder.append(it.itemCode?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.description?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.costPrice != null ? it.costPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" +  (it.fullPrice != null ? it.fullPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.fullPriceProfit != null ? it.fullPriceProfit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append(it.fullPriceMargin?.setScale(2) + "%")
+            stringBuilder.append(",")
+            stringBuilder.append("£" +  (it.discount != null ? it.discount.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.discountedPrice != null ? it.discountedPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.discountedProfit != null ? it.discountedProfit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append(",")
+            stringBuilder.append(it.discountedMargin?.setScale(2) + "%")
+            stringBuilder.append(",")
+            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("\n")
+        }
         return stringBuilder.toString()
     }
 
