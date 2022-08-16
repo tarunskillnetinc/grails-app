@@ -64,6 +64,8 @@
             $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('descriptionFilter').value = null;
+
+            document.getElementById('storeFilter').value = '';
         }
     </script>
 </head>
@@ -106,12 +108,22 @@
 
                             <div class="form-group row">
                                 <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
-                                <div class="col-6">
+                                <div class="col-10">
                                     <g:textField id="descriptionFilter" name="descriptionFilter" onkeydown="return false" maxlength="100" value="${descriptionFilter}" class="form-control bottom-border" autocomplete="off" />
                                 </div>
+                            </div>
 
-                                <div class="col-4 text-right">
-                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                            <div class="form-group row">
+                                <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
+                                <div class="col-3">
+                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                              optionKey="storeId" noSelection="['': 'All']"
+                                              class="form-control select-border"></g:select>
+                                </div>
+
+                                <div class="col-4 offset-3 text-right">
+                                    <button type="button" class="btn btn-danger text-right mr-2"
+                                            onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
