@@ -435,6 +435,7 @@ class ProductController {
     }
 
     def save(ProductCommand editedProduct) {
+        editedProduct.variants?.removeIf({ it == null})
         def product
         def builder
 
@@ -512,7 +513,7 @@ class ProductController {
             editedProduct.variants?.each {editedVariant ->
                 def existingVariant = product.variants?.find {existingVariant -> existingVariant.id == editedVariant.id }
 
-                if (existingVariant) {
+                if (editedVariant.id != 0 && existingVariant) {
                     // Variant we saved is one which already exists, check for changes.
                     if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
                         // Variant has changed
@@ -584,7 +585,7 @@ class ProductController {
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
                 def priceChanges = []
-                editedProduct?.priceChanges?.each {
+                editedProduct?.priceChanges?.find{ it != null }.each {
                     priceChanges.addAll(it.priceChanges)
                 }
 
@@ -764,7 +765,7 @@ class ProductController {
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
-        editedProduct.variants.forEach({ variant ->
+        editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id}).findAny().ifPresentOrElse({ oldVariant ->
                 if (variant.delete) {
                     doVariantComparison(builder, variant.id, oldVariant, new ProductVariantCommand())
