@@ -18,6 +18,8 @@
 
         function resetForm() {
             $("#descriptionFilter").val("");
+
+            document.getElementById('storeFilter').value = '';
         }
     </script>
 </head>
