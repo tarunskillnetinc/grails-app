@@ -93,13 +93,15 @@ class ShelfEdgeLabelService extends MySqlDal {
             if (barcodeEffective && barcodeEffective.isAfter(effectiveDateToUse)) {
                 effectiveDateToUse = barcodeEffective
             }
-            if (price && !productListItem.productVariant?.retailPrice && price.effectiveDate.isAfter(effectiveDateToUse)) {
+            if (!productListItem.productVariant?.product?.zeroPrice && price && !productListItem.productVariant?.retailPrice && price.effectiveDate.isAfter(effectiveDateToUse)) {
                 effectiveDateToUse = price.effectiveDate
             }
 
-            shelfEdgeLabel.setPrice(productListItem.productVariant?.retailPrice ?: (price?.price ?: BigDecimal.ZERO.setScale(2)))
+            def priceToUse = productListItem.productVariant?.product?.zeroPrice ? BigDecimal.ZERO.setScale(2) : (productListItem.productVariant?.retailPrice ?: (price?.price ?: BigDecimal.ZERO.setScale(2)))
+
+            shelfEdgeLabel.setPrice(priceToUse)
             shelfEdgeLabel.setWasPrice(null) // TODO How are we getting previous price?
-            shelfEdgeLabel.setUnitPrice(productListItem.productVariant?.retailPrice ?: (price?.price ?: BigDecimal.ZERO.setScale(2))) // TODO Figure out what this is.
+            shelfEdgeLabel.setUnitPrice(priceToUse) // TODO Figure out what this is.
             shelfEdgeLabel.setEmbeddedBarcode(false) // TODO How are we handling this?
             shelfEdgeLabel.setWeightedItem(productListItem.productVariant?.product?.weightedItem)
             shelfEdgeLabel.setPricePerKg(productListItem.productVariant?.product?.pricePerKg)
@@ -582,7 +584,7 @@ class ShelfEdgeLabelService extends MySqlDal {
                                 boolean zeroPrice = false;
                                 boolean penceOnlyPrice = false;
                                 boolean isGramPrice = false;
-                                BigDecimal productPrice
+                                BigDecimal productPrice;
 
                                 if (shelfEdgeLabel.isWeightedItem()) {
                                     if (shelfEdgeLabel.isPricePerKg()) {
@@ -595,7 +597,7 @@ class ShelfEdgeLabelService extends MySqlDal {
                                     productPrice = shelfEdgeLabel.getPrice();
                                 }
 
-                                if (!productPrice) {
+                                if (productPrice == null) {
                                     continue
                                 }
 
@@ -637,7 +639,6 @@ class ShelfEdgeLabelService extends MySqlDal {
                                     }
 
                                     addProductPriceField(contentStream, page, labelTemplate, field, price, fieldX, fieldY, false, isGramPrice);
-
                                 } else {
 
                                     // Price is over one pound
@@ -908,10 +909,12 @@ class ShelfEdgeLabelService extends MySqlDal {
 
         float y = (float)y(page.getMediaBox().getHeight(), pt(fieldY)) - fontHeight;
 
+        int maxLines = (int)(pt(field.getHeight()) / fontHeight);
+
         contentStream.beginText();
         contentStream.setFont(font, fontSize);
 
-        for (int i = 0 ; i < textLines.size() ; i++) {
+        for (int i = 0 ; i < textLines.size() && i < maxLines ; i++) {
             String textLine = textLines.get(i);
 
             // Calculate the actual X position of this line of text if it is set to be centrally aligned.
