@@ -93,7 +93,7 @@ class ProductController {
             effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
             session.effectiveDate = [effectiveDateSelected.toString(formatter), effectiveDateSelected]
         } else {
-            session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()]
+            session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
         }
     }
 
