@@ -1197,13 +1197,11 @@ class ReportingController {
 
     private String getTillControlEventsCsv(TreeMap<TillControlEventType, ArrayList> tillControlEventMap) {
         StringBuilder stringBuilder = new StringBuilder()
-        //load resource bundle to get value from messages properties file
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.US);
         stringBuilder.append("Type,Total Quantity\n")
         for (Map.Entry<TillControlEventType, ArrayList> set : tillControlEventMap.entrySet()) {
             //build till event
-            String tillEventType = bundle.getString("TillControlEventType." + set.getKey()) != null ?
-                    bundle.getString("TillControlEventType." + set.getKey()) : "TillControlEventType." + set.getKey()
+            String tillEventType = getMappingFromResource("TillControlEventType." + set.getKey()) != null ?
+                    getMappingFromResource("TillControlEventType." + set.getKey()) : "TillControlEventType." + set.getKey()
             stringBuilder.append(tillEventType)
             stringBuilder.append(",")
             stringBuilder.append(set.getValue() != null ? set.getValue().size(): 0)
@@ -1213,13 +1211,11 @@ class ReportingController {
     }
 
     private String getTillControlEventCsv(List<TillControlEvent> tillControlEventList) {
-        //load resource bundle to get value from messages properties file
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.US)
         StringBuilder stringBuilder = new StringBuilder()
         stringBuilder.append("Type,User,Reason,Date,Amount\n")
         tillControlEventList?.each {
-            String type  = bundle.getString("TillControlEventType." + it.type) != null ?
-                    bundle.getString("TillControlEventType." + it.type) : "TillControlEventType." + it.type
+            String type  = getMappingFromResource("TillControlEventType." + it.type) != null ?
+                    getMappingFromResource("TillControlEventType." + it.type) : "TillControlEventType." + it.type
             stringBuilder.append(type.toString()?.replace("'", "\\'"))
             stringBuilder.append(",")
             stringBuilder.append(it.usersName?.replace("'", "\\'"))
@@ -1229,20 +1225,20 @@ class ReportingController {
             if (it.reason == null){
                 reason = "N/A";
             } else if (it.type.name() == "CUSTOMER_REFUSAL"){
-                reason = bundle.getString("CustomerRefusalReason." + it.reason) != null ?
-                        bundle.getString("CustomerRefusalReason." + it.reason) : "CustomerRefusalReason." + it.reason
+                reason = getMappingFromResource("CustomerRefusalReason." + it.reason) != null ?
+                        getMappingFromResource("CustomerRefusalReason." + it.reason) : "CustomerRefusalReason." + it.reason
             } else if (it.type.name() == "REFUND"){
-                reason = bundle.getString("RefundReason." + it.reason) != null ?
-                        bundle.getString("RefundReason." + it.reason) : "RefundReason." +it.reason
+                reason = getMappingFromResource("RefundReason." + it.reason) != null ?
+                        getMappingFromResource("RefundReason." + it.reason) : "RefundReason." +it.reason
             } else if (it.type.name() == "MARKDOWN"){
-                reason = bundle.getString("MarkdownReason." + it.reason) != null ?
-                        bundle.getString("MarkdownReason." + it.reason) : "MarkdownReason." + it.reason
+                reason = getMappingFromResource("MarkdownReason." + it.reason) != null ?
+                        getMappingFromResource("MarkdownReason." + it.reason) : "MarkdownReason." + it.reason
             } else if (it.type.name() == "LINE_VOID"){
-                reason = bundle.getString("LineVoidReason." + it.reason) != null ?
-                        bundle.getString("LineVoidReason." + it.reason) : "LineVoidReason." + it.reason
+                reason = getMappingFromResource("LineVoidReason." + it.reason) != null ?
+                        getMappingFromResource("LineVoidReason." + it.reason) : "LineVoidReason." + it.reason
             } else if (it.type.name() == "PAID_OUT"){
-                reason = bundle.getString("PaidOutReason." + it.reason) != null ?
-                        bundle.getString("PaidOutReason." + it.reason) : "PaidOutReason." +  it.reason
+                reason = getMappingFromResource("PaidOutReason." + it.reason) != null ?
+                        getMappingFromResource("PaidOutReason." + it.reason) : "PaidOutReason." +  it.reason
             } else {
                 reason = it.reason
             }
@@ -1334,6 +1330,16 @@ class ReportingController {
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
+    }
+
+    private String getMappingFromResource(String key){
+        //load resource bundle to get value from messages properties file
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.US)
+        try {
+            return bundle.getString(key)
+        }catch(MissingResourceException e){ //if missing resource found mean not configured in message file
+            return null //return null if no resource found in message property file
+        }
     }
 
     /**
