@@ -605,8 +605,14 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
-        [reportType: ReportType.PROMOTION, promotionSaleId: promotionSaleId, startDate: startDate, endDate: endDate, userColumns: reportingService.getReportColumns(ReportType.PROMOTION)]
+        [reportType     : ReportType.PROMOTION,
+         promotionSaleId: promotionSaleId,
+         startDate      : startDate,
+         endDate        : endDate,
+         userColumns    : reportingService.getReportColumns(ReportType.PROMOTION),
+         stores         : stores]
     }
 
     def ajaxPromotion(SortParams sortParams) {
@@ -614,8 +620,15 @@ class ReportingController {
 
         sortParams.validateParams(PROMOTION_REPORT_SORT_COLUMNS)
 
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
         // Find all promotion sale products for this promotion sale.
-        def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId, params.descriptionFilter, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def promotionSaleProducts = reportingService.getPromotionSaleProducts(promotionSaleId, params.descriptionFilter, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder, storeId)
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "Promotion-" + new Date().format("yyyy_MM_dd_HH_mm_ss") +".csv"
@@ -623,7 +636,10 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getPromotionSaleProduct(promotionSaleProducts)
         }else {
-            render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts, userColumns: reportingService.getReportColumns(ReportType.PROMOTION), sortParams: sortParams, totalResults: promotionSaleProducts.totalCount])
+            render (template: "promotionResults", model: [promotionSaleProducts: promotionSaleProducts,
+                                                          userColumns: reportingService.getReportColumns(ReportType.PROMOTION),
+                                                          sortParams: sortParams,
+                                                          totalResults: promotionSaleProducts.totalCount])
         }
     }
 

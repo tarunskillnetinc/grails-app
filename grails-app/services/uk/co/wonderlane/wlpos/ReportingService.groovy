@@ -187,14 +187,14 @@ class ReportingService {
     }
 
     // For promotion report product level. Filtered and paginated.
-    def getPromotionSaleProducts(int promotionSaleId, String productFilter, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getPromotionSaleProducts(int promotionSaleId, String productFilter, int maxResults, int startIndex, String sortColumn, String sortOrder, Integer storeId) {
         def promotionProductsCriteria = PromotionSaleProduct.createCriteria()
 
         def results = promotionProductsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             promotion {
                 eq ("retailerId", springSecurityService.principal.retailerId)
-                if (springSecurityService.principal.storeId != null) {
-                    eq("storeId", springSecurityService.principal.storeId)
+                if (storeId != null) {
+                    eq("storeId", storeId)
                 }
                 eq ("id", promotionSaleId)
             }
