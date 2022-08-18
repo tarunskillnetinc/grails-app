@@ -3,9 +3,21 @@
 </div>
 
 <div class="modal-body">
-    <!-- TODO Add default supplier box -->
 
-    <div class="row mx-4 pt-3 pb-2 table-wl bottom-border">
+    <div id="defaultSupplierForm">
+        <div class="row mx-4 pt-3 pb-2">
+            <label for="defaultSupplier" class="col-10 col-form-label text-right">Default Supplier</label>
+
+            <div class="col-2 px-0">
+                <g:select name="defaultSupplier" from="${suppliers}"
+                          noSelection="['': '']" value="${defaultSupplier}"
+                          optionValue="name" optionKey="id"
+                          class="form-control select-border"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-4 pt-5 pb-2 table-wl bottom-border">
         <div class="col-3 font-weight-bold">Supplier</div>
         <div class="col-2 font-weight-bold">Pack Quantity</div>
         <div class="col-2 font-weight-bold">Cost Price</div>

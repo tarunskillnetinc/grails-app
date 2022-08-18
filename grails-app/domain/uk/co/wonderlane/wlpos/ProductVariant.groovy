@@ -17,6 +17,7 @@ class ProductVariant implements Serializable {
 
     int id
     Integer storeId
+    Integer defaultSupplierId
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -47,6 +48,7 @@ class ProductVariant implements Serializable {
 
         product column: "productId"
         storeId column: "storeId", sqlType: "smallint"
+        defaultSupplierId column: "defaultSupplierId"
         sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"
@@ -61,6 +63,7 @@ class ProductVariant implements Serializable {
     static constraints = {
         storeId nullable: true
         sku nullable: false
+        defaultSupplierId nullable: true
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true

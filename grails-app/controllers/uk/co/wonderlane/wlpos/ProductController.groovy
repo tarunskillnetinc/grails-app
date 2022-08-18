@@ -561,6 +561,11 @@ class ProductController {
             }
         }
 
+        // Add default supplier Id at the end
+        for (int i = 0; i <= editedProduct?.variants?.size(); i++) {
+            product?.variants[i]?.defaultSupplierId = editedProduct?.variants[i]?.defaultSupplierId
+        }
+
         if (product.validate()) {
             restrictionsService.saveRestrictions(product.restrictions) // Restrictions are validated as part of product.validate()
             productService.saveProduct(product)
@@ -932,7 +937,7 @@ class ProductController {
 
         suppliers.removeAll { it.symbolGroup != null  }
 
-        render (template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index])
+        render (template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
     }
 
     def ajaxAddPack(int variantIndex, int packIndex) {
@@ -944,7 +949,7 @@ class ProductController {
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
-        render (template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs])
+        render (template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
     }
 
     //This will render category mapped restrictions for new products
@@ -1084,6 +1089,7 @@ class AddVariantCommand {
     List<AddBarcodeCommand> barcodez
     List<AddPackCommand> packs
     boolean zeroPrice
+    Integer defaultSupplierId
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
@@ -1185,6 +1191,7 @@ class RestrictionsCommand {
 class ProductVariantCommand {
     int id
     int storeId
+    Integer defaultSupplierId
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice

@@ -23,7 +23,7 @@
     </div>
 
     <div class="col-2 my-auto text-right">
-        <a href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
+        <a href="#" onclick="event.stopPropagation(); showSuppliersModal(${index}, ${variant?.defaultSupplierId});" class="btn btn-wl">Suppliers</a>
         <a href="#" onclick="event.stopPropagation(); deleteVariant(${index});" class="btn btn-danger">Delete SKU</a>
     </div>
 </div>

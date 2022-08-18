@@ -387,12 +387,16 @@
             }
 
             // The suppliers button was clicked, we display the suppliers modal for this variant.
-            function showSuppliersModal(variantIndex) {
+            function showSuppliersModal(variantIndex, defaultSupplierId) {
                 $("#suppliersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#suppliersModal').modal({ show: true });
 
                 var params = {};
                 params["index"] = variantIndex;
+
+                defaultSupplierId = defaultSupplierId == null ? '' : defaultSupplierId;
+                var defaultSupplier = $("#variants\\[" + variantIndex + "\\]\\.defaultSupplierId").val();
+                params["defaultSupplier"] = defaultSupplier?.length === 0 ? defaultSupplierId : defaultSupplier;
 
                 var packContainers = $("#variants\\[" +variantIndex +"\\]\\.packsContainer > div");
 
@@ -463,7 +467,13 @@
 
             // The "Ok" button was clicked on the suppliers modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function savePacks(variantIndex) {
+                var filterValues = {};
+                $("#defaultSupplierForm select").each(function () {
+                    filterValues[$(this).attr("name")] = $(this).find(":selected").val();
+                }).get();
+
                 var params = { index: variantIndex };
+                params["defaultSupplier"] = filterValues["defaultSupplier"];
 
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
