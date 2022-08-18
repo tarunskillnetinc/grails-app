@@ -42,29 +42,22 @@ class ProductController {
 
     def show(int id) {
         setEffectiveDate()
-
         def product = productService.getProduct(id)
-
         DateTime now = DateTime.now(DateTimeZone.UTC)
-
         if (!product) {
             flash.message = "Product not found"
             redirect(action: "index")
             return
         }
-
         def ranges = []
         def priceBands = []
-
         def productCategoryList = []
-
         def category = product.category
+        def productId = product.id
         while (category) {
             productCategoryList.add(category.id)
-
             category = category.parentCategory
         }
-
         def userRoles = springSecurityService.principal.authorities*.authority
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
             priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
@@ -87,7 +80,6 @@ class ProductController {
 
     private void setEffectiveDate() {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy").withZone(DateTimeZone.UTC)
-
         def effectiveDateSelected
         if (params.get("effectiveDate")) {
             effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
@@ -99,16 +91,13 @@ class ProductController {
 
     def add() {
         setEffectiveDate()
-
         def ranges = []
         def priceBands = []
-
         def userRoles = springSecurityService.principal.authorities*.authority
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
             priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
-
         render(view: "add", model: [storeId: springSecurityService.principal.storeId,
                                     statusValues: ProductStatus.values(),
                                     categoryValues: categoryService.getFullCategoryHierarchy(),
@@ -956,6 +945,17 @@ class ProductController {
 
     def ajaxSavePack(SuppliersCommand cmd) {
         render (template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs])
+    }
+
+    //This will render category mapped restrictions for new products
+    def ajaxGetRestrictions(int selectedCategoryId, boolean productOpenPrice) {
+        Restrictions restrictions = null
+        def category = categoryService.getCategory(selectedCategoryId)
+        if (category != null){
+            restrictions = category.restrictions
+        }
+        //when rendering restriction tab manually set isNewProduct to false since category mapped restriction should be loaded rather default values
+        render (view: "/product/_restrictions", model: [restrictions: restrictions, productOpenPrice: productOpenPrice, isNewProduct: false])
     }
 
     /**

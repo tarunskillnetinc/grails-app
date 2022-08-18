@@ -182,7 +182,7 @@
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="openPrice" class="col-3 col-form-label text-right pr-4">Open Price</label>
-                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}" disabled="${product?.weightedItem || product?.deliItem}" />
+                                <g:checkBox name="openPrice" id = "openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}" disabled="${product?.weightedItem || product?.deliItem}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="zeroPrice" class="col-3 col-form-label text-right pr-4">Zero Price</label>
@@ -208,84 +208,8 @@
             </div>
 
             <div id="collapseRestrictions" class="collapse collapsed" aria-labelledby="productRestrictions" data-parent="#accordion">
-                <g:hiddenField name="restrictions.id" value="${product?.restrictions?.id}" />
-
-                <div class="card-body py-5">
-                    <div class="row">
-                        <div class="col-12 col-lg-5 offset-lg-1">
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.buyerIdRequired" class="col-4 col-form-label text-right pr-4">Age Restricted Item</label>
-                                <g:checkBox name="restrictions.buyerIdRequired" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.buyerIdForced" class="col-4 col-form-label text-right pr-4">ID Check Forced</label>
-                                <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.buyerIdForced}" disabled="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.buyerAgeRestriction" class="col-4 col-form-label text-right pr-4">Customer Age Required</label>
-                                <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product?.restrictions?.buyerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.buyerChallengeAge" class="col-4 col-form-label text-right pr-4">Customer Challenge Age</label>
-                                <g:field name="restrictions.buyerChallengeAge" type="number" value="${product?.restrictions?.buyerChallengeAge}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.sellerAgeRestriction" class="col-4 col-form-label text-right pr-4">Operator Age Required</label>
-                                <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product?.restrictions?.sellerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.minOpenPrice" class="col-4 col-form-label text-right pr-4">Min Open Price</label>
-
-                                <div class="input-group col-3 px-0">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">&pound;</span>
-                                    </div>
-                                    <g:textField name="restrictions.minOpenPrice" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money" readonly="${!product?.openPrice}" />
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.maxOpenPrice" class="col-4 col-form-label text-right pr-4">Max Open Price</label>
-
-                                <div class="input-group col-3 px-0">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">&pound;</span>
-                                    </div>
-                                    <g:textField name="restrictions.maxOpenPrice" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money" readonly="${!product?.openPrice}" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.refundAllowed" class="col-4 col-form-label text-right pr-4">Allow Refunds</label>
-                                <g:checkBox name="restrictions.refundAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.refundAllowed == null || product?.restrictions?.refundAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.discountAllowed" class="col-4 col-form-label text-right pr-4">Allow Discounts</label>
-                                <g:checkBox name="restrictions.discountAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.discountAllowed == null || product?.restrictions?.discountAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.markdownAllowed" class="col-4 col-form-label text-right pr-4">Allow Price Changes</label>
-                                <g:checkBox name="restrictions.markdownAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.markdownAllowed == null || product?.restrictions?.markdownAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.creditPaymentAllowed" class="col-4 col-form-label text-right pr-4">Allow Credit Payments</label>
-                                <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.creditPaymentAllowed == null || product?.restrictions?.creditPaymentAllowed}" />
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.quantityChangeAllowed" class="col-4 col-form-label text-right pr-4">Allow Quantity Changes</label>
-                                <g:checkBox name="restrictions.quantityChangeAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.quantityChangeAllowed == null || product?.restrictions?.quantityChangeAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.quantityChangeForced" class="col-4 col-form-label text-right pr-4">Force Quantity Changes</label>
-                                <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.quantityChangeForced}" />
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.receiptPrintForced" class="col-4 col-form-label text-right pr-4">Force Receipt Print</label>
-                                <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.receiptPrintForced}"/>
-                            </div>
-                        </div>
-                    </div>
+                <div id="restrictionsContainer">
+                    <g:render template="restrictions" model="[restrictions: product?.restrictions, isNewProduct: isNewProduct]" />
                 </div>
             </div>
         </div>

@@ -156,22 +156,17 @@
             // Expand or collapse the category and show all children categories.
             function expandCollapseCategory(categoryId, level, selectedCategoryId) {
                 event.preventDefault();
-
                 var plusMinusButton = $("#plusMinus-" +categoryId);
                 var expanded = plusMinusButton.attr("aria-expanded");
-
                 if (expanded === "true") {
                     plusMinusButton.text("+");
                     plusMinusButton.attr("aria-expanded", "false");
-
                     $("#categoryContainer-" +categoryId).html("");
                 } else {
                     var params = {};
-
                     params["categoryId"] = categoryId;
                     params["level"] = level;
                     params["selectedCategoryId"] = selectedCategoryId;
-
                     $.ajax({
                         url: getChildCategoriesUrl,
                         method: "GET",
@@ -179,7 +174,6 @@
                         success: function(resp) {
                             plusMinusButton.text("-");
                             plusMinusButton.attr("aria-expanded", "true");
-
                             $("#categoryContainer-" +categoryId).html(resp);
                         }
                     });
@@ -523,6 +517,25 @@
                     }
                 });
             }
+
+            //trigger this when category is selected
+            function onCategoryChanged(selectedCategoryId) {
+                //call category map restrictions only when adding new product and restriction tab is not change by manually
+                var getRestrictionsUrl = "${createLink(controller: 'product', action: 'ajaxGetRestrictions')}";
+                var productOpenPrice = $("#openPrice").prop("checked");
+                $.ajax({
+                    url: getRestrictionsUrl,
+                    method: "GET",
+                    data: {
+                        selectedCategoryId: selectedCategoryId,
+                        productOpenPrice: productOpenPrice
+                    },
+                    success: function (resp) {
+                        $("#restrictionsContainer").html(resp);
+                    }
+                });
+            }
+
         </script>
     </head>
 
