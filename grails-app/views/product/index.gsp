@@ -34,6 +34,11 @@
                 var searchTerm = $('#productSearchTerm').val();
                 var searchBy = $('#productSearchBy').val();
 
+                if (searchBy === "barcode" && searchTerm.length < 4) {
+                    alert("Please enter at least 4 digits of a barcode.");
+                    return;
+                }
+
                 $("#search-results").hide();
                 $("#loading-indicator").show();
 
@@ -122,7 +127,7 @@
                                     <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" value="${session.PRODUCT_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
 
                                     <div class="input-group-append">
-                                        <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                        <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode', 'barcode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
                                     </div>
                                 </div>
                             </div>

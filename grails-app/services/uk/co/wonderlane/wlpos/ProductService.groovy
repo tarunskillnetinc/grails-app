@@ -192,11 +192,17 @@ class ProductService extends MySqlDal {
     }
 
     def searchProducts(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def now = DateTime.now(DateTimeZone.UTC)
+
+        def barcodeSkus = []
+
+        if ((searchBy == "everything" || searchBy == "barcode") && searchTerm?.length() > 2) {
+            barcodeSkus = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)?.collect { it.sku }?.unique()
+        }
+
         def productSearchCriteria = Product.createCriteria()
 
         searchTerm = searchTerm ? searchTerm.trim() : ""
-
-        def now = DateTime.now(DateTimeZone.UTC)
 
         def results = productSearchCriteria.list([offset: startIndex, max: maxResults]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
@@ -210,6 +216,9 @@ class ProductService extends MySqlDal {
 
             if (searchBy == "everything") {
                 or {
+                    variants {
+                        "in" ("sku", barcodeSkus)
+                    }
                     like ("itemCode", "%$searchTerm%")
                     if (searchTerm.isNumber()) {
                         variants {
@@ -229,6 +238,10 @@ class ProductService extends MySqlDal {
                 }
             } else if (searchBy == "description") {
                 like ("description", "%$searchTerm%")
+            } else if (searchBy == "barcode") {
+                variants {
+                    "in" ("sku", barcodeSkus)
+                }
             }
 
             if (sortColumn == "id" || sortColumn == "description") {
