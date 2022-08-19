@@ -29,7 +29,9 @@ class Barcode {
     static constraints = {
         sku nullable: false
         retailerId nullable: false
-        barcode size: 1..20, blank: false, nullable: false
+        barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
+            return Barcode.countByRetailerIdAndBarcodeAndSkuNotEqual(obj.retailerId, obj.barcode, obj.sku) > 0 ? ["error.product.duplicateBarcode"] : true
+        }
         effectiveDate nullable: false
         recordStatus nullable: false
     }

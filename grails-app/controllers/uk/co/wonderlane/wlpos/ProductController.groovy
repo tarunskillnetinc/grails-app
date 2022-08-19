@@ -458,6 +458,10 @@ class ProductController {
                     barcode.retailerId = springSecurityService.principal.retailerId
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
+
+                    if (!barcode.validate()) {
+                        product.errors.reject('product.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                    }
                 }
 
                 variant.packs?.each { pack ->
@@ -470,6 +474,7 @@ class ProductController {
 
             builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
             doComparison(builder, product, editedProduct)
+
             product.itemCode = editedProduct.itemCode
             changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.description, editedProduct.description)
             product.description = editedProduct.description
@@ -521,10 +526,10 @@ class ProductController {
                         product.addToVariants(newVariant)
 
                         checkProductVariantForPackChanges(newVariant, editedVariant, now)
-                        checkProductVariantForBarcodeChanges(newVariant, editedVariant, effectiveDate)
+                        checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
                     } else {
                         checkProductVariantForPackChanges(existingVariant, editedVariant, now)
-                        checkProductVariantForBarcodeChanges(existingVariant, editedVariant, effectiveDate)
+                        checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                     }
                 } else {
                     changeAffectsSel = true
@@ -553,7 +558,12 @@ class ProductController {
                             newBarcode.barcode = barcode.barcode
                             newBarcode.effectiveDate = effectiveDate
                             newBarcode.recordStatus = 'C'
+
                             newVariant.barcodez.add(newBarcode)
+
+                            if (!newBarcode.validate()) {
+                                product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                            }
                     })
 
                     product.addToVariants(newVariant)
@@ -566,7 +576,7 @@ class ProductController {
             product?.variants[i]?.defaultSupplierId = editedProduct?.variants[i]?.defaultSupplierId
         }
 
-        if (product.validate()) {
+        if (!product.hasErrors() && product.validate()) {
             restrictionsService.saveRestrictions(product.restrictions) // Restrictions are validated as part of product.validate()
             productService.saveProduct(product)
 
@@ -652,9 +662,10 @@ class ProductController {
         }
     }
 
-    private void checkProductVariantForBarcodeChanges(def existingVariant, def editedVariant, DateTime effectiveDate) {
+    private void checkProductVariantForBarcodeChanges(def product, def existingVariant, def editedVariant, DateTime effectiveDate) {
         editedVariant.barcodez?.each { editedBarcode ->
             def existingBarcode = existingVariant.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+
             if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
                 Barcode barcode = new Barcode()
                 barcode.sku = existingVariant.sku
@@ -662,9 +673,26 @@ class ProductController {
                 barcode.barcode = editedBarcode.barcode
                 barcode.effectiveDate = effectiveDate
                 barcode.recordStatus = 'C'
+
                 existingVariant.barcodez.add(barcode)
+
+                if (!barcode.validate()) {
+                    product.errors.reject(
+                            'product.barcodes.notUnique',
+                            [barcode.barcode] as Object[],
+                            'Barcode {0} already exists on another SKU.')
+                }
             } else { // If barcode do exists change update existing values
                 existingBarcode.barcode = editedBarcode.barcode
+
+                if (!existingBarcode.validate()) {
+                    product.errors.reject(
+                            'product.barcodes.notUnique',
+                            [existingBarcode.barcode] as Object[],
+                            'Barcode {0} already exists on another SKU.')
+                }
+
+                existingVariant.barcodez.add(existingBarcode)
             }
         }
 
