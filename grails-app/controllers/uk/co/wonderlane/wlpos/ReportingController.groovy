@@ -847,15 +847,15 @@ class ReportingController {
         def packLines = []
         packLines = orders[0]?.totalPackLines
         if (sortParams.sortColumn == "description") {
-            packLines.sort { it.productListItem?.productVariant?.product?.description }
+            packLines?.sort { it.productListItem?.productVariant?.product?.description }
         } else if (sortParams.sortColumn == "packQuantity") {
-            packLines.sort { it.pack?.quantity }
+            packLines?.sort { it.pack?.quantity }
         } else if (sortParams.sortColumn == "orderedQuantity") {
-            packLines.sort { it.pack?.quantity.multiply(it.quantity) }
+            packLines?.sort { it.pack?.quantity.multiply(it.quantity) }
         } else if (sortParams.sortColumn == "lineValue") {
-            packLines.sort { it.pack?.price?.multiply(it.quantity) }
+            packLines?.sort { it.pack?.price?.multiply(it.quantity) }
         } else { //If no sort column found then by default sort by sku
-            packLines.sort { it.productListItem?.productVariant?.sku }
+            packLines?.sort { it.productListItem?.productVariant?.sku }
         }
 
         if (sortParams.sortOrder == "desc") {
