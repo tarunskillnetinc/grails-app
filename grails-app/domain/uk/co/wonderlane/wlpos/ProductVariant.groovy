@@ -126,16 +126,9 @@ class ProductVariant implements Serializable {
     }
 
     private DateTime getSessionEffectiveDate() {
-        try {
-            DateTime effectiveDate = new DateTime(WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]);
-            if (effectiveDate?.toLocalDate() <=> LocalDate.now(DateTimeZone.UTC) == 0) {
-                return DateTime.now(DateTimeZone.UTC)
-            } else {
-                return WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1] ? new DateTime(WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]) : DateTime.now(DateTimeZone.UTC)
-            }
-        } catch (Exception e) {
-            return DateTime.now(DateTimeZone.UTC)
-        }
+        def effectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]
+
+        return effectiveDate ?: DateTime.now(DateTimeZone.UTC)
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {
