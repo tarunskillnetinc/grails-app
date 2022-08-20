@@ -674,7 +674,7 @@ class ShelfEdgeLabelService extends MySqlDal {
                                 break;
                             case LabelTemplateFieldType.BARCODE:
                                 // Ensure the product has at an EAN assigned to it.
-                                if ((shelfEdgeLabel.getEanCode() != null && !shelfEdgeLabel.getEanCode().isEmpty()) && !shelfEdgeLabel.isWeightedItem()) {
+                                if ((shelfEdgeLabel.getEanCode() != null && !shelfEdgeLabel.getEanCode().isEmpty())) {
                                     addBarcodeField(doc, contentStream, page, labelTemplate, field, shelfEdgeLabel.getEanCode(), fieldX, fieldY);
                                 }
 
