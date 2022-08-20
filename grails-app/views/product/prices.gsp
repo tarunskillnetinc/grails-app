@@ -97,7 +97,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Product Search</li>
+                            <li class="breadcrumb-item active" aria-current="page">Product Price Changes</li>
                         </ol>
                     </div>
                 </div>

@@ -91,7 +91,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Product Search</li>
+                            <li class="breadcrumb-item active" aria-current="page">Product Ranging</li>
                         </ol>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Product Ranges</h2>
+                <h2 class="mx-auto">Product Ranging</h2>
             </div>
 
             <div class="row mt-4">
