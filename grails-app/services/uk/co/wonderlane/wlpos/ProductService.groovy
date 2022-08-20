@@ -209,7 +209,7 @@ class ProductService extends MySqlDal {
             variants {
                 or {
                     isNull("storeId")
-                    eq("storeId", springSecurityService.principal.storeId)
+                    eq ("storeId", springSecurityService.principal.storeId)
                 }
                 lte ("effectiveDate", now)
             }
@@ -255,6 +255,101 @@ class ProductService extends MySqlDal {
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
         int totalCount = results.totalCount
+
+        return results
+    }
+
+    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def now = DateTime.now(DateTimeZone.UTC)
+
+        def barcodeSkus = []
+
+        if ((searchBy == "everything" || searchBy == "barcode") && searchTerm?.length() > 2) {
+            barcodeSkus = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)?.collect { it.sku }?.unique()
+        }
+
+        searchTerm = searchTerm ? searchTerm.trim() : ""
+
+        def queryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now, max: maxResults, offset: startIndex]
+        def countQueryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now]
+
+        // TODO Definitely a better way to put this lot together rather than two separate queries and sets of query params.
+        String searchQuery = """SELECT DISTINCT(p)
+                                FROM Product p
+                                JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
+                                LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
+                                WHERE p.retailerId = :retailerId """
+
+        String countQuery =  """SELECT COUNT(DISTINCT p)
+                                FROM Product p
+                                JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
+                                LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
+                                WHERE p.retailerId = :retailerId """
+
+        if (searchBy == "everything") {
+            queryParams.barcodeSkus = barcodeSkus
+            queryParams.searchTerm = "%${searchTerm}%"
+            countQueryParams.barcodeSkus = barcodeSkus
+            countQueryParams.searchTerm = "%${searchTerm}%"
+
+            searchQuery += """AND (pv.sku IN (:barcodeSkus)
+                                   OR p.itemCode LIKE :searchTerm
+                                   OR p.description LIKE :searchTerm """
+
+            countQuery += """AND (pv.sku IN (:barcodeSkus)
+                                   OR p.itemCode LIKE :searchTerm
+                                   OR p.description LIKE :searchTerm """
+
+            if (searchTerm.isNumber()) {
+                queryParams.searchTermLong = Long.parseLong(searchTerm)
+                countQueryParams.searchTermLong = Long.parseLong(searchTerm)
+
+                searchQuery += """OR pv.sku = :searchTermLong) """
+                countQuery += """OR pv.sku = :searchTermLong) """
+            } else {
+                searchQuery += """) """
+                countQuery += """) """
+            }
+        } else if (searchBy == "itemCode") {
+            queryParams.searchTerm = "%${searchTerm}%"
+            countQueryParams.searchTerm = "%${searchTerm}%"
+
+            searchQuery += """AND (p.itemCode LIKE :searchTerm """
+            countQuery += """AND (p.itemCode LIKE :searchTerm """
+
+            if (searchTerm.isNumber()) {
+                queryParams.searchTermLong = Long.parseLong(searchTerm)
+                countQueryParams.searchTermLong = Long.parseLong(searchTerm)
+
+                searchQuery += """OR pv.sku = :searchTermLong) """
+                countQuery += """OR pv.sku = :searchTermLong) """
+            } else {
+                searchQuery += """) """
+                countQuery += """) """
+            }
+        } else if (searchBy == "description") {
+            queryParams.searchTerm = "%${searchTerm}%"
+            countQueryParams.searchTerm = "%${searchTerm}%"
+
+            searchQuery += """AND p.description LIKE :searchTerm """
+            countQuery += """AND p.description LIKE :searchTerm """
+        } else if (searchBy == "barcode") {
+            queryParams.barcodeSkus = barcodeSkus
+            countQueryParams.barcodeSkus = barcodeSkus
+
+            searchQuery += """AND pv.sku IN (:barcodeSkus) """
+            countQuery += """AND pv.sku IN (:barcodeSkus) """
+        }
+
+        if (sortColumn == "id" || sortColumn == "description") {
+            searchQuery += """ORDER BY p.${sortColumn} ${sortOrder}"""
+        } else if (sortColumn == "price") {
+            searchQuery += """ORDER BY pv.${sortColumn} ${sortOrder}"""
+        }
+
+        def results = [:]
+        results.products = Product.executeQuery(searchQuery, queryParams)
+        results.totalCount = Product.executeQuery(countQuery, countQueryParams)?.get(0) ?: 0
 
         return results
     }

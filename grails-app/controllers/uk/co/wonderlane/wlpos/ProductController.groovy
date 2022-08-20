@@ -112,9 +112,9 @@ class ProductController {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
-        render(template: "addProductSearchResults", model: [ products: products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId ])
+        render(template: "addProductSearchResults", model: [ products: products.products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId ])
     }
 
     /**
@@ -124,9 +124,9 @@ class ProductController {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
-        render(template: "productSearchResults", model: [products: products,
+        render(template: "productSearchResults", model: [products: products.products,
                                                          storeId: springSecurityService.principal.storeId,
                                                          userColumns: productService.getColumns(),
                                                          searchTerm: params.searchTerm,
