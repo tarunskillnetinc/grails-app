@@ -861,7 +861,7 @@ class ProductController {
                 ProductPrice currentPrice = prices.find { it.priceBand.id == priceChange.priceBandId }
 
                 if (!currentPrice || currentPrice.price != priceChange.price) {
-                    if (( !currentPrice || currentPrice == BigDecimal.ZERO) && priceChange.price && priceChange.price != BigDecimal.ZERO) {
+                    if ((!currentPrice || currentPrice.price?.compareTo(BigDecimal.ZERO) == 0) && priceChange.price && priceChange.price != BigDecimal.ZERO) {
                         productIds.add(variant.productId)
                     }
 
@@ -869,8 +869,17 @@ class ProductController {
 
                     if (priceBand && priceChange.sku && priceChange.price) {
                         def fromValue = currentPrice ? currentPrice.price : null
-                        ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: effectiveDate)
+
+                        ProductPrice productPrice
+                        if (currentPrice?.effectiveDate == effectiveDate) {
+                            productPrice = currentPrice
+                            productPrice.price = priceChange.price
+                        } else {
+                            productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: effectiveDate)
+                        }
+
                         ProductHistory productHistory =  new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: effectiveDate, updateDate: now)
+
                         changedProductPrices.add(productPrice)
                         productHistories.add(productHistory)
                     }

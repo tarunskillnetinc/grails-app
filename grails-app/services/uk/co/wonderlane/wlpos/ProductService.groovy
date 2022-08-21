@@ -117,7 +117,8 @@ class ProductService extends MySqlDal {
 
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price) {
-                session.save(productPrice)
+                session.saveOrUpdate(productPrice)
+
                 // Clear the session for speed purposes.
                 if (index.mod(100) == 0) {
                     session.flush()
@@ -128,6 +129,7 @@ class ProductService extends MySqlDal {
 
         productHistories.eachWithIndex { productHistory, index ->
             session.save(productHistory)
+
             // Clear the session for speed purposes.
             if (index.mod(100) == 0) {
                 session.flush()
