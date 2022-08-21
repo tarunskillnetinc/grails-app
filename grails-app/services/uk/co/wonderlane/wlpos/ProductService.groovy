@@ -399,6 +399,7 @@ class ProductService extends MySqlDal {
                     result.productDescription = rs.getString("productDescription")
                     result.price = rs.getBigDecimal("price")
                     result.priceBandDescription = rs.getString("priceBandDescription")
+                    result.costPrice = rs.getBigDecimal("costPrice")
 
                     results.add(result)
                 }

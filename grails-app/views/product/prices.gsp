@@ -5,6 +5,8 @@
 
         <title>WonderLane Product Maintenance</title>
 
+        <asset:javascript src="money-mask.js" />
+
         <script type="text/javascript">
             $(document).ready(function () {
                 $('#searchTerm').on('keyup', function(event) {
@@ -87,6 +89,18 @@
                     }
                 });
             }
+
+            function priceChanged(sku, priceBandId, costPrice, retailPrice) {
+                if (costPrice !== undefined && costPrice > 0 && retailPrice !== undefined && retailPrice > 0) {
+                    var margin = (((retailPrice - costPrice) / retailPrice).toFixed(4) * 100).toFixed(2);
+
+                    if (margin < 0) {
+                        margin = "0.00";
+                    }
+
+                    $("#margin-" +sku +"-" +priceBandId).text(margin +"%")
+                }
+            }
         </script>
     </head>
 
@@ -167,7 +181,8 @@
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-2 font-weight-bold">Item Code</div>
-                <div class="col-6 font-weight-bold">Description</div>
+                <div class="col-4 font-weight-bold">Description</div>
+                <div class="col-1 font-weight-bold">Cost Price</div>
                 <g:each in="${priceBands}" var="priceBand">
                     <div class="col font-weight-bold">${priceBand.description}</div>
                 </g:each>
