@@ -652,12 +652,30 @@ class ProductController {
                 category = category.parentCategory
             }
 
+            def ranges = []
+            def priceBands = []
+            def editedPrices = []
+
+            def userRoles = springSecurityService.principal.authorities*.authority
+            if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+                priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+                ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+
+                editedProduct?.priceChanges?.find{ it != null }.each {
+                    editedPrices.addAll(it.priceChanges)
+                }
+            }
+
             render(view: "add", model: [product       : product,
                                         storeId       : springSecurityService.principal.storeId,
                                         statusValues  : ProductStatus.values(),
                                         categoryValues: categoryService.getFullCategoryHierarchy(),
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
+                                        ranges: ranges,
+                                        selectedRanges: editedProduct.rangeId,
+                                        priceBands: priceBands,
+                                        editedPrices: editedPrices,
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
         }
     }

@@ -622,7 +622,9 @@
                                                         vatValues          : vatValues,
                                                         effectiveDateIndex : effectiveDateIndex,
                                                         ranges             : ranges,
+                                                        selectedRanges     : selectedRanges,
                                                         priceBands         : priceBands,
+                                                        editedPrices       : editedPrices,
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled]"/>
         </section>

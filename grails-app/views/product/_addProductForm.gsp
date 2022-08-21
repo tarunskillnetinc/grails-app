@@ -278,7 +278,7 @@
 
                             <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
                                 <g:if test="${product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
-                                    <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands, zeroPrice: product?.zeroPrice]" />
+                                    <g:render template="addPrice" model="[skuIndex: i, variant: variant, editedPrices: editedPrices, sku: variant?.sku, priceBands: priceBands, zeroPrice: product?.zeroPrice]" />
                                 </g:if>
                             </g:each>
                         </div>
@@ -308,7 +308,7 @@
 
                             <div class="row mx-5 mt-4">
                                 <%
-                                    def productRanges = product?.ranges*.rangeId
+                                    def productRanges = selectedRanges ? selectedRanges : product?.ranges*.rangeId
                                 %>
                                 <g:each in="${ranges}" var="range">
                                     <div class="col">
