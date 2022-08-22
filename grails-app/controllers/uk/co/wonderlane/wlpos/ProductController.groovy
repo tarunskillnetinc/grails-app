@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
+import grails.validation.Validateable
 import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -494,7 +495,7 @@ class ProductController {
             product.retailerProductId = editedProduct.retailerProductId
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
-                if (editedProduct.restrictions.id == product.category.restrictions.id) {
+                if (editedProduct.restrictions.validate() && editedProduct.restrictions.id == product.category.restrictions.id) {
                     // Changed restrictions and the product was currently pointing at the category restrictions object. Create a new restrictions.
                     product.restrictions = new Restrictions()
                 }
@@ -664,6 +665,7 @@ class ProductController {
                     editedPrices.addAll(it.priceChanges)
                 }
             }
+
 
             render(view: "add", model: [product       : product,
                                         storeId       : springSecurityService.principal.storeId,
@@ -1239,7 +1241,7 @@ class ProductCommand {
     Collection<ProductVariantCommand> variants = new ArrayList<>()
 }
 
-class RestrictionsCommand {
+class RestrictionsCommand implements Validateable {
     int id
     BigDecimal minOpenPrice
     BigDecimal maxOpenPrice
@@ -1255,6 +1257,10 @@ class RestrictionsCommand {
     Boolean quantityChangeAllowed
     Boolean quantityChangeForced
     Boolean receiptPrintForced
+
+    static constraints = {
+        importFrom Restrictions
+    }
 }
 
 class ProductVariantCommand {
