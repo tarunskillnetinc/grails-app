@@ -266,11 +266,11 @@ class ProductService extends MySqlDal {
 
         def barcodeSkus = []
 
+        searchTerm = searchTerm ? searchTerm.trim() : ""
+
         if ((searchBy == "everything" || searchBy == "barcode") && searchTerm?.length() > 2) {
             barcodeSkus = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)?.collect { it.sku }?.unique()
         }
-
-        searchTerm = searchTerm ? searchTerm.trim() : ""
 
         def queryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now, max: maxResults, offset: startIndex]
         def countQueryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now]
