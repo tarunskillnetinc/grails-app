@@ -6,18 +6,16 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import uk.co.wonderlane.wlpos.entities.SnappyServiceMessage
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.enums.SnappyMessageType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.reporting.ReportColumn
+import uk.co.wonderlane.wlpos.reporting.ReportColumns
+import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
-import uk.co.wonderlane.wlpos.reporting.ReportType
-import uk.co.wonderlane.wlpos.reporting.ReportColumns
-import uk.co.wonderlane.wlpos.reporting.ReportColumn
 
 import java.util.stream.Collectors
 
@@ -32,6 +30,7 @@ class ProductController {
     def tagService
     def rabbitService
     def gsonProvider
+    def productHistoryService
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -1016,6 +1015,21 @@ class ProductController {
         }
         //when rendering restriction tab manually set isNewProduct to false since category mapped restriction should be loaded rather default values
         render (view: "/product/_restrictions", model: [restrictions: restrictions, productOpenPrice: productOpenPrice, isNewProduct: false])
+    }
+
+    //This will render product history for selected product
+    def ajaxGetProductHistory(int productId){
+        def productHistoryList = []
+        if (productId > 0){ //if product id does not exists there can not be any history to return
+            def effectiveDate = DateTime.now(DateTimeZone.UTC)//take default effective date as current date
+            if (session != null && session.effectiveDate != null && session.effectiveDate[1] != null){
+                effectiveDate = session.effectiveDate[1]//replace effective date if it already has one
+            }
+            productHistoryList = productHistoryService.getProductHistory(productId, effectiveDate)//load product history from db
+            productHistoryList = productHistoryList?.sort{it.effectiveDate}
+            productHistoryList = productHistoryList?.reverse() //convert into descending order
+        }
+        render (view: "/product/_productHistory", model: [productHistoryList : productHistoryList])
     }
 
     /**

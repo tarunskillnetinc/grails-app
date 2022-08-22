@@ -1,5 +1,6 @@
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.Category
+import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.math.RoundingMode
@@ -270,6 +271,25 @@ class EposTagLib {
             out << """${margin.compareTo(BigDecimal.ZERO) < 0 ? "0.00" : margin}%"""
         } else {
             out << "0.00%"
+        }
+    }
+
+    def productHistory = { attrs, body ->
+        def productHistory = attrs.productHistory
+        switch ((ProductHistoryType)productHistory?.productHistoryType) {
+            case ProductHistoryType.FIELD:
+                out << """User ${productHistory?.usersName} changed 
+                        ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue}."""
+                break
+            case ProductHistoryType.PRICE:
+                out << """User ${productHistory?.usersName} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue}."""
+                break
+            default:
+                out << """User ${productHistory?.usersName} changed 
+                        ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue}."""
+                break
         }
     }
 }

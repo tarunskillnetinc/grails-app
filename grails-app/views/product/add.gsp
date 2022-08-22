@@ -112,6 +112,10 @@
                     getPromotions(${product?.id});
                 });
 
+                $('#collapseProductHistory').on('show.bs.collapse', function () {
+                    getProductHistory(${product?.id});
+                });
+
                 $('#effectiveDatesPicker').on('change', function () {
                     var effectiveDate = $(this).val()
                     var getProductUrl = '${createLink(controller: 'product', action: 'show')}/' + ${product?.id} + '?effectiveDate=' + encodeURI(effectiveDate);
@@ -542,6 +546,25 @@
                     },
                     success: function (resp) {
                         $("#restrictionsContainer").html(resp);
+                    }
+                });
+            }
+
+            function getProductHistory(productId) {
+                $('#productHistoryContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                    "  <div class=\"spinner-border\" role=\"status\">\n" +
+                    "    <span class=\"sr-only\">Loading...</span>\n" +
+                    "  </div>\n" +
+                    "</div>");
+
+                var getProductHistoryUrl = "${createLink(controller: 'product', action: 'ajaxGetProductHistory')}";
+
+                $.ajax({
+                    url: getProductHistoryUrl,
+                    method: "GET",
+                    data: { productId: productId },
+                    success: function(resp) {
+                        $("#productHistoryContainer").html(resp);
                     }
                 });
             }

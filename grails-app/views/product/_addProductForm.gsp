@@ -32,7 +32,6 @@
                             <div class="row form-group mb-3">
                                 <label for="effectiveDate" class="col-3 col-form-label text-right pr-4">Effective Date</label>
                                 <g:textField name="effectiveDate" type="text" class="col-5 form-control bottom-border" value="${effectiveDateIndex ? effectiveDateIndex[1]?.toString('dd/MM/yyyy') : now?.toString('dd/MM/yyyy')}" autocomplete="off" />
-%{--                                <g:datePicker name="effectiveDate" class="col-5 form-control bottom-border" precision="day" value="${effectiveDateIndex ? effectiveDateIndex[1].toDate() : new java.util.Date()}" />--}%
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
@@ -328,9 +327,9 @@
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">
-            <div class="card-header" id="productHistory">
+            <div class="card-header pointer" id="productHistory" data-toggle="collapse" data-target="#collapseProductHistory" aria-expanded="true" aria-controls="collapseProductHistory">
                 <div class="row">
-                    <div class="col-10">Product History</div>
+                    <div class="col-10"><strong>Product History</strong></div>
                     <div class="col-2 text-right">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
@@ -339,11 +338,18 @@
                 </div>
             </div>
 
-            <div id="collapseHistory" class="collapse collapsed" aria-labelledby="productHistory" data-parent="#accordion">
+            <div id="collapseProductHistory" class="collapse collapsed" aria-labelledby="productHistory" data-parent="#accordion">
                 <div class="card-body py-5">
-
+                    <div class="row mx-5 table-wl bottom-border">
+                        <div class="col-3 font-weight-bold">Date</div>
+                        <div class="col-9 font-weight-bold">Description</div>
+                    </div>
+                    <div id="productHistoryContainer"  style="max-height: 240px; overflow-y: scroll;"></div>
                 </div>
             </div>
         </div>
+
     </div>
+
+
 </g:form>
