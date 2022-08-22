@@ -126,9 +126,9 @@ class ProductVariant implements Serializable {
     }
 
     private DateTime getSessionEffectiveDate() {
-        def effectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")[1]
+        def sessionEffectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")
 
-        return effectiveDate ?: DateTime.now(DateTimeZone.UTC)
+        return sessionEffectiveDate.size() > 0 ? sessionEffectiveDate[1] : DateTime.now(DateTimeZone.UTC)
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {
