@@ -115,6 +115,8 @@ class ProductService extends MySqlDal {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
 
+        productPrices.unique {[it.sku, it.effectiveDate, it.price] }
+
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price) {
                 session.saveOrUpdate(productPrice)

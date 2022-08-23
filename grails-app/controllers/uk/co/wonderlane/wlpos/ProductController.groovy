@@ -283,24 +283,7 @@ class ProductController {
         }
 
         syncProductUpdates(productIds)
-
-        if (isSingleStageSel()) {
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProductPrices(productPrices)
-
-            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand)
-
-            stores?.each { store ->
-                log.println("Syncing ${productPrices.size()} supplier price updates to store ${store.storeId}")
-
-                syncMessage.setStoreNumber(store.storeId)
-                syncMessage.setStoreId(store.id)
-
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            }
-        }
+        sendProductPriceUpdate(productPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand))
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -338,21 +321,7 @@ class ProductController {
         syncProductUpdates(productIds)
 
         priceUpdates.each { priceBandId, priceChanges ->
-            if (isSingleStageSel()) {
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
-                syncMessage.setInsert(true)
-                syncMessage.setProductPrices(priceChanges)
-
-                def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
-
-                stores?.each { store ->
-                    syncMessage.setStoreNumber(store.storeId)
-                    syncMessage.setStoreId(store.id)
-
-                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                }
-            }
+            sendProductPriceUpdate(priceChanges, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId }))
         }
 
         render "OK"
@@ -390,34 +359,13 @@ class ProductController {
 
         // Send down those products for addition to the relevant stores for each range. Do not delete any products as stores may need to sell through stock etc.
         rangedProductsMap.each { rangeId, rangeProductChanges ->
-            def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId })
-
             def allProducts = []
 
             rangeProductChanges.each { RangeProductCommand rangeProductCommand ->
                 allProducts.add(productService.getProduct(rangeProductCommand.productId))
             }
 
-            stores?.each { StoreSettings store ->
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                syncMessage.setInsert(true)
-
-                def storeProducts = []
-                allProducts.each {
-                    def productEntity = it.getProduct(store.storeId)
-                    if (checkProductHasPriceForStore(productEntity, store.storeId)) {
-                        storeProducts.add(productEntity)
-                    }
-                }
-
-                syncMessage.setProducts(storeProducts)
-
-                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                if (storeProducts.size() > 0) {
-                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                }
-            }
+            sendProductUpdate(allProducts, StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
 
         render "OK"
@@ -607,37 +555,12 @@ class ProductController {
                         throw new Exception("Rabbit MQ not available")
                     }
 
-                    def productEntity = product.getProduct(springSecurityService.principal.storeId)
-                    if (checkProductHasPriceForStore(productEntity, springSecurityService.principal.storeId)) {
-                        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber ?: 0, springSecurityService.principal.storeId ?: 0, 0)
-                        syncMessage.setInsert(true)
-
-                        List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
-                        products.add(productEntity)
-                        syncMessage.setProducts(products)
-
-                        rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                    }
+                    sendProductUpdate([product], [StoreSettings.findById(springSecurityService.principal.storeId)])
                 } else {
                     def rangeProducts = RangeProduct.findAllByProductId(product.id)
 
                     rangeProducts?.each { rangeProduct ->
-                        def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range)
-
-                        stores?.each { StoreSettings store ->
-                            def productEntity = product.getProduct(store.storeId)
-                            if (checkProductHasPriceForStore(productEntity, store.storeId)) {
-                                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                                syncMessage.setInsert(true)
-
-                                syncMessage.setProducts([productEntity])
-
-                                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                            }
-                        }
+                        sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range))
                     }
                 }
             }
@@ -902,20 +825,7 @@ class ProductController {
                     commonProductPrices.add(pp.getProductPrice())
                 }
 
-                def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key)
-
-                stores?.each { StoreSettings store ->
-                    if (isSingleStageSel()) {
-                        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                        syncMessage.setInsert(true)
-
-                        syncMessage.setProductPrices(commonProductPrices)
-
-                        // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                        rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                    }
-                }
+                sendProductPriceUpdate(commonProductPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key))
             }
         }
     }
@@ -947,21 +857,7 @@ class ProductController {
 
             productService.saveRangeProduct(rangeProduct)
 
-            def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId })
-
-            stores?.each { StoreSettings store ->
-                def productEntity = product.getProduct(store.storeId)
-                if (checkProductHasPriceForStore(productEntity, store.storeId)) {
-                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                    syncMessage.setInsert(true)
-
-                    syncMessage.setProducts([productEntity])
-
-                    // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                }
-            }
+            sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
     }
 
@@ -1067,6 +963,45 @@ class ProductController {
         }
     }
 
+    private void sendProductPriceUpdate(def prices, List<StoreSettings> stores) {
+        if (isSingleStageSel()) {
+            stores?.each { StoreSettings store ->
+                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+                    syncMessage.setInsert(true)
+                    syncMessage.setStoreId(store.storeId)
+                    syncMessage.setProductPrices(prices)
+
+                    log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
+
+                    // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            }
+        }
+    }
+
+    private void sendProductUpdate(List<Product> products, List<StoreSettings> stores) {
+        stores?.each { StoreSettings store ->
+            List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
+            products.forEach({
+                def productEntity = it.getProduct(store.storeId)
+                if (checkProductHasPriceForStore(productEntity, store.storeId)) {
+                    productEntities.add(productEntity)
+                }
+            })
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+            syncMessage.setInsert(true)
+            syncMessage.setProducts(productEntities)
+
+            log.println("Syncing ${productEntities.size()} product updates to store ${store.storeId}")
+
+            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        }
+    }
+
+
     private boolean checkProductHasPriceForStore(def product, def storeId) {
         return product.variants.findAll { it.storeId == null || it.storeId == storeId }
                 .stream().map({it.getRetailPrice()})
@@ -1077,21 +1012,7 @@ class ProductController {
         def productIdsAsInt = productIds.findAll{it != null && it > 0 }.stream().map({it.intValue()}).collect(Collectors.toSet())
         productIdsAsInt.removeAll(Collections.singleton(null))
         if (isSingleStageSel() && productIdsAsInt && productIdsAsInt?.size() > 0) {
-            def products = Product.findAllByIdInList(new ArrayList<>(productIdsAsInt))
-            def stores = StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId)
-            stores.forEach({ store ->
-                def productEntities = []
-                productEntities.addAll(products.stream().map({ it.getProduct(store.storeId) }).collect(Collectors.toList()))
-
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                syncMessage.setInsert(true)
-
-                syncMessage.setProducts(productEntities)
-
-                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            })
+            sendProductUpdate(Product.findAllByIdInList(new ArrayList<>(productIdsAsInt)), StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId))
         }
     }
 
