@@ -127,7 +127,7 @@
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="reportingDropdown">
                             <span class="dropdown-header">Sales Reports</span>
 
-                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales Report</g:link>
+                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Department Sales Report</g:link>
                             <g:link controller="reporting" action="categorySales" class="dropdown-item">Category Sales</g:link>
                             <g:link controller="reporting" action="sales" class="dropdown-item">Product Sales</g:link>
                             <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>

@@ -71,7 +71,7 @@ class EposTagLib {
 
         switch ((ReportType)attrs.reportType) {
             case ReportType.SALES_DEPARTMENT:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Department Sales</li>"""
 
                 break
             case ReportType.SALES_CATEGORY:
