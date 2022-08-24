@@ -340,11 +340,7 @@
 
             <div id="collapseProductHistory" class="collapse collapsed" aria-labelledby="productHistory" data-parent="#accordion">
                 <div class="card-body py-5">
-                    <div class="row mx-5 table-wl bottom-border">
-                        <div class="col-3 font-weight-bold">Date</div>
-                        <div class="col-9 font-weight-bold">Description</div>
-                    </div>
-                    <div id="productHistoryContainer"  style="max-height: 240px; overflow-y: scroll;"></div>
+                    <div id="productHistoryContainer"  style="max-height: 300px; overflow-x: auto; overflow-y: auto;"></div>
                 </div>
             </div>
         </div>

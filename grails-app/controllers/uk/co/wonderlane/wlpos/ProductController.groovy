@@ -917,17 +917,19 @@ class ProductController {
 
     //This will render product history for selected product
     def ajaxGetProductHistory(int productId){
-        def productHistoryList = []
+        def productHistoryMap = [:]
         if (productId > 0){ //if product id does not exists there can not be any history to return
             def effectiveDate = DateTime.now(DateTimeZone.UTC)//take default effective date as current date
             if (session != null && session.effectiveDate != null && session.effectiveDate[1] != null){
                 effectiveDate = session.effectiveDate[1]//replace effective date if it already has one
             }
-            productHistoryList = productHistoryService.getProductHistory(productId, effectiveDate)//load product history from db
-            productHistoryList = productHistoryList?.sort{it.effectiveDate}
+            def productHistoryList = productHistoryService.getProductHistory(productId, effectiveDate)//load product history from db
+            productHistoryList = productHistoryList?.sort{it?.effectiveDate}
             productHistoryList = productHistoryList?.reverse() //convert into descending order
+            //convert product list into product map by group by using effective date
+            productHistoryMap = productHistoryList?.groupBy {it?.effectiveDate?.toDate()?.format('dd/MM/yyyy')}
         }
-        render (view: "/product/_productHistory", model: [productHistoryList : productHistoryList])
+        render (view: "/product/_productHistory", model: [productHistoryMap : productHistoryMap])
     }
 
     /**
