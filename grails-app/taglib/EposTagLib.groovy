@@ -87,7 +87,7 @@ class EposTagLib {
 
                 hierarchy = hierarchy.reverse()
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Department Sales" }}"""
 
                 hierarchy.each { cat ->
                     if (cat == null || cat?.id == attrs.categoryId) {
@@ -112,7 +112,7 @@ class EposTagLib {
 
                 hierarchy = hierarchy.reverse()
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Department Sales" }}"""
 
                 hierarchy.each { cat ->
                     out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
