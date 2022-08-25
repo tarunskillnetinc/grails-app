@@ -643,10 +643,10 @@ class ShelfEdgeLabelService extends MySqlDal {
 
                                     // Price is over one pound
                                     if (shelfEdgeLabel.getPrice().compareTo(BigDecimal.ZERO) == 0) {
-                                        price = "${(char) 163}0.00";
+                                        price = "${Character.toChars(163)}0.00";
                                         zeroPrice = true;
                                     } else {
-                                        price = "${(char) 163}" + String.valueOf(shelfEdgeLabel.getPrice());
+                                        price = "${Character.toChars(163)}" + String.valueOf(shelfEdgeLabel.getPrice());
                                     }
 
                                     if (shelfEdgeLabel.isWeightedItem()) {
@@ -655,13 +655,13 @@ class ShelfEdgeLabelService extends MySqlDal {
                                             if (!zeroPrice) {
                                                 price = price + "/kg";
                                             } else {
-                                                price = (char) 163 + "0/kg";
+                                                price = "${Character.toChars(163)}0/kg";
                                             }
                                         } else {
                                             if (!zeroPrice) {
-                                                price = (char) 163 + String.valueOf(shelfEdgeLabel.getPrice().divide(new BigDecimal(10))) + "/100g";
+                                                price = "${Character.toChars(163)}" + String.valueOf(shelfEdgeLabel.getPrice().divide(new BigDecimal(10))) + "/100g";
                                             } else {
-                                                price = (char) 163 + "0/100g";
+                                                price = "${Character.toChars(163)}0/100g";
                                             }
                                         }
                                     } else if (shelfEdgeLabel.isEmbeddedBarcode()) {

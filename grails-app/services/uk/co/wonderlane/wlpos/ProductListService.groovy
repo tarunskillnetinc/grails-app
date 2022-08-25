@@ -80,7 +80,13 @@ class ProductListService extends MySqlDal {
         try {
             // Call once for to be printed changes.
             cstmt.setInt(1, springSecurityService.principal.retailerId)
-            cstmt.setInt(2, springSecurityService.principal.storeId)
+
+            if (springSecurityService.principal.storeId) {
+                cstmt.setInt(2, springSecurityService.principal.storeId)
+            } else {
+               cstmt.setNull(2, Types.INTEGER)
+            }
+
             cstmt.setNull(3, Types.TINYINT)
 
             if (effectiveDate) {
