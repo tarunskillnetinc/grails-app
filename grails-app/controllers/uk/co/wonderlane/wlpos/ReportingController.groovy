@@ -473,6 +473,7 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
         def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [reportType    : ReportType.PROMOTIONS_GROUPED,
@@ -895,10 +896,13 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
 
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+
         [reportType : ReportType.PAYPOINT_SALES,
          startDate  : startDate,
          endDate    : endDate,
-         userColumns: reportingService.getReportColumns(ReportType.PAYPOINT_SALES)]
+         userColumns: reportingService.getReportColumns(ReportType.PAYPOINT_SALES),
+         stores     : stores]
     }
 
     def ajaxPayPointSales(SortParams sortParams) {
@@ -909,11 +913,12 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         String description = params.descriptionFilter ? ("%" + params.descriptionFilter + "%") : null
-        Integer storeId = null
-        if (params.storeFilter && !params.storeFilter.isEmpty()) {
-            StoreSettings storeSettings = StoreSettings.findByStoreId(Integer.parseInt(params.storeFilter))
-            storeId = storeSettings ? storeSettings.id : -1
+
+        Integer storeId = springSecurityService.principal.storeId
+        if (!storeId && params.storeFilter && !params.storeFilter.isEmpty() && params.storeFilter.isNumber()) {
+            storeId = Integer.parseInt(params.storeFilter)
         }
+
         String status = null
         if (params.statusFilter && !params.statusFilter.isEmpty()) {
             status = params.statusFilter == "Success" ? "SUCCESS" : "FAILURE"
@@ -1086,39 +1091,39 @@ class ReportingController {
 
         def columns = reportingService.getReportColumns(ReportType.PAYPOINT_SALES)
 
-        if (columns.columns?.find { it.column == "storeId" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "storeId" }?.enabled) {
             stringBuilder.append("Store Id").append(",")
             enabledCols.add("storeId")
         }
-        if (columns.columns?.find { it.column == "wlTransactionId" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "wlTransactionId" }?.enabled) {
             stringBuilder.append("Txn Id").append(",")
             enabledCols.add("wlTransactionId")
         }
-        if (columns.columns?.find { it.column == "ppTransactionId" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "ppTransactionId" }?.enabled) {
             stringBuilder.append("PP Txn Id").append(",")
             enabledCols.add("ppTransactionId")
         }
-        if (columns.columns?.find { it.column == "terminalId" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "terminalId" }?.enabled) {
             stringBuilder.append("Terminal Id").append(",")
             enabledCols.add("terminalId")
         }
-        if (columns.columns?.find { it.column == "description" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "description" }?.enabled) {
             stringBuilder.append("Description").append(",")
             enabledCols.add("description")
         }
-        if (columns.columns?.find { it.column == "type" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "type" }?.enabled) {
             stringBuilder.append("Type").append(",")
             enabledCols.add("type")
         }
-        if (columns.columns?.find { it.column == "value" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "value" }?.enabled) {
             stringBuilder.append("Value").append(",")
             enabledCols.add("value")
         }
-        if (columns.columns?.find { it.column == "status" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "status" }?.enabled) {
             stringBuilder.append("Status").append(",")
             enabledCols.add("status")
         }
-        if (columns.columns?.find { it.column == "transactionDate" }?.enabled) {
+        if (!columns || columns?.columns?.find { it.column == "transactionDate" }?.enabled) {
             stringBuilder.append("Transaction Date").append(",")
             enabledCols.add("transactionDate")
         }

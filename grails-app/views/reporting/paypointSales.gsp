@@ -64,6 +64,8 @@
             $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('descriptionFilter').value = null;
+            $('#storeFilter').prop("selectedIndex", 0);
+            $('#statusFilter').prop("selectedIndex", 0);
         }
     </script>
 
@@ -77,8 +79,8 @@
             <h2 class="mx-auto">PayPoint Sales Report</h2>
         </div>
 
-        <div class="row ml-2 mt-4">
-            <div class="col-6">
+        <div class="row mt-4">
+            <div class="col-5">
                 <div class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                         <div class="row">
@@ -107,12 +109,16 @@
                             <div class="form-group row">
                                 <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store Id</label>
                                 <div class="col-4">
-                                    <g:field type="number" step="1" min="0" id="storeFilter" name="storeFilter" value="${storeFilter}" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                              optionKey="id"
+                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                              class="form-control select-border"
+                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                                 </div>
 
                                 <label for="statusFilter" class="col-2 col-form-label-sm text-right">Status</label>
                                 <div class="col-4">
-                                    <g:select id="statusFilter" name="statusFilter" from="${['', 'Success', 'Failure']}" value="${statusFilter}"  class="form-control bottom-border"/>
+                                    <g:select id="statusFilter" name="statusFilter" from="${['Success', 'Failure']}" noSelection="['':'']" value="${statusFilter}" class="form-control select-border" />
                                 </div>
                             </div>
 
@@ -173,11 +179,11 @@
                             </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsType" class="form-check-input" value="type" checked="${!userColumns || userColumns?.columns?.find { it.column == 'type' }?.enabled}" />
-                                <label class="form-check-label" for="columnsDescription">Type</label>
+                                <label class="form-check-label" for="columnsType">Type</label>
                             </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsValue" class="form-check-input" value="value" checked="${!userColumns || userColumns?.columns?.find { it.column == 'value' }?.enabled}" />
-                                <label class="form-check-label" for="columnsValue">Vlue</label>
+                                <label class="form-check-label" for="columnsValue">Value</label>
                             </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsStatus" class="form-check-input" value="status" checked="${!userColumns || userColumns?.columns?.find { it.column == 'status' }?.enabled}" />
