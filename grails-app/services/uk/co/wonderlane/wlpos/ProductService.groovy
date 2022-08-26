@@ -8,7 +8,9 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
@@ -17,12 +19,15 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Types
+import java.util.stream.Collectors
 
 @Transactional
 class ProductService extends MySqlDal {
 
     def springSecurityService
     def sessionFactory
+    def rabbitService
+    def gsonProvider
 
     ProductService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -697,6 +702,79 @@ class ProductService extends MySqlDal {
         return new ArrayList(products.values())
     }
 
+    def sendProductPriceUpdate(def prices, List<StoreSettings> stores) {
+        if (isSingleStageSel()) {
+            sendProductPriceUpdateToRabbitMq(prices, stores)
+        }
+    }
+
+    def sendProductUpdate(List<Product> products, List<StoreSettings> stores) {
+        if (!rabbitService.isOpen()) {
+            throw new Exception("Rabbit MQ not available")
+        }
+        stores?.each { StoreSettings store ->
+            List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
+            products.forEach({
+                def productEntity = it.getProduct(store.storeId)
+                if (checkProductHasPriceForStore(productEntity, store.storeId)) {
+                    productEntities.add(productEntity)
+                }
+            })
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+            syncMessage.setInsert(true)
+            syncMessage.setProducts(productEntities)
+
+            log.println("Syncing ${productEntities.size()} product updates to store ${store.storeId}")
+
+            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        }
+    }
+
+    def isSingleStageSel() {
+        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.twoStageSel) {
+            return false
+        }
+        return true
+    }
+
+    def syncProductUpdatesToAllStoresForRetailer(List<Integer> productIds) {
+        if (isSingleStageSel()) {
+            syncProductListUpdatesToStores(productIds, StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId))
+        }
+    }
+
+    def syncProductUpdatesToSingleStore(List<Integer> productIds, Integer storeId) {
+        syncProductListUpdatesToStores(productIds.unique(), [StoreSettings.findById(storeId)])
+    }
+
+    private void syncProductListUpdatesToStores(List<Integer> productIds, List<StoreSettings> stores) {
+        def productIdsAsInt = productIds.findAll{it != null && it > 0 }.stream().map({it.intValue()}).collect(Collectors.toSet())
+        productIdsAsInt.removeAll(Collections.singleton(null))
+        if (productIdsAsInt && productIdsAsInt?.size() > 0) {
+            sendProductUpdate(Product.findAllByIdInList(new ArrayList<>(productIdsAsInt)), stores)
+        }
+    }
+
+    private void sendProductPriceUpdateToRabbitMq(def prices, List<StoreSettings> stores) {
+            if (!rabbitService.isOpen()) {
+                throw new Exception("Rabbit MQ not available")
+            }
+            stores?.each { StoreSettings store ->
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setStoreId(store.storeId)
+                syncMessage.setProductPrices(prices)
+
+                log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
+
+                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            }
+    }
+
     private uk.co.wonderlane.wlpos.entities.Product mapProduct(ResultSet resultSet, Map<Integer, uk.co.wonderlane.wlpos.entities.VatCode> vatCodes, Map<Integer, uk.co.wonderlane.wlpos.entities.Category> categories) throws SQLException {
         uk.co.wonderlane.wlpos.entities.Product product = new uk.co.wonderlane.wlpos.entities.Product()
 
@@ -838,5 +916,11 @@ class ProductService extends MySqlDal {
         message.setDisplayOncePerItem(resultSet.getBoolean("displayOncePerItem"))
 
         return message
+    }
+
+    private boolean checkProductHasPriceForStore(def product, def storeId) {
+        return product.variants.findAll { it.storeId == null || it.storeId == storeId }
+                .stream().map({it.getRetailPrice()})
+                .collect(Collectors.toList()).findAll({ it != null && it > BigDecimal.ZERO }).size() > 0
     }
 }

@@ -246,6 +246,50 @@
                     }
                 });
             }
+
+            function applyChangesButtonClicked(effectiveDate, selectedLink) {
+                var confirmModalYesButton = $('#confirmApplyChangesModalYesButton');
+                var confirmModalNoButton = $('#confirmApplyChangesModalNoButton');
+
+                confirmModalYesButton.off("click");
+                confirmModalYesButton.click({effectiveDate: effectiveDate, batchType: "SCHEDULED"}, confirmApplyChangesToBatch);
+                confirmModalYesButton.prop("disabled", false);
+                confirmModalNoButton.off("click");
+                confirmModalNoButton.click(confirmApplyChangesModalNoButtonClicked);
+                confirmModalNoButton.prop("disabled", false);
+
+                $('#confirmApplyChangesModal').modal({ show: true });
+            }
+
+            function confirmApplyChangesModalNoButtonClicked() {
+                $('#confirmApplyChangesModal').modal("hide");
+            }
+
+            function confirmApplyChangesToBatch(event) {
+                var confirmModalYesButton = $('#confirmApplyChangesModalYesButton');
+                var confirmModalNoButton = $('#confirmApplyChangesModalNoButton');
+
+                confirmModalYesButton.off("click");
+                confirmModalYesButton.prop("disabled", true);
+
+                confirmModalNoButton.off("click");
+                confirmModalNoButton.prop("disabled", true);
+
+                var url = "${createLink(controller: 'shelfEdgeLabel', action: 'ajaxConfirmApplyChangesToBatch')}";
+
+                var params = { effectiveDate: event.data.effectiveDate, batchType: event.data.batchType };
+
+                $.ajax({
+                    url: url,
+                    data: params,
+                    success: function(data) {
+                        $('#confirmApplyChangesModal').modal("hide");
+
+                        getAdHocBatches();
+                        getScheduledBatches();
+                    }
+                });
+            }
         </script>
     </head>
 
@@ -319,6 +363,28 @@
                         <div class="modal-footer">
                             <button type="button" id="confirmPrintModalNoButton" class="btn btn-wl" data-dismiss="modal">No</button>
                             <button type="button" id="confirmPrintModalYesButton" class="btn btn-success">Yes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="confirm-apply-changes-modal" class="container-fluid">
+            <div class="modal fade" id="confirmApplyChangesModal" tabindex="-1" role="dialog" aria-labelledby="confirmApplyChangesModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 id="confirmApplyChangesModalHeader">Confirm Changes</h2>
+                        </div>
+
+                        <div class="modal-body" id="confirmApplyChangesModalContent">
+                            <div>Are you sure you wish to confirm the changes?</div>
+                            <div class="mt-3">This will synchronise the changes to the tills.</div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" id="confirmApplyChangesModalNoButton" class="btn btn-wl" data-dismiss="modal">No</button>
+                            <button type="button" id="confirmApplyChangesModalYesButton" class="btn btn-success">Yes</button>
                         </div>
                     </div>
                 </div>

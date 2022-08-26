@@ -23,7 +23,7 @@
         <div class="row col-10 offset-1 px-0 py-1 wl-striped${i%2} hoverable">
             <div class="col-6 my-auto">${batch.key?.toString("dd/MM/yy")}</div>
             <div class="col-3 my-auto">${batch.value?.size()}</div>
-            <div class="col-3 my-auto text-center"><button class="btn btn-wl">Apply Changes</button></div>
+            <div class="col-3 my-auto text-center"><a id="confirmBatch${i}" class="btn btn-wl" href="#" onchange="event.stopPropagation();" onclick="applyChangesButtonClicked('${batch.key.toString("dd/MM/yyyy")}', this);">Apply Changes</a></div>
         </div>
     </g:each>
 </div>

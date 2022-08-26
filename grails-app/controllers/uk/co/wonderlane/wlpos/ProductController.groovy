@@ -7,18 +7,14 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumn
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
-
-import java.util.stream.Collectors
 
 class ProductController {
 
@@ -29,8 +25,6 @@ class ProductController {
     def restrictionsService
     def supplierService
     def tagService
-    def rabbitService
-    def gsonProvider
     def productHistoryService
 
     /**
@@ -282,8 +276,8 @@ class ProductController {
             productPrices.add(productPrice)
         }
 
-        syncProductUpdates(productIds)
-        sendProductPriceUpdate(productPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand))
+        productService.syncProductUpdatesToAllStoresForRetailer(productIds)
+        productService.sendProductPriceUpdate(productPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand))
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -317,11 +311,10 @@ class ProductController {
         }
 
         productService.saveProductPrices(productPrices, productHistories)
-
-        syncProductUpdates(productIds)
+        productService.syncProductUpdatesToAllStoresForRetailer(productIds)
 
         priceUpdates.each { priceBandId, priceChanges ->
-            sendProductPriceUpdate(priceChanges, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId }))
+            productService.sendProductPriceUpdate(priceChanges, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId }))
         }
 
         render "OK"
@@ -365,7 +358,7 @@ class ProductController {
                 allProducts.add(productService.getProduct(rangeProductCommand.productId))
             }
 
-            sendProductUpdate(allProducts, StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
+            productService.sendProductUpdate(allProducts, StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
 
         render "OK"
@@ -549,18 +542,14 @@ class ProductController {
         }
 
         if (!product.hasErrors()) {
-            if (isSingleStageSel() || !changeAffectsSel) {
+            if (productService.isSingleStageSel() || !changeAffectsSel) {
                 if (springSecurityService.principal.storeId) {
-                    if (!rabbitService.isOpen()) {
-                        throw new Exception("Rabbit MQ not available")
-                    }
-
-                    sendProductUpdate([product], [StoreSettings.findById(springSecurityService.principal.storeId)])
+                    productService.sendProductUpdate([product], [StoreSettings.findById(springSecurityService.principal.storeId)])
                 } else {
                     def rangeProducts = RangeProduct.findAllByProductId(product.id)
 
                     rangeProducts?.each { rangeProduct ->
-                        sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range))
+                        productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range))
                     }
                 }
             }
@@ -811,7 +800,7 @@ class ProductController {
             }
         }
 
-        syncProductUpdates(productIds)
+        productService.syncProductUpdatesToAllStoresForRetailer(productIds)
 
         if (changedProductPrices.size() > 0) {
             productService.saveProductPrices(changedProductPrices, productHistories)
@@ -825,7 +814,7 @@ class ProductController {
                     commonProductPrices.add(pp.getProductPrice())
                 }
 
-                sendProductPriceUpdate(commonProductPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key))
+                productService.sendProductPriceUpdate(commonProductPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key))
             }
         }
     }
@@ -857,7 +846,7 @@ class ProductController {
 
             productService.saveRangeProduct(rangeProduct)
 
-            sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
+            productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
     }
 
@@ -963,66 +952,6 @@ class ProductController {
             e.printStackTrace()
             render (status: 500, text: "An error occurred saving your report column preferences.")
         }
-    }
-
-    private void sendProductPriceUpdate(def prices, List<StoreSettings> stores) {
-        if (isSingleStageSel()) {
-            stores?.each { StoreSettings store ->
-                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                    syncMessage.setInsert(true)
-                    syncMessage.setStoreId(store.storeId)
-                    syncMessage.setProductPrices(prices)
-
-                    log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
-
-                    // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            }
-        }
-    }
-
-    private void sendProductUpdate(List<Product> products, List<StoreSettings> stores) {
-        stores?.each { StoreSettings store ->
-            List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
-            products.forEach({
-                def productEntity = it.getProduct(store.storeId)
-                if (checkProductHasPriceForStore(productEntity, store.storeId)) {
-                    productEntities.add(productEntity)
-                }
-            })
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProducts(productEntities)
-
-            log.println("Syncing ${productEntities.size()} product updates to store ${store.storeId}")
-
-            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-        }
-    }
-
-
-    private boolean checkProductHasPriceForStore(def product, def storeId) {
-        return product.variants.findAll { it.storeId == null || it.storeId == storeId }
-                .stream().map({it.getRetailPrice()})
-        .collect(Collectors.toList()).findAll({ it != null && it > BigDecimal.ZERO }).size() > 0
-    }
-
-    private void syncProductUpdates(List<Integer> productIds) {
-        def productIdsAsInt = productIds.findAll{it != null && it > 0 }.stream().map({it.intValue()}).collect(Collectors.toSet())
-        productIdsAsInt.removeAll(Collections.singleton(null))
-        if (isSingleStageSel() && productIdsAsInt && productIdsAsInt?.size() > 0) {
-            sendProductUpdate(Product.findAllByIdInList(new ArrayList<>(productIdsAsInt)), StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId))
-        }
-    }
-
-    private boolean isSingleStageSel() {
-        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.twoStageSel) {
-            return false
-        }
-        return true
     }
 
     private boolean checkChangeAffectsSel(boolean changeAffectsSel, Object left, Object right) {

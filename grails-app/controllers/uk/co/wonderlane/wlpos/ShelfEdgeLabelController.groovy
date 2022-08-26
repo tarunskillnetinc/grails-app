@@ -15,6 +15,7 @@ class ShelfEdgeLabelController {
     def springSecurityService
     def productListService
     def shelfEdgeLabelService
+    def productService
 
     def index() {
 
@@ -105,6 +106,24 @@ class ShelfEdgeLabelController {
         ProductList productList = productListService.getProductList(Integer.parseInt(params.productListId))
 
         productListService.deleteProductList(productList)
+
+        response.status = 204
+    }
+
+    def ajaxConfirmApplyChangesToBatch() {
+        def effectiveDate = DateTimeFormat.forPattern("dd/MM/yyyy").parseDateTime(params.effectiveDate)
+        def batchType = params.batchType
+
+        session.effectiveDate = [effectiveDate.toString(DateTimeFormat.forPattern("dd MMMM yyyy")), effectiveDate]
+
+        log.println("Clicked with ${effectiveDate} and ${batchType}")
+
+        def productIds = []
+        productListService.getScheduledBatches(effectiveDate).toBeConfirmed.each {
+            product -> productIds.add(product.productId)
+        }
+        productService.syncProductUpdatesToSingleStore(productIds, springSecurityService.principal.storeId)
+        shelfEdgeLabelService.setProductHistoryPrintStatus(effectiveDate, 2)
 
         response.status = 204
     }
