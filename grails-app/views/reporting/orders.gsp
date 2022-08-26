@@ -64,7 +64,7 @@
                 $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
                 document.getElementById('supplier').value = "${null}";
-                document.getElementById('storeId').value = null;
+                document.getElementById('storeFilter').value = null;
             }
         </script>
     </head>
@@ -104,10 +104,15 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="storeId" class="col-2 col-form-label-sm text-right">Store ID</label>
+                                    <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="storeId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                        <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                                  optionKey="id"
+                                                  noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                                  class="form-control select-border"
+                                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                                     </div>
+
 
                                     <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
                                     <div class="col-4">
@@ -152,8 +157,8 @@
                                     <label class="form-check-label" for="columnsOrderId">Order ID</label>
                                 </div>
                                 <div class="form-group form-check">
-                                    <g:checkBox name="columns" id="columnsStoreId" class="form-check-input" value="storeId" checked="${!userColumns || userColumns?.columns?.find { it.column == 'storeId' }?.enabled}" />
-                                    <label class="form-check-label" for="columnsStoreId">Store ID</label>
+                                    <g:checkBox name="columns" id="columnsStoreNumber" class="form-check-input" value="storeId" checked="${!userColumns || userColumns?.columns?.find { it.column == 'storeId' }?.enabled}" />
+                                    <label class="form-check-label" for="columnsStoreNumber">Store</label>
                                 </div>
                                 <div class="form-group form-check">
                                     <g:checkBox name="columns" id="columnsStatus" class="form-check-input" value="status" checked="${!userColumns || userColumns?.columns?.find { it.column == 'status' }?.enabled}" />

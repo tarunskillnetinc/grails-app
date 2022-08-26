@@ -759,6 +759,7 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
@@ -766,16 +767,19 @@ class ReportingController {
          suppliers  : suppliers,
          userColumns: reportingService.getReportColumns(ReportType.ORDERS),
          startDate  : startDate,
-         endDate    : endDate]
+         endDate    : endDate,
+         stores     : stores]
     }
 
     // The top level of the main orders report.
     def ajaxOrders(SortParams sortParams) {
         sortParams.validateParams(ORDERS_REPORT_SORT_COLUMNS)
 
-        Integer storeId = null
-        if (params.storeId && !params.storeId.isEmpty()) {
-            storeId = getIntegerParam(params.storeId)
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
         }
 
         Integer supplierId = null
@@ -788,6 +792,10 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
+
+        orders.each { order ->
+            order.storeId = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, order.storeId).storeId
+        }
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "Orders-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
@@ -810,6 +818,7 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
@@ -818,7 +827,8 @@ class ReportingController {
          suppliers    : suppliers,
          startDate    : startDate,
          endDate      : endDate,
-         userColumns  : reportingService.getReportColumns(ReportType.ORDER)]
+         userColumns  : reportingService.getReportColumns(ReportType.ORDER),
+         stores       : stores]
     }
 
     // The bottom level of the main orders report.
@@ -826,9 +836,11 @@ class ReportingController {
         sortParams.validateParams(ORDER_REPORT_SORT_COLUMNS)
         Integer productListId = getIntegerParam(params.productListId)
 
-        Integer storeId = null
-        if (params.storeId && !params.storeId.isEmpty()) {
-            storeId = getIntegerParam(params.storeId)
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
         }
 
         Integer supplierId = null
