@@ -282,40 +282,32 @@ class ProductController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
-        def now = DateTime.now(DateTimeZone.UTC)
-        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def now = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()//Get current date as start of a day
 
-        def productPrices = []
-        def productHistories = []
-        def priceUpdates = [:]
-        def productIds = []
+        def priceBandMap = [:] //Declare price band map to keep price band id against price band
 
-        cmd.priceChanges?.each {priceChange ->
-            if (!priceUpdates.containsKey(priceChange.priceBandId)) {
-                priceUpdates[priceChange.priceBandId] = []
+        //Loop over saved price list and group them by price band id [1:[] , 2:[], 3:[]]
+        def savePriceCommandMap = cmd?.priceChanges?.groupBy { it?.priceBandId }
+
+        //Loop over map and process every item belonging to price band id
+        savePriceCommandMap?.each { k, v ->
+            PriceBand priceBand
+
+            if (!priceBandMap.containsKey(k)) { //If price band map do not have price band then load
+                priceBand = PriceBand.findByIdAndRetailerId(k, springSecurityService.principal.retailerId)
+            } else { //If price band map do have price band then get it by map
+                priceBand = priceBandMap.get(k)
             }
 
-            ProductPrice productPrice = new ProductPrice(priceBand: priceBands.find { it.id == priceChange.priceBandId }, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
-            productPrices.add(productPrice)
+            //Call supplier price and product history update procedure to persist changes
+            supplierService.saveSupplierPriceUpdates(v, priceBand, now)
 
-            if (priceChange.oldPrice != priceChange.price) {
-                ProductHistory productHistory = new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: priceChange.productId, fromValue: priceChange.oldPrice.toString(), toValue: priceChange.price.toString(), productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal.usersName, effectiveDate: now, updateDate: now)
-                productHistories.add(productHistory)
-            }
-
-            if ((!priceChange.oldPrice || priceChange.oldPrice == BigDecimal.ZERO) && priceChange.price != BigDecimal.ZERO) {
-                productIds.add(priceChange.productId)
-            }
-
-            priceUpdates[priceChange.priceBandId].add(productPrice.getProductPrice())
+            //Sync by writing message to RabitMQ
+            syncSupplierPriceUpdates(v, priceBand, now)
         }
 
-        productService.saveProductPrices(productPrices, productHistories)
-        productService.syncProductUpdatesToAllStoresForRetailer(productIds)
-
-        priceUpdates.each { priceBandId, priceChanges ->
-            productService.sendProductPriceUpdate(priceChanges, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId }))
-        }
+        //After process make sure to empty map in case to avoid map growing
+        priceBandMap = [:]
 
         render "OK"
     }
@@ -530,7 +522,7 @@ class ProductController {
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
                 def priceChanges = []
-                editedProduct?.priceChanges?.find{ it != null }.each {
+                editedProduct?.priceChanges?.findAll{ it != null }.each {
                     priceChanges.addAll(it.priceChanges)
                 }
 
@@ -573,7 +565,7 @@ class ProductController {
                 priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
                 ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-                editedProduct?.priceChanges?.find{ it != null }.each {
+                editedProduct?.priceChanges?.findAll{ it != null }.each {
                     editedPrices.addAll(it.priceChanges)
                 }
             }
