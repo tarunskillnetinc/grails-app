@@ -27,10 +27,10 @@
             <g:select name="addPack[${packIndex}].supplier.id" from="${suppliers}" value="${pack?.supplier?.id}" optionKey="id" optionValue="name" class="form-control select-border" noSelection="[null : 'Please select']" onchange="addPackSupplierChanged(${packIndex});" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" />
+            <g:field type="number" name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control bottom-border mask-money" />
+            <g:field type="number" name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control bottom-border mask-money" />
         </div>
         <div class="col-2 my-auto">
             <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" />
@@ -47,10 +47,10 @@
 
     <div class="row mx-4 pt-2 pb-3 wl-striped${packIndex % 2}">
         <div class="col-2 offset-3 my-auto">
-            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control bottom-border mask-money" />
+            <g:field type="number" name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control bottom-border mask-money" />
         </div>
         <div class="col-2 offset-2 my-auto">
-            <g:textField name="addPack[${packIndex}].maximumOrderQuantity" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" />
+            <g:field type="number" name="addPack[${packIndex}].maximumOrderQuantity" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" />
         </div>
     </div>
 </div>

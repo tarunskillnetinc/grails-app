@@ -47,14 +47,14 @@ class Pack {
         productVariant nullable: true
         supplier nullable: true
         quantity nullable: false, blank: false, min: 1 as Integer
-        price nullable: false, blank: false, min: 0.01 as BigDecimal
+        price nullable: false, blank: false, min: 0.01 as BigDecimal, scale: 2
         orderCode nullable: true
         barcode nullable: true
-        recommendedRetailPrice nullable: true
+        recommendedRetailPrice nullable: true, min: 0.01 as BigDecimal, scale: 2
         effectiveDate nullable: true
         effectiveEndDate nullable: true
         status nullable: false
-        maximumOrderQuantity nullable: true
+        maximumOrderQuantity nullable: true, min: 0 as Integer
         allowSubstitutes nullable: false
         priceMarked nullable: false
         updateDatetime nullable: false
