@@ -124,6 +124,24 @@
                     }
                     return false;
                 });
+
+                $('.add-product-desc').on("change", function() {
+                    $('.add-product-desc').val(this.value);
+                    if ( $('.add-product-receiptDesc').val() === "") {
+                        $('.add-product-receiptDesc').val(this.value);
+                        $('.add-product-receiptDesc').removeClass("is-invalid");
+                    }
+                    $('.add-product-desc').removeClass("is-invalid");
+                });
+
+                $('.add-product-receiptDesc').on("change", function() {
+                    $('.add-product-receiptDesc').val(this.value);
+                    if ( $('.add-product-desc').val() === "") {
+                        $('.add-product-desc').val(this.value);
+                        $('.add-product-desc').removeClass("is-invalid");
+                    }
+                    $('.add-product-receiptDesc').removeClass("is-invalid");
+                });
             });
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.

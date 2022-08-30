@@ -39,11 +39,11 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
-                                <g:textField name="description" class="col-9 form-control bottom-border" value="${product?.description}" />
+                                <g:textField name="description" class="col-9 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                                <g:textField name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border" />
+                                <g:textField name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
