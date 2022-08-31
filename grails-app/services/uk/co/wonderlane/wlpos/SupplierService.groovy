@@ -34,7 +34,7 @@ class SupplierService extends MySqlDal {
     }
 
     def getSupplier(int id) {
-        return Supplier.findByIdAndRetailerIdAndStoreId(id, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        return Supplier.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
     def saveSupplier(Supplier supplier) {
@@ -235,5 +235,38 @@ class SupplierService extends MySqlDal {
             saveProductHistoryStmt.close()
             conn.close()
         }
+    }
+
+    //This method will load suppliers based on provided arguments
+    def getSuppliers(String searchTerm, String searchBy, int offset, int max, String sortColumn, String sortOrder) {
+        String defaultSearchColumn = "name";
+        Integer storeId
+        if (searchBy != null){ //This can customize for any search field if added in future
+            if (searchBy.equals("Name")){
+                defaultSearchColumn = "name";
+            }
+        }
+        if (springSecurityService.principal.storeId) {storeId = springSecurityService.principal.storeId} //load store id if it exists
+        //Load supplier by db
+        def result = Supplier.createCriteria().list([offset: offset, max: max, sort : sortColumn, order : sortOrder]) {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            if (storeId != null){
+                //If store id exists then load all suppliers corresponding to store id and all suppliers who do not have supplier id
+                or {
+                    isNull("storeId")
+                    eq("storeId", storeId)
+                }
+            } else{
+                //If store id does not exists then load only suppliers who do not have supplier id
+                isNull("storeId")
+            }
+            or {
+                like (defaultSearchColumn, "%$searchTerm%")
+            }
+        }
+        def results = [:]
+        results.suppliers = result //Add to supplier
+        results.totalCount = result?.totalCount >=0 ? result.totalCount : 0 //Add to total count
+        return results
     }
 }

@@ -116,5 +116,10 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelAddSupplierButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveSupplierButton" class="btn btn-success" onclick="saveSupplier();">Save</button>
+    <g:if test="${enableSave}">
+        <button type="button" id="saveSupplierButton" class="btn btn-success" onclick="saveSupplier();">Save</button>
+    </g:if>
+    <g:else>
+        <button type="button" id="saveSupplierButton" class="btn btn-success" disabled onclick="saveSupplier();">Save</button>
+    </g:else>
 </div>

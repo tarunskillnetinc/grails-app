@@ -5,51 +5,77 @@ import uk.co.wonderlane.wlpos.entities.SymbolGroupMessage
 import uk.co.wonderlane.wlpos.enums.SnappyMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
+import uk.co.wonderlane.wlpos.reporting.SortParams
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
 
 class SupplierController {
 
     def springSecurityService
-
     def supplierService
     def rabbitService
     def gsonProvider
 
+    private static final SUPPLIER_SORT_COLUMNS = [ "name", "reference", "customerReference", "contactName", "email", "phoneNumber"]
+
     def index() {}
 
-    def ajaxGetSuppliers() {
-        def suppliers = supplierService.getSuppliers()
+    //This is for load symbol subscription (Affiliation) view initially
+    def subscriptions() {}
 
-        render(template: "supplierSearchResults", model: [suppliers: suppliers])
+    //search for suppliers
+    def ajaxGetSearchSupplier(SupplierSortParams sortParams) {
+        sortParams.validateParams(SUPPLIER_SORT_COLUMNS) //pre process supplier sorting column list
+        def suppliers = [] //declare supplier list
+        def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
+        def returnedSuppliers = suppliersResponse?.suppliers
+        def totalCount = suppliersResponse?.totalCount
+        if (returnedSuppliers != null && returnedSuppliers.size() > 0){
+            suppliers = returnedSuppliers
+        }
+        render(template: "supplierSearchResults",
+                model: [ suppliers: suppliers,
+                         searchTerm: params.searchTerm,
+                         searchBy: params.searchBy,
+                         max: sortParams.max ?: 50,
+                         offset: sortParams.offset,
+                         sortParams  : sortParams,
+                         totalCount : totalCount
+                ])
     }
 
     def ajaxGetSymbolGroupSubscriptions() {
         def symbolGroupSubscriptions = supplierService.getSymbolGroupSubscriptions()
-
         def symbolGroups = supplierService.getSymbolGroups()
-
         if (!springSecurityService.principal.retailer.snappyShopperEnabled) {
             symbolGroupSubscriptions.removeAll { it.symbolGroup.id == 4 }
             symbolGroups.removeAll {it.symbolGroup.id == 4 }
         }
-
         render(template: "symbolGroupSubscriptionsSearchResults", model: [symbolGroupSubscriptions: symbolGroupSubscriptions])
     }
 
+    //This will load save supplier view and initially pass enable save
     def ajaxAddSupplier() {
-        render(template: "addSupplier")
+        render(template: "addSupplier", model: [enableSave : true])
     }
 
+    //This will load edit supplier with supplier details
     def ajaxEditSupplier(int supplierId) {
-        def supplier = supplierService.getSupplier(supplierId)
-
-        render(template: "addSupplier", model: [supplier: supplier])
+        boolean enableSave = false; //Initially mark as disable edit
+        def supplier = supplierService.getSupplier(supplierId) //Load supplier
+        if (supplier != null){
+            def supplierStoreId = supplier.storeId
+            def currentStoreId = springSecurityService.principal.storeId
+            if (supplierStoreId == currentStoreId){ //If supplier store id and logged in store id is same then enable save
+                enableSave = true
+            }
+        }
+        render(template: "addSupplier", model: [supplier: supplier, enableSave : enableSave])
     }
 
     def ajaxSaveSupplier() {
         def supplier
-
         if (params.id && Integer.parseInt(params.id) > 0) {
             supplier = supplierService.getSupplier(Integer.parseInt(params.id))
         } else {
@@ -57,15 +83,12 @@ class SupplierController {
             supplier.retailerId = springSecurityService.principal.retailerId
             supplier.storeId = springSecurityService.principal.storeId
         }
-
         bindData(supplier, params)
-
         if (supplier.validate()) {
             supplierService.saveSupplier(supplier)
-
             render "OK"
         } else {
-            render(template: "addSupplier", model: [supplier: supplier])
+            render(template: "addSupplier", model: [supplier: supplier, enableSave : true])
         }
     }
 

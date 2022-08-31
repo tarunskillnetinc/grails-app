@@ -118,6 +118,8 @@
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                             </g:if>
+
+                            <g:link controller="supplier" class="dropdown-item">Suppliers</g:link>
                         </div>
                     </li>
 
@@ -156,7 +158,7 @@
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
                             <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
                             <g:link controller="group" class="dropdown-item disabled">User Groups</g:link>
-                            <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
+                            <g:link controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
                             </g:if>
@@ -172,6 +174,7 @@
                             <g:link controller="monitoring" action="transactionServiceStatus" class="dropdown-item">Transaction Service Status</g:link>
                         </div>
                     </li>
+
                 </ul>
             </div>
         </nav>

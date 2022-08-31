@@ -82,7 +82,7 @@
             </div>
 
             <div id="search-results" class="align-content-center">
-                <g:render template="userSearchResults" model="[users: users]" />
+                <g:render template="userSearchResults"  model="[users: users]"/>
             </div>
         </section>
     </body>
