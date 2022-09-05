@@ -62,6 +62,50 @@ class ProductListService extends MySqlDal {
         }
     }
 
+    def getDeliveries(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate, int offset = 0, int max = 50, String sort = "dateStarted", String order = "DESC") {
+        return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("type", ProductListType.DELIVERY)
+
+            if (storeId != null) {
+                eq("storeId", storeId)
+            }
+
+            if (supplierId != null) {
+                eq("supplierId", String.valueOf(supplierId))
+            }
+
+            between("startDate", startDate, endDate)
+        }
+    }
+
+    def getDelivery(Integer productListId, Integer storeId, Integer supplierId) {
+        return ProductList.createCriteria().get {
+            eq("id", productListId)
+
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("type", ProductListType.DELIVERY)
+
+            if (storeId != null) {
+                eq("storeId", storeId)
+            }
+
+            if (supplierId != null) {
+                eq("supplierId", String.valueOf(supplierId))
+            }
+        }
+    }
+
+    def acceptDelivery(Integer storeId, Integer productListId) {
+        Connection conn = getConnection();
+        CallableStatement stmt = conn.prepareCall("{ call acceptDeliveryProductList(?, ?) }")
+
+        stmt.setInt(1, productListId)
+        stmt.setInt(2, storeId)
+
+        stmt.execute()
+    }
+
     def getAdHocBatches() {
         return ProductList.createCriteria().list([sort: "dateStarted", order: "DESC"]) {
             eq ("retailerId", springSecurityService.principal.retailerId)

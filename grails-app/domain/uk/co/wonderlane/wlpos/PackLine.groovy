@@ -13,6 +13,8 @@ class PackLine {
 
     static belongsTo = [productListItem: ProductListItem]
 
+    static transients = [ 'totalQuantity', 'totalValue' ]
+
     static mapping = {
         table "packlines"
         version false
@@ -26,5 +28,14 @@ class PackLine {
     }
 
     static constraints = {
+    }
+
+    def getTotalQuantity() {
+        return pack.getQuantity().multiply(productListItem.getFillQuantity())
+    }
+
+    def getTotalValue() {
+        def price = pack.quantity.multiply(productListItem.productVariant.getCurrentPrice())
+        return price.multiply(productListItem.getFillQuantity())
     }
 }

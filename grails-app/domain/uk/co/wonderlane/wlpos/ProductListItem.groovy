@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import java.math.RoundingMode
+
 class ProductListItem {
 
     int id
@@ -13,6 +15,8 @@ class ProductListItem {
     static belongsTo = [ productList: ProductList ]
 
     static hasMany = [ packLines: PackLine ]
+
+    static transients = [ 'totalValue', 'totalCost' ]
 
     static mapping = {
         table "productlistitem"
@@ -35,5 +39,25 @@ class ProductListItem {
         quantity nullable: true
         fillQuantity nullable: false
         parentQuantity nullable: true
+    }
+
+    def getTotalValue() {
+        if (fillQuantity == 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+        }
+
+        if (productVariant == null) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+        }
+
+        return packLines?.sum {
+            it.getTotalValue()
+        }
+    }
+
+    def getTotalCost() {
+        return packLines?.sum {
+            fillQuantity.multiply(it.pack.price)
+        }
     }
 }

@@ -28,7 +28,7 @@ class ProductList {
 
     static hasMany = [ productListItems: ProductListItem ]
 
-    static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines' ]
+    static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost' ]
 
     static mapping = {
         table "productlist"
@@ -85,15 +85,25 @@ class ProductList {
                 return BigDecimal.ZERO.setScale(2)
             }
 
-            return productListItem?.packLines?.sum {
-                it.pack?.price?.multiply(BigDecimal.valueOf(it.quantity)) ?: BigDecimal.ZERO.setScale(2)
+            if (type == ProductListType.DELIVERY) {
+                return productListItems?.sum {
+                    it.totalValue
+                }
+            } else {
+                return productListItem?.packLines?.sum {
+                    it.pack?.price?.multiply(BigDecimal.valueOf(it.quantity)) ?: BigDecimal.ZERO.setScale(2)
+                }
             }
         }
     }
 
     def getTotalQuantity() {
-        return productListItems?.sum {
-            ProductListItem productListItem -> productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
+        return productListItems?.sum { ProductListItem productListItem ->
+            if (type == ProductListType.DELIVERY) {
+                productListItem?.fillQuantity ?: BigDecimal.ZERO.setScale(2)
+            } else {
+                productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
+            }
         }
     }
 
@@ -107,5 +117,11 @@ class ProductList {
 
     def getLabelCount() {
         return productListItems?.sum { it.quantity } ?: 0
+    }
+
+    def getTotalCost() {
+        return productListItems?.sum {
+            it.getTotalCost()
+        }
     }
 }
