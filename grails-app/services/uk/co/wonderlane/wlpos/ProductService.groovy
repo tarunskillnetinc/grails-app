@@ -102,7 +102,7 @@ class ProductService extends MySqlDal {
                     deletedBarcode.sku = barcode.sku
                     deletedBarcode.retailerId = barcode.retailerId
                     deletedBarcode.barcode = barcode.barcode
-                    deletedBarcode.effectiveDate = barcode.effectiveDate
+                    deletedBarcode.effectiveDate = barcode.effectiveDeleteDate
                     deletedBarcode.recordStatus = 'D'
                     deletedBarcode.save()
                 } else if (barcode instanceof Barcode) {

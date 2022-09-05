@@ -12,8 +12,9 @@ class Barcode {
     char recordStatus
 
     boolean delete
+    DateTime effectiveDeleteDate
 
-    static transients = ['delete']
+    static transients = ['delete', 'effectiveDeleteDate']
 
     static mapping = {
         table "barcode"

@@ -606,16 +606,34 @@ class ProductController {
                             'Barcode {0} already exists on another SKU.')
                 }
             } else { // If barcode do exists change update existing values
-                existingBarcode.barcode = editedBarcode.barcode
 
-                if (!existingBarcode.validate()) {
-                    product.errors.reject(
-                            'product.barcodes.notUnique',
-                            [existingBarcode.barcode] as Object[],
-                            'Barcode {0} already exists on another SKU.')
+                //Only update if user has changed barcode value or else skip
+                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+
+                    //Mark current barcode to delete this will insert new mark delete entry to DB
+                    existingBarcode.delete = true
+                    existingBarcode.effectiveDeleteDate = effectiveDate//New effective date needed to be set as effective date of mark delete entry
+
+                    //Add new barcode to replacing existing
+                    Barcode futureBarcode = new Barcode()
+                    futureBarcode.sku = existingVariant.sku
+                    futureBarcode.retailerId = springSecurityService.principal.retailerId
+                    futureBarcode.barcode = editedBarcode.barcode
+                    futureBarcode.effectiveDate = effectiveDate
+                    futureBarcode.recordStatus = 'C'
+
+                    if (!futureBarcode.validate()) {
+                        product.errors.reject(
+                                'product.barcodes.notUnique',
+                                [futureBarcode.barcode] as Object[],
+                                'Barcode {0} already exists on another SKU.')
+                    } else {
+                        //Add mark deleted barcode and newly updated barcode to add into DB
+                        existingVariant.barcodez.add(existingBarcode)
+                        existingVariant.barcodez.add(futureBarcode)
+                    }
+
                 }
-
-                existingVariant.barcodez.add(existingBarcode)
             }
         }
 
@@ -625,7 +643,7 @@ class ProductController {
 
             if (!editedBarcode) {
                 existingBarcode.delete = true
-                existingBarcode.effectiveDate = effectiveDate
+                existingBarcode.effectiveDeleteDate = effectiveDate//New effective date needed to be set as effective date of mark delete entry
                 existingVariant.barcodez.add(existingBarcode)
             }
         }
