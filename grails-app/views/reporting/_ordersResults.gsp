@@ -1,3 +1,5 @@
+<%@ page import="org.joda.time.DateTimeZone" %>
+
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderId" }?.enabled}">
         <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'orderId', sortOrder: ${sortParams?.sortColumn == 'orderId' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Order ID</a></div>
@@ -45,12 +47,7 @@
                 <div class="col-2 my-auto"><g:message code="OrderStatus.${order.status}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCompleted" }?.enabled}">
-                <div class="col-2 my-auto">
-                    <g:if test="${order.dateCompleted}">
-                        <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${order.dateCompleted?.toDate() ?: new Date()}" />
-                    </g:if>
-                    <g:else>&nbsp;</g:else>
-                </div>
+                <div class="col-2 my-auto">${order.dateCompleted?.minus(DateTimeZone.getDefault()?.toTimeZone()?.getRawOffset())?.toString("dd/MM/yyyy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
                 <div class="col-2 my-auto">${order.supplierReference}</div>
