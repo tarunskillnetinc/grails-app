@@ -29,6 +29,8 @@ configurations {
     runtimeClasspath {
         extendsFrom developmentOnly
     }
+    all*.exclude module : 'spring-boot-starter-logging'
+    all*.exclude module : 'logback-classic'
 //    all {
 //        exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
 //    }
