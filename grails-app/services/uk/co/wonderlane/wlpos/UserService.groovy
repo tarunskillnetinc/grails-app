@@ -23,5 +23,10 @@ class UserService {
 
     def saveUser(User user) {
         user.save()
+
+    }
+
+    def deleteUser(User user){
+        user.delete()
     }
 }
