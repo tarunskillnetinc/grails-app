@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.databinding.BindingFormat
+import org.apache.commons.lang.StringUtils
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.Role
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -323,6 +324,15 @@ class SaveUserCommand {
             if (obj.id == 0) {
                 def user = User.findByUsername(val)
 
+                return user == null
+            }
+
+            return true
+        }
+
+        securityKey nullable: true, validator: {val, obj ->
+            if (obj.id == 0 && !StringUtils.isEmpty(val)) {
+                def user = User.findBySecurityKey(val)
                 return user == null
             }
 
