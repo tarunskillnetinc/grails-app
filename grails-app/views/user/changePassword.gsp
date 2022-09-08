@@ -14,8 +14,8 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item"><g:link controller="user" action="userEdit" params="[id: userId]">User Edit</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${userId ?: "Change Password"}</li>
+                            <li class="breadcrumb-item"><g:link controller="user" action="userEdit" params="[id: userId]">Edit User</g:link></li>
+                            <li class="breadcrumb-item active" aria-current="page">${name ?: "Change Password"}</li>
                         </ol>
                     </div>
                 </div>
@@ -62,9 +62,10 @@
             <g:form name="change-user-password-form" action="editUserPassword" novalidate="novalidate" class="mt-4">
 
                 <g:hiddenField name="id" value="${userId ?: 0}" />
+                <g:hiddenField name="name" value="${name ?: ""}" />
 
                 <div class="form-group row col-12 col-lg-6">
-                    <label for="password" class="col-4 col-form-label text-right pr-4">Password</label>
+                    <label for="password" class="col-4 col-form-label text-right pr-4">New Password</label>
                     <g:passwordField name="password" id="password" class="col-5 form-control bottom-border" autocomplete="off" readonly="${isUserReadOnly}"/>
                 </div>
 

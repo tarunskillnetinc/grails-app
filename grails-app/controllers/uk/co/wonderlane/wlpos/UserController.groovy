@@ -58,7 +58,7 @@ class UserController {
             flash.error = "User not found."
             [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole())]
         } else {
-            render(view: "changePassword", model: [userId: params.id, isUserReadOnly: isUserReadOnly(user)])
+            render(view: "changePassword", model: [userId: params.id, name : params.name,  isUserReadOnly: isUserReadOnly(user)])
         }
 
     }
@@ -204,7 +204,7 @@ class UserController {
 
                 redirect(action: "index")
             } else {
-                render(view: "changePassword", model: [saveUserPasswordCommand: saveUserPasswordCommand, userId: saveUserPasswordCommand.getId(), isUserReadOnly: isUserReadOnly(user)])
+                render(view: "changePassword", model: [saveUserPasswordCommand: saveUserPasswordCommand, userId: saveUserPasswordCommand.getId(), name: saveUserPasswordCommand.getName(), isUserReadOnly: isUserReadOnly(user)])
             }
 
         } else {
@@ -348,6 +348,7 @@ class SaveUserPasswordCommand {
     int id
     String password
     String confirmPassword
+    String name
 
     static constraints = {
 

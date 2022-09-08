@@ -43,7 +43,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                             <li class="breadcrumb-item"><g:link controller="user" action="index">User Management</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${user?.name ?: "User Edit"}</li>
+                            <li class="breadcrumb-item active" aria-current="page">${user?.name ?: "Edit User"}</li>
                         </ol>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
         <section id="add-user-section" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-6 offset-2">
-                    <h2 class="mx-auto my-auto">User Edit</h2>
+                    <h2 class="mx-auto my-auto">Edit User</h2>
                 </div>
 
                 <div class="col-4 text-right">
@@ -62,12 +62,12 @@
                     <g:if test="${!isUserReadOnly}">
                         <button class="btn btn-danger" name="save" onclick="ConfirmUserDelete()">Delete</button>
                         <button class="btn btn-success" name="delete" onclick="$('#edit-user-form').submit();">Save</button>
-                        <button class="btn btn-warning" name="delete" onclick="document.location.href='${createLink(action:'changePassword', id: user?.id)}';">Change Password</button>
+                        <button class="btn btn-warning" name="delete" onclick="document.location.href='${createLink(action:'changePassword', params: [id: user?.id, name : user?.name] )}';">Reset Password</button>
                     </g:if>
                     <g:else>
                         <button class="btn btn-danger" name="save" disabled onclick="ConfirmUserDelete()">Delete</button>
                         <button class="btn btn-success" name="delete" disabled onclick="$('#edit-user-form').submit();">Save</button>
-                        <button class="btn btn-warning" name="delete" disabled onclick="document.location.href='${createLink(action:'changePassword', id: user?.id)}';">Change Password</button>
+                        <button class="btn btn-warning" name="delete" disabled onclick="document.location.href='${createLink(action:'changePassword', params: [id: user?.id, name : user?.name])}';">Reset Password</button>
                     </g:else>
 
                 </div>
