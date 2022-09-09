@@ -333,8 +333,10 @@ class SaveUserCommand {
         securityKey nullable: true, validator: {val, obj ->
             if (!StringUtils.isEmpty(val)) {
                 def user = User.findBySecurityKey(val)
-                if (user)
+                if (user && obj.id != User.findBySecurityKey(val).getId())
                     return ["error.User.securityKeyAlreadyTaken"]
+                else
+                    return true
             } else {
                 return true
             }
