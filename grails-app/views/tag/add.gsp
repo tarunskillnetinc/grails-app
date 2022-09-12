@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Central Count Management</title>
+        <title>WonderLane Tag Management</title>
     </head>
 
     <body>
