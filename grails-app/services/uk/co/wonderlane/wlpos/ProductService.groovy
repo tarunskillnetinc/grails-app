@@ -276,7 +276,43 @@ class ProductService extends MySqlDal {
         searchTerm = searchTerm ? searchTerm.trim() : ""
 
         if ((searchBy == "everything" || searchBy == "barcode") && searchTerm?.length() > 2) {
-            barcodeSkus = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)?.collect { it.sku }?.unique()
+            def validBarcodeSkus = [] //Declare valid barcode sku list
+
+            //Get all barcodes which like search term (Ex : search term - 111 )
+            def barcodes = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)
+
+            //Group barcodes to map of sku --> {1 : [111(C) , 111 (D), 1114(C) ,1115(C), 1117(C)], 2:[1119(C)]}
+            def skuMap = barcodes?.groupBy {it.sku}
+
+            for (Map.Entry<Long, List<Barcode>> skuListEntry : skuMap?.entrySet()) {
+
+                //Group sku list int map of barcode
+                def barcodeMap = skuListEntry.getValue()?.groupBy { it.barcode }
+
+                //Then loop over map of barcode to find out all active sku values
+                for (Map.Entry<String, List<Barcode>> barcodeListEntry : barcodeMap?.entrySet()) {
+                    int deletedBarcodeCount = 0
+                    int activeBarcodeCount = 0
+
+                    //For barcode belonging to particular sku check occurrence of active and deleted
+                    barcodeListEntry.value?.forEach({ barcode ->
+                        if (barcode.recordStatus == ('D' as char)) {
+                            deletedBarcodeCount++
+                        } else {
+                            activeBarcodeCount++
+                        }
+                    })
+
+                    //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we can assume that barcode is active
+                    if (activeBarcodeCount > deletedBarcodeCount) {
+                        validBarcodeSkus.add(skuListEntry.getKey())
+                        break
+                    }
+                }
+            }
+
+            barcodeSkus = validBarcodeSkus?.unique()
+
         }
 
         def queryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now, max: maxResults, offset: startIndex]
