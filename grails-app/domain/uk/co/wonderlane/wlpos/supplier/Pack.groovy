@@ -45,16 +45,16 @@ class Pack {
 
     static constraints = {
         productVariant nullable: true
-        supplier nullable: true
-        quantity nullable: false, blank: false, min: 1 as Integer
-        price nullable: false, blank: false, min: 0.01 as BigDecimal, scale: 2
-        orderCode nullable: true
-        barcode nullable: true
-        recommendedRetailPrice nullable: true, min: 0.01 as BigDecimal, scale: 2
+        supplier nullable: false, blank: false
+        quantity nullable: false, blank: false, min: 1 as Integer, max: 9999999999 as Integer
+        price nullable: false, blank: false, min: 0.01 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
+        orderCode nullable: true, size: 1..20
+        barcode nullable: true, size: 1..20
+        recommendedRetailPrice nullable: true, min: 0.01 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
         effectiveDate nullable: true
         effectiveEndDate nullable: true
         status nullable: false
-        maximumOrderQuantity nullable: true, min: 0 as Integer
+        maximumOrderQuantity nullable: true, min: 0 as Integer, max: 99999 as Integer
         allowSubstitutes nullable: false
         priceMarked nullable: false
         updateDatetime nullable: false

@@ -497,6 +497,9 @@
                 var params = { index: variantIndex };
                 params["defaultSupplier"] = filterValues["defaultSupplier"];
 
+                var validate = true;
+                var alertMessage = "";
+
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
@@ -517,20 +520,50 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
-                });
 
-                $.ajax({
-                    url: savePackUrl,
-                    method: "POST",
-                    data: params,
-                    success: function(resp) {
-                        var packsContainer = $("#variants\\[" +variantIndex +"\\]\\.packsContainer");
-
-                        packsContainer.html(resp);
-
-                        $('#suppliersModal').modal("hide");
+                    // validate form
+                    if ($(packSelector +"\\.supplier\\.name").val() === "Please select" || $(packSelector +"\\.supplier\\.name").val().length === 0) {
+                        validate = false;
+                        alertMessage += "\nSupplier"+"["+packIndex+"]"+" should not be empty.";
+                    }
+                    if ($(packSelector +"\\.quantity").val() == null) {
+                        validate = false;
+                        alertMessage += "\nQuantity"+"["+packIndex+"]"+" should not be empty.";
+                    }
+                    if ($(packSelector +"\\.quantity").val() <= 0) {
+                        validate = false;
+                        alertMessage += "\nQuantity"+"["+packIndex+"]"+" should not be negative or zero.";
+                    }
+                    if ($(packSelector +"\\.price").val() == 0) {
+                        validate = false;
+                        alertMessage += "\nPrice"+"["+packIndex+"]"+" should be greater than 0.";
+                    }
+                    if ($(packSelector +"\\.price").val() >= 10000) {
+                        validate = false;
+                        alertMessage += "\nPrice"+"["+packIndex+"]"+" should not be greater than 9999.99.";
+                    }
+                    if ($(packSelector +"\\.maximumOrderQuantity").val().length > 5) {
+                        validate = false;
+                        alertMessage += "\nMaximum Order Quantity"+"["+packIndex+"]"+" should not be greater than 99999.";
                     }
                 });
+
+                if (!validate) {
+                    alert(alertMessage);
+                } else {
+                    $.ajax({
+                        url: savePackUrl,
+                        method: "POST",
+                        data: params,
+                        success: function(resp) {
+                            var packsContainer = $("#variants\\[" +variantIndex +"\\]\\.packsContainer");
+
+                            packsContainer.html(resp);
+
+                            $('#suppliersModal').modal("hide");
+                        }
+                    });
+                }
             }
 
             function getPromotions(productId) {

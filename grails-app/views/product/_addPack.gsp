@@ -27,16 +27,16 @@
             <g:select name="addPack[${packIndex}].supplier.id" from="${suppliers}" value="${pack?.supplier?.id}" optionKey="id" optionValue="name" class="form-control select-border" noSelection="[null : 'Please select']" onchange="addPackSupplierChanged(${packIndex});" />
         </div>
         <div class="col-2 my-auto">
-            <g:field type="number" name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" min="0" onkeypress="return preventNegativeInteger(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" min="1" onkeyup="limit(this, 10);" onchange="this.value = Math.floor(Math.max(this.value,1))" onkeypress="return preventNegativeInteger(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
         </div>
         <div class="input-group col-2 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
-            <g:field type="number" name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" min="0" onkeypress="return preventNegativeDecimal(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" />
+            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" onkeyup="limit(this, 20);" />
         </div>
         <div class="col-2 my-auto">
             <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}" valueMessagePrefix="PackStatus" class="form-control select-border" />
@@ -53,10 +53,10 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
-            <g:field type="number" name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control mask-money" min="0" step="0.01" onkeypress="return preventNegativeDecimal(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control mask-money" />
         </div>
         <div class="col-2 offset-2 my-auto">
-            <g:field type="number" name="addPack[${packIndex}].maximumOrderQuantity" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" min="0" onkeypress="return preventNegativeInteger(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:field type="number" name="addPack[${packIndex}].maximumOrderQuantity" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" min="0" onkeyup="limit(this, 5);" onkeypress="return preventNegativeInteger(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
         </div>
     </div>
 </div>
@@ -64,24 +64,6 @@
 <script type="text/javascript">
     function addPackSupplierChanged(packIndex) {
         $("#addPack\\[" +packIndex +"\\]\\.supplier\\.name").val($("#addPack\\[" +packIndex +"\\]\\.supplier\\.id option:selected").text());
-    }
-
-    function preventNegativeDecimal(val, evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if (charCode == 46) {
-            // check '.' character
-            if (val.value.indexOf('.') === -1) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            // check character whether is number
-            if (charCode > 31 &&
-                (charCode < 48 || charCode > 57))
-                return false;
-        }
-        return true;
     }
 
     function preventNegativeInteger(val, evt) {
@@ -99,4 +81,12 @@
         }
         return true;
     }
+
+    function limit(val, len) {
+        if (val.value.length > len) {
+            val.value = val.value.slice(0, len);
+        }
+    }
+
+    $(".mask-money").maskMoney({ allowZero: false });
 </script>
