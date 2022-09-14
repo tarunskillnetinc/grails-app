@@ -40,7 +40,26 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
-    maven { url "https://oss.jfrog.org/artifactory/oss-snapshot-local" }
+    maven {
+        url "https://wonderlane.jfrog.io/artifactory/wlpos-mvn-qa-local"
+        credentials {
+            username "$artifactory_user"
+            password "$artifactory_password"
+        }
+        mavenContent {
+            releasesOnly()
+        }
+    }
+    maven {
+        url "https://wonderlane.jfrog.io/artifactory/wlpos-mvn-snapshot-local"
+        credentials {
+            username "$artifactory_user"
+            password "$artifactory_password"
+        }
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
 }
 
 dependencies {
