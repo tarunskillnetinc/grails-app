@@ -85,7 +85,7 @@ class Product {
             return Product.countByRetailerIdAndItemCodeAndIdNotEqual(obj.retailerId, obj.itemCode, obj.id) > 0 ? ["error.product.duplicateItemCode"] : true
         }
         description size: 1..100, blank: false, nullable: false
-        receiptDescription size: 1..50, blank: false, nullable: false
+        receiptDescription size: 1..10, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
         unitSize size: 1..50, blank: false, nullable:false
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
