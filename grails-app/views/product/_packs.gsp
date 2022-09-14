@@ -1,6 +1,7 @@
+<g:hiddenField name="variants[${variantIndex}].defaultSupplierId" value="${defaultSupplier}" />
+
 <g:each in="${packs}" var="pack" status="packIndex">
     <div id="packContainer${packIndex}">
-        <g:hiddenField name="variants[${variantIndex}].defaultSupplierId" value="${defaultSupplier}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].id" value="${pack.id ?: ''}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].supplier.id" value="${pack.supplier.id}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].supplier.name" value="${pack.supplier.name}" />

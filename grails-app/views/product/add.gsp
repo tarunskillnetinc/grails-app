@@ -259,8 +259,9 @@
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
+                var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
-                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays };
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
 
@@ -409,16 +410,15 @@
             }
 
             // The suppliers button was clicked, we display the suppliers modal for this variant.
-            function showSuppliersModal(variantIndex, defaultSupplierId) {
+            function showSuppliersModal(variantIndex) {
                 $("#suppliersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#suppliersModal').modal({ show: true });
 
                 var params = {};
                 params["index"] = variantIndex;
 
-                defaultSupplierId = defaultSupplierId == null ? '' : defaultSupplierId;
                 var defaultSupplier = $("#variants\\[" + variantIndex + "\\]\\.defaultSupplierId").val();
-                params["defaultSupplier"] = defaultSupplier?.length === 0 ? defaultSupplierId : defaultSupplier;
+                params["defaultSupplier"] = defaultSupplier;
 
                 var packContainers = $("#variants\\[" +variantIndex +"\\]\\.packsContainer > div");
 

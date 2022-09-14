@@ -455,6 +455,7 @@ class ProductController {
                         newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                         newVariant.effectiveDate = effectiveDate
                         newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                        newVariant.defaultSupplierId = editedVariant.defaultSupplierId
 
                         product.addToVariants(newVariant)
 
@@ -476,6 +477,7 @@ class ProductController {
                     newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                     newVariant.effectiveDate = effectiveDate
                     newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                    newVariant.defaultSupplierId = editedVariant.defaultSupplierId
 
                     editedVariant.packs?.each { editedPack ->
                         Pack newPack = new Pack()
@@ -502,11 +504,6 @@ class ProductController {
                     product.addToVariants(newVariant)
                 }
             }
-        }
-
-        // Add default supplier Id at the end
-        for (int i = 0; i <= editedProduct?.variants?.size(); i++) {
-            product?.variants[i]?.defaultSupplierId = editedProduct?.variants[i]?.defaultSupplierId
         }
 
         if (!product.hasErrors() && product.validate()) {
@@ -749,6 +746,7 @@ class ProductController {
         builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
+        builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
 
         //loop over edited variant barcodes to find out if barcode been edited or newly added
         variant?.barcodez?.each { editedBarcode ->
