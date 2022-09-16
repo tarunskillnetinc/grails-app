@@ -50,7 +50,7 @@ class Pack {
         price nullable: false, blank: false, min: 0.01 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
         orderCode nullable: true, size: 1..20
         barcode nullable: true, size: 1..20
-        recommendedRetailPrice nullable: true, min: 0.01 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
+        recommendedRetailPrice nullable: true, max: 9999.99 as BigDecimal, scale: 2
         effectiveDate nullable: true
         effectiveEndDate nullable: true
         status nullable: false
