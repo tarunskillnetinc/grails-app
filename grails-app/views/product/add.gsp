@@ -530,6 +530,10 @@
                         validate = false;
                         alertMessage += "\nQuantity"+"["+packIndex+"]"+" should not be empty.";
                     }
+                    if ($(packSelector +"\\.quantity").val() > 2147483647) {
+                        validate = false;
+                        alertMessage += "\nQuantity"+"["+packIndex+"]"+" value overflowed.";
+                    }
                     if ($(packSelector +"\\.quantity").val() <= 0) {
                         validate = false;
                         alertMessage += "\nQuantity"+"["+packIndex+"]"+" should not be negative or zero.";
@@ -538,11 +542,11 @@
                         validate = false;
                         alertMessage += "\nPrice"+"["+packIndex+"]"+" should be greater than 0.";
                     }
-                    if ($(packSelector +"\\.price").val() >= 10000) {
+                    if (Number($(packSelector +"\\.price").val().replace(/\,/g, '')) >= 10000) {
                         validate = false;
                         alertMessage += "\nPrice"+"["+packIndex+"]"+" should not be greater than 9999.99.";
                     }
-                    if ($(packSelector +"\\.maximumOrderQuantity").val().length > 5) {
+                    if (Number($(packSelector +"\\.maximumOrderQuantity").val()) >= 100000) {
                         validate = false;
                         alertMessage += "\nMaximum Order Quantity"+"["+packIndex+"]"+" should not be greater than 99999.";
                     }
