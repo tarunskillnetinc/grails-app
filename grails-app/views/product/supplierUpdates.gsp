@@ -94,7 +94,7 @@
                 // Change the confirm message depending which button you pressed and whether you have any products selected.
                 if (checkedBoxes.length > 0 && acceptRrps) {
                     $("#confirmModalHeader").html("Accept RRPs");
-                    $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for the selected products?");
+                    $("#confirmModalContent").html("You will update all prices of the list without exception's");
                 } else if (checkedBoxes.length === 0 && acceptRrps) {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
@@ -105,7 +105,7 @@
                     $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for ALL products?");
                 } else if (checkedBoxes.length > 0 && !acceptRrps) {
                     $("#confirmModalHeader").html("Save Prices");
-                    $("#confirmModalContent").html("Are you sure you wish to accept the entered retail price for the selected products?");
+                    $("#confirmModalContent").html("You will update the price only the selected items");
                 } else {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
