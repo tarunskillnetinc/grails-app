@@ -23,8 +23,10 @@ class ProductList {
     DateTime startDate
     DateTime endDate
     Integer orderId
-    String supplierReference
     String supplierId
+    String supplierReference
+    boolean stockAdjustedOnCompletion
+    Integer destinationStore
 
     static hasMany = [ productListItems: ProductListItem ]
 
@@ -50,8 +52,10 @@ class ProductList {
         startDate column: "startDate"
         endDate column: "endDate"
         orderId column: "orderId"
-        supplierReference column: "supplierReference"
         supplierId column: "supplierId"
+        supplierReference column: "supplierReference"
+        stockAdjustedOnCompletion column: "stockAdjustedOnCompletion"
+        destinationStore column: "destinationStore"
     }
 
     static constraints = {
@@ -71,8 +75,10 @@ class ProductList {
         startDate nullable: true
         endDate nullable: true
         orderId nullable: true
-        supplierReference nullable: true
         supplierId nullable: true
+        supplierReference nullable: true
+        stockAdjustedOnCompletion nullable: false
+        destinationStore nullable: true
     }
 
     def getTotalValue() {

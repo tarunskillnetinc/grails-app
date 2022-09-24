@@ -6,8 +6,7 @@ class ProductListItem {
 
     int id
     ProductVariant productVariant
-    int productQuantityShopFloor
-    int productQuantityStockroom
+    int productQuantityInStock
     Integer quantity
     int fillQuantity = 0
     Integer parentQuantity
@@ -23,8 +22,7 @@ class ProductListItem {
         version false
 
         productVariant column: "productVariantId", cascade: "save-update"
-        productQuantityShopFloor column: "productQuantityShopFloor"
-        productQuantityStockroom column: "productQuantityStockroom"
+        productQuantityInStock column: "productQuantityInStock"
         quantity column: "quantity"
         fillQuantity column: "fillQuantity"
         parentQuantity column: "parentQuantity"
@@ -34,8 +32,7 @@ class ProductListItem {
 
     static constraints = {
         productVariant nullable: false
-        productQuantityShopFloor nullable: true
-        productQuantityStockroom nullable: true
+        productQuantityInStock nullable: true
         quantity nullable: true
         fillQuantity nullable: false
         parentQuantity nullable: true
