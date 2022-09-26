@@ -11,7 +11,7 @@ class ProductListItem {
     int fillQuantity = 0
     Integer parentQuantity
 
-    static belongsTo = [ productList: ProductList ]
+    static belongsTo = [ productList: ProductList, productListItemGroup: ProductListItemGroup ]
 
     static hasMany = [ packLines: PackLine ]
 
@@ -28,6 +28,7 @@ class ProductListItem {
         parentQuantity column: "parentQuantity"
 
         productList column: "productListId"
+        productListItemGroup column: "productListItemGroupId"
     }
 
     static constraints = {

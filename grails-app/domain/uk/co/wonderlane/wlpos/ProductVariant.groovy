@@ -7,8 +7,6 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
 
-import java.time.LocalDate
-
 class ProductVariant implements Serializable {
 
     def springSecurityService
