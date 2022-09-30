@@ -1,0 +1,847 @@
+package uk.co.wonderlane.wlpos
+
+import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
+import org.xml.sax.SAXException
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
+import uk.co.wonderlane.wlpos.supplier.Supplier
+
+import javax.xml.parsers.ParserConfigurationException
+import java.sql.*
+
+@Transactional
+class OrderService extends MySqlDal  {
+
+    def springSecurityService
+    def userService
+    def nisaService
+
+    OrderService(DatabaseCredentials databaseCredentials) {
+        super(databaseCredentials)
+    }
+
+    // This will create new product list
+    def createProductList(ProductListType productListType, Supplier supplier){
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            User user = userService.getUser(springSecurityService.principal.id)
+            if (productList == null){
+                productList = createNewProductList(connection, productListType, ProductListStatus.IN_PROGRESS, -1, user.getUsername())
+                updateListSupplier(connection, supplier, productList.getId())
+            }
+
+            connection.commit()
+        }catch(Exception ex){
+            log.error("Order create exception found when creating new product list , Exception " + ex.getMessage())
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+        return productList;
+    }
+
+    // This will save product list items and packs
+    def saveProductOrder(PackLineRequestCommand packLineRequestCommand){
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            saveProductListsAndPackLines(connection, packLineRequestCommand)
+
+            connection.commit()
+        }catch(Exception ex){
+            log.error("Order create exception found when saving product order, request is rollback , Exception " + ex.getMessage())
+            if (connection != null){
+                connection.rollback()
+            }
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+    }
+
+    // This will work on confirming order request
+    def confirmOrder(int productListId, Supplier supplier){
+        String response = null;
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            response = confirmProductList(connection, supplier, productListId)
+
+            connection.commit()
+        }catch(Exception ex){
+            log.error("Order create exception found when saving product order, request is rollback , Exception " + ex.getMessage())
+            if (connection != null){
+                connection.rollback()
+            }
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+        return response
+    }
+
+    // Delete product list from database.
+    def deleteProductList(int productListId) {
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = getProductListById(productListId)
+
+            if (productList.getType().IsIn(ProductListType.ORDER)) {
+                for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem item : productList.getProductListItems()) {
+                    deletePackLinesId(connection, item.getId())
+                    deleteProductListItemId(connection, item.getId())
+                }
+            }
+
+            deleteProductListById(connection, productListId)
+
+            connection.commit()
+        }catch(Exception ex){
+            log.error("Order create exception found when deleting product list, request is rollback , Exception " + ex.getMessage())
+            if (connection != null){
+                connection.rollback()
+            }
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+    }
+
+    //This will delete individual product items from database
+    def deleteProductListItem(int productListItemId) throws SQLException {
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+            // Delete the item.
+            deleteProductListItemId(productListItemId)
+
+            connection.commit()
+        } catch (Exception ex) {
+            log.error("Order create exception found when deleting product list item, request is rollback , Exception " + ex.getMessage())
+            if (connection != null) {
+                connection.rollback()
+            }
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
+
+    }
+
+    /** =================================== Start product list creation methods =========================================================== **/
+
+    private createNewProductList(Connection connection, ProductListType productListType, ProductListStatus productListStatus, int parentProductListId, String usersName) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null;
+        HashMap<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> productListItemHashMap = new HashMap<>()
+        CallableStatement cstmt
+        try {
+            cstmt = connection.prepareCall("{ call createProductList(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+            cstmt.setString(1, productListType.name())
+            cstmt.setInt(2, springSecurityService.principal.retailerId)
+            cstmt.setString(3, String.valueOf(springSecurityService.principal.storeId))
+            cstmt.setString(4, productListStatus.name())
+
+            if (parentProductListId < 0) {
+                cstmt.setNull(5, Types.INTEGER)
+            } else {
+                cstmt.setInt(5, parentProductListId)
+            }
+
+            if (usersName != null) {
+                cstmt.setString(6, usersName)
+            } else {
+                cstmt.setNull(6, Types.VARCHAR);
+            }
+
+            if (usersName != null) {
+                cstmt.setString(7, usersName)
+            } else {
+                cstmt.setNull(7, Types.VARCHAR)
+            }
+
+            cstmt.setString(8, null)
+            cstmt.setString(9, null)
+            cstmt.setString(10, null)
+
+            if (cstmt.execute()) {
+                ResultSet rs = cstmt.getResultSet()
+
+                if (rs.next()) {
+                    productList = mapProductList(rs)
+                }
+
+                cstmt.getMoreResults()
+                rs = cstmt.getResultSet()
+
+                while (rs.next()) {
+                    mapProductListItem(rs, productListItemHashMap);
+                    productList.setProductListItems(new ArrayList<uk.co.wonderlane.wlpos.entities.wlim.ProductListItem>(productListItemHashMap.values()))
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace()
+            log.error("Order create exception found when creating product list, Exception " + ex.getMessage())
+            throw ex
+        }
+        return productList;
+    }
+
+    uk.co.wonderlane.wlpos.entities.wlim.ProductList getActiveProductList(ProductListType productListType, String userName) {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null;
+        Map<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup> productListItemGroupMap = new HashMap<>();
+        Map<Integer, Map<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem>> productListItemHashMap = new HashMap<>();
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getActiveProductList(?, ?, ?, ?) }")
+            cstmt.setInt(1, springSecurityService.principal.retailerId);
+            cstmt.setString(2, String.valueOf(springSecurityService.principal.storeId));
+            cstmt.setString(3, userName);
+            cstmt.setString(4, productListType.name());
+
+            if (cstmt.execute()) {
+                ResultSet rs = cstmt.getResultSet();
+
+                while (rs.next()) {
+                    productList = mapProductList(rs);
+                }
+
+                cstmt.getMoreResults();
+                rs = cstmt.getResultSet();
+
+                // Item groups (cages).
+                while (rs.next()) {
+                    uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup productListItemGroup = mapProductListItemGroup(rs);
+                    productList.getProductListItemGroups().add(productListItemGroup);
+                    productListItemGroupMap.put(productListItemGroup.getId(), productListItemGroup);
+                }
+
+                cstmt.getMoreResults();
+                rs = cstmt.getResultSet();
+
+                while (rs.next()) {
+                    int productListId = rs.getInt("productListId");
+                    int productListItemGroupId = rs.getInt("productListItemGroupId");
+                    int itemKey = productListItemGroupId > 0 ? productListItemGroupId : productListId;
+
+                    if (!productListItemHashMap.containsKey(itemKey)) {
+                        productListItemHashMap.put(itemKey, new HashMap<>());
+                    }
+
+                    mapProductListItem(rs, productListItemHashMap.get(itemKey));
+
+                    if (productListItemGroupId > 0) {
+                        productListItemGroupMap.get(productListItemGroupId).setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
+                    } else {
+                        productList.setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
+                    }
+                }
+            }
+        }catch (Exception ex) {
+            log.error("Order create exception found when checking for active product list, Exception " + ex.getMessage())
+            throw ex
+        } finally{
+            if (conn != null){
+                conn.close()
+            }
+        }
+        return productList;
+    }
+
+    private boolean updateListSupplier(Connection connection, Supplier supplier, int productListId) throws SQLException {
+        CallableStatement cstmt
+        try{
+            cstmt = connection.prepareCall("{ call updateListSupplier(?, ?, ?) }")
+            cstmt.setInt(1, productListId)
+            cstmt.setString(2, String.valueOf(supplier.getId()))
+            cstmt.setString(3, supplier.getReference())
+            cstmt.executeUpdate();
+        }catch(Exception ex){
+            ex.printStackTrace()
+            log.error("Order create exception found when updating product list supplier id, Exception " + ex.getMessage())
+            throw ex
+        }
+        return true;
+    }
+
+    /** =================================== End product list creation methods =========================================================== **/
+
+
+    /** =================================== Start confirm product list methods =========================================================== **/
+
+    private confirmProductList(Connection connection, Supplier supplier, int productListId) throws SQLException, IOException, ParserConfigurationException, SAXException {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = getProductListById(productListId);
+
+        if (productList.getType() == ProductListType.ORDER) {
+            //Update entry to product stock
+            updateProducts(connection, productList)
+
+            // Save completed status in database.
+            //Update status in product list as complete
+            confirmProductList(connection, productListId)
+
+            if (supplier.getSymbolGroup() !=null && supplier.getSymbolGroup().getId() > 0){
+                //In case of symbol group order send request NISA
+                return nisaService.generateXMLForOrder(connection, productList)
+            } else {
+                //For non symbol group order requests --> Create deliveries
+                //Insert delivery row to product list
+                //Insert product list items
+                //Insert pack lines
+                return saveProductDeliveries(connection, productList, ProductListType.DELIVERY.toString(), ProductListStatus.PENDING.toString(), supplier)
+            }
+
+        }
+    }
+
+    uk.co.wonderlane.wlpos.entities.wlim.ProductList getProductListById(int productListId) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null;
+        HashMap<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> productListItemHashMap = new HashMap<>()
+        Map<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup> productListItemGroupMap = new HashMap<>()
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getProductList(?) }")
+            cstmt.setInt(1, productListId);
+            if (cstmt.execute()) {
+                ResultSet rs = cstmt.getResultSet();
+
+                while (rs.next()) {
+                    productList = mapProductList(rs);
+                }
+
+                cstmt.getMoreResults();
+                rs = cstmt.getResultSet();
+
+                // Item groups (cages).
+                while (rs.next()) {
+                    uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup productListItemGroup = mapProductListItemGroup(rs);
+                    productList.getProductListItemGroups().add(productListItemGroup);
+                    productListItemGroupMap.put(productListItemGroup.getId(), productListItemGroup);
+                }
+
+                cstmt.getMoreResults();
+                rs = cstmt.getResultSet();
+
+                while (rs.next()) {
+                    int itemProductListId = rs.getInt("productListId");
+                    int productListItemGroupId = rs.getInt("productListItemGroupId");
+                    int itemKey = productListItemGroupId > 0 ? productListItemGroupId : itemProductListId;
+
+                    if (!productListItemHashMap.containsKey(itemKey)) {
+                        productListItemHashMap.put(itemKey, new HashMap<>());
+                    }
+
+                    mapProductListItem(rs, productListItemHashMap.get(itemKey));
+
+                    if (productListItemGroupId > 0) {
+                        productListItemGroupMap.get(productListItemGroupId).setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
+                    } else {
+                        productList.setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
+                    }
+                }
+            }
+        }catch(Exception ex){
+            ex.printStackTrace()
+            log.error("Order create exception found when loading product list by id , Exception " + ex.getMessage())
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+        return productList;
+    }
+
+    private void updateProducts(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList) throws SQLException {
+
+        // Loop pick list, find parent product and request an updated stock qty.
+        for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem item : productList.getProductListItems()) {
+
+            try {
+                uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), item.getProductVariantId())
+
+                // Now that product variants usually have a null store ID, we should set the store ID to that of the current list.
+                productVariant.setStoreId(Integer.parseInt(productList.getStoreId()));
+
+                if (productList.getType() == ProductListType.ORDER) {
+                    productVariant.setQuantityOnOrder(productVariant.getQuantityOnOrder() + item.getQuantity())
+                    saveProductStock(connection, productVariant)
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace()
+                log.error("Order create exception found when updating product , Exception " + ex.getMessage())
+                throw ex
+            }
+        }
+    }
+
+    //Update status in product list
+    private void confirmProductList(Connection connection, int productListId) throws SQLException {
+        CallableStatement cstmt
+        try {
+            cstmt = connection.prepareCall("{ call saveProductList(?) }")
+            cstmt.setInt(1, productListId);
+            cstmt.executeUpdate();
+        }catch(Exception ex){
+            ex.printStackTrace()
+            log.error("Order create exception found when confirming product list , Exception " + ex.getMessage())
+            throw ex
+        }
+    }
+
+    private void saveProductStock(Connection connection, uk.co.wonderlane.wlpos.entities.ProductVariant productVariant) throws SQLException{
+        CallableStatement cstmt
+        try {
+            cstmt = connection.prepareCall("{ call saveProductStock(?, ?, ?, ?, ?) }")
+            cstmt.setInt(1,  productVariant.getStoreId())
+            cstmt.setLong(2,  productVariant.getSku())
+            cstmt.setInt(3,  productVariant.getQuantityInStock())
+            cstmt.setInt(4,  productVariant.getQuantityOnOrder())
+            cstmt.setInt(5,  productVariant.getQuantityOnOrder())
+            cstmt.execute();
+        }catch(Exception ex){
+            ex.printStackTrace()
+            log.error("Order create exception found when saving product stock , Exception " + ex.getMessage())
+            throw ex
+        }
+    }
+
+    def saveProductDeliveries(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier){
+        int productListId = saveDeliveryProduct(connection, productList, type,  status, supplier)
+        HashMap<Integer, Integer> productDeliveryListItemMap = saveDeliveryProductItemList(connection, productList, productListId)
+        saveDeliveryPackLines(connection, productList, productListId, productDeliveryListItemMap)
+        return null
+    }
+
+    def saveDeliveryProduct(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier) throws SQLException {
+        int productListId = saveDeliveryProductList(connection, productList, type,  status)
+        updateListSupplier(connection, supplier, productListId)
+        return productListId
+    }
+
+
+    def saveDeliveryProductList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status) throws SQLException {
+        CallableStatement stmt
+        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZoneUTC()
+        String deliveryDate = DateTime.now().toString(dateTimeFormatter)
+        try {
+            stmt = connection.prepareCall("call createDeliveryProductList(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+            stmt.setString(1, type)
+            stmt.setInt(2, springSecurityService.principal.retailerId)
+            stmt.setInt(3, springSecurityService.principal.storeId)
+            stmt.setString(4, status)
+            stmt.setNull(5, Types.NULL)
+            stmt.setString(6, productList.getUserId())
+            stmt.setString(7, productList.getUserId())
+            stmt.setNull(8, Types.NULL)
+            stmt.setInt(9, productList.getId())
+            stmt.setString(10, deliveryDate)
+            stmt.setBoolean(11, true)
+
+            ResultSet resultSet = stmt.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt("id"); // This returns the id of the product list record created
+            }
+        }catch(Exception ex){
+            log.error("Order create exception found when saving delivery product list for non symbol group, Exception " + ex.getMessage())
+            throw ex
+        }
+        return null
+    }
+
+    private HashMap<Integer, Integer> saveDeliveryProductItemList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, int deliveryListId) throws SQLException {
+        CallableStatement stmt
+        HashMap<Integer, Integer> productDeliveryListItemMap = new HashMap<>();
+        try{
+            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?) }")
+            for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
+                uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
+                int stockInQuantity = productVariant.getQuantityInStock()
+                populateListItemInsertStatement(stmt, deliveryListId, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity(),listItem.getFillQuantity())
+                if (stmt.execute()) {
+                    ResultSet rs = stmt.getResultSet();
+                    if (rs.next()) {
+                        int productListItemId = rs.getInt("productListItemId")
+                        productDeliveryListItemMap.put(listItem.id, productListItemId)
+                    }
+                }
+            }
+        }catch(Exception ex){
+            log.error("Order create exception found when saving delivery product list items for non symbol group, Exception " + ex.getMessage())
+            throw ex
+        }
+        return productDeliveryListItemMap;
+    }
+
+    private saveDeliveryPackLines(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, int deliveryListId, HashMap<Integer, Integer> productDeliveryListItemMap) throws SQLException {
+        CallableStatement stmt
+        try {
+            stmt = connection.prepareCall("{ call savePackLine(?, ?, ?, ?, ?, ?) }")
+            for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
+                for (uk.co.wonderlane.wlpos.entities.wlim.PackLine packLines : listItem.getPackLines()) {
+                    int deliveryListItemId = productDeliveryListItemMap.get(listItem.getId())
+                    populatePackLinesInsertStatement(stmt, deliveryListId, packLines.getPackId(), packLines.getQuantity(), packLines.getOrderCode(), ProductListType.DELIVERY.toString(), deliveryListItemId)
+                    stmt.addBatch()
+                    stmt.clearParameters()
+                }
+                stmt.executeBatch()
+            }
+        } catch (Exception ex) {
+            log.error("Order create exception found when saving delivery pack Lines for non symbol group, Exception " + ex.getMessage())
+            throw ex
+        }
+    }
+
+    /** =================================== End confirm product list methods =========================================================== **/
+
+    /** =================================== Start saving product list items and packs method =========================================================== **/
+
+    private saveProductListsAndPackLines(Connection connection, PackLineRequestCommand packLineRequestCommand){
+        int productListItemId = saveProductListItems(connection, packLineRequestCommand)
+        saveOrderedPacks(connection, packLineRequestCommand, ProductListType.ORDER.toString(), productListItemId)
+    }
+
+    private saveProductListItems(Connection connection, PackLineRequestCommand packLinesCommand){
+
+        uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(springSecurityService.principal.storeId, packLinesCommand.getProductVariantId())
+        int quantityInStock = productVariant.getQuantityInStock()
+
+        // Save and retrieve the item.
+        return saveProductListItem(connection, packLinesCommand, quantityInStock)
+    }
+
+
+    private saveProductListItem(Connection connection, PackLineRequestCommand packLineRequestCommand, int quantityInStock) throws SQLException {
+        CallableStatement cstmt
+        int productListItemId = -1
+        try {
+            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?) }")
+            populateListItemInsertStatement(cstmt, packLineRequestCommand.getProductListId(), packLineRequestCommand.getProductItemId(), packLineRequestCommand.getProductVariantId(),quantityInStock,
+                    packLineRequestCommand.getQuantity(),packLineRequestCommand.getFillQuantity())
+            if (cstmt.execute()) {
+                ResultSet rs = cstmt.getResultSet();
+                if (rs.next()) {
+                    productListItemId = rs.getInt("productListItemId")
+                }
+            }
+        }catch(Exception ex){
+            log.error("Order create exception found when saving product list items, Exception " + ex.getMessage())
+            throw ex
+        }
+
+        return productListItemId;
+    }
+
+    private saveOrderedPacks(Connection connection,PackLineRequestCommand packLineRequest, String type, int productListItemId) throws SQLException {
+        CallableStatement cstmt
+        try{
+            cstmt = connection.prepareCall("{ call savePackLine(?, ?, ?, ?, ?, ?) }")
+            for (PackLinesCommand packLineCommand : packLineRequest.getPackLines()) {
+                populatePackLinesInsertStatement(cstmt, packLineRequest.getProductListId(), packLineCommand.getId(), packLineCommand.getQuantity(), packLineCommand.getOrderCode(), type, productListItemId)
+                cstmt.addBatch()
+                cstmt.clearParameters()
+            }
+            cstmt.executeBatch()
+        }catch(Exception ex){
+            log.error("Order create exception found when saving order pack lines, Exception " + ex.getMessage())
+            throw ex
+        }
+    }
+
+    private uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getProductVariant(?, ?) }")
+            cstmt.setInt(1, storeId);
+            cstmt.setInt(2, productVariantId);
+            ResultSet rs = cstmt.executeQuery()
+            if (rs.next()) {
+                return mapProductVariant(rs);
+            }
+            return null
+        }catch(Exception ex){
+            log.error("Order create exception found when retrieving product variant from DB, Exception " + ex.getMessage())
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+    }
+
+    /** =================================== End saving product list items and packs method =========================================================== **/
+
+
+    /** =================================== Start product list delete methods =========================================================== **/
+
+    private int deletePackLinesId(Connection connection, int productListItemId) throws SQLException {
+        CallableStatement cstmt
+        try{
+            cstmt = connection.prepareCall("{ call deletePackLines(?) }")
+            cstmt.setInt(1, productListItemId);
+            cstmt.execute();
+        }catch(Exception ex){
+            log.error("Order create exception found when deleting product pack lines by id, request is rollback , Exception " + ex.getMessage())
+            throw ex
+        }
+        return productListItemId;
+    }
+
+    private int deleteProductListItemId(Connection connection, int productListItemId) throws SQLException {
+        CallableStatement cstmt
+        try{
+            cstmt = connection.prepareCall("{ call deleteProductListItem(?) }")
+            cstmt.setInt(1, productListItemId);
+            cstmt.execute();
+        }catch(Exception ex){
+            log.error("Order create exception found when deleting product list item by id, request is rollback , Exception " + ex.getMessage())
+            throw ex
+        }
+        return productListItemId;
+    }
+
+    private void deleteProductListById(Connection connection, int productListId) throws SQLException {
+        CallableStatement cstmt
+        try{
+            cstmt = connection.prepareCall("{ call deleteProductList(?) }")
+            cstmt.setInt(1, productListId);
+            cstmt.executeUpdate();
+        }catch(Exception ex){
+            log.error("Order create exception found when deleting order list by id, request is rollback , Exception " + ex.getMessage())
+            throw ex
+        }
+    }
+
+    /** =================================== End product list delete methods =========================================================== **/
+
+    private uk.co.wonderlane.wlpos.entities.wlim.ProductList mapProductList(ResultSet rs) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = new uk.co.wonderlane.wlpos.entities.wlim.ProductList();
+        productList.setOrderId(rs.getInt("orderId") != 0 ? rs.getInt("orderId") : 0);
+        productList.setId(rs.getInt("id"));
+        productList.setStoreId(rs.getString("storeId"));
+        productList.setUserId(rs.getString("userId"));
+        productList.setType(ProductListType.valueOf(rs.getString("type")));
+        productList.setStatus(ProductListStatus.valueOf(rs.getString("status")));
+        productList.setParentId(rs.getInt("parentId"));
+
+        String parentTypeString = rs.getString("parentType");
+        productList.setParentType(parentTypeString != null ? ProductListType.valueOf(parentTypeString) : null);
+
+        productList.setDateStarted(new DateTime(rs.getTimestamp("dateStarted")).withZoneRetainFields(DateTimeZone.UTC));
+        if (rs.wasNull()) {
+            productList.setDateStarted(null);
+        }
+
+        productList.setDateCompleted(new DateTime(rs.getTimestamp("dateCompleted")).withZoneRetainFields(DateTimeZone.UTC));
+        if (rs.wasNull()) {
+            productList.setDateCompleted(null);
+        }
+
+        productList.setOwnerUserId(rs.getString("ownerUserId"));
+
+        // Check for nullable int ownerUserId.
+        if (rs.wasNull()) {
+            productList.setOwnerUserId(null);
+        }
+
+        productList.setOwnerUsersName(rs.getString("ownerUsersName"));
+        productList.setProductListItems(new ArrayList<uk.co.wonderlane.wlpos.entities.wlim.ProductListItem>());
+        productList.setDescription(rs.getString("description"));
+
+        productList.setReasonId(rs.getString("reasonId"));
+        // Check for nullable reasonId.
+        if (rs.wasNull()) {
+            productList.setReasonId(null);
+        }
+
+        productList.setReasonDescription(rs.getString("reasonDescription"));
+
+        // Check for nullable reasonId.
+        if (rs.wasNull()) {
+            productList.setReasonDescription(null);
+        }
+
+        productList.setStartDate(new DateTime(rs.getTimestamp("startDate")).withZoneRetainFields(DateTimeZone.UTC));
+        if (rs.wasNull()) {
+            productList.setStartDate(null);
+        }
+
+        productList.setEndDate(new DateTime(rs.getTimestamp("endDate")).withZoneRetainFields(DateTimeZone.UTC));
+        if (rs.wasNull()) {
+            productList.setEndDate(null);
+        }
+
+        productList.setSupplierId(rs.getString("supplierId"));
+        if (rs.wasNull()) {
+            productList.setSupplierId(null);
+        }
+
+        productList.setSupplierReference(rs.getString("supplierReference"));
+        if (rs.wasNull()) {
+            productList.setSupplierReference(null);
+        }
+
+        return productList;
+    }
+
+    private uk.co.wonderlane.wlpos.entities.wlim.ProductListItem mapProductListItem(ResultSet rs, Map<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> productListItemMap) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductListItem productListItem = null;
+        int productItemId = rs.getInt("id");
+        //Populate product item details
+        if (!productListItemMap.containsKey(productItemId)) {
+            productListItem = new uk.co.wonderlane.wlpos.entities.wlim.ProductListItem();
+            productListItem.setId(rs.getInt("id"));
+            productListItem.setProductVariantId(rs.getInt("productVariantId"));
+            productListItem.setProductVariantItemCode(String.valueOf(rs.getString("sku")));
+            productListItem.setProductLongDescription(rs.getString("description"));
+            productListItem.setProductShortDescription(rs.getString("receiptDescription"));
+            String barcodes = rs.getString("barcodes");
+            if (barcodes != null) {
+                productListItem.setProductBarcodes(Arrays.asList(barcodes.split(",")));
+            }
+            productListItem.setProductPrice(rs.getBigDecimal("price"));
+            productListItem.setQuantity(rs.getInt("quantity"));
+            productListItem.setPackLines(new ArrayList<>());
+            // Check for nullable int quantity.
+            if (rs.wasNull()) {
+                productListItem.setQuantity(null);
+            }
+            productListItem.setFillQuantity(rs.getInt("fillQuantity"));
+            productListItem.setParentQuantity(rs.getInt("parentQuantity"));
+        } else {
+            productListItem = productListItemMap.get(productItemId);
+        }
+
+        //populate pack line details if exists --> Check by pack quantity since singles do not have packId or Order Code
+        int packLineQuantity = rs.getInt("packedQuantity")
+        if (packLineQuantity > 0) { //If id returns greater than of -1 pack line exists
+            uk.co.wonderlane.wlpos.entities.wlim.PackLine packLine = new uk.co.wonderlane.wlpos.entities.wlim.PackLine()
+            packLine.setPackId(rs.getInt("packId"))
+            packLine.setQuantity(rs.getInt("packedQuantity"))
+            packLine.setOrderCode(rs.getString("orderCode"))
+            productListItem.getPackLines().add(packLine)
+        }
+        productListItemMap.put(productItemId, productListItem);
+        return productListItem;
+    }
+
+    private uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
+
+        productVariant.setId(resultSet.getInt("id"))
+        productVariant.setProductId(resultSet.getInt("productId"))
+        productVariant.setStoreId(resultSet.getInt("storeId"))
+        productVariant.setSku(resultSet.getLong("sku"))
+
+        productVariant.setRetailPrice(resultSet.getBigDecimal("price"))
+        if (resultSet.wasNull()) {
+            productVariant.setRetailPrice(null)
+        }
+
+        productVariant.setCostPrice(resultSet.getBigDecimal("costPrice"))
+        if (resultSet.wasNull()) {
+            productVariant.setCostPrice(null)
+        }
+
+        productVariant.setSize(resultSet.getString("size"))
+        if (resultSet.wasNull()) {
+            productVariant.setSize(null);
+        }
+
+        productVariant.setColour(resultSet.getString("colour"))
+        if (resultSet.wasNull()) {
+            productVariant.setColour(null);
+        }
+        productVariant.setQuantityOnOrder(resultSet.getInt("quantityOnOrder"))
+        productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
+        productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
+
+        return productVariant;
+    }
+
+    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productVariantId, Integer productQuantityInStore, int quantity, int fillQuantity) {
+        cstmt.setInt(1, productListId)
+        cstmt.setInt(2, productItemList)
+        cstmt.setInt(3, productVariantId)
+        if (productQuantityInStore != null) {
+            cstmt.setInt(4, productQuantityInStore);
+        } else {
+            cstmt.setNull(4, Types.INTEGER);
+        }
+
+        if (quantity != null) {
+            cstmt.setInt(5, quantity);
+        } else {
+            cstmt.setNull(5, Types.INTEGER)
+        }
+
+        cstmt.setInt(6, fillQuantity)
+
+    }
+
+    private populatePackLinesInsertStatement(CallableStatement cstmt, int productListId,  int packId, int packQuantity, String orderCode, String type, int productListItemId){
+        cstmt.setInt(1, productListId)
+        cstmt.setInt(2, productListItemId)
+
+        if (packId > 0) {
+            cstmt.setInt(3, packId);
+        } else {
+            cstmt.setNull(3, Types.INTEGER)
+        }
+
+        cstmt.setInt(4, packQuantity)
+
+        if (orderCode == null || orderCode.length() > 0) {
+            cstmt.setString(5, orderCode);
+        } else {
+            cstmt.setNull(5, Types.VARCHAR)
+        }
+
+        cstmt.setString(6, type)
+    }
+
+    private uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup mapProductListItemGroup(ResultSet rs) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup productListItemGroup = new uk.co.wonderlane.wlpos.entities.wlim.ProductListItemGroup();
+        productListItemGroup.setId(rs.getInt("id"));
+        productListItemGroup.setProductListId(rs.getInt("productListId"));
+        productListItemGroup.setUniqueIdentifier(rs.getString("uniqueIdentifier"));
+        return productListItemGroup;
+    }
+
+
+}

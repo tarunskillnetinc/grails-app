@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
@@ -768,12 +769,18 @@ class ReportingController {
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
+        boolean enableOrderCreate = false
+        if (springSecurityService.principal.storeId  != null &&  springSecurityService.principal.storeId > 0){
+            enableOrderCreate = true
+        }
+
         [reportType : ReportType.ORDERS,
          suppliers  : suppliers,
          userColumns: reportingService.getReportColumns(ReportType.ORDERS),
          startDate  : startDate,
          endDate    : endDate,
-         stores     : stores]
+         stores     : stores,
+         enableOrderCreate : enableOrderCreate]
     }
 
     // The top level of the main orders report.

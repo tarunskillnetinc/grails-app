@@ -66,6 +66,7 @@
                 document.getElementById('supplier').value = "${null}";
                 document.getElementById('storeFilter').value = null;
             }
+
         </script>
     </head>
     <body>
@@ -133,7 +134,13 @@
                     </div>
                 </div>
 
-                <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
+                <div class="col-4 offset-1 text-right" style="margin-top: 8px; ">
+                    <g:if test="${enableOrderCreate}">
+                        <button class="btn btn-wl" onclick="document.location.href='${createLink(controller: 'order', action: 'productList')}';">Create Order</button>
+                    </g:if>
+                    <g:else>
+                        <button class="btn btn-wl" disabled onclick="document.location.href='${createLink(controller: 'order', action: 'productList')}';">Create Order</button>
+                    </g:else>
                     <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
                 </div>
 
@@ -192,5 +199,15 @@
                 <g:render template="ordersResults" />
             </div>
         </section>
+
+        <section id="showOrderSuppliers-modal" class="container-fluid">
+            <!-- Add symbol group subscription modal -->
+            <div class="modal fade" id="showOrderSuppliersModal" tabindex="-1" role="dialog" aria-labelledby="showOrderSuppliersModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div id="showOrderSuppliersContent" class="modal-content" ></div>
+                </div>
+            </div>
+        </section>
+
     </body>
 </html>

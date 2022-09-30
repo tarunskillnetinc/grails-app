@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos.supplier
 
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.ProductVariant
+import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
 
 class Pack {
@@ -41,6 +42,14 @@ class Pack {
         allowSubstitutes column: "allowSubstitutes"
         priceMarked column: "priceMarked"
         updateDatetime column: "updateDatetime"
+    }
+
+    int getQuantity(List<PackLine> packLines){
+        PackLine packLine = packLines?.find {it?.orderCode == this?.orderCode}
+        if (packLine != null){
+            return packLine.quantity
+        }
+        return 0;
     }
 
     static constraints = {

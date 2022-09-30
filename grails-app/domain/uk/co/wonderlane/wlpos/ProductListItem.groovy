@@ -55,7 +55,11 @@ class ProductListItem {
 
     def getTotalCost() {
         return packLines?.sum {
-            fillQuantity.multiply(it.pack.price)
+            fillQuantity.multiply(it?.pack?.price ?: getCostPriceByVariant())
         }
+    }
+
+    def getCostPriceByVariant(){
+        return productVariant?.costPrice ?: 0
     }
 }

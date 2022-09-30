@@ -5,7 +5,6 @@ import uk.co.wonderlane.wlpos.entities.SymbolGroupMessage
 import uk.co.wonderlane.wlpos.enums.SnappyMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupMessageType
 import uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus
-import uk.co.wonderlane.wlpos.reporting.SortParams
 import uk.co.wonderlane.wlpos.supplier.Supplier
 import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription

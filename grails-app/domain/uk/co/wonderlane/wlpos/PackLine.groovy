@@ -28,14 +28,23 @@ class PackLine {
     }
 
     static constraints = {
+        pack nullable: true
     }
 
     def getTotalQuantity() {
-        return pack.getQuantity().multiply(productListItem.getFillQuantity())
+        int quantity = 1 //For singles
+        if (pack){ //If pack exist means get quantity from pack
+            quantity = pack.getQuantity()
+        }
+        return quantity.multiply(productListItem.getFillQuantity())
     }
 
     def getTotalValue() {
-        def price = pack.quantity.multiply(productListItem.productVariant.getCurrentPrice())
-        return price.multiply(productListItem.getFillQuantity())
+        int quantity = 1 //For singles
+        if (pack){ //If pack exist means get quantity from pack
+            quantity = pack.getQuantity()
+        }
+        def price = quantity.multiply(productListItem?.productVariant?.getCurrentPrice())
+        return price.multiply(productListItem?.getFillQuantity())
     }
 }

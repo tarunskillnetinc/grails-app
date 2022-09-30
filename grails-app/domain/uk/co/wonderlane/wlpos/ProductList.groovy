@@ -97,7 +97,12 @@ class ProductList {
                 }
             } else {
                 return productListItem?.packLines?.sum {
-                    it.pack?.price?.multiply(BigDecimal.valueOf(it.quantity)) ?: BigDecimal.ZERO.setScale(2)
+                    //If pack line is singles then get cost price for product variant
+                    BigDecimal price = it?.productListItem?.productVariant?.costPrice ?: BigDecimal.ZERO
+                    if (it.pack){ //If pack exists mean pack line is non singles
+                        price = it.pack?.price ?: BigDecimal.ZERO
+                    }
+                    price.multiply(BigDecimal.valueOf(it.quantity)) ?: BigDecimal.ZERO.setScale(2)
                 }
             }
         }
@@ -130,4 +135,5 @@ class ProductList {
             it.getTotalCost()
         }
     }
+
 }

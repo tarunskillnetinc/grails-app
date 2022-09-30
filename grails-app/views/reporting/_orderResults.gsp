@@ -36,13 +36,30 @@
                 <div class="col-4 my-auto">${order.productListItem?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderedQuantity" }?.enabled}">
-                <div class="col-2 my-auto">${order.pack?.quantity?.multiply(order.quantity)}</div>
+                <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
+                <g:if test="${order.pack}">
+                    <div class="col-2 my-auto">${order.pack?.quantity?.multiply(order.quantity)}</div>
+                </g:if>
+                <g:else>
+                    <div class="col-2 my-auto">${order.quantity}</div>
+                </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packQuantity" }?.enabled}">
-                <div class="col-2 my-auto">${order.pack?.quantity}</div>
+                <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
+                <g:if test="${order.pack}">
+                    <div class="col-2 my-auto">${order.pack?.quantity}</div>
+                </g:if>
+                <g:else>
+                    <div class="col-2 my-auto">1</div>
+                </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "lineValue" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber number="${order.pack?.price?.multiply(order.quantity)}" type="currency"/></div>
+                <g:if test="${order.pack}">
+                    <div class="col-2 my-auto"><g:formatNumber number="${order.pack?.price?.multiply(order.quantity)}" type="currency"/></div>
+                </g:if>
+                <g:else>
+                    <div class="col-2 my-auto"><g:formatNumber number="${(order?.productListItem?.productVariant?.costPrice?:0).multiply(order?.quantity)}" type="currency"/></div>
+                </g:else>
             </g:if>
         </div>
     </g:each>
