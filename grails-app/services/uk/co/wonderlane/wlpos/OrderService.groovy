@@ -163,7 +163,7 @@ class OrderService extends MySqlDal  {
         HashMap<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> productListItemHashMap = new HashMap<>()
         CallableStatement cstmt
         try {
-            cstmt = connection.prepareCall("{ call createProductList(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+            cstmt = connection.prepareCall("{ call createProductList(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
             cstmt.setString(1, productListType.name())
             cstmt.setInt(2, springSecurityService.principal.retailerId)
             cstmt.setString(3, String.valueOf(springSecurityService.principal.storeId))
@@ -190,6 +190,8 @@ class OrderService extends MySqlDal  {
             cstmt.setString(8, null)
             cstmt.setString(9, null)
             cstmt.setString(10, null)
+            cstmt.setString(11, null)
+            cstmt.setString(12, null)
 
             if (cstmt.execute()) {
                 ResultSet rs = cstmt.getResultSet()
