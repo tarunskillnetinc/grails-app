@@ -29,7 +29,7 @@ class OrderController {
             User user = userService.getUser(springSecurityService.principal.id)
             productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
 
-            if (productList != null){ //If user already have product list then return it
+            if (productList != null && productList.getSupplierId() != null){ //If user already have product list then return it
                 supplier = supplierService.getSupplier(Integer.parseInt(productList.getSupplierId())) //Load supplier
             } else {
 
@@ -45,7 +45,7 @@ class OrderController {
                 if (Integer.parseInt(params.supplierId) > 0 && Integer.parseInt(params.isNew) == 1){
                     supplier = supplierService.getSupplier(Integer.parseInt(params.supplierId)) //Load supplier
                     if (supplier != null){
-                        productList = orderService.createProductList(ProductListType.ORDER, supplier)
+                        productList = orderService.createProductList(productList, ProductListType.ORDER, supplier)
                     }
                 } else {
                     render(view: "_productList")
@@ -128,7 +128,7 @@ class OrderController {
         def suppliers = null
         User user = userService.getUser(springSecurityService.principal.id)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
-        if (productList == null){
+        if ((productList == null) || (productList != null && productList.getSupplierId() == null)){
             suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
             response.setStatus(200)
         }else {

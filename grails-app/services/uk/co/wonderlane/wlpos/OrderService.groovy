@@ -27,22 +27,24 @@ class OrderService extends MySqlDal  {
     }
 
     // This will create new product list
-    def createProductList(ProductListType productListType, Supplier supplier){
-        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null
+    def createProductList(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, Supplier supplier){
         Connection connection
         try {
             connection = getConnection()
             connection.setAutoCommit(false)
 
             User user = userService.getUser(springSecurityService.principal.id)
-            if (productList == null){
-                productList = createNewProductList(connection, productListType, ProductListStatus.IN_PROGRESS, -1, user.getUsername())
+            productList = createNewProductList(connection, productList, productListType, user)
+            if (productList != null){
                 updateListSupplier(connection, supplier, productList.getId())
             }
 
             connection.commit()
         }catch(Exception ex){
             log.error("Order create exception found when creating new product list , Exception " + ex.getMessage())
+            if (connection != null){
+                connection.rollback()
+            }
             throw ex
         }finally{
             if (connection != null){
@@ -158,7 +160,14 @@ class OrderService extends MySqlDal  {
 
     /** =================================== Start product list creation methods =========================================================== **/
 
-    private createNewProductList(Connection connection, ProductListType productListType, ProductListStatus productListStatus, int parentProductListId, String usersName) throws SQLException {
+    private createNewProductList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, User user){
+        if (productList == null){
+            productList = addNewProductList(connection, productListType, ProductListStatus.IN_PROGRESS, -1, user.getUsername())
+        }
+        return productList
+    }
+
+    private addNewProductList(Connection connection, ProductListType productListType, ProductListStatus productListStatus, int parentProductListId, String usersName) throws SQLException {
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null;
         HashMap<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> productListItemHashMap = new HashMap<>()
         CallableStatement cstmt
