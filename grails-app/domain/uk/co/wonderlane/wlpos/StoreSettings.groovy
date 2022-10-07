@@ -37,6 +37,13 @@ class StoreSettings {
     BigDecimal selMarginLeft
     BigDecimal selMarginTop
 
+    String primaryColour
+    String secondaryColour
+    String accentColour
+    String primaryTextColour
+    String secondaryTextColour
+    String accentTextColour
+
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public StoreSettings() { }
 
@@ -74,6 +81,13 @@ class StoreSettings {
         updatedUserId column: "updatedUserId"
         selMarginLeft column: "selMarginLeft"
         selMarginTop column: "selMarginTop"
+        primaryColour column: "primaryColour", sqlType: "char", length: 6
+        secondaryColour column: "secondaryColour", sqlType: "char", length: 6
+        accentColour column: "accentColour", sqlType: "char", length: 6
+        primaryTextColour column: "primaryTextColour", sqlType: "char", length: 6
+        secondaryTextColour column: "secondaryTextColour", sqlType: "char", length: 6
+        accentTextColour column: "accentTextColour", sqlType: "char", length: 6
+
     }
 
     static constraints = {
@@ -106,6 +120,12 @@ class StoreSettings {
         updatedUserId nullable: true
         selMarginLeft nullable: true
         selMarginTop nullable: true
+        primaryColour nullable: true
+        secondaryColour nullable: true
+        accentColour nullable: true
+        primaryTextColour nullable: true
+        secondaryTextColour nullable: true
+        accentTextColour nullable: true
     }
 
     def beforeInsert() {
@@ -138,6 +158,12 @@ class StoreSettings {
         storeSettings.setValuePromptThreshold(valuePromptThreshold)
         storeSettings.setVarianceQuantity(varianceQuantity)
         storeSettings.setVarianceValue(varianceValue)
+        storeSettings.setPrimaryColour(primaryColour)
+        storeSettings.setSecondaryColour(secondaryColour)
+        storeSettings.setAccentColour(accentColour)
+        storeSettings.setPrimaryTextColour(primaryTextColour)
+        storeSettings.setSecondaryTextColour(secondaryTextColour)
+        storeSettings.setAccentTextColour(accentTextColour)
 
         return storeSettings
     }

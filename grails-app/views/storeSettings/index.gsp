@@ -5,6 +5,7 @@
 
     <title>WonderLane Store Settings</title>
 </head>
+
 <body>
     <section id="breadcrumb-container" class="container-fluid">
         <nav aria-label="breadcrumb">
@@ -270,8 +271,89 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- UI setting -->
+                <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
+                    <div class="card-header pointer" id="uiSetting" data-toggle="collapse" data-target="#collapseUiSetting" aria-expanded="true" aria-controls="collapseUiSetting">
+                        <div class="row">
+                            <div class="col-10 font-weight-bold">UI Settings</div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseUiSetting" class="collapse" aria-labelledby="uiSetting" data-parent="#accordion">
+                        <div class="card-body py-5">
+                            <div class="col-12">
+                                <div class="form-group row">
+                                    <label for="uiSetting" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:textField name="primaryColour" id="primaryColour" maxlength="6" value="${storeSettings?.primaryColour}" class="form-control bottom-border" />
+                                    </div>
+                                    <div>
+                                        <input type="color" id="primaryColourPicker" name="primaryColourPicker" value="#${storeSettings?.primaryColour}" onchange="changeColour(this.value, 'primaryColour');">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="uiSetting" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:textField name="secondaryColour" maxlength="6" value="${storeSettings?.secondaryColour}" class="form-control bottom-border" />
+                                    </div>
+                                    <div>
+                                        <input type="color" id="secondaryColourPicker" name="primaryColourPicker" value="#${storeSettings?.secondaryColour}" onchange="changeColour(this.value, 'secondaryColour');">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="uiSetting" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:textField name="accentColour" maxlength="6" value="${storeSettings?.accentColour}" class="form-control bottom-border" />
+                                    </div>
+                                    <div>
+                                        <input type="color" id="accentColourPicker" name="primaryColourPicker" value="#${storeSettings?.accentColour}" onchange="changeColour(this.value, 'accentColour');">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="uiSetting" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:textField name="primaryTextColour" maxlength="6" value="${storeSettings?.primaryTextColour}" class="form-control bottom-border" />
+                                    </div>
+                                    <div>
+                                        <input type="color" id="primaryTextColourPicker" name="primaryColourPicker" value="#${storeSettings?.primaryTextColour}" onchange="changeColour(this.value, 'primaryTextColour');">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="uiSetting" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:textField name="secondaryTextColour" maxlength="6" value="${storeSettings?.secondaryTextColour}" class="form-control bottom-border" />
+                                    </div>
+                                    <div>
+                                        <input type="color" id="secondaryTextColourPicker" name="primaryColourPicker" value="#${storeSettings?.secondaryTextColour}" onchange="changeColour(this.value, 'secondaryTextColour');">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="uiSetting" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:textField name="accentTextColour" maxlength="6" value="${storeSettings?.accentTextColour}" class="form-control bottom-border" />
+                                    </div>
+                                    <div>
+                                        <input type="color" id="accentTextColourPicker" name="primaryColourPicker" value="#${storeSettings?.accentTextColour}" onchange="changeColour(this.value, 'accentTextColour');">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </g:form>
     </section>
+    <asset:javascript src="colorPick.js" />
 </body>
 </html>
