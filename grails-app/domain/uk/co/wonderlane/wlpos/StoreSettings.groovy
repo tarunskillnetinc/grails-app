@@ -8,6 +8,7 @@ class StoreSettings {
 
     int id
     int retailerId
+    Integer parentStoreId
     Integer storeId
     String receiptMessage1
     String receiptMessage2
@@ -54,6 +55,7 @@ class StoreSettings {
 
         id column: "id", sqlType: "smallint"
         retailerId column: "retailerId", sqlType: "tinyint"
+        parentStoreId column: "parentStoreId", sqlType: "smallint"
         storeId column: "storeId", sqlType: "smallint"
         receiptMessage1 column: "receiptMessage1"
         receiptMessage2 column: "receiptMessage2"
@@ -93,6 +95,23 @@ class StoreSettings {
     static constraints = {
         id nullable: true
         retailerId nullable: false
+        parentStoreId nullable: true, validator: {val, obj ->
+            if (val == '' || val == null) {
+                return true;
+            } else {
+                if (val == obj.storeId) {
+                    return ["error.StoreSettings.cannotSetParentStoreToItself"]
+                }
+                // smallint maximum value is 32767
+                if (val > Short.MAX_VALUE) {
+                    return ["error.StoreSettings.invalidParentStore"]
+                }
+                def parentStore = StoreSettings.findByStoreIdAndRetailerId(val, obj.retailerId)
+                if (!parentStore) {
+                    return ["error.StoreSettings.invalidParentStore"]
+                }
+            }
+        }
         storeId nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
@@ -158,6 +177,7 @@ class StoreSettings {
         storeSettings.setValuePromptThreshold(valuePromptThreshold)
         storeSettings.setVarianceQuantity(varianceQuantity)
         storeSettings.setVarianceValue(varianceValue)
+        storeSettings.setParentStoreId(parentStoreId)
         storeSettings.setPrimaryColour(primaryColour)
         storeSettings.setSecondaryColour(secondaryColour)
         storeSettings.setAccentColour(accentColour)
