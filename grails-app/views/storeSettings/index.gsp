@@ -266,6 +266,13 @@
                                         <label class="form-check-label" for="pickListForceZeroCount">Force users to count items in a pick list which have zero quantity in stock.</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label for="countIncrement" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Count increments</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:field type="number" min="0.01" max="1" step="0.01" name="countIncrement" value="${storeSettings?.countIncrement}" class="form-control bottom-border"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

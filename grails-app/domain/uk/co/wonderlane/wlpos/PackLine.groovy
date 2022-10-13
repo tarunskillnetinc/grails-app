@@ -8,7 +8,7 @@ class PackLine {
     String type
     int productListId
     Pack pack
-    int quantity
+    BigDecimal quantity
     String orderCode
 
     static belongsTo = [productListItem: ProductListItem]

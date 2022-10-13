@@ -45,6 +45,8 @@ class StoreSettings {
     String secondaryTextColour
     String accentTextColour
 
+    BigDecimal countIncrement
+
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public StoreSettings() { }
 
@@ -90,6 +92,7 @@ class StoreSettings {
         secondaryTextColour column: "secondaryTextColour", sqlType: "char", length: 6
         accentTextColour column: "accentTextColour", sqlType: "char", length: 6
 
+        countIncrement column: "countIncrement"
     }
 
     static constraints = {
@@ -145,6 +148,17 @@ class StoreSettings {
         primaryTextColour nullable: true
         secondaryTextColour nullable: true
         accentTextColour nullable: true
+        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE, validator: {value ->
+            if (value < new BigDecimal(0.01)) {
+                return ['storeSettings.countIncrement.min.notmet']
+            }
+
+            if (value > BigDecimal.ONE) {
+                return ['storeSettings.countIncrement.max.exceeded']
+            }
+
+            return true
+        }
     }
 
     def beforeInsert() {
@@ -184,6 +198,7 @@ class StoreSettings {
         storeSettings.setPrimaryTextColour(primaryTextColour)
         storeSettings.setSecondaryTextColour(secondaryTextColour)
         storeSettings.setAccentTextColour(accentTextColour)
+        storeSettings.setCountIncrement(countIncrement)
 
         return storeSettings
     }

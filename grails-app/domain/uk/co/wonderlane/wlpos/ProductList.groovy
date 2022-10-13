@@ -102,7 +102,7 @@ class ProductList {
                     if (it.pack){ //If pack exists mean pack line is non singles
                         price = it.pack?.price ?: BigDecimal.ZERO
                     }
-                    price.multiply(BigDecimal.valueOf(it.quantity)) ?: BigDecimal.ZERO.setScale(2)
+                    price.multiply(it.quantity) ?: BigDecimal.ZERO.setScale(2)
                 }
             }
         }

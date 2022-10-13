@@ -54,7 +54,10 @@ class StoreSettingsController {
             def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
             def availableProductRanges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-            render(view: "index", model: [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values()])
+            render(view: "index", model: [storeSettings               : storeSettings,
+                                          availablePriceBands         : availablePriceBands,
+                                          availableProductRanges      : availableProductRanges,
+                                          availablePrintReceiptOptions: PrintReceiptOption.values()])
         }
     }
 }
