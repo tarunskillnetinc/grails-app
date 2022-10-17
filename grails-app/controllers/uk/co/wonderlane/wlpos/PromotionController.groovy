@@ -526,8 +526,10 @@ class PromotionController {
         syncMessage.setPromotion(tillPromo)
 
         if (springSecurityService.principal.storeId) {
+            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
             rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
         } else {
+            rabbitService.declareExchange(String.format("R%d", syncMessage.getRetailerId()))
             rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
         }
 
