@@ -361,8 +361,7 @@ class ProductController {
         def product
         def builder
 
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-        def effectiveDate = params.effectiveDate ? DateTime.parse(params.effectiveDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        def effectiveDate = getEffectiveDate()
 
         boolean newProduct
         boolean changeAffectsSel = false
@@ -579,6 +578,26 @@ class ProductController {
                                         priceBands: priceBands,
                                         editedPrices: editedPrices,
                                         vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
+        }
+    }
+
+    private DateTime getEffectiveDate() {
+        DateTime now = DateTime.now(DateTimeZone.UTC)
+
+        if (params.effectiveDate) {
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+            DateTime selectedDate = DateTime.parse(params.effectiveDate, dateFormatter)
+
+            // return the current date time if today is selected from the datepicker. otherwise time part will be 00:00:00 and duplicate effective dates will be appear in the DB
+            if (selectedDate.getYear() == now.getYear()
+                    && selectedDate.getMonthOfYear() == now.getMonthOfYear()
+                    && selectedDate.getDayOfMonth() && now.getDayOfMonth()) {
+                return now
+            }
+
+            return selectedDate
+        } else {
+            return now
         }
     }
 
