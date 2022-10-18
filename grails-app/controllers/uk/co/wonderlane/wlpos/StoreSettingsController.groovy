@@ -17,8 +17,9 @@ class StoreSettingsController {
 
         def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def availableProductRanges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def isHeadOfficeLogin = springSecurityService.principal.storeId == null
 
-        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values()]
+        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values(), isHeadOffice: isHeadOfficeLogin]
     }
 
     def save() {

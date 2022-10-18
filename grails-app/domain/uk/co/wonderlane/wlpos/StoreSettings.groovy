@@ -48,7 +48,7 @@ class StoreSettings {
     BigDecimal countIncrement
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
-    public StoreSettings() { }
+    public StoreSettings() {}
 
     static mapping = {
         autowire true
@@ -142,13 +142,13 @@ class StoreSettings {
         updatedUserId nullable: true
         selMarginLeft nullable: true
         selMarginTop nullable: true
-        primaryColour nullable: true
-        secondaryColour nullable: true
-        accentColour nullable: true
-        primaryTextColour nullable: true
-        secondaryTextColour nullable: true
-        accentTextColour nullable: true
-        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE, validator: {value ->
+        primaryColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        secondaryColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        accentColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        primaryTextColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        secondaryTextColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        accentTextColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE, validator: { value ->
             if (value < new BigDecimal(0.01)) {
                 return ['storeSettings.countIncrement.min.notmet']
             }
@@ -159,6 +159,25 @@ class StoreSettings {
 
             return true
         }
+    }
+
+
+    def colorCodeValidator(String colorCode) {
+        if (colorCode == null || colorCode.trim().isEmpty()) {
+            return true
+        }
+
+        if (colorCode.length() != 6) {
+            return ['storeSettings.colourCode.length.notmet', colorCode]
+        }
+
+        if (colorCode.startsWith('#')) {
+            return ['storeSettings.colourCode.format.startsWith.notmet', colorCode]
+        }
+
+       if(!isValidHexCode(colorCode)){
+           return ['storeSettings.colourCode.format.notmet', colorCode]
+       }
     }
 
     def beforeInsert() {
@@ -201,5 +220,10 @@ class StoreSettings {
         storeSettings.setCountIncrement(countIncrement)
 
         return storeSettings
+    }
+
+    private boolean isValidHexCode(String s) {
+        return s.chars()
+                .allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
 }
