@@ -32,7 +32,9 @@ class BackOfficeRabbitService extends RabbitService {
         apiUrl = "http://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
 
-        def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        //def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+
 
         gson = new GsonBuilder()
                 .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
@@ -63,23 +65,26 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     List<RabbitQueue> getStoreQueues() {
-        checkChannelAvailability()
-
-        def allRabbitQueues = getQueues()
-
         def rabbitQueues = []
+        try {
+            checkChannelAvailability()
 
-        // Only return the queues for our retailer.
-        allRabbitQueues?.each {
-            if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
-                it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
-                it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
-                it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
+            def allRabbitQueues = getQueues()
 
-                rabbitQueues.add(it)
+            // Only return the queues for our retailer.
+            allRabbitQueues?.each {
+                if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
+                    it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
+                    it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
+                    it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
+
+                    rabbitQueues.add(it)
+                }
             }
+        }catch(Exception ex){
+            System.println("Error found when loading existing queues, Error " + ex)
+            log.error("Error found when loading existing queues, Error " + ex)
         }
-
         return rabbitQueues
     }
 
@@ -101,18 +106,25 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     private List<RabbitQueue> getQueues() {
-        // Open a connection to the RabbitMQ REST API.
-        def url = (apiUrl + "queues").toURL()
+        try {
+            // Open a connection to the RabbitMQ REST API.
+            def url = (apiUrl + "queues").toURL()
 
-        def urlConnection = url.openConnection()
-        urlConnection.addRequestProperty("Authorization", "Basic ${apiAuthorization}")
+            def urlConnection = url.openConnection()
+            urlConnection.addRequestProperty("Authorization", "Basic ${apiAuthorization}")
 
-        def responseJson = urlConnection.inputStream.text
+            def responseJson = urlConnection.inputStream.text
 
-        // Convert the response JSON into a list of RabbitQueue objects.
-        Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
+            // Convert the response JSON into a list of RabbitQueue objects.
+            Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
 
-        return gson.fromJson(responseJson, listType)
+            return gson.fromJson(responseJson, listType)
+        }catch(Exception ex){
+            System.println("Error found when loading existing queues, Error " + ex)
+            log.error("Exception when creating till connection")
+        }
+        return null
+
     }
 
     void declareExchange(String exchange) {
