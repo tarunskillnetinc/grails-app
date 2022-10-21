@@ -36,7 +36,7 @@
             <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" onkeyup="limit(this, 20);" />
+            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" onkeyup="limit(this, 20);" onkeypress="return preventNegativeInteger(this, event);" />
         </div>
         <div class="col-2 my-auto">
             <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}" valueMessagePrefix="PackStatus" class="form-control select-border" />

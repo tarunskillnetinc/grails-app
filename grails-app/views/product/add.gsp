@@ -528,28 +528,37 @@
                     }
                     if ($(packSelector +"\\.quantity").val() == null) {
                         validate = false;
-                        alertMessage += "\nQuantity"+"["+packIndex+"]"+" should not be empty.";
+                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" should not be empty.";
                     }
                     if ($(packSelector +"\\.quantity").val() > 2147483647) {
                         validate = false;
-                        alertMessage += "\nQuantity"+"["+packIndex+"]"+" value overflowed.";
+                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" value overflowed.";
                     }
                     if ($(packSelector +"\\.quantity").val() <= 0) {
                         validate = false;
-                        alertMessage += "\nQuantity"+"["+packIndex+"]"+" should not be negative or zero.";
+                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" should not be negative or zero.";
                     }
                     if ($(packSelector +"\\.price").val() == 0) {
                         validate = false;
-                        alertMessage += "\nPrice"+"["+packIndex+"]"+" should be greater than 0.";
+                        alertMessage += "\nCost Price"+"["+packIndex+"]"+" should be greater than 0.";
                     }
                     if (Number($(packSelector +"\\.price").val().replace(/\,/g, '')) >= 10000) {
                         validate = false;
-                        alertMessage += "\nPrice"+"["+packIndex+"]"+" should not be greater than 9999.99.";
+                        alertMessage += "\nCost Price"+"["+packIndex+"]"+" should not be greater than 9999.99.";
+                    }
+                    if (Number($(packSelector +"\\.recommendedRetailPrice").val().replace(/\,/g, '')) >= 10000) {
+                        validate = false;
+                        alertMessage += "\nRecommended Retail Price"+"["+packIndex+"]"+" should not be greater than 9999.99.";
                     }
                     if (Number($(packSelector +"\\.maximumOrderQuantity").val()) >= 100000) {
                         validate = false;
                         alertMessage += "\nMaximum Order Quantity"+"["+packIndex+"]"+" should not be greater than 99999.";
                     }
+                    if ($(packSelector +"\\.orderCode").val().indexOf("-") != -1) {
+                        validate = false;
+                        alertMessage += "\nOrder Code"+"["+packIndex+"]"+" should not contain \"-\" or \".\".";
+                    }
+
                 });
 
                 if (!validate) {
