@@ -12,14 +12,17 @@ class StoreSettingsController {
     def rabbitService
     def gsonProvider
 
+    protected final StoreSettingViewOptions viewOptions = new StoreSettingViewOptions()
+
     def index() {
         def storeSettings = springSecurityService.principal.storeId ? StoreSettings.findById(springSecurityService.principal.storeId) : StoreSettings.findByRetailerIdAndStoreIdIsNull(springSecurityService.principal.retailerId)
 
         def availablePriceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def availableProductRanges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
-        def isHeadOfficeLogin = springSecurityService.principal.storeId == null
 
-        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values(), isHeadOffice: isHeadOfficeLogin]
+        setViewOptions();
+
+        [storeSettings: storeSettings, availablePriceBands: availablePriceBands, availableProductRanges: availableProductRanges, availablePrintReceiptOptions: PrintReceiptOption.values(), viewOptions: viewOptions]
     }
 
     def save() {
@@ -45,7 +48,7 @@ class StoreSettingsController {
             }
 
             if (oldPriceBand != storeSettings.priceBand.id || oldProductRange != storeSettings.range.id) {
-                flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.","Please perform this operation from the Till Connectivity page in the Monitoring menu."]
+                flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
             } else {
                 flash.message = ["Store settings saved successfully."]
             }
@@ -58,7 +61,20 @@ class StoreSettingsController {
             render(view: "index", model: [storeSettings               : storeSettings,
                                           availablePriceBands         : availablePriceBands,
                                           availableProductRanges      : availableProductRanges,
-                                          availablePrintReceiptOptions: PrintReceiptOption.values()])
+                                          availablePrintReceiptOptions: PrintReceiptOption.values(),
+                                          viewOptions                 : viewOptions])
         }
     }
+
+    private void setViewOptions() {
+        def userRoles = springSecurityService.principal.authorities*.authority
+
+        viewOptions.isHeadOffice = springSecurityService.principal.storeId == null
+        viewOptions.isHeadOfficeUser = userRoles && userRoles.size() > 0 ? userRoles.contains("ROLE_HEAD_OFFICE") : false
+    }
+}
+
+class StoreSettingViewOptions {
+    boolean isHeadOffice
+    boolean isHeadOfficeUser
 }

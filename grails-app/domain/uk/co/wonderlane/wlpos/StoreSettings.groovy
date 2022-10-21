@@ -98,23 +98,7 @@ class StoreSettings {
     static constraints = {
         id nullable: true
         retailerId nullable: false
-        parentStoreId nullable: true, validator: {val, obj ->
-            if (val == '' || val == null) {
-                return true;
-            } else {
-                if (val == obj.storeId) {
-                    return ["error.StoreSettings.cannotSetParentStoreToItself"]
-                }
-                // smallint maximum value is 32767
-                if (val > Short.MAX_VALUE) {
-                    return ["error.StoreSettings.invalidParentStore"]
-                }
-                def parentStore = StoreSettings.findByStoreIdAndRetailerId(val, obj.retailerId)
-                if (!parentStore) {
-                    return ["error.StoreSettings.invalidParentStore"]
-                }
-            }
-        }
+        parentStoreId nullable: true, validator: { val, storeSettings -> storeSettings.parentStoreIdValidator(val) }
         storeId nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
@@ -132,7 +116,7 @@ class StoreSettings {
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
         varianceQuantity nullable: true, min: 1, max: 999
-        varianceValue nullable:true, min: BigDecimal.ONE, max: 9999.99
+        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         priceBand nullable: false
         range nullable: false
@@ -161,7 +145,6 @@ class StoreSettings {
         }
     }
 
-
     def colorCodeValidator(String colorCode) {
         if (colorCode == null || colorCode.trim().isEmpty()) {
             return true
@@ -175,9 +158,31 @@ class StoreSettings {
             return ['storeSettings.colourCode.format.startsWith.notmet', colorCode]
         }
 
-       if(!isValidHexCode(colorCode)){
-           return ['storeSettings.colourCode.format.notmet', colorCode]
-       }
+        if (!isValidHexCode(colorCode)) {
+            return ['storeSettings.colourCode.format.notmet', colorCode]
+        }
+    }
+
+    def parentStoreIdValidator(Integer storeNumber) {
+        if (storeNumber == '' || storeNumber == null) {
+            return true;
+        }
+
+        if (storeNumber == this.storeId) {
+            return ["error.StoreSettings.cannotSetParentStoreToItself"]
+        }
+        // smallint maximum value is 32767
+        if (storeNumber > Short.MAX_VALUE) {
+            return ["error.StoreSettings.invalidParentStore"]
+        }
+
+        def parentStore = StoreSettings.findByStoreIdAndRetailerId(storeNumber, this.retailerId)
+
+        if (parentStore == null) {
+            return ["error.StoreSettings.invalidParentStore"]
+        } else if (parentStore.parentStoreId == this.storeId) {
+            return ["error.StoreSettings.invalidParentStore.circularHierarchy", storeNumber]
+        }
     }
 
     def beforeInsert() {

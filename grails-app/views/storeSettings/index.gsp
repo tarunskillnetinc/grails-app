@@ -3,6 +3,7 @@
 <head>
     <meta name="layout" content="main" />
     <title>WonderLane Store Settings</title>
+    <asset:javascript src="validators/input-validator.js"/>
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -277,35 +278,52 @@
                     </div>
                 </div>
 
-                <!-- Parent Store setting -->
-                <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
-                    <div class="card-header pointer" id="parentStoreSetting" data-toggle="collapse" data-target="#collapseParentStoreSetting" aria-expanded="true" aria-controls="collapseParentStoreSetting">
-                        <div class="row">
-                            <div class="col-10 font-weight-bold">Parent Store</div>
-                            <div class="col-2 text-right">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                </svg>
+                <g:if test="${!viewOptions.getIsHeadOffice() && viewOptions.getIsHeadOfficeUser()}">
+                    <!-- Parent Store setting -->
+                    <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
+                        <div class="card-header pointer" id="parentStoreSetting" data-toggle="collapse"
+                             data-target="#collapseParentStoreSetting" aria-expanded="true"
+                             aria-controls="collapseParentStoreSetting">
+                            <div class="row">
+                                <div class="col-10 font-weight-bold">Parent Store</div>
+
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16"
+                                         class="bi bi-caret-down-fill text-right" fill="currentColor"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div id="collapseParentStoreSetting" class="collapse" aria-labelledby="parentStoreSetting" data-parent="#accordion">
-                        <div class="card-body py-5">
-                            <div class="col-12">
-                                <div class="form-group row">
-                                    <label for="parentStoreId" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Parent Store</label>
-                                    <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" name="parentStoreId" min="0" value="${storeSettings?.parentStoreId}" class="form-control bottom-border" onkeypress="return preventNegativeInteger(event);" onkeyup="limit(this, 5);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;"/>
+                        <div id="collapseParentStoreSetting" class="collapse" aria-labelledby="parentStoreSetting"
+                             data-parent="#accordion">
+                            <div class="card-body py-5">
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <label for="parentStoreId"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Parent Store</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:field type="number" name="parentStoreId" min="0"
+                                                     value="${storeSettings?.parentStoreId}"
+                                                     class="form-control bottom-border"
+                                                     onkeydown="return numericOnly(event)"
+                                                     onkeyup="limit(this, 5);"
+                                                     ondrop="return false;"
+                                                     onpaste="return false;"
+                                                     oncontextmenu="return false;"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </g:if>
 
-                <!-- UI setting -->
-                <g:if test="${!isHeadOffice}">
+                <g:if test="${!viewOptions.getIsHeadOffice()}">
+                    <!-- UI setting -->
                     <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
                         <div class="card-header pointer" id="uiSetting" data-toggle="collapse"
                              data-target="#collapseUiSetting" aria-expanded="true" aria-controls="collapseUiSetting">
