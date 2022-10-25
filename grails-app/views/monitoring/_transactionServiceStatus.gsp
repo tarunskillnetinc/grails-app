@@ -3,8 +3,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Data sync service is <span class="badge badge-${dataSyncServiceQueue.consumers > 0 ? 'success' : 'danger'}">${dataSyncServiceQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${dataSyncServiceQueue.messages}.</div>
+        <div>Data sync service is <span class="badge badge-${dataSyncServiceQueue?.consumers > 0 ? 'success' : 'danger'}">${dataSyncServiceQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${ dataSyncServiceQueue != null ? dataSyncServiceQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${dataSyncServiceQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${dataSyncServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -21,8 +21,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Transaction processor is <span class="badge badge-${transactionProcessorQueue.consumers > 0 ? 'success' : 'danger'}">${transactionProcessorQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${transactionProcessorQueue.messages}.</div>
+        <div>Transaction processor is <span class="badge badge-${transactionProcessorQueue?.consumers > 0 ? 'success' : 'danger'}">${transactionProcessorQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${transactionProcessorQueue != null ? transactionProcessorQueue.messages : 0}.</div>
         <div>Latest activity:
             <g:if test="${transactionProcessorQueue?.idle_since}">
                 <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${transactionProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -39,8 +39,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>KPI processor is <span class="badge badge-${kpiProcessorQueue.consumers > 0 ? 'success' : 'danger'}">${kpiProcessorQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${kpiProcessorQueue.messages}.</div>
+        <div>KPI processor is <span class="badge badge-${kpiProcessorQueue?.consumers > 0 ? 'success' : 'danger'}">${kpiProcessorQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${kpiProcessorQueue != null ? kpiProcessorQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${kpiProcessorQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${kpiProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -57,8 +57,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Reporting processor is <span class="badge badge-${reportingProcessorQueue.consumers > 0 ? 'success' : 'danger'}">${reportingProcessorQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${reportingProcessorQueue.messages}.</div>
+        <div>Reporting processor is <span class="badge badge-${reportingProcessorQueue?.consumers > 0 ? 'success' : 'danger'}">${reportingProcessorQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${reportingProcessorQueue != null ? reportingProcessorQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${reportingProcessorQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${reportingProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -75,8 +75,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Shift processor is <span class="badge badge-${shiftProcessorQueue.consumers > 0 ? 'success' : 'danger'}">${shiftProcessorQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${shiftProcessorQueue.messages}.</div>
+        <div>Shift processor is <span class="badge badge-${shiftProcessorQueue?.consumers > 0 ? 'success' : 'danger'}">${shiftProcessorQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${shiftProcessorQueue != null ? shiftProcessorQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${shiftProcessorQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shiftProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -93,8 +93,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Stock processor is <span class="badge badge-${stockProcessorQueue.consumers > 0 ? 'success' : 'danger'}">${stockProcessorQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${stockProcessorQueue.messages}.</div>
+        <div>Stock processor is <span class="badge badge-${stockProcessorQueue?.consumers > 0 ? 'success' : 'danger'}">${stockProcessorQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${stockProcessorQueue != null ? stockProcessorQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${stockProcessorQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${stockProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -111,8 +111,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Receipt service is <span class="badge badge-${receiptServiceQueue.consumers > 0 ? 'success' : 'danger'}">${receiptServiceQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${receiptServiceQueue.messages}.</div>
+        <div>Receipt service is <span class="badge badge-${receiptServiceQueue?.consumers > 0 ? 'success' : 'danger'}">${receiptServiceQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${receiptServiceQueue != null ? receiptServiceQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${receiptServiceQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${receiptServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -129,8 +129,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Nisa service is <span class="badge badge-${nisaServiceQueue.consumers > 0 ? 'success' : 'danger'}">${nisaServiceQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${nisaServiceQueue.messages}.</div>
+        <div>Nisa service is <span class="badge badge-${nisaServiceQueue?.consumers > 0 ? 'success' : 'danger'}">${nisaServiceQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${nisaServiceQueue != null ? nisaServiceQueue.messages : 0}.</div>
         <div>Latest activity:
         <g:if test="${nisaServiceQueue?.idle_since}">
             <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${nisaServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
@@ -147,8 +147,8 @@
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Raw transaction writer is <span class="badge badge-${rawTransactionWriterQueue.consumers > 0 ? 'success' : 'danger'}">${rawTransactionWriterQueue.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div>Messages waiting to be processed: ${rawTransactionWriterQueue.messages}.</div>
+        <div>Raw transaction writer is <span class="badge badge-${rawTransactionWriterQueue?.consumers > 0 ? 'success' : 'danger'}">${rawTransactionWriterQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div>Messages waiting to be processed: ${rawTransactionWriterQueue != null ? rawTransactionWriterQueue.messages : 0}.</div>
         <div>Latest activity:
             <g:if test="${rawTransactionWriterQueue?.idle_since}">
                 <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${rawTransactionWriterQueue?.idle_since?.toDate() ?: new Date()}" />.

@@ -26,15 +26,14 @@ class BackOfficeRabbitService extends RabbitService {
     private String apiUrl
     private String apiAuthorization
 
+    def dateTimeFormatUnix = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    def dateTimeFormatWindows = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+
     BackOfficeRabbitService(String host, int port, int apiPort, String username, String password) {
         super(host, port, username, password, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
 
         apiUrl = "http://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
-
-        //def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-
 
         gson = new GsonBuilder()
                 .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
@@ -46,12 +45,21 @@ class BackOfficeRabbitService extends RabbitService {
                 .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
                     @Override
                     DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return new DateTime(dateTimeFormat.parse(json.getAsString()).getTime())
+                        return new DateTime(getDateFormat().parse(json.getAsString()).getTime())
                     }
                 })
                 .create()
 
         init()
+    }
+
+    private SimpleDateFormat getDateFormat() {
+        String osName = System.getProperty("os.name")
+        if (osName != null && osName.contains("Windows")) {
+            return dateTimeFormatWindows
+        } else {
+            return dateTimeFormatUnix
+        }
     }
 
     private void checkChannelAvailability() {
@@ -123,7 +131,7 @@ class BackOfficeRabbitService extends RabbitService {
             System.println("Error found when loading existing queues, Error " + ex)
             log.error("Exception when creating till connection")
         }
-        return null
+        return []
 
     }
 
