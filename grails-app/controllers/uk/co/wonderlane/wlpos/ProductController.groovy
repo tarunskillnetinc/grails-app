@@ -883,7 +883,7 @@ class ProductController {
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {
-        render (template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice])
+        render (template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value])
     }
 
     def ajaxAddBarcode(int index) {
@@ -1040,6 +1040,7 @@ class AddVariantCommand {
     List<AddPackCommand> packs
     boolean zeroPrice
     Integer defaultSupplierId
+    int operationMode
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {

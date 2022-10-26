@@ -212,6 +212,7 @@
                 if (index != null) {
                     var selector = "#variants\\[" +index +"\\]\\.";
 
+                    params["operationMode"] = ${uk.co.wonderlane.wlpos.OperationMode.EDIT.value};
                     params["id"] = $(selector + "id").val();
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
@@ -229,6 +230,8 @@
                         params["barcodez[" +loopIndex +"].recordStatus"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.recordStatus").val();
                     });
                 } else {
+                    params["operationMode"] = ${uk.co.wonderlane.wlpos.OperationMode.ADD.value};
+
                     var lastVariantContainer = $("#variantsContainer > div:last-child");
 
                     if (lastVariantContainer.length > 0) {
