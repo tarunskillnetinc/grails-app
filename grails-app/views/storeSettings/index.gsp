@@ -278,7 +278,7 @@
                     </div>
                 </div>
 
-                <g:if test="${!viewOptions.getIsHeadOffice() && viewOptions.getIsHeadOfficeUser()}">
+                <g:if test="${viewOptions.showParentStoreSettings}">
                     <!-- Parent Store setting -->
                     <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
                         <div class="card-header pointer" id="parentStoreSetting" data-toggle="collapse"
@@ -306,14 +306,11 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Parent Store</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:field type="number" name="parentStoreId" min="0"
-                                                     value="${storeSettings?.parentStoreId}"
-                                                     class="form-control bottom-border"
-                                                     onkeydown="return numericOnly(event)"
-                                                     onkeyup="limit(this, 5);"
-                                                     ondrop="return false;"
-                                                     onpaste="return false;"
-                                                     oncontextmenu="return false;"/>
+                                            <g:select name="parentStoreId" from="${availableParentStores}"
+                                                      noSelection="['': '']"
+                                                      value="${storeSettings?.parentStoreId}"
+                                                      optionValue="storeName" optionKey="storeId"
+                                                      class="form-control select-border"/>
                                         </div>
                                     </div>
                                 </div>
@@ -322,7 +319,7 @@
                     </div>
                 </g:if>
 
-                <g:if test="${!viewOptions.getIsHeadOffice()}">
+                <g:if test="${viewOptions.showUISettings}">
                     <!-- UI setting -->
                     <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
                         <div class="card-header pointer" id="uiSetting" data-toggle="collapse"

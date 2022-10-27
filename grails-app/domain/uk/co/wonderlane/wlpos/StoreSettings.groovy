@@ -9,6 +9,7 @@ class StoreSettings {
     int id
     int retailerId
     Integer parentStoreId
+    String type
     Integer storeId
     String receiptMessage1
     String receiptMessage2
@@ -58,6 +59,7 @@ class StoreSettings {
         id column: "id", sqlType: "smallint"
         retailerId column: "retailerId", sqlType: "tinyint"
         parentStoreId column: "parentStoreId", sqlType: "smallint"
+        type column: "type"
         storeId column: "storeId", sqlType: "smallint"
         receiptMessage1 column: "receiptMessage1"
         receiptMessage2 column: "receiptMessage2"
