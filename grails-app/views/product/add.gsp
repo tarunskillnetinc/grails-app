@@ -504,6 +504,7 @@
                 var alertMessage = "";
 
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
+                var supplierPackList = {}
                 addPackContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
                     var packSelector = "#addPack\\[" +packIndex +"\\]";
@@ -561,6 +562,20 @@
                         validate = false;
                         alertMessage += "\nOrder Code"+"["+packIndex+"]"+" should not contain \"-\" or \".\".";
                     }
+
+                    let validateKey = $(packSelector +"\\.supplier\\.id").val() + "_"
+                        + $(packSelector +"\\.quantity").val() + "_"
+                        + $(packSelector +"\\.price").val();
+
+                    if (supplierPackList[validateKey]) {
+                        validate = false;
+                        let supplier = $(packSelector +"\\.supplier\\.name").val();
+                        let quantity = $(packSelector +"\\.quantity").val();
+                        let price = $(packSelector +"\\.price").val();
+                        alertMessage += "\nSupplier "+"["+supplier+"]"+" already has a pack of size " + "["+quantity+"]" + " with price" + "["+price+"]";
+                    }
+
+                    supplierPackList[validateKey] = true;
 
                 });
 
