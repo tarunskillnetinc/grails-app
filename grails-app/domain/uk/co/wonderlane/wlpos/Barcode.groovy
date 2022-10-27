@@ -31,7 +31,6 @@ class Barcode {
         sku nullable: false
         retailerId nullable: false
         barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
-
             //Initially set barcode value is available for use
             boolean isBarcodeActive = false
 
@@ -66,6 +65,7 @@ class Barcode {
 
             return isBarcodeActive ? ["error.product.duplicateBarcode"] : true
         }
+
         effectiveDate nullable: false
         recordStatus nullable: false
     }

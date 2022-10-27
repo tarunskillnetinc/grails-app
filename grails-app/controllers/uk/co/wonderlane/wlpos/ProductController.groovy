@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import groovy.json.JsonSlurper
+import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -85,13 +86,16 @@ class ProductController {
 
     def add() {
         setEffectiveDate()
+
         def ranges = []
         def priceBands = []
         def userRoles = springSecurityService.principal.authorities*.authority
+
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
             priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
+
         render(view: "add", model: [storeId: springSecurityService.principal.storeId,
                                     statusValues: ProductStatus.values(),
                                     categoryValues: categoryService.getFullCategoryHierarchy(),
@@ -373,6 +377,7 @@ class ProductController {
         }
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
+        List<ProductVariant> productVariantsList =  new ArrayList<>()
 
         if (newProduct) {
             changeAffectsSel = true
@@ -391,7 +396,7 @@ class ProductController {
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
 
-                    if (!barcode.validate()) {
+                    if (!isValidBarcode(barcode)) {
                         product.errors.reject('product.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
                     }
                 }
@@ -436,79 +441,13 @@ class ProductController {
             }
 
             // Variants.
-            editedProduct.variants?.each {editedVariant ->
-                def existingVariant = product.variants?.find {existingVariant -> existingVariant.id == editedVariant.id }
-
-                if (editedVariant.id != 0 && existingVariant) {
-                    // Variant we saved is one which already exists, check for changes.
-                    if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
-                        // Variant has changed
-                        ProductVariant newVariant = new ProductVariant()
-                        newVariant.storeId = springSecurityService.principal.storeId
-                        newVariant.sku = editedVariant.sku
-                        newVariant.retailPrice = editedVariant.retailPrice
-                        changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
-                        newVariant.costPrice = editedVariant.costPrice
-                        newVariant.size = editedVariant.size
-                        newVariant.colour = editedVariant.colour
-                        newVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                        newVariant.effectiveDate = effectiveDate
-                        newVariant.shelfLifeDays = editedVariant.shelfLifeDays
-                        newVariant.defaultSupplierId = editedVariant.defaultSupplierId
-
-                        product.addToVariants(newVariant)
-
-                        checkProductVariantForPackChanges(newVariant, editedVariant, now)
-                        checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
-                    } else {
-                        checkProductVariantForPackChanges(existingVariant, editedVariant, now)
-                        checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
-                    }
-                } else {
-                    changeAffectsSel = true
-                    ProductVariant newVariant = new ProductVariant()
-                    newVariant.storeId = springSecurityService.principal.storeId
-                    newVariant.sku = editedVariant.sku
-                    newVariant.retailPrice = editedVariant.retailPrice
-                    newVariant.costPrice = editedVariant.costPrice
-                    newVariant.size = editedVariant.size
-                    newVariant.colour = editedVariant.colour
-                    newVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                    newVariant.effectiveDate = effectiveDate
-                    newVariant.shelfLifeDays = editedVariant.shelfLifeDays
-                    newVariant.defaultSupplierId = editedVariant.defaultSupplierId
-
-                    editedVariant.packs?.each { editedPack ->
-                        Pack newPack = new Pack()
-                        updatePack(newPack, editedPack, now)
-                        newVariant.addToPacks(newPack)
-                    }
-
-                    editedVariant.barcodez.forEach({
-                        barcode ->
-                            Barcode newBarcode = new Barcode()
-                            newBarcode.sku = editedVariant.sku
-                            newBarcode.retailerId = springSecurityService.principal.retailerId
-                            newBarcode.barcode = barcode.barcode
-                            newBarcode.effectiveDate = effectiveDate
-                            newBarcode.recordStatus = 'C'
-
-                            newVariant.barcodez.add(newBarcode)
-
-                            if (!newBarcode.validate()) {
-                                product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
-                            }
-                    })
-
-                    product.addToVariants(newVariant)
-                }
-            }
+            productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
         }
 
         if (!product.hasErrors() && product.validate()) {
             restrictionsService.saveRestrictions(product.restrictions) // Restrictions are validated as part of product.validate()
-            productService.saveProduct(product)
 
+            productService.saveProduct(product, productVariantsList)
             productService.saveBarcodes(product)
 
             if (builder && builder.productHistories) {
@@ -581,6 +520,84 @@ class ProductController {
         }
     }
 
+    private List<ProductVariant> getUpdatedProductVariantsOnSave(ProductCommand editedProduct, product, builder, boolean changeAffectsSel, effectiveDate) {
+        DateTime now = DateTime.now(DateTimeZone.UTC)
+        List<ProductVariant> productVariantList = new ArrayList<>()
+
+        editedProduct.variants?.each { editedVariant ->
+            def existingVariant = product.variants?.find { existingVariant -> existingVariant.id == editedVariant.id }
+
+            if (editedVariant.id != 0 && existingVariant) {
+                // Variant we saved is one which already exists, check for changes.
+                if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
+                    // Variant has changed
+                    ProductVariant newVariant = new ProductVariant()
+                    newVariant.storeId = springSecurityService.principal.storeId
+                    newVariant.sku = editedVariant.sku
+                    newVariant.retailPrice = editedVariant.retailPrice
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
+                    newVariant.costPrice = editedVariant.costPrice
+                    newVariant.size = editedVariant.size
+                    newVariant.colour = editedVariant.colour
+                    newVariant.minimumStockLevel = editedVariant.minimumStockLevel
+                    newVariant.effectiveDate = effectiveDate
+                    newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                    newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+
+                    productVariantList.add(newVariant);
+
+                    checkProductVariantForPackChanges(newVariant, editedVariant, now)
+                    checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
+                } else {
+                    checkProductVariantForPackChanges(existingVariant, editedVariant, now)
+                    checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
+                }
+            } else {
+                changeAffectsSel = true
+                ProductVariant newVariant = new ProductVariant()
+
+                newVariant.storeId = springSecurityService.principal.storeId
+                newVariant.sku = editedVariant.sku
+                newVariant.retailPrice = editedVariant.retailPrice
+                newVariant.costPrice = editedVariant.costPrice
+                newVariant.size = editedVariant.size
+                newVariant.colour = editedVariant.colour
+                newVariant.minimumStockLevel = editedVariant.minimumStockLevel
+                newVariant.effectiveDate = effectiveDate
+                newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+
+                editedVariant.packs?.each { editedPack ->
+                    Pack newPack = new Pack()
+                    updatePack(newPack, editedPack, now)
+
+                    newVariant.addToPacks(newPack)
+                }
+
+                editedVariant.barcodez.forEach({
+                    barcode ->
+                        Barcode newBarcode = new Barcode()
+
+                        newBarcode.sku = editedVariant.sku
+                        newBarcode.retailerId = springSecurityService.principal.retailerId
+                        newBarcode.barcode = barcode.barcode
+                        newBarcode.effectiveDate = effectiveDate
+                        newBarcode.recordStatus = 'C'
+
+                        newVariant.barcodez.add(newBarcode)
+
+                        if (!isValidBarcode(newBarcode)) {
+                            product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                        }
+                })
+
+                productVariantList.add(newVariant);
+            }
+        }
+
+        return productVariantList;
+    }
+
     private DateTime getEffectiveDate() {
         DateTime now = DateTime.now(DateTimeZone.UTC)
 
@@ -615,7 +632,7 @@ class ProductController {
 
                 existingVariant.barcodez.add(barcode)
 
-                if (!barcode.validate()) {
+                if (!isValidBarcode(barcode)) {
                     product.errors.reject(
                             'product.barcodes.notUnique',
                             [barcode.barcode] as Object[],
@@ -638,7 +655,7 @@ class ProductController {
                     futureBarcode.effectiveDate = effectiveDate
                     futureBarcode.recordStatus = 'C'
 
-                    if (!futureBarcode.validate()) {
+                    if (!isValidBarcode(futureBarcode)) {
                         product.errors.reject(
                                 'product.barcodes.notUnique',
                                 [futureBarcode.barcode] as Object[],
@@ -770,7 +787,8 @@ class ProductController {
         //loop over edited variant barcodes to find out if barcode been edited or newly added
         variant?.barcodez?.each { editedBarcode ->
             def existingBarcode = oldVariant?.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
-            if (existingBarcode){ //if barcode already existed
+
+            if (existingBarcode) { //if barcode already existed
                 builder.compare("barcode", existingBarcode.barcode, editedBarcode.barcode)
             } else {//if barcode is newly created
                 builder.compare("barcode", null, editedBarcode.barcode)
@@ -1023,6 +1041,10 @@ class ProductController {
         to.quantityChangeAllowed = from.quantityChangeAllowed
         to.quantityChangeForced = from.quantityChangeForced
         to.receiptPrintForced = from.receiptPrintForced
+    }
+
+    def isValidBarcode(Barcode barcode) {
+        barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
     }
 }
 

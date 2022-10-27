@@ -94,6 +94,14 @@ class ProductService extends MySqlDal {
         product.save()
     }
 
+    def saveProduct(Product product, List<ProductVariant> productVariantList) {
+        if (productVariantList != null && productVariantList.size() > 0) {
+            productVariantList.each { pv -> product.addToVariants(pv) }
+        }
+
+        product.save(flush: true)
+    }
+
     def saveBarcodes(Product product) {
         product?.variants?.each { variant ->
             variant.barcodez?.each { barcode ->
