@@ -599,22 +599,12 @@ class ProductController {
     }
 
     private DateTime getEffectiveDate() {
-        DateTime now = DateTime.now(DateTimeZone.UTC)
-
         if (params.effectiveDate) {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
             DateTime selectedDate = DateTime.parse(params.effectiveDate, dateFormatter)
-
-            // return the current date time if today is selected from the datepicker. otherwise time part will be 00:00:00 and duplicate effective dates will be appear in the DB
-            if (selectedDate.getYear() == now.getYear()
-                    && selectedDate.getMonthOfYear() == now.getMonthOfYear()
-                    && selectedDate.getDayOfMonth() && now.getDayOfMonth()) {
-                return now
-            }
-
-            return selectedDate
+            return selectedDate.withTimeAtStartOfDay()
         } else {
-            return now
+            return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         }
     }
 
