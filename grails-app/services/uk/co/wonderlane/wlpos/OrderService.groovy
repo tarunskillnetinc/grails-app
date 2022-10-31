@@ -172,7 +172,7 @@ class OrderService extends MySqlDal  {
         HashMap<Integer, uk.co.wonderlane.wlpos.entities.wlim.ProductListItem> productListItemHashMap = new HashMap<>()
         CallableStatement cstmt
         try {
-            cstmt = connection.prepareCall("{ call createProductList(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+            cstmt = connection.prepareCall("{ call createProductList(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
             cstmt.setString(1, productListType.name())
             cstmt.setInt(2, springSecurityService.principal.retailerId)
             cstmt.setString(3, String.valueOf(springSecurityService.principal.storeId))
@@ -201,6 +201,7 @@ class OrderService extends MySqlDal  {
             cstmt.setString(10, null)
             cstmt.setString(11, null)
             cstmt.setString(12, null)
+            cstmt.setBoolean(13, false)
 
             if (cstmt.execute()) {
                 ResultSet rs = cstmt.getResultSet()
@@ -406,7 +407,7 @@ class OrderService extends MySqlDal  {
                 productVariant.setStoreId(Integer.parseInt(productList.getStoreId()));
 
                 if (productList.getType() == ProductListType.ORDER) {
-                    productVariant.setQuantityOnOrder(productVariant.getQuantityOnOrder() + item.getQuantity())
+                    productVariant.setQuantityOnOrder(productVariant.getQuantityOnOrder() + item.getQuantity() != null ? item.getQuantity().intValue() : 0)
                     saveProductStock(connection, productVariant)
                 }
 
@@ -480,6 +481,7 @@ class OrderService extends MySqlDal  {
             stmt.setInt(9, productList.getId())
             stmt.setString(10, deliveryDate)
             stmt.setBoolean(11, true)
+            stmt.setBoolean(11, true)
 
             ResultSet resultSet = stmt.executeQuery()
 
@@ -501,7 +503,7 @@ class OrderService extends MySqlDal  {
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
                 int stockInQuantity = productVariant.getQuantityInStock()
-                populateListItemInsertStatement(stmt, deliveryListId, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity(),listItem.getFillQuantity())
+                populateListItemInsertStatement(stmt, deliveryListId, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity().intValue() : 0,listItem.getFillQuantity())
                 if (stmt.execute()) {
                     ResultSet rs = stmt.getResultSet();
                     if (rs.next()) {
@@ -524,7 +526,7 @@ class OrderService extends MySqlDal  {
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 for (uk.co.wonderlane.wlpos.entities.wlim.PackLine packLines : listItem.getPackLines()) {
                     int deliveryListItemId = productDeliveryListItemMap.get(listItem.getId())
-                    populatePackLinesInsertStatement(stmt, deliveryListId, packLines.getPackId(), packLines.getQuantity(), packLines.getOrderCode(), ProductListType.DELIVERY.toString(), deliveryListItemId)
+                    populatePackLinesInsertStatement(stmt, deliveryListId, packLines.getPackId(), packLines.getQuantity() != null ? packLines.getQuantity().intValue() : 0, packLines.getOrderCode(), ProductListType.DELIVERY.toString(), deliveryListItemId)
                     stmt.addBatch()
                     stmt.clearParameters()
                 }
