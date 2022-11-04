@@ -307,7 +307,7 @@
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:select name="parentStoreId" from="${availableParentStores}"
-                                                      noSelection="['': '']"
+                                                      noSelection="['': 'None']"
                                                       value="${storeSettings?.parentStoreId}"
                                                       optionValue="storeName" optionKey="storeId"
                                                       class="form-control select-border"/>
