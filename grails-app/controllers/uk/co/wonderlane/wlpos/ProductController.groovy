@@ -1,5 +1,8 @@
 package uk.co.wonderlane.wlpos
 
+import com.opencsv.bean.CsvBindByName
+import com.opencsv.bean.CsvToBeanBuilder
+import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import groovy.json.JsonSlurper
@@ -8,6 +11,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
@@ -360,7 +364,7 @@ class ProductController {
         render "OK"
     }
 
-    def save(ProductCommand editedProduct) {
+    Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {
         editedProduct.variants?.removeIf({ it == null})
         def product
         def builder
@@ -370,7 +374,7 @@ class ProductController {
         boolean newProduct
         boolean changeAffectsSel = false
 
-        if (params.id && Integer.parseInt(params.id) > 0) {
+        if (isRequest ? paramsMap.id && Integer.parseInt(paramsMap.id) > 0 : editedProduct.id && editedProduct.id > 0) {
             newProduct = false
         } else {
             newProduct = true
@@ -381,7 +385,14 @@ class ProductController {
 
         if (newProduct) {
             changeAffectsSel = true
-            product = new Product(params)
+            if (isRequest) {
+                product = new Product(paramsMap)
+            } else {
+                product = new Product()
+                copyProduct(editedProduct, product)
+                copyProductVariants(editedProduct, product)
+            }
+
             product.retailerId = springSecurityService.principal.retailerId
             product.restrictions = new Restrictions()
 
@@ -407,7 +418,7 @@ class ProductController {
                 }
             }
         } else {
-            product = productService.getProduct(Integer.parseInt(params.id))
+            product = productService.getProduct(Integer.parseInt(isRequest ? paramsMap.id : editedProduct.id as String))
 
             builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
             doComparison(builder, product, editedProduct)
@@ -465,7 +476,9 @@ class ProductController {
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
 
-            flash.message = "Product saved successfully"
+            if (isRequest) {
+                flash.message = "Product saved successfully"
+            }
         }
 
         if (!product.hasErrors()) {
@@ -480,6 +493,14 @@ class ProductController {
                     }
                 }
             }
+
+        }
+        return product
+    }
+
+    def save(ProductCommand editedProduct) {
+        Product product = saveProduct(editedProduct, params, true)
+        if (!product.hasErrors()) {
             redirect(action: "index")
         } else {
             def productCategoryList = []
@@ -504,8 +525,6 @@ class ProductController {
                     editedPrices.addAll(it.priceChanges)
                 }
             }
-
-
             render(view: "add", model: [product       : product,
                                         storeId       : springSecurityService.principal.storeId,
                                         statusValues  : ProductStatus.values(),
@@ -598,14 +617,18 @@ class ProductController {
         return productVariantList;
     }
 
-    private DateTime getEffectiveDate() {
-        if (params.effectiveDate) {
+    private DateTime getEffectiveDate(def effectiveDate) {
+        if (effectiveDate) {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-            DateTime selectedDate = DateTime.parse(params.effectiveDate, dateFormatter)
+            DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
             return selectedDate.withTimeAtStartOfDay()
         } else {
             return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         }
+    }
+
+    private DateTime getEffectiveDate() {
+        return getEffectiveDate(params.effectiveDate)
     }
 
     private void checkProductVariantForBarcodeChanges(def product, def existingVariant, def editedVariant, DateTime effectiveDate) {
@@ -1033,8 +1056,118 @@ class ProductController {
         to.receiptPrintForced = from.receiptPrintForced
     }
 
+    private void copyProduct(ProductCommand from, Product to) {
+        to.springSecurityService = springSecurityService
+
+        to.id = from.id
+        to.retailerId = from.retailerId
+        to.itemCode = from.itemCode
+        to.description = from.description
+        to.receiptDescription = from.receiptDescription
+        to.category = from.category
+        to.unitSize = from.unitSize
+        to.weightedItem = from.weightedItem
+        to.openPrice = from.openPrice
+        to.zeroPrice = from.zeroPrice
+        to.pricePerKg = from.pricePerKg
+        to.snappyProduct = from.snappyProduct
+        to.deliItem = from.deliItem
+        to.vatCode = from.vatCode
+        to.vatPercentageOverride = from.vatPercentageOverride
+        to.discreetMessage = from.discreetMessage
+        to.status = from.status
+        to.retailerProductId = from.retailerProductId
+
+    }
+
+    private void copyProductVariants(ProductCommand from, Product to) {
+        List<ProductVariant> variants = new ArrayList<>();
+        Map<Long, ProductVariant> existingVariants = new HashMap<>();
+
+        if (to.variants && !to.variants.isEmpty()) {
+            to.variants.forEach({variant ->
+                existingVariants.put(variant.sku, variant)
+            })
+        }
+
+        from.variants.forEach({variant ->
+            ProductVariant productVariant
+            if (existingVariants.containsKey(variant.sku)) {
+                productVariant = existingVariants.get(variant.sku)
+            } else {
+                productVariant = new ProductVariant()
+            }
+            productVariant.id = variant.id
+            productVariant.storeId = springSecurityService.principal.storeId
+            productVariant.sku = variant.sku
+            productVariant.costPrice = variant.costPrice
+            productVariant.effectiveDate = variant.effectiveDate
+            productVariant.shelfLifeDays = variant.shelfLifeDays
+            productVariant.setProduct(to)
+
+            List<Barcode> barcodes = new ArrayList<>();
+            Map<String, Barcode> existingBarcodes = new HashMap<>();
+            if(productVariant.barcodez && !productVariant.barcodez.isEmpty()) {
+                productVariant.barcodez.forEach({barcode ->
+                    existingBarcodes.put(barcode.barcode, barcode)
+                })
+            }
+
+            variant.barcodez.forEach({ barcode ->
+                Barcode productBarcode
+
+                if (existingBarcodes.containsKey(barcode.barcode)) {
+                    productBarcode = existingBarcodes.get(barcode.barcode)
+                } else {
+                    productBarcode = new Barcode()
+                }
+
+                productBarcode.id = barcode.id
+                productBarcode.sku = barcode.sku
+                productBarcode.retailerId = barcode.retailerId
+                productBarcode.barcode = barcode.barcode
+                productBarcode.effectiveDate = variant.effectiveDate
+                productBarcode.recordStatus = barcode.recordStatus
+
+                barcodes.add(productBarcode)
+            })
+
+            productVariant.barcodez.clear()
+            productVariant.barcodez.addAll(barcodes)
+            variants.add(productVariant)
+        })
+
+        to.variants.clear()
+        to.variants.addAll(variants)
+
+    }
+
     def isValidBarcode(Barcode barcode) {
         barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+    }
+
+    def ajaxCSVProductUpload() {
+        def file = request.getFile('file')
+        def is = file.inputStream
+        List<CSVUploadProduct> rows = new CsvToBeanBuilder(is.newReader())
+                .withType(CSVUploadProduct)
+                .build().parse()
+        List<Errors> errors = new ArrayList<>()
+
+        rows.forEach({ CSVUploadProduct row ->
+            Integer retailerId = springSecurityService.principal.retailerId
+            DateTime effectiveDate = getEffectiveDate(row.effectiveDate)
+            ProductCommand productCommand = row.getProduct(retailerId, effectiveDate)
+
+            Product product = saveProduct(productCommand, null, false)
+
+            if (product.hasErrors()) {
+                errors.addAll(product.getErrors())
+            }
+        })
+
+        render ([status: errors.isEmpty() ? "SUCCESS" : "FAILED", errors: errors] as JSON)
+
     }
 }
 
@@ -1224,4 +1357,214 @@ class RangeProductCommand {
     int productId
     int rangeId
     boolean ranged
+}
+
+class CSVUploadProduct {
+
+    @CsvBindByName(column = 'id')
+    Integer id
+
+    @CsvBindByName(column = 'effective_date')
+    String effectiveDate
+
+    @CsvBindByName(column = 'product_description')
+    String productDescription
+
+    @CsvBindByName(column = 'receipt_description')
+    String receiptDescription
+
+    @CsvBindByName(column = 'plu_item_code')
+    String pluItemCode
+
+    @CsvBindByName(column = 'category_id')
+    Integer categoryId
+
+    @CsvBindByName(column = 'variant_id')
+    Integer variantId
+
+    @CsvBindByName(column = 'default_sku')
+    Integer defaultSKU
+
+    @CsvBindByName(column = 'unit_size')
+    String unitSize
+
+    @CsvBindByName(column = 'price_bands')
+    String priceBands
+
+    @CsvBindByName(column = 'def_cost_price')
+    Float defaultCostPrice
+
+    @CsvBindByName(column = 'def_barcode')
+    String defaultBarcode
+
+    @CsvBindByName(column = 'shelf_life_days')
+    Integer shelfLifeDays
+
+    @CsvBindByName(column = 'vat_code')
+    Integer vatCode
+
+    @CsvBindByName(column = 'vat_override')
+    Double vatOverride
+
+    @CsvBindByName(column = 'discreet_message')
+    String discreetMessage
+
+    @CsvBindByName(column = 'status')
+    ProductStatus status
+
+    @CsvBindByName(column = 'weighted_item')
+    String weightedItem
+
+    @CsvBindByName(column = 'weighted_pricing_type')
+    Integer weightedPricingType
+
+    @CsvBindByName(column = 'snappy_item')
+    String snappyItem
+
+    @CsvBindByName(column = 'deli_item')
+    String deliItem
+
+    @CsvBindByName(column = 'open_price')
+    String openPrice
+
+    @CsvBindByName(column = 'zero_price')
+    String zeroPrice
+
+    @CsvBindByName(column = 'age_restricted')
+    String ageRestricted = "NO"
+
+    @CsvBindByName(column = 'force_id_check')
+    String forceIdCheck = "NO"
+
+    @CsvBindByName(column = 'required_customer_age')
+    Integer requiredCustomerAge
+
+    @CsvBindByName(column = 'customer_challenge_age')
+    Integer customerChallengeAge
+
+    @CsvBindByName(column = 'required_operator_age')
+    Integer requiredOperatorAge
+
+    @CsvBindByName(column = 'min_open_price')
+    Float minOpenPrice = 0.01
+
+    @CsvBindByName(column = 'max_open_price')
+    Float maxOpenPrice = 9999.99
+
+    @CsvBindByName(column = 'allow_refunds')
+    String allowRefunds = "YES"
+
+    @CsvBindByName(column = 'allow_discounts')
+    String allowDiscounts = "YES"
+
+    @CsvBindByName(column = 'allow_price_changes')
+    String allowPriceChanges = "YES"
+
+    @CsvBindByName(column = 'allow_credit_payments')
+    String allowCreditPayments = "YES"
+
+    @CsvBindByName(column = 'allow_qty_changes')
+    String allowQuantityChanges = "YES"
+
+    @CsvBindByName(column = 'force_qty_changes')
+    String forceQuantityChanges = "NO"
+
+    @CsvBindByName(column = 'force_receipt_print')
+    String forceReceiptPrint = "NO"
+
+    @CsvBindByName(column = 'is_standard_store')
+    String isStandardStore = "NO"
+
+    ProductCommand getProduct(Integer retailerId, DateTime effectiveDate) {
+        ProductCommand productCommand = new ProductCommand();
+        productCommand.setId(this.id)
+        productCommand.setItemCode(this.pluItemCode)
+        productCommand.setDescription(this.productDescription)
+        productCommand.setReceiptDescription(this.receiptDescription)
+        productCommand.setCategory(Category.findById(this.categoryId))
+        productCommand.setUnitSize(this.unitSize)
+        productCommand.setWeightedItem("YES".equalsIgnoreCase(this.weightedItem))
+        productCommand.setOpenPrice("YES".equalsIgnoreCase(this.openPrice))
+        productCommand.setZeroPrice("YES".equalsIgnoreCase(this.zeroPrice))
+        productCommand.setPricePerKg(1 == this.weightedPricingType)
+        productCommand.setSnappyProduct("YES".equalsIgnoreCase(this.snappyItem))
+        productCommand.setDeliItem("YES".equalsIgnoreCase(this.deliItem))
+        productCommand.setVatCode(VatCode.findById(this.vatCode))
+        if (this.getVatOverride() != null) {
+            productCommand.setVatPercentageOverride(new BigDecimal(this.getVatOverride()))
+        }
+
+        RestrictionsCommand restrictionsCommand = new RestrictionsCommand()
+        if (this.getMinOpenPrice() != null) {
+            restrictionsCommand.setMinOpenPrice(new BigDecimal(this.getMinOpenPrice()))
+        }
+        if (this.getMaxOpenPrice() != null) {
+            restrictionsCommand.setMaxOpenPrice(new BigDecimal(this.getMaxOpenPrice()))
+        }
+        restrictionsCommand.setBuyerIdRequired("YES".equalsIgnoreCase(this.getAgeRestricted()))
+        restrictionsCommand.setBuyerIdForced("YES".equalsIgnoreCase(this.getForceIdCheck()))
+        restrictionsCommand.setBuyerAgeRestriction(this.getRequiredCustomerAge())
+        restrictionsCommand.setBuyerChallengeAge(this.getCustomerChallengeAge())
+        restrictionsCommand.setSellerAgeRestriction(this.getRequiredOperatorAge())
+        restrictionsCommand.setRefundAllowed("YES".equalsIgnoreCase(this.getAllowRefunds()))
+        restrictionsCommand.setDiscountAllowed("YES".equalsIgnoreCase(this.getAllowDiscounts()))
+        restrictionsCommand.setCreditPaymentAllowed("YES".equalsIgnoreCase(this.getAllowCreditPayments()))
+        restrictionsCommand.setQuantityChangeAllowed("YES".equalsIgnoreCase(this.getAllowQuantityChanges()))
+        restrictionsCommand.setQuantityChangeForced("YES".equalsIgnoreCase(this.getForceQuantityChanges()))
+        restrictionsCommand.setReceiptPrintForced("YES".equalsIgnoreCase(this.getForceReceiptPrint()))
+        restrictionsCommand.setMarkdownAllowed("YES".equalsIgnoreCase(this.getAllowPriceChanges()))
+
+        productCommand.setRestrictions(restrictionsCommand)
+        productCommand.setDiscreetMessage(this.getDiscreetMessage())
+        productCommand.setStatus(this.getStatus())
+        productCommand.setStatus(this.getStatus())
+
+        ProductVariantCommand productVariantCommand = new ProductVariantCommand()
+        if(this.getDefaultCostPrice() != null) {
+            productVariantCommand.setCostPrice(new BigDecimal(this.getDefaultCostPrice()))
+        }
+
+        BarcodeCommand barcodeCommand = new BarcodeCommand()
+        barcodeCommand.setSku(this.getDefaultSKU())
+        barcodeCommand.setBarcode(this.getDefaultBarcode())
+        barcodeCommand.setRetailerId(retailerId)
+        barcodeCommand.setEffectiveDate(effectiveDate)
+        char defRecordStatus = 'C'
+        barcodeCommand.setRecordStatus(defRecordStatus)
+
+        productVariantCommand.setBarcodez(new ArrayList<>(List.of(barcodeCommand)))
+        productVariantCommand.setSku(this.getDefaultSKU())
+        if (this.getVariantId() != null) {
+            productVariantCommand.setId(this.getVariantId())
+        }
+        productVariantCommand.setSku(this.getDefaultSKU())
+        productVariantCommand.setShelfLifeDays(this.getShelfLifeDays())
+
+        productCommand.setVariants(new ArrayList<>(List.of(productVariantCommand)))
+
+        String priceBands = this.getPriceBands();
+        String[] bands = priceBands != null ? priceBands.split("\\|") : []
+        List<PriceChangeCommand> priceChanges = new ArrayList<>()
+        for (String band: bands) {
+            String[] bandValues = band.split("=")
+            if(bandValues.size() != 2) {
+                throw new RuntimeException("Cannot parse price band information")
+            }
+            PriceBand priceBand = PriceBand.findByDescriptionAndRetailerId(bandValues[0].strip(), retailerId)
+
+            PriceChangeCommand priceChangeCommand = new PriceChangeCommand()
+            priceChangeCommand.setSku(this.getDefaultSKU())
+            priceChangeCommand.setPriceBandId(priceBand.getId())
+            priceChangeCommand.setPrice(new BigDecimal(Double.parseDouble(bandValues[1].strip())))
+            priceChanges.add(priceChangeCommand)
+        }
+
+        SavePriceChangesCommand savePriceChangesCommand = new SavePriceChangesCommand()
+        savePriceChangesCommand.setPriceChanges(priceChanges)
+
+        productCommand.setPriceChanges(new ArrayList<>(List.of(savePriceChangesCommand)))
+
+        return productCommand
+    }
+
 }

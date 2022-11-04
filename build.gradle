@@ -103,6 +103,7 @@ dependencies {
     implementation 'com.google.zxing:javase:3.4.1'
     implementation 'org.apache.pdfbox:pdfbox:2.0.26'
     implementation 'org.apache.pdfbox:pdfbox-tools:2.0.26'
+    implementation 'com.opencsv:opencsv:5.7.1'
 
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile "org.grails:grails-gorm-testing-support"

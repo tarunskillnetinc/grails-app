@@ -60,7 +60,14 @@ class ProductVariant implements Serializable {
 
     static constraints = {
         storeId nullable: true
-        sku nullable: false
+        sku nullable: false, validator: {val, obj ->
+            if (val > 0) {
+                def existingVariant = ProductVariant.findBySku(val)
+                return (existingVariant != null && obj.productId != existingVariant.productId) ? ["error.ProductVariant.duplicateSku"] : true
+            } else {
+                return true
+            }
+        }
         defaultSupplierId nullable: true
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2

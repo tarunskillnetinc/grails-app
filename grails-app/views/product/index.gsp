@@ -71,7 +71,102 @@
                         search();
                     }
                 });
+
             }
+
+            function selectProductsCSVFile() {
+                $("#csvFileUploadInput").trigger('click');
+            }
+
+            function uploadProductsCSVFile() {
+                setPreventWindowNavigation(true);
+
+                const uploadButton = document.getElementById('uploadProductsBtn');
+                uploadButton.disabled = true;
+                uploadButton.innerHTML = "Uploading...";
+                let url = "${createLink(controller: 'product', action: 'ajaxCSVProductUpload')}";
+
+                let jForm = new FormData();
+                jForm.append("file", $('#csvFileUploadInput').get(0).files[0]);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: jForm,
+                    mimeType: "multipart/form-data",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(data) {
+                        const response = JSON.parse(data)
+                        if (response.status === "SUCCESS") {
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Products"
+                            showAlert("Successfully uploaded the products", "alert-success")
+                        } else {
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Products"
+                            showErrorAlert("Products uploaded with following errors", response.errors)
+                        }
+
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+
+                    },
+                    error: function (data) {
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Products"
+                        showAlert("Error uploading products", "alert-danger")
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                    }
+                });
+            }
+
+            function showAlert(message, alertType) {
+                const alertWindow = $('#alerts-container-plain');
+                alertWindow.html("<div class='alert "+alertType+" alert-dismissible'>"+message
+                    + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>"
+                    + "<span aria-hidden='true'>&times;</span>"
+                    + "</button>" +
+                    "</div>");
+                alertWindow.show();
+            }
+
+            function showErrorAlert(message, errors) {
+                const alertWindow = $('#alerts-container-plain');
+                let warningItems = "<ul>"
+                errors.forEach((error) => {
+                    let errorHtml = '';
+                    error.errors.forEach((errorItem) => {
+                        errorHtml += "<li>" + errorItem['rejected-value'] + " - " + errorItem['message'] + "</li>"
+                    });
+                    warningItems += errorHtml
+                    warningItems += "<hr>"
+                })
+
+                warningItems = warningItems.length > 4 ? warningItems.slice(0, -4) : warningItems
+                warningItems += "</ul>"
+
+                alertWindow.html("<div class='alert alert-warning alert-dismissible'>"
+                    + "<h5 class='alert-heading'>"+message+"</h5>"
+                    +  warningItems
+                    + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>"
+                    + "<span aria-hidden='true'>&times;</span>"
+                    + "</button>" +
+                    "</div>");
+                alertWindow.show();
+            }
+
+            function resetFileUploadInput() {
+                $('#csvFileUploadInput').get(0).value = null
+            }
+
+            function setPreventWindowNavigation(value) {
+                window.onbeforeunload = function() {
+                    return value;
+                };
+            }
+
         </script>
     </head>
 
@@ -95,14 +190,21 @@
             </section>
         </g:if>
 
+        <section id="alerts-container" class="container-fluid">
+            <div id="alerts-container-plain" class="hide"></div>
+        </section>
+
         <section id="maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">
-                <div class="col-8 offset-2">
+                <input type="file" name="file" accept=".csv,.CSV"
+                       id="csvFileUploadInput" style="display:none" oninput="uploadProductsCSVFile()" oncancel="resetFileUploadInput()">
+                <div class="col-6 offset-2">
                     <h2 class="mx-auto my-auto">Product Search</h2>
                 </div>
 
-                <div class="col-2 text-right">
-                    <g:link controller="product" action="add" class="btn btn-wl">Add New Product</g:link>
+                <div class="col-4 text-right d-inline-flex flex-row justify-content-end">
+                    <g:link controller="product" action="add" class="btn btn-wl p-2">Add New Product</g:link>
+                    <button class="btn btn-wl p-2 ml-2" onclick="selectProductsCSVFile()" id="uploadProductsBtn">Upload Products</button>
                 </div>
             </div>
 
