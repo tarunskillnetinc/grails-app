@@ -43,3 +43,5 @@
     <button type="button" id="cancelAddVariantButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
     <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="savePacks(${variantIndex});">Ok</button>
 </div>
+
+<asset:javascript src="validators/input-validator.js" />

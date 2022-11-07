@@ -4,6 +4,7 @@
     <meta name="layout" content="main" />
     <title>WonderLane Store Settings</title>
     <asset:javascript src="validators/input-validator.js"/>
+    <asset:javascript src="store-settings/color-pick.js" />
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -457,7 +458,5 @@
             </div>
         </g:form>
     </section>
-    <asset:javascript src="textFieldConstraint.js" />
-    <asset:javascript src="store-settings/color-pick.js" />
 </body>
 </html>

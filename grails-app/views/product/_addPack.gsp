@@ -1,8 +1,10 @@
+<asset:javascript src="validators/input-validator.js" />
+
 <div id="addPackTextContainer-${variantIndex}-${packIndex}" class="row mx-4 pt-2 pb-2 ${isNewPack ? 'hidden' : ''} wl-striped${packIndex % 2}">
     <div class="col-3 my-auto">${pack?.supplier?.name}</div>
     <div class="col-2 my-auto">${pack?.quantity}</div>
     <div class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
-    <div class="col-2 my-auto">${pack?.orderCode}</div>
+    <div class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
     <div class="col-2 my-auto">${pack?.status}</div>
     <div class="col-1 my-auto">
         <g:if test="${pack?.supplier?.symbolGroupId > 0}">
@@ -27,16 +29,16 @@
             <g:select name="addPack[${packIndex}].supplier.id" from="${suppliers}" value="${pack?.supplier?.id}" optionKey="id" optionValue="name" class="form-control select-border" noSelection="[null : 'Please select']" onchange="addPackSupplierChanged(${packIndex});" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" min="1" onkeyup="limit(this, 10);" onchange="this.value = Math.floor(Math.max(this.value,1))" onkeypress="return preventNegativeInteger(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
         </div>
         <div class="input-group col-2 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
-            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" />
+            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" maxlength="7" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" onkeyup="limit(this, 20);" onkeypress="return preventNegativeInteger(this, event);" />
+            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" maxlength="20" onkeypress="return preventNegativeInteger(event);" />
         </div>
         <div class="col-2 my-auto">
             <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}" valueMessagePrefix="PackStatus" class="form-control select-border" />
@@ -53,10 +55,10 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
-            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control mask-money" />
+            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control mask-money" maxlength="7" />
         </div>
         <div class="col-2 offset-2 my-auto">
-            <g:field type="number" name="addPack[${packIndex}].maximumOrderQuantity" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" min="0" onkeyup="limit(this, 5);" onkeypress="return preventNegativeInteger(this, event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].maximumOrderQuantity" maxlength="5" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" min="0" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
         </div>
     </div>
 </div>
@@ -64,28 +66,6 @@
 <script type="text/javascript">
     function addPackSupplierChanged(packIndex) {
         $("#addPack\\[" +packIndex +"\\]\\.supplier\\.name").val($("#addPack\\[" +packIndex +"\\]\\.supplier\\.id option:selected").text());
-    }
-
-    function preventNegativeInteger(val, evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if (charCode == 46) {
-            // check '.' character
-            if (val.value.indexOf('.') === -1) {
-                return false;
-            }
-        } else {
-            // check character whether is number
-            if (charCode > 31 &&
-                (charCode < 48 || charCode > 57))
-                return false;
-        }
-        return true;
-    }
-
-    function limit(val, len) {
-        if (val.value.length > len) {
-            val.value = val.value.slice(0, len);
-        }
     }
 
     $(".mask-money").maskMoney({ allowZero: false });

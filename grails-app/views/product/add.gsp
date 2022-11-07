@@ -536,11 +536,11 @@
                     }
                     if ($(packSelector +"\\.quantity").val() > 2147483647) {
                         validate = false;
-                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" value overflowed.";
+                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" value should not be greater than 2147483647.";
                     }
                     if ($(packSelector +"\\.quantity").val() <= 0) {
                         validate = false;
-                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" should not be negative or zero.";
+                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" should not be empty, negative or zero.";
                     }
                     if ($(packSelector +"\\.price").val() == 0) {
                         validate = false;
