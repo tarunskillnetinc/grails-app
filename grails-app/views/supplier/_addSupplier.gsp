@@ -5,6 +5,14 @@
 <div class="modal-body">
     <div class="text-center mt-4 mb-5">Please complete the following form to add a new supplier.</div>
 
+    <g:hasErrors bean="${supplier}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${supplier}" as="list" />
+            </div>
+        </section>
+    </g:hasErrors>
+
     <g:form name="addSupplierForm">
         <g:hiddenField name="id" value="${supplier?.id}" />
 
