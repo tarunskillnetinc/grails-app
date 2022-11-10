@@ -58,7 +58,16 @@ class Pack {
         quantity nullable: false, blank: false, min: 1 as Integer, max: 2147483647 as Integer
         price nullable: false, blank: false, min: 0.01 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
         orderCode nullable: true, size: 1..20
-        barcode nullable: true, size: 1..20
+        barcode nullable: true, size: 1..20, validator: { val, obj ->
+            if (val) {
+                def existingPacks = Pack.findAllByBarcode(val)
+                boolean isDuplicateBarcode = existingPacks?.stream().anyMatch({ pack -> pack.productVariantId != obj.productVariantId })
+
+                return !isDuplicateBarcode
+            } else {
+                return true
+            }
+        }
         recommendedRetailPrice nullable: true, max: 9999.99 as BigDecimal, scale: 2
         effectiveDate nullable: true
         effectiveEndDate nullable: true

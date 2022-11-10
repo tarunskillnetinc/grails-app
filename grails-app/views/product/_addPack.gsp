@@ -46,19 +46,31 @@
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-3 offset-3 my-auto font-weight-bold">Recommended Retail Price</div>
+        <div class="col-3 my-auto font-weight-bold">Barcode</div>
+        <div class="col-3 offset-2 my-auto font-weight-bold">Recommended Retail Price</div>
         <div class="col-3 offset-1 my-auto font-weight-bold">Maximum Order Quantity</div>
     </div>
 
-    <div class="row mx-4 pt-2 pb-3 wl-striped${packIndex % 2}">
-        <div class="input-group col-2 offset-3 my-auto">
+    <div class="row mx-4 pt-2 wl-striped${packIndex % 2}">
+        <div class="col-3 my-auto">
+            <g:textField name="addPack[${packIndex}].barcode" value="${pack?.barcode}" maxlength="20"
+                         onkeypress="return preventNegativeInteger(event)"
+                         class="form-control bottom-border"/>
+        </div>
+
+        <div class="input-group col-2 offset-2 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
-            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}" class="form-control mask-money" maxlength="7" />
+            <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}"
+                         class="form-control mask-money" maxlength="7"/>
         </div>
+
         <div class="col-2 offset-2 my-auto">
-            <g:textField name="addPack[${packIndex}].maximumOrderQuantity" maxlength="5" value="${pack?.maximumOrderQuantity}" class="form-control bottom-border" min="0" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].maximumOrderQuantity" maxlength="5"
+                         value="${pack?.maximumOrderQuantity}" class="form-control select-border" min="0"
+                         onkeypress="return preventNegativeInteger(event);" ondrop="return false;"
+                         onpaste="return false;" oncontextmenu="return false;"/>
         </div>
     </div>
 </div>
