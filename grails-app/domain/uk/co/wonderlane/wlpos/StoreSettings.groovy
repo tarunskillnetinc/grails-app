@@ -100,7 +100,7 @@ class StoreSettings {
     static constraints = {
         id nullable: true
         retailerId nullable: false
-        parentStoreId nullable: true, validator: { val, storeSettings -> storeSettings.parentStoreIdValidator(val) }
+        parentStoreId nullable: true
         storeId nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
@@ -162,28 +162,6 @@ class StoreSettings {
 
         if (!isValidHexCode(colorCode)) {
             return ['storeSettings.colourCode.format.notmet', colorCode]
-        }
-    }
-
-    def parentStoreIdValidator(Integer storeNumber) {
-        if (storeNumber == '' || storeNumber == null) {
-            return true;
-        }
-
-        if (storeNumber == this.storeId) {
-            return ["error.StoreSettings.cannotSetParentStoreToItself"]
-        }
-        // smallint maximum value is 32767
-        if (storeNumber > Short.MAX_VALUE) {
-            return ["error.StoreSettings.invalidParentStore"]
-        }
-
-        def parentStore = StoreSettings.findByStoreIdAndRetailerId(storeNumber, this.retailerId)
-
-        if (parentStore == null) {
-            return ["error.StoreSettings.invalidParentStore"]
-        } else if (parentStore.parentStoreId == this.storeId) {
-            return ["error.StoreSettings.invalidParentStore.circularHierarchy", storeNumber]
         }
     }
 

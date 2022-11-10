@@ -98,10 +98,11 @@ class StoreSettingsController {
 
         boolean isHeadOffice = storeId == null
         boolean isHeadOfficeUser = userRoles && userRoles.size() > 0 ? userRoles.contains("ROLE_HEAD_OFFICE") : false
+        boolean isEngineerUser = userRoles && userRoles.size() > 0 ? userRoles.contains("ROLE_ENGINEER") : false
         boolean isChildStore = Arrays.asList(StoreType.CAFE.getValue(), StoreType.CANTEEN.getValue()).contains(storeSettings.type)
 
         viewOptions.showUISettings = !isHeadOffice
-        viewOptions.showParentStoreSettings = !isHeadOffice && isHeadOfficeUser && isChildStore
+        viewOptions.showParentStoreSettings = !isHeadOffice && (isHeadOfficeUser || isEngineerUser) && isChildStore
     }
 }
 
