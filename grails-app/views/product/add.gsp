@@ -500,11 +500,7 @@
                 var params = { index: variantIndex };
                 params["defaultSupplier"] = filterValues["defaultSupplier"];
 
-                var validate = true;
-                var alertMessage = "";
-
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
-                var supplierPackList = {}
                 addPackContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
                     var packSelector = "#addPack\\[" +packIndex +"\\]";
@@ -524,77 +520,20 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
-
-                    // validate form
-                    if ($(packSelector +"\\.supplier\\.name").val() === "Please select" || $(packSelector +"\\.supplier\\.name").val().length === 0) {
-                        validate = false;
-                        alertMessage += "\nSupplier"+"["+packIndex+"]"+" should not be empty.";
-                    }
-                    if ($(packSelector +"\\.quantity").val() == null) {
-                        validate = false;
-                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" should not be empty.";
-                    }
-                    if ($(packSelector +"\\.quantity").val() > 2147483647) {
-                        validate = false;
-                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" value should not be greater than 2147483647.";
-                    }
-                    if ($(packSelector +"\\.quantity").val() <= 0) {
-                        validate = false;
-                        alertMessage += "\nPack Quantity"+"["+packIndex+"]"+" should not be empty, negative or zero.";
-                    }
-                    if ($(packSelector +"\\.price").val() == 0) {
-                        validate = false;
-                        alertMessage += "\nCost Price"+"["+packIndex+"]"+" should be greater than 0.";
-                    }
-                    if (Number($(packSelector +"\\.price").val().replace(/\,/g, '')) >= 10000) {
-                        validate = false;
-                        alertMessage += "\nCost Price"+"["+packIndex+"]"+" should not be greater than 9999.99.";
-                    }
-                    if (Number($(packSelector +"\\.recommendedRetailPrice").val().replace(/\,/g, '')) >= 10000) {
-                        validate = false;
-                        alertMessage += "\nRecommended Retail Price"+"["+packIndex+"]"+" should not be greater than 9999.99.";
-                    }
-                    if (Number($(packSelector +"\\.maximumOrderQuantity").val()) >= 100000) {
-                        validate = false;
-                        alertMessage += "\nMaximum Order Quantity"+"["+packIndex+"]"+" should not be greater than 99999.";
-                    }
-                    if ($(packSelector +"\\.orderCode").val().indexOf("-") != -1) {
-                        validate = false;
-                        alertMessage += "\nOrder Code"+"["+packIndex+"]"+" should not contain \"-\" or \".\".";
-                    }
-
-                    let validateKey = $(packSelector +"\\.supplier\\.id").val() + "_"
-                        + $(packSelector +"\\.quantity").val() + "_"
-                        + $(packSelector +"\\.price").val();
-
-                    if (supplierPackList[validateKey]) {
-                        validate = false;
-                        let supplier = $(packSelector +"\\.supplier\\.name").val();
-                        let quantity = $(packSelector +"\\.quantity").val();
-                        let price = $(packSelector +"\\.price").val();
-                        alertMessage += "\nSupplier "+"["+supplier+"]"+" already has a pack of size " + "["+quantity+"]" + " with price" + "["+price+"]";
-                    }
-
-                    supplierPackList[validateKey] = true;
-
                 });
-
-                if (!validate) {
-                    alert(alertMessage);
-                } else {
                     $.ajax({
                         url: savePackUrl,
                         method: "POST",
                         data: params,
                         success: function(resp) {
                             var packsContainer = $("#variants\\[" +variantIndex +"\\]\\.packsContainer");
-
                             packsContainer.html(resp);
-
                             $('#suppliersModal').modal("hide");
+                        },
+                        error : function(xhr, exception) {
+                            $("#suppliersContent").html(xhr.responseText);
                         }
                     });
-                }
             }
 
             function getPromotions(productId) {

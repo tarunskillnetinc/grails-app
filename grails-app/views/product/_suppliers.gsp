@@ -4,6 +4,24 @@
 
 <div class="modal-body">
 
+
+    <g:if test="${variant?.hasErrors}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:each in="${variant?.packs}" var="pack" status="i">
+                    <g:hasErrors bean="${pack}">
+                        <div class="ml-3 pl-3 border">
+                            Pack ${i+1}
+                            <g:renderErrors bean="${pack}" as="list" />
+                        </div>
+                    </g:hasErrors>
+                </g:each>
+            </div>
+        </section>
+    </g:if>
+
+
+
     <div id="defaultSupplierForm">
         <div class="row mx-4 pt-3 pb-2">
             <label for="defaultSupplier" class="col-10 col-form-label text-right">Default Supplier</label>
@@ -29,7 +47,7 @@
     <div id="addPacksContainer-${variantIndex}">
         <g:each in="${variant.packs}" var="pack" status="i">
             <div id="addPackContainer-${variantIndex}-${i}">
-                <g:render template="addPack" model="[variantIndex: variantIndex, packIndex: i, pack: pack, suppliers: suppliers]" />
+                <g:render template="addPack" model="[variantIndex: variantIndex, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, suppliers: suppliers]" />
             </div>
         </g:each>
     </div>

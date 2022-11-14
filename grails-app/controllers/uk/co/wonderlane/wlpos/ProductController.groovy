@@ -11,6 +11,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.springframework.http.HttpStatus
 import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
@@ -987,7 +988,20 @@ class ProductController {
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
-        render(template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
+        cmd.getPacks().forEach({ pack ->
+            if (!pack.validate()) {
+                if (!cmd.hasErrors)
+                    cmd.hasErrors = Boolean.TRUE
+                pack.isNewPack = Boolean.TRUE
+            }
+        })
+        if (cmd.hasErrors) {
+            def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            suppliers.removeAll { Objects.nonNull(it.symbolGroup) }
+            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
+        } else {
+            render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
+        }
     }
 
     //This will render category mapped restrictions for new products
@@ -1253,13 +1267,14 @@ class AddBarcodeCommand {
 class SuppliersCommand {
     int index
     List<AddPackCommand> packs
+    Boolean hasErrors = Boolean.FALSE
 }
 
-class AddPackCommand {
+class AddPackCommand implements Validateable {
     int index
     Integer id
     SupplierCommand supplier
-    int quantity
+    Integer quantity
     BigDecimal price
     String orderCode
     String barcode
@@ -1268,10 +1283,16 @@ class AddPackCommand {
     DateTime effectiveEndDate
     PackStatus status
     Integer maximumOrderQuantity
-    boolean allowSubstitutes
+    Boolean allowSubstitutes
+    boolean isNewPack = false
 
     static constraints = {
         importFrom Pack
+        id nullable: true
+        allowSubstitutes nullable: true
+        supplier nullable: false, validator: { supplier, pack ->
+            return supplier.getName() == null  ? ["error.addPackCommand.supplier"] : true
+        }
     }
 }
 
