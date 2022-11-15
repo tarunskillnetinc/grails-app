@@ -113,7 +113,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="addressPostCode" class="col-3 offset-1 col-form-label text-right">Address Post Code</label>
+            <label for="addressPostCode" class="col-3 offset-1 col-form-label text-right">Address Postcode</label>
 
             <div class="input-group col-4">
                 <g:textField name="addressPostCode" value="${supplier?.addressPostCode}" class="form-control bottom-border" />
