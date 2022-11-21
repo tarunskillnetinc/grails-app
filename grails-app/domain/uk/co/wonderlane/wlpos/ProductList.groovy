@@ -111,7 +111,12 @@ class ProductList {
     def getTotalQuantity() {
         return productListItems?.sum { ProductListItem productListItem ->
             if (type == ProductListType.DELIVERY) {
-                productListItem?.fillQuantity ?: BigDecimal.ZERO.setScale(2)
+                //If product list item has quantity then only consider it if not consider fill quantity
+                if (productListItem?.quantity){
+                    productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
+                } else {
+                    productListItem?.fillQuantity ?: BigDecimal.ZERO.setScale(2)
+                }
             } else {
                 productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
             }

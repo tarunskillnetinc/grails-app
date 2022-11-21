@@ -176,7 +176,7 @@
 
         <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                <g:if test="${status != uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus.COMPLETE}">
+                <g:if test="${status != acceptDeliveryDenyStatus}">
                     <button id="acceptDelivery" class="btn btn-warning"
                             onclick="acceptDelivery();">Accept Delivery</button>
                 </g:if>

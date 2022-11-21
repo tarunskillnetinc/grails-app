@@ -84,7 +84,7 @@
                 <div class="col-1 my-auto">${packLine?.pack?.quantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryQuantity" }?.enabled}">
-                <div class="col-2 my-auto">${packLine?.productListItem?.getFillQuantity()}</div>
+                <div class="col-2 my-auto">${packLine?.quantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalQuantity" }?.enabled}">
                 <div class="col-1 my-auto">${packLine?.totalQuantity}</div>

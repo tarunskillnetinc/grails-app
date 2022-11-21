@@ -8,6 +8,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 import uk.co.wonderlane.wlpos.supplier.Supplier
@@ -1024,7 +1025,9 @@ class ReportingController {
          endDate      : endDate,
          status       : delivery.status,
          userColumns  : reportingService.getReportColumns(ReportType.DELIVERY),
-         stores       : stores]
+         stores       : stores,
+         acceptDeliveryDenyStatus : ProductListStatus.COMPLETE
+        ]
     }
 
     // The mid level of the main delivery report.
@@ -1065,7 +1068,7 @@ class ReportingController {
                     break
                 case "itemQuantity":
                     items = delivery.productListItems.sort { a, b ->
-                        a.fillQuantity <=> b.fillQuantity
+                        a.quantity <=> b.quantity
                     }
                     break
                 case "totalCost":

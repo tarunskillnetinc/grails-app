@@ -211,7 +211,7 @@
 
                         <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsValue" class="form-check-input" value="totalCost"
-                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'value' }?.enabled}"/>
+                                        checked="${!userColumns || userColumns?.columns?.find { it.column == 'totalCost' }?.enabled}"/>
                             <label class="form-check-label" for="columnsValue">Cost of Delivery</label>
                         </div>
 

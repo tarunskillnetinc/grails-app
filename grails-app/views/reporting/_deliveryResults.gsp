@@ -53,7 +53,7 @@
                 <div class="col-6 my-auto">${item?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemQuantity" }?.enabled}">
-                <div class="col-2 my-auto">${item.fillQuantity}</div>
+                <div class="col-2 my-auto">${item.quantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
                 <div class="col-2 my-auto"><g:formatNumber
