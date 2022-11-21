@@ -5,6 +5,9 @@
 
         <title>WonderLane Product Maintenance</title>
 
+        <asset:javascript src="jquery-ui.js" />
+        <asset:stylesheet src="jquery-ui.css" />
+
         <script type="text/javascript">
             $(document).ready(function () {
                 $('#productSearchTerm').on('keyup', function(event) {
@@ -101,11 +104,11 @@
                         if (response.status === "SUCCESS") {
                             uploadButton.disabled = false
                             uploadButton.innerHTML = "Upload Products"
-                            showAlert("Successfully uploaded the products", "alert-success")
+                            showSuccessAlert()
                         } else {
                             uploadButton.disabled = false
                             uploadButton.innerHTML = "Upload Products"
-                            showErrorAlert("Products uploaded with following errors", response.errors)
+                            showErrorAlert(response.errors)
                         }
 
                         resetFileUploadInput();
@@ -113,32 +116,54 @@
 
                     },
                     error: function (data) {
+                        const response = JSON.parse(data)
                         uploadButton.disabled = false
                         uploadButton.innerHTML = "Upload Products"
-                        showAlert("Error uploading products", "alert-danger")
+                        showErrorAlert(response.errors)
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
                     }
                 });
             }
 
-            function showAlert(message, alertType) {
-                const alertWindow = $('#alerts-container-plain');
-                alertWindow.html("<div class='alert "+alertType+" alert-dismissible'>"+message
-                    + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>"
-                    + "<span aria-hidden='true'>&times;</span>"
-                    + "</button>" +
-                    "</div>");
-                alertWindow.show();
+            function showSuccessAlert() {
+                const alertWindow = $('#dialog-csv-upload-error');
+                alertWindow.html("<div>"
+                    + "<p>"
+                    + "Successfully uploaded all the products</p>"
+                    + "</div>");
+
+                alertWindow.dialog({
+                    title: "Success",
+                    autoOpen: false,
+                    resizable: false,
+                    height: "auto",
+                    width: "30%",
+                    modal: true,
+                    buttons: {
+                        Close: function () {
+                            $(this).dialog("close");
+                        }
+                    },
+                    open: function () { $(".ui-dialog-titlebar-close").hide(); }
+                }).dialog('open');
             }
 
-            function showErrorAlert(message, errors) {
-                const alertWindow = $('#alerts-container-plain');
+            function showErrorAlert(errors) {
+                console.log(errors)
+                const alertWindow = $('#dialog-csv-upload-error');
                 let warningItems = "<ul>"
+
                 errors.forEach((error) => {
                     let errorHtml = '';
+                    let setHeader = false;
                     error.errors.forEach((errorItem) => {
-                        errorHtml += "<li>" + errorItem['rejected-value'] + " - " + errorItem['message'] + "</li>"
+                        if(!setHeader) {
+                            errorHtml += "<h5>" + errorItem['message'] + "</h5>"
+                            setHeader = true
+                        } else {
+                            errorHtml += "<li>" + errorItem['message'] + "</li>"
+                        }
                     });
                     warningItems += errorHtml
                     warningItems += "<hr>"
@@ -147,15 +172,31 @@
                 warningItems = warningItems.length > 4 ? warningItems.slice(0, -4) : warningItems
                 warningItems += "</ul>"
 
-                alertWindow.html("<div class='alert alert-warning alert-dismissible'>"
-                    + "<h5 class='alert-heading'>"+message+"</h5>"
-                    +  warningItems
-                    + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>"
-                    + "<span aria-hidden='true'>&times;</span>"
-                    + "</button>" +
+
+                alertWindow.html("<div>"
+                    + "<p><span class='ui-icon ui-icon-alert' style='float:left; margin:12px 12px 20px 0;'></span></p>"
+                    +  warningItems +
                     "</div>");
-                alertWindow.show();
+
+                alertWindow.dialog({
+                    title: "Following errors were found while uploading the products",
+                    autoOpen: false,
+                    resizable: false,
+                    height: "auto",
+                    width: "40%",
+                    modal: true,
+                    buttons: {
+                        Close: function () {
+                            $(this).dialog("close");
+                        }
+                    },
+                    open: function () {
+                        $(".ui-dialog-titlebar-close").hide();
+                        $(this).dialog('option', 'maxHeight', $(window).height());
+                    }
+                }).dialog('open');
             }
+
 
             function resetFileUploadInput() {
                 $('#csvFileUploadInput').get(0).value = null
@@ -190,9 +231,9 @@
             </section>
         </g:if>
 
-        <section id="alerts-container" class="container-fluid">
-            <div id="alerts-container-plain" class="hide"></div>
-        </section>
+        <div id="dialog-csv-upload-error" style="display:none; max-height: 80%">
+            <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error uploading products </p>
+        </div>
 
         <section id="maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">

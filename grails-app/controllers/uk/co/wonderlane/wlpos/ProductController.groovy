@@ -7,12 +7,15 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import groovy.json.JsonSlurper
 import org.apache.commons.lang3.StringUtils
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.springframework.http.HttpStatus
+import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
+import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
@@ -667,7 +670,8 @@ class ProductController {
 
                     //Mark current barcode to delete this will insert new mark delete entry to DB
                     existingBarcode.delete = true
-                    existingBarcode.effectiveDeleteDate = effectiveDate //New effective date needed to be set as effective date of mark delete entry
+                    existingBarcode.effectiveDeleteDate = effectiveDate
+                    //New effective date needed to be set as effective date of mark delete entry
 
                     //Add new barcode to replacing existing
                     Barcode futureBarcode = new Barcode()
@@ -698,7 +702,8 @@ class ProductController {
 
             if (!editedBarcode) {
                 existingBarcode.delete = true
-                existingBarcode.effectiveDeleteDate = effectiveDate //New effective date needed to be set as effective date of mark delete entry
+                existingBarcode.effectiveDeleteDate = effectiveDate
+                //New effective date needed to be set as effective date of mark delete entry
                 existingVariant.barcodez.add(existingBarcode)
             }
         }
@@ -1207,25 +1212,37 @@ class ProductController {
     def ajaxCSVProductUpload() {
         def file = request.getFile('file')
         def is = file.inputStream
-        List<CSVUploadProduct> rows = new CsvToBeanBuilder(is.newReader())
-                .withType(CSVUploadProduct)
-                .build().parse()
         List<Errors> errors = new ArrayList<>()
 
-        rows.forEach({ CSVUploadProduct row ->
-            Integer retailerId = springSecurityService.principal.retailerId
-            DateTime effectiveDate = getEffectiveDate(row.effectiveDate)
-            ProductCommand productCommand = row.getProduct(retailerId, effectiveDate)
+        try {
+            List<CSVUploadProduct> rows = new CsvToBeanBuilder(is.newReader())
+                    .withType(CSVUploadProduct)
+                    .build().parse()
+            rows.forEach({ CSVUploadProduct row ->
+                Integer retailerId = springSecurityService.principal.retailerId
+                DateTime effectiveDate = getEffectiveDate(row.effectiveDate)
+                ProductCommand productCommand = row.getProduct(retailerId, effectiveDate)
 
-            Product product = saveProduct(productCommand, null, false)
+                Product product = saveProduct(productCommand, null, false)
 
-            if (product.hasErrors()) {
-                errors.addAll(product.getErrors())
-            }
-        })
-
+                if (product.hasErrors()) {
+                    Errors productError = product.getErrors()
+                    BeanPropertyBindingResult error = new BeanPropertyBindingResult(this, productError.getObjectName())
+                    ObjectError objectError = new ObjectError(productError.getObjectName(),
+                            String.format("Validation errors for product code - %s", product.getItemCode()))
+                    error.addError(objectError)
+                    error.addAllErrors(productError)
+                    errors.add(error)
+                }
+            })
+        } catch (Exception e) {
+            e.printStackTrace()
+            BeanPropertyBindingResult error = new BeanPropertyBindingResult(this, "Error parsing CSV File")
+            ObjectError objectError = new ObjectError("", "Error while processing the CSV file")
+            error.addError(objectError)
+            errors.add(error)
+        }
         render([status: errors.isEmpty() ? "SUCCESS" : "FAILED", errors: errors] as JSON)
-
     }
 }
 
@@ -1291,7 +1308,7 @@ class AddPackCommand implements Validateable {
         id nullable: true
         allowSubstitutes nullable: true
         supplier nullable: false, validator: { supplier, pack ->
-            return supplier.getName() == null  ? ["error.addPackCommand.supplier"] : true
+            return supplier.getName() == null ? ["error.addPackCommand.supplier"] : true
         }
     }
 }
@@ -1449,8 +1466,8 @@ class CSVUploadProduct {
     @CsvBindByName(column = 'plu_item_code')
     String pluItemCode
 
-    @CsvBindByName(column = 'category_id')
-    Integer categoryId
+    @CsvBindByName(column = 'retailer_category_code')
+    String retailerCategoryCode
 
     @CsvBindByName(column = 'variant_id')
     Integer variantId
@@ -1503,58 +1520,14 @@ class CSVUploadProduct {
     @CsvBindByName(column = 'zero_price')
     String zeroPrice
 
-    @CsvBindByName(column = 'age_restricted')
-    String ageRestricted = "NO"
-
-    @CsvBindByName(column = 'force_id_check')
-    String forceIdCheck = "NO"
-
-    @CsvBindByName(column = 'required_customer_age')
-    Integer requiredCustomerAge
-
-    @CsvBindByName(column = 'customer_challenge_age')
-    Integer customerChallengeAge
-
-    @CsvBindByName(column = 'required_operator_age')
-    Integer requiredOperatorAge
-
-    @CsvBindByName(column = 'min_open_price')
-    Float minOpenPrice = 0.01
-
-    @CsvBindByName(column = 'max_open_price')
-    Float maxOpenPrice = 9999.99
-
-    @CsvBindByName(column = 'allow_refunds')
-    String allowRefunds = "YES"
-
-    @CsvBindByName(column = 'allow_discounts')
-    String allowDiscounts = "YES"
-
-    @CsvBindByName(column = 'allow_price_changes')
-    String allowPriceChanges = "YES"
-
-    @CsvBindByName(column = 'allow_credit_payments')
-    String allowCreditPayments = "YES"
-
-    @CsvBindByName(column = 'allow_qty_changes')
-    String allowQuantityChanges = "YES"
-
-    @CsvBindByName(column = 'force_qty_changes')
-    String forceQuantityChanges = "NO"
-
-    @CsvBindByName(column = 'force_receipt_print')
-    String forceReceiptPrint = "NO"
-
-    @CsvBindByName(column = 'is_standard_store')
-    String isStandardStore = "NO"
-
     ProductCommand getProduct(Integer retailerId, DateTime effectiveDate) {
         ProductCommand productCommand = new ProductCommand();
         productCommand.setId(this.id)
         productCommand.setItemCode(this.pluItemCode)
         productCommand.setDescription(this.productDescription)
         productCommand.setReceiptDescription(this.receiptDescription)
-        productCommand.setCategory(Category.findById(this.categoryId))
+        Category category = Category.findByRetailerCategoryCode(this.retailerCategoryCode)
+        productCommand.setCategory(category)
         productCommand.setUnitSize(this.unitSize)
         productCommand.setWeightedItem("YES".equalsIgnoreCase(this.weightedItem))
         productCommand.setOpenPrice("YES".equalsIgnoreCase(this.openPrice))
@@ -1567,29 +1540,12 @@ class CSVUploadProduct {
             productCommand.setVatPercentageOverride(new BigDecimal(this.getVatOverride()))
         }
 
+        Restrictions categoryRestrictions = category.restrictions;
         RestrictionsCommand restrictionsCommand = new RestrictionsCommand()
-        if (this.getMinOpenPrice() != null) {
-            restrictionsCommand.setMinOpenPrice(new BigDecimal(this.getMinOpenPrice()))
-        }
-        if (this.getMaxOpenPrice() != null) {
-            restrictionsCommand.setMaxOpenPrice(new BigDecimal(this.getMaxOpenPrice()))
-        }
-        restrictionsCommand.setBuyerIdRequired("YES".equalsIgnoreCase(this.getAgeRestricted()))
-        restrictionsCommand.setBuyerIdForced("YES".equalsIgnoreCase(this.getForceIdCheck()))
-        restrictionsCommand.setBuyerAgeRestriction(this.getRequiredCustomerAge())
-        restrictionsCommand.setBuyerChallengeAge(this.getCustomerChallengeAge())
-        restrictionsCommand.setSellerAgeRestriction(this.getRequiredOperatorAge())
-        restrictionsCommand.setRefundAllowed("YES".equalsIgnoreCase(this.getAllowRefunds()))
-        restrictionsCommand.setDiscountAllowed("YES".equalsIgnoreCase(this.getAllowDiscounts()))
-        restrictionsCommand.setCreditPaymentAllowed("YES".equalsIgnoreCase(this.getAllowCreditPayments()))
-        restrictionsCommand.setQuantityChangeAllowed("YES".equalsIgnoreCase(this.getAllowQuantityChanges()))
-        restrictionsCommand.setQuantityChangeForced("YES".equalsIgnoreCase(this.getForceQuantityChanges()))
-        restrictionsCommand.setReceiptPrintForced("YES".equalsIgnoreCase(this.getForceReceiptPrint()))
-        restrictionsCommand.setMarkdownAllowed("YES".equalsIgnoreCase(this.getAllowPriceChanges()))
-
+        InvokerHelper.setProperties(restrictionsCommand, categoryRestrictions.properties)
         productCommand.setRestrictions(restrictionsCommand)
+
         productCommand.setDiscreetMessage(this.getDiscreetMessage())
-        productCommand.setStatus(this.getStatus())
         productCommand.setStatus(this.getStatus())
 
         ProductVariantCommand productVariantCommand = new ProductVariantCommand()
