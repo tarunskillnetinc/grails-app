@@ -63,7 +63,9 @@ class Pack {
                 def existingPacks = Pack.findAllByBarcode(val)
                 boolean isDuplicateBarcode = existingPacks?.stream().anyMatch({ pack -> pack.productVariantId != obj.productVariantId })
 
-                return !isDuplicateBarcode
+                if (isDuplicateBarcode) {
+                    return ['pack.barcodes.notUnique', val]
+                }
             } else {
                 return true
             }

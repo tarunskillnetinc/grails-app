@@ -421,7 +421,9 @@
                 params["index"] = variantIndex;
 
                 var defaultSupplier = $("#variants\\[" + variantIndex + "\\]\\.defaultSupplierId").val();
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["defaultSupplier"] = defaultSupplier;
+                params["productVariantId"] = variantId;
 
                 var packContainers = $("#variants\\[" +variantIndex +"\\]\\.packsContainer > div");
 
@@ -457,7 +459,7 @@
             }
 
             // If an existing row was clicked, then hidden form is displayed, otherwise a whole new blank "add pack" row is added.
-            function addPack(variantIndex, packIndex) {
+            function addPack(variantIndex, packIndex, productVariantId) {
                 if (packIndex != null) {
                     var packContainer = $("#addPackTextContainer-" + variantIndex + "-" + packIndex);
                     var addPackContainer = $("#addPackFieldsContainer-" + variantIndex + "-" + packIndex);
@@ -475,7 +477,7 @@
                     $.ajax({
                         url: addPackUrl,
                         method: "POST",
-                        data: { variantIndex: variantIndex, packIndex: packIndex },
+                        data: { variantIndex: variantIndex, packIndex: packIndex, productVariantId: productVariantId },
                         success: function(resp) {
                             var addPacksContainer = $("#addPacksContainer-" +variantIndex);
                             addPacksContainer.append("<div id=\"addPackContainer-" +variantIndex +"-" +packIndex +"\"></div>");
@@ -498,7 +500,10 @@
                 }).get();
 
                 var params = { index: variantIndex };
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+
                 params["defaultSupplier"] = filterValues["defaultSupplier"];
+                params["productVariantId"] = variantId;
 
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
@@ -520,6 +525,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                 });
                     $.ajax({
                         url: savePackUrl,

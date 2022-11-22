@@ -18,6 +18,7 @@
 
 <div id="addPackFieldsContainer-${variantIndex}-${packIndex}" class="${!isNewPack ? 'hidden' : ''}">
     <g:hiddenField name="addPack[${packIndex}].id" value="${pack?.id ?: ''}" />
+    <g:hiddenField name="addPack[${packIndex}].productVariantId" value="${productVariantId}" />
     <g:hiddenField name="addPack[${packIndex}].effectiveDate" value="${pack?.effectiveDate}" />
     <g:hiddenField name="addPack[${packIndex}].effectiveEndDate" value="${pack?.effectiveEndDate}" />
     <g:hiddenField name="addPack[${packIndex}].allowSubstitutes" value="${pack?.allowSubstitutes}" />

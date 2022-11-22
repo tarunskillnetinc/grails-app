@@ -47,13 +47,13 @@
     <div id="addPacksContainer-${variantIndex}">
         <g:each in="${variant.packs}" var="pack" status="i">
             <div id="addPackContainer-${variantIndex}-${i}">
-                <g:render template="addPack" model="[variantIndex: variantIndex, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, suppliers: suppliers]" />
+                <g:render template="addPack" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, suppliers: suppliers]" />
             </div>
         </g:each>
     </div>
 
     <div class="row mx-4 mt-3">
-        <a href="#" onclick="addPack(${variantIndex}, null);" class="btn btn-wl">Add Pack</a>
+        <a href="#" onclick="addPack(${variantIndex}, null, ${variant.productVariantId});" class="btn btn-wl">Add Pack</a>
     </div>
 </div>
 

@@ -417,10 +417,6 @@ class ProductController {
                 }
 
                 variant.packs?.each { pack ->
-                    if (!isValidOuterBarcode(pack)) {
-                        product.errors.reject('pack.barcodes.notUnique', [pack.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
-                    }
-
                     pack.effectiveDate = pack.effectiveDate ?: now
                     pack.updateDatetime = now
                 }
@@ -601,7 +597,6 @@ class ProductController {
                 editedVariant.packs?.each { editedPack ->
                     Pack newPack = new Pack()
                     updatePack(newPack, editedPack, now)
-
                     newVariant.addToPacks(newPack)
                 }
 
@@ -719,19 +714,10 @@ class ProductController {
 
             if (existingPack && packChanged(editedPack, existingPack)) {
                 updatePack(existingPack, editedPack, now)
-
-                if (!isValidOuterBarcode(existingPack)) {
-                    product.errors.reject('pack.barcodes.notUnique', [existingPack.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
-                }
             } else if (!existingPack) {
                 Pack newPack = new Pack()
                 updatePack(newPack, editedPack, now)
-
-                if (!isValidOuterBarcode(newPack)) {
-                    product.errors.reject('pack.barcodes.notUnique', [newPack.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
-                } else {
-                    existingVariant.addToPacks(newPack)
-                }
+                existingVariant.addToPacks(newPack)
             }
         }
 
@@ -984,12 +970,12 @@ class ProductController {
         render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
     }
 
-    def ajaxAddPack(int variantIndex, int packIndex) {
+    def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
         suppliers.removeAll { it.symbolGroup != null }
 
-        render(template: "addPack", model: [variantIndex: variantIndex, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
+        render(template: "addPack", model: [variantIndex: variantIndex, productVariantId: productVariantId, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
@@ -1205,10 +1191,6 @@ class ProductController {
         barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
     }
 
-    def isValidOuterBarcode(def pack) {
-        pack.barcode == null || StringUtils.isEmpty(pack.barcode) || pack.validate(['barcode'])
-    }
-
     def ajaxCSVProductUpload() {
         def file = request.getFile('file')
         def is = file.inputStream
@@ -1283,6 +1265,7 @@ class AddBarcodeCommand {
 
 class SuppliersCommand {
     int index
+    int productVariantId
     List<AddPackCommand> packs
     Boolean hasErrors = Boolean.FALSE
 }
@@ -1302,10 +1285,12 @@ class AddPackCommand implements Validateable {
     Integer maximumOrderQuantity
     Boolean allowSubstitutes
     boolean isNewPack = false
+    Integer productVariantId
 
     static constraints = {
         importFrom Pack
         id nullable: true
+        productVariantId nullable: true
         allowSubstitutes nullable: true
         supplier nullable: false, validator: { supplier, pack ->
             return supplier.getName() == null ? ["error.addPackCommand.supplier"] : true
@@ -1413,7 +1398,7 @@ class PackCommand {
     boolean allowSubstitutes
 
     static constraints = {
-        importFrom Pack, include: ["barcode"]
+        importFrom Pack
     }
 }
 
