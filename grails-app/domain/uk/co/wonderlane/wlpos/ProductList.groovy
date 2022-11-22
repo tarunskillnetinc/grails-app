@@ -9,7 +9,7 @@ class ProductList {
     int id
     String userId
     int retailerId
-    int storeId
+    Integer storeId
     ProductListType type
     ProductListStatus status
     Integer parentId
@@ -27,10 +27,11 @@ class ProductList {
     String supplierReference
     boolean stockAdjustedOnCompletion
     Integer destinationStoreId
+    List<ProductListItem> productListItems = new ArrayList<>()
 
-    static hasMany = [ productListItems: ProductListItem, productListItemGroups: ProductListItemGroup ]
+    static hasMany = [ productListItems: ProductListItem ]
 
-    static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost' ]
+    static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost', 'productListItems' ]
 
     static mapping = {
         table "productlist"
@@ -61,7 +62,7 @@ class ProductList {
     static constraints = {
         userId nullable: false, blank: false, maxSize: 45
         retailerId nullable: false
-        storeId nullable: false
+        storeId nullable: true
         type nullable: false
         status nullable: false
         parentId nullable: true

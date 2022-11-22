@@ -37,29 +37,52 @@
             </g:hasErrors>
 
             <g:form name="central-count-form" action="saveCentralCount" novalidate="novalidate" class="mt-4">
-                <g:hiddenField name="id" value="${productList?.id}" />
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <g:hiddenField name="id" value="${productList?.id}" />
 
-                <div class="form-group row col-12 col-lg-6 mt-4">
-                    <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                    <g:textField name="description" class="col-6 form-control bottom-border" value="${productList?.description}" />
-                </div>
+                            <div class="form-group row mt-4">
+                                <label for="description" class="col-4 col-form-label text-left">Description</label>
+                                <g:textField name="description" class="col-8 form-control bottom-border" value="${productList?.description}" />
+                            </div>
 
-                <div class="form-group row col-12 col-lg-6 mt-4">
-                    <label for="startDate" class="col-4 col-form-label text-right pr-4">Start Date</label>
+                            <div class="form-group row mt-4">
+                                <label for="startDate" class="col-4 col-form-label text-left">Start Date</label>
 
-                    <g:textField name="startDate" type="text" class="col-4 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.startDate)}" autocomplete="off" />
-                </div>
+                                <g:textField name="startDate" type="text" class="col-8 form-control bottom-border"
+                                             value="${g.formatDate(format: "dd/MM/yyyy", date: productList?.startDate?.toDate())}"
+                                             autocomplete="off"/>
+                            </div>
 
-                <div class="form-group row col-12 col-lg-6 mt-4">
-                    <label for="endDate" class="col-4 col-form-label text-right pr-4">End Date</label>
-                    <g:textField name="endDate" class="col-4 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.endDate)}" autocomplete="off" />
-                </div>
+                            <div class="form-group row mt-4">
+                                <label for="endDate" class="col-4 col-form-label text-left">End Date</label>
+                                <g:textField name="endDate" class="col-8 form-control bottom-border"
+                                             value="${g.formatDate(format: "dd/MM/yyyy", date: productList?.endDate?.toDate())}"
+                                             autocomplete="off"/>
+                            </div>
 
-                <div class="form-group row col-12 col-lg-6 mt-4">
-                    <div class="offset-lg-4">
-                        <g:link action="listCentralCounts" role="button" class="btn btn-danger">Cancel</g:link>
+                            <div class="form-group row col-12 col-lg-6 mt-4">
+                                <div class="offset-lg-4">
+                                    <g:link action="listCentralCounts" role="button" class="btn btn-danger">Cancel</g:link>
+                                    <g:submitButton class="btn btn-success" name="save" value="Save" />
+                                </div>
+                            </div>
+                        </div>
 
-                        <g:submitButton class="btn btn-success" name="save" value="Save" />
+                        <div class="col">
+                            <div class="form-group row mt-4 ml-5">
+                                <label for="endDate" class="col-4 col-form-label text-left pr-4">Stores</label>
+                                <g:select name="storeIdList"
+                                          from="${availableStores}"
+                                          multiple="true"
+                                          value=""
+                                          optionValue="storeName"
+                                          optionKey="id"
+                                          class="form-control col-8"
+                                          style="height: 200px;"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

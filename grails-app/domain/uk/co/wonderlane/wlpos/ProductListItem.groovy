@@ -38,6 +38,7 @@ class ProductListItem {
         quantity nullable: true
         fillQuantity nullable: false
         parentQuantity nullable: true
+        productListItemGroup nullable: true
     }
 
     def getTotalValue() {

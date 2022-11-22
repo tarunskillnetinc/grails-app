@@ -163,7 +163,9 @@
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
                             </g:if>
-                            <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
+                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link controller="productList" class="dropdown-item">Central Counts</g:link>
+                            </g:if>
                         </div>
                     </li>
 

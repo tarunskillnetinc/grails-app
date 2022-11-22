@@ -35,27 +35,27 @@ class ProductService extends MySqlDal {
 
     def getProductVariant(int id) {
         return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
-            eq ("id", id)
+            eq("id", id)
             or {
                 isNull("storeId")
                 eq("storeId", springSecurityService.principal.storeId)
             }
             product {
-                eq ("retailerId", springSecurityService.principal.retailerId)
+                eq("retailerId", springSecurityService.principal.retailerId)
             }
         }?.first() ?: null
     }
 
     def getProductVariant(long sku) {
         return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
-            eq ("sku", sku)
+            eq("sku", sku)
             or {
                 isNull("storeId")
                 eq("storeId", springSecurityService.principal.storeId)
             }
-            lte ("effectiveDate", DateTime.now(DateTimeZone.UTC))
+            lte("effectiveDate", DateTime.now(DateTimeZone.UTC))
             product {
-                eq ("retailerId", springSecurityService.principal.retailerId)
+                eq("retailerId", springSecurityService.principal.retailerId)
             }
         }?.first() ?: null
     }
@@ -65,21 +65,21 @@ class ProductService extends MySqlDal {
         def criteria = ProductVariant.createCriteria()
 
         return criteria.list {
-            "in" ("sku", skus)
+            "in"("sku", skus)
             or {
                 isNull("storeId")
                 eq("storeId", springSecurityService.principal.storeId)
             }
-            lte ("effectiveDate", DateTime.now(DateTimeZone.UTC))
+            lte("effectiveDate", DateTime.now(DateTimeZone.UTC))
             product {
-                eq ("retailerId", springSecurityService.principal.retailerId)
+                eq("retailerId", springSecurityService.principal.retailerId)
             }
 
             and {
                 product {
-                    order ("description", "asc")
+                    order("description", "asc")
                 }
-                order ("effectiveDate", "desc")
+                order("effectiveDate", "desc")
             }
         }
     }
@@ -128,7 +128,7 @@ class ProductService extends MySqlDal {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
 
-        productPrices.unique {[it.sku, it.effectiveDate, it.price] }
+        productPrices.unique { [it.sku, it.effectiveDate, it.price] }
 
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price) {
@@ -222,49 +222,49 @@ class ProductService extends MySqlDal {
         searchTerm = searchTerm ? searchTerm.trim() : ""
 
         def results = productSearchCriteria.list([offset: startIndex, max: maxResults]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             variants {
                 or {
                     isNull("storeId")
-                    eq ("storeId", springSecurityService.principal.storeId)
+                    eq("storeId", springSecurityService.principal.storeId)
                 }
-                lte ("effectiveDate", now)
+                lte("effectiveDate", now)
             }
 
             if (searchBy == "everything") {
                 or {
                     variants {
-                        "in" ("sku", barcodeSkus)
+                        "in"("sku", barcodeSkus)
                     }
-                    like ("itemCode", "%$searchTerm%")
+                    like("itemCode", "%$searchTerm%")
                     if (searchTerm.isNumber()) {
                         variants {
-                            eq ("sku", Long.parseLong(searchTerm))
+                            eq("sku", Long.parseLong(searchTerm))
                         }
                     }
-                    like ("description", "%$searchTerm%")
+                    like("description", "%$searchTerm%")
                 }
             } else if (searchBy == "itemCode") {
                 or {
                     like("itemCode", "%$searchTerm%")
                     if (searchTerm.isNumber()) {
                         variants {
-                            eq ("sku", Long.parseLong(searchTerm))
+                            eq("sku", Long.parseLong(searchTerm))
                         }
                     }
                 }
             } else if (searchBy == "description") {
-                like ("description", "%$searchTerm%")
+                like("description", "%$searchTerm%")
             } else if (searchBy == "barcode") {
                 variants {
-                    "in" ("sku", barcodeSkus)
+                    "in"("sku", barcodeSkus)
                 }
             }
 
             if (sortColumn == "id" || sortColumn == "description") {
-                order (sortColumn, sortOrder)
+                order(sortColumn, sortOrder)
             } else if (sortColumn == "price") {
-                order ("variants.price", sortOrder)
+                order("variants.price", sortOrder)
             }
         }
 
@@ -290,7 +290,7 @@ class ProductService extends MySqlDal {
             def barcodes = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)
 
             //Group barcodes to map of sku --> {1 : [111(C) , 111 (D), 1114(C) ,1115(C), 1117(C)], 2:[1119(C)]}
-            def skuMap = barcodes?.groupBy {it.sku}
+            def skuMap = barcodes?.groupBy { it.sku }
 
             for (Map.Entry<Long, List<Barcode>> skuListEntry : skuMap?.entrySet()) {
 
@@ -323,8 +323,8 @@ class ProductService extends MySqlDal {
 
         }
 
-        def queryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now, max: maxResults, offset: startIndex]
-        def countQueryParams = [retailerId: springSecurityService.principal.retailerId,  storeId: springSecurityService.principal.storeId, effectiveDate: now]
+        def queryParams = [retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, effectiveDate: now, max: maxResults, offset: startIndex]
+        def countQueryParams = [retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, effectiveDate: now]
 
         // TODO Definitely a better way to put this lot together rather than two separate queries and sets of query params.
         String searchQuery = """SELECT DISTINCT(p)
@@ -333,7 +333,7 @@ class ProductService extends MySqlDal {
                                 LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
                                 WHERE p.retailerId = :retailerId """
 
-        String countQuery =  """SELECT COUNT(DISTINCT p)
+        String countQuery = """SELECT COUNT(DISTINCT p)
                                 FROM Product p
                                 JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
                                 LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
@@ -794,7 +794,7 @@ class ProductService extends MySqlDal {
     }
 
     private void syncProductListUpdatesToStores(List<Integer> productIds, List<StoreSettings> stores) {
-        def productIdsAsInt = productIds.findAll{it != null && it > 0 }.stream().map({it.intValue()}).collect(Collectors.toSet())
+        def productIdsAsInt = productIds.findAll { it != null && it > 0 }.stream().map({ it.intValue() }).collect(Collectors.toSet())
         productIdsAsInt.removeAll(Collections.singleton(null))
         if (productIdsAsInt && productIdsAsInt?.size() > 0) {
             sendProductUpdate(Product.findAllByIdInList(new ArrayList<>(productIdsAsInt)), stores)
@@ -802,21 +802,21 @@ class ProductService extends MySqlDal {
     }
 
     private void sendProductPriceUpdateToRabbitMq(def prices, List<StoreSettings> stores) {
-            if (!rabbitService.isOpen()) {
-                throw new Exception("Rabbit MQ not available")
-            }
-            stores?.each { StoreSettings store ->
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                syncMessage.setInsert(true)
-                syncMessage.setStoreId(store.storeId)
-                syncMessage.setProductPrices(prices)
+        if (!rabbitService.isOpen()) {
+            throw new Exception("Rabbit MQ not available")
+        }
+        stores?.each { StoreSettings store ->
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+            syncMessage.setInsert(true)
+            syncMessage.setStoreId(store.storeId)
+            syncMessage.setProductPrices(prices)
 
-                log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
+            log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
 
-                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            }
+            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
+            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
+            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        }
     }
 
     private uk.co.wonderlane.wlpos.entities.Product mapProduct(ResultSet resultSet, Map<Integer, uk.co.wonderlane.wlpos.entities.VatCode> vatCodes, Map<Integer, uk.co.wonderlane.wlpos.entities.Category> categories) throws SQLException {
@@ -964,7 +964,7 @@ class ProductService extends MySqlDal {
 
     private boolean checkProductHasPriceForStore(def product, def storeId) {
         return product.variants.findAll { it.storeId == null || it.storeId == storeId }
-                .stream().map({it.getRetailPrice()})
+                .stream().map({ it.getRetailPrice() })
                 .collect(Collectors.toList()).findAll({ it != null && it > BigDecimal.ZERO }).size() > 0
     }
 }

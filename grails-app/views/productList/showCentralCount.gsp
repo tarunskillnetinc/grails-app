@@ -48,12 +48,12 @@
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="startDate" class="col-4 col-form-label text-right pr-4">Start Date</label>
-                    <g:textField name="startDate" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.startDate)}" disabled="disabled" />
+                    <g:textField name="startDate" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.startDate?.toDate())}" disabled="disabled" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="endDate" class="col-4 col-form-label text-right pr-4">End Date</label>
-                    <g:textField name="endDate" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.endDate)}" disabled="disabled" />
+                    <g:textField name="endDate" class="col-5 form-control bottom-border" value="${g.formatDate(format:"dd/MM/yyyy", date:productList?.endDate?.toDate())}" disabled="disabled" />
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">

@@ -74,6 +74,7 @@
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-1 font-weight-bold">ID</div>
+                <div class="col-1 font-weight-bold">Store ID</div>
                 <div class="col font-weight-bold">Description</div>
                 <div class="col font-weight-bold">Status</div>
                 <div class="col font-weight-bold">Start Date</div>

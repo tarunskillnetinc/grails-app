@@ -27,12 +27,11 @@ class ProductListService extends MySqlDal {
 
     def getCentralCounts(String searchTerm = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
         return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
-            eq ("type", ProductListType.SCHEDULED_COUNT)
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("type", ProductListType.SCHEDULED_COUNT)
 
             if (searchTerm) {
-                like ("description", "%$searchTerm%")
+                like("description", "%$searchTerm%")
             }
         }
     }
@@ -108,10 +107,10 @@ class ProductListService extends MySqlDal {
 
     def getAdHocBatches() {
         return ProductList.createCriteria().list([sort: "dateStarted", order: "DESC"]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
-            "in" ("type", [ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK])
-            eq ("status", ProductListStatus.PARTIALLY_COMPLETE)
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", springSecurityService.principal.storeId)
+            "in"("type", [ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK])
+            eq("status", ProductListStatus.PARTIALLY_COMPLETE)
         }
     }
 
@@ -128,7 +127,7 @@ class ProductListService extends MySqlDal {
             if (springSecurityService.principal.storeId) {
                 cstmt.setInt(2, springSecurityService.principal.storeId)
             } else {
-               cstmt.setNull(2, Types.INTEGER)
+                cstmt.setNull(2, Types.INTEGER)
             }
 
             cstmt.setNull(3, Types.TINYINT)
@@ -196,9 +195,9 @@ class ProductListService extends MySqlDal {
         result.effectiveDate = DateTime.parse(rs.getString("effectiveDate"), dateFormatter)
         result.type = ProductHistoryType.valueOf(rs.getString("type"))
         result.priceBandId = rs.getInt("priceBandId")
-        result.field = rs. getString("field")
-        result.fromValue = rs. getString("fromValue")
-        result.toValue = rs. getString("toValue")
+        result.field = rs.getString("field")
+        result.fromValue = rs.getString("fromValue")
+        result.toValue = rs.getString("toValue")
         result.userId = rs.getInt("userId")
         result.usersName = rs.getString("usersName")
         result.productVariantId = rs.getInt("productVariantId")
@@ -210,8 +209,41 @@ class ProductListService extends MySqlDal {
         return ProductList.findByIdAndRetailerIdAndStoreId(id, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
     }
 
+    def getProductList(int id, int retailerId) {
+        return ProductList.findByIdAndRetailerId(id, retailerId)
+    }
+
     def saveProductList(ProductList productList) {
         productList.save()
+    }
+
+    def saveProductLists(List<ProductList> productListArray) {
+        if (productListArray.size() == 0) {
+            return
+        }
+
+        Connection connection
+
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            for (ProductList productList : productListArray) {
+                productList.save()
+            }
+
+            connection.commit()
+        } catch (Exception ex) {
+            log.error("save productLists failed, Exception " + ex.getMessage())
+            if (connection != null) {
+                connection.rollback()
+            }
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
     }
 
     def deleteProductList(ProductList productList) {
