@@ -55,8 +55,8 @@ class Pack {
     static constraints = {
         productVariant nullable: true
         supplier nullable: false, blank: false
-        quantity nullable: false, blank: false, min: 1 as Integer, max: 2147483647 as Integer
-        price nullable: false, blank: false, min: 0.01 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
+        quantity nullable: false, blank: false, min: 0 as Integer, max: 2147483647 as Integer
+        price nullable: false, blank: false, min: 0.00 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
         orderCode nullable: true, size: 1..20
         barcode nullable: true, size: 1..20, validator: { val, obj ->
             if (val) {

@@ -9,3 +9,9 @@ function preventNegativeInteger(event) {
         return false;
     }
 }
+
+function preventOverflowValue(obj) {
+    if (obj.value > Math.pow(2, 31) -1) {
+        obj.value = Math.pow(2, 31) -1;
+    }
+}

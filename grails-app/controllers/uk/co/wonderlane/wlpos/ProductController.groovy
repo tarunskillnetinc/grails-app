@@ -1292,8 +1292,23 @@ class AddPackCommand implements Validateable {
         id nullable: true
         productVariantId nullable: true
         allowSubstitutes nullable: true
-        supplier nullable: false, validator: { supplier, pack ->
-            return supplier.getName() == null ? ["error.addPackCommand.supplier"] : true
+        supplier nullable: false, blank: false, validator: { supplier, pack ->
+            if (!supplier.id) return ["addPackCommand.supplier.empty"]
+        }
+        price validator: {
+            if (BigDecimal.ZERO == it) return ['addPackCommand.price.zero']
+            if (it >= 10000) return ['addPackCommand.price.max']
+        }
+        quantity validator: {
+            if (it <= 0) return ['addPackCommand.packQuantity.zero']
+            if (it > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
+        }
+        recommendedRetailPrice validator: {
+            if (BigDecimal.ZERO == it) return ['addPackCommand.recommendedRetailPrice.zero']
+            if (it >= 10000) return ['addPackCommand.recommendedRetailPrice.max']
+        }
+        maximumOrderQuantity validator: {
+            if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
         }
     }
 }

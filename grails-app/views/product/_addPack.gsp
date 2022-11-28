@@ -25,12 +25,12 @@
     <g:hiddenField name="addPack[${packIndex}].supplier.name" value="${pack?.supplier?.name}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.symbolGroupId" value="${pack?.supplier?.symbolGroupId}" />
 
-    <div class="row mx-4 pt-3 wl-striped${packIndex % 2}">
+    <div class="row mx-4 pt-2 wl-striped${packIndex % 2}">
         <div class="col-3 my-auto">
-            <g:select name="addPack[${packIndex}].supplier.id" from="${suppliers}" value="${pack?.supplier?.id}" optionKey="id" optionValue="name" class="form-control select-border" noSelection="[null : 'Please select']" onchange="addPackSupplierChanged(${packIndex});" />
+            <g:select name="addPack[${packIndex}].supplier.id" from="${suppliers}" value="${pack?.supplier?.id}" optionKey="id" optionValue="name" class="form-control select-border" noSelection="${['' : 'Please select']}" onchange="addPackSupplierChanged(${packIndex});" />
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" />
+            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)"/>
         </div>
         <div class="input-group col-2 my-auto">
             <div class="input-group-prepend">
@@ -52,7 +52,7 @@
         <div class="col-3 offset-1 my-auto font-weight-bold">Maximum Order Quantity</div>
     </div>
 
-    <div class="row mx-4 pt-2 wl-striped${packIndex % 2}">
+    <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
         <div class="col-3 my-auto">
             <g:textField name="addPack[${packIndex}].barcode" value="${pack?.barcode}" maxlength="20"
                          onkeypress="return preventNegativeInteger(event)"

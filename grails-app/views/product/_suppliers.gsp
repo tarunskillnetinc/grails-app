@@ -10,7 +10,7 @@
             <div class="alert alert-danger alert-wl mx-0" role="alert">
                 <g:each in="${variant?.packs}" var="pack" status="i">
                     <g:hasErrors bean="${pack}">
-                        <div class="ml-3 pl-3 border">
+                        <div class="ml-3 pl-3">
                             Pack ${i+1}
                             <g:renderErrors bean="${pack}" as="list" />
                         </div>
