@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.9"
+version "1.9.1-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"eclipse"
@@ -41,7 +41,7 @@ repositories {
     mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
     maven {
-        url "https://wonderlane.jfrog.io/artifactory/wlpos-mvn-qa-local"
+        url "https://wonderlane.jfrog.io/artifactory/libs-release-local"
         credentials {
             username "$artifactory_user"
             password "$artifactory_password"
@@ -51,7 +51,7 @@ repositories {
         }
     }
     maven {
-        url "https://wonderlane.jfrog.io/artifactory/wlpos-mvn-snapshot-local"
+        url "https://wonderlane.jfrog.io/artifactory/libs-snapshot-local"
         credentials {
             username "$artifactory_user"
             password "$artifactory_password"
