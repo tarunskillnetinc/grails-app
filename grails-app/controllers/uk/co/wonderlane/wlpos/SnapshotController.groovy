@@ -52,7 +52,7 @@ class SnapshotController {
     def ajaxSaveSafeCount(SaveSafeCommand safeCommand) {
         def snapshot = snapshotService.getSafeSnapshot()
 
-        ReconciliationTotal cashTotal = snapshot.totals.find { it.tenderType == TenderType.CASH } ?: null
+        ReconciliationTotal cashTotal = snapshot.totals.find {it.tenderType == TenderType.CASH} ?: null
         if (cashTotal == null) {
             cashTotal = new ReconciliationTotal(TenderType.CASH)
             snapshot.totals.add(cashTotal)
@@ -84,7 +84,7 @@ class SnapshotController {
         render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
     }
 
-    def ajaxSaveSnapshot(saveSnapshotCommand snapshotCommand) {
+    def ajaxSaveSnapshot(SaveSnapshotCommand snapshotCommand) {
         def snapshot = snapshotService.getSnapshot(snapshotCommand.snapshotId)
 
         if (snapshotCommand.varianceReason != null) {
@@ -122,7 +122,7 @@ class SaveSafeCommand {
     BigDecimal vouchersTotal = BigDecimal.ZERO
 }
 
-class saveSnapshotCommand {
+class SaveSnapshotCommand {
     int snapshotId
     TenderReconciliationVarianceReason varianceReason
     String varianceReasonText
