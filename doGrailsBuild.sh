@@ -44,7 +44,7 @@ curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install grails 4.0.13
 echo "artifactory_user=$2" >> /home/gradle/.gradle/gradle.properties
 echo "artifactory_password=$3" >> /home/gradle/.gradle/gradle.properties
-./gradlew clean bootWar
+./gradlew clean test bootWar
 /root/.sdkman/candidates/grails/4.0.13/bin/grails -Dgrails.env=$1 war --info
 
 curl -u $2:$3 -X PUT "https://wonderlane.jfrog.io/artifactory/$repo/uk/co/wonderlane/wlpos/wlpos-back-office/$versionWithoutTimestamp/$1/wlpos-back-office-$version.war" -T /opt/atlassian/pipelines/agent/build/build/libs/build-$version.war
