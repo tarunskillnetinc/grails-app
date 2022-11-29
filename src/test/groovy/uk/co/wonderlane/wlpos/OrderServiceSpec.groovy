@@ -11,8 +11,5 @@ class OrderServiceSpec extends Specification implements ServiceUnitTest<OrderSer
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
+
 }

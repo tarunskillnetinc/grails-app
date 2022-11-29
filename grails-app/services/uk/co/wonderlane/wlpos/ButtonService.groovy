@@ -37,7 +37,11 @@ class ButtonService {
             }
         }
 
-        return buttonGrids?.sort { storeId }?.last()
+        if (buttonGrids){
+            return buttonGrids?.sort { storeId }?.last()
+        }
+        return null
+
     }
 
     def getOtherButtonGrids() {

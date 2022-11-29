@@ -11,8 +11,5 @@ class NisaServiceSpec extends Specification implements ServiceUnitTest<NisaServi
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
+
 }

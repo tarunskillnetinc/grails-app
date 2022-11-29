@@ -11,8 +11,5 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
+
 }

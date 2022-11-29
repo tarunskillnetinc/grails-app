@@ -37,10 +37,6 @@ class ButtonGridController {
         [buttonGrid: buttonGrid]
     }
 
-    def add() {
-
-    }
-
     def edit(int id) {
         def buttonGrid = buttonService.getButtonGrid(id)
 
@@ -77,11 +73,17 @@ class ButtonGridController {
         buttonGrid.storeId = springSecurityService.principal.storeId
 
         if (buttonGrid.validate()) {
+
+            int buttonGridNewColumns = buttonGrid.columns
+            int buttonGridNewRows = buttonGrid.rows
+
+            List<Button> gridButtonList = buttonGrid?.buttons
+
             // If we made the button grid smaller, remove any buttons which were on the row/column which no longer exists.
-            if (buttonGrid.columns < previousColumns || buttonGrid.rows < previousRows) {
+            if (buttonGridNewColumns < previousColumns || buttonGridNewRows < previousRows) {
                 def buttonsToRemove = []
 
-                buttonGrid.buttons?.each {
+                gridButtonList?.each {
                     if (it.row >= buttonGrid.rows || it.column >= buttonGrid.columns) {
                         buttonsToRemove.add(Button.get(it.id))
                     }

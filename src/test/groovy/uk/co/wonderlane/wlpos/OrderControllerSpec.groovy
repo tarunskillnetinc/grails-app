@@ -11,8 +11,5 @@ class OrderControllerSpec extends Specification implements ControllerUnitTest<Or
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
+
 }

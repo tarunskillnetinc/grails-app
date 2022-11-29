@@ -11,8 +11,5 @@ class RetailerServiceSpec extends Specification implements ServiceUnitTest<Retai
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
+
 }
