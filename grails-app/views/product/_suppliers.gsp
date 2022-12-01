@@ -40,7 +40,7 @@
         <div class="col-2 font-weight-bold">Pack Quantity</div>
         <div class="col-2 font-weight-bold">Cost Price</div>
         <div class="col-2 font-weight-bold">Order Code</div>
-        <div class="col-2 font-weight-bold">Status</div>
+        <div class="col-2 font-weight-bold">Barcode</div>
         <div class="col-1 font-weight-bold">&nbsp;</div>
     </div>
 

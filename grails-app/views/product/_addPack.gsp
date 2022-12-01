@@ -5,7 +5,7 @@
     <div class="col-2 my-auto">${pack?.quantity}</div>
     <div class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
     <div class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
-    <div class="col-2 my-auto">${pack?.status}</div>
+    <div class="col-2 my-auto">${pack?.barcode}</div>
     <div class="col-1 my-auto">
         <g:if test="${pack?.supplier?.symbolGroupId > 0}">
             <button class="btn btn-wl disabled" title="You cannot edit packs from this supplier." disabled>Edit</button>
@@ -42,21 +42,22 @@
             <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" maxlength="20" onkeypress="return preventNegativeInteger(event);" />
         </div>
         <div class="col-2 my-auto">
-            <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}" valueMessagePrefix="PackStatus" class="form-control select-border" />
-        </div>
+            <g:textField name="addPack[${packIndex}].barcode" value="${pack?.barcode}" maxlength="20"
+                          onkeypress="return preventNegativeInteger(event)"
+                          class="form-control bottom-border"/>
+         </div>
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-3 my-auto font-weight-bold">Barcode</div>
+        <div class="col-3 my-auto font-weight-bold">Status</div>
         <div class="col-3 offset-2 my-auto font-weight-bold">Recommended Retail Price</div>
         <div class="col-3 offset-1 my-auto font-weight-bold">Maximum Order Quantity</div>
     </div>
 
     <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
         <div class="col-3 my-auto">
-            <g:textField name="addPack[${packIndex}].barcode" value="${pack?.barcode}" maxlength="20"
-                         onkeypress="return preventNegativeInteger(event)"
-                         class="form-control bottom-border"/>
+            <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}"
+                      valueMessagePrefix="PackStatus" class="form-control select-border"/>
         </div>
 
         <div class="input-group col-2 offset-2 my-auto">
