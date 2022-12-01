@@ -30,7 +30,8 @@ class TagController {
         def products = productService.getProductVariants(tag?.tagProducts?.collect { it.sku })
 
         tag?.tagProducts?.each {tagProduct ->
-            tagProduct.productVariantId = products?.find { it.sku == tagProduct.sku }?.id
+            Integer productVariantId = products?.find { it.sku == tagProduct.sku }?.id
+            tagProduct.productVariantId = productVariantId ? productVariantId : 0
             tagProduct.productDescription = products?.find { it.sku == tagProduct.sku }?.product?.description
         }
 
@@ -59,7 +60,8 @@ class TagController {
         def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
 
         tag.tagProducts.each { tagProduct ->
-            tagProduct.productVariantId = productVariants.find { it.sku == tagProduct.sku }?.id
+            Integer productVariantId = productVariants?.find { it.sku == tagProduct.sku }?.id
+            tagProduct.productVariantId = productVariantId ? productVariantId : 0
             tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
         }
 
@@ -132,7 +134,8 @@ class TagController {
                 def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
 
                 tag.tagProducts.each { tagProduct ->
-                    tagProduct.productVariantId = productVariants.find { it.sku == tagProduct.sku }?.id
+                    Integer variantId = productVariants.find { it.sku == tagProduct.sku }?.id
+                    tagProduct.productVariantId = variantId ? variantId : 0
                     tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
                 }
             }
