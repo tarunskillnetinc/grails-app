@@ -19,7 +19,7 @@ class ShiftController {
     def index() {
         if (!springSecurityService.principal.storeId) {
             flash.error = "You do not have access to this page."
-            redirect (uri: "/")
+            redirect(uri: "/")
             return
         }
 
@@ -43,18 +43,21 @@ class ShiftController {
             }
         }
 
-        render (template: "shiftViewerResults", model: [shifts: shiftService.getShifts(startDate, endDate, tillId)])
+        render(template: "shiftViewerResults", model: [shifts: shiftService.getShifts(startDate, endDate, tillId)])
     }
 
     def ajaxGetCashDetails(int shiftId) {
         def shift = shiftService.getShift(shiftId)
 
-        if (shift?.reconciledDate == null) {
-            render (template: "cashUpModal", model: [shift: shift])
-        } else if (shift?.reconciledDate != null) {
-            render (template: "cashUpSummaryModal", model: [shift: shift])
-        } else {
+        if (shift == null) {
             render ""
+            return
+        }
+
+        if (shift.reconciledDate == null) {
+            render(template: "cashUpModal", model: [shift: shift])
+        } else if (shift.reconciledDate != null) {
+            render(template: "cashUpSummaryModal", model: [shift: shift])
         }
     }
 
@@ -109,7 +112,7 @@ class ShiftController {
             }
         }
 
-        render (template: template, model: [ values: cashUpCommand ])
+        render(template: template, model: [values: cashUpCommand])
     }
 
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
@@ -140,11 +143,11 @@ class ShiftController {
         }
 
         vouchersTotal.value = cashUpCommand.vouchersTotal
-        vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll {it.tenderType == TenderType.VOUCHER }?.sum{ it.value } ?: BigDecimal.ZERO)
+        vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }?.sum { it.value } ?: BigDecimal.ZERO)
 
         shiftService.saveShift(shift)
 
-        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values() ])
+        render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: TenderReconciliationVarianceReason.values()])
     }
 
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
@@ -171,8 +174,9 @@ class ShiftController {
 
         Snapshot latestSnapshot = snapshotService.getSafeSnapshot()
         ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
+
         if (cashTotal != null) {
-            TenderTotal cashExpected = latestSnapshot.expectedTotals.find{it.tenderType == TenderType.CASH} ?: null
+            TenderTotal cashExpected = latestSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH } ?: null
             if (cashExpected == null) {
                 cashExpected = new TenderTotal(TenderType.CASH)
                 latestSnapshot.expectedTotals.add(cashExpected)
@@ -183,7 +187,7 @@ class ShiftController {
 
         ReconciliationTotal voucherTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
         if (voucherTotal != null) {
-            TenderTotal voucherExpected = latestSnapshot.expectedTotals.find{it.tenderType == TenderType.VOUCHER} ?: null
+            TenderTotal voucherExpected = latestSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
             if (voucherExpected == null) {
                 voucherExpected = new TenderTotal(TenderType.VOUCHER)
                 latestSnapshot.expectedTotals.add(voucherExpected)
@@ -194,7 +198,7 @@ class ShiftController {
 
         snapshotService.saveSnapshot(latestSnapshot)
 
-        render(template: "cashUpSummaryModal", model: [ shift: shift ])
+        render(template: "cashUpSummaryModal", model: [shift: shift])
     }
 }
 

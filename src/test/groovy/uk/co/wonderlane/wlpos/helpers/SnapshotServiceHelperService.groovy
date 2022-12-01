@@ -6,7 +6,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import java.sql.Connection
 import java.sql.SQLException
 
-class SnapshotServiceHelperService extends SnapshotService{
+class SnapshotServiceHelperService extends SnapshotService {
 
     public DatabaseCredentials fakeDatabaseCredentials
     public Connection fakeConnection
