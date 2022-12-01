@@ -56,9 +56,17 @@ class ImageService {
                 int index = 0;
                 for (byte[] image : images) {
                     File file = new File(dir.toPath().toString() + File.separator + index + ".png")
-                    OutputStream outputStream = new FileOutputStream(file)
-                    outputStream.write(image)
-                    index++;
+                    OutputStream outputStream
+                    try {
+                        outputStream = new FileOutputStream(file)
+                        outputStream.write(image)
+                        index++;
+                    } finally {
+                        if(outputStream) {
+                            outputStream.close()
+                        }
+                    }
+
                 }
                 return true
             } catch (IOException e) {
