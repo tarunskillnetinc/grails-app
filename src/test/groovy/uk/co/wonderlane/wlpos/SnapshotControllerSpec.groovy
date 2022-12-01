@@ -24,6 +24,8 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         return [ButtonGrid, Button] as Class[]
     }
 
+    //------------------- Calling Index Action ---------------------------------------------//
+
     def 'Test calling index action successfully render index page'() {
 
         given:
@@ -36,6 +38,8 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         model.startDate == DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
         model.endDate == DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
     }
+
+    //------------------- Calling Ajax Get Snapshots Action ---------------------------------------------//
 
     def 'Test calling get snapshots action successfully'() {
 
@@ -68,6 +72,8 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         model.snapshots.get(0).storeId == 234
 
     }
+
+    //------------------- Calling Ajax Get Safe Action ---------------------------------------------//
 
     def 'Test calling get safe action successfully'() {
 
@@ -105,6 +111,8 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
 
     }
 
+    //------------------- Calling Ajax Get Snapshot Action ---------------------------------------------//
+
     def 'Test calling get snapshot action successfully'() {
 
         given:
@@ -140,6 +148,8 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         0            || true           || true
 
     }
+
+    //------------------- Calling Ajax Save Safe Count Action ---------------------------------------------//
 
     def 'Test calling save safe snapshot action successfully'() {
 
@@ -211,6 +221,8 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         "DENOMINATION" || false          || false             ||  new BigDecimal(10) || new BigDecimal(10)
 
     }
+
+    //------------------- Calling Ajax Save Snapshot Action ---------------------------------------------//
 
     def 'Test calling save snapshot action successfully'() {
 

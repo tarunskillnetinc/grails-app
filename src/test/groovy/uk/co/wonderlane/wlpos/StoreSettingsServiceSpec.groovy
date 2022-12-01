@@ -12,6 +12,8 @@ class StoreSettingsServiceSpec extends Specification implements ServiceUnitTest<
         return [StoreSettings, PriceBand, Range] as Class[]
     }
 
+    //------------------- Calling Save Store Settings Action ---------------------------------------------//
+
     def 'Test the save store settings action for successfully save store settings'() {
 
         given:

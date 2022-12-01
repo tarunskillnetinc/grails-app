@@ -25,6 +25,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
     def 'Test the save button action'() {
 
         given:
+
         service.springSecurityService = Stub(SpringSecurityService) {
             getPrincipal() >>new HashMap(){{
                 put("id", 9);
@@ -32,7 +33,6 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
                 put("storeId", 234);
                 put("storeNumber", 100)}}
         }
-
         ButtonGrid buttonGrid = new ButtonGrid(id: 1 , retailerId : 1 , storeId : 1, type : 'SALES', rows : 4, columns : 4)
         Collection<Button> buttonCollection = new ArrayList<>();
         buttonGrid.setButtons(buttonCollection)
