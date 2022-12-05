@@ -1,11 +1,9 @@
 package uk.co.wonderlane.wlpos
 
-
 import grails.testing.gorm.DataTest
 import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 
-import java.nio.channels.FileLock
 import java.nio.charset.StandardCharsets
 
 class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageService>, DataTest {
@@ -19,9 +17,9 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
     def cleanup() {
         // clean up the test directory after testing
         File testDirectory = new File("test1")
-        File testFile0 = new File("test1/0.png")
+        File testFile0 = new File("test1" + File.separator + "0.png")
         testFile0.delete()
-        File testFile1 = new File("test1/1.png")
+        File testFile1 = new File("test1" + File.separator + "1.png")
         testFile1.delete()
         File testFile = new File("test_file.png")
         testDirectory.deleteDir()
@@ -49,6 +47,7 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
         then: 'getCfdImagesFromFile result is correct'
         result != null
         new File("test1").exists()
+        new File("test1").deleteDir()
     }
 
     def 'if directory exists and empty, create directory'() {
@@ -69,7 +68,7 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
         given:
         File testDir = new File("test1");
         testDir.mkdir()
-        File testFile = new File("test1/test0.png")
+        File testFile = new File("test1" + File.separator + "test0.png")
         FileWriter writer = new FileWriter(testFile);
         writer.write("TEST FILE")
         writer.flush()
@@ -89,7 +88,7 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
         given:
         File testDir = new File("test1");
         testDir.mkdir()
-        File testFile = new File("test1/0.png")
+        File testFile = new File("test1" + File.separator + "0.png")
         FileWriter writer = new FileWriter(testFile);
         writer.write("TEST FILE")
         writer.flush()
@@ -105,13 +104,13 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
         testDir.deleteDir()
     }
 
-    def 'if directory exists and not empty but file exists, return files'() {
+    def 'if directory exists, not empty and files exist, return files'() {
         given:
         File testDir = new File("test1");
         testDir.mkdir()
-        File testFile0 = new File("test1/0.png")
-        File testFile1 = new File("test1/1.png")
-        File testFile2 = new File("test1/2.png")
+        File testFile0 = new File("test1" + File.separator + "0.png")
+        File testFile1 = new File("test1" + File.separator + "1.png")
+        File testFile2 = new File("test1" + File.separator + "2.png")
         FileWriter writer0 = new FileWriter(testFile0);
         FileWriter writer1 = new FileWriter(testFile1);
         FileWriter writer2 = new FileWriter(testFile2);
@@ -162,9 +161,9 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
 
         then: 'saveCfdImagesToFile result is correct'
         result
-        File file1 = new File("test1/0.png")
-        File file2 = new File("test1/1.png")
-        File file3 = new File("test1/2.png")
+        File file1 = new File("test1" + File.separator + "0.png")
+        File file2 = new File("test1" + File.separator + "1.png")
+        File file3 = new File("test1" + File.separator + "2.png")
         file1.exists()
         file2.exists()
         !file3.exists()
@@ -177,21 +176,19 @@ class ImageServiceSpec extends Specification implements ServiceUnitTest<ImageSer
         // create the file directory and file
         File directory = new File("test1")
         directory.mkdir()
-        File testFile = new File("test1/0.png")
+        File testFile = new File("test1" + File.separator + "0.png")
         testFile.createNewFile()
         String file1Txt = "TEST FILE 1"
         List<byte[]> files = new ArrayList<>()
         files.add(file1Txt.getBytes(StandardCharsets.UTF_8))
 
-        //lock the file intentionally so it will throw IOException
-        RandomAccessFile raFile = new RandomAccessFile(new File("test1/0.png"), "rw");
-        FileLock lock = raFile.getChannel().lock();
+        // replace the constructor so it will throw IO exception
+        FileOutputStream.metaClass.constructor = { File file -> throw new IOException("Intentionally thrown for testing purposes") }
 
         when: 'saveCfdImagesToFile action is executed'
         def result = service.saveCfdImagesToFile(1, "test", files)
-        lock.release()
-        raFile.getChannel().close()
-        raFile.close()
+        FileOutputStream.metaClass.constructor = {File file -> new FileOutputStream(file, false)} //revert the constructor replacement
+
         testFile.delete()
         directory.deleteDir()
 

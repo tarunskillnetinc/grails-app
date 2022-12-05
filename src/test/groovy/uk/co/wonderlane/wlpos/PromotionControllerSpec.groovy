@@ -19,7 +19,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
     //-------------------------------index function Unit tests----------------------------//
 
-    void "should retrieve promotion types and symbol groups on index page"() {
+    void "should retrieve promotion types and symbol groups on index page - index"() {
         given:
         SymbolGroup testSymbolGroup = new SymbolGroup()
         testSymbolGroup.setName("Test Group")
@@ -1452,7 +1452,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
     //-------------------------------ajaxGetPromotionsForProduct function Unit tests----------------------------//
 
-    void "should retrieve promotion types and symbol groups on index page"() {
+    void "should retrieve promotion types and symbol groups on index page - ajaxGetPromotionsForProduct"() {
         given:
         params.productId = productId
 

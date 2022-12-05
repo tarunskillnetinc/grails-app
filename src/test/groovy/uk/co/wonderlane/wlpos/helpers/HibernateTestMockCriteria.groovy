@@ -406,6 +406,8 @@ class HibernateTestMockCriteria implements BuildableCriteria {
 
     @Override
     Object get(@DelegatesTo(Criteria.class) Closure closure) {
-        return null
+        closure.setDelegate(this)
+        closure.call()
+        return responses
     }
 }
