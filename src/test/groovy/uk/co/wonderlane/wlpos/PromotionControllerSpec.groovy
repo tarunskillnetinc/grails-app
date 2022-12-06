@@ -1452,7 +1452,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
     //-------------------------------ajaxGetPromotionsForProduct function Unit tests----------------------------//
 
-    void "should retrieve promotion types and symbol groups on index page - ajaxGetPromotionsForProduct"() {
+    void "should retrieve promotions for product"() {
         given:
         params.productId = productId
 
