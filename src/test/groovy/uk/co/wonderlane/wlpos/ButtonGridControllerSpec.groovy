@@ -26,7 +26,7 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.index()
 
         then: 'The model index render'
-        view == '/buttonGrid/index.gsp'
+        assert view == '/buttonGrid/index.gsp'
 
     }
 
@@ -46,7 +46,7 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.show()
 
         then: 'The show page render'
-        view == '/buttonGrid/show.gsp'
+        assert view == '/buttonGrid/show.gsp'
 
         where: 'Pass following input parameters'
         paramId  ||_
@@ -69,8 +69,8 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.show()
 
         then: 'Redirect to index model with flash error message'
-        flash.error
-        response.redirectedUrl.startsWith('/buttonGrid/index')
+        assert flash.error
+        assert response.redirectedUrl.startsWith('/buttonGrid/index')
     }
 
 
@@ -86,7 +86,7 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.show()
 
         then: 'Redirect to index model'
-        response.redirectedUrl.startsWith('/buttonGrid/index')
+        assert response.redirectedUrl.startsWith('/buttonGrid/index')
     }
 
     //------------------- Calling Edit Action ---------------------------------------------//
@@ -102,13 +102,13 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.edit(1)
 
         then: 'The model add page render'
-        view == '/buttonGrid/add'
-        model.buttonGrid
-        model.buttonGrid.retailerId == 9
-        model.buttonGrid.storeId == 234
-        model.buttonGrid.type == ButtonGridType.SALES
-        model.buttonGrid.rows == 4
-        model.buttonGrid.columns == 4
+        assert view == '/buttonGrid/add'
+        assert model.buttonGrid
+        assert model.buttonGrid.retailerId == 9
+        assert model.buttonGrid.storeId == 234
+        assert model.buttonGrid.type == ButtonGridType.SALES
+        assert model.buttonGrid.rows == 4
+        assert model.buttonGrid.columns == 4
 
     }
 
@@ -123,8 +123,8 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.edit(1)
 
         then: 'Redirect to index model with an error'
-        flash.error
-        response.redirectedUrl.startsWith('/buttonGrid/index')
+        assert flash.error
+        assert response.redirectedUrl.startsWith('/buttonGrid/index')
     }
 
     //------------------- Calling Save Action ---------------------------------------------//
@@ -150,13 +150,13 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: 'Render add page'
-        view == '/buttonGrid/add'
-        model.buttonGrid
-        model.buttonGrid.retailerId == 9
-        model.buttonGrid.storeId == 234
-        model.buttonGrid.type == null
-        model.buttonGrid.rows == 0
-        model.buttonGrid.columns == 0
+        assert view == '/buttonGrid/add'
+        assert model.buttonGrid
+        assert model.buttonGrid.retailerId == 9
+        assert model.buttonGrid.storeId == 234
+        assert model.buttonGrid.type == null
+        assert model.buttonGrid.rows == 0
+        assert model.buttonGrid.columns == 0
     }
 
     def 'Test the successful save action for redirect to show page'() {
@@ -226,10 +226,9 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: 'Redirect to index model'
-
-        response.redirectedUrl.startsWith('/buttonGrid/show')
-        buttonGrid.id == 0
-        buttonGrid.buttons.size() == remainingButton
+        assert response.redirectedUrl.startsWith('/buttonGrid/show')
+        assert buttonGrid.id == 0
+        assert buttonGrid.buttons.size() == remainingButton
 
         where: 'Pass following input parameters'
         inputId       || inputRow  || inputColumn   || bgPreviousRow   || bgPreviousColumn  || remainingButton
@@ -255,8 +254,8 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.save()
 
         then: 'Redirect to index model'
-        flash.error
-        response.redirectedUrl.startsWith('/buttonGrid/index')
+        assert flash.error
+        assert response.redirectedUrl.startsWith('/buttonGrid/index')
 
     }
 

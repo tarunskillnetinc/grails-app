@@ -46,15 +46,15 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         Button savedButton = service.saveButton(newButton1)
 
         then: 'The button model save successfully'
-        savedButton
-        savedButton.type == ButtonType.PRODUCT
-        savedButton.row == 4
-        savedButton.column == 4
-        savedButton.bgColour == 'RED'
-        savedButton.textColour == 'RED'
-        savedButton.imageDisplay == true
-        savedButton.textDisplay == true
-        savedButton.description == 'Dummy Button 1'
+        assert savedButton != null
+        assert savedButton.type == ButtonType.PRODUCT
+        assert savedButton.row == 4
+        assert savedButton.column == 4
+        assert savedButton.bgColour == 'RED'
+        assert savedButton.textColour == 'RED'
+        assert savedButton.imageDisplay == true
+        assert savedButton.textDisplay == true
+        assert savedButton.description == 'Dummy Button 1'
 
     }
 
@@ -78,12 +78,12 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         ButtonGrid savedButtonGrid = service.saveButtonGrid(buttonGrid)
 
         then: 'The button grid successfully'
-        savedButtonGrid
-        savedButtonGrid.retailerId == 1
-        savedButtonGrid.storeId == 1
-        savedButtonGrid.type == ButtonGridType.SALES
-        savedButtonGrid.rows == 4
-        savedButtonGrid.columns == 4
+        assert savedButtonGrid != null
+        assert savedButtonGrid.retailerId == 1
+        assert savedButtonGrid.storeId == 1
+        assert savedButtonGrid.type == ButtonGridType.SALES
+        assert savedButtonGrid.rows == 4
+        assert savedButtonGrid.columns == 4
 
     }
 
@@ -119,7 +119,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         ButtonGrid returnedButton = Button.get(100)
 
         then: 'The button grid delete successfully'
-        !returnedButton
+        assert !returnedButton
 
     }
 
@@ -145,12 +145,12 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         ButtonGrid buttonGridReturned = service.getButtonGrid(100)
 
         then: 'The button grid load successfully'
-        buttonGridReturned
-        buttonGridReturned.retailerId == 9
-        buttonGridReturned.storeId == 1
-        buttonGridReturned.type == ButtonGridType.SALES
-        buttonGridReturned.rows == 4
-        buttonGridReturned.columns == 4
+        assert buttonGridReturned
+        assert buttonGridReturned.retailerId == 9
+        assert buttonGridReturned.storeId == 1
+        assert buttonGridReturned.type == ButtonGridType.SALES
+        assert buttonGridReturned.rows == 4
+        assert buttonGridReturned.columns == 4
 
     }
 
@@ -176,12 +176,12 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES)
 
         then: 'The button grid model load successfully'
-        buttonGridReturned
-        buttonGridReturned.retailerId == 9
-        buttonGridReturned.storeId == 234
-        buttonGridReturned.type == ButtonGridType.SALES
-        buttonGridReturned.rows == 4
-        buttonGridReturned.columns == 4
+        assert buttonGridReturned
+        assert buttonGridReturned.retailerId == 9
+        assert buttonGridReturned.storeId == 234
+        assert buttonGridReturned.type == ButtonGridType.SALES
+        assert buttonGridReturned.rows == 4
+        assert buttonGridReturned.columns == 4
 
     }
 
@@ -205,7 +205,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES)
 
         then: 'The valid button grid object should not return'
-        !buttonGridReturned
+        assert !buttonGridReturned
 
     }
 
@@ -232,13 +232,13 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         List<ButtonGrid> buttonGridReturned = service.getOtherButtonGrids()
 
         then: 'The button grid model list load successfully'
-        buttonGridReturned
-        buttonGridReturned.size() == 1
-        buttonGridReturned.get(0).retailerId == 9
-        buttonGridReturned.get(0).storeId == 234
-        buttonGridReturned.get(0).type == ButtonGridType.OTHER
-        buttonGridReturned.get(0).rows == 4
-        buttonGridReturned.get(0).columns == 4
+        assert buttonGridReturned
+        assert buttonGridReturned.size() == 1
+        assert buttonGridReturned.get(0).retailerId == 9
+        assert buttonGridReturned.get(0).storeId == 234
+        assert buttonGridReturned.get(0).type == ButtonGridType.OTHER
+        assert buttonGridReturned.get(0).rows == 4
+        assert buttonGridReturned.get(0).columns == 4
 
     }
 
@@ -252,8 +252,8 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         List<ProcessType> processTypeList = service.getAvailableProcesses()
 
         then: 'Load all available processes'
-        processTypeList
-        processTypeList.size() == 25
+        assert processTypeList
+        assert processTypeList.size() == 25
 
     }
 }

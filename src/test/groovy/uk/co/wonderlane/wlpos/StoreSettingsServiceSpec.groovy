@@ -58,18 +58,18 @@ class StoreSettingsServiceSpec extends Specification implements ServiceUnitTest<
         StoreSettings insertStoreSetting = principalStoreId ? StoreSettings.findById(principalStoreId) : StoreSettings.findByRetailerId(principalRetailerId)
 
         then: 'successfully save store settings'
-        insertStoreSetting
+        assert insertStoreSetting != null
         if (storeId){
-            insertStoreSetting.id == storeId
+            assert insertStoreSetting.id == storeId
         } else {
-            insertStoreSetting.id == 0
+            assert insertStoreSetting.id == 0
         }
-        insertStoreSetting.type == StoreType.STORE.getValue()
-        insertStoreSetting.retailerId == principalRetailerId
-        insertStoreSetting.printReceiptOption == PrintReceiptOption.ALWAYS_PRINT
-        insertStoreSetting.priceBand.id == priceBandId
-        insertStoreSetting.range.id == rangeId
-        insertStoreSetting.countIncrement.compareTo(new BigDecimal(0.01)) == 0
+        assert insertStoreSetting.type == StoreType.STORE.getValue()
+        assert insertStoreSetting.retailerId == principalRetailerId
+        assert insertStoreSetting.printReceiptOption == PrintReceiptOption.ALWAYS_PRINT
+        assert insertStoreSetting.priceBand.id == priceBandId
+        assert insertStoreSetting.range.id == rangeId
+        assert insertStoreSetting.countIncrement.compareTo(new BigDecimal(0.01)) == 0
 
         where: 'Pass following input parameters'
         retailerId    || storeId

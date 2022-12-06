@@ -73,7 +73,7 @@ class ShelfEdgeLabelService extends MySqlDal {
 
         def now = DateTime.now(DateTimeZone.UTC)
 
-        productList.productListItems?.each { ProductListItem productListItem ->
+        productList?.productListItems?.each { ProductListItem productListItem ->
             ShelfEdgeLabel shelfEdgeLabel = new ShelfEdgeLabel()
 
             shelfEdgeLabel.setProductId(productListItem.productVariant?.product?.id)
@@ -81,10 +81,10 @@ class ShelfEdgeLabelService extends MySqlDal {
             shelfEdgeLabel.setDescription(productListItem.productVariant?.product?.description)
             shelfEdgeLabel.setUnitSize(productListItem.productVariant?.product?.unitSize)
 
-            def barcodes = productListItem.productVariant?.barcodes
-            shelfEdgeLabel.setEanCode(barcodes?.size() > 0 ? barcodes?.first()?.barcode : "")
+            def barcodes = productListItem.productVariant?.getBarcodes()
+            shelfEdgeLabel.setEanCode(barcodes?.size() > 0 ? barcodes?.first()?.barcode : null)
 
-            def prices = productListItem.productVariant?.allPrices?.findAll { it.priceBand.id == springSecurityService.principal.priceBand.id }
+            def prices = productListItem.productVariant?.getAllPrices()?.findAll { it.priceBand.id == springSecurityService.principal.priceBand.id }
 
             def barcodeEffective = barcodes?.size() > 0 ? barcodes?.first()?.effectiveDate : null
             def price = prices?.find { it.effectiveDate.isBefore(now) }
@@ -134,362 +134,6 @@ class ShelfEdgeLabelService extends MySqlDal {
 
         return out.toByteArray()
     }
-
-//    public byte[] generatePdfImage(StockLogic stockLogic, SupplierLogic supplierLogic, ProductLogic productLogic, PromotionLogic promotionLogic, int dataSourceId, int templateId, String effectiveDate, TillSettings tillSettings, int promotionId) throws Exception {
-//        StockListTypeEnum stockListTypeEnum = null;
-//
-//        PDDocument doc = generatePdf(stockLogic, supplierLogic, productLogic, promotionLogic, dataSourceId, templateId, effectiveDate, tillSettings, null, stockListTypeEnum, promotionId, null, null);
-//
-//        return generatePdfImage(doc);
-//    }
-
-//    public byte[] generateSingleLabel(int templateId, PrintTypeEnum printType, ShelfEdgeLabel shelfEdgeLabel, TillSettings tillSettings, PrintProcess printProcess) throws Exception {
-        // Find our label template.
-//        LabelTemplate labelTemplate = labelTemplateDal.getLabelTemplate(templateId);
-//
-        // We're using the same logic for generating batches of labels so we're creating a fake "batch" (list) of labels here.
-//        List<ShelfEdgeLabel> shelfEdgeLabels = new ArrayList<>();
-//
-//        shelfEdgeLabels.add(shelfEdgeLabel);
-//
-        // Generate our document object.
-//        PDDocument doc = generatePdf(labelTemplate, shelfEdgeLabels, tillSettings, printProcess);
-//
-        // If this was bluetooth printer we used to convert to an image at this point but now we don't as the conversion is done on the phone.
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        doc.save(out);
-//        doc.close();
-//
-//        return out.toByteArray();
-//    }
-
-//    private PDDocument generatePdf(int templateId, String effectiveDate, TillSettings tillSettings, List<Integer> stockListLineIds, ProductListType stockListTypeEnum, int promotionId, PrintProcess printProcess, List<Integer> promotionIds) throws Exception {
-        // Find our label template.
-//        LabelTemplate labelTemplate = LabelTemplate.findByIdAndRetailerId(templateId, springSecurityService.principal.retailerId);
-
-        // Find our labels.
-//        List<ShelfEdgeLabel> shelfEdgeLabels = new ArrayList<>();
-
-//        if (effectiveDate != null && !effectiveDate.isEmpty() && promotionId == 0 && (promotionIds == null || promotionIds.isEmpty())) {
-//            shelfEdgeLabels = productLogic.getShelfEdgeLabelsForScheduledBatch(effectiveDate);
-//
-//            if (stockListLineIds != null && stockListLineIds.size() > 0) {
-//                Iterator<ShelfEdgeLabel> iterator = shelfEdgeLabels.listIterator();
-//
-//                while (iterator.hasNext()) {
-//                    ShelfEdgeLabel shelfEdgeLabel = iterator.next();
-//                    shelfEdgeLabel.setStockListType(stockListTypeEnum);
-//
-//                    if (!stockListLineIds.contains(shelfEdgeLabel.getProductId())) {
-//                        iterator.remove();
-//                    }
-//                }
-//            }
-//        } else if (promotionIds != null && promotionIds.size() > 0) {
-//            List<ShelfEdgeLabel> promotionalLabels = new ArrayList<ShelfEdgeLabel>();
-//
-//            for (Integer singlePromotionId :  promotionIds) {
-//
-//                Promotion promotion = promotionLogic.getPromotion(dataSourceId, singlePromotionId);
-//                promotionalLabels = productLogic.getPromotionalShefEdgeLabels(dataSourceId, promotion, stockListLineIds, singlePromotionId);
-//
-//                for (ShelfEdgeLabel promotionalLabel : promotionalLabels) {
-//                    PromotionDisplayTypeDescriptions promotionDisplayTypeDescriptions = promotionLogic.getPromotionDisplayTypeDescriptions(promotion.getPromotionDisplayType().getValue());
-//
-//                    if (promotion.getStrapLine() != null) {
-            // If the Promotion does not include a strapline, the new promotional functionality will be skipped to prevent the system form crashing when loading older promotions.
-//                        String shelfEdgeLabelStrapline = "";
-//
-//                        if (promotionalLabel != null) {
-//                            promotionalLabel.setPromotionBasis(promotionLogic.getPromotionBasisType(promotion));
-//
-//                            if (promotion.getStrapLine().equals(promotionDisplayTypeDescriptions.getLabelDescription())) {
-//                                shelfEdgeLabelStrapline = buildLabelDescription(promotion, promotionDisplayTypeDescriptions.getLabelDescription(), promotionalLabel.getPrice(), promotionalLabel.getPromotionBasis());
-//
-//                            } else if (promotion.getStrapLine().equals(promotionDisplayTypeDescriptions.getAlternateLabelDescription())) {
-//                                shelfEdgeLabelStrapline = buildAlternateLabelDescription(promotion, promotionDisplayTypeDescriptions.getAlternateLabelDescription(), promotionalLabel.getPrice(), promotionalLabel.getPromotionBasis());
-//
-//                            } else {
-//                                shelfEdgeLabelStrapline = promotion.getStrapLine();
-//                            }
-//                            promotionalLabel.setPromotionStrapline(shelfEdgeLabelStrapline);
-//                            promotionalLabel.setPromotionType(promotion.getPromotionDisplayType());
-//                        }
-//                    }
-//                    shelfEdgeLabels.add(promotionalLabel);
-//                }
-//            }
-//
-//            if (printProcess.equals(PrintProcess.PROMOTIONAL_BARKER)) {
-//                List<ShelfEdgeLabel> shelfEdgeBarkers = new ArrayList<ShelfEdgeLabel>();
-//
-            // May need more in the future but in the mean time, we only need one per promotion.
-//                shelfEdgeBarkers.add(shelfEdgeLabels.get(0));
-//
-//                for (ShelfEdgeLabel shelfEdgeBarker : shelfEdgeBarkers) {
-//                    shelfEdgeBarker.setBarkerTextLines(buildBarkerTextLines(shelfEdgeLabels));
-//                }
-//
-//                return generatePdf(labelTemplate, shelfEdgeBarkers, tillSettings, printProcess);
-//            }
-//        } else if (promotionId > 0) {
-//            Promotion promotion = promotionLogic.getPromotion(dataSourceId, promotionId);
-            // Promotions operate off of Product Ids.
-//            shelfEdgeLabels = productLogic.getPromotionalShefEdgeLabels(dataSourceId, promotion, stockListLineIds, promotion.getPromotionId());
-//
-            // Get stored PromotionDisplayTypes
-//            PromotionDisplayTypeDescriptions promotionDisplayTypeDescriptions = promotionLogic.getPromotionDisplayTypeDescriptions(promotion.getPromotionDisplayType().getValue());
-//
-//            if (promotion.getStrapLine() != null) {
-            // If the Promotion does not include a strapline, the new promotional functionality will be skipped to prevent the system form crashing when loading older promotions.
-//                String shelfEdgeLabelStrapline = "";
-//
-//                for (ShelfEdgeLabel shelfEdgeLabel : shelfEdgeLabels) {
-//                    if (shelfEdgeLabel != null) {
-//                        shelfEdgeLabel.setPromotionBasis(promotionLogic.getPromotionBasisType(promotion));
-//
-//                        if (promotion.getStrapLine().equals(promotionDisplayTypeDescriptions.getLabelDescription())) {
-//                            shelfEdgeLabelStrapline = buildLabelDescription(promotion, promotionDisplayTypeDescriptions.getLabelDescription(), shelfEdgeLabel.getPrice(), shelfEdgeLabel.getPromotionBasis());
-//
-//                        } else if (promotion.getStrapLine().equals(promotionDisplayTypeDescriptions.getAlternateLabelDescription())) {
-//                            shelfEdgeLabelStrapline = buildAlternateLabelDescription(promotion, promotionDisplayTypeDescriptions.getAlternateLabelDescription(), shelfEdgeLabel.getPrice(), shelfEdgeLabel.getPromotionBasis());
-//
-//                        } else {
-//                            shelfEdgeLabelStrapline = promotion.getStrapLine();
-//                        }
-//                        shelfEdgeLabel.setPromotionStrapline(shelfEdgeLabelStrapline);
-//                        shelfEdgeLabel.setPromotionType(promotion.getPromotionDisplayType());
-//                    }
-//                }
-//            }
-//
-//            if (printProcess.equals(PrintProcess.PROMOTIONAL_BARKER)) {
-//
-//                List<ShelfEdgeLabel> shelfEdgeBarkers = new ArrayList<ShelfEdgeLabel>();
-//
-            // May need more in the future but in the mean time, we only need one per promotion.
-//                shelfEdgeBarkers.add(shelfEdgeLabels.get(0));
-//
-//                for (ShelfEdgeLabel shelfEdgeBarker : shelfEdgeBarkers) {
-//                    shelfEdgeBarker.setBarkerTextLines(buildBarkerTextLines(shelfEdgeLabels));
-//                }
-//
-//                return generatePdf(labelTemplate, shelfEdgeBarkers, tillSettings, printProcess);
-//            }
-//        } else {
-//            shelfEdgeLabels = productLogic.getShelfEdgeLabelsForActiveStockList(stockLogic, dataSourceId, stockListTypeEnum, stockListLineIds, "0", true);
-//
-//            if (stockListLineIds != null && stockListLineIds.size() > 0) {
-//                Iterator<ShelfEdgeLabel> iterator = shelfEdgeLabels.listIterator();
-//
-//                while (iterator.hasNext()) {
-//                    ShelfEdgeLabel shelfEdgeLabel = iterator.next();
-//                    shelfEdgeLabel.setStockListType(stockListTypeEnum);
-//
-//                    if (!stockListLineIds.contains(shelfEdgeLabel.getStockListLineId())) {
-//                        iterator.remove();
-//                    }
-//                }
-//            }
-//        }
-//
-//        return generatePdf(labelTemplate, shelfEdgeLabels, tillSettings, printProcess);
-//    }
-
-//    private List<String> buildBarkerTextLines(List<ShelfEdgeLabel> shelfEdgeLabels) {
-//        List<String> barkerTextLines = new ArrayList<String>();
-//
-//        for (ShelfEdgeLabel shelfEdgeLabel : shelfEdgeLabels) {
-//
-//            String productDescription = "";
-//
-//            if (shelfEdgeLabel.getUnitSize() != null) {
-//                productDescription = shelfEdgeLabel.getDescription() + " " + shelfEdgeLabel.getUnitSize() + " / ";
-//            } else {
-//                productDescription = shelfEdgeLabel.getDescription() + " / ";
-//            }
-//
-//            if (!barkerTextLines.contains(productDescription)){
-//                barkerTextLines.add(productDescription);
-//            }
-//        }
-        //Remove the last slash as its not required
-//        String lastValueproduct = barkerTextLines.get(barkerTextLines.size() - 1);
-//        barkerTextLines.set(barkerTextLines.size() - 1, lastValueproduct.replace(" / ", ""));
-//
-//        return barkerTextLines;
-//    }
-
-//    private String buildLabelDescription(Promotion promotion, String labelDescription, BigDecimal orginalPrice, PromotionBasisType promotionBasis) {
-//        String builtLabelString ="";
-//        String pound = "\u00a3";
-//        PromotionDisplayType promotionDisplayType = PromotionDisplayType.values()[promotion.getPromotionDisplayType().getValue() - 1];
-//
-//        switch(promotionDisplayType) {
-//
-//            case Buy1Get1Free:
-//                builtLabelString = "Buy 1 Get 1 Free";
-//
-//                break;
-//            case FixedAmountDiscount:
-//
-                //If its a product based promotion there is only one way to proceed
-//                if (promotionBasis == PromotionBasisType.ProductBasedPromotion) {
-//                    String noOfProductsRequiredFAD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                    String promotionDiscountFAD = String.valueOf(promotion.getAmount());
-//                    builtLabelString = "Buy %s get %s off";
-//                    builtLabelString = new StringBuilder(builtLabelString).insert(11, pound).toString();
-//                    builtLabelString = String.format(builtLabelString, noOfProductsRequiredFAD, promotionDiscountFAD);
-//                } else {
-                    //If its not, then the quantities are determined differently depending on type of discount applied
-//                    if (promotion.getPromotionOfferGroups().get(0).getRequiredQuantity() != 0) {
-//                        String valueOfProductsRequiredFAD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                        builtLabelString = "Buy %s get %s off";
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(11, pound).toString();
-//                        String promotionDiscountFAD = String.valueOf(promotion.getAmount());
-//                        builtLabelString = String.format(builtLabelString, valueOfProductsRequiredFAD, promotionDiscountFAD);
-//                    } else {
-                        //based off of total spent
-//                        BigDecimal valueOfProducts = promotion.getPromotionOfferGroups().get(0).getValue();
-//                        valueOfProducts = valueOfProducts.setScale(2, RoundingMode.HALF_UP);
-//                        String valueOfProductsRequiredFAD = String.valueOf(valueOfProducts);
-//                        String promotionDiscountFAD = String.valueOf(promotion.getAmount());
-//                        builtLabelString = "Buy %s get %s off";
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(4, pound).toString();
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(12, pound).toString();
-//                        builtLabelString = String.format(builtLabelString, valueOfProductsRequiredFAD, promotionDiscountFAD);
-//                    }
-//                }
-//
-//                break;
-//            case PercentageDiscount:
-//
-//                if (promotionBasis == PromotionBasisType.ProductBasedPromotion) {
-//                    String noOfProductsRequiredPD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                    String promotionPercentageDiscountPD = String.valueOf(promotion.getAmount());
-//                    builtLabelString = String.format("Buy %s get %s%% off", noOfProductsRequiredPD, promotionPercentageDiscountPD);
-//                } else {
-//                    if (promotion.getPromotionOfferGroups().get(0).getRequiredQuantity() != 0) {
-//                        String noOfProductsRequiredPD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                        String promotionPercentageDiscountPD = String.valueOf(promotion.getAmount());
-//                        builtLabelString = String.format("Buy %s get %s%% off", noOfProductsRequiredPD, promotionPercentageDiscountPD);
-//                    } else {
-//
-//                        String promotionPercentageDiscountPD = String.valueOf(promotion.getAmount());
-//                        BigDecimal noOfProductsRequired = promotion.getPromotionOfferGroups().get(0).getValue();
-//                        noOfProductsRequired = noOfProductsRequired.setScale(0, RoundingMode.HALF_UP);
-//                        String noOfProductsRequiredPD = noOfProductsRequired.toString();
-//                        builtLabelString = "Buy %s get %s%% off";
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(4, pound).toString();
-//                        builtLabelString = String.format(builtLabelString, noOfProductsRequiredPD, promotionPercentageDiscountPD);
-//                    }
-//                }
-//
-//                break;
-//            case XForYStyleOffer:
-//                int totalOffered = promotion.getPromotionRequiredGroups().get(0).getRequiredQuantity() + promotion.getPromotionOfferGroups().get(0).getRequiredQuantity();
-//                String noOfProductsRequiredXFY = String.valueOf(totalOffered);
-//                String noOfProductsOfferedXFY = String.valueOf(totalOffered - promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//
-//                builtLabelString = String.format("%s for %s", noOfProductsRequiredXFY, noOfProductsOfferedXFY);
-//
-//                break;
-//            case FixedPriceStyleOffer:
-//                builtLabelString = "Special Offer";
-//                break;
-//            default:
-//
-//                break;
-//        }
-//
-//        return builtLabelString;
-//    }
-
-//    private String buildAlternateLabelDescription(Promotion promotion, String labelDescription, BigDecimal originalPrice, PromotionBasisType promotionBasis) {
-//        String builtLabelString ="";
-//        String pound = "\u00a3";
-//        PromotionDisplayType promotionDisplayType = PromotionDisplayType.values()[promotion.getPromotionDisplayType().getValue() - 1];
-//
-//        switch(promotionDisplayType) {
-//
-//            case Buy1Get1Free:
-//                builtLabelString = "Buy 1 Get Cheapest Free";
-//
-//                break;
-//            case FixedAmountDiscount:
-//
-                //If its a product based promotion there is only one way to proceed
-//                if (promotionBasis == PromotionBasisType.ProductBasedPromotion) {
-//                    String noOfProductsRequiredFAD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                    String promotionDiscountFAD = String.valueOf(promotion.getAmount());
-//                    builtLabelString = "Any %s get %s off";
-//                    builtLabelString = new StringBuilder(builtLabelString).insert(11, pound).toString();
-//                    builtLabelString = String.format(builtLabelString, noOfProductsRequiredFAD, promotionDiscountFAD);
-//                } else {
-                    //If its not, then the quantities are determined differently depending on type of discount applied
-//                    if (promotion.getPromotionOfferGroups().get(0).getRequiredQuantity() != 0) {
-//                        String valueOfProductsRequiredFAD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                        builtLabelString = "Any %s get %s off";
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(11, pound).toString();
-//                        String promotionDiscountFAD = String.valueOf(promotion.getAmount());
-//                        builtLabelString = String.format(builtLabelString, valueOfProductsRequiredFAD, promotionDiscountFAD);
-//                    } else {
-                        //based off of total spent
-//                        BigDecimal valueOfProducts = promotion.getPromotionOfferGroups().get(0).getValue();
-//                        valueOfProducts = valueOfProducts.setScale(2, RoundingMode.HALF_UP);
-//                        String valueOfProductsRequiredFAD = String.valueOf(valueOfProducts);
-//                        String promotionDiscountFAD = String.valueOf(promotion.getAmount());
-//                        builtLabelString = "Any %s get %s off";
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(4, pound).toString();
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(12, pound).toString();
-//                        builtLabelString = String.format(builtLabelString, valueOfProductsRequiredFAD, promotionDiscountFAD);
-//                    }
-//                }
-//                break;
-//            case PercentageDiscount:
-
-//                if (promotionBasis == PromotionBasisType.ProductBasedPromotion) {
-//                    String noOfProductsRequiredPD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                    String promotionPercentageDiscountPD = String.valueOf(promotion.getAmount());
-//                    builtLabelString = String.format("Any %s get %s%% off", noOfProductsRequiredPD, promotionPercentageDiscountPD);
-//                } else {
-//                    if (promotion.getPromotionOfferGroups().get(0).getRequiredQuantity() != 0) {
-//                        String noOfProductsRequiredPD = String.valueOf(promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                        String promotionPercentageDiscountPD = String.valueOf(promotion.getAmount());
-//                        builtLabelString = String.format("Any %s get %s%% off", noOfProductsRequiredPD, promotionPercentageDiscountPD);
-//                    } else {
-//                        String promotionPercentageDiscountPD = String.valueOf(promotion.getAmount());
-//                        BigDecimal noOfProductsRequired = promotion.getPromotionOfferGroups().get(0).getValue();
-//                        noOfProductsRequired = noOfProductsRequired.setScale(0, RoundingMode.HALF_UP);
-//                        String noOfProductsRequiredPD = noOfProductsRequired.toString();
-//                        builtLabelString = "Any %s get %s%% off";
-//                        builtLabelString = new StringBuilder(builtLabelString).insert(4, pound).toString();
-//                        builtLabelString = String.format(builtLabelString, noOfProductsRequiredPD, promotionPercentageDiscountPD);
-//                    }
-//                }
-//
-//                break;
-//            case XForYStyleOffer:
-//                int totalOffered = promotion.getPromotionRequiredGroups().get(0).getRequiredQuantity() + promotion.getPromotionOfferGroups().get(0).getRequiredQuantity();
-//                String noOfProductsRequiredXFY = String.valueOf(totalOffered);
-//                String noOfProductsOfferedXFY = String.valueOf(totalOffered - promotion.getPromotionOfferGroups().get(0).getRequiredQuantity());
-//                builtLabelString = String.format("Any %s for %s", noOfProductsRequiredXFY, noOfProductsOfferedXFY);
-//
-//                break;
-//            case FixedPriceStyleOffer:
-//                String priceToPayFPSO = promotion.getAmount().toString();
-//                builtLabelString = "Meal Deal %s";
-//                builtLabelString = new StringBuilder(builtLabelString).insert(10, pound).toString();
-//                builtLabelString = String.format(builtLabelString, priceToPayFPSO);
-//
-//                break;
-//            default:
-//
-//                break;
-//        }
-//
-//        return builtLabelString;
-//    }
 
     private PDDocument generatePdfDocument(List<ShelfEdgeLabel> shelfEdgeLabels, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) throws Exception {
         PDDocument doc = new PDDocument()
@@ -570,12 +214,12 @@ class ShelfEdgeLabelService extends MySqlDal {
 
                                 if (field.maxCharacters != 0) {
                                     if (field.maxCharacters < productDescription.length()) {
-                                        addProductDescriptionField(contentStream, page, labelTemplate, field, productDescription.substring(0, field.getMaxCharacters()), fieldX, fieldY);
+                                        addProductDescriptionField(contentStream, page, field, productDescription.substring(0, field.getMaxCharacters()), fieldX, fieldY);
                                     } else {
-                                        addProductDescriptionField(contentStream, page, labelTemplate, field, productDescription, fieldX, fieldY);
+                                        addProductDescriptionField(contentStream, page, field, productDescription, fieldX, fieldY);
                                     }
                                 } else {
-                                    addProductDescriptionField(contentStream, page, labelTemplate, field, productDescription, fieldX, fieldY);
+                                    addProductDescriptionField(contentStream, page, field, productDescription, fieldX, fieldY);
                                 }
 
                                 break;
@@ -675,7 +319,7 @@ class ShelfEdgeLabelService extends MySqlDal {
                             case LabelTemplateFieldType.BARCODE:
                                 // Ensure the product has at an EAN assigned to it.
                                 if ((shelfEdgeLabel.getEanCode() != null && !shelfEdgeLabel.getEanCode().isEmpty())) {
-                                    addBarcodeField(doc, contentStream, page, labelTemplate, field, shelfEdgeLabel.getEanCode(), fieldX, fieldY);
+                                    addBarcodeField(doc, contentStream, page, field, shelfEdgeLabel.getEanCode(), fieldX, fieldY);
                                 }
 
                                 break;
@@ -749,12 +393,12 @@ class ShelfEdgeLabelService extends MySqlDal {
                                 break;
 
                             case LabelTemplateFieldType.PROMOTION_END_DATE:
-                                if (shelfEdgeLabel.getPromotionEndDate() != null) {
-                                    String endDate = shelfEdgeLabel.getPromotionEndDate().toString("dd/MM/yyyy")
-                                    if (!endDate.matches("31/12/9999")) {
-                                        addGenericTextField(contentStream, page, labelTemplate, field, ("End Date: " + endDate), fieldX, fieldY);
-                                    }
-                                }
+//                                if (shelfEdgeLabel.getPromotionEndDate() != null) {
+//                                    String endDate = shelfEdgeLabel.getPromotionEndDate().toString("dd/MM/yyyy")
+//                                    if (!endDate.matches("31/12/9999")) {
+//                                        addGenericTextField(contentStream, page, labelTemplate, field, ("End Date: " + endDate), fieldX, fieldY);
+//                                    }
+//                                }
 
                                 break;
                             case LabelTemplateFieldType.RTC_TITLE:
@@ -811,44 +455,44 @@ class ShelfEdgeLabelService extends MySqlDal {
         }
     }
 
-    private byte[] generatePdfImage(PDDocument doc) throws Exception {
-        // PDFRenderer can be used to draw a PDF page as an image.
-        PDFRenderer pdfRenderer = new PDFRenderer(doc);
+//    private byte[] generatePdfImage(PDDocument doc) throws Exception {
+//        // PDFRenderer can be used to draw a PDF page as an image.
+//        PDFRenderer pdfRenderer = new PDFRenderer(doc);
+//
+//        BufferedImage combinedImage = null;
+//        Graphics g = null;
+//
+//        // For each page, draw the image onto a larger image so that we get all pages in a single image.
+//        for (int pageNumber = 0; pageNumber < doc.getNumberOfPages(); pageNumber++) {
+//            BufferedImage pageImage = pdfRenderer.renderImageWithDPI(pageNumber, 203, ImageType.RGB);
+//
+//            // Initialising these here as I need to know the page heights and widths to create the combined image.
+//            if (pageNumber == 0) {
+//                combinedImage = new BufferedImage(pageImage.getWidth(), pageImage.getHeight() * doc.getNumberOfPages(), BufferedImage.TYPE_INT_ARGB);
+//                g = combinedImage.getGraphics();
+//            }
+//
+//            g.drawImage(pageImage, 0, pageImage.getHeight() * pageNumber, null);
+//        }
+//
+//        doc.close();
+//
+//        // If there were some pages, return the bytes of the combined image.
+//        if (combinedImage != null) {
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//            ImageIO.write(combinedImage, "png", outputStream);
+//            outputStream.flush();
+//
+//            byte[] imageBytes = outputStream.toByteArray();
+//            outputStream.close();
+//
+//            return imageBytes;
+//        }
+//
+//        return null;
+//    }
 
-        BufferedImage combinedImage = null;
-        Graphics g = null;
-
-        // For each page, draw the image onto a larger image so that we get all pages in a single image.
-        for (int pageNumber = 0; pageNumber < doc.getNumberOfPages(); pageNumber++) {
-            BufferedImage pageImage = pdfRenderer.renderImageWithDPI(pageNumber, 203, ImageType.RGB);
-
-            // Initialising these here as I need to know the page heights and widths to create the combined image.
-            if (pageNumber == 0) {
-                combinedImage = new BufferedImage(pageImage.getWidth(), pageImage.getHeight() * doc.getNumberOfPages(), BufferedImage.TYPE_INT_ARGB);
-                g = combinedImage.getGraphics();
-            }
-
-            g.drawImage(pageImage, 0, pageImage.getHeight() * pageNumber, null);
-        }
-
-        doc.close();
-
-        // If there were some pages, return the bytes of the combined image.
-        if (combinedImage != null) {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ImageIO.write(combinedImage, "png", outputStream);
-            outputStream.flush();
-
-            byte[] imageBytes = outputStream.toByteArray();
-            outputStream.close();
-
-            return imageBytes;
-        }
-
-        return null;
-    }
-
-    private void addProductDescriptionField(PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, LabelTemplateField field, String productDescription, double fieldX, double fieldY) throws Exception {
+    private void addProductDescriptionField(PDPageContentStream contentStream, PDPage page, LabelTemplateField field, String productDescription, double fieldX, double fieldY) throws Exception {
         if (productDescription == null || productDescription.isEmpty()) {
             return
         }
@@ -1016,7 +660,7 @@ class ShelfEdgeLabelService extends MySqlDal {
         return totalWidth;
     }
 
-    private void addBarcodeField(PDDocument doc, PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, LabelTemplateField field, String barcode, double fieldX, double fieldY) throws Exception {
+    private void addBarcodeField(PDDocument doc, PDPageContentStream contentStream, PDPage page, LabelTemplateField field, String barcode, double fieldX, double fieldY) throws Exception {
 
         try {
             PDFont font = PDType1Font.HELVETICA;
@@ -1040,7 +684,6 @@ class ShelfEdgeLabelService extends MySqlDal {
                         break
                     default:
                         format = BarcodeFormat.CODE_128
-//                        throw new Exception("Invalid barcode length: " + barcode.length());
                 }
             }
 
@@ -1089,31 +732,31 @@ class ShelfEdgeLabelService extends MySqlDal {
         }
     }
 
-    public static String create128Barcode(String barcode, boolean typeB) {
-        int checkSum = 104;
-        String newBarcode = "";
-        for (int i = 0 ; i < barcode.length() ; i++) {
-            int ch = barcode.toCharArray()[i] - 32;
-
-            checkSum += ch * (i + 1);
-        }
-
-        checkSum = checkSum % 103;
-        if (checkSum > 94) {
-            checkSum += 100;
-        } else {
-            checkSum += 32;
-        }
-
-        // The Ì (Code128 value 104) is the Type B start flag. Then add the barcode, then the checksum character, ending with the end flag.
-        if (typeB){
-            newBarcode = "Ì" + barcode + new Character((char)checkSum).toString() + "Î";
-        }else{
-            newBarcode = barcode + new Character((char)checkSum).toString();
-        }
-
-        return newBarcode;
-    }
+//    public static String create128Barcode(String barcode, boolean typeB) {
+//        int checkSum = 104;
+//        String newBarcode = "";
+//        for (int i = 0 ; i < barcode.length() ; i++) {
+//            int ch = barcode.toCharArray()[i] - 32;
+//
+//            checkSum += ch * (i + 1);
+//        }
+//
+//        checkSum = checkSum % 103;
+//        if (checkSum > 94) {
+//            checkSum += 100;
+//        } else {
+//            checkSum += 32;
+//        }
+//
+//        // The Ì (Code128 value 104) is the Type B start flag. Then add the barcode, then the checksum character, ending with the end flag.
+//        if (typeB){
+//            newBarcode = "Ì" + barcode + new Character((char)checkSum).toString() + "Î";
+//        }else{
+//            newBarcode = barcode + new Character((char)checkSum).toString();
+//        }
+//
+//        return newBarcode;
+//    }
 
     private void addGenericTextField(PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, LabelTemplateField field, String text, double fieldX, double fieldY) throws Exception {
         PDFont font = PDType1Font.HELVETICA;
@@ -1165,9 +808,9 @@ class ShelfEdgeLabelService extends MySqlDal {
         return mm / 0.3527777f;
     }
 
-    public List<LabelTemplate> getLabelTemplatesByDataSource(int dataSourceId) {
-        return labelTemplateDal.getLabelTemplatesByDataSource(dataSourceId);
-    }
+//    List<LabelTemplate> getLabelTemplatesByDataSource(int dataSourceId) {
+//        return labelTemplateDal.getLabelTemplatesByDataSource(dataSourceId);
+//    }
 
     private void addLineField(PDPageContentStream contentStream, PDPage page, LabelTemplateField field, double fieldX, double fieldY, double lineFieldX2, double lineFieldY2) throws Exception {
         float xStart = (float)pt(fieldX);
@@ -1182,157 +825,157 @@ class ShelfEdgeLabelService extends MySqlDal {
         contentStream.stroke();
     }
 
-    private void addWordWrapField(PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, LabelTemplateField field, String inputString, double fieldX, double fieldY) throws Exception {
-        List <String> subWords = new ArrayList<String>();
-        String manipulatedString = inputString;
-        int wordsRemoved = 0;
-        boolean moveToNextLine = false;
-        boolean stringComplete = false;
+//    private void addWordWrapField(PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, LabelTemplateField field, String inputString, double fieldX, double fieldY) throws Exception {
+//        List <String> subWords = new ArrayList<String>();
+//        String manipulatedString = inputString;
+//        int wordsRemoved = 0;
+//        boolean moveToNextLine = false;
+//        boolean stringComplete = false;
+//
+//        PDFont font = PDType1Font.HELVETICA;
+//        int fontSize = field.getPreferredTextSize();
+//        float fontHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize * HELVETICA_HEIGHT_ADJUSTMENT;
+//
+//        // Start working out how many lines we need to fit the text into the width provided.
+//        List<String> textLines = new ArrayList<>();
+//
+//        //Individual words included in the strapline
+//        List<String> straplineWords = new ArrayList<String>();
+//
+//        for(String word : inputString.split(" ")) {
+//            straplineWords.add(word);
+//        }
+//        while (!stringComplete) {
+//
+//            //Check to see if there are lines to add, if there are, add them to the string to be checked this time.
+//            if (moveToNextLine) {
+//                int wordsRemoveCount = wordsRemoved;
+//                moveToNextLine = false;
+//                manipulatedString = "";
+//                while (wordsRemoveCount > 0) {
+//                    manipulatedString += straplineWords.get(straplineWords.size() - wordsRemoveCount) + " ";
+//                    wordsRemoveCount --;
+//                }
+//                wordsRemoved = 0;
+//            }
+//
+//            //Calculate the width of the new string.
+//            float textWidth = mm(font.getStringWidth(manipulatedString) / 1000 * fontSize);
+//
+//            //Check to see if its too long.
+//            if (textWidth > field.getWidth()) {
+//
+//                if (!StringUtils.containsWhitespace(manipulatedString.substring(0, manipulatedString.length() - 1 ))) {
+//                    //Generate sub words from the full words.
+//                    subWords = removeLettersToFitWidth(manipulatedString, field.getWidth(), font, fontSize);
+//
+//                    for (String subWord : subWords) {
+//                        textLines.add(subWord);
+//                    }
+//
+//                    moveToNextLine = true;
+//                } else {
+//
+//                    manipulatedString = manipulatedString.substring(0, manipulatedString.length() - straplineWords.get((straplineWords.size() - wordsRemoved) - 1).length() - 1);
+//                    wordsRemoved ++;
+//                }
+//            } else {
+//                // Check to see if the new string will fit on an existing line.
+//                if (textLines.size() > 0) {
+//                    String testLine = textLines.get(textLines.size() - 1) + " " + manipulatedString;
+//
+//                    float testTextWidth = mm(font.getStringWidth(testLine) / 1000 * fontSize);
+//
+//                    if (testTextWidth > field.getWidth()) {
+//                        textLines.add(manipulatedString);
+//                        moveToNextLine = true;
+//                    } else {
+//                        textLines.remove(textLines.size() - 1);
+//                        textLines.add(testLine);
+//                        moveToNextLine = true;
+//                    }
+//                } else {
+//                    //First word/sub word, add it with no manipulation
+//                    textLines.add(manipulatedString);
+//                    moveToNextLine = true;
+//                }
+//            }
+//
+//            // If there have been no words removed this loop then all lines have been added
+//            if (wordsRemoved == 0) {
+//                stringComplete = true;
+//            }
+//        }
+//
+//        contentStream.beginText();
+//        for (String word : textLines) {
+//            float textWidth = mm(font.getStringWidth(word) / 1000 * fontSize);
+//            float y = (float)y(page.getMediaBox().getHeight(), pt(fieldY)) - fontHeight;
+//
+//            contentStream.setFont(font, fontSize);
+//
+//            for (int i = 0 ; i < textLines.size() ; i++) {
+//
+//                String textLine = textLines.get(i);
+//
+//                // Calculate the actual X position of this line of text if it is set to be centrally aligned.
+//                textWidth = mm(font.getStringWidth(textLine) / 1000 * fontSize);
+//                float x = field.isCentrallyAligned() ? (float)pt(fieldX + (field.getWidth() - textWidth) / 2) : (float)pt(fieldX);
+//
+//                // Move the text to the correct location using a matrix.
+//                Matrix matrix = new Matrix();
+//                matrix.translate(x, y);
+//                contentStream.setTextMatrix(matrix);
+//
+//                contentStream.showText(textLine);
+//                contentStream.newLine();
+//
+//                y -= (fontHeight + 2);
+//            }
+//        }
+//        contentStream.endText();
+//    }
 
-        PDFont font = PDType1Font.HELVETICA;
-        int fontSize = field.getPreferredTextSize();
-        float fontHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize * HELVETICA_HEIGHT_ADJUSTMENT;
-
-        // Start working out how many lines we need to fit the text into the width provided.
-        List<String> textLines = new ArrayList<>();
-
-        //Individual words included in the strapline
-        List<String> straplineWords = new ArrayList<String>();
-
-        for(String word : inputString.split(" ")) {
-            straplineWords.add(word);
-        }
-        while (!stringComplete) {
-
-            //Check to see if there are lines to add, if there are, add them to the string to be checked this time.
-            if (moveToNextLine) {
-                int wordsRemoveCount = wordsRemoved;
-                moveToNextLine = false;
-                manipulatedString = "";
-                while (wordsRemoveCount > 0) {
-                    manipulatedString += straplineWords.get(straplineWords.size() - wordsRemoveCount) + " ";
-                    wordsRemoveCount --;
-                }
-                wordsRemoved = 0;
-            }
-
-            //Calculate the width of the new string.
-            float textWidth = mm(font.getStringWidth(manipulatedString) / 1000 * fontSize);
-
-            //Check to see if its too long.
-            if (textWidth > field.getWidth()) {
-
-                if (!StringUtils.containsWhitespace(manipulatedString.substring(0, manipulatedString.length() - 1 ))) {
-                    //Generate sub words from the full words.
-                    subWords = removeLettersToFitWidth(manipulatedString, field.getWidth(), font, fontSize);
-
-                    for (String subWord : subWords) {
-                        textLines.add(subWord);
-                    }
-
-                    moveToNextLine = true;
-                } else {
-
-                    manipulatedString = manipulatedString.substring(0, manipulatedString.length() - straplineWords.get((straplineWords.size() - wordsRemoved) - 1).length() - 1);
-                    wordsRemoved ++;
-                }
-            } else {
-                // Check to see if the new string will fit on an existing line.
-                if (textLines.size() > 0) {
-                    String testLine = textLines.get(textLines.size() - 1) + " " + manipulatedString;
-
-                    float testTextWidth = mm(font.getStringWidth(testLine) / 1000 * fontSize);
-
-                    if (testTextWidth > field.getWidth()) {
-                        textLines.add(manipulatedString);
-                        moveToNextLine = true;
-                    } else {
-                        textLines.remove(textLines.size() - 1);
-                        textLines.add(testLine);
-                        moveToNextLine = true;
-                    }
-                } else {
-                    //First word/sub word, add it with no manipulation
-                    textLines.add(manipulatedString);
-                    moveToNextLine = true;
-                }
-            }
-
-            // If there have been no words removed this loop then all lines have been added
-            if (wordsRemoved == 0) {
-                stringComplete = true;
-            }
-        }
-
-        contentStream.beginText();
-        for (String word : textLines) {
-            float textWidth = mm(font.getStringWidth(word) / 1000 * fontSize);
-            float y = (float)y(page.getMediaBox().getHeight(), pt(fieldY)) - fontHeight;
-
-            contentStream.setFont(font, fontSize);
-
-            for (int i = 0 ; i < textLines.size() ; i++) {
-
-                String textLine = textLines.get(i);
-
-                // Calculate the actual X position of this line of text if it is set to be centrally aligned.
-                textWidth = mm(font.getStringWidth(textLine) / 1000 * fontSize);
-                float x = field.isCentrallyAligned() ? (float)pt(fieldX + (field.getWidth() - textWidth) / 2) : (float)pt(fieldX);
-
-                // Move the text to the correct location using a matrix.
-                Matrix matrix = new Matrix();
-                matrix.translate(x, y);
-                contentStream.setTextMatrix(matrix);
-
-                contentStream.showText(textLine);
-                contentStream.newLine();
-
-                y -= (fontHeight + 2);
-            }
-        }
-        contentStream.endText();
-    }
-
-    List<String> removeLettersToFitWidth(String inputText, float fieldwidth, PDFont font, int fontSize) throws IOException {
-        boolean wordComplete = false;
-        boolean subWordComplete = false;
-        String removedCharacters = "";
-        List<String> subWords = new ArrayList<String>();
-
-        while (!wordComplete) {
-
-            while (!subWordComplete) {
-
-                float textWidth = mm(font.getStringWidth(inputText) / 1000 * fontSize);
-
-                //Remove characters until the string fits in the space.
-                if (textWidth > fieldwidth) {
-                    removedCharacters += inputText.substring(inputText.length() - 1, inputText.length());
-                    inputText = inputText.substring(0, inputText.length() - 1);
-                } else {
-                    subWordComplete = true;
-                }
-            }
-
-            subWords.add(inputText);
-
-            if (subWordComplete && removedCharacters != "") {
-                int count = removedCharacters.length() - 1;
-                inputText = "";
-                subWordComplete = false;
-
-                //Push the removed letters back to be checked and generated.
-                while (count > -1) {
-                    inputText += removedCharacters.charAt(count --);
-                }
-                removedCharacters = "";
-            } else {
-                wordComplete = true;
-            }
-        }
-
-        return subWords;
-    }
+//    List<String> removeLettersToFitWidth(String inputText, float fieldwidth, PDFont font, int fontSize) throws IOException {
+//        boolean wordComplete = false;
+//        boolean subWordComplete = false;
+//        String removedCharacters = "";
+//        List<String> subWords = new ArrayList<String>();
+//
+//        while (!wordComplete) {
+//
+//            while (!subWordComplete) {
+//
+//                float textWidth = mm(font.getStringWidth(inputText) / 1000 * fontSize);
+//
+//                //Remove characters until the string fits in the space.
+//                if (textWidth > fieldwidth) {
+//                    removedCharacters += inputText.substring(inputText.length() - 1, inputText.length());
+//                    inputText = inputText.substring(0, inputText.length() - 1);
+//                } else {
+//                    subWordComplete = true;
+//                }
+//            }
+//
+//            subWords.add(inputText);
+//
+//            if (subWordComplete && removedCharacters != "") {
+//                int count = removedCharacters.length() - 1;
+//                inputText = "";
+//                subWordComplete = false;
+//
+//                //Push the removed letters back to be checked and generated.
+//                while (count > -1) {
+//                    inputText += removedCharacters.charAt(count --);
+//                }
+//                removedCharacters = "";
+//            } else {
+//                wordComplete = true;
+//            }
+//        }
+//
+//        return subWords;
+//    }
 
     def getShelfEdgeLabelsForDate(DateTime effectiveDate, PrintProcess printProcess) {
         def results = []

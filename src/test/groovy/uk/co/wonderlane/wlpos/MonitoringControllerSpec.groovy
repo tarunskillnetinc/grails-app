@@ -38,7 +38,7 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.tillConnectivity()
 
         then: 'The model tillConnectivity render'
-        view == '/monitoring/tillConnectivity.gsp'
+        assert view == '/monitoring/tillConnectivity.gsp'
 
     }
 
@@ -51,7 +51,7 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.transactionServiceStatus()
 
         then: 'The model transactionServiceStatus render'
-        view == '/monitoring/transactionServiceStatus.gsp'
+        assert view == '/monitoring/transactionServiceStatus.gsp'
 
     }
 
@@ -82,8 +82,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
 
         then: 'successfully get snapshot'
         if (rabitServiceStatus){
-            controller.response.text == 'test'
-            model.rabbitQueues
+            assert controller.response.text == 'test'
+            assert model.rabbitQueues
             assert model.rabbitQueues.size == getFilterRemainingQueueCount(queueList, passingStoreId, passingTillId, passingStatus)
         }
 
@@ -119,7 +119,7 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
 
         then: 'successfully get snapshot'
         Exception e = thrown()
-        e.message == "Rabbit MQ not available"
+        assert e.message == "Rabbit MQ not available"
 
         where: 'Pass following input parameters'
         passingStatus || rabitServiceStatus
@@ -152,16 +152,16 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxGetTransactionServiceStatus()
 
         then: 'successfully get response text and queue list'
-        controller.response.text == 'test'
-        model.transactionProcessorQueue
-        model.dataSyncServiceQueue
-        model.kpiProcessorQueue
-        model.reportingProcessorQueue
-        model.shiftProcessorQueue
-        model.stockProcessorQueue
-        model.nisaServiceQueue
-        model.receiptServiceQueue
-        model.rawTransactionWriterQueue
+        assert controller.response.text == 'test'
+        assert model.transactionProcessorQueue
+        assert model.dataSyncServiceQueue
+        assert model.kpiProcessorQueue
+        assert model.reportingProcessorQueue
+        assert model.shiftProcessorQueue
+        assert model.stockProcessorQueue
+        assert model.nisaServiceQueue
+        assert model.receiptServiceQueue
+        assert model.rawTransactionWriterQueue
 
     }
 
@@ -181,7 +181,7 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
 
         then: 'Appropriate error message thrown'
         Exception e = thrown()
-        e.message == "Rabbit MQ not available"
+        assert e.message == "Rabbit MQ not available"
 
     }
 
@@ -213,8 +213,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxPurgeQueue(storeId, tillId)
 
         then: 'successfully response returned'
-        controller.response.text == successText
-        controller.response.status == 200
+        assert controller.response.text == successText
+        assert controller.response.status == 200
 
     }
 
@@ -242,8 +242,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxPurgeQueue(storeId, tillId)
 
         then: 'Appropriate error message thrown'
-        controller.response.status == 500
-        controller.response.text == "Unable to open connection to RabbitMQ."
+        assert controller.response.status == 500
+        assert controller.response.text == "Unable to open connection to RabbitMQ."
 
     }
 
@@ -271,8 +271,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxPurgeQueue(storeId, tillId)
 
         then: 'Appropriate error message thrown'
-        controller.response.status == 500
-        controller.response.text == "Error connecting to RabbitMQ."
+        assert controller.response.status == 500
+        assert controller.response.text == "Error connecting to RabbitMQ."
 
     }
 
@@ -304,8 +304,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxDeleteQueue(storeId, tillId)
 
         then: 'successfully response returned'
-        controller.response.text == successText
-        controller.response.status == 200
+        assert controller.response.text == successText
+        assert controller.response.status == 200
 
     }
 
@@ -333,8 +333,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxDeleteQueue(storeId, tillId)
 
         then: 'Appropriate error message thrown'
-        controller.response.status == 500
-        controller.response.text == "Unable to open connection to RabbitMQ."
+        assert controller.response.status == 500
+        assert controller.response.text == "Unable to open connection to RabbitMQ."
 
     }
 
@@ -362,8 +362,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxDeleteQueue(storeId, tillId)
 
         then: 'Appropriate error message thrown'
-        controller.response.status == 500
-        controller.response.text == "Error connecting to RabbitMQ."
+        assert controller.response.status == 500
+        assert controller.response.text == "Error connecting to RabbitMQ."
 
     }
 
@@ -403,8 +403,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         String successText =  "Sync should begin shortly for Till " + params.tillId + " in Store " + params.storeId + "."
 
         then: 'successfully response returned'
-        controller.response.text == successText
-        controller.response.status == 200
+        assert controller.response.text == successText
+        assert controller.response.status == 200
 
     }
 
@@ -440,8 +440,8 @@ class MonitoringControllerSpec extends Specification implements ControllerUnitTe
         controller.ajaxForceSync()
 
         then: 'Appropriate error message thrown'
-        controller.response.text == "Unable to open connection to RabbitMQ."
-        controller.response.status == 500
+        assert controller.response.text == "Unable to open connection to RabbitMQ."
+        assert controller.response.status == 500
 
     }
 

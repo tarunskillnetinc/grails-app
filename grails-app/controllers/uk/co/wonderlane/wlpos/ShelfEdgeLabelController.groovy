@@ -61,8 +61,8 @@ class ShelfEdgeLabelController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime effectiveDate = params.effectiveDate ? DateTime.parse(params.effectiveDate, dateFormatter).withTimeAtStartOfDay() : null
         LabelTemplate labelTemplate = shelfEdgeLabelService.getLabelTemplate(Integer.parseInt(params.labelTemplateId))
-        PrintProcess printProcess = PrintProcess.valueOf(params.printProcess)
-        PrintType printType = PrintType.valueOf(params.printType)
+        PrintProcess printProcess = params.printProcess ? PrintProcess.valueOf(params.printProcess) : null
+        PrintType printType = params.printType ? PrintType.valueOf(params.printType) : null
 
         if (!effectiveDate || !labelTemplate || !printProcess || !printType) {
             response.status = 400

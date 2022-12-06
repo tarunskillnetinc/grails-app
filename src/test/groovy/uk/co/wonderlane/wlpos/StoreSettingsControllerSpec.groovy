@@ -80,16 +80,16 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         HashMap model = controller.index()
 
         then: 'The model index render'
-        view == '/storeSettings/index.gsp'
-        model.storeSettings
-        model.availablePriceBands
-        model.availableProductRanges
+        assert view == '/storeSettings/index.gsp'
+        assert model.storeSettings
+        assert model.availablePriceBands
+        assert model.availableProductRanges
         if (type == StoreType.STORE.getValue()){
-            model.availableParentStores
+            assert model.availableParentStores
         }
-        model.viewOptions
-        model.viewOptions.showUISettings == showUISettings
-        model.viewOptions.showParentStoreSettings == showParentSettings
+        assert model.viewOptions
+        assert model.viewOptions.showUISettings == showUISettings
+        assert model.viewOptions.showParentStoreSettings == showParentSettings
 
         where: 'Pass following input parameters'
         retailerId || storeId ||type                       || authority1                                      || authority2                                    || showUISettings || showParentSettings
@@ -159,15 +159,15 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         controller.save()
 
         then: 'The model index render'
-        view == '/storeSettings/index'
-        model.availablePriceBands
-        model.availableProductRanges
-        model.availableParentStores
-        model.availablePrintReceiptOptions
-        model.availablePrintReceiptOptions.size() == 3
-        model.viewOptions
-        model.viewOptions.showUISettings == false
-        model.viewOptions.showParentStoreSettings == false
+        assert view == '/storeSettings/index'
+        assert model.availablePriceBands
+        assert model.availableProductRanges
+        assert model.availableParentStores
+        assert model.availablePrintReceiptOptions
+        assert model.availablePrintReceiptOptions.size() == 3
+        assert model.viewOptions
+        assert model.viewOptions.showUISettings == false
+        assert model.viewOptions.showParentStoreSettings == false
 
 
         where: 'Pass following input parameters'
@@ -257,13 +257,13 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
 
         then: 'The model index render'
         if (originalPriceBandId != newPriceBandId || originalRangeId != newRangeId) {
-            flash.message ==
+            assert flash.message ==
                     ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
         } else {
-            flash.message ==
+            assert flash.message ==
                     ["Store settings saved successfully."]
         }
-        response.redirectedUrl.startsWith('/storeSettings/index')
+        assert response.redirectedUrl.startsWith('/storeSettings/index')
 
         where: 'Pass following input parameters'
         retailerId || storeId || storeIdInDb || originalPriceBandId || originalRangeId || newPriceBandId || newRangeId

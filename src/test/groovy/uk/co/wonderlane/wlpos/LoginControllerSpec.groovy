@@ -41,7 +41,7 @@ class LoginControllerSpec extends Specification implements ControllerUnitTest<Lo
         then: 'successfully get snapshot'
         if (!ajaxCall){
             assert flash.message == responseException
-            response.redirectedUrl.startsWith('/login/auth')
+            assert response.redirectedUrl.startsWith('/login/auth')
         }else {
             assert response.json == [error : responseException]
         }

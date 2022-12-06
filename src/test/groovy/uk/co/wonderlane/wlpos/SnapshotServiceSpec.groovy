@@ -66,11 +66,11 @@ class SnapshotServiceSpec  extends Specification  implements ServiceUnitTest<Sna
         List<Snapshot> snapshotsReturned = snapshotServiceHelperService.getSnapshots(startTime, startTime)
 
         then: 'successfully get snapshot'
-        snapshotsReturned.size() == returnListSize
+        assert snapshotsReturned.size() == returnListSize
         if (!emptySet){
-            snapshotsReturned.get(0).id == 1
-            snapshotsReturned.get(0).retailerId == 9
-            snapshotsReturned.get(0).storeId == 234
+            assert snapshotsReturned.get(0).id == 1
+            assert snapshotsReturned.get(0).retailerId == 9
+            assert snapshotsReturned.get(0).storeId == 234
         }
 
         where: 'Pass following input parameters'
@@ -112,12 +112,12 @@ class SnapshotServiceSpec  extends Specification  implements ServiceUnitTest<Sna
 
         then: 'successfully get snapshot'
         if (!emptySet){
-            snapshotsReturned
-            snapshotsReturned.id == 1
-            snapshotsReturned.retailerId == 9
-            snapshotsReturned.storeId == 234
+            assert snapshotsReturned
+            assert snapshotsReturned.id == 1
+            assert snapshotsReturned.retailerId == 9
+            assert snapshotsReturned.storeId == 234
         } else {
-            snapshotsReturned == null
+            assert snapshotsReturned == null
         }
 
         where: 'Pass following input parameters'
@@ -159,12 +159,12 @@ class SnapshotServiceSpec  extends Specification  implements ServiceUnitTest<Sna
 
         then: 'successfully get snapshot'
         if (!emptySet){
-            snapshotsReturned
-            snapshotsReturned.id == expectedReturnedId
-            snapshotsReturned.retailerId == 9
-            snapshotsReturned.storeId == 234
+            assert snapshotsReturned
+            assert snapshotsReturned.id == expectedReturnedId
+            assert snapshotsReturned.retailerId == 9
+            assert snapshotsReturned.storeId == 234
         } else {
-            snapshotsReturned == null
+            assert snapshotsReturned == null
         }
 
         where: 'Pass following input parameters'
@@ -207,7 +207,7 @@ class SnapshotServiceSpec  extends Specification  implements ServiceUnitTest<Sna
         int returnedId = snapshotServiceHelperService.saveSnapshot(snapshot)
 
         then: 'successfully get snapshot'
-        returnedId == responseId
+        assert returnedId == responseId
 
         where: 'Pass following input parameters'
         snapshotId || resultSetNextResult || responseId

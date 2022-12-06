@@ -34,9 +34,9 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         HashMap model = controller.index()
 
         then: 'The model index render'
-        view == "/snapshot/index.gsp"
-        model.startDate == DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
-        model.endDate == DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        assert view == "/snapshot/index.gsp"
+        assert model.startDate == DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
+        assert model.endDate == DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
     }
 
     //------------------- Calling Ajax Get Snapshots Action ---------------------------------------------//
@@ -64,12 +64,12 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         controller.ajaxGetSnapshots()
 
         then: 'The template response successful with returning snapshot list'
-        controller.response.text == 'test'
-        model.snapshots
-        model.snapshots.size() == 1
-        model.snapshots.get(0).id == 1
-        model.snapshots.get(0).retailerId == 9
-        model.snapshots.get(0).storeId == 234
+        assert controller.response.text == 'test'
+        assert model.snapshots
+        assert model.snapshots.size() == 1
+        assert model.snapshots.get(0).id == 1
+        assert model.snapshots.get(0).retailerId == 9
+        assert model.snapshots.get(0).storeId == 234
 
     }
 
@@ -95,13 +95,13 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
 
         then: 'The response rendering base on existence of snapshot'
         if (existingSnapshot){
-            controller.response.text == 'test'
-            model.snapshot
-            model.snapshot.id == 1
-            model.snapshot.retailerId == 9
-            model.snapshot.storeId == 234
+            assert controller.response.text == 'test'
+            assert model.snapshot
+            assert model.snapshot.id == 1
+            assert model.snapshot.retailerId == 9
+            assert model.snapshot.storeId == 234
         } else {
-            controller.response.text == "Unable to retrieve safe."
+            assert controller.response.text == "Unable to retrieve safe."
         }
 
         where: 'Pass following input parameters'
@@ -133,13 +133,13 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
 
         then: 'The response rendering base on existence of snapshot'
         if (snapshotId > 0){
-            controller.response.text == 'test'
-            model.snapshot
-            model.snapshot.id == 1
-            model.snapshot.retailerId == 9
-            model.snapshot.storeId == 234
+            assert controller.response.text == 'test'
+            assert model.snapshot
+            assert model.snapshot.id == 1
+            assert model.snapshot.retailerId == 9
+            assert model.snapshot.storeId == 234
         } else {
-            controller.response.text == "Unable to retrieve snapshot"
+            assert controller.response.text == "Unable to retrieve snapshot"
         }
 
         where: 'Pass following input parameters'
@@ -185,25 +185,25 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         controller.ajaxSaveSafeCount(saveSafeCommand)
 
         then: 'The template response successful with updating snapshot values'
-        controller.response.text == "test"
-        model.snapshot
-        model.varianceReasons
-        model.varianceReasons.size() == 3
+        assert controller.response.text == "test"
+        assert model.snapshot
+        assert model.varianceReasons
+        assert model.varianceReasons.size() == 3
 
         /* Assert For Cash Total Values */
         ReconciliationTotal cashTotal = model.snapshot.totals.find {it.tenderType == TenderType.CASH}
-        cashTotal != null
-        cashTotal.value == getExpectedCashTotal(saveSafeCommand)
-        cashTotal.variance == getExpectedCashVariance(saveSafeCommand, snapshotMock)
+        assert cashTotal != null
+        assert cashTotal.value == getExpectedCashTotal(saveSafeCommand)
+        assert cashTotal.variance == getExpectedCashVariance(saveSafeCommand, snapshotMock)
 
         /* Assert For Voucher Total Values */
         ReconciliationTotal vouchersTotal = model.snapshot.totals?.find { it.tenderType == TenderType.VOUCHER }
-        vouchersTotal != null
-        vouchersTotal.value == getExpectedVoucherTotal(saveSafeCommand)
-        vouchersTotal.variance == getExpectedVoucherVariance(saveSafeCommand, snapshotMock)
+        assert vouchersTotal != null
+        assert vouchersTotal.value == getExpectedVoucherTotal(saveSafeCommand)
+        assert vouchersTotal.variance == getExpectedVoucherVariance(saveSafeCommand, snapshotMock)
 
         /* Assert For Snapshot Variance */
-        model.snapshot.variance == getExpectedSnapshotVariance(snapshotMock)
+        assert model.snapshot.variance == getExpectedSnapshotVariance(snapshotMock)
 
         where: 'Pass following input parameters'
         cashUpBy       || isCashRequired || isVoucherRequired ||  cashInputTotal     || vouchersInputTotal
@@ -252,15 +252,15 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         controller.ajaxSaveSnapshot(snapshotCommand)
 
         then: 'The response rendering successfully'
-        controller.response.text == 'test'
-        model.snapshot
-        model.snapshot.id == 1
-        model.snapshot.countedByUserId == 9
-        model.snapshot.countedByUsersName == "WonderLane User"
+        assert controller.response.text == 'test'
+        assert model.snapshot
+        assert model.snapshot.id == 1
+        assert model.snapshot.countedByUserId == 9
+        assert model.snapshot.countedByUsersName == "WonderLane User"
 
         if (varianceType != null){
-            model.snapshot.varianceReason == TenderReconciliationVarianceReason.OTHER
-            model.snapshot.varianceReasonText == "Dummy Variance text"
+            assert model.snapshot.varianceReason == TenderReconciliationVarianceReason.OTHER
+            assert model.snapshot.varianceReasonText == "Dummy Variance text"
         }
 
         where: 'Pass following input parameters'

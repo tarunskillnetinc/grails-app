@@ -109,10 +109,11 @@ class ProductVariant implements Serializable {
         }
     }
 
-    List<Barcode> getBarcodes() {
+    public List<Barcode> getBarcodes() {
 
         //Load all barcodes based on sku
         def barcodesOnSku = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
+
 
         //Declare list to populate displaying barcodes
         def barcodesToShow = new ArrayList<Barcode>()
@@ -150,11 +151,11 @@ class ProductVariant implements Serializable {
         return barcodesToShow
     }
 
-    List<Barcode> getAllBarcodes() {
+    public List<Barcode> getAllBarcodes() {
         return Barcode.findAllBySkuAndRetailerId(sku, springSecurityService.principal.retailerId)
     }
 
-    private DateTime getSessionEffectiveDate() {
+    public DateTime getSessionEffectiveDate() {
         def sessionEffectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")
 
         return sessionEffectiveDate != null && sessionEffectiveDate.size() > 0 ? sessionEffectiveDate[1] : DateTime.now(DateTimeZone.UTC)
