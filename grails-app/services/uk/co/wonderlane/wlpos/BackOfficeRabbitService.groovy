@@ -113,7 +113,7 @@ class BackOfficeRabbitService extends RabbitService {
         return rabbitQueues
     }
 
-    private List<RabbitQueue> getQueues() {
+    protected List<RabbitQueue> getQueues() {
         try {
             // Open a connection to the RabbitMQ REST API.
             def url = (apiUrl + "queues").toURL()
