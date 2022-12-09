@@ -76,14 +76,6 @@ class ReportingService {
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
-    def getSaleCategory(int categoryId) {
-        def saleCategoryCriteria = SaleCategory.createCriteria()
-
-        return saleCategoryCriteria.get() {
-            eq ("id", categoryId)
-        }
-    }
-
     // For sales report product level. Paginated and filtered.
     def getSalesForProduct(int productId, DateTime startDate, DateTime endDate, int maxResults, int startIndex,
                            String sortColumn, String sortOrder, String descriptionFilter, Integer storeId) {

@@ -384,6 +384,7 @@ class HibernateTestMockCriteria implements BuildableCriteria {
     Object list(@DelegatesTo(Criteria.class) Closure closure) {
         closure.setDelegate(this)
         closure.call()
+
         return responses
     }
 
@@ -391,7 +392,8 @@ class HibernateTestMockCriteria implements BuildableCriteria {
     Object list(Map params, @DelegatesTo(Criteria.class) Closure closure) {
         closure.setDelegate(this)
         closure.call()
-        return responses
+
+        return new TestPagedResultList(responses)
     }
 
     @Override

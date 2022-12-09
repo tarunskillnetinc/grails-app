@@ -47,7 +47,6 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
                 put("storeId", principalStoreId);
                 put("storeNumber", 100)
                 put("authorities",authorities)
-
             }}
         }
 

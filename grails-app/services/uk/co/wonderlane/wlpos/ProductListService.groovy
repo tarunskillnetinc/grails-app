@@ -213,6 +213,10 @@ class ProductListService extends MySqlDal {
         return ProductList.findByIdAndRetailerId(id, retailerId)
     }
 
+    def getProductListItem(int productListItemId) {
+        return ProductListItem.findById(productListItemId)
+    }
+
     def saveProductList(ProductList productList) {
         productList.save()
     }

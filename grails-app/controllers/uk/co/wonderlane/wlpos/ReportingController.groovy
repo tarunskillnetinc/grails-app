@@ -1152,7 +1152,7 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def productListItem = ProductListItem.findById(productListItemId)
+        def productListItem = productListService.getProductListItem(productListItemId)
 
         def packLines = []
         if (productListItem) {
@@ -1762,69 +1762,5 @@ class ReportingController {
         }
 
         return Integer.parseInt(paramValue)
-    }
-
-    /**
-     * Perform some sense checking on our input parameters.
-     *
-     * @param max
-     * @return
-     */
-    private static int getMax(int max) {
-        if (!max || max > 500) {
-            return 50
-        }
-
-        return max
-    }
-
-    /**
-     * Perform some sense checking on our input parameters.
-     *
-     * @param offset
-     * @return
-     */
-    private static int getOffset(int offset) {
-        if (!offset || offset > 5000) {
-            return 0
-        }
-
-        return offset
-    }
-
-    /**
-     * Perform some sense checking on our input parameters.
-     *
-     * @param sortColumn
-     * @return
-     */
-    private static String getSortColumn(availableColumns, sortColumn) {
-        if (!sortColumn) {
-            return "id"
-        }
-
-        if (!availableColumns.contains(sortColumn)) {
-            return "id"
-        }
-
-        return sortColumn
-    }
-
-    /**
-     * Perform some sense checking on our input parameters.
-     *
-     * @param sortOrder
-     * @return
-     */
-    private static String getSortOrder(sortOrder) {
-        if (!sortOrder) {
-            return "asc"
-        }
-
-        if (!sortOrder.equals("asc") && !sortOrder.equals("desc")) {
-            return "asc"
-        }
-
-        return sortOrder
     }
 }
