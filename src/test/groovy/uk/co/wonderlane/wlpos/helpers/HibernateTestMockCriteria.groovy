@@ -413,6 +413,18 @@ class HibernateTestMockCriteria implements BuildableCriteria {
         return responses
     }
 
+    Object product(@DelegatesTo(Criteria.class) Closure closure) {
+        closure.setDelegate(this)
+        closure.call()
+        return responses
+    }
+
+    Object variants(@DelegatesTo(Criteria.class) Closure closure) {
+        closure.setDelegate(this)
+        closure.call()
+        return responses
+    }
+
     Object supplier(@DelegatesTo(Criteria.class) Closure closure) {
         closure.setDelegate(this)
         closure.call()
@@ -424,6 +436,4 @@ class HibernateTestMockCriteria implements BuildableCriteria {
         closure.call()
         return responses
     }
-
-
 }

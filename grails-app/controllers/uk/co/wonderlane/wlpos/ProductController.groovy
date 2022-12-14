@@ -368,7 +368,7 @@ class ProductController {
         render "OK"
     }
 
-    Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {
+    private Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {
         editedProduct.variants?.removeIf({ it == null })
         def product
         def builder
@@ -473,7 +473,7 @@ class ProductController {
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
                 def priceChanges = []
-                editedProduct?.priceChanges?.findAll { it != null }.each {
+                editedProduct?.priceChanges?.findAll { it != null }?.each {
                     priceChanges.addAll(it.priceChanges)
                 }
 
@@ -776,19 +776,19 @@ class ProductController {
         builder.compare("receiptDescription", product.receiptDescription, editedProduct.receiptDescription)
         builder.compare("unitSize", product.unitSize, editedProduct.unitSize)
         builder.compare("weightedItem", product.weightedItem, editedProduct.weightedItem)
-        builder.compare("pricePerKg", (!product.weightedItem && product.pricePerKg) ? false : product.pricePerKg , editedProduct.pricePerKg)
+        builder.compare("pricePerKg", (!product.weightedItem && product.pricePerKg) ? false : product.pricePerKg, editedProduct.pricePerKg)
         builder.compare("snappyProduct", product.snappyProduct, editedProduct.snappyProduct)
         builder.compare("deliItem", product.deliItem, editedProduct.deliItem)
         builder.compare("openPrice", product.openPrice, editedProduct.openPrice)
         builder.compare("zeroPrice", product.zeroPrice, editedProduct.zeroPrice)
-        builder.compare("vatPercentageOverride", product.vatPercentageOverride == null ? BigDecimal.ZERO.setScale(2) : product.vatPercentageOverride , editedProduct.vatPercentageOverride)
+        builder.compare("vatPercentageOverride", product.vatPercentageOverride == null ? BigDecimal.ZERO.setScale(2) : product.vatPercentageOverride, editedProduct.vatPercentageOverride)
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
         // Restrictions
-        builder.compare("minOpenPrice", product.restrictions.minOpenPrice == null ? product.restrictions.getDefaultMinOpenPrice() : product.restrictions.minOpenPrice , editedProduct.restrictions.minOpenPrice)
+        builder.compare("minOpenPrice", product.restrictions.minOpenPrice == null ? product.restrictions.getDefaultMinOpenPrice() : product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
         builder.compare("maxOpenPrice", product.restrictions.maxOpenPrice == null ? product.restrictions.getDefaultMaxOpenPrice() : product.restrictions.maxOpenPrice, editedProduct.restrictions.maxOpenPrice)
         builder.compare("buyerIdRequired", product.restrictions.buyerIdRequired, editedProduct.restrictions.buyerIdRequired)
         builder.compare("buyerIdForced", product.restrictions.buyerIdForced, editedProduct.restrictions.buyerIdForced)
@@ -1015,7 +1015,7 @@ class ProductController {
                 effectiveDate = session.effectiveDate[1]//replace effective date if it already has one
             }
             def productHistoryList = productHistoryService.getProductHistory(productId, effectiveDate)
-//load product history from db
+            //load product history from db
             productHistoryList = productHistoryList?.sort { it?.effectiveDate }
             productHistoryList = productHistoryList?.reverse() //convert into descending order
             //convert product list into product map by group by using effective date

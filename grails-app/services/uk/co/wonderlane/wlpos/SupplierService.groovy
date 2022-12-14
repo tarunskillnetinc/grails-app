@@ -8,11 +8,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
-import uk.co.wonderlane.wlpos.supplier.Pack
-import uk.co.wonderlane.wlpos.supplier.Supplier
-import uk.co.wonderlane.wlpos.supplier.SupplierPriceUpdate
-import uk.co.wonderlane.wlpos.supplier.SymbolGroup
-import uk.co.wonderlane.wlpos.supplier.SymbolGroupSubscription
+import uk.co.wonderlane.wlpos.supplier.*
 
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -79,8 +75,8 @@ class SupplierService extends MySqlDal {
         }
     }
 
-    def getSupplierPriceUpdates(DateTime sinceDate, int priceBandId, Integer supplierId, Integer categoryId, int offset, int max) {
-        def results = [results: [], totalCount:0]
+    def getSupplierPriceUpdates(DateTime sinceDate, Integer priceBandId, Integer supplierId, Integer categoryId, int offset, int max) {
+        def results = [results: [], totalCount: 0]
 
         Connection conn = getConnection()
         CallableStatement cstmt = conn.prepareCall("{ call getSupplierPriceUpdates(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -96,7 +92,12 @@ class SupplierService extends MySqlDal {
 
             cstmt.setString(3, sinceDate.toString(DATE_TIME_FORMAT))
 
-            cstmt.setInt(4, priceBandId)
+            if (priceBandId != null) {
+                cstmt.setInt(4, priceBandId)
+            } else {
+                cstmt.setNull(4, Types.INTEGER)
+            }
+
 
             if (supplierId != null) {
                 cstmt.setInt(5, supplierId)
@@ -127,8 +128,8 @@ class SupplierService extends MySqlDal {
                     result.effectiveDate = DateTime.parse(rs.getString("effectiveDate"), dateFormatter)
                     result.priceMarked = rs.getBoolean("priceMarked")
                     result.oldPackPrice = rs.getBigDecimal("oldPackPrice")
-                    result.newPackPrice = rs. getBigDecimal("newPackPrice")
-                    result.retailPrice = rs. getBigDecimal("retailPrice")
+                    result.newPackPrice = rs.getBigDecimal("newPackPrice")
+                    result.retailPrice = rs.getBigDecimal("retailPrice")
                     result.recommendedRetailPrice = rs.getBigDecimal("recommendedRetailPrice")
                     result.productId = rs.getBigDecimal("productId")
 
@@ -241,32 +242,34 @@ class SupplierService extends MySqlDal {
     def getSuppliers(String searchTerm, String searchBy, int offset, int max, String sortColumn, String sortOrder) {
         String defaultSearchColumn = "name";
         Integer storeId
-        if (searchBy != null){ //This can customize for any search field if added in future
-            if (searchBy.equals("Name")){
+        if (searchBy != null) { //This can customize for any search field if added in future
+            if (searchBy.equals("Name")) {
                 defaultSearchColumn = "name";
             }
         }
-        if (springSecurityService.principal.storeId) {storeId = springSecurityService.principal.storeId} //load store id if it exists
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } //load store id if it exists
         //Load supplier by db
-        def result = Supplier.createCriteria().list([offset: offset, max: max, sort : sortColumn, order : sortOrder]) {
+        def result = Supplier.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
             eq("retailerId", springSecurityService.principal.retailerId)
-            if (storeId != null){
+            if (storeId != null) {
                 //If store id exists then load all suppliers corresponding to store id and all suppliers who do not have supplier id
                 or {
                     isNull("storeId")
                     eq("storeId", storeId)
                 }
-            } else{
+            } else {
                 //If store id does not exists then load only suppliers who do not have supplier id
                 isNull("storeId")
             }
             or {
-                like (defaultSearchColumn, "%$searchTerm%")
+                like(defaultSearchColumn, "%$searchTerm%")
             }
         }
         def results = [:]
         results.suppliers = result //Add to supplier
-        results.totalCount = result?.totalCount >=0 ? result.totalCount : 0 //Add to total count
+        results.totalCount = result?.totalCount >= 0 ? result.totalCount : 0 //Add to total count
         return results
     }
 }
