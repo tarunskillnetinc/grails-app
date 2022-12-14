@@ -30,7 +30,7 @@ class OrderController {
             productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
 
             if (productList != null && productList.getSupplierId() != null){ //If user already have product list then return it
-                supplier = supplierService.getSupplier(Integer.parseInt(productList.getSupplierId())) //Load supplier
+                supplier = supplierService.getSupplier(Integer.parseInt(productList.getSupplierId() as String)) //Load supplier
             } else {
 
                 if (!params.supplierId || !params.supplierId.isNumber() || params.supplierId.length() > 8) {

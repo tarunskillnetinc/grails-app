@@ -719,7 +719,7 @@ class OrderService extends MySqlDal  {
             productList.setEndDate(null);
         }
 
-        productList.setSupplierId(rs.getString("supplierId"));
+        productList.setSupplierId(rs.getString("supplierId") as Integer);
         if (rs.wasNull()) {
             productList.setSupplierId(null);
         }
