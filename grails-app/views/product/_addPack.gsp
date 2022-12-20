@@ -5,7 +5,7 @@
     <div class="col-2 my-auto">${pack?.quantity}</div>
     <div class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
     <div class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
-    <div class="col-2 my-auto">${pack?.barcode}</div>
+    <div class="col-2 my-auto text-truncate">${pack?.barcode}</div>
     <div class="col-1 my-auto">
         <g:if test="${pack?.supplier?.symbolGroupId > 0}">
             <button class="btn btn-wl disabled" title="You cannot edit packs from this supplier." disabled>Edit</button>
