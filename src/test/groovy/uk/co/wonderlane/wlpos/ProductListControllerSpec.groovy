@@ -3,9 +3,11 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.gorm.DataTest
 import grails.testing.web.controllers.ControllerUnitTest
+import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
+import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
@@ -275,7 +277,7 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
 
         where:
         ID | productVariant
-        1  | new ProductVariant()
+        1  | getProductVariant()
         2  | null
     }
 
@@ -309,5 +311,16 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
                 }
             }
         }
+    }
+
+    ProductVariant getProductVariant(){
+        ProductVariant productVariant = new ProductVariant(productId : 1)
+        productVariant.effectiveDate = new DateTime()
+        Product product = new Product();
+        product.vatCode = new VatCode();
+        product.status = ProductStatus.ACTIVE
+        product.category = new Category()
+        productVariant.product = product
+        return productVariant;
     }
 }

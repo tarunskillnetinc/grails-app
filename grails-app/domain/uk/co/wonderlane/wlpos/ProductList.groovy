@@ -27,11 +27,13 @@ class ProductList {
     String supplierReference
     boolean stockAdjustedOnCompletion
     Integer destinationStoreId
-    List<ProductListItem> productListItems = new ArrayList<>()
+    //List<ProductListItem> productListItems = new ArrayList<>()
+    Collection<ProductListItem> productListItems = new ArrayList<>()
 
     static hasMany = [ productListItems: ProductListItem ]
 
-    static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost', 'productListItems' ]
+    static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost']
+    //static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost', 'productListItems' ]
 
     static mapping = {
         table "productlist"

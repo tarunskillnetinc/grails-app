@@ -67,7 +67,13 @@ class ProductListController {
                     def productVariant = productService.getProductVariant(it)
 
                     if (productVariant) {
-                        productList.productListItems.add(new ProductListItem(productVariant: productVariant))
+                       //productList.productListItems.add(new ProductListItem(productVariant: productVariant))
+
+                        ProductListItem productListItem = new ProductListItem()
+                        productListItem.productVariant = productVariant
+                        productListItem.fillQuantity = 0
+                        productListItem.productList = productList
+                        productList.productListItems.add(productListItem)
                     }
                 }
             }
