@@ -104,9 +104,9 @@
 
                     //If check box count == total product price list show error message or else show different error message
                     if(checkedBoxes.length == totalProductListCount){
-                        $("#confirmModalContent").html("You will update all prices of the list without exception's");
+                        $("#confirmModalContent").html("This will update all prices of the list without exception's");
                     } else {
-                        $("#confirmModalContent").html("You will update selected prices of the list without exception's");
+                        $("#confirmModalContent").html("This will update selected prices of the list without exception's");
                     }
 
                 } else if (checkedBoxes.length == 0 && acceptRrps) {
@@ -119,7 +119,7 @@
                     $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for ALL products?");
                 } else if (checkedBoxes.length > 0 && !acceptRrps) {
                     $("#confirmModalHeader").html("Save Prices");
-                    $("#confirmModalContent").html("You will update the price only the selected items");
+                    $("#confirmModalContent").html("This will update the price only the selected items");
                 } else {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
