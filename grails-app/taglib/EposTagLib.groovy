@@ -285,6 +285,12 @@ class EposTagLib {
             case ProductHistoryType.PRICE:
                 out << """User ${productHistory?.usersName} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}."""
                 break
+            case ProductHistoryType.PRODUCT_RANGE_ADD:
+                out << """User ${productHistory?.usersName} added product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}."""
+                break
+            case ProductHistoryType.PRODUCT_RANGE_DELETE:
+                out << """User ${productHistory?.usersName} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}."""
+                break
             default:
                 out << """User ${productHistory?.usersName} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 

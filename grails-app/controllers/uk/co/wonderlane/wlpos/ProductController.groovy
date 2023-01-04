@@ -330,7 +330,7 @@ class ProductController {
 
         def newlyRangedProducts = []
         def noLongerRangedProducts = []
-
+        def productHistories = []
         def rangedProductsMap = [:]
 
         cmd.rangeProducts?.each { rangeProduct ->
@@ -346,13 +346,18 @@ class ProductController {
                 }
 
                 rangedProductsMap[rangeProduct.rangeId].add(rangeProduct)
+                productHistories.add(handleProductRangeHistory(existingRangeProduct, true))
             } else if (!rangeProduct.isRanged() && existingRangeProduct) {
                 noLongerRangedProducts.add(existingRangeProduct)
+                productHistories.add(handleProductRangeHistory(existingRangeProduct, false))
             }
         }
 
         productService.saveRangeProducts(newlyRangedProducts)
         productService.deleteRangeProducts(noLongerRangedProducts)
+        if (productHistories != null && productHistories.size() > 0){
+            productService.saveProductHistories(productHistories)
+        }
 
         // Send down those products for addition to the relevant stores for each range. Do not delete any products as stores may need to sell through stock etc.
         rangedProductsMap.each { rangeId, rangeProductChanges ->
@@ -816,9 +821,19 @@ class ProductController {
                 doVariantComparison(builder, variant.id, new ProductVariant(), variant)
             })
         })
+
+        product?.variants?.each {existingVariants ->
+            def editedVariant = editedProduct?.find {editedVariant -> editedVariant.id == existingVariants.id}
+            if (!editedVariant){
+                // Variant deleted
+                doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand())
+            }
+        }
     }
 
     private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant) {
+
+        //---------------------------- Update history for variant fields --------------------------------//
         builder.compare(id, "sku", oldVariant.sku, variant.sku)
         builder.compare(id, "retailPrice", oldVariant.retailPrice, variant.retailPrice)
         builder.compare(id, "costPrice", oldVariant.costPrice, variant.costPrice)
@@ -827,6 +842,8 @@ class ProductController {
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
         builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
+
+        //---------------------------- Update history for barcode fields --------------------------------//
 
         // loop over edited variant barcodes to find out if barcode been edited or newly added
         variant?.barcodez?.each { editedBarcode ->
@@ -846,6 +863,40 @@ class ProductController {
                 builder.compare("barcode", existingBarcode.barcode, null)
             }
         }
+
+        //---------------------------- Update history for pack fields --------------------------------//
+
+        variant?.packs?.each { editedPack ->
+            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack.id == editedPack.id }
+            if (existingPack) { //Pack already existed
+                comparePackFields(builder, existingPack, editedPack)
+            } else { //Pack newly added
+                comparePackFields(builder, new Pack(), editedPack)
+            }
+        }
+
+        // Remove any packs which no longer exist.
+        oldVariant?.packs?.each { existingPack ->
+            // If the ID is not set then this must be a new pack added as part of this save
+            if (existingPack.id > 0) {
+                def editedPack = variant?.packs?.find { editedPack -> editedPack.id == existingPack.id }
+                if (!editedPack) { //Pack is removed
+                    comparePackFields(builder, existingPack, new PackCommand())
+                }
+            }
+        }
+
+    }
+
+    def comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
+        builder.compare("packSupplier", oldPack.supplier, pack.supplier)
+        builder.compare("packQuantity", oldPack.quantity, pack.quantity)
+        builder.compare("packPrice", oldPack.price, pack.price)
+        builder.compare("packOrderCode", oldPack.orderCode, pack.orderCode)
+        builder.compare("packBarcode", oldPack.barcode, pack.barcode)
+        builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
+        builder.compare("packStatus", oldPack.status, pack.status)
+        builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
     }
 
     private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
@@ -880,7 +931,8 @@ class ProductController {
                             productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: effectiveDate)
                         }
 
-                        ProductHistory productHistory = new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: effectiveDate, updateDate: now)
+                        ProductHistory productHistory =
+                                new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: effectiveDate, updateDate: now)
 
                         changedProductPrices.add(productPrice)
                         productHistories.add(productHistory)
@@ -911,6 +963,7 @@ class ProductController {
     private void saveRangeUpdates(Product product, int[] savedRanges) {
         def rangesRemovedFrom = []
         def rangesAddedTo = []
+        def productHistories = []
 
         def rangeProducts = RangeProduct.findAllByProductId(product.id)
         rangeProducts.each { RangeProduct rangeProduct ->
@@ -926,17 +979,38 @@ class ProductController {
         }
 
         rangesRemovedFrom.each { Integer rangeId ->
-            productService.deleteRangeProduct(rangeProducts.find { it.rangeId == rangeId })
+            RangeProduct rangeProductDelete = rangeProducts.find { it.rangeId == rangeId }
+            productHistories.add(handleProductRangeHistory(rangeProductDelete, false))
+            productService.deleteRangeProduct(rangeProductDelete)
         }
 
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
         rangesAddedTo.each { Integer rangeId ->
             RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
-
+            productHistories.add(handleProductRangeHistory(rangeProduct, true))
             productService.saveRangeProduct(rangeProduct)
-
             productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
+
+        if (productHistories != null && productHistories.size() > 0){
+            productService.saveProductHistories(productHistories)
+        }
+
+    }
+
+    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
+        def now = DateTime.now(DateTimeZone.UTC)
+        ProductHistoryType productHistoryType = isNew ? ProductHistoryType.PRODUCT_RANGE_ADD : ProductHistoryType.PRODUCT_RANGE_DELETE
+
+        ProductHistory productHistory =
+                new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: rangeProduct.getProductId(),
+                        fromValue: null, toValue: rangeProduct.getRange()!= null ? rangeProduct.getRange().getDescription() : -1,
+                        productHistoryType: productHistoryType,
+                        storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName,
+                        effectiveDate: effectiveDate, updateDate: now)
+
+        return productHistory
+
     }
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {

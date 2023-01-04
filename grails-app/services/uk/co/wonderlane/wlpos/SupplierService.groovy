@@ -158,7 +158,7 @@ class SupplierService extends MySqlDal {
 
         Connection conn = getConnection()
         CallableStatement supplierPriceUpdateStmt = conn.prepareCall("{ call saveSupplierPriceUpdate(?, ?, ?, ?, ?, ?, ?) }")
-        CallableStatement saveProductHistoryStmt = conn.prepareCall("{ call saveProductHistoryItem(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+        CallableStatement saveProductHistoryStmt = conn.prepareCall("{ call saveProductHistoryItem(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         def savedSkus = []
 
@@ -216,6 +216,7 @@ class SupplierService extends MySqlDal {
 
                 supplierPriceUpdateStmt.setString(7, now.toString(DATE_TIME_FORMAT))
                 saveProductHistoryStmt.setDate(3, new java.sql.Date(now.toDateTime().getMillis()))
+                saveProductHistoryStmt.setInt(12, springSecurityService.principal.retailerId)
 
                 supplierPriceUpdateStmt.addBatch()
                 saveProductHistoryStmt.addBatch()

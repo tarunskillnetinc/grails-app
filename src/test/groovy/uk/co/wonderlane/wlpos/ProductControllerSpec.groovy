@@ -713,11 +713,15 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
 
         SaveRangeProductsCommand command = new SaveRangeProductsCommand(rangeProducts: sendUpdates ? updates : null)
 
-        Range testRange = new Range(retailerId: 9, description: "Test")
-        testRange.setId(120)
-        testRange.save(flush: true, failOnError: true)
+        Range testRange1 = new Range(retailerId: 9, description: "Test")
+        testRange1.setId(120)
+        testRange1.save(flush: true, failOnError: true)
 
-        RangeProduct testRangeProduct = new RangeProduct(productId: 100, range: testRange)
+        Range testRange2 = new Range(retailerId: 9, description: "Test")
+        testRange2.setId(220)
+        testRange2.save(flush: true, failOnError: true)
+
+        RangeProduct testRangeProduct = new RangeProduct(productId: 100, range: testRange1)
         testRangeProduct.setId(120)
         testRangeProduct.save(flush: true, failOnError: true)
 
