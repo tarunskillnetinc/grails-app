@@ -119,7 +119,7 @@
                     $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for ALL products?");
                 } else if (checkedBoxes.length > 0 && !acceptRrps) {
                     $("#confirmModalHeader").html("Save Prices");
-                    $("#confirmModalContent").html("This will update the price only the selected items");
+                    $("#confirmModalContent").html("This will update the price on selected items only");
                 } else {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
