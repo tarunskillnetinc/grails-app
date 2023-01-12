@@ -104,7 +104,7 @@
 
                     //If check box count == total product price list show error message or else show different error message
                     if(checkedBoxes.length === totalProductListCount){
-                        $("#confirmModalContent").html("This will update all prices of the list without exceptions");
+                        $("#confirmModalContent").html("This will update all prices in the list without exceptions");
                     } else {
                         $("#confirmModalContent").html("This will update selected prices in the list without exceptions");
                     }
