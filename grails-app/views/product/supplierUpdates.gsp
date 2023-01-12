@@ -103,13 +103,13 @@
                     $("#confirmModalHeader").html("Accept RRPs");
 
                     //If check box count == total product price list show error message or else show different error message
-                    if(checkedBoxes.length == totalProductListCount){
-                        $("#confirmModalContent").html("This will update all prices of the list without exception's");
+                    if(checkedBoxes.length === totalProductListCount){
+                        $("#confirmModalContent").html("This will update all prices of the list without exceptions");
                     } else {
-                        $("#confirmModalContent").html("This will update selected prices of the list without exception's");
+                        $("#confirmModalContent").html("This will update selected prices in the list without exceptions");
                     }
 
-                } else if (checkedBoxes.length == 0 && acceptRrps) {
+                } else if (checkedBoxes.length === 0 && acceptRrps) {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
                         return;
