@@ -100,6 +100,7 @@
                                     <g:link controller="buttonGrid" action="show" params="[type: 'SALES']" class="dropdown-item">Sales</g:link>
                                     <g:link controller="buttonGrid" action="show" params="[type: 'QUICK_SELL']" class="dropdown-item">Quicksell</g:link>
                                     <g:link controller="buttonGrid" action="show" params="[type: 'TENDER']" class="dropdown-item">Tender</g:link>
+                                    <g:link controller="buttonGrid" action="show" params="[type: 'SCO_QUICK_SELL']" class="dropdown-item">Self Checkout</g:link>
                                     <g:link controller="buttonGrid" action="show" params="[type: 'MANAGER_FUNCTIONS']" class="dropdown-item">Manager Functions</g:link>
 
                                     <div class="dropdown-divider"></div>
