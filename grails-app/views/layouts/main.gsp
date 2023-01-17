@@ -95,12 +95,14 @@
 
                             <div class="dropdown-submenu">
                                 <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="buttonGridsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Button Grids</a>
-
+                                <g:set var="service" value="service" bean="springSecurityService" />
                                 <div class="dropdown-menu" aria-labelledby="buttonGridsDropdown">
                                     <g:link controller="buttonGrid" action="show" params="[type: 'SALES']" class="dropdown-item">Sales</g:link>
                                     <g:link controller="buttonGrid" action="show" params="[type: 'QUICK_SELL']" class="dropdown-item">Quicksell</g:link>
                                     <g:link controller="buttonGrid" action="show" params="[type: 'TENDER']" class="dropdown-item">Tender</g:link>
-                                    <g:link controller="buttonGrid" action="show" params="[type: 'SCO_QUICK_SELL']" class="dropdown-item">Self Checkout</g:link>
+                                    <g:if test="${service.principal.retailer.scoEnabled}">
+                                        <g:link controller="buttonGrid" action="show" params="[type: 'SCO_QUICK_SELL']" class="dropdown-item">Self Checkout</g:link>
+                                    </g:if>
                                     <g:link controller="buttonGrid" action="show" params="[type: 'MANAGER_FUNCTIONS']" class="dropdown-item">Manager Functions</g:link>
 
                                     <div class="dropdown-divider"></div>
