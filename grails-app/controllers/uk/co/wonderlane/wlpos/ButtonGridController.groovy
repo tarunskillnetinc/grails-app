@@ -1,11 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+import org.apache.commons.lang3.EnumUtils
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 
 class ButtonGridController {
 
     def springSecurityService
     def buttonService
+    def buttonGridService
 
     def index() {
 
@@ -24,14 +26,16 @@ class ButtonGridController {
             }
         } else {
             ButtonGridType type = null
-            try {
-                type = ButtonGridType.valueOf(params.type)
-            } catch (Exception e) {
+            if (!EnumUtils.isValidEnum(ButtonGridType.class, params.type)) {
+                flash.error = "Button grid not found. "
                 redirect(action: "index")
                 return
             }
-
+            type = ButtonGridType.valueOf(params.type)
             buttonGrid = buttonService.getButtonGrid(type)
+            if (!buttonGrid) {
+                buttonGrid = newButtonGrid(ButtonGridType.valueOf(params.type))
+            }
         }
 
         [buttonGrid: buttonGrid]
@@ -101,5 +105,33 @@ class ButtonGridController {
         } else {
             render(view: "add", model: [buttonGrid: buttonGrid])
         }
+    }
+
+    def newButtonGrid(ButtonGridType type) {
+        switch (type) {
+            case 'SALES':
+                buttonGridService.newButtonGrid(type,1,4,null)
+                break
+            case 'TENDER':
+                buttonGridService.newButtonGrid(type,3,4,null)
+                break
+            case 'QUICK_SELL':
+                buttonGridService.newButtonGrid(type,3,3,null)
+                break
+            case 'SCO_QUICK_SELL':
+                buttonGridService.newButtonGrid(type,4,4,null)
+                break
+            case 'MANAGER_FUNCTIONS':
+                buttonGridService.newButtonGrid(type,4,2,null)
+                break
+            case 'OTHER':
+                buttonGridService.newButtonGrid(type,4,4,null)
+                break
+        }
+
+        flash.message = "New button grid created"
+        ButtonGrid btnGrid = buttonService.getButtonGrid(type)
+
+        return btnGrid
     }
 }

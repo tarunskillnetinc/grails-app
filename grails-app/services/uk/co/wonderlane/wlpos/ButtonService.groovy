@@ -26,9 +26,7 @@ class ButtonService {
     }
 
     def getButtonGrid(ButtonGridType type) {
-        def buttonGridCriteria = ButtonGrid.createCriteria()
-
-        def buttonGrids = buttonGridCriteria.list() {
+        def buttonGrids = ButtonGrid.withCriteria {
             eq ("type", type)
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
@@ -88,4 +86,6 @@ class ButtonService {
                 ProcessType.NAVIGATE_X_READ,
                 ProcessType.NAVIGATE_Z_READ]
     }
+
+
 }
