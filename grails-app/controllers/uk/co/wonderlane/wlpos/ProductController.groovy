@@ -1083,18 +1083,41 @@ class ProductController {
     //This will render product history for selected product
     def ajaxGetProductHistory(int productId) {
         def productHistoryMap = [:]
-        if (productId > 0) { //if product id does not exists there can not be any history to return
-            def effectiveDate = DateTime.now(DateTimeZone.UTC)//take default effective date as current date
+        if (productId > 0) { // If product id does not exists there can not be any history to return
+            def effectiveDate = DateTime.now(DateTimeZone.UTC) // Take default effective date as current date
             if (session != null && session.effectiveDate != null && session.effectiveDate[1] != null) {
                 effectiveDate = session.effectiveDate[1]//replace effective date if it already has one
             }
+
             def productHistoryList = productHistoryService.getProductHistory(productId, effectiveDate)
-            //load product history from db
-            productHistoryList = productHistoryList?.sort { it?.effectiveDate }
-            productHistoryList = productHistoryList?.reverse() //convert into descending order
+            // Load product history from db
+            productHistoryList = productHistoryList?.sort {
+                it?.effectiveDate
+            }
+
+            productHistoryList = productHistoryList?.reverse() // Convert into descending order
+
+            String nullString = "null"
+            productHistoryList?.each { item ->
+                if (item?.fromValue == null || item?.fromValue == nullString) {
+                    item?.fromValue = "unset"
+                } else if (item?.productHistoryType?.equals(ProductHistoryType.PRICE)) {
+                    item?.fromValue = String.format("£%s", item?.fromValue)
+                }
+
+                if (item?.toValue == null || item?.toValue == nullString) {
+                    item?.toValue = "unset"
+                } else if (item?.productHistoryType?.equals(ProductHistoryType.PRICE)) {
+                    item?.toValue = String.format("£%s", item?.toValue)
+                }
+            }
+
             //convert product list into product map by group by using effective date
-            productHistoryMap = productHistoryList?.groupBy { it?.effectiveDate?.toDate()?.format('dd/MM/yyyy') }
+            productHistoryMap = productHistoryList?.groupBy {
+                it?.effectiveDate?.toDate()?.format('dd/MM/yyyy')
+            }
         }
+
         render(view: "/product/_productHistory", model: [productHistoryMap: productHistoryMap])
     }
 
