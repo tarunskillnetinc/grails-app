@@ -215,7 +215,7 @@ class SupplierService extends MySqlDal {
                 }
 
                 supplierPriceUpdateStmt.setString(7, now.toString(DATE_TIME_FORMAT))
-                saveProductHistoryStmt.setDate(3, new java.sql.Date(now.toDateTime().getMillis()))
+                saveProductHistoryStmt.setString(3, now.toString(DATE_TIME_FORMAT))
                 saveProductHistoryStmt.setInt(12, springSecurityService.principal.retailerId)
 
                 supplierPriceUpdateStmt.addBatch()
