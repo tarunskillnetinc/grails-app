@@ -141,4 +141,5 @@ beans = {
     }
 
     gsonProvider(GsonProvider)
+
 }
