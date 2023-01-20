@@ -11,7 +11,6 @@ import uk.co.wonderlane.wlpos.OrderService
 import uk.co.wonderlane.wlpos.NisaService
 import uk.co.wonderlane.wlpos.ShiftService
 import uk.co.wonderlane.wlpos.SnapshotService
-import uk.co.wonderlane.wlpos.ButtonGridService
 import uk.co.wonderlane.wlpos.GroupService
 import uk.co.wonderlane.wlpos.BackOfficeRabbitService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
@@ -138,15 +137,6 @@ beans = {
     }
 
     groupService(GroupService) {
-        springSecurityService = ref('springSecurityService')
-    }
-
-    buttonGridService(ButtonGridService,
-            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
-                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
-                    grailsApplication.config.getProperty('mysql.wlpos.username'),
-                    grailsApplication.config.getProperty('mysql.wlpos.password'),
-                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
     }
 

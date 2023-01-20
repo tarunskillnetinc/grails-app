@@ -7,7 +7,6 @@ class ButtonGridController {
 
     def springSecurityService
     def buttonService
-    def buttonGridService
 
     def index() {
 
@@ -39,7 +38,46 @@ class ButtonGridController {
             }
             buttonGrid = buttonService.getButtonGrid(type)
             if (!buttonGrid) {
-                buttonGrid = newButtonGrid(ButtonGridType.valueOf(params.type))
+                ButtonGrid btnGridTemp = new ButtonGrid()
+                btnGridTemp.setRetailerId(springSecurityService.principal.retailerId)
+                btnGridTemp.setStoreId(springSecurityService.principal.storeId)
+                btnGridTemp.setType(type)
+                btnGridTemp.setDescription(null)
+                btnGridTemp.setButtons(null)
+                switch (type) {
+                    case 'SALES':
+                        btnGridTemp.setRows(1)
+                        btnGridTemp.setColumns(4)
+                        break
+                    case 'TENDER':
+                        btnGridTemp.setRows(3)
+                        btnGridTemp.setColumns(4)
+                        break
+                    case 'QUICK_SELL':
+                        btnGridTemp.setRows(3)
+                        btnGridTemp.setColumns(3)
+                        break
+                    case 'SCO_QUICK_SELL':
+                        btnGridTemp.setRows(4)
+                        btnGridTemp.setColumns(4)
+                        break
+                    case 'MANAGER_FUNCTIONS':
+                        btnGridTemp.setRows(4)
+                        btnGridTemp.setColumns(2)
+                        break
+                    case 'OTHER':
+                        btnGridTemp.setRows(4)
+                        btnGridTemp.setColumns(4)
+                        break
+                }
+                if (btnGridTemp.validate()) {
+                    buttonService.saveButtonGrid(btnGridTemp)
+                } else {
+                    flash.error = "Button grid not found."
+                    redirect(action: "index")
+                    return
+                }
+                buttonGrid = buttonService.getButtonGrid(type)
             }
         }
 
@@ -110,33 +148,5 @@ class ButtonGridController {
         } else {
             render(view: "add", model: [buttonGrid: buttonGrid])
         }
-    }
-
-    def newButtonGrid(ButtonGridType type) {
-        switch (type) {
-            case 'SALES':
-                buttonGridService.newButtonGrid(type,1,4,null)
-                break
-            case 'TENDER':
-                buttonGridService.newButtonGrid(type,3,4,null)
-                break
-            case 'QUICK_SELL':
-                buttonGridService.newButtonGrid(type,3,3,null)
-                break
-            case 'SCO_QUICK_SELL':
-                buttonGridService.newButtonGrid(type,4,4,null)
-                break
-            case 'MANAGER_FUNCTIONS':
-                buttonGridService.newButtonGrid(type,4,2,null)
-                break
-            case 'OTHER':
-                buttonGridService.newButtonGrid(type,4,4,null)
-                break
-        }
-
-        flash.message = "New button grid created"
-        ButtonGrid btnGrid = buttonService.getButtonGrid(type)
-
-        return btnGrid
     }
 }
