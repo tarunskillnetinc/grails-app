@@ -58,8 +58,8 @@ class ButtonGridController {
                         btnGridTemp.setColumns(3)
                         break
                     case 'SCO_QUICK_SELL':
-                        btnGridTemp.setRows(4)
-                        btnGridTemp.setColumns(4)
+                        btnGridTemp.setRows(3)
+                        btnGridTemp.setColumns(3)
                         break
                     case 'MANAGER_FUNCTIONS':
                         btnGridTemp.setRows(4)
