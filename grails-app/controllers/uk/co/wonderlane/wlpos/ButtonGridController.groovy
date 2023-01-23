@@ -84,6 +84,10 @@ class ButtonGridController {
         [buttonGrid: buttonGrid]
     }
 
+    def add() {
+
+    }
+
     def edit(int id) {
         def buttonGrid = buttonService.getButtonGrid(id)
 
