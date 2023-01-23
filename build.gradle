@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.9.1-SNAPSHOT"
+version "1.10-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"eclipse"
@@ -95,8 +95,8 @@ dependencies {
     runtime "org.apache.tomcat:tomcat-jdbc"
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:3.2.4"
     runtime 'org.codehaus.groovy:groovy-dateutil'
-    implementation 'mysql:mysql-connector-java:8.0.25'
-    implementation 'uk.co.wonderlane.wlpos:Common:1.9-SNAPSHOT'
+    implementation 'mysql:mysql-connector-java:8.0.31'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.10-SNAPSHOT'
     implementation 'joda-time:joda-time:2.10.1'
     implementation group: 'org.jadira.usertype', name: 'usertype.core', version: '6.0.1.GA' // Mappings for Joda time to Hibernate.
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
