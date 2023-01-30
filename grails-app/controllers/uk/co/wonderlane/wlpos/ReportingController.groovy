@@ -1570,7 +1570,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(item?.productVariant?.product?.description)
             stringBuilder.append(",")
-            stringBuilder.append(item?.fillQuantity)
+            stringBuilder.append(item?.quantity)
             stringBuilder.append(",")
             stringBuilder.append("£" + item.totalCost)
             stringBuilder.append("\n")
