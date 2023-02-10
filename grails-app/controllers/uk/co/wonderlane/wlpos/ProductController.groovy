@@ -834,9 +834,15 @@ class ProductController {
     private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant) {
 
         //---------------------------- Update history for variant fields --------------------------------//
-        builder.compare(id, "sku", oldVariant.sku, variant.sku)
-        builder.compare(id, "retailPrice", oldVariant.retailPrice, variant.retailPrice)
-        builder.compare(id, "costPrice", oldVariant.costPrice, variant.costPrice)
+        if (variant.sku != 0) {
+            builder.compare(id, "sku", oldVariant.sku, variant.sku)
+        }
+
+        // Only compare retail price if there wasn't one before or there was and it's changed - it should not be possible to unset retail price
+        if ((oldVariant.retailPrice == null && variant.retailPrice != null) || (oldVariant.retailPrice != null && variant.retailPrice != null)) {
+            builder.compare(id, "retailPrice", oldVariant.retailPrice ?: BigDecimal.ZERO, variant.retailPrice ?: BigDecimal.ZERO)
+        }
+        builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
         builder.compare(id, "size", oldVariant.size, variant.size)
         builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
@@ -847,6 +853,10 @@ class ProductController {
 
         // loop over edited variant barcodes to find out if barcode been edited or newly added
         variant?.barcodez?.each { editedBarcode ->
+            // Can't set barcode to null so this shouldn't appear in change history (means something else has changed)
+            if(editedBarcode == null || editedBarcode.barcode == null) {
+                return
+            }
             def existingBarcode = oldVariant?.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
 
             if (existingBarcode) { //if barcode already existed
@@ -859,6 +869,10 @@ class ProductController {
         // loop over existing variant barcodes to find out if barcode been deleted
         oldVariant?.barcodes?.each { existingBarcode ->
             def editedBarcode = variant?.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+            // Can't set barcode to null so this shouldn't appear in change history (means something else has changed)
+            if(editedBarcode == null || editedBarcode.barcode == null) {
+                return
+            }
             if (!editedBarcode) { //if edited barcode not exists means old barcode has been deleted
                 builder.compare("barcode", existingBarcode.barcode, null)
             }
