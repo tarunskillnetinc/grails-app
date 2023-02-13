@@ -163,11 +163,11 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
             getPrincipal() >>new HashMap(){{
                 put("id", 9);
                 put("retailerId", 9);
-                put("storeId", 234);
+                put("storeId", null);
                 put("storeNumber", 100)}}
         }
 
-        ButtonGrid buttonGrid = new ButtonGrid(retailerId : 9 , storeId : 234, type : 'SALES', rows : 4, columns : 4)
+        ButtonGrid buttonGrid = new ButtonGrid(retailerId : 9 , storeId : null, type : 'SALES', rows : 4, columns : 4)
         buttonGrid.setId(100)
 
         mockDomain(ButtonGrid, [buttonGrid])
@@ -178,11 +178,38 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         then: 'The button grid model load successfully'
         assert buttonGridReturned
         assert buttonGridReturned.retailerId == 9
-        assert buttonGridReturned.storeId == 234
+        assert buttonGridReturned.storeId == null
         assert buttonGridReturned.type == ButtonGridType.SALES
         assert buttonGridReturned.rows == 4
         assert buttonGridReturned.columns == 4
 
+    }
+
+    def 'Test load button grid by type action and store id'() {
+        given:
+        service.springSecurityService = Stub(SpringSecurityService) {
+            getPrincipal() >>new HashMap(){{
+                put("id", 9);
+                put("retailerId", 9);
+                put("storeId", 234);
+                put("storeNumber", 100)}}
+        }
+
+        ButtonGrid buttonGrid = new ButtonGrid(retailerId : 9 , storeId : 234, type : 'SALES', rows : 4, columns : 4)
+        buttonGrid.setId(100)
+
+        mockDomain(ButtonGrid, [buttonGrid])
+
+        when: 'The load button grid by type action is executed'
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, 234)
+
+        then: 'The button grid model load successfully'
+        assert buttonGridReturned
+        assert buttonGridReturned.retailerId == 9
+        assert buttonGridReturned.storeId == 234
+        assert buttonGridReturned.type == ButtonGridType.SALES
+        assert buttonGridReturned.rows == 4
+        assert buttonGridReturned.columns == 4
     }
 
     def 'Test load button grid by type action for non existing object'() {
