@@ -54,21 +54,21 @@ class ProductListController {
         def productListsToBeSaved = new ArrayList()
 
         for (int storeId : cmd.storeIdList) {
+            def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeId)
+
             def productList = new ProductList()
 
             productList.properties = cmd.properties
 
             productList.userId = springSecurityService.principal.id
             productList.retailerId = springSecurityService.principal.retailerId
-            productList.storeId = storeId
+            productList.store = storeSettings
 
             if (cmd.productVariantId) {
                 cmd.productVariantId.each {
                     def productVariant = productService.getProductVariant(it)
 
                     if (productVariant) {
-                       //productList.productListItems.add(new ProductListItem(productVariant: productVariant))
-
                         ProductListItem productListItem = new ProductListItem()
                         productListItem.productVariant = productVariant
                         productListItem.fillQuantity = 0

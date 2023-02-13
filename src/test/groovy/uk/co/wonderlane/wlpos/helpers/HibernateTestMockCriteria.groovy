@@ -436,4 +436,10 @@ class HibernateTestMockCriteria implements BuildableCriteria {
         closure.call()
         return responses
     }
+
+    Object store(@DelegatesTo(Criteria.class) Closure closure) {
+        closure.setDelegate(this)
+        closure.call()
+        return responses
+    }
 }

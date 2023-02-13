@@ -805,10 +805,6 @@ class ReportingController {
 
         def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
 
-        orders.each { order ->
-            order.storeId = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, order.storeId).storeId
-        }
-
         if (params.csv != null && params.csv == "true") {
             def fileName = "Orders-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
@@ -1108,7 +1104,7 @@ class ReportingController {
         }
 
         // Head office or correct store level can accept this delivery.
-        if (springSecurityService.principal.storeId == null || (springSecurityService.principal.storeId == productList.store?.id)) {
+        if (springSecurityService.principal.storeId == null || (springSecurityService.principal.storeId == productList?.store?.id)) {
             productListService.acceptDelivery(productListId)
         }
 
@@ -1190,7 +1186,7 @@ class ReportingController {
             }
 
             int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity.multiply(BigDecimal.valueOf(it.pack.quantity)) } ?: 0
-            int totalSingles = productListItem.quantity - totalQuantityFromPacks
+            int totalSingles = (productListItem.quantity ?: productListItem.fillQuantity) - totalQuantityFromPacks
 
             if (totalSingles > 0) {
                 def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
@@ -1515,7 +1511,7 @@ class ReportingController {
         productListList?.each {
             stringBuilder.append(it.getOrderId())
             stringBuilder.append(",")
-            stringBuilder.append(it.getStoreId())
+            stringBuilder.append(it.store?.storeId)
             stringBuilder.append(",")
             stringBuilder.append(it.status)
             stringBuilder.append(",")
