@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import java.math.RoundingMode
-import java.nio.channels.ScatteringByteChannel
 
 class ProductListItem {
 
@@ -56,30 +55,27 @@ class ProductListItem {
     }
 
     def getTotalCost() {
+        int totalCost = 0
 
-        int totalCost = 0;
-
-        if (quantity != null){
+        if (quantity) {
             int totalSinglesCost = 0
             int totalPackQuantity = packLines?.sum {it -> getPackQuantity(it)} ?: 0
             int singlesQuantity = quantity - totalPackQuantity
 
-            //Get total pack cost
+            // Get total pack cost.
             int totalPackCost = packLines?.sum {
                 it?.quantity?.intValue().multiply(getCostPriceByVariant(it))
             } ?: 0
 
-            //Get total singles cost
+            // Get total singles cost.
             if (singlesQuantity > 0) {
                 totalSinglesCost = singlesQuantity.multiply(productVariant?.costPrice ?: 0)
             }
 
-            //If quantity is not null then estimated delivery cost = total pack cost + singles cost
+            // If quantity is not null then estimated delivery cost = total pack cost + singles cost.
             totalCost = totalPackCost + totalSinglesCost
-
-
         } else {
-            //If quantity is null then estimates delivery cost = fill quantity * product variant cost price
+            // If quantity is null then estimates delivery cost = fill quantity * product variant cost price.
             totalCost = fillQuantity.multiply(productVariant?.costPrice ?: 0)
         }
 

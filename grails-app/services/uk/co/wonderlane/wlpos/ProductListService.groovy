@@ -50,7 +50,10 @@ class ProductListService extends MySqlDal {
             }
 
             if (storeId != null) {
-                eq("storeId", storeId)
+                store {
+                    eq("id", storeId)
+                }
+
             }
 
             if (supplierId != null) {
@@ -67,48 +70,65 @@ class ProductListService extends MySqlDal {
             eq("type", ProductListType.DELIVERY)
 
             if (storeId != null) {
-                eq("storeId", storeId)
+                store {
+                    eq("id", storeId)
+                }
             }
 
             if (supplierId != null) {
                 eq("supplierId", String.valueOf(supplierId))
             }
 
-            between("startDate", startDate, endDate)
-        }
-    }
-
-    def getDelivery(Integer productListId, Integer storeId, Integer supplierId) {
-        return ProductList.createCriteria().get {
-            eq("id", productListId)
-
-            eq("retailerId", springSecurityService.principal.retailerId)
-            eq("type", ProductListType.DELIVERY)
-
-            if (storeId != null) {
-                eq("storeId", storeId)
-            }
-
-            if (supplierId != null) {
-                eq("supplierId", String.valueOf(supplierId))
+            or {
+                // TODO CORE-1449 will address whether we use this or dateCreated or expectedDate.
+                between("dateStarted", startDate, endDate)
+                isNull ("dateStarted")
             }
         }
     }
 
-    def acceptDelivery(Integer storeId, Integer productListId) {
-        Connection conn = getConnection();
-        CallableStatement stmt = conn.prepareCall("{ call acceptDeliveryProductList(?, ?) }")
+    def acceptDelivery(Integer productListId) {
+        ProductList productList = getProductList(productListId)
 
-        stmt.setInt(1, productListId)
-        stmt.setInt(2, storeId)
+        if (productList) {
+            productList.productListItems?.each { it.quantity = it.fillQuantity }
 
-        stmt.execute()
+
+            productList.status = productList.stockAdjustedOnCompletion ? ProductListStatus.COMPLETE : ProductListStatus.PARTIALLY_COMPLETE
+            productList.dateStarted = productList.dateStarted ?: DateTime.now(DateTimeZone.UTC)
+            productList.dateCompleted = DateTime.now(DateTimeZone.UTC)
+
+            Connection conn = getConnection()
+            CallableStatement cstmt = conn.prepareCall("{ call saveProductStock(?, ?, ?, ?, ?) }")
+
+            productList.productListItems?.each {
+                def productStock = it.productVariant?.getProductStock(productList.store?.id)
+
+                int quantityInStock = productStock?.quantityInStock ?: 0
+                int quantityOnOrder = productStock?.quantityOnOrder ?: 0
+                int quantityDelivered = productStock?.quantityDelivered ?: 0
+
+                cstmt.setInt(1, productList.store?.id)
+                cstmt.setLong(2, it.productVariant?.sku)
+                cstmt.setInt(3, productList.stockAdjustedOnCompletion ? quantityInStock + it.quantity : quantityInStock)
+                cstmt.setInt(4, quantityOnOrder - it.quantity)
+                cstmt.setInt(5, productList.stockAdjustedOnCompletion ? quantityDelivered + it.quantity : quantityDelivered)
+
+                cstmt.addBatch()
+            }
+
+            cstmt.executeBatch()
+
+            productList.save(deepValidate: false) // deepValidate = false so it won't go through and validate every ProductVariant in every ProductListLine etc.
+        }
     }
 
     def getAdHocBatches() {
         return ProductList.createCriteria().list([sort: "dateStarted", order: "DESC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
-            eq("storeId", springSecurityService.principal.storeId)
+            store {
+                eq("id", springSecurityService.principal.storeId)
+            }
             "in"("type", [ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK])
             eq("status", ProductListStatus.PARTIALLY_COMPLETE)
         }
@@ -206,7 +226,7 @@ class ProductListService extends MySqlDal {
     }
 
     def getProductList(int id) {
-        return ProductList.findByIdAndRetailerIdAndStoreId(id, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        return ProductList.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
     def getProductList(int id, int retailerId) {

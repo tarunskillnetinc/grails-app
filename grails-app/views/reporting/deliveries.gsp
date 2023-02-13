@@ -46,7 +46,7 @@
                 format: "dd/mm/yyyy",
                 weekStart: 1,
                 startDate: "${new Date().format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
+                endDate: "${(new Date() + 7).format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
                 todayBtn: "linked",
@@ -55,13 +55,13 @@
         });
 
         function resetForm() {
-            document.getElementById('startDate').value = "${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+            document.getElementById('startDate').value = "${startDate ? startDate.toString("dd/MM/yyyy") : (new Date() - 6).format("dd/MM/yyyy")}";
             $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
             $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById("endDate").value = "${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
             $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
-            $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setEndDate', "${(new Date() + 7).format("dd/MM/yyyy")}");
 
             document.getElementById('supplier').value = "${null}";
             document.getElementById('storeFilter').value = '';
@@ -78,7 +78,7 @@
     </div>
 
     <div class="row mt-4">
-        <div class="col-5">
+        <div class="col-lg-5 col-md-6">
             <div class="card bg-light border-wl">
                 <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse"
                      aria-expanded="false" aria-controls="filterCollapse">
@@ -121,6 +121,7 @@
                                 <g:select name="storeFilter" from="${stores}" optionValue="storeId"
                                           optionKey="id"
                                           noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                          value="${storeId}"
                                           class="form-control select-border"
                                           disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                             </div>
@@ -130,13 +131,13 @@
 
                             <div class="col-4">
                                 <g:select name="supplier" from="${suppliers}"
-                                          noSelection="['': 'All Suppliers']" value="${supplier}"
+                                          noSelection="['': 'All Suppliers']" value="${supplierId}"
                                           optionValue="name" optionKey="id" class="form-control select-border"/>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-4 offset-8 text-right">
+                            <div class="col-12 text-right">
                                 <button type="button" class="btn btn-danger text-right mr-2"
                                         onclick="resetForm();">Reset Filters</button>
                                 <button id="filter-submit-button" type="button" class="btn btn-wl text-right"
@@ -148,11 +149,11 @@
             </div>
         </div>
 
-        <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
+        <div class="col-lg-2 offset-lg-3 col-md-3 text-right" style="margin-top: 8px;">
             <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
         </div>
 
-        <div class="col-2">
+        <div class="col-lg-2 col-md-3">
             <div class="card bg-light border-wl">
                 <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse"
                      aria-expanded="false" aria-controls="columnsCollapse">
@@ -199,14 +200,14 @@
                             <g:checkBox name="columns" id="columnsSupplier" class="form-check-input"
                                         value="supplierName"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'supplierName' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsSupplier">Supplier</label>
+                            <label class="form-check-label" for="columnsSupplier">Supplier Name</label>
                         </div>
 
                         <div class="form-group form-check">
                             <g:checkBox name="columns" id="columnsNumberOfItems" class="form-check-input"
                                         value="numberOfItems"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'numberOfItems' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsNumberOfItems">Quantity</label>
+                            <label class="form-check-label" for="columnsNumberOfItems">Number of Products</label>
                         </div>
 
                         <div class="form-group form-check">
@@ -224,7 +225,7 @@
     </div>
 
     <div id="results-container" class="align-content-center">
-        <g:render template="deliveriesResults"/>
+        <g:render template="deliveriesResults" />
     </div>
 </section>
 </body>
