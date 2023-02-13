@@ -169,6 +169,21 @@ class EposTagLib {
                 out << """<li class="breadcrumb-item active" aria-current="page">Order</li>"""
 
                 break
+            case ReportType.DELIVERIES:
+                out << """<li class="breadcrumb-item active" aria-current="page">Deliveries Report</li>"""
+
+                break
+            case ReportType.DELIVERY:
+                out << """<li class="breadcrumb-item">${g.link(action:"deliveries", params:[storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
+                out << """<li class="breadcrumb-item active" aria-current="page">${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})</li>"""
+                break
+
+            case ReportType.DELIVERY_ITEM:
+                out << """<li class="breadcrumb-item">${g.link(action:"deliveries", params:[productListId: attrs.productListId, storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
+                out << """<li class="breadcrumb-item">${g.link(action:"delivery", params:[productListId: attrs.productListId, productListItemId: attrs.productListItemId, storeId: attrs.storeId, supplierId: attrs.supplierId, descriptionFilter: attrs.descriptionFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})" }}"""
+                out << """<li class="breadcrumb-item active" aria-current="page">${attrs.productDescription}</li>"""
+
+                break
             default:
                 out << ""
 

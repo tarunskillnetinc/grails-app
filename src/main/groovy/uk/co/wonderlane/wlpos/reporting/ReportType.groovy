@@ -17,5 +17,7 @@ enum ReportType {
     PAYPOINT_SALES,
     ORDERS,
     ORDER,
-    DELIVERY
+    DELIVERIES,
+    DELIVERY,
+    DELIVERY_ITEM
 }

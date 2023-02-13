@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
 
+import uk.co.wonderlane.wlpos.ProductStock
+
 class ProductVariant implements Serializable {
 
     def springSecurityService
@@ -193,6 +195,10 @@ class ProductVariant implements Serializable {
 //        productVariant.getTags().add(it.getTag())
 
         return productVariant
+    }
+
+    public ProductStock getProductStock(Integer storeId) {
+        return ProductStock.findBySkuAndStoreId(sku, storeId)
     }
 
     @Override

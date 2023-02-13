@@ -9,7 +9,7 @@ class ProductList {
     int id
     String userId
     int retailerId
-    Integer storeId
+    StoreSettings store
     ProductListType type
     ProductListStatus status
     Integer parentId
@@ -27,13 +27,12 @@ class ProductList {
     String supplierReference
     boolean stockAdjustedOnCompletion
     Integer destinationStoreId
-    //List<ProductListItem> productListItems = new ArrayList<>()
+
     Collection<ProductListItem> productListItems = new ArrayList<>()
 
     static hasMany = [ productListItems: ProductListItem ]
 
     static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost']
-    //static transients = [ 'totalQuantity', 'totalValue', 'totalPackLines', 'totalCost', 'productListItems' ]
 
     static mapping = {
         table "productlist"
@@ -41,7 +40,7 @@ class ProductList {
 
         userId column: "userId"
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "storeId", sqlType: "smallint"
+        store column: "storeId", sqlType: "smallint"
         type column: "`type`"
         status column: "`status`"
         parentId column: "parentId"
@@ -64,7 +63,7 @@ class ProductList {
     static constraints = {
         userId nullable: false, blank: false, maxSize: 45
         retailerId nullable: false
-        storeId nullable: true
+        store nullable: true
         type nullable: false
         status nullable: false
         parentId nullable: true
@@ -114,7 +113,7 @@ class ProductList {
     def getTotalQuantity() {
         return productListItems?.sum { ProductListItem productListItem ->
             if (type == ProductListType.DELIVERY) {
-                //If product list item has quantity then only consider it if not consider fill quantity
+                // If product list item has quantity then only consider it if not consider fill quantity
                 if (productListItem?.quantity){
                     productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
                 } else {
@@ -124,6 +123,10 @@ class ProductList {
                 productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
             }
         }
+    }
+
+    def getTotalProducts() {
+
     }
 
     def getTotalPackLines() {

@@ -5,11 +5,9 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
-import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -254,6 +252,7 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
         def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES_PRODUCT,
@@ -867,7 +866,6 @@ class ReportingController {
 
         def orders = productListService.getOrder(productListId, storeId, supplierId, startDate, endDate.plusDays(1))
 
-
         //sort pack lines based on sort column (sku / description / packQuantity / orderedQuantity / lineValue)
         def packLines = []
         packLines = orders[0]?.totalPackLines
@@ -905,22 +903,32 @@ class ReportingController {
     // The top level of the main deliveries report.
     def deliveries() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).minusDays(6).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
+
         def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
-        [reportType : ReportType.DELIVERY,
-         suppliers  : suppliers,
-         userColumns: reportingService.getReportColumns(ReportType.DELIVERY),
-         startDate  : startDate,
-         endDate    : endDate,
-         stores     : stores]
+        [reportType : ReportType.DELIVERIES,
+         suppliers : suppliers,
+         userColumns: reportingService.getReportColumns(ReportType.DELIVERIES),
+         startDate : startDate,
+         endDate : endDate,
+         storeId : storeId,
+         supplierId : supplierId,
+         stores : stores]
     }
 
     // The top level of the main deliveries report.
     def ajaxDeliveries(SortParams sortParams) {
+        // If no sort is set (first time load) then default to reverse order.
+        if (sortParams.sortColumn == "id") {
+            sortParams.sortOrder = "desc"
+        }
+
         sortParams.validateParams(DELIVERIES_REPORT_SORT_COLUMNS)
 
         Integer storeId
@@ -940,52 +948,39 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def deliveries = productListService.getDeliveries(storeId, supplierId, startDate, endDate.plusDays(1))
-
-        deliveries.each { delivery ->
-            delivery.storeId = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, delivery.storeId).storeId
-        }
+        def totalDeliveries = []
 
         if (deliveries) {
             switch (sortParams.sortColumn) {
                 case "deliveryId":
-                    deliveries = deliveries.sort { a, b ->
-                        a.orderId <=> b.orderId
-                    }
+                    deliveries = deliveries.sort { it.orderId }
                     break
                 case "storeId":
-                    deliveries = deliveries.sort { a, b ->
-                        a.storeId <=> b.storeId
-                    }
+                    deliveries = deliveries.sort { it.storeId }
                     break
                 case "status":
-                    deliveries = deliveries.sort { a, b ->
-                        a.status <=> b.status
-                    }
+                    deliveries = deliveries.sort { it.status }
                     break
                 case "deliveryDate":
                     deliveries = deliveries.sort { a, b ->
-                        a.startDate <=> b.totalValue
+                        a.dateStarted <=> b.dateStarted
                     }
                     break
                 case "supplierName":
-                    deliveries = deliveries.sort { a, b ->
-                        a.supplier.name <=> b.supplier.name
-                    }
+                    deliveries = deliveries.sort { it.supplierReference ?: "" }
                     break
                 case "numberOfItems":
-                    deliveries = deliveries.sort { a, b ->
-                        a.totalQuantity <=> b.totalQuantity
-                    }
+                    deliveries = deliveries.sort { it.productListItems.size() }
                     break
                 case "totalCost":
-                    deliveries = deliveries?.sort { a, b ->
-                        a?.totalCost <=> b?.totalCost
-                    }
+                    deliveries = deliveries?.sort { it.totalCost }
                     break
             }
 
+            totalDeliveries.addAll(deliveries)
+
             if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
-                deliveries = deliveries.reverse()
+                totalDeliveries = totalDeliveries.reverse()
             }
         }
 
@@ -993,16 +988,18 @@ class ReportingController {
             def fileName = "deliveries-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
             response.setHeader("Content-Type", "text/csv;")
-            render getDeliveriesCsv(deliveries)
+            render getDeliveriesCsv(totalDeliveries)
         } else {
-            def dels = sortParams.offset < deliveries.size() ? deliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < deliveries.size() ? sortParams.offset + sortParams.max : deliveries.size())) : []
+            def dels = sortParams.offset < totalDeliveries.size() ? totalDeliveries.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalDeliveries.size() ? sortParams.offset + sortParams.max : totalDeliveries.size())) : []
 
-            render(template: "deliveriesResults", model: [deliveries  : dels,
-                                                          userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
-                                                          startDate   : startDate,
-                                                          endDate     : endDate,
-                                                          sortParams  : sortParams,
-                                                          totalResults: deliveries.totalCount])
+            render(template: "deliveriesResults", model: [deliveries : dels,
+                                                          userColumns : reportingService.getReportColumns(ReportType.DELIVERIES),
+                                                          storeId : storeId,
+                                                          supplierId : supplierId,
+                                                          startDate : startDate,
+                                                          endDate : endDate,
+                                                          sortParams : sortParams,
+                                                          totalResults : totalDeliveries.size()])
         }
     }
 
@@ -1012,69 +1009,66 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
-
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        String descriptionFilter = params.descriptionFilter
 
         def delivery = ProductList.findById(productListId)
 
-        [reportType   : ReportType.DELIVERY,
-         productListId: productListId,
-         suppliers    : suppliers,
-         startDate    : startDate,
-         endDate      : endDate,
-         status       : delivery.status,
-         userColumns  : reportingService.getReportColumns(ReportType.DELIVERY),
-         stores       : stores,
-         acceptDeliveryDenyStatus : ProductListStatus.COMPLETE
-        ]
+        [reportType : ReportType.DELIVERY,
+         delivery : delivery,
+         productListId : productListId,
+         startDate : startDate,
+         endDate : endDate,
+         supplierId : supplierId,
+         storeId : storeId,
+         descriptionFilter: descriptionFilter,
+         userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
+         showAcceptDeliveryButton : [ProductListStatus.PENDING, ProductListStatus.IN_PROGRESS].contains(delivery.status)]
     }
 
     // The mid level of the main delivery report.
     def ajaxDelivery(SortParams sortParams) {
         sortParams.validateParams(DELIVERY_REPORT_SORT_COLUMNS)
+
         Integer productListId = getIntegerParam(params.productListId)
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
 
-        Integer storeId
-        if (springSecurityService.principal.storeId) {
-            storeId = springSecurityService.principal.storeId
-        } else {
-            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
-        }
-
-        Integer supplierId = null
-        if (params.supplier && !params.supplier.isEmpty()) {
-            supplierId = getIntegerParam(params.supplier)
+        String descriptionFilter = null
+        if (params.descriptionFilter && !params.descriptionFilter.isEmpty()) {
+            descriptionFilter = params.descriptionFilter
         }
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def delivery = productListService.getDelivery(productListId, storeId, supplierId)
+        def delivery = productListService.getProductList(productListId)
 
         def items = []
+
+        if (descriptionFilter) {
+            items.addAll(delivery?.productListItems?.findAll{ it.productVariant.product.description.toLowerCase().contains(descriptionFilter.toLowerCase()) })
+        } else {
+            items.addAll(delivery?.productListItems)
+        }
+
+        int totalResults = items.size()
+
         if (delivery) {
             switch (sortParams.sortColumn) {
                 case "sku":
-                    items = delivery.productListItems.sort { a, b ->
-                        a.productVariant.sku <=> b.productVariant.sku
-                    }
+                    items = items.sort { it.productVariant.sku }
                     break
                 case "description":
-                    items = delivery.productListItems.sort { a, b ->
-                        a.productVariant.product.description <=> b.productVariant.product.description
-                    }
+                    items = items.sort { it.productVariant.product.description }
                     break
                 case "itemQuantity":
-                    items = delivery.productListItems.sort { a, b ->
-                        a.quantity <=> b.quantity
-                    }
+                    items = items.sort { it.quantity }
                     break
                 case "totalCost":
-                    items = delivery.productListItems.sort { a, b ->
-                        a.totalCost <=> b.totalCost
-                    }
+                    items = items.sort { it.totalCost }
                     break
             }
 
@@ -1091,21 +1085,34 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getDeliveryCsv(items)
         } else {
-            render(template: "deliveryResults", model: [delivery    : items,
+            render(template: "deliveryResults", model: [items : items,
                                                         userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
-                                                        startDate   : startDate,
-                                                        endDate     : endDate,
-                                                        sortParams  : sortParams,
-                                                        totalResults: delivery.productListItems.size()])
+                                                        startDate : startDate,
+                                                        endDate : endDate,
+                                                        storeId : storeId,
+                                                        supplierId : supplierId,
+                                                        productListId : productListId,
+                                                        descriptionFilter : descriptionFilter,
+                                                        sortParams : sortParams,
+                                                        totalResults : totalResults])
         }
     }
 
     def ajaxAcceptDelivery() {
         def productListId = getIntegerParam(params.productListId)
 
-        if (springSecurityService.principal.storeId) {
-            productListService.acceptDelivery(springSecurityService.principal.storeId, productListId)
+        def productList = productListService.getProductList(productListId)
+
+        if (!productList) {
+            flash.error = "Delivery not found"
         }
+
+        // Head office or correct store level can accept this delivery.
+        if (springSecurityService.principal.storeId == null || (springSecurityService.principal.storeId == productList.store?.id)) {
+            productListService.acceptDelivery(productListId)
+        }
+
+        response.status = 200
     }
 
     def deliveryPackLines() {
@@ -1114,43 +1121,31 @@ class ReportingController {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        String descriptionFilter = params.descriptionFilter
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def delivery = ProductList.findById(productListId)
+        def productListItem = productListService.getProductListItem(productListItemId)
 
-        [reportType       : ReportType.DELIVERY,
-         suppliers        : suppliers,
-         productListId    : productListId,
+        [reportType : ReportType.DELIVERY_ITEM,
+         delivery : delivery,
+         productListId : productListId,
          productListItemId: productListItemId,
-         userColumns      : reportingService.getReportColumns(ReportType.DELIVERY),
-         startDate        : startDate,
-         endDate          : endDate,
-         stores           : stores]
+         productListItem : productListItem,
+         userColumns : reportingService.getReportColumns(ReportType.DELIVERY_ITEM),
+         startDate : startDate,
+         endDate : endDate,
+         storeId : storeId,
+         supplierId : supplierId,
+         descriptionFilter : descriptionFilter]
     }
 
     // The bottom level of the main delivery report with the packs for an item in a delivery.
     def ajaxDeliveryPackLines(SortParams sortParams) {
         sortParams.validateParams(DELIVERY_PACK_REPORT_SORT_COLUMNS)
-        Integer productListId = getIntegerParam(params.productListId)
+
         Integer productListItemId = getIntegerParam(params.productListItemId)
-
-        // todo : do we need this here ?
-        Integer storeId
-        if (springSecurityService.principal.storeId) {
-            storeId = springSecurityService.principal.storeId
-        } else {
-            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
-        }
-
-        // todo : do we need this here ?
-        Integer supplierId = null
-        if (params.supplier && !params.supplier.isEmpty()) {
-            supplierId = getIntegerParam(params.supplier)
-        }
-
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def productListItem = productListService.getProductListItem(productListItemId)
 
@@ -1194,6 +1189,15 @@ class ReportingController {
                     break
             }
 
+            int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity.multiply(BigDecimal.valueOf(it.pack.quantity)) } ?: 0
+            int totalSingles = productListItem.quantity - totalQuantityFromPacks
+
+            if (totalSingles > 0) {
+                def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
+
+                packLines.add([pack: dummyPack, quantity: totalSingles, productListItem: productListItem, totalQuantity: totalSingles, totalValue: productListItem?.productVariant?.costPrice?.multiply(BigDecimal.valueOf(totalSingles))])
+            }
+
             if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
                 packLines.reverse()
             }
@@ -1201,19 +1205,10 @@ class ReportingController {
 
         packLines = sortParams.offset < packLines.size() ? packLines.subList(sortParams.offset, (sortParams.offset + sortParams.max < packLines.size() ? sortParams.offset + sortParams.max : packLines.size())) : []
 
-        if (params.csv != null && params.csv == "true") {
-            def fileName = "deliveryPackLines-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
-            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
-            response.setHeader("Content-Type", "text/csv;")
-            render getDeliveryPackCsv(packLines)
-        } else {
-            render(template: "deliveryPackLineResults", model: [packLines   : packLines,
-                                                                userColumns : reportingService.getReportColumns(ReportType.DELIVERY),
-                                                                startDate   : startDate,
-                                                                endDate     : endDate,
-                                                                sortParams  : sortParams,
-                                                                totalResults: productListItem?.packLines?.size()])
-        }
+        render(template: "deliveryPackLineResults", model: [packLines : packLines,
+                                                            userColumns : reportingService.getReportColumns(ReportType.DELIVERY_ITEM),
+                                                            sortParams : sortParams,
+                                                            totalResults: productListItem?.packLines?.size()])
     }
 
     def paypointSales() {
@@ -1539,22 +1534,22 @@ class ReportingController {
 
     private String getDeliveriesCsv(List<ProductList> deliveries) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Delivery Id,Store,Status,Delivery Date,Supplier Name,Number of Items,Total Cost\n")
+        stringBuilder.append("Delivery ID,Store,Status,Delivery Date,Supplier Name,Number of Products,Total Cost\n")
 
         deliveries?.each { delivery ->
-            stringBuilder.append(delivery?.getOrderId())
+            stringBuilder.append(delivery?.orderId)
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.getStoreId())
+            stringBuilder.append(delivery?.store?.storeId)
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.getStatus())
+            stringBuilder.append(g.message(code: "DeliveryStatus.${delivery?.status}"))
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.getStartDate()) // start date is used as the date of the delivery
+            stringBuilder.append(delivery?.dateStarted?.toString("dd/MM/yyyy")) // Using Date started as the date of the delivery.
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.getSupplierReference())
+            stringBuilder.append(delivery?.supplierReference)
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.getTotalQuantity())
+            stringBuilder.append(delivery?.productListItems?.size())
             stringBuilder.append(",")
-            stringBuilder.append("£" + delivery?.getTotalCost())
+            stringBuilder.append(delivery?.totalCost)
             stringBuilder.append("\n")
         }
 
@@ -1563,40 +1558,16 @@ class ReportingController {
 
     private String getDeliveryCsv(List<ProductListItem> delivery) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Product Sku,Product Description,Packs Delivered,Total Cost\n")
+        stringBuilder.append("Product SKU,Product Description,Items Delivered,Total Cost\n")
 
         delivery?.each { item ->
             stringBuilder.append(item?.productVariant?.sku)
             stringBuilder.append(",")
             stringBuilder.append(item?.productVariant?.product?.description)
             stringBuilder.append(",")
-            stringBuilder.append(item?.quantity)
+            stringBuilder.append(item.quantity ?: item.fillQuantity)
             stringBuilder.append(",")
-            stringBuilder.append("£" + item.totalCost)
-            stringBuilder.append("\n")
-        }
-
-        return stringBuilder.toString()
-    }
-
-    private String getDeliveryPackCsv(List<PackLine> packLines) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Product Description,Unit Sell Price,Pack Cost,Pack Size,Delivered Quantity,Total Quantity,Total Sell Value\n")
-
-        packLines?.each { packLine ->
-            stringBuilder.append(packLine?.productListItem?.productVariant?.product?.description)
-            stringBuilder.append(",")
-            stringBuilder.append(packLine?.productListItem?.productVariant?.currentPrice)
-            stringBuilder.append(",")
-            stringBuilder.append("£" + packLine?.pack?.price)
-            stringBuilder.append(",")
-            stringBuilder.append(packLine?.pack?.quantity)
-            stringBuilder.append(",")
-            stringBuilder.append(packLine?.productListItem?.fillQuantity)
-            stringBuilder.append(",")
-            stringBuilder.append(packLine?.totalQuantity)
-            stringBuilder.append(",")
-            stringBuilder.append("£" + packLine?.totalValue)
+            stringBuilder.append(item.totalCost)
             stringBuilder.append("\n")
         }
 

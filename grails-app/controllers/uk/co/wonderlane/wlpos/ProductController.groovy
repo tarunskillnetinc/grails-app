@@ -888,7 +888,7 @@ class ProductController {
 
     }
 
-    def comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
+    void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
         builder.compare("packSupplier", oldPack.supplier, pack.supplier)
         builder.compare("packQuantity", oldPack.quantity, pack.quantity)
         builder.compare("packPrice", oldPack.price, pack.price)

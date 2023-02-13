@@ -1,22 +1,14 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-3 font-weight-bold"><a href="#" onclick="getReportData({
+        <div class="col-4 font-weight-bold"><a href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
             sortColumn: 'description',
             sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
         });">Description</a></div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "currentSell" }?.enabled}">
-        <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({
-            max: ${sortParams?.max},
-            offset: ${sortParams?.offset},
-            sortColumn: 'price',
-            sortOrder: ${sortParams?.sortColumn == 'currentSell' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Current Sell</a></div>
-    </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packCost" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
+        <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
             sortColumn: 'packCost',
@@ -37,7 +29,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'deliveryQuantity',
             sortOrder: ${sortParams?.sortColumn == 'deliveryQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Delivery Quantity</a></div>
+        });">Packs Delivered</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalQuantity" }?.enabled}">
         <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({
@@ -46,6 +38,14 @@
             sortColumn: 'totalQuantity',
             sortOrder: ${sortParams?.sortColumn == 'totalQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
         });">Total Quantity</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "currentSell" }?.enabled}">
+        <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({
+            max: ${sortParams?.max},
+            offset: ${sortParams?.offset},
+            sortColumn: 'price',
+            sortOrder: ${sortParams?.sortColumn == 'currentSell' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+        });">Retail Price</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalSellValue" }?.enabled}">
         <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
@@ -71,14 +71,10 @@
     <g:each in="${packLines}" var="packLine" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-3 my-auto">${packLine?.productListItem?.productVariant?.product?.description}</div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "currentSell" }?.enabled}">
-                <div class="col-1 my-auto"><g:formatNumber
-                        number="${packLine?.productListItem?.productVariant?.getCurrentPrice()}" type="currency"/></div>
+                <div class="col-4 my-auto">${packLine?.productListItem?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packCost" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber number="${packLine?.pack?.price}" type="currency"/></div>
+                <div class="col-1 my-auto"><g:formatNumber number="${packLine?.pack?.price}" type="currency"/></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packSize" }?.enabled}">
                 <div class="col-1 my-auto">${packLine?.pack?.quantity}</div>
@@ -88,6 +84,10 @@
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalQuantity" }?.enabled}">
                 <div class="col-1 my-auto">${packLine?.totalQuantity}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "currentSell" }?.enabled}">
+                <div class="col-1 my-auto"><g:formatNumber
+                        number="${packLine?.productListItem?.productVariant?.currentPrice}" type="currency"/></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalSellValue" }?.enabled}">
                 <div class="col-2 my-auto"><g:formatNumber
