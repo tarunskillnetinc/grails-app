@@ -25,6 +25,7 @@ class ButtonGridController {
             }
         } else {
             ButtonGridType type = null
+            Integer storeId = springSecurityService.principal.storeId
             if (!EnumUtils.isValidEnum(ButtonGridType.class, params.type)) {
                 flash.error = "Button grid not found. "
                 redirect(action: "index")
@@ -36,11 +37,12 @@ class ButtonGridController {
                 redirect(action: "index")
                 return
             }
-            buttonGrid = buttonService.getButtonGrid(type)
+            buttonGrid = (storeId != null && buttonService.getButtonGrid(type, storeId) != null) ? // check store level grid whether exist
+                    buttonService.getButtonGrid(type, storeId) : buttonService.getButtonGrid(type)
             if (!buttonGrid) {
                 ButtonGrid btnGridTemp = new ButtonGrid()
                 btnGridTemp.setRetailerId(springSecurityService.principal.retailerId)
-                btnGridTemp.setStoreId(springSecurityService.principal.storeId)
+                btnGridTemp.setStoreId(null)
                 btnGridTemp.setType(type)
                 btnGridTemp.setDescription(null)
                 btnGridTemp.setButtons(null)
@@ -77,7 +79,8 @@ class ButtonGridController {
                     redirect(action: "index")
                     return
                 }
-                buttonGrid = buttonService.getButtonGrid(type)
+                buttonGrid = (storeId != null && buttonService.getButtonGrid(type, storeId) != null) ?
+                        buttonService.getButtonGrid(type, storeId) : buttonService.getButtonGrid(type)
             }
         }
 
@@ -118,10 +121,18 @@ class ButtonGridController {
         int previousColumns = buttonGrid.columns
         int previousRows = buttonGrid.rows
 
-        bindData(buttonGrid, params)
+        // Create a new store level grid if no existing
+        if (buttonGrid.getStoreId() == null && springSecurityService.principal.storeId != null
+         && buttonService.getButtonGrid(buttonGrid.getType(), springSecurityService.principal.storeId) == null) {
+            buttonGrid = new ButtonGrid()
+            bindData(buttonGrid, params)
+        } else {
+            bindData(buttonGrid, params)
+        }
 
         buttonGrid.retailerId = springSecurityService.principal.retailerId
         buttonGrid.storeId = springSecurityService.principal.storeId
+
 
         if (buttonGrid.validate()) {
 

@@ -26,26 +26,28 @@ class ButtonService {
     }
 
     def getButtonGrid(ButtonGridType type) {
-        def buttonGrids;
-        if (springSecurityService.principal.storeId != null) {
-            buttonGrids = ButtonGrid.withCriteria {
-                eq ("type", type)
-                eq ("retailerId", springSecurityService.principal.retailerId)
-                eq ("storeId", springSecurityService.principal.storeId)
-            }
-        } else {
-            buttonGrids = ButtonGrid.withCriteria {
-                eq ("type", type)
-                eq ("retailerId", springSecurityService.principal.retailerId)
-                isNull ("storeId")
-            }
+        def buttonGrids = ButtonGrid.withCriteria {
+            eq ("type", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            isNull ("storeId")
         }
-
         if (buttonGrids){
             return buttonGrids?.sort { storeId }?.last()
         }
         return null
+    }
 
+    def getButtonGrid(ButtonGridType type, Integer storeId) {
+        def buttonGrids;
+        buttonGrids = ButtonGrid.withCriteria {
+            eq ("type", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+        }
+        if (buttonGrids){
+            return buttonGrids?.sort { storeId }?.last()
+        }
+        return null
     }
 
     def getOtherButtonGrids() {
