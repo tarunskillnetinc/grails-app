@@ -72,7 +72,6 @@ class ButtonService {
                 ProcessType.NAVIGATE_CASH_LIFT,
                 ProcessType.NAVIGATE_PAID_OUT,
                 ProcessType.NAVIGATE_TRAINING,
-                ProcessType.NAVIGATE_DISCOUNT,
                 ProcessType.SAVE_BASKET,
                 ProcessType.NAVIGATE_RETRIEVE_BASKET,
                 ProcessType.LOCK_TILL,
