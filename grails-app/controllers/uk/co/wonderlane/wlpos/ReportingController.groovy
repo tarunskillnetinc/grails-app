@@ -1145,66 +1145,55 @@ class ReportingController {
 
         def productListItem = productListService.getProductListItem(productListItemId)
 
-        def packLines = []
+        def packLines = productListItem?.packLines
+
+        int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity?.multiply(BigDecimal.valueOf(it.pack?.quantity ?: 0)) ?: BigDecimal.ZERO } ?: 0
+        int totalSingles = (productListItem.quantity ?: productListItem.fillQuantity) - totalQuantityFromPacks
+
+        if (totalSingles > 0) {
+            def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
+
+            packLines.add([pack: dummyPack, quantity: totalSingles, productListItem: productListItem, totalQuantity: totalSingles, totalValue: productListItem?.productVariant?.currentPrice?.multiply(BigDecimal.valueOf(totalSingles)) ?: BigDecimal.ZERO])
+        }
+
         if (productListItem) {
             switch (sortParams.sortColumn) {
                 case "description":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.productListItem.productVariant.product.description <=> b.productListItem.productVariant.product.description
-                    }
+                    packLines = packLines?.sort { it.productListItem?.productVariant?.product?.description }
                     break
                 case "price":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.productListItem.productVariant.getCurrentPrice() <=> b.productListItem.productVariant.getCurrentPrice()
-                    }
+                    packLines = packLines?.sort { it.productListItem?.productVariant?.currentPrice }
                     break
                 case "packCost":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.pack.price <=> b.pack.price
-                    }
+                    packLines = packLines?.sort { it.pack?.price }
                     break
                 case "packSize":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.pack.quantity <=> b.pack.quantity
-                    }
+                    packLines = packLines?.sort { it.pack?.quantity }
                     break
                 case "deliveryQuantity":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.productListItem.fillQuantity <=> b.productListItem.fillQuantity
-                    }
+                    packLines = packLines?.sort { it.productListItem?.fillQuantity }
                     break
                 case "totalQuantity":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.totalQuantity <=> b.totalQuantity
-                    }
+                    packLines = packLines?.sort { it.totalQuantity }
                     break
                 case "totalSellValue":
-                    packLines = productListItem?.packLines?.sort { a, b ->
-                        a.totalValue <=> b.totalValue
-                    }
+                    packLines = packLines?.sort { it.totalValue }
                     break
-            }
-
-            int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity.multiply(BigDecimal.valueOf(it.pack.quantity)) } ?: 0
-            int totalSingles = (productListItem.quantity ?: productListItem.fillQuantity) - totalQuantityFromPacks
-
-            if (totalSingles > 0) {
-                def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
-
-                packLines.add([pack: dummyPack, quantity: totalSingles, productListItem: productListItem, totalQuantity: totalSingles, totalValue: productListItem?.productVariant?.costPrice?.multiply(BigDecimal.valueOf(totalSingles))])
             }
 
             if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
-                packLines.reverse()
+                packLines = packLines.reverse()
             }
         }
+
+        int totalCount = packLines.size()
 
         packLines = sortParams.offset < packLines.size() ? packLines.subList(sortParams.offset, (sortParams.offset + sortParams.max < packLines.size() ? sortParams.offset + sortParams.max : packLines.size())) : []
 
         render(template: "deliveryPackLineResults", model: [packLines : packLines,
                                                             userColumns : reportingService.getReportColumns(ReportType.DELIVERY_ITEM),
                                                             sortParams : sortParams,
-                                                            totalResults: productListItem?.packLines?.size()])
+                                                            totalResults: totalCount])
     }
 
     def paypointSales() {

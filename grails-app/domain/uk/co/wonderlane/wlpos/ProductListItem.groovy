@@ -55,53 +55,19 @@ class ProductListItem {
     }
 
     def getTotalCost() {
-        int totalCost = 0
+        BigDecimal totalPackQuantity = packLines?.sum { it.totalQuantity } ?: BigDecimal.ZERO
+        BigDecimal totalSinglesQuantity = BigDecimal.valueOf(quantity ?: fillQuantity) - totalPackQuantity
 
-        if (quantity) {
-            int totalSinglesCost = 0
-            int totalPackQuantity = packLines?.sum {it -> getPackQuantity(it)} ?: 0
-            int singlesQuantity = quantity - totalPackQuantity
+        // Get total pack cost.
+        BigDecimal totalPackCost = packLines?.sum {it.totalCostPrice } ?: BigDecimal.ZERO
 
-            // Get total pack cost.
-            int totalPackCost = packLines?.sum {
-                it?.quantity?.intValue().multiply(getCostPriceByVariant(it))
-            } ?: 0
-
-            // Get total singles cost.
-            if (singlesQuantity > 0) {
-                totalSinglesCost = singlesQuantity.multiply(productVariant?.costPrice ?: 0)
-            }
-
-            // If quantity is not null then estimated delivery cost = total pack cost + singles cost.
-            totalCost = totalPackCost + totalSinglesCost
-        } else {
-            // If quantity is null then estimates delivery cost = fill quantity * product variant cost price.
-            totalCost = fillQuantity.multiply(productVariant?.costPrice ?: 0)
+        // Get total singles cost.
+        BigDecimal totalSinglesCost = BigDecimal.ZERO
+        if (totalSinglesQuantity > BigDecimal.ZERO) {
+            totalSinglesCost = totalSinglesQuantity * (productVariant?.costPrice ?: BigDecimal.ZERO)
         }
 
-        return totalCost
-    }
-
-    private int getCostPriceByVariant(PackLine pk){
-        try {
-            if (pk?.pack?.price) {
-                return pk.pack.price.intValue()
-            }
-        }catch(Exception ex){
-            //This exception can be thrown when corresponding packs missing for pack line object
-            return 0
-        }
-        return productVariant?.costPrice ?: 0
-    }
-
-    private int getPackQuantity(PackLine pk){
-        try {
-            if (pk?.pack?.quantity){
-                int packQuantity = pk.pack.quantity;
-                return packQuantity.multiply(pk.quantity.intValue())
-            }
-        }catch(Exception ex){
-            return pk.quantity.intValue()
-        }
+        // Estimated delivery cost = total pack cost + singles cost.
+        return totalPackCost + totalSinglesCost
     }
 }
