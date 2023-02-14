@@ -322,23 +322,6 @@
                 $('#addVariantModal').modal("hide");
             }
 
-            // Delete variant button was clicked, we just delete the whole div and handle the removal server side (if it was an existing variant).
-            function deleteVariant(index) {
-                if (!confirm("This SKU will be deleted.")) {
-                    return;
-                }
-
-                $("#variantsContainer > #variant-" +index).remove();
-
-                $("#variantsContainer > div").each(function(i) {
-                    var stripedDiv = $(this).find("div:first");
-
-                    stripedDiv.removeClass("wl-striped0");
-                    stripedDiv.removeClass("wl-striped1");
-                    stripedDiv.addClass("wl-striped" +(i % 2));
-                });
-            }
-
             // If we change the SKU we may need to update the SKU in the price changes section too.
             function skuChanged(index, skuValue) {
                 var skuText = $("#priceChanges\\[" +index +"\\]\\.skuText");

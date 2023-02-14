@@ -810,15 +810,16 @@ class ProductController {
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
+        List<String> deletedBarcodes = new ArrayList<>();
         editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id }).findAny().ifPresentOrElse({ oldVariant ->
                 if (variant.delete) {
-                    doVariantComparison(builder, variant.id, oldVariant, new ProductVariantCommand())
+                    doVariantComparison(builder, variant.id, oldVariant, new ProductVariantCommand(), deletedBarcodes)
                 } else {
-                    doVariantComparison(builder, variant.id, oldVariant, variant)
+                    doVariantComparison(builder, variant.id, oldVariant, variant, deletedBarcodes)
                 }
             }, {
-                doVariantComparison(builder, variant.id, new ProductVariant(), variant)
+                doVariantComparison(builder, variant.id, new ProductVariant(), variant, deletedBarcodes)
             })
         })
 
@@ -826,12 +827,12 @@ class ProductController {
             def editedVariant = editedProduct?.find {editedVariant -> editedVariant.id == existingVariants.id}
             if (!editedVariant){
                 // Variant deleted
-                doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand())
+                doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand(), deletedBarcodes)
             }
         }
     }
 
-    private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant) {
+    private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant, List<String> deletedBarcodes) {
 
         //---------------------------- Update history for variant fields --------------------------------//
         if (variant.sku != 0) {
@@ -854,7 +855,7 @@ class ProductController {
         // loop over edited variant barcodes to find out if barcode been edited or newly added
         variant?.barcodez?.each { editedBarcode ->
             // Can't set barcode to null so this shouldn't appear in change history (means something else has changed)
-            if(editedBarcode == null || editedBarcode.barcode == null) {
+            if(editedBarcode == null || (editedBarcode.barcode == null && editedBarcode.recordStatus != 'D')) {
                 return
             }
             def existingBarcode = oldVariant?.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
@@ -869,11 +870,9 @@ class ProductController {
         // loop over existing variant barcodes to find out if barcode been deleted
         oldVariant?.barcodes?.each { existingBarcode ->
             def editedBarcode = variant?.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
-            // Can't set barcode to null so this shouldn't appear in change history (means something else has changed)
-            if(editedBarcode == null || editedBarcode.barcode == null) {
-                return
-            }
-            if (!editedBarcode) { //if edited barcode not exists means old barcode has been deleted
+
+            if (!editedBarcode && !deletedBarcodes.contains(existingBarcode.barcode)) { //if edited barcode not exists means old barcode has been deleted
+                deletedBarcodes.add(existingBarcode.barcode);
                 builder.compare("barcode", existingBarcode.barcode, null)
             }
         }
