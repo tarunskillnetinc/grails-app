@@ -74,16 +74,16 @@
             <g:reportBreadcrumb reportType="${reportType}"/>
 
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Orders Report</h2>
+                <h2 id="page-title" class="mx-auto">Orders Report</h2>
             </div>
 
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse"
+                        <div id="filter-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse"
                              aria-expanded="false" aria-controls="filterCollapse">
                             <div class="row">
-                                <div class="col-10">Filters</div>
+                                <div id="filter-text" class="col-10">Filters</div>
 
                                 <div class="col-2 text-right">
                                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right"
@@ -148,15 +148,15 @@
                 </div>
 
                 <div class="col-2 offset-3 text-right" style="margin-top: 8px;">
-                    <button class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
+                    <button id="export-to-csv" class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
                 </div>
 
                 <div class="col-2">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse"
+                        <div id="columns-collapse class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse"
                              aria-expanded="false" aria-controls="columnsCollapse">
                             <div class="row">
-                                <div class="col-10">Columns</div>
+                                <div id="columns-text" class="col-10">Columns</div>
 
                                 <div class="col-2 text-right">
                                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right"

@@ -72,16 +72,16 @@
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
                 onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryId" }?.enabled}">
-                <div class="col-1 my-auto">${delivery?.orderId}</div>
+                <div id="delivery-id-${i + 1}" class="col-1 my-auto">${delivery?.orderId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
-                <div class="col-1 my-auto">${delivery?.store?.storeId}</div>
+                <div id="store-id-${i + 1}" class="col-1 my-auto">${delivery?.store?.storeId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "status" }?.enabled}">
-                <div class="col-2 my-auto"><g:message code="DeliveryStatus.${delivery?.status}" /></div>
+                <div id="status-${i + 1}" class="col-2 my-auto"><g:message code="DeliveryStatus.${delivery?.status}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryDate" }?.enabled}">
-                <div class="col-2 my-auto">
+                <div id="delivery-date-${i + 1}" class="col-2 my-auto">
                     <g:if test="${delivery?.startDate}">
                         <g:formatDate format="dd/MM/yyyy" date="${delivery?.dateStarted?.toDate() ?: new Date()}"/>
                     </g:if>
@@ -89,13 +89,13 @@
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
-                <div class="col-2 my-auto">${delivery?.supplierReference}</div>
+                <div id="supplier-name-${i + 1}" class="col-2 my-auto">${delivery?.supplierReference}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
-                <div class="col-2 my-auto">${delivery?.productListItems?.size()}</div>
+                <div id="number-of-items-${i + 1}" class="col-2 my-auto">${delivery?.productListItems?.size()}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber number="${delivery?.totalCost}" type="currency"/></div>
+                <div id="total-cost-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${delivery?.totalCost}" type="currency"/></div>
             </g:if>
         </div>
     </g:each>
