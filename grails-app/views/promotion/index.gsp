@@ -120,18 +120,18 @@
 
         <section id="alerts-container" class="container-fluid">
             <g:if test="${flash.message}">
-                <div class="alert alert-success" role="alert">${flash.message}</div>
+                <div id="alerts-container-message" class="alert alert-success" role="alert">${flash.message}</div>
             </g:if>
         </section>
 
         <section id="promo-maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 class="mx-auto my-auto">Promotion Search</h2>
+                    <h2 id="promo-maintenance-search-title" class="mx-auto my-auto">Promotion Search</h2>
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
+                    <g:link elementId="add-new-promotion" controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
                 </div>
             </div>
 

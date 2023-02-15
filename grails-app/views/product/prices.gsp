@@ -126,13 +126,13 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Product Price Changes</h2>
+                <h2 id="page-title" class="mx-auto">Product Price Changes</h2>
             </div>
 
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
                                 <div class="col-10">Filters</div>
                                 <div class="col-2 text-right">
@@ -199,10 +199,10 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h2>Success</h2>
+                            <h2 id="confirm-modal-title">Success</h2>
                         </div>
 
-                        <div class="modal-body">Price changes saved successfully.</div>
+                        <div id="confirm-modal-message" class="modal-body">Price changes saved successfully.</div>
 
                         <div class="modal-footer">
                             <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>

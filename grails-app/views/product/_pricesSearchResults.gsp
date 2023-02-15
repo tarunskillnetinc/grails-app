@@ -11,29 +11,29 @@
 </g:if>
 
 <g:each in="${productPrices}" var="productPrice" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
+    <div id="product-price-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
         <div class="col-2 my-auto">
             <div class="row form-group form-check mb-0">
-                <g:checkBox name="product-${productPrice.key}" class="col-2 form-check-input wl-checkbox" style="margin-top: 8px;" />
-                <label for="product-${productPrice.key}" class="col-10 col-form-label pl-4">${productPrice.key}</label>
+                <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="col-2 form-check-input wl-checkbox" style="margin-top: 8px;" />
+                <label id="product-price-${i+1}-item-code" for="product-${productPrice.key}" class="col-10 col-form-label pl-4">${productPrice.key}</label>
             </div>
         </div>
-        <div class="col-4 my-auto">${productPrice.value[0].productDescription}</div>
-        <div class="col-1 my-auto"><g:formatNumber number="${productPrice.value[0].costPrice ?: BigDecimal.ZERO}" type="currency" /></div>
+        <div id="product-price-${i+1}-description" class="col-4 my-auto">${productPrice.value[0].productDescription}</div>
+        <div id="product-price-${i+1}-cost-price" class="col-1 my-auto"><g:formatNumber number="${productPrice.value[0].costPrice ?: BigDecimal.ZERO}" type="currency" /></div>
 
-        <g:each in="${priceBands}" var="priceBand">
+        <g:each in="${priceBands}" var="priceBand" status="b">
             <div class="col">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text">&pound;</span>
                     </div>
 
-                    <g:textField name="price-${productPrice.key}-${priceBand.id}" value="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" class="form-control mask-money" onkeyup="priceChanged(${productPrice.key}, ${priceBand.id}, ${productPrice.value[0].costPrice ?: BigDecimal.ZERO}, this.value);" />
+                    <g:textField id="product-price-${i+1}-band-${b+1}-price"  name="price-${productPrice.key}-${priceBand.id}" value="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" class="form-control mask-money" onkeyup="priceChanged(${productPrice.key}, ${priceBand.id}, ${productPrice.value[0].costPrice ?: BigDecimal.ZERO}, this.value);" />
                     <g:hiddenField name="oldPrice-${productPrice.key}-${priceBand.id}" value="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" />
                     <g:hiddenField name="productId-${productPrice.key}-${priceBand.id}" value="${productPrice.value[0].productId}" />
 
                     <div class="input-group-append">
-                        <label id="margin-${productPrice.key}-${priceBand.id}" class="input-group-text" style="width: 80px;" for="price-${productPrice.key}-${priceBand.id}"><g:getMargin retailPrice="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" costPrice="${productPrice.value[0].costPrice ?: BigDecimal.ZERO}" quantity="${BigDecimal.ONE}" /></label>
+                        <label id="product-price-${i+1}-band-${b+1}-margin" class="input-group-text" style="width: 80px;" for="price-${productPrice.key}-${priceBand.id}"><g:getMargin retailPrice="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" costPrice="${productPrice.value[0].costPrice ?: BigDecimal.ZERO}" quantity="${BigDecimal.ONE}" /></label>
                     </div>
                 </div>
             </div>

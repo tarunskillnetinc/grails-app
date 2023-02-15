@@ -227,7 +227,7 @@
 
         <g:if test="${flash.message}">
             <section id="alerts-container" class="container-fluid">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                <div id="alerts-container-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </section>
         </g:if>
 
@@ -240,11 +240,11 @@
                 <input type="file" name="file" accept=".csv,.CSV"
                        id="csvFileUploadInput" style="display:none" oninput="uploadProductsCSVFile()" oncancel="resetFileUploadInput()">
                 <div class="col-6 offset-2">
-                    <h2 class="mx-auto my-auto">Product Search</h2>
+                    <h2 id="page-title" class="mx-auto my-auto">Product Search</h2>
                 </div>
 
                 <div class="col-4 text-right d-inline-flex flex-row justify-content-end">
-                    <g:link controller="product" action="add" class="btn btn-wl p-2">Add New Product</g:link>
+                    <g:link elementId="add-new-product-btn" controller="product" action="add" class="btn btn-wl p-2">Add New Product</g:link>
                     <button class="btn btn-wl p-2 ml-2" onclick="selectProductsCSVFile()" id="uploadProductsBtn">Upload Products</button>
                 </div>
             </div>
@@ -252,7 +252,7 @@
             <div class="row mt-4">
                 <div class="col-6">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
                                 <div class="col-10">Filters</div>
                                 <div class="col-2 text-right">
@@ -287,7 +287,7 @@
 
                 <div class="col-2 offset-4">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
+                        <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                             <div class="row">
                                 <div class="col-10">Columns</div>
                                 <div class="col-2 text-right">

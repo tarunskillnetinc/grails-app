@@ -24,16 +24,16 @@
         <section id="tag-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 class="mx-auto">Tag Management</h2>
+                    <h2 id="page-title" class="mx-auto">Tag Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link action="edit" id="${tag.id}" class="btn btn-wl">Edit Tag</g:link>
+                    <g:link elementId="edit-tag-btn" action="edit" id="${tag.id}" class="btn btn-wl">Edit Tag</g:link>
                 </div>
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                <div id="success-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
             <div class="form-group row col-12 col-lg-6 mt-4">
@@ -62,10 +62,10 @@
                 </g:if>
 
                 <g:each in="${tag.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
-                    <div class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2}">
-                        <div class="col-2">${tagProduct.productVariantId}</div>
-                        <div class="col-4">${tagProduct.sku}</div>
-                        <div class="col-6">${tagProduct.productDescription}</div>
+                    <div id="tag-product-${i+1}" class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2}">
+                        <div id="tag-product-${i+1}-id" class="col-2">${tagProduct.productVariantId}</div>
+                        <div id="tag-product-${i+1}-sku" class="col-4">${tagProduct.sku}</div>
+                        <div id="tag-product-${i+1}-description" class="col-6">${tagProduct.productDescription}</div>
                     </div>
                 </g:each>
             </div>

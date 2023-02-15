@@ -102,11 +102,11 @@
 <section id="suppliers-container" class="container-fluid">
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 class="mx-auto my-auto">Suppliers</h2>
+            <h2 id="suppliers-page-title" class="mx-auto my-auto">Suppliers</h2>
         </div>
 
         <div class="col-2 text-right ">
-            <a href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
+            <a id="add-new-supplier-btn" href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
         </div>
     </div>
 
