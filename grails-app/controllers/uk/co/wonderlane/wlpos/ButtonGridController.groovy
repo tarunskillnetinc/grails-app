@@ -37,12 +37,11 @@ class ButtonGridController {
                 redirect(action: "index")
                 return
             }
-            buttonGrid = (storeId != null && buttonService.getButtonGrid(type, storeId) != null) ? // check store level grid whether exist
-                    buttonService.getButtonGrid(type, storeId) : buttonService.getButtonGrid(type)
+            buttonGrid = buttonService.getButtonGrid(type)
             if (!buttonGrid) {
                 ButtonGrid btnGridTemp = new ButtonGrid()
                 btnGridTemp.setRetailerId(springSecurityService.principal.retailerId)
-                btnGridTemp.setStoreId(null)
+                btnGridTemp.setStoreId(springSecurityService.principal.storeId)
                 btnGridTemp.setType(type)
                 btnGridTemp.setDescription(null)
                 btnGridTemp.setButtons(null)
@@ -74,13 +73,12 @@ class ButtonGridController {
                 }
                 if (btnGridTemp.validate()) {
                     buttonService.saveButtonGrid(btnGridTemp)
+                    buttonGrid = buttonService.getButtonGrid(type)
                 } else {
                     flash.error = "Button grid not found."
                     redirect(action: "index")
                     return
                 }
-                buttonGrid = (storeId != null && buttonService.getButtonGrid(type, storeId) != null) ?
-                        buttonService.getButtonGrid(type, storeId) : buttonService.getButtonGrid(type)
             }
         }
 
@@ -122,11 +120,21 @@ class ButtonGridController {
         int previousRows = buttonGrid.rows
 
         // Create a new store level grid if no existing
-        if (buttonGrid.getStoreId() == null && springSecurityService.principal.storeId != null
-         && buttonService.getButtonGrid(buttonGrid.getType(), springSecurityService.principal.storeId) == null) {
+        if (springSecurityService.principal.storeId != buttonGrid.storeId) {
             buttonGrid = new ButtonGrid()
             bindData(buttonGrid, params)
         } else {
+            if ((ButtonGridType.OTHER) == buttonGrid.type) {
+                buttonGrid = buttonService.getButtonGrid(buttonGrid.type, buttonGrid.description)
+                if (!buttonGrid) {
+                    buttonGrid = new ButtonGrid()
+                }
+            } else {
+                buttonGrid = buttonService.getButtonGrid(buttonGrid.type)
+                if (!buttonGrid) {
+                    buttonGrid = new ButtonGrid()
+                }
+            }
             bindData(buttonGrid, params)
         }
 
