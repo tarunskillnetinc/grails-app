@@ -4,6 +4,7 @@ import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.gorm.DataTest
 import grails.testing.web.controllers.ControllerUnitTest
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.helpers.TestPagedResultList
@@ -178,7 +179,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         }
 
         controller.productListService = Stub(ProductListService) {
-            getDelivery(_, _, _) >> getMockDeliveryObject()
+            getProductList(_) >> getMockDeliveryObject()
         }
 
         StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
@@ -196,7 +197,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
 
         if (csv == "false") {
             assert model
-            assert model.delivery
+            assert model.items
         }
 
         where:
@@ -216,9 +217,9 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         given:
         params['productListId'] = "1"
         controller.productListService = Stub(ProductListService) {
-            acceptDelivery(_, _) >> void
+            acceptDelivery(_) >> void
+            getProductList(_) >> getMockDeliveryObject()
         }
-
 
         when:
         controller.ajaxAcceptDelivery()
@@ -233,6 +234,13 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         params['productListItemId'] = "1"
         params['startDate'] = startDate
         params['endDate'] = endDate
+        params['supplierId'] = "1"
+        params['storeId'] = "1"
+        params['descriptionFilter'] = ""
+
+        controller.productListService = Stub(ProductListService) {
+            getProductListItem(_) >> getMockDeliveryObject().getProductListItems().get(0)
+        }
 
         StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
@@ -400,7 +408,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         ProductList productList = new ProductList()
 
         productList.setId(id)
-        productList.setStoreId(storeId)
+        productList.setStore(getMockStoreSettings(storeId))
         productList.setUserId("12345")
         productList.setStatus(ProductListStatus.PENDING)
         productList.setStockAdjustedOnCompletion(true)
@@ -474,5 +482,27 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         productPrice.setPrice(BigDecimal.valueOf(1000))
 
         return productPrice
+    }
+
+    private StoreSettings getMockStoreSettings(int id) {
+        StoreSettings storeSettings = new StoreSettings()
+
+        storeSettings.id = id
+        storeSettings.storeId = id
+        storeSettings.countIncrement = BigDecimal.ONE
+        storeSettings.range = getMockRange()
+        storeSettings.priceBand = getMockPriceBand()
+        storeSettings.type = StoreType.STORE
+        storeSettings.printReceiptOption = PrintReceiptOption.ALWAYS_PRINT
+
+        return storeSettings
+    }
+
+    private Range getMockRange() {
+        return new Range(retailerId: 9, description: "Dummy Range")
+    }
+
+    private PriceBand getMockPriceBand() {
+        return new PriceBand(retailerId: 9, description: "Dummy Price Band")
     }
 }

@@ -7,6 +7,7 @@ import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.joda.time.DateTime
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
@@ -61,7 +62,7 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
     void "should retrieve orders results"() {
         given:
         ProductList testProductList = new ProductList(userId: "testUser", retailerId: 9,
-                type: ProductListType.ORDER, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false)
+                type: ProductListType.ORDER, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false, store: getDummyStoreSettings(100))
 
         HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
         mockCriteria.getResponses().add(testProductList)
@@ -81,7 +82,7 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
         where:
         ID | storeId | supplierId
         1  | 100     | 1
-        1  | null    | null
+        2  | null    | null
     }
 
     //-------------------------------getOrder function Unit tests----------------------------//
@@ -89,7 +90,7 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
     void "should retrieve order results"() {
         given:
         ProductList testProductList = new ProductList(userId: "testUser", retailerId: 9,
-                type: ProductListType.ORDER, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false)
+                type: ProductListType.ORDER, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false, store: getDummyStoreSettings(1))
 
         HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
         mockCriteria.getResponses().add(testProductList)
@@ -109,7 +110,7 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
         where:
         ID | productListId | storeId | supplierId
         1  | 100           | 100     | 1
-        1  | null          | null    | null
+        2  | null          | null    | null
     }
 
     //-------------------------------getDeliveries function Unit tests----------------------------//
@@ -117,7 +118,7 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
     void "should retrieve deliveries results"() {
         given:
         ProductList testProductList = new ProductList(userId: "testUser", retailerId: 9,
-                type: ProductListType.DELIVERY, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false)
+                type: ProductListType.DELIVERY, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false, store: getDummyStoreSettings(1))
 
         HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
         mockCriteria.getResponses().add(testProductList)
@@ -137,35 +138,39 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
         where:
         ID | storeId | supplierId
         1  | 100     | 1
-        1  | null    | null
+        2  | null    | null
     }
 
     //-------------------------------getDelivery function Unit tests----------------------------//
 
     void "should retrieve delivery results"() {
         given:
-        ProductList testProductList = new ProductList(userId: "testUser", retailerId: 9,
-                type: ProductListType.DELIVERY, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false)
+        def originalMetaClass = ProductList.metaClass
 
-        HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
-        mockCriteria.getResponses().add(testProductList)
-        BuildableCriteria defaultCriteria = ProductList.createCriteria() // keep the default behavior
-        ProductList.metaClass.static.createCriteria = { return mockCriteria }
+        ProductList.metaClass.static.findByIdAndRetailerId = { id, retailerId ->
+            def dummyDelivery = getDummyDelivery()
+            if (dummyDelivery.id == id && dummyDelivery.retailerId == retailerId) {
+                return dummyDelivery
+            }
+
+            return null
+        }
 
         productListServiceHelperService.springSecurityService = getFakeSpringSecurityService()
 
         when: 'getDelivery action is executed'
-        def serviceResponse = productListServiceHelperService.getDelivery(100, storeId, supplierId)
-
-        ProductList.metaClass.static.createCriteria = { return defaultCriteria } // set the default value back to the class
+        def productList = productListServiceHelperService.getProductList(productListId)
 
         then: 'getDelivery action response is correct'
-        serviceResponse != null
+        productList == expectedResult
+
+        cleanup:
+        ProductList.metaClass = originalMetaClass
 
         where:
-        ID | storeId | supplierId
-        1  | 100     | 1
-        1  | null    | null
+        ID | productListId | expectedResult
+        1  | 1             | null
+        2  | 100           | getDummyDelivery()
     }
 
     //-------------------------------acceptDelivery function Unit tests----------------------------//
@@ -179,18 +184,17 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
         callableStatementMock.execute() >> true
 
         when: 'acceptDelivery action is executed'
-        def serviceResponse = productListServiceHelperService.acceptDelivery(100, 100)
+        productListServiceHelperService.acceptDelivery(100)
 
         then: 'acceptDelivery action response is correct'
-        serviceResponse
+        noExceptionThrown()
     }
 
     //-------------------------------getAdHocBatches function Unit tests----------------------------//
 
     void "should retrieve ad hoc batches"() {
         given:
-        ProductList testProductList = new ProductList(userId: "testUser", retailerId: 9,
-                type: ProductListType.DELIVERY, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false)
+        ProductList testProductList = new ProductList(userId: "testUser", retailerId: 9, type: ProductListType.AD_HOC_SEL_BATCH, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false, store: getDummyStoreSettings(1))
 
         HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
         mockCriteria.getResponses().add(testProductList)
@@ -395,5 +399,34 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
                 }
             }
         }
+    }
+
+    def getDummyDelivery() {
+        def productList = new ProductList(id: 100, userId: "testUser", retailerId: 9, type: ProductListType.DELIVERY, status: ProductListStatus.PENDING, stockAdjustedOnCompletion: false)
+        productList.id = 100
+
+        return productList
+    }
+
+    private StoreSettings getDummyStoreSettings(int id) {
+        StoreSettings storeSettings = new StoreSettings()
+
+        storeSettings.id = id
+        storeSettings.storeId = id
+        storeSettings.countIncrement = BigDecimal.ONE
+        storeSettings.range = getDummyRange()
+        storeSettings.priceBand = getDummyPriceBand()
+        storeSettings.type = StoreType.STORE
+        storeSettings.printReceiptOption = PrintReceiptOption.ALWAYS_PRINT
+
+        return storeSettings
+    }
+
+    private Range getDummyRange() {
+        return new Range(retailerId: 9, description: "Dummy Range")
+    }
+
+    private PriceBand getDummyPriceBand() {
+        return new PriceBand(retailerId: 9, description: "Dummy Price Band")
     }
 }

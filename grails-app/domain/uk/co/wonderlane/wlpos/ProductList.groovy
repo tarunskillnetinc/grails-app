@@ -125,10 +125,6 @@ class ProductList {
         }
     }
 
-    def getTotalProducts() {
-
-    }
-
     def getTotalPackLines() {
         ArrayList<PackLine> packLines = new ArrayList<>()
         for (int i = 0; i < productListItems.size(); i++) {
@@ -147,4 +143,40 @@ class ProductList {
         }
     }
 
+    boolean equals(that) {
+        if (this.is(that)) {
+            return true
+        }
+
+        if (getClass() != that.class) {
+            return false
+        }
+
+        ProductList productList = (ProductList)that
+
+        if (id != productList.id) {
+            return false
+        }
+        if (userId != productList.userId) {
+            return false
+        }
+        if (retailerId != productList.retailerId) {
+            return false
+        }
+        if (store?.id != productList.store?.id) {
+            return false
+        }
+        if (type != productList.type) {
+            return false
+        }
+        if (status != productList.status) {
+            return false
+        }
+
+        return true
+    }
+
+    int hashCode() {
+        return id.hashCode()
+    }
 }

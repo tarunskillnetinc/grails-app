@@ -24,5 +24,4 @@ class ProductListServiceHelperService extends ProductListService {
         super(databaseCredentials)
         this.fakeConnection = fakeConnection
     }
-
 }

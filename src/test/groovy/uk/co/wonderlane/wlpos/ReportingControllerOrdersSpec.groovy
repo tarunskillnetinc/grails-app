@@ -97,6 +97,10 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
             getOrders(_, _, _, _) >> new TestPagedResultList(getMockOrdersList())
         }
 
+        controller.reportingService = Stub(ReportingService) {
+            getReportColumns(_) >> null
+        }
+
         StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
@@ -278,7 +282,7 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
         ProductList productList = new ProductList()
 
         productList.setId(id)
-        productList.setStoreId(storeId)
+        productList.setStore(getMockStoreSettings(storeId))
         productList.setUserId("12345")
         productList.setStatus(ProductListStatus.PENDING)
         productList.setStockAdjustedOnCompletion(true)
@@ -325,5 +329,14 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
         pack.setQuantity(1)
 
         return pack
+    }
+
+    private StoreSettings getMockStoreSettings(int id) {
+        StoreSettings storeSettings = new StoreSettings()
+
+        storeSettings.id = id
+        storeSettings.storeId = id
+
+        return storeSettings
     }
 }

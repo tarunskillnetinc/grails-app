@@ -55,11 +55,11 @@
         });
 
         function resetForm() {
-            document.getElementById('startDate').value = "${startDate ? startDate.toString("dd/MM/yyyy") : (new Date() - 6).format("dd/MM/yyyy")}";
+            document.getElementById('startDate').value = "${(new Date() - 6).format("dd/MM/yyyy")}";
             $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
             $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
-            document.getElementById("endDate").value = "${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+            document.getElementById("endDate").value = "${new Date().format("dd/MM/yyyy")}";
             $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
             $('#endDate').datepicker('setEndDate', "${(new Date() + 7).format("dd/MM/yyyy")}");
 

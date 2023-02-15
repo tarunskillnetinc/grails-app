@@ -24,6 +24,15 @@
         var saveReportColumnsUrl = "${createLink(controller: 'reporting', action: 'ajaxSaveReportColumns')}";
 
         $(document).ready(function () {
+            $("#descriptionFilter").keydown(function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+
+                    filterReport();
+                    return false;
+                }
+            });
+
             filterReport();
         });
 

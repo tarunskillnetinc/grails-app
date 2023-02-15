@@ -58,9 +58,7 @@
                 <div class="col-2 my-auto">${item.quantity ?: item.fillQuantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber
-                        number="${item.totalCost}"
-                        type="currency"/></div>
+                <div class="col-2 my-auto"><g:formatNumber number="${item.totalCost}" type="currency" /></div>
             </g:if>
         </div>
     </g:each>
