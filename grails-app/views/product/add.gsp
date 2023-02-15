@@ -604,7 +604,7 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link elementId="product-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
                     <button class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
                 </div>
             </div>

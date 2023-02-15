@@ -45,30 +45,30 @@
     </g:if>
 
     <g:each in="${products}" var="product" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: product.id)}';">
+        <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: product.id)}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemCode" }?.enabled}">
-                <div class="col-1">${product.itemCode}</div>
+                <div id="product-result-${i+1}-item-code" class="col-1">${product.itemCode}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col">${product.description}</div>
+                <div id="product-result-${i+1}-description" class="col">${product.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "unitSize" }?.enabled}">
-                <div class="col-1">${product.unitSize}</div>
+                <div id="product-result-${i+1}-unit-size" class="col-1">${product.unitSize}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatRate" }?.enabled}">
-                <div class="col-1">${product.vatCode?.percentage}%</div>
+                <div id="product-result-${i+1}-vat-rate" class="col-1">${product.vatCode?.percentage}%</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "category" }?.enabled}">
-                <div class="col-2">${product.category?.description}</div>
+                <div id="product-result-${i+1}-category" class="col-2">${product.category?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "costPrice" }?.enabled}">
-                <div class="col-1">&pound;${product.costPrice}</div>
+                <div id="product-result-${i+1}-cost-price" class="col-1">&pound;${product.costPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-                <div class="col-1">&pound;${product.retailPrice}</div>
+                <div id="product-result-${i+1}-retail-price" class="col-1">&pound;${product.retailPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
-                <div class="col-1">${product.margin}%</div>
+                <div id="product-result-${i+1}-margin" class="col-1">${product.margin}%</div>
             </g:if>
         </div>
     </g:each>

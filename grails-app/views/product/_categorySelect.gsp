@@ -1,5 +1,5 @@
-<g:each in="${categories}" var="category">
-    <label class="radio-container level-${level}">${category.description}
+<g:each in="${categories}" var="category" status="i">
+    <label id="category-${i+1}" class="radio-container level-${level}">${category.description}
         <g:radio name="category.id" id="category-${category.id}" checked="${category.id == selectedCategoryId}" value="${category.id}" class="form-check-input" onclick="onCategoryChanged( ${category.id})"/>
         <g:if test="${category.childCategories}">
             <!-- Is this department/category part of the selected category hierarchy? -->
@@ -11,7 +11,7 @@
             </g:else>
         </g:if>
 
-        <span class="checkmark"></span>
+        <span id="category-${i+1}-checkmark" class="checkmark"></span>
     </label>
 
     <div id="categoryContainer-${category.id}">

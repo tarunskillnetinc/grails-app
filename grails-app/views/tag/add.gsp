@@ -27,7 +27,7 @@
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 class="mx-auto">Tag Management</h2>
+                    <h2 id="page-title"  class="mx-auto">Tag Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
@@ -67,7 +67,7 @@
                 <div class="row mt-4 mx-0">
                     <div class="col-2 offset-8 text-right px-0">
                         <!-- Button trigger modal -->
-                        <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
+                        <a id="add-product-btn" href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                             Add Product
                         </a>
                     </div>
