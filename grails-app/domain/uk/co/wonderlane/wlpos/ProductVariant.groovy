@@ -82,6 +82,8 @@ class ProductVariant implements Serializable {
         shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
+        shelfCapacity nullable: true
+        minimumDisplayQuantity nullable: true
         delete bindable: true
         barcodez bindable: true
     }
