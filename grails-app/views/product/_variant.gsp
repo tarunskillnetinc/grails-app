@@ -24,6 +24,5 @@
 
     <div class="col-2 my-auto text-right">
         <a id="variant-${index}-suppliers-btn" href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
-        <a id="variant-${index}-delete-btn" href="#" onclick="event.stopPropagation(); deleteVariant(${index});" class="btn btn-danger">Delete SKU</a>
     </div>
 </div>
