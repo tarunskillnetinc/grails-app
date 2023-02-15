@@ -52,11 +52,11 @@
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 class="mx-auto">Tag Management</h2>
+                    <h2 id="tag-page-title" class="mx-auto">Tag Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link controller="tag" action="add" class="btn btn-wl">Add New Tag</g:link>
+                    <g:link elementId="add-new-tag-btn" controller="tag" action="add" class="btn btn-wl">Add New Tag</g:link>
                 </div>
             </div>
 

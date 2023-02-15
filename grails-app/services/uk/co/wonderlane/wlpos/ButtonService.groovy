@@ -91,7 +91,11 @@ class ButtonService {
                 ProcessType.NAVIGATE_PAYPOINT_ADMIN,
                 ProcessType.NAVIGATE_PAYPOINT_EOD,
                 ProcessType.NAVIGATE_X_READ,
-                ProcessType.NAVIGATE_Z_READ]
+                ProcessType.NAVIGATE_Z_READ,
+                ProcessType.EDIT_BASKET,
+                ProcessType.ACCEPT_AGE_CHECK,
+                ProcessType.REPRINT_RECEIPT,
+                ProcessType.NAVIGATE_TRANSACTIONS]
     }
 
 

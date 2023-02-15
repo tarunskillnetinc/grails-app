@@ -42,31 +42,31 @@
     <g:each in="${sales}" var="sale" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
-                <div class="col-1 my-auto">${sale.visibleStoreId}</div>
+                <div id="store-id-${i + 1}" class="col-1 my-auto">${sale.visibleStoreId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "wlTransactionId" }?.enabled}">
-                <div class="col-1 my-auto">${sale.wlTransactionId}</div>
+                <div id="txn-id-${i + 1}" class="col-1 my-auto">${sale.wlTransactionId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "ppTransactionId" }?.enabled}">
-                <div class="col-1 my-auto">${sale.ppTransactionId}</div>
+                <div id="pp-txn-id-${i + 1}" class="col-1 my-auto">${sale.ppTransactionId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "terminalId" }?.enabled}">
-                <div class="col-1 my-auto">${sale.terminalId}</div>
+                <div id="tid-${i + 1}" class="col-1 my-auto">${sale.terminalId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-3 my-auto" style="white-space: nowrap; text-overflow: ellipsis;">${sale.description}</div>
+                <div id="description-${i + 1}" class="col-3 my-auto" style="white-space: nowrap; text-overflow: ellipsis;">${sale.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == 'type'}?.enabled}">
-                <div class="col-1 my-auto"><g:message code="PPItemType.${sale.type}"/></div>
+                <div id="type-${i + 1}" class="col-1 my-auto"><g:message code="PPItemType.${sale.type}"/></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "value" }?.enabled}">
-                <div class="col-1 my-auto">&pound;${sale.value}</div>
+                <div id="value-${i + 1}" class="col-1 my-auto">&pound;${sale.value}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "status" }?.enabled}">
-                <div class="col-1 my-auto"><g:message code="PPStatus.${sale.status}"/></div>
+                <div id="status-${i + 1}" class="col-1 my-auto"><g:message code="PPStatus.${sale.status}"/></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "transactionDate" }?.enabled}">
-                <div class="col-2 my-auto">${sale.transactionDate.toString("dd/MM/yyyy HH:mm:ss")}</div>
+                <div id="txn-date-${i + 1}" class="col-2 my-auto">${sale.transactionDate.toString("dd/MM/yyyy HH:mm:ss")}</div>
             </g:if>
         </div>
     </g:each>

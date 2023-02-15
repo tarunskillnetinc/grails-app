@@ -31,13 +31,13 @@
     </g:if>
 
     <g:each in="${suppliers}" var="supplier" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="editSupplier(${supplier.id});">
-            <div class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.reference}</div>
-            <div class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.name}</div>
-            <div class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.customerReference}</div>
-            <div class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.contactName}</div>
-            <div class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.email}</div>
-            <div class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.phoneNumber}</div>
+        <div id="supplier-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="editSupplier(${supplier.id});">
+            <div id="supplier-result-${i+1}-reference" class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.reference}</div>
+            <div id="supplier-result-${i+1}-name" class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.name}</div>
+            <div id="supplier-result-${i+1}-customer-reference" class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.customerReference}</div>
+            <div id="supplier-result-${i+1}-contact-name" class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.contactName}</div>
+            <div id="supplier-result-${i+1}-email" class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.email}</div>
+            <div id="supplier-result-${i+1}-telephone" class="col-2 my-auto" style='padding: 3px; width: 130px; word-break: break-all; word-wrap: break-word;'>${supplier.phoneNumber}</div>
         </div>
     </g:each>
 </div>

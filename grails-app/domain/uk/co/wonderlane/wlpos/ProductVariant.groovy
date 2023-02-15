@@ -27,6 +27,8 @@ class ProductVariant implements Serializable {
     DateTime effectiveDate
     boolean delete
     Integer shelfLifeDays
+    Integer shelfCapacity
+    Integer minimumDisplayQuantity
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<Tag> tags = new ArrayList<>()
@@ -58,6 +60,8 @@ class ProductVariant implements Serializable {
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
         packs cascade: "all-delete-orphan"
+        shelfCapacity column: "shelfCapacity"
+        minimumDisplayQuantity column: "minimumDisplayQuantity"
     }
 
     static constraints = {
@@ -78,6 +82,8 @@ class ProductVariant implements Serializable {
         shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
+        shelfCapacity nullable: true
+        minimumDisplayQuantity nullable: true
         delete bindable: true
         barcodez bindable: true
     }

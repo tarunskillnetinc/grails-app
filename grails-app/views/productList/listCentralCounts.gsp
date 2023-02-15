@@ -51,7 +51,7 @@
 
         <section id="central-count-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Central Count Management</h2>
+                <h2 id="page-title" class="mx-auto">Central Count Management</h2>
             </div>
 
             <g:if test="${flash.message}">
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="col-2 px-0 text-right">
-                    <g:link controller="productList" action="addCentralCount" class="btn btn-wl">Add New Central Count</g:link>
+                    <g:link elementId="add-new-central-count" controller="productList" action="addCentralCount" class="btn btn-wl">Add New Central Count</g:link>
                 </div>
             </div>
 

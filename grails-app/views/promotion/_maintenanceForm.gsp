@@ -155,8 +155,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="bogof-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -344,8 +344,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="xfory-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -486,8 +486,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="percentage-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -636,8 +636,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -786,8 +786,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
