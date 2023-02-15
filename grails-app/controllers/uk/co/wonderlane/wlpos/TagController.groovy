@@ -74,7 +74,7 @@ class TagController {
         tagProduct.productVariantId = productVariantId
         tagProduct.productDescription = productDescription
 
-        render (template: "tagProductRow", model: [tagProduct: tagProduct], index: 1)
+        render (template: "tagProductRow", model: [tagProduct: tagProduct])
     }
 
     def save(SaveTagCommand cmd) {

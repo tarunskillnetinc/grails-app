@@ -23,12 +23,12 @@
     <section id="header-container" class="container-fluid">
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Settings</h2>
+                <h2 id="page-title" class="mx-auto my-auto">Settings</h2>
             </div>
 
             <div class="col-2 text-right">
-                <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
-                <button class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
+                <g:link elementId="cancel-btn" controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
             </div>
         </div>
     </section>
