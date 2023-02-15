@@ -8,7 +8,15 @@ function productSelected (id, itemCode, description) {
 
             $('#noResultsRow').hide();
 
-            $('#productVariant' +id).addClass("wl-striped" +($('#productList').children().length % 2));
+            let i = $('#productList').children().length - 1; // remove hidden noResultsRow
+            let row = $('#productVariant' +id);
+            row.addClass("wl-striped" +((i-1) % 2));
+            row.find('#prod-0-id').attr("id", "prod-" + i + "-id");
+            row.find('#prod-0-sku').attr("id", "prod-" + i + "-sku");
+            row.find('#prod-0-description').attr("id", "prod-" + i + "-description");
+            row.find('#prod-0-colour').attr("id", "prod-" + i + "-colour");
+            row.find('#prod-0-size').attr("id", "prod-" + i + "-size");
+            row.find('#prod-0-remove-btn').attr("id", "prod-" + i + "-remove-btn");
         }
     });
 }
