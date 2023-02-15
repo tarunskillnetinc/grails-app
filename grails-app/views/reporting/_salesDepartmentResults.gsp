@@ -36,25 +36,25 @@
     <g:each in="${sales}" var="sale" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'salesCategory', params: [categoryId: sale.salesCategories.first().categoryId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-4 my-auto">${sale.productDescription}</div>
+                <div id="description-${i + 1}" class="col-4 my-auto">${sale.productDescription}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div class="col-1 my-auto">${sale.quantity + sale.refundQuantity} (${sale.refundQuantity} refunds)</div>
+                <div id="total-quantity-${i + 1}" class="col-1 my-auto">${sale.quantity + sale.refundQuantity} (${sale.refundQuantity} refunds)</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
-                <div class="col my-auto">&pound;${sale.avgCostPrice}</div>
+                <div id="avg-cost-price-${i + 1}" class="col my-auto">&pound;${sale.avgCostPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgRetailPrice" }?.enabled}">
-                <div class="col my-auto">&pound;${sale.avgRetailPrice}</div>
+                <div id="avg-sales-price-${i + 1}" class="col my-auto">&pound;${sale.avgRetailPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-                <div class="col my-auto">&pound;${sale.retailPrice}</div>
+                <div id="total-sales-${i + 1}" class="col my-auto">&pound;${sale.retailPrice}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatAmount" }?.enabled}">
-                <div class="col my-auto">&pound;${sale.vatAmount}</div>
+                <div id="vat-amount-${i + 1}" class="col my-auto">&pound;${sale.vatAmount}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgMargin" }?.enabled}">
-                <div class="col my-auto">${sale.avgMargin}&#37;</div>
+                <div id="avg-margin-${i + 1}" class="col my-auto">${sale.avgMargin}&#37;</div>
             </g:if>
         </div>
     </g:each>
