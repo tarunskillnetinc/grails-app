@@ -118,8 +118,8 @@
         <div class="row mt-4">
             <div class="col">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li class="breadcrumb-item active" aria-current="page">Supplier Affiliations</li>
+                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Supplier Affiliations</li>
                 </ol>
             </div>
         </div>

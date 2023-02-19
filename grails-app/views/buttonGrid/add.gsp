@@ -12,15 +12,19 @@
             <div class="row mt-4">
                 <div class="col">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active">Button Grids</li>
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active">Button Grids</li>
                         <g:if test="${buttonGrid?.id && buttonGrid?.type?.name() != 'OTHER'}">
-                            <li class="breadcrumb-item"><g:link action="show" params="[type: buttonGrid?.type]"><g:message code="ButtonGridType.${buttonGrid?.type}" /></g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item"><g:link action="show" params="[type: buttonGrid?.type]"><g:message code="ButtonGridType.${buttonGrid?.type}" /></g:link></li>
+                            <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${buttonGrid?.id ? 'Edit' : 'Add'} Button Grid</li>
                         </g:if>
                         <g:elseif test="${buttonGrid?.id && buttonGrid?.type?.name() == 'OTHER'}">
-                            <li class="breadcrumb-item"><g:link action="show" id="${buttonGrid?.id}">${buttonGrid?.description}</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item"><g:link action="show" id="${buttonGrid?.id}">${buttonGrid?.description}</g:link></li>
+                            <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${buttonGrid?.id ? 'Edit' : 'Add'} Button Grid</li>
                         </g:elseif>
-                        <li class="breadcrumb-item active" aria-current="page">${buttonGrid?.id ? 'Edit' : 'Add'} Button Grid</li>
+                        <g:else>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${buttonGrid?.id ? 'Edit' : 'Add'} Button Grid</li>
+                        </g:else>
                     </ol>
                 </div>
             </div>
