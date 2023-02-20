@@ -330,12 +330,14 @@ class ProductService extends MySqlDal {
         String searchQuery = """SELECT DISTINCT(p)
                                 FROM Product p
                                 JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
+                                LEFT JOIN Pack pk ON pk.productVariant = pv.id
                                 LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
                                 WHERE p.retailerId = :retailerId """
 
         String countQuery = """SELECT COUNT(DISTINCT p)
                                 FROM Product p
                                 JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
+                                LEFT JOIN Pack pk ON pk.productVariant = pv.id
                                 LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
                                 WHERE p.retailerId = :retailerId """
 
@@ -347,11 +349,13 @@ class ProductService extends MySqlDal {
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
                                    OR p.itemCode LIKE :searchTerm
-                                   OR p.description LIKE :searchTerm """
+                                   OR p.description LIKE :searchTerm
+                                   OR pk.barcode LIKE :searchTerm """
 
             countQuery += """AND (pv.sku IN (:barcodeSkus)
                                    OR p.itemCode LIKE :searchTerm
-                                   OR p.description LIKE :searchTerm """
+                                   OR p.description LIKE :searchTerm
+                                   OR pk.barcode LIKE :searchTerm """
 
             if (searchTerm.isNumber()) {
                 queryParams.searchTermLong = Long.parseLong(searchTerm)
@@ -388,10 +392,14 @@ class ProductService extends MySqlDal {
             countQuery += """AND p.description LIKE :searchTerm """
         } else if (searchBy == "barcode") {
             queryParams.barcodeSkus = barcodeSkus
+            queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.barcodeSkus = barcodeSkus
+            countQueryParams.searchTerm = "%${searchTerm}%"
 
-            searchQuery += """AND pv.sku IN (:barcodeSkus) """
-            countQuery += """AND pv.sku IN (:barcodeSkus) """
+            searchQuery += """AND (pv.sku IN (:barcodeSkus)
+                                    OR pk.barcode LIKE :searchTerm) """
+            countQuery += """AND (pv.sku IN (:barcodeSkus)
+                                    OR pk.barcode LIKE :searchTerm) """
         }
 
         if (sortColumn == "id" || sortColumn == "description") {
