@@ -48,7 +48,7 @@
     <g:each in="${promotionSaleProducts}" var="promotionSaleProduct" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemCode" }?.enabled}">
-                <div id="item-code-${i + 1}" class="col my-auto">${promotionSaleProduct.itemCode}</div>
+                <div id="item-code-${i + 1}" class="col my-auto text-truncate">${promotionSaleProduct.itemCode}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div id="description-${i + 1}" class="col-2 my-auto">${promotionSaleProduct.description}</div>

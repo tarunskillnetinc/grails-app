@@ -47,7 +47,7 @@
     <g:each in="${products}" var="product" status="i">
         <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: product.id)}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemCode" }?.enabled}">
-                <div id="product-result-${i+1}-item-code" class="col-1">${product.itemCode}</div>
+                <div id="product-result-${i+1}-item-code" class="col-1 text-truncate">${product.itemCode}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div id="product-result-${i+1}-description" class="col">${product.description}</div>
