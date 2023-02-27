@@ -71,7 +71,7 @@
 
             <div class="form-group row margin-top-2rem">
                 <div class="col-8 offset-3">
-                    <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+                    <g:link elementId="cancel-btn" controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 
                     <g:submitButton class="btn btn-success" name="save" value="Save" />
                 </div>

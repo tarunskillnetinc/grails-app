@@ -138,7 +138,7 @@
             <div class="row mt-4">
                 <div class="col-6">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
                                 <div class="col-10">Filters</div>
                                 <div class="col-2 text-right">
@@ -192,7 +192,7 @@
                                 </div>
 
                                 <div class="col-4 offset-2 text-right">
-                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                                 </div>
                             </div>

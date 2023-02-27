@@ -34,9 +34,9 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
+                    <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
 
-                    <button class="btn btn-success" name="save" onclick="$('#tag-form').submit();">Save</button>
+                    <button id="save-btn" class="btn btn-success" name="save" onclick="$('#tag-form').submit();">Save</button>
                 </div>
             </div>
 
