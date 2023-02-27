@@ -229,7 +229,7 @@
                                     </div>
                                     <div class="col-4">
                                         <!-- Button trigger modal -->
-                                        <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
+                                        <a id="add-product-btn" href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                                             Select Product
                                         </a>
                                     </div>

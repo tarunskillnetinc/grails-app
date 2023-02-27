@@ -1,17 +1,17 @@
 <asset:javascript src="validators/input-validator.js" />
 
 <div id="addPackTextContainer-${variantIndex}-${packIndex}" class="row mx-4 pt-2 pb-2 ${isNewPack ? 'hidden' : ''} wl-striped${packIndex % 2}">
-    <div class="col-3 my-auto">${pack?.supplier?.name}</div>
-    <div class="col-2 my-auto">${pack?.quantity}</div>
-    <div class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
-    <div class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
-    <div class="col-2 my-auto text-truncate">${pack?.barcode}</div>
+    <div id="add-pack-${variantIndex+1}-${packIndex+1}-supplier" class="col-3 my-auto">${pack?.supplier?.name}</div>
+    <div id="add-pack-${variantIndex+1}-${packIndex+1}-quantity" class="col-2 my-auto">${pack?.quantity}</div>
+    <div id="add-pack-${variantIndex+1}-${packIndex+1}-price" class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
+    <div id="add-pack-${variantIndex+1}-${packIndex+1}-order-code" class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
+    <div id="add-pack-${variantIndex+1}-${packIndex+1}-barcode" class="col-2 my-auto text-truncate">${pack?.barcode}</div>
     <div class="col-1 my-auto">
         <g:if test="${pack?.supplier?.symbolGroupId > 0}">
-            <button class="btn btn-wl disabled" title="You cannot edit packs from this supplier." disabled>Edit</button>
+            <button id="add-pack-${variantIndex+1}-${packIndex+1}-edit-btn" class="btn btn-wl disabled" title="You cannot edit packs from this supplier." disabled>Edit</button>
         </g:if>
         <g:else>
-            <a href="#" class="btn btn-wl" onclick="addPack(${variantIndex}, ${packIndex});">Edit</a>
+            <a id="add-pack-${variantIndex+1}-${packIndex+1}-edit-btn" href="#" class="btn btn-wl" onclick="addPack(${variantIndex}, ${packIndex});">Edit</a>
         </g:else>
     </div>
 </div>

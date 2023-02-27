@@ -73,7 +73,8 @@
                         <div class="col">
                             <div class="form-group row mt-4 ml-5">
                                 <label for="endDate" class="col-4 col-form-label text-left pr-4">Stores</label>
-                                <g:select name="storeIdList"
+                                <g:select id="storeIdList"
+                                          name="storeIdList"
                                           from="${availableStores}"
                                           multiple="true"
                                           value=""

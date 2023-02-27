@@ -53,7 +53,7 @@
     </div>
 
     <div class="row mx-4 mt-3">
-        <a href="#" onclick="addPack(${variantIndex}, null, ${variant.productVariantId});" class="btn btn-wl">Add Pack</a>
+        <a id="add-pack-btn" href="#" onclick="addPack(${variantIndex}, null, ${variant.productVariantId});" class="btn btn-wl">Add Pack</a>
     </div>
 </div>
 
