@@ -12,7 +12,9 @@
             <label for="addVariantSku" class="col-3 offset-1 col-form-label text-right">SKU</label>
 
             <div class="input-group col-4">
-                <g:field type="number" name="addVariantSku" value="${variant?.sku}" class="form-control bottom-border" />
+                <g:field type="number" name="addVariantSku" value="${variant?.sku}"
+                         disabled="${isEditMode}"
+                         class="form-control bottom-border"/>
             </div>
         </div>
 
@@ -24,7 +26,7 @@
                     <span class="input-group-text">&pound;</span>
                 </div>
 
-                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
+                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId') || zeroPrice}" />
             </div>
         </div>
 

@@ -37,9 +37,9 @@
             <div class="row mt-4">
                 <div class="col">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active" aria-current="page">Monitoring</li>
-                        <li class="breadcrumb-item active" aria-current="page">Transaction Service Status</li>
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Monitoring</li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Transaction Service Status</li>
                     </ol>
                 </div>
             </div>
@@ -48,15 +48,15 @@
 
     <section id="reporting-container" class="container-fluid">
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Transaction Service Status</h2>
+            <h2 id="page-title" class="mx-auto">Transaction Service Status</h2>
         </div>
 
         <div class="row mt-4">
-            <p class="mx-auto">This page displays the status of all services which process transactions.</p>
+            <p id="page-message" class="mx-auto">This page displays the status of all services which process transactions.</p>
         </div>
 
         <div class="col-2 offset-10 text-right">
-            <a href="#" class="btn btn-wl mt-1" onclick="getServiceStatus();">Refresh</a>
+            <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getServiceStatus();">Refresh</a>
         </div>
 
         <div class="d-flex justify-content-center">

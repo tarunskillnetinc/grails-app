@@ -34,18 +34,18 @@
     <g:each in="${shifts}" var="shift" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                <div class="col-1 my-auto">${shift.storeId}</div>
-                <div class="col-1 my-auto">${shift.tillId}</div>
+                <div id="store-number-${i + 1}" class="col-1 my-auto">${shift.storeId}</div>
+                <div id="till-number-${i + 1}" class="col-1 my-auto">${shift.tillId}</div>
             </g:if>
             <g:else>
-                <div class="col-2 my-auto">${shift.tillId}</div>
+                <div id="till-number-${i + 1}" class="col-2 my-auto">${shift.tillId}</div>
             </g:else>
 
-            <div class="col-2 my-auto">${shift.shiftNumber ?: 0}</div>
-            <div class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
-            <div class="col-2 my-auto">${shift.reconciledDate != null ? "Reconciled" : "Unreconciled"}</div>
-            <div class="col-2 my-auto"><g:formatNumber number="${(shift.sales.sum { it.value } ?: BigDecimal.ZERO) - (shift.refunds.sum { it.value } ?: BigDecimal.ZERO)}" type="currency" /></div>
-            <div class="col-2 my-auto"><g:formatNumber number="${shift.reconciliationTotals.find { it.tenderType.name() == 'CASH' }?.variance ?: BigDecimal.ZERO}" type="currency" /></div>
+            <div id="shift-number-${i + 1}" class="col-2 my-auto">${shift.shiftNumber ?: 0}</div>
+            <div id="shift-date-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
+            <div id="status-${i + 1}" class="col-2 my-auto">${shift.reconciledDate != null ? "Reconciled" : "Unreconciled"}</div>
+            <div id="total-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${(shift.sales.sum { it.value } ?: BigDecimal.ZERO) - (shift.refunds.sum { it.value } ?: BigDecimal.ZERO)}" type="currency" /></div>
+            <div id="variance-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${shift.reconciliationTotals.find { it.tenderType.name() == 'CASH' }?.variance ?: BigDecimal.ZERO}" type="currency" /></div>
         </div>
     </g:each>
 </div>

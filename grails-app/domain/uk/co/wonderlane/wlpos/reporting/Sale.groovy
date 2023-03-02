@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos.reporting
 
+import org.joda.time.DateTime
+
 import java.math.RoundingMode
 
 class Sale {
@@ -22,8 +24,9 @@ class Sale {
     String vatCodeDescription
     int userId
     String usersName
-    Date dateCreated
+    DateTime dateCreated
 
+    int refundQuantity
     BigDecimal avgCostPrice // Calculated value, marked transient below.
     BigDecimal avgRetailPrice // Calculated value, marked transient below.
     BigDecimal avgMargin // Calculated value, marked transient below.
@@ -34,7 +37,7 @@ class Sale {
 
     static fetchMode = [ salesCategories: 'eager' ]
 
-    static transients = [ 'avgCostPrice', 'avgRetailPrice', 'avgMargin' ]
+    static transients = [ 'refundQuantity', 'avgCostPrice', 'avgRetailPrice', 'avgMargin' ]
 
     static mapping = {
         datasources (["reporting"])
@@ -68,14 +71,14 @@ class Sale {
     }
 
     BigDecimal getAvgCostPrice() {
-        return costPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
+        return quantity == 0 ? costPrice.divide(BigDecimal.valueOf(1), 2, RoundingMode.HALF_UP) : costPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
     }
 
     BigDecimal getAvgRetailPrice() {
-        return retailPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
+        return quantity == 0 ? retailPrice.divide(BigDecimal.valueOf(1), 2, RoundingMode.HALF_UP) : retailPrice.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
     }
 
     BigDecimal getAvgMargin() {
-        return margin.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
+        return quantity == 0 ? margin.divide(BigDecimal.valueOf(1), 2, RoundingMode.HALF_UP) : margin.divide(BigDecimal.valueOf(quantity), 2, RoundingMode.HALF_UP)
     }
 }

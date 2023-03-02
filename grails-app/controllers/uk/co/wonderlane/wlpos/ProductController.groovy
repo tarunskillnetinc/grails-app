@@ -1,12 +1,27 @@
 package uk.co.wonderlane.wlpos
 
+import com.opencsv.bean.CsvBindByName
+import com.opencsv.bean.CsvToBeanBuilder
+import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
+import grails.validation.Validateable
+import groovy.json.JsonSlurper
+import org.apache.commons.lang3.StringUtils
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import uk.co.wonderlane.wlpos.entities.SyncMessage
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
+import org.springframework.http.HttpStatus
+import org.springframework.validation.BeanPropertyBindingResult
+import org.springframework.validation.Errors
+import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.PackStatus
+import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.reporting.ReportColumn
+import uk.co.wonderlane.wlpos.reporting.ReportColumns
+import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -17,85 +32,114 @@ class ProductController {
     def productService
     def categoryService
     def restrictionsService
+    def supplierService
     def tagService
-    def rabbitService
-    def gsonProvider
+    def productHistoryService
 
+    /**
+     * Landing page of the controller action - displays the product search screen.
+     */
     def index() {
-        render(view: "index", model: [products: null, storeId: springSecurityService.principal.storeId, page: 1, pageCount: 0, pageNumbers: null])
+        [userColumns: productService.getColumns()]
     }
 
     def show(int id) {
+        setEffectiveDate()
         def product = productService.getProduct(id)
-
+        DateTime now = DateTime.now(DateTimeZone.UTC)
         if (!product) {
             flash.message = "Product not found"
             redirect(action: "index")
             return
         }
-
         def ranges = []
         def priceBands = []
-
         def productCategoryList = []
-
         def category = product.category
+        def productId = product.id
         while (category) {
             productCategoryList.add(category.id)
-
             category = category.parentCategory
         }
-
         def userRoles = springSecurityService.principal.authorities*.authority
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
             priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
-        render(view: "add", model: [product: product,
-                                    storeId: springSecurityService.principal.storeId,
-                                    statusValues: ProductStatus.values(),
-                                    categoryValues: categoryService.getFullCategoryHierarchy(),
+        render(view: "add", model: [product            : product,
+                                    storeId            : springSecurityService.principal.storeId,
+                                    statusValues       : ProductStatus.values(),
+                                    categoryValues     : categoryService.getFullCategoryHierarchy(),
                                     productCategoryList: productCategoryList,
-                                    vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
-                                    ranges: ranges,
-                                    priceBands: priceBands,
-                                    navlink: "details"])
+                                    vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    ranges             : ranges,
+                                    priceBands         : priceBands,
+                                    effectiveDateIndex : session.effectiveDate,
+                                    now                : now,
+                                    navlink            : "details",
+                                    snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled()])
+    }
+
+    private void setEffectiveDate() {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy").withZone(DateTimeZone.UTC)
+        def effectiveDateSelected
+        if (params.get("effectiveDate")) {
+            effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
+            session.effectiveDate = [effectiveDateSelected.toString(formatter), effectiveDateSelected]
+        } else {
+            session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
+        }
     }
 
     def add() {
+        setEffectiveDate()
+
         def ranges = []
         def priceBands = []
-
         def userRoles = springSecurityService.principal.authorities*.authority
+
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
             priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
-        render(view: "add", model: [storeId: springSecurityService.principal.storeId,
-                                    statusValues: ProductStatus.values(),
+        render(view: "add", model: [storeId       : springSecurityService.principal.storeId,
+                                    statusValues  : ProductStatus.values(),
                                     categoryValues: categoryService.getFullCategoryHierarchy(),
-                                    vatValues: VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
-                                    ranges: ranges,
-                                    priceBands: priceBands,
-                                    isNewProduct: true])
+                                    vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    ranges        : ranges,
+                                    priceBands    : priceBands,
+                                    now           : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
+                                    isNewProduct  : true])
     }
 
     def search() {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
+        session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, 50, 0, "id", "asc")
 
-        render(template: "/product/productSearchResults", model: [ products: products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId ])
+        render(template: "addProductSearchResults", model: [products: products.products, totalResults: products.totalCount, storeId: springSecurityService.principal.storeId])
     }
 
-    def maintenanceSearch() {
+    /**
+     * Called from the main product maintenance search screen.
+     */
+    def ajaxSearchProducts() {
         session.PRODUCT_SEARCH_TERM = params.searchTerm
+        session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
-        render(template: "/product/maintenanceSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
+        render(template: "productSearchResults", model: [products    : products.products,
+                                                         storeId     : springSecurityService.principal.storeId,
+                                                         userColumns : productService.getColumns(),
+                                                         searchTerm  : params.searchTerm,
+                                                         searchBy    : params.searchBy,
+                                                         max         : params.max ?: 50,
+                                                         offset      : params.offset,
+                                                         totalResults: products.totalCount])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -116,7 +160,7 @@ class ProductController {
         def productPrices = productService.searchProductPrices(searchTerm, categoryId, tagId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        render(template: "/product/pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
+        render(template: "pricesSearchResults", model: [productPrices: productPrices, priceBands: priceBands])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -141,41 +185,141 @@ class ProductController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
-        def now = DateTime.now(DateTimeZone.UTC)
-        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
+    def supplierUpdates() {
+        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def categories = categoryService.getFullCategoryHierarchy()
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description"])
 
+        [suppliers: suppliers, categories: categories, priceBands: priceBands]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def supplierUpdatesSearch() {
+        Integer supplierId = params.supplierId ? Integer.parseInt(params.supplierId) : null
+        Integer categoryId = params.categoryId ? Integer.parseInt(params.categoryId) : null
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+        DateTime sinceDate = params.sinceDate ? DateTime.parse(params.sinceDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        Integer priceBandId = params.priceBandId ? Integer.parseInt(params.priceBandId) : null
+        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        int max = params.max ? Integer.parseInt(params.max) : 200
+
+        def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBandId, supplierId, categoryId, offset, max)
+
+        render(template: "/product/supplierUpdatesSearchResults", model: [supplierPriceUpdates: supplierPriceUpdates.results, totalCount: supplierPriceUpdates.totalCount])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveSupplierPriceUpdates() {
+        Integer supplierId = params.supplierId ? Integer.parseInt(params.supplierId) : null
+        Integer categoryId = params.categoryId ? Integer.parseInt(params.categoryId) : null
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+        DateTime sinceDate = params.sinceDate ? DateTime.parse(params.sinceDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        Integer priceBandId = params.priceBandId ? Integer.parseInt(params.priceBandId) : null
+        DateTime effectiveDate = params.effectiveDate ? DateTime.parse(params.effectiveDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        boolean acceptRrps = params.acceptRrps ? Boolean.valueOf(params.acceptRrps) : false
+        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        int max = 100000
+
+        SavePriceChangesCommand savePriceChangesCommand = new SavePriceChangesCommand()
+        bindData(savePriceChangesCommand, params)
+
+        PriceBand priceBand = PriceBand.findByIdAndRetailerId(priceBandId, springSecurityService.principal.retailerId)
+
+        if (!priceBand) {
+            response.status = 400 // TODO Figure out how to handle errors with messages on the page.
+            return
+        }
+
+        if (savePriceChangesCommand.priceChanges && savePriceChangesCommand.priceChanges.size() > 0 && acceptRrps) {
+            log.println("Saving ${savePriceChangesCommand.priceChanges.size()} supplier price updates for retailer ${springSecurityService.principal.retailerId} accepting RRPs")
+
+            // We were sent exact products to accept RRPs for.
+            supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
+
+            syncSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
+        } else if (savePriceChangesCommand.priceChanges && savePriceChangesCommand.priceChanges.size() > 0) {
+            log.println("Saving ${savePriceChangesCommand.priceChanges.size()} supplier price updates for retailer ${springSecurityService.principal.retailerId}")
+
+            // We were sent exact products and their prices.
+            supplierService.saveSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
+
+            syncSupplierPriceUpdates(savePriceChangesCommand.priceChanges, priceBand, effectiveDate)
+        } else if (acceptRrps) {
+            // We were not sent any specific products, but it was the "Accept RRPs" button which was used.
+            def supplierPriceUpdates = supplierService.getSupplierPriceUpdates(sinceDate, priceBand.id, supplierId, categoryId, offset, max)
+
+            if (supplierPriceUpdates.totalCount > 0) {
+                log.println("Saving ${supplierPriceUpdates.totalCount} supplier price updates for retailer ${springSecurityService.principal.retailerId} accepting all RRPs")
+
+                supplierService.saveSupplierPriceUpdates(supplierPriceUpdates.results, priceBand, effectiveDate)
+
+                syncSupplierPriceUpdates(supplierPriceUpdates.results, priceBand, effectiveDate)
+            }
+        } else {
+            // We didn't select any products, and we used the "Save" button so we do nothing.
+        }
+
+        response.status = 204
+    }
+
+    private void syncSupplierPriceUpdates(List supplierPriceUpdates, PriceBand priceBand, DateTime effectiveDate) {
         def productPrices = []
-        def priceUpdates = [:]
+        def productIds = []
 
-        cmd.priceChanges?.each {priceChange ->
-            if (!priceUpdates.containsKey(priceChange.priceBandId)) {
-                priceUpdates[priceChange.priceBandId] = []
+        supplierPriceUpdates.eachWithIndex { priceUpdate, index ->
+            uk.co.wonderlane.wlpos.entities.ProductPrice productPrice = new uk.co.wonderlane.wlpos.entities.ProductPrice()
+            //productPrice.setId(id) CHECK IF THIS IS USED ON THE TILL, ASSUMING NOT.
+            productPrice.setSku(priceUpdate.sku)
+            productPrice.setPriceBandId(priceBand.id)
+            productPrice.setEffectiveDate(effectiveDate)
+
+            if (priceUpdate instanceof PriceChangeCommand) {
+                productPrice.setPrice(priceUpdate.price)
+
+                if ((!priceUpdate.oldPrice || priceUpdate.oldPrice == BigDecimal.ZERO) && priceUpdate.price != BigDecimal.ZERO) {
+                    productIds.add(priceUpdate.productId)
+                }
+            } else if (priceUpdate.recommendedRetailPrice) {
+                productPrice.setPrice(priceUpdate.recommendedRetailPrice)
+            } else {
+                return // Note this is return from this closure, i.e. more like a "continue" for the loop.
             }
 
-            ProductPrice productPrice = new ProductPrice(priceBand: priceBands.find { it.id == priceChange.priceBandId }, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
             productPrices.add(productPrice)
-
-            priceUpdates[priceChange.priceBandId].add(productPrice.getProductPrice())
         }
 
-        productService.saveProductPrices(productPrices)
+        productService.syncProductUpdatesToAllStoresForRetailer(productIds)
+        productService.sendProductPriceUpdate(productPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand))
+    }
 
-        priceUpdates.each { priceBandId, priceChanges ->
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, 0, 0, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProductPrices(priceChanges)
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
+        def now = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()//Get current date as start of a day
 
-            def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBands.find { it.id == priceBandId })
+        def priceBandMap = [:] //Declare price band map to keep price band id against price band
 
-            stores?.each { store ->
-                syncMessage.setStoreNumber(store.storeId)
-                syncMessage.setStoreId(store.id)
+        //Loop over saved price list and group them by price band id [1:[] , 2:[], 3:[]]
+        def savePriceCommandMap = cmd?.priceChanges?.groupBy { it?.priceBandId }
 
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+        //Loop over map and process every item belonging to price band id
+        savePriceCommandMap?.each { k, v ->
+            PriceBand priceBand
+
+            if (!priceBandMap.containsKey(k)) { //If price band map do not have price band then load
+                priceBand = PriceBand.findByIdAndRetailerId(k, springSecurityService.principal.retailerId)
+            } else { //If price band map do have price band then get it by map
+                priceBand = priceBandMap.get(k)
             }
+
+            //Call supplier price and product history update procedure to persist changes
+            supplierService.saveSupplierPriceUpdates(v, priceBand, now)
+
+            //Sync by writing message to RabitMQ
+            syncSupplierPriceUpdates(v, priceBand, now)
         }
+
+        //After process make sure to empty map in case to avoid map growing
+        priceBandMap = [:]
 
         render "OK"
     }
@@ -186,10 +330,10 @@ class ProductController {
 
         def newlyRangedProducts = []
         def noLongerRangedProducts = []
-
+        def productHistories = []
         def rangedProductsMap = [:]
 
-        cmd.rangeProducts?.each {rangeProduct ->
+        cmd.rangeProducts?.each { rangeProduct ->
             def existingRangeProduct = RangeProduct.findByProductIdAndRange(rangeProduct.productId, ranges.find { it.id == rangeProduct.rangeId })
 
             if (rangeProduct.isRanged() && !existingRangeProduct) {
@@ -202,59 +346,62 @@ class ProductController {
                 }
 
                 rangedProductsMap[rangeProduct.rangeId].add(rangeProduct)
+                productHistories.add(handleProductRangeHistory(existingRangeProduct, true))
             } else if (!rangeProduct.isRanged() && existingRangeProduct) {
                 noLongerRangedProducts.add(existingRangeProduct)
+                productHistories.add(handleProductRangeHistory(existingRangeProduct, false))
             }
         }
 
         productService.saveRangeProducts(newlyRangedProducts)
         productService.deleteRangeProducts(noLongerRangedProducts)
+        if (productHistories != null && productHistories.size() > 0){
+            productService.saveProductHistories(productHistories)
+        }
 
         // Send down those products for addition to the relevant stores for each range. Do not delete any products as stores may need to sell through stock etc.
         rangedProductsMap.each { rangeId, rangeProductChanges ->
-            def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId })
-
             def allProducts = []
 
             rangeProductChanges.each { RangeProductCommand rangeProductCommand ->
                 allProducts.add(productService.getProduct(rangeProductCommand.productId))
             }
 
-            stores?.each { StoreSettings store ->
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                syncMessage.setInsert(true)
-
-                def storeProducts = []
-                allProducts.each {
-                    storeProducts.add(it.getProduct(store.storeId))
-                }
-
-                syncMessage.setProducts(storeProducts)
-
-                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            }
+            productService.sendProductUpdate(allProducts, StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
 
         render "OK"
     }
 
-    def save(ProductCommand editedProduct) {
+    private Product saveProduct(ProductCommand editedProduct, def paramsMap, boolean isRequest) {
+        editedProduct.variants?.removeIf({ it == null })
         def product
+        def builder
+
+        def effectiveDate = getEffectiveDate()
 
         boolean newProduct
+        boolean changeAffectsSel = false
 
-        if (params.id && Integer.parseInt(params.id) > 0) {
+        if (isRequest ? paramsMap.id && Integer.parseInt(paramsMap.id) > 0 : editedProduct.id && editedProduct.id > 0) {
             newProduct = false
         } else {
             newProduct = true
         }
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
+        List<ProductVariant> productVariantsList = new ArrayList<>()
 
         if (newProduct) {
-            product = new Product(params)
+            changeAffectsSel = true
+            if (isRequest) {
+                product = new Product(paramsMap)
+            } else {
+                product = new Product()
+                copyProduct(editedProduct, product)
+                copyProductVariants(editedProduct, product)
+            }
+
             product.retailerId = springSecurityService.principal.retailerId
             product.restrictions = new Restrictions()
 
@@ -262,31 +409,41 @@ class ProductController {
 
             product.variants?.each { variant ->
                 variant.storeId = springSecurityService.principal.storeId
-                variant.effectiveDate = now
+                variant.effectiveDate = effectiveDate
 
                 variant.barcodez?.each { barcode ->
+                    barcode.retailerId = springSecurityService.principal.retailerId
                     barcode.sku = variant.sku
-                    barcode.effectiveDate = barcode.effectiveDate ?: now
+                    barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
+
+                    if (!isValidBarcode(barcode)) {
+                        product.errors.reject('product.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                    }
                 }
 
                 variant.packs?.each { pack ->
                     pack.effectiveDate = pack.effectiveDate ?: now
+                    pack.updateDatetime = now
                 }
             }
         } else {
-            // TODO We need to introduce an effective date entry.
+            product = productService.getProduct(Integer.parseInt(isRequest ? paramsMap.id : editedProduct.id as String))
 
-            product = productService.getProduct(Integer.parseInt(params.id))
+            builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
+            doComparison(builder, product, editedProduct)
 
             product.itemCode = editedProduct.itemCode
+            changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.description, editedProduct.description)
             product.description = editedProduct.description
             product.receiptDescription = editedProduct.receiptDescription
             product.category = editedProduct.category
+            changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, product.unitSize, editedProduct.unitSize)
             product.unitSize = editedProduct.unitSize
             product.weightedItem = editedProduct.weightedItem
             product.openPrice = editedProduct.openPrice
             product.zeroPrice = editedProduct.zeroPrice
             product.pricePerKg = editedProduct.pricePerKg
+            product.snappyProduct = editedProduct.snappyProduct
             product.deliItem = editedProduct.deliItem
             product.vatCode = editedProduct.vatCode
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
@@ -295,7 +452,7 @@ class ProductController {
             product.retailerProductId = editedProduct.retailerProductId
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
-                if (editedProduct.restrictions.id == product.category.restrictions.id) {
+                if (editedProduct.restrictions.validate() && editedProduct.restrictions.id == product.category.restrictions.id) {
                     // Changed restrictions and the product was currently pointing at the category restrictions object. Create a new restrictions.
                     product.restrictions = new Restrictions()
                 }
@@ -304,180 +461,58 @@ class ProductController {
             }
 
             // Variants.
-            editedProduct.variants?.each {editedVariant ->
-                def existingVariant = product.variants?.find {existingVariant -> existingVariant.id == editedVariant.id }
-
-                if (existingVariant) {
-                    // Variant we saved is one which already exists, check for changes.
-                    existingVariant.sku = editedVariant.sku
-                    existingVariant.retailPrice = editedVariant.retailPrice
-                    existingVariant.costPrice = editedVariant.costPrice
-                    existingVariant.size = editedVariant.size
-                    existingVariant.colour = editedVariant.colour
-                    existingVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                    existingVariant.effectiveDate = now // TODO?
-                    existingVariant.shelfLifeDays = editedVariant.shelfLifeDays
-
-                    // Check for new/edited packs.
-                    editedVariant.packs?.each { editedPack ->
-                        def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
-
-                        if (existingPack) {
-                            existingPack.supplier = editedPack.supplier
-                            existingPack.quantity = editedPack.quantity
-                            existingPack.price = editedPack.price
-                            existingPack.orderCode = editedPack.orderCode
-                            existingPack.barcode = editedPack.barcode
-                            existingPack.recommendedRetailPrice = editedPack.recommendedRetailPrice
-                            existingPack.effectiveDate = now // TODO?
-                            existingPack.effectiveEndDate = editedPack.effectiveEndDate
-                            existingPack.status = editedPack.status
-                            existingPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
-                            existingPack.allowSubstitutes = editedPack.allowSubstitutes
-                        } else {
-                            Pack newPack = new Pack()
-                            newPack.supplier = editedPack.supplier
-                            newPack.quantity = editedPack.quantity
-                            newPack.price = editedPack.price
-                            newPack.orderCode = editedPack.orderCode
-                            newPack.barcode = editedPack.barcode
-                            newPack.recommendedRetailPrice = editedPack.recommendedRetailPrice
-                            newPack.effectiveDate = now // TODO
-                            newPack.effectiveEndDate = editedPack.effectiveEndDate
-                            newPack.status = editedPack.status
-                            newPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
-                            newPack.allowSubstitutes = editedPack.allowSubstitutes
-
-                            existingVariant.addToPacks(newPack)
-                        }
-                    }
-
-                    // Remove any packs which no longer exist.
-                    existingVariant.packs?.each { existingPack ->
-                        def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
-
-                        if (!editedPack) {
-                            existingVariant.removeFromPacks(existingPack)
-                        }
-                    }
-
-                    // Add any newly added barcodes.
-                    editedVariant.barcodez?.each { editedBarcode ->
-                        def existingBarcode = existingVariant.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
-
-                        if (!existingBarcode) {
-                            Barcode barcode = new Barcode()
-                            barcode.sku = existingVariant.sku
-                            barcode.retailerId = existingBarcode.retailerId
-                            barcode.barcode = editedBarcode.barcode
-                            barcode.effectiveDate = now
-                            barcode.recordStatus = 'C'
-
-                            existingVariant.barcodez.add(barcode)
-                        }
-                    }
-
-                    // Mark any barcodes which no longer exist as deleted.
-                    existingVariant.barcodes?.each { existingBarcode ->
-                        def editedBarcode = editedVariant.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
-
-                        if (!editedBarcode) {
-                            existingBarcode.delete = true
-
-                            existingVariant.barcodez.add(existingBarcode)
-                        }
-                    }
-                } else {
-                    ProductVariant newVariant = new ProductVariant()
-                    newVariant.storeId = springSecurityService.principal.storeId
-                    newVariant.sku = editedVariant.sku
-                    newVariant.retailPrice = editedVariant.retailPrice
-                    newVariant.costPrice = editedVariant.costPrice
-                    newVariant.size = editedVariant.size
-                    newVariant.colour = editedVariant.colour
-                    newVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                    newVariant.effectiveDate = now // TODO?
-                    newVariant.shelfLifeDays = editedVariant.shelfLifeDays
-
-                    editedVariant.packs?.each { editedPack ->
-                        Pack newPack = new Pack()
-                        newPack.supplier = editedPack.supplier
-                        newPack.quantity = editedPack.quantity
-                        newPack.price = editedPack.price
-                        newPack.orderCode = editedPack.orderCode
-                        newPack.barcode = editedPack.barcode
-                        newPack.recommendedRetailPrice = editedPack.recommendedRetailPrice
-                        newPack.effectiveDate = now // TODO?
-                        newPack.effectiveEndDate = editedPack.effectiveEndDate
-                        newPack.status = editedPack.status
-                        newPack.maximumOrderQuantity = editedPack.maximumOrderQuantity
-                        newPack.allowSubstitutes = editedPack.allowSubstitutes
-
-                        newVariant.addToPacks(newPack)
-                    }
-
-                    newVariant.barcodez = editedVariant.barcodez
-
-                    product.addToVariants(newVariant)
-                }
-            }
+            productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
         }
 
-        if (product.validate()) {
-            restrictionsService.saveRestrictions(product.restrictions) // Restrictions are validated as part of product.validate()
-            productService.saveProduct(product)
+        if (!product.hasErrors() && product.validate()) {
+            // Restrictions are validated as part of product.validate()
+            restrictionsService.saveRestrictions(product.restrictions)
 
+            productService.saveProduct(product, productVariantsList)
             productService.saveBarcodes(product)
+
+            if (builder && builder.productHistories) {
+                productService.saveProductHistories(builder.productHistories)
+            }
 
             def userRoles = springSecurityService.principal.authorities*.authority
             if ((userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) && !springSecurityService.principal.storeId) {
                 def priceChanges = []
-                editedProduct?.priceChanges?.each {
+                editedProduct?.priceChanges?.findAll { it != null }?.each {
                     priceChanges.addAll(it.priceChanges)
                 }
 
-                savePriceUpdates(product.variants?.findAll { it.storeId == null }, priceChanges)
+                savePriceUpdates(product.variants?.findAll { it.storeId == null }, priceChanges, effectiveDate)
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
 
-            flash.message = "Product saved successfully"
+            if (isRequest) {
+                flash.message = "Product saved successfully"
+            }
         }
 
         if (!product.hasErrors()) {
-            // TODO Send this update to all tills which are ranged.
-            if (springSecurityService.principal.storeId) {
-                if (!rabbitService.isOpen()) {
-                    throw new Exception("Rabbit MQ not available")
-                }
+            if (productService.isSingleStageSel() || !changeAffectsSel) {
+                if (springSecurityService.principal.storeId) {
+                    productService.sendProductUpdate([product], [StoreSettings.findById(springSecurityService.principal.storeId)])
+                } else {
+                    def rangeProducts = RangeProduct.findAllByProductId(product.id)
 
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber ?: 0, springSecurityService.principal.storeId ?: 0, 0)
-                syncMessage.setInsert(true)
-
-                List<uk.co.wonderlane.wlpos.entities.Product> products = new ArrayList<uk.co.wonderlane.wlpos.entities.Product>()
-                products.add(product.getProduct(springSecurityService.principal.storeId))
-                syncMessage.setProducts(products)
-
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            } else {
-                def rangeProducts = RangeProduct.findAllByProductId(product.id)
-
-                rangeProducts?.each { rangeProduct ->
-                    def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range)
-
-                    stores?.each { StoreSettings store ->
-                        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                        syncMessage.setInsert(true)
-
-                        syncMessage.setProducts([product.getProduct(store.storeId)])
-
-                        // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                        rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                        rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                    rangeProducts?.each { rangeProduct ->
+                        productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range))
                     }
                 }
             }
 
+        }
+
+        return product
+    }
+
+    def save(ProductCommand editedProduct) {
+        Product product = saveProduct(editedProduct, params, true)
+
+        if (!product.hasErrors()) {
             redirect(action: "index")
         } else {
             def productCategoryList = []
@@ -489,20 +524,401 @@ class ProductController {
                 category = category.parentCategory
             }
 
-            render(view: "add", model: [product       : product,
-                                        storeId       : springSecurityService.principal.storeId,
-                                        statusValues  : ProductStatus.values(),
-                                        categoryValues: categoryService.getFullCategoryHierarchy(),
+            def ranges = []
+            def priceBands = []
+            def editedPrices = []
+
+            def userRoles = springSecurityService.principal.authorities*.authority
+            if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+                priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+                ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
+
+                editedProduct?.priceChanges?.findAll { it != null }.each {
+                    editedPrices.addAll(it.priceChanges)
+                }
+            }
+
+            render(view: "add", model: [product            : product,
+                                        storeId            : springSecurityService.principal.storeId,
+                                        statusValues       : ProductStatus.values(),
+                                        categoryValues     : categoryService.getFullCategoryHierarchy(),
                                         productCategoryList: productCategoryList,
-                                        vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
+                                        effectiveDateIndex : session.effectiveDate,
+                                        ranges             : ranges,
+                                        selectedRanges     : editedProduct.rangeId,
+                                        priceBands         : priceBands,
+                                        editedPrices       : editedPrices,
+                                        vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
         }
     }
 
-    private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges) {
+    private List<ProductVariant> getUpdatedProductVariantsOnSave(ProductCommand editedProduct, product, builder, boolean changeAffectsSel, effectiveDate) {
+        DateTime now = DateTime.now(DateTimeZone.UTC)
+        List<ProductVariant> productVariantList = new ArrayList<>()
+
+        editedProduct.variants?.each { editedVariant ->
+            def existingVariant = product.variants?.find { existingVariant -> existingVariant.id == editedVariant.id }
+
+            if (editedVariant.id != 0 && existingVariant) {
+                // Variant we saved is one which already exists, check for changes.
+                if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
+                    // Variant has changed
+                    ProductVariant newVariant = new ProductVariant()
+                    newVariant.storeId = springSecurityService.principal.storeId
+                    newVariant.sku = editedVariant.sku
+                    newVariant.retailPrice = editedVariant.retailPrice
+                    changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
+                    newVariant.costPrice = editedVariant.costPrice
+                    newVariant.size = editedVariant.size
+                    newVariant.colour = editedVariant.colour
+                    newVariant.minimumStockLevel = editedVariant.minimumStockLevel
+                    newVariant.effectiveDate = effectiveDate
+                    newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                    newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+
+                    productVariantList.add(newVariant)
+
+                    checkProductVariantForPackChanges(product, newVariant, editedVariant, now)
+                    checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
+                } else {
+                    checkProductVariantForPackChanges(product, existingVariant, editedVariant, now)
+                    checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
+                }
+            } else {
+                changeAffectsSel = true
+                ProductVariant newVariant = new ProductVariant()
+
+                newVariant.storeId = springSecurityService.principal.storeId
+                newVariant.sku = editedVariant.sku
+                newVariant.retailPrice = editedVariant.retailPrice
+                newVariant.costPrice = editedVariant.costPrice
+                newVariant.size = editedVariant.size
+                newVariant.colour = editedVariant.colour
+                newVariant.minimumStockLevel = editedVariant.minimumStockLevel
+                newVariant.effectiveDate = effectiveDate
+                newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+
+                editedVariant.packs?.each { editedPack ->
+                    Pack newPack = new Pack()
+                    updatePack(newPack, editedPack, now)
+                    newVariant.addToPacks(newPack)
+                }
+
+                editedVariant.barcodez.forEach({
+                    barcode ->
+                        Barcode newBarcode = new Barcode()
+
+                        newBarcode.sku = editedVariant.sku
+                        newBarcode.retailerId = springSecurityService.principal.retailerId
+                        newBarcode.barcode = barcode.barcode
+                        newBarcode.effectiveDate = effectiveDate
+                        newBarcode.recordStatus = 'C'
+
+                        newVariant.barcodez.add(newBarcode)
+
+                        if (!isValidBarcode(newBarcode)) {
+                            product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                        }
+                })
+
+                productVariantList.add(newVariant);
+            }
+        }
+
+        return productVariantList;
+    }
+
+    private DateTime getEffectiveDate(def effectiveDate) {
+        if (effectiveDate) {
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+            DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
+            return selectedDate.withTimeAtStartOfDay()
+        } else {
+            return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        }
+    }
+
+    private DateTime getEffectiveDate() {
+        return getEffectiveDate(params.effectiveDate)
+    }
+
+    private void checkProductVariantForBarcodeChanges(def product, def existingVariant, def editedVariant, DateTime effectiveDate) {
+        editedVariant.barcodez?.each { editedBarcode ->
+            def existingBarcode = existingVariant.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+
+            if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
+                Barcode barcode = new Barcode()
+                barcode.sku = existingVariant.sku
+                barcode.retailerId = springSecurityService.principal.retailerId
+                barcode.barcode = editedBarcode.barcode
+                barcode.effectiveDate = effectiveDate
+                barcode.recordStatus = 'C'
+
+                existingVariant.barcodez.add(barcode)
+
+                if (!isValidBarcode(barcode)) {
+                    product.errors.reject(
+                            'product.barcodes.notUnique',
+                            [barcode.barcode] as Object[],
+                            'Barcode {0} already exists on another SKU.')
+                }
+            } else { // If barcode do exists change update existing values
+
+                //Only update if user has changed barcode value or else skip
+                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+
+                    //Mark current barcode to delete this will insert new mark delete entry to DB
+                    existingBarcode.delete = true
+                    existingBarcode.effectiveDeleteDate = effectiveDate
+                    //New effective date needed to be set as effective date of mark delete entry
+
+                    //Add new barcode to replacing existing
+                    Barcode futureBarcode = new Barcode()
+                    futureBarcode.sku = existingVariant.sku
+                    futureBarcode.retailerId = springSecurityService.principal.retailerId
+                    futureBarcode.barcode = editedBarcode.barcode
+                    futureBarcode.effectiveDate = effectiveDate
+                    futureBarcode.recordStatus = 'C'
+
+                    if (!isValidBarcode(futureBarcode)) {
+                        product.errors.reject(
+                                'product.barcodes.notUnique',
+                                [futureBarcode.barcode] as Object[],
+                                'Barcode {0} already exists on another SKU.')
+                    } else {
+                        //Add mark deleted barcode and newly updated barcode to add into DB
+                        existingVariant.barcodez.add(existingBarcode)
+                        existingVariant.barcodez.add(futureBarcode)
+                    }
+
+                }
+            }
+        }
+
+        // Mark any barcodes which no longer exist as deleted.
+        existingVariant.barcodes?.each { existingBarcode ->
+            def editedBarcode = editedVariant.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+
+            if (!editedBarcode) {
+                existingBarcode.delete = true
+                existingBarcode.effectiveDeleteDate = effectiveDate
+                //New effective date needed to be set as effective date of mark delete entry
+                existingVariant.barcodez.add(existingBarcode)
+            }
+        }
+    }
+
+    private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now) {
+        if (product.hasErrors()) {
+            return
+        }
+
+        editedVariant.packs?.each { editedPack ->
+            def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
+
+            if (existingPack && packChanged(editedPack, existingPack)) {
+                updatePack(existingPack, editedPack, now)
+            } else if (!existingPack) {
+                Pack newPack = new Pack()
+                updatePack(newPack, editedPack, now)
+                existingVariant.addToPacks(newPack)
+            }
+        }
+
+        // Remove any packs which no longer exist.
+        existingVariant.packs?.each { existingPack ->
+            // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
+            if (existingPack.id > 0) {
+                def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+
+                if (!editedPack) {
+                    existingVariant.removeFromPacks(existingPack)
+                }
+            }
+        }
+    }
+
+    /**
+     * Manually check each field visible in the UI for detect the updated packs
+     * @param newPack
+     * @param existingPack
+     * @return
+     */
+    def packChanged(def newPack, def existingPack) {
+        return newPack.barcode != existingPack.barcode ||
+                !newPack.supplier.equals(existingPack.supplier) ||
+                newPack.quantity != existingPack.quantity ||
+                newPack.price != existingPack.price ||
+                newPack.orderCode != existingPack.orderCode ||
+                newPack.barcode != existingPack.barcode ||
+                newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice ||
+                newPack.status != existingPack.status ||
+                newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
+    }
+
+    private void updatePack(def packToBeUpdated, def editedPack, def now) {
+        packToBeUpdated.supplier = editedPack.supplier
+        packToBeUpdated.quantity = editedPack.quantity
+        packToBeUpdated.price = editedPack.price
+        packToBeUpdated.orderCode = editedPack.orderCode
+        packToBeUpdated.barcode = editedPack.barcode
+        packToBeUpdated.recommendedRetailPrice = editedPack.recommendedRetailPrice
+        packToBeUpdated.effectiveDate = now
+        packToBeUpdated.effectiveEndDate = editedPack.effectiveEndDate
+        packToBeUpdated.status = editedPack.status
+        packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
+        packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
+
+        if (packToBeUpdated.hasProperty('updateDatetime')) {
+            packToBeUpdated.updateDatetime = now
+        }
+    }
+
+    private void doComparison(ProductHistoryBuilder builder, Product product, ProductCommand editedProduct) {
+        builder.compare("itemCode", product.itemCode, editedProduct.itemCode)
+        builder.compare("description", product.description, editedProduct.description)
+        builder.compare("receiptDescription", product.receiptDescription, editedProduct.receiptDescription)
+        builder.compare("unitSize", product.unitSize, editedProduct.unitSize)
+        builder.compare("weightedItem", product.weightedItem, editedProduct.weightedItem)
+        builder.compare("pricePerKg", (!product.weightedItem && product.pricePerKg) ? false : product.pricePerKg, editedProduct.pricePerKg)
+        builder.compare("snappyProduct", product.snappyProduct, editedProduct.snappyProduct)
+        builder.compare("deliItem", product.deliItem, editedProduct.deliItem)
+        builder.compare("openPrice", product.openPrice, editedProduct.openPrice)
+        builder.compare("zeroPrice", product.zeroPrice, editedProduct.zeroPrice)
+        builder.compare("vatPercentageOverride", product.vatPercentageOverride == null ? BigDecimal.ZERO.setScale(2) : product.vatPercentageOverride, editedProduct.vatPercentageOverride)
+        builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
+        builder.compare("status", product.status, editedProduct.status)
+
+        builder.compare("category", product.category?.description, editedProduct.category?.description)
+
+        // Restrictions
+        builder.compare("minOpenPrice", product.restrictions.minOpenPrice == null ? product.restrictions.getDefaultMinOpenPrice() : product.restrictions.minOpenPrice, editedProduct.restrictions.minOpenPrice)
+        builder.compare("maxOpenPrice", product.restrictions.maxOpenPrice == null ? product.restrictions.getDefaultMaxOpenPrice() : product.restrictions.maxOpenPrice, editedProduct.restrictions.maxOpenPrice)
+        builder.compare("buyerIdRequired", product.restrictions.buyerIdRequired, editedProduct.restrictions.buyerIdRequired)
+        builder.compare("buyerIdForced", product.restrictions.buyerIdForced, editedProduct.restrictions.buyerIdForced)
+        builder.compare("buyerAgeRestriction", product.restrictions.buyerAgeRestriction, editedProduct.restrictions.buyerAgeRestriction)
+        builder.compare("buyerChallengeAge", product.restrictions.buyerChallengeAge, editedProduct.restrictions.buyerChallengeAge)
+        builder.compare("sellerAgeRestriction", product.restrictions.sellerAgeRestriction, editedProduct.restrictions.sellerAgeRestriction)
+        builder.compare("refundAllowed", product.restrictions.refundAllowed, editedProduct.restrictions.refundAllowed)
+        builder.compare("markdownAllowed", product.restrictions.markdownAllowed, editedProduct.restrictions.markdownAllowed)
+        builder.compare("discountAllowed", product.restrictions.discountAllowed, editedProduct.restrictions.discountAllowed)
+        builder.compare("creditPaymentAllowed", product.restrictions.creditPaymentAllowed, editedProduct.restrictions.creditPaymentAllowed)
+        builder.compare("quantityChangeAllowed", product.restrictions.quantityChangeAllowed, editedProduct.restrictions.quantityChangeAllowed)
+        builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
+        builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
+
+        builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
+
+        List<String> deletedBarcodes = new ArrayList<>();
+        editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
+            product.variants.stream().filter({ v -> v.id == variant.id }).findAny().ifPresentOrElse({ oldVariant ->
+                if (variant.delete) {
+                    doVariantComparison(builder, variant.id, oldVariant, new ProductVariantCommand(), deletedBarcodes)
+                } else {
+                    doVariantComparison(builder, variant.id, oldVariant, variant, deletedBarcodes)
+                }
+            }, {
+                doVariantComparison(builder, variant.id, new ProductVariant(), variant, deletedBarcodes)
+            })
+        })
+
+        product?.variants?.each {existingVariants ->
+            def editedVariant = editedProduct?.find {editedVariant -> editedVariant.id == existingVariants.id}
+            if (!editedVariant){
+                // Variant deleted
+                doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand(), deletedBarcodes)
+            }
+        }
+    }
+
+    private void doVariantComparison(ProductHistoryBuilder builder, Integer id, ProductVariant oldVariant, ProductVariantCommand variant, List<String> deletedBarcodes) {
+
+        //---------------------------- Update history for variant fields --------------------------------//
+        if (variant.sku != 0) {
+            builder.compare(id, "sku", oldVariant.sku, variant.sku)
+        }
+
+        // Only compare retail price if there wasn't one before or there was and it's changed - it should not be possible to unset retail price
+        if ((oldVariant.retailPrice == null && variant.retailPrice != null) || (oldVariant.retailPrice != null && variant.retailPrice != null)) {
+            builder.compare(id, "retailPrice", oldVariant.retailPrice ?: BigDecimal.ZERO, variant.retailPrice ?: BigDecimal.ZERO)
+        }
+        builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
+        builder.compare(id, "size", oldVariant.size, variant.size)
+        builder.compare(id, "colour", oldVariant.colour, variant.colour)
+        builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
+        builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
+        builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
+
+        //---------------------------- Update history for barcode fields --------------------------------//
+
+        // loop over edited variant barcodes to find out if barcode been edited or newly added
+        variant?.barcodez?.each { editedBarcode ->
+            // Can't set barcode to null so this shouldn't appear in change history (means something else has changed)
+            if(editedBarcode == null || (editedBarcode.barcode == null && editedBarcode.recordStatus != 'D')) {
+                return
+            }
+            def existingBarcode = oldVariant?.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+
+            if (existingBarcode) { //if barcode already existed
+                builder.compare("barcode", existingBarcode.barcode, editedBarcode.barcode)
+            } else {//if barcode is newly created
+                builder.compare("barcode", null, editedBarcode.barcode)
+            }
+        }
+
+        // loop over existing variant barcodes to find out if barcode been deleted
+        oldVariant?.barcodes?.each { existingBarcode ->
+            def editedBarcode = variant?.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+
+            if (!editedBarcode && !deletedBarcodes.contains(existingBarcode.barcode)) { //if edited barcode not exists means old barcode has been deleted
+                deletedBarcodes.add(existingBarcode.barcode);
+                builder.compare("barcode", existingBarcode.barcode, null)
+            }
+        }
+
+        //---------------------------- Update history for pack fields --------------------------------//
+
+        variant?.packs?.each { editedPack ->
+            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack.id == editedPack.id }
+            if (existingPack) { //Pack already existed
+                comparePackFields(builder, existingPack, editedPack)
+            } else { //Pack newly added
+                comparePackFields(builder, new Pack(), editedPack)
+            }
+        }
+
+        // Remove any packs which no longer exist.
+        oldVariant?.packs?.each { existingPack ->
+            // If the ID is not set then this must be a new pack added as part of this save
+            if (existingPack.id > 0) {
+                def editedPack = variant?.packs?.find { editedPack -> editedPack.id == existingPack.id }
+                if (!editedPack) { //Pack is removed
+                    comparePackFields(builder, existingPack, new PackCommand())
+                }
+            }
+        }
+
+    }
+
+    void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
+        builder.compare("packSupplier", oldPack.supplier, pack.supplier)
+        builder.compare("packQuantity", oldPack.quantity, pack.quantity)
+        builder.compare("packPrice", oldPack.price, pack.price)
+        builder.compare("packOrderCode", oldPack.orderCode, pack.orderCode)
+        builder.compare("packBarcode", oldPack.barcode, pack.barcode)
+        builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
+        builder.compare("packStatus", oldPack.status, pack.status)
+        builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
+    }
+
+    private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def now = DateTime.now(DateTimeZone.UTC)
 
         def changedProductPrices = []
+        def productHistories = []
+        def productIds = []
 
         variants?.each { ProductVariant variant ->
             def prices = variant.prices
@@ -511,23 +927,40 @@ class ProductController {
                 ProductPrice currentPrice = prices.find { it.priceBand.id == priceChange.priceBandId }
 
                 if (!currentPrice || currentPrice.price != priceChange.price) {
+                    if ((!currentPrice || currentPrice.price?.compareTo(BigDecimal.ZERO) == 0) && priceChange.price && priceChange.price != BigDecimal.ZERO) {
+                        productIds.add(variant.productId)
+                    }
+
                     def priceBand = priceBands.find { it.id == priceChange.priceBandId }
 
                     if (priceBand && priceChange.sku && priceChange.price) {
-                        ProductPrice productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: now)
+                        def fromValue = currentPrice ? currentPrice.price : null
+
+                        ProductPrice productPrice
+                        if (currentPrice?.effectiveDate == effectiveDate) {
+                            productPrice = currentPrice
+                            productPrice.price = priceChange.price
+                        } else {
+                            productPrice = new ProductPrice(priceBand: priceBand, sku: priceChange.sku, price: priceChange.price, effectiveDate: effectiveDate)
+                        }
+
+                        ProductHistory productHistory =
+                                new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: variant.product.id, fromValue: fromValue, toValue: priceChange.price, productHistoryType: ProductHistoryType.PRICE, priceBandId: priceChange.priceBandId, storeId: variant.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName, effectiveDate: effectiveDate, updateDate: now)
 
                         changedProductPrices.add(productPrice)
+                        productHistories.add(productHistory)
                     }
                 }
             }
         }
 
+        productService.syncProductUpdatesToAllStoresForRetailer(productIds)
+
         if (changedProductPrices.size() > 0) {
-            productService.saveProductPrices(changedProductPrices)
+            productService.saveProductPrices(changedProductPrices, productHistories)
 
             def priceChangesGroupedByPriceBand = changedProductPrices.groupBy { it.priceBand }
             priceChangesGroupedByPriceBand?.each {
-                def stores = StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key)
 
                 // Change from our domain objects into a ProductPrice object from the Common library.
                 def commonProductPrices = []
@@ -535,16 +968,7 @@ class ProductController {
                     commonProductPrices.add(pp.getProductPrice())
                 }
 
-                stores?.each { StoreSettings store ->
-                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                    syncMessage.setInsert(true)
-
-                    syncMessage.setProductPrices(commonProductPrices)
-
-                    // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                    rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                    rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-                }
+                productService.sendProductPriceUpdate(commonProductPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key))
             }
         }
     }
@@ -552,6 +976,7 @@ class ProductController {
     private void saveRangeUpdates(Product product, int[] savedRanges) {
         def rangesRemovedFrom = []
         def rangesAddedTo = []
+        def productHistories = []
 
         def rangeProducts = RangeProduct.findAllByProductId(product.id)
         rangeProducts.each { RangeProduct rangeProduct ->
@@ -567,68 +992,189 @@ class ProductController {
         }
 
         rangesRemovedFrom.each { Integer rangeId ->
-            productService.deleteRangeProduct(rangeProducts.find { it.rangeId == rangeId })
+            RangeProduct rangeProductDelete = rangeProducts.find { it.rangeId == rangeId }
+            productHistories.add(handleProductRangeHistory(rangeProductDelete, false))
+            productService.deleteRangeProduct(rangeProductDelete)
         }
 
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
         rangesAddedTo.each { Integer rangeId ->
             RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
-
+            productHistories.add(handleProductRangeHistory(rangeProduct, true))
             productService.saveRangeProduct(rangeProduct)
-
-            def stores = StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId })
-
-            stores?.each { StoreSettings store ->
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
-                syncMessage.setInsert(true)
-
-                syncMessage.setProducts([product.getProduct(store.storeId)])
-
-                // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-                rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-            }
+            productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
+
+        if (productHistories != null && productHistories.size() > 0){
+            productService.saveProductHistories(productHistories)
+        }
+
+    }
+
+    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
+        def now = DateTime.now(DateTimeZone.UTC)
+        ProductHistoryType productHistoryType = isNew ? ProductHistoryType.PRODUCT_RANGE_ADD : ProductHistoryType.PRODUCT_RANGE_DELETE
+
+        ProductHistory productHistory =
+                new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: rangeProduct.getProductId(),
+                        fromValue: null, toValue: rangeProduct.getRange()!= null ? rangeProduct.getRange().getDescription() : -1,
+                        productHistoryType: productHistoryType,
+                        storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName,
+                        effectiveDate: effectiveDate, updateDate: now)
+
+        return productHistory
+
     }
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {
         def category = categoryService.getCategory(categoryId)
-
-        render (template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId])
+        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId])
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {
-        render (template: "addVariant", model: [variant: cmd])
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value])
     }
 
     def ajaxAddBarcode(int index) {
-        render (template: "addBarcode", model: [index: index])
+        render(template: "addBarcode", model: [index: index])
     }
 
     def ajaxSaveVariant(AddVariantCommand cmd) {
-        render (template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez])
+        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez])
     }
 
-    def ajaxAddPrice(int index, long sku) {
+    def ajaxAddPrice(int index, long sku, boolean zeroPrice) {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        render (template: "addPrice", model: [skuIndex: index, sku: sku, variant: null, priceBands: priceBands])
+        render(template: "addPrice", model: [skuIndex: index, sku: sku, variant: null, priceBands: priceBands, zeroPrice: zeroPrice])
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        render (template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index])
+        suppliers.removeAll { it.symbolGroup != null }
+
+        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
     }
 
-    def ajaxAddPack(int variantIndex, int packIndex) {
+    def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        render (template: "addPack", model: [variantIndex: variantIndex, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
+        suppliers.removeAll { it.symbolGroup != null }
+
+        render(template: "addPack", model: [variantIndex: variantIndex, productVariantId: productVariantId, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
-        render (template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs])
+        cmd.getPacks().forEach({ pack ->
+            if (!pack.validate()) {
+                if (!cmd.hasErrors)
+                    cmd.hasErrors = Boolean.TRUE
+                pack.isNewPack = Boolean.TRUE
+            }
+        })
+        if (cmd.hasErrors) {
+            def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            suppliers.removeAll { Objects.nonNull(it.symbolGroup) }
+            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
+        } else {
+            render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
+        }
+    }
+
+    //This will render category mapped restrictions for new products
+    def ajaxGetRestrictions(int selectedCategoryId, boolean productOpenPrice) {
+        Restrictions restrictions = null
+        def category = categoryService.getCategory(selectedCategoryId)
+        if (category != null) {
+            restrictions = category.restrictions
+        }
+        //when rendering restriction tab manually set isNewProduct to false since category mapped restriction should be loaded rather default values
+        render(view: "/product/_restrictions", model: [restrictions: restrictions, productOpenPrice: productOpenPrice, isNewProduct: false])
+    }
+
+    //This will render product history for selected product
+    def ajaxGetProductHistory(int productId) {
+        def productHistoryMap = [:]
+        if (productId > 0) { // If product id does not exists there can not be any history to return
+            def effectiveDate = DateTime.now(DateTimeZone.UTC) // Take default effective date as current date
+            if (session != null && session.effectiveDate != null && session.effectiveDate[1] != null) {
+                effectiveDate = session.effectiveDate[1]//replace effective date if it already has one
+            }
+
+            def productHistoryList = productHistoryService.getProductHistory(productId, effectiveDate)
+            // Load product history from db
+            productHistoryList = productHistoryList?.sort {
+                it?.effectiveDate
+            }
+
+            productHistoryList = productHistoryList?.reverse() // Convert into descending order
+
+            String nullString = "null"
+            productHistoryList?.each { item ->
+                if (item?.fromValue == null || item?.fromValue == nullString) {
+                    item?.fromValue = "unset"
+                } else if (item?.productHistoryType?.equals(ProductHistoryType.PRICE)) {
+                    item?.fromValue = String.format("£%s", item?.fromValue)
+                }
+
+                if (item?.toValue == null || item?.toValue == nullString) {
+                    item?.toValue = "unset"
+                } else if (item?.productHistoryType?.equals(ProductHistoryType.PRICE)) {
+                    item?.toValue = String.format("£%s", item?.toValue)
+                }
+            }
+
+            //convert product list into product map by group by using effective date
+            productHistoryMap = productHistoryList?.groupBy {
+                it?.effectiveDate?.toDate()?.format('dd/MM/yyyy')
+            }
+        }
+
+        render(view: "/product/_productHistory", model: [productHistoryMap: productHistoryMap])
+    }
+
+    /**
+     * Action for saving selected columns on product search screen.
+     */
+    def ajaxSaveColumns() {
+        try {
+            if (params.reportColumns && params.reportType) {
+                def userReportColumns = new JsonSlurper().parseText(params.reportColumns)
+                def reportType = ReportType.valueOf(params.reportType)
+
+                def reportColumns = productService.getColumns()
+
+                if (!reportColumns) {
+                    reportColumns = new ReportColumns(userId: springSecurityService.principal.id, reportType: reportType)
+                }
+
+                userReportColumns?.each { userReportColumn ->
+                    if (reportColumns?.columns?.find { it.column == userReportColumn.key }) {
+                        reportColumns?.columns?.find { it.column == userReportColumn.key }?.enabled = userReportColumn.value
+                    } else {
+                        reportColumns.addToColumns(new ReportColumn(column: userReportColumn.key, enabled: userReportColumn.value))
+                    }
+                }
+
+                productService.saveColumns(reportColumns)
+
+                render(status: 200)
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            render(status: 500, text: "An error occurred saving your report column preferences.")
+        }
+    }
+
+    private boolean checkChangeAffectsSel(boolean changeAffectsSel, Object left, Object right) {
+        if (changeAffectsSel) {
+            return true
+        }
+        if (left == right) {
+            return false
+        }
+        return true
     }
 
     private boolean isRestrictionsChanged(RestrictionsCommand first, Restrictions second) {
@@ -664,6 +1210,132 @@ class ProductController {
         to.quantityChangeForced = from.quantityChangeForced
         to.receiptPrintForced = from.receiptPrintForced
     }
+
+    private void copyProduct(ProductCommand from, Product to) {
+        to.springSecurityService = springSecurityService
+
+        to.id = from.id
+        to.retailerId = from.retailerId
+        to.itemCode = from.itemCode
+        to.description = from.description
+        to.receiptDescription = from.receiptDescription
+        to.category = from.category
+        to.unitSize = from.unitSize
+        to.weightedItem = from.weightedItem
+        to.openPrice = from.openPrice
+        to.zeroPrice = from.zeroPrice
+        to.pricePerKg = from.pricePerKg
+        to.snappyProduct = from.snappyProduct
+        to.deliItem = from.deliItem
+        to.vatCode = from.vatCode
+        to.vatPercentageOverride = from.vatPercentageOverride
+        to.discreetMessage = from.discreetMessage
+        to.status = from.status
+        to.retailerProductId = from.retailerProductId
+
+    }
+
+    private void copyProductVariants(ProductCommand from, Product to) {
+        List<ProductVariant> variants = new ArrayList<>();
+        Map<Long, ProductVariant> existingVariants = new HashMap<>();
+
+        if (to.variants && !to.variants.isEmpty()) {
+            to.variants.forEach({ variant ->
+                existingVariants.put(variant.sku, variant)
+            })
+        }
+
+        from.variants.forEach({ variant ->
+            ProductVariant productVariant
+            if (existingVariants.containsKey(variant.sku)) {
+                productVariant = existingVariants.get(variant.sku)
+            } else {
+                productVariant = new ProductVariant()
+            }
+            productVariant.id = variant.id
+            productVariant.storeId = springSecurityService.principal.storeId
+            productVariant.sku = variant.sku
+            productVariant.costPrice = variant.costPrice
+            productVariant.effectiveDate = variant.effectiveDate
+            productVariant.shelfLifeDays = variant.shelfLifeDays
+            productVariant.setProduct(to)
+
+            List<Barcode> barcodes = new ArrayList<>();
+            Map<String, Barcode> existingBarcodes = new HashMap<>();
+            if (productVariant.barcodez && !productVariant.barcodez.isEmpty()) {
+                productVariant.barcodez.forEach({ barcode ->
+                    existingBarcodes.put(barcode.barcode, barcode)
+                })
+            }
+
+            variant.barcodez.forEach({ barcode ->
+                Barcode productBarcode
+
+                if (existingBarcodes.containsKey(barcode.barcode)) {
+                    productBarcode = existingBarcodes.get(barcode.barcode)
+                } else {
+                    productBarcode = new Barcode()
+                }
+
+                productBarcode.id = barcode.id
+                productBarcode.sku = barcode.sku
+                productBarcode.retailerId = barcode.retailerId
+                productBarcode.barcode = barcode.barcode
+                productBarcode.effectiveDate = variant.effectiveDate
+                productBarcode.recordStatus = barcode.recordStatus
+
+                barcodes.add(productBarcode)
+            })
+
+            productVariant.barcodez.clear()
+            productVariant.barcodez.addAll(barcodes)
+            variants.add(productVariant)
+        })
+
+        to.variants.clear()
+        to.variants.addAll(variants)
+
+    }
+
+    def isValidBarcode(Barcode barcode) {
+        barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+    }
+
+    def ajaxCSVProductUpload() {
+        def file = request.getFile('file')
+        def is = file.inputStream
+        List<Errors> errors = new ArrayList<>()
+
+        try {
+            List<CSVUploadProduct> rows = new CsvToBeanBuilder(is.newReader())
+                    .withType(CSVUploadProduct)
+                    .build().parse()
+            rows.forEach({ CSVUploadProduct row ->
+                Integer retailerId = springSecurityService.principal.retailerId
+                DateTime effectiveDate = getEffectiveDate(row.effectiveDate)
+                ProductCommand productCommand = row.getProduct(retailerId, effectiveDate)
+
+                Product product = saveProduct(productCommand, null, false)
+
+                if (product.hasErrors()) {
+                    Errors productError = product.getErrors()
+                    BeanPropertyBindingResult error = new BeanPropertyBindingResult(this, productError.getObjectName())
+                    ObjectError objectError = new ObjectError(productError.getObjectName(),
+                            String.format("Validation errors for product code - %s", product.getItemCode()))
+                    error.addError(objectError)
+                    error.addAllErrors(productError)
+                    errors.add(error)
+                }
+            })
+        } catch (Exception e) {
+            e.printStackTrace()
+            BeanPropertyBindingResult error = new BeanPropertyBindingResult(this, "Error parsing CSV File")
+            ObjectError objectError = new ObjectError("", "Error while processing the CSV file")
+            error.addError(objectError)
+            errors.add(error)
+        }
+        render([status: errors.isEmpty() ? "SUCCESS" : "FAILED", errors: errors] as JSON)
+    }
 }
 
 class AddVariantCommand {
@@ -678,20 +1350,15 @@ class AddVariantCommand {
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez
     List<AddPackCommand> packs
+    boolean zeroPrice
+    Integer defaultSupplierId
+    int operationMode
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def storeSettings
-
-            if (springSecurityService.principal.storeId) {
-                storeSettings = StoreSettings.findByRetailerIdAndId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-            } else {
-                storeSettings = StoreSettings.findByRetailerIdAndStoreIdIsNull(springSecurityService.principal.retailerId)
-            }
-
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, storeSettings.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
 
             return productPrice?.price ?: BigDecimal.ZERO
         }
@@ -708,14 +1375,16 @@ class AddBarcodeCommand {
 
 class SuppliersCommand {
     int index
+    int productVariantId
     List<AddPackCommand> packs
+    Boolean hasErrors = Boolean.FALSE
 }
 
-class AddPackCommand {
+class AddPackCommand implements Validateable {
     int index
     Integer id
     SupplierCommand supplier
-    int quantity
+    Integer quantity
     BigDecimal price
     String orderCode
     String barcode
@@ -724,12 +1393,40 @@ class AddPackCommand {
     DateTime effectiveEndDate
     PackStatus status
     Integer maximumOrderQuantity
-    boolean allowSubstitutes
+    Boolean allowSubstitutes
+    boolean isNewPack = false
+    Integer productVariantId
+
+    static constraints = {
+        importFrom Pack
+        id nullable: true
+        productVariantId nullable: true
+        allowSubstitutes nullable: true
+        supplier nullable: false, blank: false, validator: { supplier, pack ->
+            if (!supplier.id) return ["addPackCommand.supplier.empty"]
+        }
+        price validator: {
+            if (BigDecimal.ZERO == it) return ['addPackCommand.price.zero']
+            if (it >= 10000) return ['addPackCommand.price.max']
+        }
+        quantity validator: {
+            if (it <= 0) return ['addPackCommand.packQuantity.zero']
+            if (it > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
+        }
+        recommendedRetailPrice validator: {
+            if (BigDecimal.ZERO == it) return ['addPackCommand.recommendedRetailPrice.zero']
+            if (it >= 10000) return ['addPackCommand.recommendedRetailPrice.max']
+        }
+        maximumOrderQuantity validator: {
+            if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
+        }
+    }
 }
 
 class SupplierCommand {
     int id
     String name
+    Integer symbolGroupId
 }
 
 class ProductCommand {
@@ -745,6 +1442,7 @@ class ProductCommand {
     boolean openPrice
     boolean zeroPrice
     boolean pricePerKg
+    boolean snappyProduct
     boolean deliItem
     VatCode vatCode
     BigDecimal vatPercentageOverride
@@ -752,6 +1450,7 @@ class ProductCommand {
     String discreetMessage
     ProductStatus status
     String retailerProductId
+    DateTime effectiveDate
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
@@ -763,7 +1462,7 @@ class ProductCommand {
     Collection<ProductVariantCommand> variants = new ArrayList<>()
 }
 
-class RestrictionsCommand {
+class RestrictionsCommand implements Validateable {
     int id
     BigDecimal minOpenPrice
     BigDecimal maxOpenPrice
@@ -779,11 +1478,16 @@ class RestrictionsCommand {
     Boolean quantityChangeAllowed
     Boolean quantityChangeForced
     Boolean receiptPrintForced
+
+    static constraints = {
+        importFrom Restrictions
+    }
 }
 
 class ProductVariantCommand {
     int id
     int storeId
+    Integer defaultSupplierId
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -817,6 +1521,10 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
+
+    static constraints = {
+        importFrom Pack
+    }
 }
 
 class BarcodeCommand {
@@ -834,8 +1542,11 @@ class SavePriceChangesCommand {
 
 class PriceChangeCommand {
     long sku
+    int packId // Used on the supplier price updates screen only.
     int priceBandId
     BigDecimal price
+    BigDecimal oldPrice
+    Integer productId
 }
 
 class SaveRangeProductsCommand {
@@ -846,4 +1557,153 @@ class RangeProductCommand {
     int productId
     int rangeId
     boolean ranged
+}
+
+class CSVUploadProduct {
+
+    @CsvBindByName(column = 'id')
+    Integer id
+
+    @CsvBindByName(column = 'effective_date')
+    String effectiveDate
+
+    @CsvBindByName(column = 'product_description')
+    String productDescription
+
+    @CsvBindByName(column = 'receipt_description')
+    String receiptDescription
+
+    @CsvBindByName(column = 'plu_item_code')
+    String pluItemCode
+
+    @CsvBindByName(column = 'retailer_category_code')
+    String retailerCategoryCode
+
+    @CsvBindByName(column = 'variant_id')
+    Integer variantId
+
+    @CsvBindByName(column = 'default_sku')
+    Integer defaultSKU
+
+    @CsvBindByName(column = 'unit_size')
+    String unitSize
+
+    @CsvBindByName(column = 'price_bands')
+    String priceBands
+
+    @CsvBindByName(column = 'def_cost_price')
+    Float defaultCostPrice
+
+    @CsvBindByName(column = 'def_barcode')
+    String defaultBarcode
+
+    @CsvBindByName(column = 'shelf_life_days')
+    Integer shelfLifeDays
+
+    @CsvBindByName(column = 'vat_code')
+    Integer vatCode
+
+    @CsvBindByName(column = 'vat_override')
+    Double vatOverride
+
+    @CsvBindByName(column = 'discreet_message')
+    String discreetMessage
+
+    @CsvBindByName(column = 'status')
+    ProductStatus status
+
+    @CsvBindByName(column = 'weighted_item')
+    String weightedItem
+
+    @CsvBindByName(column = 'weighted_pricing_type')
+    Integer weightedPricingType
+
+    @CsvBindByName(column = 'snappy_item')
+    String snappyItem
+
+    @CsvBindByName(column = 'deli_item')
+    String deliItem
+
+    @CsvBindByName(column = 'open_price')
+    String openPrice
+
+    @CsvBindByName(column = 'zero_price')
+    String zeroPrice
+
+    ProductCommand getProduct(Integer retailerId, DateTime effectiveDate) {
+        ProductCommand productCommand = new ProductCommand();
+        productCommand.setId(this.id)
+        productCommand.setItemCode(this.pluItemCode)
+        productCommand.setDescription(this.productDescription)
+        productCommand.setReceiptDescription(this.receiptDescription)
+        Category category = Category.findByRetailerCategoryCode(this.retailerCategoryCode)
+        productCommand.setCategory(category)
+        productCommand.setUnitSize(this.unitSize)
+        productCommand.setWeightedItem("YES".equalsIgnoreCase(this.weightedItem))
+        productCommand.setOpenPrice("YES".equalsIgnoreCase(this.openPrice))
+        productCommand.setZeroPrice("YES".equalsIgnoreCase(this.zeroPrice))
+        productCommand.setPricePerKg(1 == this.weightedPricingType)
+        productCommand.setSnappyProduct("YES".equalsIgnoreCase(this.snappyItem))
+        productCommand.setDeliItem("YES".equalsIgnoreCase(this.deliItem))
+        productCommand.setVatCode(VatCode.findById(this.vatCode))
+        if (this.getVatOverride() != null) {
+            productCommand.setVatPercentageOverride(new BigDecimal(this.getVatOverride()))
+        }
+
+        Restrictions categoryRestrictions = category.restrictions;
+        RestrictionsCommand restrictionsCommand = new RestrictionsCommand()
+        InvokerHelper.setProperties(restrictionsCommand, categoryRestrictions.properties)
+        productCommand.setRestrictions(restrictionsCommand)
+
+        productCommand.setDiscreetMessage(this.getDiscreetMessage())
+        productCommand.setStatus(this.getStatus())
+
+        ProductVariantCommand productVariantCommand = new ProductVariantCommand()
+        if (this.getDefaultCostPrice() != null) {
+            productVariantCommand.setCostPrice(new BigDecimal(this.getDefaultCostPrice()))
+        }
+
+        BarcodeCommand barcodeCommand = new BarcodeCommand()
+        barcodeCommand.setSku(this.getDefaultSKU())
+        barcodeCommand.setBarcode(this.getDefaultBarcode())
+        barcodeCommand.setRetailerId(retailerId)
+        barcodeCommand.setEffectiveDate(effectiveDate)
+        char defRecordStatus = 'C'
+        barcodeCommand.setRecordStatus(defRecordStatus)
+
+        productVariantCommand.setBarcodez(new ArrayList<>(List.of(barcodeCommand)))
+        productVariantCommand.setSku(this.getDefaultSKU())
+        if (this.getVariantId() != null) {
+            productVariantCommand.setId(this.getVariantId())
+        }
+        productVariantCommand.setSku(this.getDefaultSKU())
+        productVariantCommand.setShelfLifeDays(this.getShelfLifeDays())
+
+        productCommand.setVariants(new ArrayList<>(List.of(productVariantCommand)))
+
+        String priceBands = this.getPriceBands();
+        String[] bands = priceBands != null ? priceBands.split("\\|") : []
+        List<PriceChangeCommand> priceChanges = new ArrayList<>()
+        for (String band : bands) {
+            String[] bandValues = band.split("=")
+            if (bandValues.size() != 2) {
+                throw new RuntimeException("Cannot parse price band information")
+            }
+            PriceBand priceBand = PriceBand.findByDescriptionAndRetailerId(bandValues[0].strip(), retailerId)
+
+            PriceChangeCommand priceChangeCommand = new PriceChangeCommand()
+            priceChangeCommand.setSku(this.getDefaultSKU())
+            priceChangeCommand.setPriceBandId(priceBand.getId())
+            priceChangeCommand.setPrice(new BigDecimal(Double.parseDouble(bandValues[1].strip())))
+            priceChanges.add(priceChangeCommand)
+        }
+
+        SavePriceChangesCommand savePriceChangesCommand = new SavePriceChangesCommand()
+        savePriceChangesCommand.setPriceChanges(priceChanges)
+
+        productCommand.setPriceChanges(new ArrayList<>(List.of(savePriceChangesCommand)))
+
+        return productCommand
+    }
+
 }

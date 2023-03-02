@@ -5,6 +5,8 @@
 
         <title>WonderLane Product Maintenance</title>
 
+        <asset:javascript src="money-mask.js" />
+
         <script type="text/javascript">
             $(document).ready(function () {
                 $('#searchTerm').on('keyup', function(event) {
@@ -37,6 +39,9 @@
                     data: { searchTerm: searchTerm, category: category, tag: tag },
                     success: function(resp) {
                         $('#search-results').html(resp);
+
+                        $(".mask-money").maskMoney({ allowZero: true });
+                        $(".mask-money").maskMoney('mask');
                     }
                 });
             }
@@ -56,10 +61,14 @@
                         var id = $(price).attr("id");
                         var sku = id.substring(6, id.lastIndexOf("-"));
                         var priceBandId = id.substring(id.lastIndexOf("-") + 1);
+                        var oldPrice = $("[id^=oldPrice-" + sku + "-" + priceBandId + "]").val();
+                        var productId = $("[id^=productId-" + sku + "-" + priceBandId + "]").val();
 
                         data["priceChanges[" +((i * 3) + index) +"].sku"] = sku;
                         data["priceChanges[" +((i * 3) + index) +"].priceBandId"] = priceBandId;
                         data["priceChanges[" +((i * 3) + index) +"].price"] = $(price).val();
+                        data["priceChanges[" +((i * 3) + index) +"].oldPrice"] = oldPrice;
+                        data["priceChanges[" +((i * 3) + index) +"].productId"] = productId;
                     });
                 });
 
@@ -80,6 +89,18 @@
                     }
                 });
             }
+
+            function priceChanged(sku, priceBandId, costPrice, retailPrice) {
+                if (costPrice !== undefined && costPrice > 0 && retailPrice !== undefined && retailPrice > 0) {
+                    var margin = (((retailPrice - costPrice) / retailPrice).toFixed(4) * 100).toFixed(2);
+
+                    if (margin < 0) {
+                        margin = "0.00";
+                    }
+
+                    $("#margin-" +sku +"-" +priceBandId).text(margin +"%")
+                }
+            }
         </script>
     </head>
 
@@ -89,8 +110,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Product Search</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Price Changes</li>
                         </ol>
                     </div>
                 </div>
@@ -105,15 +126,15 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Product Price Changes</h2>
+                <h2 id="page-title" class="mx-auto">Product Price Changes</h2>
             </div>
 
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
-                                <div class="col-10">Filters</div>
+                                <div id="filters-header" class="col-10">Filters</div>
                                 <div class="col-2 text-right">
                                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
@@ -160,7 +181,8 @@
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-2 font-weight-bold">Item Code</div>
-                <div class="col-6 font-weight-bold">Description</div>
+                <div class="col-4 font-weight-bold">Description</div>
+                <div class="col-1 font-weight-bold">Cost Price</div>
                 <g:each in="${priceBands}" var="priceBand">
                     <div class="col font-weight-bold">${priceBand.description}</div>
                 </g:each>
@@ -177,10 +199,10 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h2>Success</h2>
+                            <h2 id="confirm-modal-title">Success</h2>
                         </div>
 
-                        <div class="modal-body">Price changes saved successfully.</div>
+                        <div id="confirm-modal-message" class="modal-body">Price changes saved successfully.</div>
 
                         <div class="modal-footer">
                             <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>

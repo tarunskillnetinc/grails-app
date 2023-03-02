@@ -3,7 +3,7 @@
         <g:if test="${shift?.reconciledDate == null}">
             <g:if test="${shift.reconciliationTotals.size() > 0}">
                 <div class="row cash-up-by">
-                    <p class="mx-auto">Cash up by <a id="cashUpByValueLink" href="#" onclick="changeCashUpType('VALUE');">value</a>, <a id="cashUpByDenominationLink" href="#" onclick="changeCashUpType('DENOMINATION');">denomination</a> or <a id="cashUpByTotalsLink" href="#" class="disabled">totals</a>.</p>
+                    <p class="mx-auto">Cash up by <a id="cashUpByValueLink" href="#" onclick="changeCashUpType('VALUE');">value</a>, <a id="cashUpByDenominationLink" href="#" onclick="changeCashUpType('DENOMINATION');">denomination</a> or <a id="cashUpByTotalsLink" href="#" class="disabled">totals</a></p>
                 </div>
 
                 <div id="cashUpContainer" class="mt-3 mr-4">
@@ -12,7 +12,7 @@
             </g:if>
             <g:else>
                 <div class="row cash-up-by">
-                    <p class="mx-auto">Cash up by <a id="cashUpByValueLink" href="#" class="disabled">value</a>, <a id="cashUpByDenominationLink" href="#" onclick="changeCashUpType('DENOMINATION');">denomination</a> or <a id="cashUpByTotalsLink" href="#" onclick="changeCashUpType('TOTALS');">totals</a>.</p>
+                    <p class="mx-auto">Cash up by <a id="cashUpByValueLink" href="#" class="disabled">value</a>, <a id="cashUpByDenominationLink" href="#" onclick="changeCashUpType('DENOMINATION');">denomination</a> or <a id="cashUpByTotalsLink" href="#" onclick="changeCashUpType('TOTALS');">totals</a></p>
                 </div>
 
                 <div id="cashUpContainer" class="mt-3 mr-4">

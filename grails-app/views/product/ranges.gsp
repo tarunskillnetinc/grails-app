@@ -90,8 +90,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Product Search</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Ranging</li>
                         </ol>
                     </div>
                 </div>
@@ -106,13 +106,13 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Product Ranges</h2>
+                <h2 class="mx-auto">Product Ranging</h2>
             </div>
 
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <div id="product-ranging-filters" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
                                 <div class="col-10">Filters</div>
                                 <div class="col-2 text-right">
@@ -178,7 +178,7 @@
                             <h2>Success</h2>
                         </div>
 
-                        <div class="modal-body">Product range updates saved successfully.</div>
+                        <div id="modal-message" class="modal-body">Product range updates saved successfully.</div>
 
                         <div class="modal-footer">
                             <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>

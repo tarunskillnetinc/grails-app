@@ -1,8 +1,11 @@
+<g:hiddenField name="variants[${variantIndex}].defaultSupplierId" value="${defaultSupplier}" />
+
 <g:each in="${packs}" var="pack" status="packIndex">
     <div id="packContainer${packIndex}">
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].id" value="${pack.id ?: ''}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].supplier.id" value="${pack.supplier.id}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].supplier.name" value="${pack.supplier.name}" />
+        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].supplier.symbolGroupId" value="${pack.supplier.symbolGroupId}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].quantity" value="${pack.quantity}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].price" value="${pack.price}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].orderCode" value="${pack.orderCode}" />
@@ -12,6 +15,7 @@
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].status" value="${pack.status}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].maximumOrderQuantity" value="${pack.maximumOrderQuantity}" />
         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].allowSubstitutes" value="${pack.allowSubstitutes}" />
+        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcode" value="${pack.barcode}" />
 
         <div id="variants[${variantIndex}].packs[${packIndex}].packText">${pack.quantity} @ <g:formatNumber number="${pack.price}" type="currency" /> (${pack.supplier.name})</div>
     </div>

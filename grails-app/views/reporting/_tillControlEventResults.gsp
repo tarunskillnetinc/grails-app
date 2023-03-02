@@ -30,25 +30,27 @@
     <g:each in="${tillControlEvents}" var="tillControlEvent" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                <div class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.type}" /></div>
+                <div id="type-${i + 1}" class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.type}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "usersName" }?.enabled}">
-                <div class="col my-auto">${tillControlEvent.usersName}</div>
+                <div id="users-name-${i + 1}" class="col my-auto">${tillControlEvent.usersName}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
-                <div class="col my-auto">
+                <div id="reason-${i + 1}" class="col my-auto">
                     <g:if test="${!tillControlEvent.reason}">N/A</g:if>
                     <g:elseif test="${tillControlEvent.type.name() == 'CUSTOMER_REFUSAL'}"><g:message code="CustomerRefusalReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:elseif test="${tillControlEvent.type.name() == 'REFUND'}"><g:message code="RefundReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:elseif test="${tillControlEvent.type.name() == 'MARKDOWN'}"><g:message code="MarkdownReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:elseif test="${tillControlEvent.type.name() == 'LINE_VOID'}"><g:message code="LineVoidReason.${tillControlEvent.reason}" /></g:elseif>
+                    <g:elseif test="${tillControlEvent.type.name() == 'PAID_OUT'}"><g:message code="PaidOutReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:else>${tillControlEvent.reason}</g:else>
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div class="col my-auto"><g:formatDate date="${tillControlEvent.dateCreated}" format="dd/MM/yy HH:mm:ss" /></div>
+                <div id="date-created-${i + 1}" class="col my-auto">${tillControlEvent.dateCreated.toString("dd/MM/yy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
-                <div class="col my-auto">
+                <div id="amount-${i + 1}" class="col my-auto">
                     <g:if test="${tillControlEvent.amount != null}">
                         <g:formatNumber number="${tillControlEvent.amount}" type="currency" />
                     </g:if>

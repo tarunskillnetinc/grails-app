@@ -5,6 +5,9 @@
 
         <title>WonderLane Promotion Maintenance</title>
 
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
+
         <script type="text/javascript">
             $(document).ready(function () {
                 $('#promotionSearchTerm').on('keyup', function(event) {
@@ -13,37 +16,90 @@
                     }
                 });
 
+                $('#validDateFilter').on("change", function () {
+                    $('#validDateFilter').val(this.value);
+                    $('#validDateFilter').removeClass('is-invalid');
+                });
+
                 var existingSearchTerm = $('#promotionSearchTerm').val();
                 if (existingSearchTerm != null && existingSearchTerm !== "") {
                     searchButtonClicked();
                 }
             });
 
-            function searchButtonClicked() {
-                $('#offset').val(0);
-                search();
+            function searchButtonClicked(sortParams) {
+                search(sortParams);
             }
 
-            function search() {
-                var URL = "${createLink(controller: 'promotion', action: 'promotionSearch')}";
-                var searchTerm = $('#promotionSearchTerm').val();
-                var searchBy = $('#promotionSearchBy').val();
+            function search(sortParams) {
+                $("#search-results").hide();
+                $("#loading-indicator").show();
 
-                $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
-                    "  <div class=\"spinner-border\" role=\"status\">\n" +
-                    "    <span class=\"sr-only\">Loading...</span>\n" +
-                    "  </div>\n" +
-                    "</div>");
+                var URL = "${createLink(controller: 'promotion', action: 'promotionSearch')}";
+
+                let searchTerm = $('#promotionSearchTerm').val();
+                let searchBy = $('#promotionSearchBy').val();
+
+                let validDate = $('#validDateFilter').val();
+                let updatedSince = $('#updatedDateFilter').val();
+                let type = $('#typeFilter').val();
+                let supplier = $('#supplierFilter').val();
+                let status = $('#statusFilter').val();
 
                 $.ajax({
                     url: URL,
-                    data: { searchTerm: searchTerm, searchBy: searchBy },
+                    data: {
+                        searchTerm: searchTerm,
+                        searchBy: searchBy,
+                        validDate: validDate,
+                        updatedSince: updatedSince,
+                        type: type,
+                        supplier: supplier,
+                        status: status,
+                        max: sortParams ? sortParams["max"] : null,
+                        offset: sortParams ? sortParams.offset : null,
+                        sortColumn: sortParams ? sortParams.sortColumn : null,
+                        sortOrder: sortParams ? sortParams.sortOrder : null
+                    },
                     success: function(resp) {
-                        $('#search-results').html(resp);
+                        $('#search-results-container').html(resp);
+
                         $('#promotionSearchTerm').data('prev',$('#promotionSearchTerm').val());
                         $('#promotionSearchBy').data('prev', $('#promotionSearchBy').val());
                     }
                 })
+            }
+
+            $(function() {
+                $('#validDateFilter').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
+                $('#updatedDateFilter').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+            });
+
+            function resetForm() {
+                document.getElementById('validDateFilter').value = null;
+                document.getElementById('updatedDateFilter').value = null;
+                document.getElementById('typeFilter').value = null;
+                document.getElementById('supplierFilter').value = null;
+                document.getElementById('statusFilter').value = null;
+                document.getElementById('promotionSearchTerm').value = null;
+                document.getElementById('promotionSearchBy').value = 'description';
+
+                search();
             }
         </script>
     </head>
@@ -54,8 +110,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Promotion Search</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Promotion Search</li>
                         </ol>
                     </div>
                 </div>
@@ -64,39 +120,88 @@
 
         <section id="alerts-container" class="container-fluid">
             <g:if test="${flash.message}">
-                <div class="alert alert-success" role="alert">${flash.message}</div>
+                <div id="alerts-container-message" class="alert alert-success" role="alert">${flash.message}</div>
             </g:if>
         </section>
 
         <section id="promo-maintenance-search" class="container-fluid">
-            <div class="header-wl mt-3">
-                <h2 class="mx-auto">Promotion Search</h2>
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 id="promo-maintenance-search-title" class="mx-auto my-auto">Promotion Search</h2>
+                </div>
+
+                <div class="col-2 text-right">
+                    <g:link elementId="add-new-promotion" controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
+                </div>
             </div>
 
-            <div class="row mt-4 ml-0 mr-0 justify-content-center">
-                <div class="input-group offset-2 col-8">
-                    <g:textField name="promotionSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" value="${session.PROMOTION_SEARCH_TERM}" />
+            <div class="row mt-4">
+                <div class="col-6">
+                    <div class="card bg-light border-wl">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                            <div class="row">
+                                <div class="col-10">Filters</div>
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="input-group-append">
-                        <g:select id="promotionSearchBy" name="productSearchBy" from="${['description', 'promotionId']}" value="everything" valueMessagePrefix="PromotionSearchBy" class="form-control select-border" style="z-index: 0;" />
-                        <asset:image src="search.png" name="promotionSearchButton" onclick="searchButtonClicked()" class="wl-search-button" />
+                        <div class="card-body collapse show" id="filterCollapse">
+                            <div class="form-group row">
+                                <label for="promotionSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <div class="col-10 input-group">
+                                    <g:textField id="promotionSearchTerm" name="promotionSearchTerm" maxlength="100" value="${session.PROMOTION_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
+
+                                    <div class="input-group-append">
+                                        <g:select id="promotionSearchBy" name="productSearchBy" from="${['description', 'promotionId']}" value="everything" valueMessagePrefix="PromotionSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="validDate" class="col-2 col-form-label-sm text-right">Date Valid</label>
+                                <div class="col-4">
+                                    <g:textField name="validDate" onkeydown="return false" id="validDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                </div>
+
+                                <label for="updatedDate" class="col-2 col-form-label-sm text-right">Updated Since</label>
+                                <div class="col-4">
+                                    <g:textField name="updatedDate" onkeydown="return false" id="updatedDateFilter" class="form-control bottom-border" autocomplete="off"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="types" class="col-2 col-form-label-sm text-right">Type</label>
+                                <div class="col-4">
+                                    <g:select name="types" id="typeFilter" placeholder="Please Select" from="${types}" optionValue="friendlyName" noSelection="['': '']" class="form-control select-border"/>
+                                </div>
+
+                                <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
+                                <div class="col-4">
+                                    <g:select name="supplier" id="supplierFilter" from="${symbolGroups}" optionValue="name" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
+                                <div class="col-4">
+                                    <g:select name="status" id="statusFilter" from="${['ACTIVE', 'INACTIVE']}" valueMessagePrefix="PromotionStatus" noSelection="['': '']" class="form-control select-border"/>
+                                </div>
+
+                                <div class="col-4 offset-2 text-right">
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="col-2 text-right px-0">
-                    <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
-                </div>
             </div>
 
-            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">Promotion ID</div>
-                <div class="col-5 font-weight-bold">Description</div>
-                <div class="col-1 font-weight-bold">Active</div>
-                <div class="col-2 font-weight-bold">Type</div>
-                <div class="col-2 font-weight-bold">Discount Amount</div>
-            </div>
-
-            <div id="search-results" class="align-content-center">
+            <div id="search-results-container" class="align-content-center">
                 <g:render template="promotionSearchResults" />
             </div>
         </section>

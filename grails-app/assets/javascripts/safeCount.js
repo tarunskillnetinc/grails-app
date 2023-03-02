@@ -43,6 +43,16 @@ function showSafeModal(locationId) {
 
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
+            $(".denomination").focusout(function () {
+                if (!this.value || this.value < 0) {
+                    this.value = 0;
+                }
+            })
+            .keypress(function (e) {
+                if (["e", "E", "+", "-"].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
         }
     });
 }

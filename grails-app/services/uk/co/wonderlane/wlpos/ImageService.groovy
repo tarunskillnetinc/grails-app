@@ -25,7 +25,8 @@ class ImageService {
 
                 int index = 0;
                 List<byte[]> result = new ArrayList<>()
-                for (File file : dir.listFiles()) {
+                // sort using file names so the result of following block is same regardless of the OS returned file order
+                for (File file : dir.listFiles().sort{it.name}) {
                     if (file.getName().equals(String.valueOf(index) + ".png")) {
                         result.add(file.getBytes())
                         index++
@@ -56,9 +57,17 @@ class ImageService {
                 int index = 0;
                 for (byte[] image : images) {
                     File file = new File(dir.toPath().toString() + File.separator + index + ".png")
-                    OutputStream outputStream = new FileOutputStream(file)
-                    outputStream.write(image)
-                    index++;
+                    OutputStream outputStream
+                    try {
+                        outputStream = new FileOutputStream(file)
+                        outputStream.write(image)
+                        index++;
+                    } finally {
+                        if(outputStream) {
+                            outputStream.close()
+                        }
+                    }
+
                 }
                 return true
             } catch (IOException e) {

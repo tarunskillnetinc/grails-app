@@ -28,7 +28,7 @@ class SnapshotController {
     }
 
     def ajaxGetSnapshots() {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
         DateTime startDate = DateTime.parse(params.startDate, dateFormatter)
         DateTime endDate = DateTime.parse(params.endDate, dateFormatter)
 
@@ -68,7 +68,7 @@ class SnapshotController {
     def ajaxSaveSafeCount(SaveSafeCommand safeCommand) {
         def snapshot = snapshotService.getSnapshot(safeCommand.snapshotId)
 
-        ReconciliationTotal cashTotal = snapshot.totals.find { it.tenderType == TenderType.CASH } ?: null
+        ReconciliationTotal cashTotal = snapshot.totals.find {it.tenderType == TenderType.CASH} ?: null
         if (cashTotal == null) {
             cashTotal = new ReconciliationTotal(TenderType.CASH)
             snapshot.totals.add(cashTotal)

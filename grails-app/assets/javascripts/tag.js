@@ -8,7 +8,13 @@ function productSelected (id, sku, description) {
 
             $('#noResultsRow').hide();
 
-            $('#productVariant' +id).addClass("wl-striped" +($('#productList').children().length % 2));
+            let i = $('#productList').children().length - 1; // remove hidden noResultsRow
+            let row = $('#productVariant' +id);
+            row.addClass("wl-striped" +((i-1) % 2));
+            row.find('#tag-product-0-id').attr("id", "tag-product-" + i + "-id");
+            row.find('#tag-product-0-sku').attr("id", "tag-product-" + i + "-sku");
+            row.find('#tag-product-0-description').attr("id", "tag-product-" + i + "-description");
+            row.find('#tag-product-0-remove-btn').attr("id", "tag-product-" + i + "-remove-btn");
         }
     });
 }

@@ -8,6 +8,8 @@ class StoreSettings {
 
     int id
     int retailerId
+    Integer parentStoreId
+    String type
     Integer storeId
     String receiptMessage1
     String receiptMessage2
@@ -34,9 +36,20 @@ class StoreSettings {
     Integer updatedUserId
     PriceBand priceBand
     Range range
+    BigDecimal selMarginLeft
+    BigDecimal selMarginTop
+
+    String primaryColour
+    String secondaryColour
+    String accentColour
+    String primaryTextColour
+    String secondaryTextColour
+    String accentTextColour
+
+    BigDecimal countIncrement
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
-    public StoreSettings() { }
+    public StoreSettings() {}
 
     static mapping = {
         autowire true
@@ -45,6 +58,8 @@ class StoreSettings {
 
         id column: "id", sqlType: "smallint"
         retailerId column: "retailerId", sqlType: "tinyint"
+        parentStoreId column: "parentStoreId", sqlType: "smallint"
+        type column: "type"
         storeId column: "storeId", sqlType: "smallint"
         receiptMessage1 column: "receiptMessage1"
         receiptMessage2 column: "receiptMessage2"
@@ -70,11 +85,22 @@ class StoreSettings {
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
         updatedUserId column: "updatedUserId"
+        selMarginLeft column: "selMarginLeft"
+        selMarginTop column: "selMarginTop"
+        primaryColour column: "primaryColour", sqlType: "char", length: 6
+        secondaryColour column: "secondaryColour", sqlType: "char", length: 6
+        accentColour column: "accentColour", sqlType: "char", length: 6
+        primaryTextColour column: "primaryTextColour", sqlType: "char", length: 6
+        secondaryTextColour column: "secondaryTextColour", sqlType: "char", length: 6
+        accentTextColour column: "accentTextColour", sqlType: "char", length: 6
+
+        countIncrement column: "countIncrement"
     }
 
     static constraints = {
         id nullable: true
         retailerId nullable: false
+        parentStoreId nullable: true
         storeId nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
@@ -92,7 +118,7 @@ class StoreSettings {
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
         varianceQuantity nullable: true, min: 1, max: 999
-        varianceValue nullable:true, min: BigDecimal.ONE, max: 9999.99
+        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         priceBand nullable: false
         range nullable: false
@@ -100,6 +126,43 @@ class StoreSettings {
         createdUserId nullable: true
         updatedDatetime nullable: true
         updatedUserId nullable: true
+        selMarginLeft nullable: true
+        selMarginTop nullable: true
+        primaryColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        secondaryColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        accentColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        primaryTextColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        secondaryTextColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        accentTextColour nullable: true, validator: { value, storeSettings -> storeSettings.colorCodeValidator(value) }
+        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE, validator: { value ->
+            if (value < new BigDecimal(0.01)) {
+                return ['storeSettings.countIncrement.min.notmet']
+            }
+
+            if (value > BigDecimal.ONE) {
+                return ['storeSettings.countIncrement.max.exceeded']
+            }
+
+            return true
+        }
+    }
+
+    def colorCodeValidator(String colorCode) {
+        if (colorCode == null || colorCode.trim().isEmpty()) {
+            return true
+        }
+
+        if (colorCode.length() != 6) {
+            return ['storeSettings.colourCode.length.notmet', colorCode]
+        }
+
+        if (colorCode.startsWith('#')) {
+            return ['storeSettings.colourCode.format.startsWith.notmet', colorCode]
+        }
+
+        if (!isValidHexCode(colorCode)) {
+            return ['storeSettings.colourCode.format.notmet', colorCode]
+        }
     }
 
     def beforeInsert() {
@@ -132,7 +195,20 @@ class StoreSettings {
         storeSettings.setValuePromptThreshold(valuePromptThreshold)
         storeSettings.setVarianceQuantity(varianceQuantity)
         storeSettings.setVarianceValue(varianceValue)
+        storeSettings.setParentStoreId(parentStoreId)
+        storeSettings.setPrimaryColour(primaryColour)
+        storeSettings.setSecondaryColour(secondaryColour)
+        storeSettings.setAccentColour(accentColour)
+        storeSettings.setPrimaryTextColour(primaryTextColour)
+        storeSettings.setSecondaryTextColour(secondaryTextColour)
+        storeSettings.setAccentTextColour(accentTextColour)
+        storeSettings.setCountIncrement(countIncrement)
 
         return storeSettings
+    }
+
+    private boolean isValidHexCode(String s) {
+        return s.chars()
+                .allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
 }

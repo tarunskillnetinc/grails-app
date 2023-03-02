@@ -55,8 +55,9 @@
             <div class="row mt-4">
                 <div class="col">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index">ShiftManagement</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
                     </ol>
                 </div>
             </div>
@@ -65,13 +66,13 @@
 
     <section id="snapshots-container" class="container-fluid">
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Snapshot Viewer</h2>
+            <h2 id="page-title" class="mx-auto">Snapshot Viewer</h2>
         </div>
 
         <div class="row mt-4">
             <div class="col-5">
                 <div class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                    <div id="filter" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                         <div class="row">
                             <div class="col-10">Filters</div>
                             <div class="col-2 text-right">
@@ -106,13 +107,8 @@
             </div>
             <div class="offset-2 col-5">
                 <div class="row justify-content-end">
-                    <div class="offset-4 col-4">
-                        <button id="cash-lift-button" type="button" class="btn btn-wl text-center w-100" onclick="showCashLiftModal()">Cash Lift</button>
-                    </div>
                     <div class="col-4">
-                        <g:link controller="shift" action="index"  class="w-100">
-                            <button id="shift-viewer-button" type="button" class="btn btn-wl text-center w-100">Shift Viewer</button>
-                        </g:link>
+                        <button id="cash-lift-button" type="button" class="btn btn-wl text-center w-100" onclick="showCashLiftModal()">Cash Lift</button>
                     </div>
                 </div>
             </div>

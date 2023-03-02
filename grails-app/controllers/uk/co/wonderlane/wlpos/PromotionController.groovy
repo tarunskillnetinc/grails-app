@@ -1,9 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import java.math.RoundingMode
@@ -17,7 +21,21 @@ class PromotionController {
     def rabbitService
     def gsonProvider
 
-    def index() { }
+    def index() {
+        List<uk.co.wonderlane.wlpos.enums.PromotionType> promotionTypes = new ArrayList<>()
+        promotionTypes.add(PromotionType.BOGOF)
+        promotionTypes.add(PromotionType.FIXED_AMOUNT_DISCOUNT)
+        promotionTypes.add(PromotionType.PERCENTAGE_DISCOUNT)
+        promotionTypes.add(PromotionType.X_FOR_Y)
+        promotionTypes.add(PromotionType.FIXED_PRICE)
+
+        def symbolGroups = SymbolGroup.findAll([sort: "name", order: "asc"])
+
+        render (view: "index", model: [
+                types: promotionTypes,
+                symbolGroups: symbolGroups
+        ])
+    }
 
     def maintenance() {
         List<Map> productsRequired = new ArrayList<>()
@@ -49,6 +67,35 @@ class PromotionController {
             }
         }
 
+        tagsRequired?.each { tagRequired ->
+            tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
+                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+
+                if (product) {
+                    tagProduct.productId = product.id
+                    tagProduct.productDescription = product.description
+                }
+            }
+        }
+
+        tagsOffer?.each { tagOffer ->
+            tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
+                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+
+                if (product) {
+                    tagProduct.productId = product.id
+                    tagProduct.productDescription = product.description
+                }
+            }
+        }
+
+        def productItemType = "product"
+        if (categoriesRequired?.size() > 0 || categoriesOffer?.size() > 0) {
+            productItemType = "category"
+        } else if (tagsRequired?.size() > 0 || tagsOffer?.size() > 0) {
+            productItemType = "tag"
+        }
+
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
                                             productsRequired: productsRequired,
@@ -56,7 +103,8 @@ class PromotionController {
                                             categoriesRequired: categoriesRequired,
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer])
+                                            tagsOffer: tagsOffer,
+                                            productItemType: productItemType])
     }
 
     def maintenanceError() {
@@ -124,11 +172,11 @@ class PromotionController {
     def setupBasePromotion(Promotion promotion, String type) {
         promotion.description = params."${type}-description"
         promotion.receiptDescription = params."${type}-receiptDescription"
-        promotion.startDate = DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-startDate").toDate()
-        promotion.endDate = (params."${type}-doesNotExpire" ? null : DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-endDate").toDate())
+        promotion.startDate = DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-startDate")
+        promotion.endDate = (params."${type}-doesNotExpire" ? null : DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-endDate"))
 
-        promotion.updateDatetime = new Date()
-        promotion.active = params."${type}-active"
+        promotion.updateDatetime = new DateTime()
+        promotion.active = params."${type}-active" != null
         promotion.retailerPromotionId = params."${type}-retailerPromoId" ? Integer.parseInt(params."${type}-retailerPromoId") : null
 
         switch (type) {
@@ -158,12 +206,14 @@ class PromotionController {
         return promotion
     }
 
-    def failPromotion(Promotion promotion, PromotionType oldType) {
+    private Promotion failPromotion(Promotion promotion, PromotionType oldType) {
         if (oldType) {
             promotion.type = oldType
         }
+
         flash.promotion = promotion
         flash.badPromoMessage = "error.Promotion.badPromoValidation"
+
         return promotion
     }
 
@@ -270,7 +320,14 @@ class PromotionController {
 
                     def count = 1
                     for (int i = 0; i < itemNo; i++) {
-                        def param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
+
+                        def param
+                        if (params."fixedPrice-promotionItemsType" == "product") {
+                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-sku/$
+                        } else {
+                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
+                        }
+
                         while(!params.containsKey(param.toString())) {
                             count++
                             param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
@@ -321,11 +378,11 @@ class PromotionController {
     }
 
     def productSearch() {
-        def products = productService.searchProducts(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
-        render(template: "/promotion/productSearchResults", model: [products: products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults:  products.totalCount])
+        render(template: "/promotion/productSearchResults", model: [products: products.products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
     }
-
+    
     def categorySearch() {
         def categories
         def totalResults
@@ -349,20 +406,74 @@ class PromotionController {
     }
 
     def promotionSearch() {
-        session.PROMOTION_SEARCH_TERM = params.searchTerm
+        DateTime validDate
+        DateTime updatedSince
+        PromotionType type
+        Integer supplierId
+        Integer max
+        Integer offset
+        String sortColumn
+        String sortOrder
 
-        def promos
-        def totalResults
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
-        if (params.searchBy.equals("description")) {
-            promos = Promotion.findAllByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId, "%${params.searchTerm}%", [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-            totalResults = Promotion.countByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId,  "%${params.searchTerm}%")
-        } else {
-            promos = Promotion.findAllByRetailerIdAndRpidAsStringLike(springSecurityService.principal.retailerId, "${params.searchTerm}%", [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-            totalResults = Promotion.countByRetailerIdAndRpidAsStringLike(springSecurityService.principal.retailerId, "${params.searchTerm}%")
+            validDate = params.validDate ? DateTime.parse(params.validDate, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC)
+            updatedSince = params.updatedSince ? DateTime.parse(params.updatedSince, dateFormatter).withZoneRetainFields(DateTimeZone.UTC) : null
+            type = params.type ? PromotionType.valueOf(params.type) : null
+            supplierId = params.supplier ? Integer.parseInt(params.supplier) : null
+            max = params.max ? Integer.parseInt(params.max) : null
+            offset = params.offset ? Integer.parseInt(params.offset) : null
+            sortColumn = validateSortColumn(params.sortColumn)
+            sortOrder = validateSortOrder(params.sortOrder)
+        } catch (Exception e) {
+            e.printStackTrace()
+
+            response.status = 400
+            return
         }
 
-        render(template: "/promotion/promotionSearchResults", model: [promotions: promos, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
+        session.PROMOTION_SEARCH_TERM = params.searchTerm
+
+        // Having to completely custom do the sorting and pagination when sorting by supplier name.
+        if (sortColumn == "supplierName") {
+            offset = 0
+            max = 10000
+        }
+
+        def promotions = promotionService.searchPromotions(validDate, updatedSince, type, params.searchTerm, params.searchBy == "description",
+                max, offset, sortColumn, sortOrder, supplierId, params.status)
+
+        int totalCount = promotions.totalCount
+
+        // Having to completely custom do the sorting and pagination when sorting by supplier name.
+        if (sortColumn == "supplierName") {
+            max = params.max ? Integer.parseInt(params.max) : 50
+            offset = params.offset ? Integer.parseInt(params.offset) : 0
+
+            promotions = promotions?.sort { a, b -> ("" + a?.symbolGroupPromotion?.symbolGroup?.name + a?.symbolGroupPromotion?.isLeaflet) <=> ("" + b?.symbolGroupPromotion?.symbolGroup?.name + b?.symbolGroupPromotion?.isLeaflet) }
+
+            if (sortOrder == "asc") {
+                promotions = promotions?.reverse()
+            }
+
+            promotions = offset < promotions.size() ? promotions.subList(offset, (offset + max < promotions.size() ? offset + max : promotions.size())) : []
+        }
+
+        render(template: "/promotion/promotionSearchResults", model: [promotions  : promotions,
+                                                                      storeId     : springSecurityService.principal.storeId,
+                                                                      validDate   : params.validDate,
+                                                                      updatedSince: params.updatedSince,
+                                                                      type        : params.type,
+                                                                      searchTerm  : params.searchTerm,
+                                                                      searchBy    : params.searchBy,
+                                                                      max         : params.max,
+                                                                      offset      : params.offset,
+                                                                      sortOrder   : params.sortOrder,
+                                                                      sortColumn  : params.sortColumn,
+                                                                      supplier    : params.supplier,
+                                                                      status      : params.status,
+                                                                      totalResults: totalCount])
     }
 
     def sendToTill() {
@@ -371,11 +482,54 @@ class PromotionController {
 
         uk.co.wonderlane.wlpos.entities.Promotion tillPromo = Promotion.findById(Integer.parseInt(params.promotionId)).getPromotion()
 
+        List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
+        for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
+            if (offerGroup.getTagId() != null) {
+                for (TagProduct tagProduct : Tag.findById(offerGroup.tagId).tagProducts) {
+                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
+                    promotionGroup.setId(offerGroup.getId())
+                    promotionGroup.setPromotionId(offerGroup.getPromotionId())
+                    promotionGroup.setRequiredValue(offerGroup.getRequiredValue())
+                    promotionGroup.setType(offerGroup.getType())
+                    promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
+                    promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
+                    promotionGroup.setTagId(offerGroup.getTagId())
+                    promotionGroup.setSku(tagProduct.sku)
+
+                    tagGroups.add(promotionGroup)
+                }
+            }
+        }
+        tillPromo.getPromotionOfferGroups().addAll(tagGroups)
+        tagGroups.clear()
+
+        for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
+            if (requiredGroup.getTagId() != null) {
+                for (TagProduct tagProduct : Tag.findById(requiredGroup.tagId).tagProducts) {
+                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
+                    promotionGroup.setId(requiredGroup.getId())
+                    promotionGroup.setPromotionId(requiredGroup.getPromotionId())
+                    promotionGroup.setRequiredValue(requiredGroup.getRequiredValue())
+                    promotionGroup.setType(requiredGroup.getType())
+                    promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
+                    promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
+                    promotionGroup.setTagId(requiredGroup.getTagId())
+                    promotionGroup.setSku(tagProduct.sku)
+
+                    tagGroups.add(promotionGroup)
+                }
+            }
+        }
+
+        tillPromo.getPromotionRequiredGroups().addAll(tagGroups)
+
         syncMessage.setPromotion(tillPromo)
 
         if (springSecurityService.principal.storeId) {
+            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
             rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
         } else {
+            rabbitService.declareExchange(String.format("R%d", syncMessage.getRetailerId()))
             rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
         }
 
@@ -385,5 +539,29 @@ class PromotionController {
 
     def ajaxGetPromotionsForProduct() {
         render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
+    }
+
+    private String validateSortColumn(String sortColumn) {
+        def availableColumns = [ "retailerPromotionId", "description", "updateDatetime", "startDate", "endDate", "active", "type", "amount", "supplierName" ]
+
+        if (!sortColumn) {
+            return null
+        } else if (availableColumns.contains(sortColumn)) {
+            return sortColumn
+        } else {
+            throw new RuntimeException("Bad request")
+        }
+    }
+
+    private String validateSortOrder(String sortOrder) {
+        def availableOrders = [ "asc", "desc" ]
+
+        if (!sortOrder) {
+            return null
+        } else if (availableOrders.contains(sortOrder.toLowerCase())) {
+            return sortOrder
+        } else {
+            throw new RuntimeException("Bad request")
+        }
     }
 }

@@ -2,9 +2,19 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
+import java.math.RoundingMode
+import java.util.stream.Collectors
+
+import org.springframework.context.i18n.LocaleContextHolder
+
 class Product {
+
+    def springSecurityService
+    def messageSource
 
     int id
     int retailerId
@@ -17,6 +27,7 @@ class Product {
     boolean openPrice
     boolean zeroPrice
     boolean pricePerKg
+    boolean snappyProduct
     boolean deliItem
     VatCode vatCode
     BigDecimal vatPercentageOverride
@@ -30,13 +41,17 @@ class Product {
     Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
 
-    ProductVariant currentProductVariant
+    BigDecimal retailPrice
 
     static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
 
-    static transients = ['currentProductVariant']
+    static transients = ['retailPrice']
+
+    // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
+    public Product() { }
 
     static mapping = {
+        autowire true
         table "product"
         version false
 
@@ -47,6 +62,7 @@ class Product {
         category column: "categoryId"
         unitSize column: "unitSize"
         pricePerKg column: "pricePerKg"
+        snappyProduct column: "snappyProduct"
         deliItem column: "deliItem"
         weightedItem column: "weightedItem"
         openPrice column: "openPrice"
@@ -65,9 +81,11 @@ class Product {
     }
 
     static constraints = {
-        itemCode size: 1..50, blank: false, nullable: false
+        itemCode size: 1..50, blank: false, nullable: false, validator: { val, obj ->
+            return Product.countByRetailerIdAndItemCodeAndIdNotEqual(obj.retailerId, obj.itemCode, obj.id) > 0 ? ["error.product.duplicateItemCode"] : true
+        }
         description size: 1..100, blank: false, nullable: false
-        receiptDescription size: 1..50, blank: false, nullable: false
+        receiptDescription size: 1..25, blank: false, nullable: false
         discreetMessage size: 0..50, blank: true, nullable: true
         unitSize size: 1..50, blank: false, nullable:false
         vatPercentageOverride min:0 as BigDecimal, max: 100 as BigDecimal, blank: true, nullable: true, scale: 2
@@ -99,6 +117,79 @@ class Product {
         return RangeProduct.findAllByProductId(id)
     }
 
+    BigDecimal getCostPrice() {
+        def sortedVariants = variants.sort { a,b ->
+            a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
+        }
+
+        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.costPrice ?: BigDecimal.ZERO.setScale(2)
+    }
+
+    BigDecimal getRetailPrice() {
+        if (retailPrice) {
+            return retailPrice
+        }
+
+        def sortedVariants = variants.sort { a,b ->
+            a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
+        }
+
+        retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
+
+        return retailPrice ?: BigDecimal.ZERO.setScale(2)
+    }
+
+    BigDecimal getVat() {
+        BigDecimal divisor = BigDecimal.ONE.add(vatCode.percentage.divide(BigDecimal.valueOf(100)));
+        BigDecimal price = getRetailPrice()
+
+        return price.subtract(price.divide(divisor, 2, RoundingMode.HALF_UP));
+    }
+
+    BigDecimal getMargin() {
+        BigDecimal netSellingPrice = getRetailPrice().subtract(getVat());
+
+        return netSellingPrice.compareTo(BigDecimal.ZERO) > 0 ? netSellingPrice.subtract(getCostPrice()).divide(netSellingPrice, 4, RoundingMode.HALF_UP).movePointRight(2) : BigDecimal.ZERO.setScale(2);
+    }
+
+    boolean isCurrentProductVariant(DateTime effectiveDate, Integer variantId, Long sku) {
+        return variants.stream()
+                .filter({variant -> variant.effectiveDate <= effectiveDate && variant.sku == sku && (variant.storeId == null || variant.storeId == springSecurityService.principal.storeId)})
+                .max({ a,b -> a.effectiveDate <=> b.effectiveDate ?: a.id <=> b.id})
+                .filter({variant -> variant.id == variantId }).stream().findAny().present
+    }
+
+    private Set<DateTime> getEffectiveDates() {
+        def now = DateTime.now(DateTimeZone.UTC)
+        def effectiveDates = new HashSet<DateTime>()
+
+        variants.forEach(
+                {variant ->
+                    variant.getAllBarcodes().stream().filter({barcode -> barcode.effectiveDate > now}).forEach(
+                            {barcode ->
+                                effectiveDates.add(barcode.effectiveDate)
+                            })
+                    if (variant.effectiveDate > now) {
+                        effectiveDates.add(variant.effectiveDate)
+                    }
+                    variant.getAllPrices().stream().filter({ price -> price.effectiveDate > now}).forEach(
+                            {
+                                price -> effectiveDates.add(price.effectiveDate)
+                            }
+                    )
+                })
+        return effectiveDates.sort()
+    }
+
+    List<String> getEffectiveDatesForFutureChanges() {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+
+        def results = getEffectiveDates().stream().map({date -> date.toString(formatter)}).collect(Collectors.toList())
+        results.add(0, messageSource.getMessage('product.effective.date.current', null, "Current", LocaleContextHolder.getLocale()))
+
+        return results
+    }
+
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {
         uk.co.wonderlane.wlpos.entities.Product product = new uk.co.wonderlane.wlpos.entities.Product()
 //        ProductVariant productVariant = variants.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= DateTime.now(DateTimeZone.UTC) }
@@ -111,6 +202,7 @@ class Product {
         product.setCategory(category.getCategory())
         product.setUnitSize(unitSize)
         product.setWeightedItem(weightedItem)
+        product.setPricePerKg(pricePerKg)
         product.setOpenPrice(openPrice)
         product.setZeroPrice(zeroPrice)
         product.setVatCode(vatCode.getVatCode())

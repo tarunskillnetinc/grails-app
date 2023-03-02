@@ -37,30 +37,30 @@
     </g:if>
 
     <g:each in="${promotionSales}" var="promotionSale" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotions', params: [promotionId: promotionSale.promotionId, startDate: startDate?.format("dd/MM/yyyy"), endDate: endDate?.format("dd/MM/yyyy")])}';">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'promotions', params: [promotionId: promotionSale.promotionId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-2 my-auto">${promotionSale.description}</div>
+                <div id="description-${i + 1}" class="col-2 my-auto">${promotionSale.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                <div class="col my-auto"><g:message code="PromotionType.${promotionSale.type}" /></div>
+                <div id="type-${i + 1}" class="col my-auto"><g:message code="PromotionType.${promotionSale.type}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div class="col-1 my-auto">${promotionSale.quantity}</div>
+                <div id="quantity-${i + 1}" class="col-1 my-auto">${promotionSale.quantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fullPrice" }?.enabled}">
-                <div class="col my-auto"><g:formatNumber number="${promotionSale.fullPrice}" type="currency" /></div>
+                <div id="full-price-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSale.fullPrice}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discount" }?.enabled}">
-                <div class="col my-auto"><g:formatNumber number="${promotionSale.discount}" type="currency" /></div>
+                <div id="discount-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSale.discount}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "profit" }?.enabled}">
-                <div class="col my-auto"><g:formatNumber number="${promotionSale.profit}" type="currency" /></div>
+                <div id="profit-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSale.profit}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
-                <div class="col my-auto"><g:formatNumber number="${promotionSale.margin / 100}" type="percent" minFractionDigits="2" /></div>
+                <div id="margin-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSale.margin / 100}" type="percent" minFractionDigits="2" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vat" }?.enabled}">
-                <div class="col my-auto"><g:formatNumber number="${promotionSale.vat}" type="currency" /></div>
+                <div id="vat-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSale.vat}" type="currency" /></div>
             </g:if>
         </div>
     </g:each>

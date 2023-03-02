@@ -10,6 +10,8 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
 
     def storeNumberValidator
 
+    def retailerProvider
+
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         // If we reach here then a user with the username was found.
         // This line will include the password check.
@@ -31,13 +33,22 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
             if (!roles.contains("ROLE_ENGINEER") && !roles.contains("ROLE_HEAD_OFFICE")) {
                 throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.notHeadOffice", "You are not permitted to log in at head office level."))
             }
-        } else if (userDetails instanceof WonderLaneUserDetails && wonderLaneAuthenticationDetails.storeId.length() < 10 && wonderLaneAuthenticationDetails.storeId.isNumber()) {
-            def storeId = storeNumberValidator.getStoreId(((WonderLaneUserDetails)userDetails).retailerId, Integer.parseInt(wonderLaneAuthenticationDetails.storeId))
 
-            if (storeId > 0) {
+            def store = storeNumberValidator.getStore(((WonderLaneUserDetails)userDetails).retailerId, null)
+            ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(((WonderLaneUserDetails)userDetails).retailerId)
+
+            if (store) {
+                ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
+            }
+        } else if (userDetails instanceof WonderLaneUserDetails && wonderLaneAuthenticationDetails.storeId.length() < 10 && wonderLaneAuthenticationDetails.storeId.isNumber()) {
+            def store = storeNumberValidator.getStore(((WonderLaneUserDetails)userDetails).retailerId, Integer.parseInt(wonderLaneAuthenticationDetails.storeId))
+
+            if (store && store.id > 0) {
                 // Add the store number and store ID to our user details object.
                 ((WonderLaneUserDetails)userDetails).storeNumber = Integer.parseInt(wonderLaneAuthenticationDetails.storeId)
-                ((WonderLaneUserDetails)userDetails).storeId = storeId
+                ((WonderLaneUserDetails)userDetails).storeId = store.id
+                ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
+                ((WonderLaneUserDetails)userDetails).retailer = retailerProvider.getRetailer(((WonderLaneUserDetails)userDetails).retailerId)
             } else {
                 throw new BadCredentialsException(messages.getMessage("WonderLaneAuthenticationProvider.storeNotFound", "Store number not found."))
             }

@@ -6,7 +6,7 @@ import grails.gorm.transactions.Transactional
 class StoreNumberValidatorService implements StoreNumberValidator {
 
     @Override
-    Integer getStoreId(int retailerId, Integer storeId) {
-        return StoreSettings.findByRetailerIdAndStoreId(retailerId, storeId)?.id
+    StoreSettings getStore(int retailerId, Integer storeId) {
+        return StoreSettings.findByRetailerIdAndStoreId(retailerId, storeId)
     }
 }

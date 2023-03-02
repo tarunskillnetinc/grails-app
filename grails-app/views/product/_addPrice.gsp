@@ -2,7 +2,7 @@
     <div class="col-3 my-auto" id="priceChanges[${skuIndex}].skuText">${sku}</div>
 
     <%
-        def variantPrices = variant?.prices
+        def variantPrices = editedPrices ? editedPrices : variant?.prices
     %>
     <g:each in="${priceBands}" var="priceBand" status="index">
         <div class="col input-group">
@@ -13,7 +13,7 @@
                 <span class="input-group-text">&pound;</span>
             </div>
 
-            <g:textField name="priceChanges[${skuIndex}].priceChanges[${index}].price" value="${variantPrices?.find { it.priceBand.id == priceBand.id }?.price}" class="form-control mask-money" />
+            <g:textField name="priceChanges[${skuIndex}].priceChanges[${index}].price" value="${variantPrices?.find { it.priceBandId == priceBand.id && it.sku == sku }?.price}" class="form-control mask-money" disabled="${zeroPrice}" />
         </div>
     </g:each>
 </div>

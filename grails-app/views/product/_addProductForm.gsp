@@ -1,6 +1,15 @@
 <%@ page import="java.math.RoundingMode" %>
+
 <g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
+
+    <g:if test="${product?.getEffectiveDatesForFutureChanges()?.size() > 1}">
+        <div id="effectiveDates">
+            <section id="effective-dates-container" class="container-fluid px-0">
+                <div class="alert alert-warning alert-wl mx-0" role="alert">View changes to this product on: <g:select name="effectiveDatesPicker" from="${product?.getEffectiveDatesForFutureChanges()}" value="${effectiveDateIndex[0]}"/></div>
+            </section>
+        </div>
+    </g:if>
 
     <div id="accordion">
         <!-- Product details. -->
@@ -21,16 +30,20 @@
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
+                                <label for="effectiveDate" class="col-3 col-form-label text-right pr-4">Effective Date</label>
+                                <g:textField name="effectiveDate" type="text" class="col-5 form-control bottom-border" value="${effectiveDateIndex ? effectiveDateIndex[1]?.toString('dd/MM/yyyy') : now?.toString('dd/MM/yyyy')}" autocomplete="off" />
+                            </div>
+                            <div class="row form-group mb-3">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
-                                <g:field type="number" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
+                                <g:field type="text" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
-                                <g:textField name="description" class="col-9 form-control bottom-border" value="${product?.description}" />
+                                <g:textField name="description" class="col-9 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                                <g:textField name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border" />
+                                <g:textField name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
@@ -86,16 +99,16 @@
                         </g:if>
 
                         <g:each in="${product?.variants}" var="variant" status="i">
-                            <g:if test="${variant.storeId == null || variant.storeId == storeId}">
+                            <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodes]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes]" />
                                 </div>
                             </g:if>
                         </g:each>
                     </div>
 
                     <div class="row mx-5 mt-3">
-                        <a href="#" onclick="addVariant(null);" class="btn btn-wl">Add SKU</a>
+                        <a id="add-sku-btn" href="#" onclick="addVariant(null);" class="btn btn-wl">Add SKU</a>
                     </div>
                 </div>
             </div>
@@ -122,6 +135,10 @@
                                 <label for="vatCode" class="col-3 col-form-label text-right pr-4">VAT Code</label>
                                 <g:select from="${vatValues}" name="vatCode" value="${product?.vatCode?.id}" optionKey="id" optionValue="${{(it?.description ? it.description + ' (' +it.percentage.setScale(1, java.math.RoundingMode.HALF_UP) +'%)' : String.valueOf(it.code) + ' (' +it.percentage.setScale(1, java.math.RoundingMode.HALF_UP) +'%)')}}" dataAttrs="[code: 'code']" class="col-5 form-control select-border" />
                             </div>
+                            <div class="row form-group">
+                                <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
+                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" />
+                            </div>
                             <div class="row mt-1 form-group">
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
                                 <g:textField name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
@@ -133,21 +150,42 @@
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <div class="row form-group">
-                                <label for="vatPercentageOverride" class="col-3 col-form-label text-right pr-4">VAT Override</label>
-                                <g:textField name="vatPercentageOverride" value="${product?.vatPercentageOverride ?: '0.00'}" class="col-3 form-control bottom-border text-right mask-money" readonly="${product?.vatCode?.code != 'O'}" />
-                            </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="weightedItem" class="col-3 col-form-label text-right pr-4">Weighted Item</label>
-                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}"/>
+                                <g:checkBox name="weightedItem" class="col-1 form-check-input wl-checkbox" checked="${product?.weightedItem}" disabled="${product?.openPrice || product?.zeroPrice}" />
+                            </div>
+
+
+                            <div class="row mt-1 pl-0 form-group">
+                                <span class="col-3 col-form-label text-right pr-4">Pricing</span>
+
+                                <div class="col-1 form-check form-check-inline">
+                                    <g:radio class="form-check-input ml-2 wl-radio" type="radio" name="pricePerKg" id="pricePerKg" value="true" checked="${product?.pricePerKg && product?.weightedItem}" disabled="${!product?.weightedItem}" />
+                                    <label class="form-check-label" for="pricePerKg">/kg</label>
+                                </div>
+                                <div class="col-2 form-check form-check-inline">
+                                    <g:radio class="form-check-input wl-radio" type="radio" name="pricePerKg" id="pricePer100g" value="false" checked="${!product?.pricePerKg && product?.weightedItem}" disabled="${!product?.weightedItem}" />
+                                    <label class="form-check-label" for="pricePer100g">/100g</label>
+                                </div>
+                            </div>
+
+                            <fieldset ${(snappyEnabled?:"disabled")}>
+                                <div class="row mt-1 form-group form-check pl-0">
+                                    <label for="snappyProduct" class="col-3 col-form-label text-right pr-4">Snappy Shopper Item</label>
+                                    <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
+                                </div>
+                            </fieldset>
+                            <div class="row mt-1 form-group form-check pl-0">
+                                <label for="deliItem" class="col-3 col-form-label text-right pr-4">Deli Item</label>
+                                <g:checkBox name="deliItem" class="col-1 form-check-input wl-checkbox" checked="${product?.deliItem}" disabled="${product?.openPrice || product?.zeroPrice}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="openPrice" class="col-3 col-form-label text-right pr-4">Open Price</label>
-                                <g:checkBox name="openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}"/>
+                                <g:checkBox name="openPrice" id = "openPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.openPrice}" disabled="${product?.weightedItem || product?.deliItem}" />
                             </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="zeroPrice" class="col-3 col-form-label text-right pr-4">Zero Price</label>
-                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}"/>
+                                <g:checkBox name="zeroPrice" class="col-1 form-check-input wl-checkbox" checked="${product?.zeroPrice}" disabled="${product?.weightedItem || product?.deliItem}" />
                             </div>
                         </div>
                     </div>
@@ -169,84 +207,8 @@
             </div>
 
             <div id="collapseRestrictions" class="collapse collapsed" aria-labelledby="productRestrictions" data-parent="#accordion">
-                <g:hiddenField name="restrictions.id" value="${product?.restrictions?.id}" />
-
-                <div class="card-body py-5">
-                    <div class="row">
-                        <div class="col-12 col-lg-5 offset-lg-1">
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.buyerIdRequired" class="col-4 col-form-label text-right pr-4">Age Restricted Item</label>
-                                <g:checkBox name="restrictions.buyerIdRequired" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.buyerIdForced" class="col-4 col-form-label text-right pr-4">ID Check Forced</label>
-                                <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.buyerIdForced}" disabled="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.buyerAgeRestriction" class="col-4 col-form-label text-right pr-4">Customer Age Required</label>
-                                <g:field name="restrictions.buyerAgeRestriction" type="number" value="${product?.restrictions?.buyerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.buyerChallengeAge" class="col-4 col-form-label text-right pr-4">Customer Challenge Age</label>
-                                <g:field name="restrictions.buyerChallengeAge" type="number" value="${product?.restrictions?.buyerChallengeAge}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.sellerAgeRestriction" class="col-4 col-form-label text-right pr-4">Operator Age Required</label>
-                                <g:field name="restrictions.sellerAgeRestriction" type="number" value="${product?.restrictions?.sellerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!product?.restrictions?.buyerIdRequired}" />
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.minOpenPrice" class="col-4 col-form-label text-right pr-4">Min Open Price</label>
-
-                                <div class="input-group col-3 px-0">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">&pound;</span>
-                                    </div>
-                                    <g:textField name="restrictions.minOpenPrice" value="${product?.restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money" readonly="${!product?.openPrice}" />
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <label for="restrictions.maxOpenPrice" class="col-4 col-form-label text-right pr-4">Max Open Price</label>
-
-                                <div class="input-group col-3 px-0">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">&pound;</span>
-                                    </div>
-                                    <g:textField name="restrictions.maxOpenPrice" value="${product?.restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money" readonly="${!product?.openPrice}" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.refundAllowed" class="col-4 col-form-label text-right pr-4">Allow Refunds</label>
-                                <g:checkBox name="restrictions.refundAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.refundAllowed == null || product?.restrictions?.refundAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.discountAllowed" class="col-4 col-form-label text-right pr-4">Allow Discounts</label>
-                                <g:checkBox name="restrictions.discountAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.discountAllowed == null || product?.restrictions?.discountAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.markdownAllowed" class="col-4 col-form-label text-right pr-4">Allow Price Changes</label>
-                                <g:checkBox name="restrictions.markdownAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.markdownAllowed == null || product?.restrictions?.markdownAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.creditPaymentAllowed" class="col-4 col-form-label text-right pr-4">Allow Credit Payments</label>
-                                <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.creditPaymentAllowed == null || product?.restrictions?.creditPaymentAllowed}" />
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.quantityChangeAllowed" class="col-4 col-form-label text-right pr-4">Allow Quantity Changes</label>
-                                <g:checkBox name="restrictions.quantityChangeAllowed" class="col-1 form-check-input wl-checkbox" checked="${isNewProduct || product?.restrictions?.quantityChangeAllowed == null || product?.restrictions?.quantityChangeAllowed}"/>
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.quantityChangeForced" class="col-4 col-form-label text-right pr-4">Force Quantity Changes</label>
-                                <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.quantityChangeForced}" />
-                            </div>
-                            <div class="row form-group form-check pl-0">
-                                <label for="restrictions.receiptPrintForced" class="col-4 col-form-label text-right pr-4">Force Receipt Print</label>
-                                <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${product?.restrictions?.receiptPrintForced}"/>
-                            </div>
-                        </div>
-                    </div>
+                <div id="restrictionsContainer">
+                    <g:render template="restrictions" model="[restrictions: product?.restrictions, isNewProduct: isNewProduct]" />
                 </div>
             </div>
         </div>
@@ -310,11 +272,13 @@
                             </div>
 
                             <g:if test="${isNewProduct}">
-                                <g:render template="addPrice" model="[skuIndex: 0, variant: null, sku: null, priceBands: priceBands]" />
+                                <g:render template="addPrice" model="[skuIndex: 0, variant: null, sku: null, priceBands: priceBands, zeroPrice: false]" />
                             </g:if>
 
                             <g:each in="${product?.variants?.findAll { it.storeId == null }}" var="variant" status="i">
-                                <g:render template="addPrice" model="[skuIndex: i, variant: variant, sku: variant?.sku, priceBands: priceBands]" />
+                                <g:if test="${product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
+                                    <g:render template="addPrice" model="[skuIndex: i, variant: variant, editedPrices: editedPrices, sku: variant?.sku, priceBands: priceBands, zeroPrice: product?.zeroPrice]" />
+                                </g:if>
                             </g:each>
                         </div>
                     </div>
@@ -343,14 +307,14 @@
 
                             <div class="row mx-5 mt-4">
                                 <%
-                                    def productRanges = product?.ranges*.rangeId
+                                    def productRanges = selectedRanges ? selectedRanges : product?.ranges*.rangeId
                                 %>
-                                <g:each in="${ranges}" var="range">
+                                <g:each in="${ranges}" var="range" status="i">
                                     <div class="col">
-                                        <label class="radio-container">${range.description}
-                                            <g:checkBox name="rangeId" id="rangeId" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
+                                        <label id="range-${i+1}-description" class="radio-container">${range.description}
+                                            <g:checkBox name="rangeId" id="range-${i+1}-check-box" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
 
-                                            <span class="checkmark"></span>
+                                            <span id="range-${i+1}-check-box-span" class="checkmark"></span>
                                         </label>
                                     </div>
                                 </g:each>
@@ -363,9 +327,9 @@
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">
-            <div class="card-header" id="productHistory">
+            <div class="card-header pointer" id="productHistory" data-toggle="collapse" data-target="#collapseProductHistory" aria-expanded="true" aria-controls="collapseProductHistory">
                 <div class="row">
-                    <div class="col-10">Product History</div>
+                    <div class="col-10"><strong>Product History</strong></div>
                     <div class="col-2 text-right">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
@@ -374,11 +338,14 @@
                 </div>
             </div>
 
-            <div id="collapseHistory" class="collapse collapsed" aria-labelledby="productHistory" data-parent="#accordion">
+            <div id="collapseProductHistory" class="collapse collapsed" aria-labelledby="productHistory" data-parent="#accordion">
                 <div class="card-body py-5">
-
+                    <div id="productHistoryContainer"  style="max-height: 300px; overflow-x: auto; overflow-y: auto;"></div>
                 </div>
             </div>
         </div>
+
     </div>
+
+
 </g:form>

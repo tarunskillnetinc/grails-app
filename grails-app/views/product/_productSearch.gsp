@@ -9,7 +9,7 @@
                         <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
 
                         <div class="input-group-append">
-                            <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
+                            <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode', 'barcode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
                         </div>
                     </div>
 
@@ -27,7 +27,7 @@
                 </div>
 
                 <div id="productSearchResults" class="align-content-center">
-                    <g:render template="/product/productSearchResults" model="${[ products: products ]}" />
+                    <g:render template="/product/addProductSearchResults" model="${[ products: products ]}" />
                 </div>
 
                 <div class="row mt-3">

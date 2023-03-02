@@ -222,16 +222,24 @@ environments:
         dataSource:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+        dataSources:
+            transactions:
+                dbCreate: update
+                url: jdbc:h2:mem:txnTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            reporting:
+                dbCreate: update
+                url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
 
-    piggy:
+
+    prestage:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://192.168.2.108:3306/wlpos"
+            url: "jdbc:mysql://127.0.0.1:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
-            username: "root"
-            password: "Pa**W0rd01"
+            username: "wonderlane"
+            password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -255,11 +263,11 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://192.168.2.108:3306/reporting"
+                url: "jdbc:mysql://127.0.0.1:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "root"
-                password: "Pa**W0rd01"
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -281,11 +289,11 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://192.168.2.108:3306/transactions"
+                url: "jdbc:mysql://127.0.0.1:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "root"
-                password: "Pa**W0rd01"
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -306,35 +314,35 @@ environments:
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
-            host: 192.168.2.108
+            host: 127.0.0.1
             port: 5672
             apiPort: 15672
-            username: rabbituser
-            password: Pa**W0rd01
+            username: wonderlane
+            password: 0TS51aZARfjTC3VjOYP6
 
         mysql:
             wlpos:
-                host: 192.168.2.108
+                host: 127.0.0.1
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: wonderlane
+                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
                 database: wlpos
             transactions:
-                host: 192.168.2.108
+                host: 127.0.0.1
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: wonderlane
+                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
                 database: transactions
 
-    kermit:
+    stage:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://192.168.2.107:3306/wlpos"
+            url: "jdbc:mysql://127.0.0.1:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
-            username: "root"
-            password: "Pa**W0rd01"
+            username: "wonderlane"
+            password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -358,11 +366,11 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://192.168.2.107:3306/reporting"
+                url: "jdbc:mysql://127.0.0.1:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "root"
-                password: "Pa**W0rd01"
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -384,11 +392,11 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://192.168.2.107:3306/transactions"
+                url: "jdbc:mysql://127.0.0.1:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "root"
-                password: "Pa**W0rd01"
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -409,24 +417,24 @@ environments:
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
-            host: 192.168.2.107
+            host: 127.0.0.1
             port: 5672
             apiPort: 15672
-            username: rabbituser
-            password: Pa**W0rd01
+            username: wonderlane
+            password: 0TS51aZARfjTC3VjOYP6
 
         mysql:
             wlpos:
-                host: 192.168.2.107
+                host: 127.0.0.1
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: wonderlane
+                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
                 database: wlpos
             transactions:
-                host: 192.168.2.107
+                host: 127.0.0.1
                 port: 3306
-                username: root
-                password: Pa**W0rd01
+                username: wonderlane
+                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
                 database: transactions
 
     production:

@@ -29,7 +29,7 @@
         <g:form method="post" action="save" class="mt-5" name="bogof-form">
             <g:hiddenField name="promotionType" value="bogof"/>
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="bogof-promotionItemsType" value="product"/>
+            <g:hiddenField name="bogof-promotionItemsType" value="${productItemType}"/>
             <g:hiddenField name="bogof-noItemChange" value="true"/>
 
             <div id="bogof-details">
@@ -48,7 +48,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="bogof-startDatepicker">
-                            <g:textField name="bogof-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="bogof-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -59,7 +59,7 @@
                     <div class="form-group row col-12 col-sm-6" id="bogof-endDate-container">
                         <label for="bogof-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="bogof-endDatepicker">
-                            <g:textField name="bogof-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="bogof-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -78,6 +78,14 @@
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
                         <g:checkBox name="bogof-active" class="col-1 form-check-input wl-checkbox promo-active" checked="${promotion ? promotion.active : true}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="bogof-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="bogof-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
                 </div>
             </div>
@@ -147,8 +155,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="bogof-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -156,7 +164,7 @@
         <g:form method="post" action="save" class="mt-5" name="xfory-form">
             <g:hiddenField name="promotionType" value="xfory" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="xfory-promotionItemsType" value="product" />
+            <g:hiddenField name="xfory-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="xfory-noItemChange" value="true" />
 
             <div id="xfory-details">
@@ -175,7 +183,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="xfory-startDatepicker">
-                            <g:textField name="xfory-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
+                            <g:textField name="xfory-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -186,7 +194,7 @@
                     <div class="form-group row col-12 col-sm-6" id="xfory-endDate-container">
                         <label for="xfory-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="xfory-endDatepicker">
-                            <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -205,6 +213,14 @@
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
                         <g:checkBox name="xfory-active" class="col-1 form-check-input wl-checkbox promo-active" checked="${promotion ? promotion.active : true}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="xfory-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="xfory-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
                 </div>
             </div>
@@ -328,8 +344,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="xfory-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -337,7 +353,7 @@
         <g:form method="post" action="save" class="mt-5" name="percentage-form">
             <g:hiddenField name="promotionType" value="percentage"/>
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="percentage-promotionItemsType" value="product"/>
+            <g:hiddenField name="percentage-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="percentage-noItemChange" value="true"/>
 
             <div id="percentage-details">
@@ -356,7 +372,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="percentage-startDatepicker">
-                            <g:textField name="percentage-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="percentage-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -367,7 +383,7 @@
                     <div class="form-group row col-12 col-sm-6" id="percentage-endDate-container">
                         <label for="percentage-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="percentage-endDatepicker">
-                            <g:textField name="percentage-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="percentage-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -392,6 +408,14 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-amount" class="col-3 col-form-label text-right pr-4">Percentage</label>
                         <g:field type="number" step="0.01" min="0" max="100.00" name="percentage-amount" class="col-5 form-control bottom-border" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="percentage-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="percentage-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
                 </div>
             </div>
@@ -462,8 +486,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="percentage-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -471,7 +495,7 @@
         <g:form method="post" action="save" class="mt-5" name="fixedAmount-form">
             <g:hiddenField name="promotionType" value="fixedAmount" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="fixedAmount-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedAmount-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="fixedAmount-noItemChange" value="true" />
 
             <div id="fixedAmount-details">
@@ -490,7 +514,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="fixedAmount-startDatepicker">
-                            <g:textField name="fixedAmount-startDate" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="fixedAmount-startDate" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -501,7 +525,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="fixedAmount-endDatepicker">
-                            <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -528,7 +552,14 @@
                         <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="fixedAmount-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="fixedAmount-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                </div>
             </div>
             <div id="fixedAmount-products" class="collapsible-products row mt-3">
                 <h2 class="col-1 mr-2">Products</h2>
@@ -605,8 +636,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -614,7 +645,7 @@
         <g:form method="post" action="save" class="mt-5" name="fixedPrice-form">
             <g:hiddenField name="promotionType" value="fixedPrice" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="fixedPrice-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedPrice-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="fixedPrice-noItemChange" value="true" />
 
             <div id="fixedPrice-details">
@@ -633,7 +664,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-startDate" class="col-3 col-form-label text-right pr-4">Start Date</label>
                         <div class="input-group date startDate col-7" id="fixedPrice-startDatepicker">
-                            <g:textField name="fixedPrice-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.format("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="fixedPrice-startDate" type="text" class="row form-control promo-startDate" required="true" value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -644,7 +675,7 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="fixedPrice-endDatepicker">
-                            <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.format("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).format("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -669,6 +700,14 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-amount" class="col-3 col-form-label text-right pr-4">Fixed Amount</label>
                         <g:field type="number" step="0.01" min="0" max="99999.99" name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group row col-12 col-sm-6">
+                        <label for="fixedPrice-supplier" class="col-3 col-form-label text-right pr-4">Supplier</label>
+                        <g:field readonly="readonly" name="fixedPrice-supplier"
+                                 class="col-5 form-control bottom-border promo-amount" required="false"
+                                 value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
                 </div>
             </div>
@@ -747,8 +786,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>

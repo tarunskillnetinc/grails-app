@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
+import uk.co.wonderlane.wlpos.reporting.PayPointSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -19,28 +20,28 @@ class ReportingService {
 
     def springSecurityService
 
-    // For sales report grouped by department, no pagination on here as the results are grouped into categories. Needs to be moved into a procedure or HQL at some point.
-    def getSales(Date startDate, Date endDate) {
+    // For sales report grouped by department, no pagination on here as the results are grouped into categories.
+    def getSales(DateTime startDate, DateTime endDate, Integer storeId) {
         def salesCriteria = Sale.createCriteria()
 
         return salesCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq("storeId", springSecurityService.principal.storeId)
+            if (storeId != null) {
+                eq("storeId", storeId)
             }
             between ("dateCreated", startDate, endDate)
         }
     }
 
-    // For sales report grouped by category, no pagination on here as the results can still be grouped into categories. Needs to be moved into a procedure or HQL at some point.
-    def getSalesForCategory(int categoryId, Date startDate, Date endDate) {
+    // For sales report grouped by category, no pagination on here as the results can still be grouped into categories.
+    def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate, Integer storeId) {
         String searchQuery = """SELECT s
                                 FROM Sale s
                                 JOIN SaleCategory sc ON s.id = sc.sales
                                 WHERE sc.categoryId = :categoryId
                                 AND s.retailerId = :retailerId """
 
-        if (springSecurityService.principal.storeId != null) {
+        if (storeId != null) {
             searchQuery += """AND s.storeId = :storeId """
         }
 
@@ -49,23 +50,37 @@ class ReportingService {
 
         def queryParams = [categoryId: categoryId, retailerId: springSecurityService.principal.retailerId, startDate: startDate, endDate: endDate]
 
-        if (springSecurityService.principal.storeId != null) {
-            queryParams.storeId = springSecurityService.principal.storeId
+        if (storeId != null) {
+            queryParams.storeId = storeId
         }
 
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
-    def getSaleCategory(int categoryId) {
-        def saleCategoryCriteria = SaleCategory.createCriteria()
+    def getSales(Integer storeId, DateTime startDate, DateTime endDate) {
+        String searchQuery = """SELECT s
+                                FROM Sale s
+                                WHERE s.retailerId = :retailerId """
 
-        return saleCategoryCriteria.get() {
-            eq ("id", categoryId)
+        if (storeId != null) {
+            searchQuery += """AND s.storeId = :storeId """
         }
+
+        searchQuery += """AND s.dateCreated >= :startDate
+                          AND s.dateCreated <= :endDate"""
+
+        def queryParams = [retailerId: springSecurityService.principal.retailerId, startDate: startDate, endDate: endDate]
+
+        if (storeId != null) {
+            queryParams.storeId = storeId
+        }
+
+        return Sale.executeQuery(searchQuery, queryParams)
     }
 
     // For sales report product level. Paginated and filtered.
-    def getSalesForProduct(int productId, Date startDate, Date endDate, int maxResults, int startIndex, String sortColumn, String sortOrder, String descriptionFilter) {
+    def getSalesForProduct(int productId, DateTime startDate, DateTime endDate, int maxResults, int startIndex,
+                           String sortColumn, String sortOrder, String descriptionFilter, Integer storeId) {
         String sort
 
         if (sortColumn == "description") {
@@ -85,7 +100,7 @@ class ReportingService {
                                 WHERE s.productId = :productId
                                 AND s.retailerId = :retailerId """
 
-        if (springSecurityService.principal.storeId != null) {
+        if (storeId != null) {
             searchQuery += """AND s.storeId = :storeId """
         }
 
@@ -96,20 +111,20 @@ class ReportingService {
 
         def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate, max: maxResults, offset: startIndex]
 
-        if (springSecurityService.principal.storeId != null) {
-            queryParams.storeId = springSecurityService.principal.storeId
+        if (storeId != null) {
+            queryParams.storeId = storeId
         }
 
         return Sale.executeQuery(searchQuery, queryParams)
     }
 
-    def countSalesForProduct(int productId, Date startDate, Date endDate, String descriptionFilter) {
+    def countSalesForProduct(int productId, DateTime startDate, DateTime endDate, String descriptionFilter, Integer storeId) {
         String searchQuery = """SELECT COUNT(s)
                                 FROM Sale s
                                 WHERE s.productId = :productId
                                 AND s.retailerId = :retailerId """
 
-        if (springSecurityService.principal.storeId != null) {
+        if (storeId != null) {
             searchQuery += """AND s.storeId = :storeId """
         }
 
@@ -119,21 +134,21 @@ class ReportingService {
 
         def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate]
 
-        if (springSecurityService.principal.storeId != null) {
-            queryParams.storeId = springSecurityService.principal.storeId
+        if (storeId != null) {
+            queryParams.storeId = storeId
         }
 
         return Sale.executeQuery(searchQuery, queryParams)[0]
     }
 
     // For promotions grouped report. No pagination here as we're going to group them, but the filtering can be done in the database.
-    def getPromotionSales(Date startDate, Date endDate, String descriptionFilter, PromotionType promotionTypeFilter) {
+    def getPromotionSales(DateTime startDate, DateTime endDate, String descriptionFilter, PromotionType promotionTypeFilter, Integer storeId) {
         def promotionsCriteria = PromotionSale.createCriteria()
 
         return promotionsCriteria.list() {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq("storeId", springSecurityService.principal.storeId)
+            if (storeId != null) {
+                eq("storeId", storeId)
             }
             if (descriptionFilter) {
                 like ("description", "%"+descriptionFilter+"%")
@@ -146,13 +161,13 @@ class ReportingService {
     }
 
     // For promotions report at promotion level. Filtered and paginated.
-    def getPromotionSales(Date startDate, Date endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getPromotionSales(DateTime startDate, DateTime endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder, Integer storeId) {
         def promotionsCriteria = PromotionSale.createCriteria()
 
         def results = promotionsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq("storeId", springSecurityService.principal.storeId)
+            if (storeId != null) {
+                eq("storeId", storeId)
             }
             between ("dateCreated", startDate, endDate)
             eq ("promotionId", promotionId)
@@ -166,14 +181,14 @@ class ReportingService {
     }
 
     // For promotion report product level. Filtered and paginated.
-    def getPromotionSaleProducts(int promotionSaleId, String productFilter, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getPromotionSaleProducts(int promotionSaleId, String productFilter, int maxResults, int startIndex, String sortColumn, String sortOrder, Integer storeId) {
         def promotionProductsCriteria = PromotionSaleProduct.createCriteria()
 
         def results = promotionProductsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             promotion {
                 eq ("retailerId", springSecurityService.principal.retailerId)
-                if (springSecurityService.principal.storeId != null) {
-                    eq("storeId", springSecurityService.principal.storeId)
+                if (storeId != null) {
+                    eq("storeId", storeId)
                 }
                 eq ("id", promotionSaleId)
             }
@@ -204,7 +219,7 @@ class ReportingService {
         }
     }
 
-    def getTillControlEvents(Date startDate, Date endDate) {
+    def getTillControlEvents(DateTime startDate, DateTime endDate) {
         def tillControlEventsCriteria = TillControlEvent.createCriteria()
 
         return tillControlEventsCriteria.list() {
@@ -216,7 +231,7 @@ class ReportingService {
         }
     }
 
-    def getTillControlEvents(Date startDate, Date endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getTillControlEvents(DateTime startDate, DateTime endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def tillControlEventsCriteria = TillControlEvent.createCriteria()
 
         def results = tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
@@ -236,6 +251,34 @@ class ReportingService {
         int totalCount = results.totalCount
         return results
     }
+
+    def getPayPointSales(DateTime startDate, DateTime endDate, Integer storeId, String status, String description, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def payPointCriteria = PayPointSale.createCriteria()
+
+        def results = payPointCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            between("transactionDate", startDate, endDate)
+
+            if (storeId != null) {
+                eq("storeId", storeId)
+            }
+
+            if (status != null) {
+                eq("status", status)
+            }
+
+            if (description != null) {
+                like("description", "%" + description + "%")
+            }
+        }
+
+        // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
+        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
+        // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
+        int totalCount = results.totalCount
+        return results
+    }
+
 
     def getTenderMovements(DateTime startDate, DateTime endDate) {
         def tenderMovementCriteria = TenderMovement.createCriteria()

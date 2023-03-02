@@ -69,6 +69,7 @@ class ButtonController {
 
                     if (image.length > 0 && params.image.contentType.equals("image/png")) {
                         imageService.saveImageToFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.retailerId), button.id + ".png", image)
+
                         button.imageDisplay = true
                         buttonService.saveButtonGrid(button.buttonGrid)
                     }

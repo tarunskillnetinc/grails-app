@@ -2,8 +2,9 @@
 <html>
 <head>
     <meta name="layout" content="main" />
-
     <title>WonderLane Store Settings</title>
+    <asset:javascript src="validators/input-validator.js"/>
+    <asset:javascript src="store-settings/color-pick.js" />
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -11,8 +12,8 @@
             <div class="row mt-4">
                 <div class="col">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active" aria-current="page">Store Settings</li>
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Store Settings</li>
                     </ol>
                 </div>
             </div>
@@ -22,12 +23,12 @@
     <section id="header-container" class="container-fluid">
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Settings</h2>
+                <h2 id="page-title" class="mx-auto my-auto">Settings</h2>
             </div>
 
             <div class="col-2 text-right">
-                <g:link controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
-                <button class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
+                <g:link elementId="cancel-btn" controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
             </div>
         </div>
     </section>
@@ -51,7 +52,7 @@
     </g:if>
 
     <section id="addProduct-section" class="container-fluid mt-4">
-        <g:form name="save-button" action="save" novalidate="novalidate">
+        <g:form name="save-button" action="save">
             <g:hiddenField name="id" value="${storeSettings?.id}" />
             <g:hiddenField name="retailerId" value="${storeSettings?.retailerId}" />
             <g:hiddenField name="storeId" value="${storeSettings?.storeId}" />
@@ -266,10 +267,194 @@
                                         <label class="form-check-label" for="pickListForceZeroCount">Force users to count items in a pick list which have zero quantity in stock.</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label for="countIncrement" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Count increments</label>
+                                    <div class="col-7 col-lg-4 col-xl-3">
+                                        <g:field type="number" min="0.01" max="1" step="0.01" name="countIncrement" value="${storeSettings?.countIncrement}" class="form-control bottom-border"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <g:if test="${viewOptions.showParentStoreSettings}">
+                    <!-- Parent Store setting -->
+                    <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
+                        <div class="card-header pointer" id="parentStoreSetting" data-toggle="collapse"
+                             data-target="#collapseParentStoreSetting" aria-expanded="true"
+                             aria-controls="collapseParentStoreSetting">
+                            <div class="row">
+                                <div class="col-10 font-weight-bold">Parent Store</div>
+
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16"
+                                         class="bi bi-caret-down-fill text-right" fill="currentColor"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="collapseParentStoreSetting" class="collapse" aria-labelledby="parentStoreSetting"
+                             data-parent="#accordion">
+                            <div class="card-body py-5">
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <label for="parentStoreId"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Parent Store</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:select name="parentStoreId" from="${availableParentStores}"
+                                                      noSelection="['': 'None']"
+                                                      value="${storeSettings?.parentStoreId}"
+                                                      optionValue="storeName" optionKey="id"
+                                                      class="form-control select-border"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </g:if>
+
+                <g:if test="${viewOptions.showUISettings}">
+                    <!-- UI setting -->
+                    <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
+                        <div class="card-header pointer" id="uiSetting" data-toggle="collapse"
+                             data-target="#collapseUiSetting" aria-expanded="true" aria-controls="collapseUiSetting">
+                            <div class="row">
+                                <div class="col-10 font-weight-bold">UI Settings</div>
+
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16"
+                                         class="bi bi-caret-down-fill text-right" fill="currentColor"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="collapseUiSetting" class="collapse" aria-labelledby="uiSetting"
+                             data-parent="#accordion">
+                            <div class="card-body py-5">
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="primaryColour" id="primaryColour" maxlength="6"
+                                                         value="${storeSettings?.primaryColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'primaryColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="primaryColourPicker" name="primaryColourPicker"
+                                                   value="#${storeSettings?.primaryColour}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'primaryColour');">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="secondaryColour" maxlength="6"
+                                                         value="${storeSettings?.secondaryColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="secondaryColourPicker" name="primaryColourPicker"
+                                                   value="#${storeSettings?.secondaryColour}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'secondaryColour');">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="accentColour" maxlength="6"
+                                                         value="${storeSettings?.accentColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="accentColourPicker" name="primaryColourPicker"
+                                                   value="#${storeSettings?.accentColour}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'accentColour');">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="primaryTextColour" maxlength="6"
+                                                         value="${storeSettings?.primaryTextColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="primaryTextColourPicker" name="primaryColourPicker"
+                                                   value="#${storeSettings?.primaryTextColour}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'primaryTextColour');">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="secondaryTextColour" maxlength="6"
+                                                         value="${storeSettings?.secondaryTextColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="secondaryTextColourPicker"
+                                                   name="primaryColourPicker"
+                                                   value="#${storeSettings?.secondaryTextColour}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'secondaryTextColour');">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="accentTextColour" maxlength="6"
+                                                         value="${storeSettings?.accentTextColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="accentTextColourPicker" name="primaryColourPicker"
+                                                   value="#${storeSettings?.accentTextColour}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'accentTextColour');">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </g:if>
             </div>
         </g:form>
     </section>

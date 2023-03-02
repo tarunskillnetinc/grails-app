@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos.reporting
 
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionType
 
 class PromotionSale {
@@ -16,7 +17,7 @@ class PromotionSale {
     BigDecimal margin
     BigDecimal profit
     BigDecimal vat
-    Date dateCreated
+    DateTime dateCreated
     int quantity // transient field to pass the count into the grouped level report.
 
     static hasMany = [ products: PromotionSaleProduct ]
