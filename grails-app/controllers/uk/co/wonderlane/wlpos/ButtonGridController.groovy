@@ -124,16 +124,9 @@ class ButtonGridController {
             buttonGrid = new ButtonGrid()
             bindData(buttonGrid, params)
         } else {
-            if ((ButtonGridType.OTHER) == buttonGrid.type) {
-                buttonGrid = buttonService.getButtonGrid(buttonGrid.type, buttonGrid.description)
-                if (!buttonGrid) {
-                    buttonGrid = new ButtonGrid()
-                }
-            } else {
-                buttonGrid = buttonService.getButtonGrid(buttonGrid.type)
-                if (!buttonGrid) {
-                    buttonGrid = new ButtonGrid()
-                }
+            buttonGrid = buttonService.getButtonGridByStoreId(buttonGrid.type, buttonGrid.description)
+            if (!buttonGrid) {
+                buttonGrid = new ButtonGrid()
             }
             bindData(buttonGrid, params)
         }

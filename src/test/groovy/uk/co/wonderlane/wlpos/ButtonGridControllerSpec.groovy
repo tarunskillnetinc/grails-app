@@ -39,6 +39,13 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.buttonService = Stub(ButtonService){
             getButtonGrid(1) >> new ButtonGrid()
         }
+        controller.springSecurityService = Stub(SpringSecurityService) {
+            getPrincipal() >>new HashMap(){{
+                put("id", 9);
+                put("retailerId", 9);
+                put("storeId", 234);
+                put("storeNumber", 100)}}
+        }
 
         when: 'The show action is executed'
         params['id'] = id
@@ -77,6 +84,13 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
     def 'Test the show action for button grid non existing type (Throwing exception) redirects index page'() {
 
         given:
+        controller.springSecurityService = Stub(SpringSecurityService) {
+            getPrincipal() >>new HashMap(){{
+                put("id", 9);
+                put("retailerId", 9);
+                put("storeId", 234);
+                put("storeNumber", 100)}}
+        }
         String id = 0
         String type = null
 
@@ -213,6 +227,7 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
 
         controller.buttonService = Stub(ButtonService){
             getButtonGrid(1) >> buttonGrid
+            getButtonGrid(ButtonGridType.SALES) >> buttonGrid
         }
 
         when: 'The edit action is executed'

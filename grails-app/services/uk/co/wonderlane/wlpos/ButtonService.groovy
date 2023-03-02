@@ -37,10 +37,25 @@ class ButtonService {
             }
         }
         if (buttonGrids){
-            return buttonGrids?.sort { storeId }?.last()
+            return buttonGrids?.sort { it.storeId }?.last()
         }
         return null
     }
+    def getButtonGridByStoreId(ButtonGridType type, String description) {
+        def buttonGridCriteria = ButtonGrid.createCriteria()
+
+        def buttonGrids = buttonGridCriteria.list() {
+            eq ("type", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("description", description)
+            eq ("storeId", springSecurityService.principal.storeId)
+        }
+        if (buttonGrids){
+            return buttonGrids?.sort { it.storeId }?.last()
+        }
+        return null
+    }
+
 
     def getButtonGrid(ButtonGridType type, String description) {
         def buttonGridCriteria = ButtonGrid.createCriteria()

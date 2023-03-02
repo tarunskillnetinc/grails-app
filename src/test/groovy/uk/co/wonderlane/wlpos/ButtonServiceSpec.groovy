@@ -282,7 +282,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
 
         then: 'Load all available processes'
         assert processTypeList
-        assert processTypeList.size() == 24
+        assert processTypeList.size() == 28
 
     }
 }
