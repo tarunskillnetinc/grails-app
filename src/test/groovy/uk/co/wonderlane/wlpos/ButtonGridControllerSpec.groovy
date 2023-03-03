@@ -191,9 +191,10 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         int storeId = 234
         int rows = inputRow
         int columns = inputColumn
+        String description = "testGrid"
 
 
-        ButtonGrid buttonGrid = new ButtonGrid(id: 1 , retailerId : 9 , storeId : 234, type : 'SALES', rows : bgPreviousRow, columns : bgPreviousColumn)
+        ButtonGrid buttonGrid = new ButtonGrid(id: 1 , retailerId : 9 , storeId : 234, type : 'SALES', rows : bgPreviousRow, columns : bgPreviousColumn, description: description)
         Collection<Button> buttonCollection = new ArrayList<>();
         buttonGrid.setButtons(buttonCollection)
 
@@ -228,6 +229,7 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.buttonService = Stub(ButtonService){
             getButtonGrid(1) >> buttonGrid
             getButtonGrid(ButtonGridType.SALES) >> buttonGrid
+            getButtonGridByStoreId(ButtonGridType.SALES, description) >> buttonGrid
         }
 
         when: 'The edit action is executed'
