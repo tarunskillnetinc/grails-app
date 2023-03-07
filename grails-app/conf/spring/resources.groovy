@@ -110,7 +110,8 @@ beans = {
             grailsApplication.config.getProperty('rabbitmq.port'),
             grailsApplication.config.getProperty('rabbitmq.apiPort'),
             grailsApplication.config.getProperty('rabbitmq.username'),
-            grailsApplication.config.getProperty('rabbitmq.password')) {
+            grailsApplication.config.getProperty('rabbitmq.password'),
+            grailsApplication.config.getProperty('rabbitmq.useSsl')) {
 
         springSecurityService = ref('springSecurityService')
     }
