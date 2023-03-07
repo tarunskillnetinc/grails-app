@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.enums.ButtonType
@@ -55,6 +56,12 @@ class ButtonController {
         bindData(button, params)
 
         if (button.validate()) {
+            // If the user is editing a buttongrid while logged in as a store user then we need to make sure we create
+            // a new button grid for store level if one does not already exist (complete with new buttons)
+            if (button.buttonGrid.storeId == null && springSecurityService.principal.storeId != null) {
+                button = copyButtonGrid(button)
+            }
+
             button.buttonGrid.addToButtons(button)
             buttonService.saveButtonGrid(button.buttonGrid)
 
@@ -136,6 +143,35 @@ class ButtonController {
 
             render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
         }
+    }
+
+    private Button copyButtonGrid(Button button) {
+        def newStoreButton = new Button()
+        def storeButtonGrid = new ButtonGrid()
+        InvokerHelper.setProperties(storeButtonGrid, button.buttonGrid.properties)
+        storeButtonGrid.buttons = new ArrayList<>()
+        button.buttonGrid.buttons.forEach({
+            def storeButton = new Button()
+            InvokerHelper.setProperties(storeButton, it.properties)
+            storeButton.id = 0
+            storeButton.buttonGrid = storeButtonGrid
+            // Fix for copying buttons that are 0 amount in database as these are no longer valid.
+            if (it.amount <=> new BigDecimal(0) == 0) {
+                storeButton.amount = null;
+            }
+            storeButtonGrid.buttons.add(storeButton)
+
+            if (it.id == button.id) {
+                newStoreButton = storeButton
+            }
+        })
+
+        storeButtonGrid.storeId = springSecurityService.principal.storeId
+
+        newStoreButton.buttonGrid = storeButtonGrid
+
+        button.refresh()
+        return newStoreButton
     }
 
     def unassign(int id) {

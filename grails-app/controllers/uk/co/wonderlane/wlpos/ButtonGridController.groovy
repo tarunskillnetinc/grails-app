@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.apache.commons.lang3.EnumUtils
+import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 
 class ButtonGridController {
@@ -121,8 +122,24 @@ class ButtonGridController {
 
         // Create a new store level grid if no existing
         if (springSecurityService.principal.storeId != buttonGrid.storeId) {
-            buttonGrid = new ButtonGrid()
-            bindData(buttonGrid, params)
+            def storeButtonGrid = new ButtonGrid()
+            bindData(storeButtonGrid, params)
+
+            // Copy buttons to new grid (they will be removed if they don't fit by following code)
+            storeButtonGrid.buttons = new ArrayList<>()
+            buttonGrid.buttons.forEach({
+                def storeButton = new Button()
+                InvokerHelper.setProperties(storeButton, it.properties)
+                storeButton.id = 0
+                storeButton.buttonGrid = storeButtonGrid
+                // Fix for copying buttons that are 0 amount in database as these are no longer valid.
+                if (it.amount <=> new BigDecimal(0) == 0) {
+                    storeButton.amount = null;
+                }
+                storeButtonGrid.buttons.add(storeButton)
+            })
+
+            buttonGrid = storeButtonGrid
         } else {
             buttonGrid = buttonService.getButtonGridByStoreId(buttonGrid.type, buttonGrid.description)
             if (!buttonGrid) {
