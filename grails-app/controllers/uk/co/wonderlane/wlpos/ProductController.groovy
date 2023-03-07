@@ -574,7 +574,19 @@ class ProductController {
                     newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                     newVariant.effectiveDate = effectiveDate
                     newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                    newVariant.shelfCapacity = editedVariant.shelfCapacity
+                    newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     newVariant.defaultSupplierId = editedVariant.defaultSupplierId
+
+                    if (newVariant.getShelfCapacity() != null
+                            && !(newVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
+                        product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
+                    }
+
+                    if (newVariant.getMinimumDisplayQuantity() != null
+                            && !(newVariant.getMinimumDisplayQuantity() >= 1 && newVariant.getMinimumDisplayQuantity() <= 999)) {
+                        product.errors.reject('productVariant.minimumDisplayQuantity.size.error', 'Minimum Display Quantity must be between 1 to 999.')
+                    }
 
                     productVariantList.add(newVariant)
 
@@ -597,6 +609,8 @@ class ProductController {
                 newVariant.minimumStockLevel = editedVariant.minimumStockLevel
                 newVariant.effectiveDate = effectiveDate
                 newVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                newVariant.shelfCapacity = editedVariant.shelfCapacity
+                newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                 newVariant.defaultSupplierId = editedVariant.defaultSupplierId
 
                 editedVariant.packs?.each { editedPack ->
@@ -848,6 +862,8 @@ class ProductController {
         builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
+        builder.compare(id, "shelfCapacity", oldVariant.shelfCapacity, variant.shelfCapacity)
+        builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity)
         builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
 
         //---------------------------- Update history for barcode fields --------------------------------//
@@ -1057,6 +1073,11 @@ class ProductController {
         render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
     }
 
+    def ajaxLocations(LocationsCommand cmd) {
+//        def locations = Location.findByStoreId(springSecurityService.principal.storeId)
+        render(template: "locations", model: [])
+    }
+
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
@@ -1258,6 +1279,8 @@ class ProductController {
             productVariant.costPrice = variant.costPrice
             productVariant.effectiveDate = variant.effectiveDate
             productVariant.shelfLifeDays = variant.shelfLifeDays
+            productVariant.shelfCapacity = variant.shelfCapacity
+            productVariant.minimumDisplayQuantity = variant.minimumDisplayQuantity
             productVariant.setProduct(to)
 
             List<Barcode> barcodes = new ArrayList<>();
@@ -1353,6 +1376,8 @@ class AddVariantCommand {
     boolean zeroPrice
     Integer defaultSupplierId
     int operationMode
+    Integer shelfCapacity
+    Integer minimumDisplayQuantity
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
@@ -1378,6 +1403,10 @@ class SuppliersCommand {
     int productVariantId
     List<AddPackCommand> packs
     Boolean hasErrors = Boolean.FALSE
+}
+
+class LocationsCommand {
+
 }
 
 class AddPackCommand implements Validateable {
@@ -1494,6 +1523,8 @@ class ProductVariantCommand {
     String size
     String colour
     Integer shelfLifeDays
+    Integer shelfCapacity
+    Integer minimumDisplayQuantity
     int balanceOnHand
     int balanceOnOrder
     int minimumStockLevel

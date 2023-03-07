@@ -16,6 +16,7 @@
             var saveVariantUrl = "${createLink(controller: 'product', action: 'ajaxSaveVariant')}";
             var addPriceUrl = "${createLink(controller: 'product', action: 'ajaxAddPrice')}";
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
+            var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
@@ -218,6 +219,8 @@
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
                     params["shelfLifeDays"] = $(selector + "shelfLifeDays").val();
+                    params["shelfCapacity"] = $(selector + "shelfCapacity").val();
+                    params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
                     params["zeroPrice"] = $("#zeroPrice").prop("checked");
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
@@ -262,9 +265,11 @@
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
+                var shelfCapacity = $("#addVariantShelfCapacity").val();
+                var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
                 var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
-                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, defaultSupplierId: defaultSupplierId };
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
 
@@ -437,6 +442,23 @@
                     data: params,
                     success: function(resp) {
                         $("#suppliersContent").html(resp);
+                    }
+                });
+            }
+
+            // The locations button was clicked, we display the locations modal for this variant.
+            function showLocationsModal(variantIndex) {
+                $("#locationsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#locationsModal').modal({ show: true });
+
+                var params = {};
+
+                $.ajax({
+                    url: locationsUrl,
+                    method: "POST",
+                    data: params,
+                    success: function(resp) {
+                        $("#locationsContent").html(resp);
                     }
                 });
             }
@@ -678,6 +700,17 @@
             <div class="modal fade" id="suppliersModal" tabindex="-1" role="dialog" aria-labelledby="suppliersModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div id="suppliersContent" class="modal-content">
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="locations-modal" class="container-fluid">
+            <!-- Locations modal. -->
+            <div class="modal fade" id="locationsModal" tabindex="-1" role="dialog" aria-labelledby="locationsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div id="locationsContent" class="modal-content">
 
                     </div>
                 </div>

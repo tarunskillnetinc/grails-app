@@ -52,24 +52,24 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div id="product-result-${i+1}-description" class="col">${product.description}</div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "unitSize" }?.enabled}">
-                <div id="product-result-${i+1}-unit-size" class="col-1">${product.unitSize}</div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatRate" }?.enabled}">
-                <div id="product-result-${i+1}-vat-rate" class="col-1">${product.vatCode?.percentage}%</div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "category" }?.enabled}">
-                <div id="product-result-${i+1}-category" class="col-2">${product.category?.description}</div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "costPrice" }?.enabled}">
-                <div id="product-result-${i+1}-cost-price" class="col-1">&pound;${product.costPrice}</div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-                <div id="product-result-${i+1}-retail-price" class="col-1">&pound;${product.retailPrice}</div>
-            </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">
-                <div id="product-result-${i+1}-margin" class="col-1">${product.margin}%</div>
-            </g:if>
+%{--            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "unitSize" }?.enabled}">--}%
+%{--                <div id="product-result-${i+1}-unit-size" class="col-1">${product.unitSize}</div>--}%
+%{--            </g:if>--}%
+%{--            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatRate" }?.enabled}">--}%
+%{--                <div id="product-result-${i+1}-vat-rate" class="col-1">${product.vatCode?.percentage}%</div>--}%
+%{--            </g:if>--}%
+%{--            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "category" }?.enabled}">--}%
+%{--                <div id="product-result-${i+1}-category" class="col-2">${product.category?.description}</div>--}%
+%{--            </g:if>--}%
+%{--            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "costPrice" }?.enabled}">--}%
+%{--                <div id="product-result-${i+1}-cost-price" class="col-1">&pound;${product.costPrice}</div>--}%
+%{--            </g:if>--}%
+%{--            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">--}%
+%{--                <div id="product-result-${i+1}-retail-price" class="col-1">&pound;${product.retailPrice}</div>--}%
+%{--            </g:if>--}%
+%{--            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "margin" }?.enabled}">--}%
+%{--                <div id="product-result-${i+1}-margin" class="col-1">${product.margin}%</div>--}%
+%{--            </g:if>--}%
         </div>
     </g:each>
 </div>

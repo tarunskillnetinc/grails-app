@@ -51,6 +51,21 @@
         </div>
 
         <div class="row form-group mb-4">
+            <label for="addVariantShelfCapacity" class="col-3 offset-1 col-form-label text-right">Shelf Capacity</label>
+
+            <div class="input-group col-4">
+                <g:textField name="addVariantShelfCapacity" value="${variant?.shelfCapacity}" class="form-control bottom-border" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="addVariantMinimumDisplayQuantity" class="col-3 offset-1 col-form-label text-right">Minimum Display Quantity</label>
+            <div class="input-group col-4">
+                <g:textField name="addVariantMinimumDisplayQuantity" value="${variant?.minimumDisplayQuantity}" class="form-control bottom-border" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
             <label class="col-3 offset-1 col-form-label text-right">Barcodes</label>
 
             <div id="addBarcodesContainer" class="col-6 mr-0">

@@ -4,6 +4,8 @@
     <g:hiddenField name="variants[${index}].retailPrice" value="${variant?.retailPrice}" />
     <g:hiddenField name="variants[${index}].costPrice" value="${variant?.costPrice}" />
     <g:hiddenField name="variants[${index}].shelfLifeDays" value="${variant?.shelfLifeDays}" />
+    <g:hiddenField name="variants[${index}].shelfCapacity" value="${variant?.shelfCapacity}" />
+    <g:hiddenField name="variants[${index}].minimumDisplayQuantity" value="${variant?.minimumDisplayQuantity}" />
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
 
     <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
@@ -23,6 +25,7 @@
     </div>
 
     <div class="col-2 my-auto text-right">
-        <a id="variant-${index}-suppliers-btn" href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
+            <a id="variant-${index}-locations-btn" href="#" onclick="event.stopPropagation(); showLocationsModal(${index});" class="btn btn-wl ">Locations</a>
+            <a id="variant-${index}-suppliers-btn" href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
     </div>
 </div>
