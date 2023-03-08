@@ -91,8 +91,7 @@ class ProductListService extends MySqlDal {
         ProductList productList = getProductList(productListId)
 
         if (productList) {
-            productList.productListItems?.each { it.quantity = it.fillQuantity }
-
+            productList.productListItems?.each { it.quantity = it.quantity ?: it.fillQuantity }
 
             productList.status = productList.stockAdjustedOnCompletion ? ProductListStatus.COMPLETE : ProductListStatus.PARTIALLY_COMPLETE
             productList.dateStarted = productList.dateStarted ?: DateTime.now(DateTimeZone.UTC)
@@ -111,8 +110,8 @@ class ProductListService extends MySqlDal {
                 cstmt.setInt(1, productList.store?.id)
                 cstmt.setLong(2, it.productVariant?.sku)
                 cstmt.setInt(3, productList.stockAdjustedOnCompletion ? quantityInStock + it.quantity : quantityInStock)
-                cstmt.setInt(4, quantityOnOrder - it.quantity)
-                cstmt.setInt(5, productList.stockAdjustedOnCompletion ? quantityDelivered + it.quantity : quantityDelivered)
+                cstmt.setInt(4, Math.max(quantityOnOrder - it.quantity, 0))
+                cstmt.setInt(5, productList.stockAdjustedOnCompletion ? quantityDelivered : quantityDelivered + it.quantity)
 
                 cstmt.addBatch()
             }

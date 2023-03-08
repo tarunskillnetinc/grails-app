@@ -107,8 +107,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Receipt Viewer</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Receipt Viewer</li>
                         </ol>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
 
                                 <div class="row">
                                     <div class="col-4 offset-8 text-right">
-                                        <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
+                                        <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
                                         <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getReceipts();">Search</button>
                                     </div>
                                 </div>

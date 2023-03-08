@@ -31,7 +31,7 @@
 
     <g:each in="${promotions}" var="promotion" status="i">
         <div id="promo-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'maintenance', params:[promotionId: promotion.id])}';">
-            <div id="promo-result-${i+1}-retailer-promo-id" class="col-1">${promotion.retailerPromotionId}</div>
+            <div id="promo-result-${i+1}-retailer-promo-id" class="col-1 text-truncate">${promotion.retailerPromotionId}</div>
             <div id="promo-result-${i+1}-description" class="col-3">${promotion.description}</div>
             <div id="promo-result-${i+1}-updated" class="col-1 font-weight-bold">${promotion.updateDatetime.toString("dd/MM/yyyy")}</div>
             <div id="promo-result-${i+1}-start" class="col-1 font-weight-bold">${promotion.startDate.toString("dd/MM/yyyy")}</div>

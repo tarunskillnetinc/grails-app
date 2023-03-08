@@ -15,7 +15,7 @@
         <div class="col-2 my-auto">
             <div class="row form-group form-check mb-0">
                 <g:checkBox id="range-${i+1}-tick-box" name="product-${rangeProduct.key}" class="selections col-2 form-check-input wl-checkbox" style="margin-top: 8px;" />
-                <label id="range-${i+1}-item-code" for="product-${rangeProduct.key}" class="col-10 col-form-label pl-4">${rangeProduct.value[0].productItemCode}</label>
+                <label id="range-${i+1}-item-code" for="product-${rangeProduct.key}" class="col-10 col-form-label pl-4 text-truncate">${rangeProduct.value[0].productItemCode}</label>
             </div>
         </div>
         <div id="range-${i+1}-description" class="col-6 my-auto">${rangeProduct.value[0].productDescription}</div>

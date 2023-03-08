@@ -12,9 +12,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="productList" action="listCentralCounts">Central Counts</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${productList?.description ?: "Add Central Count"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="productList" action="listCentralCounts">Central Counts</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${productList?.description ?: "Add Central Count"}</li>
                         </ol>
                     </div>
                 </div>
@@ -73,7 +73,8 @@
                         <div class="col">
                             <div class="form-group row mt-4 ml-5">
                                 <label for="endDate" class="col-4 col-form-label text-left pr-4">Stores</label>
-                                <g:select name="storeIdList"
+                                <g:select id="storeIdList"
+                                          name="storeIdList"
                                           from="${availableStores}"
                                           multiple="true"
                                           value=""

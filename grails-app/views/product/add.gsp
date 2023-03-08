@@ -588,9 +588,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
                         </ol>
                     </div>
                 </div>
@@ -605,7 +605,7 @@
 
                 <div class="col-2 text-right">
                     <g:link elementId="product-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
-                    <button class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
+                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
                 </div>
             </div>
         </section>

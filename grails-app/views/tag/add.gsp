@@ -12,12 +12,15 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item"><g:link controller="tag" action="index">Tag Management</g:link></li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="tag" action="index">Tag Management</g:link></li>
                             <g:if test="${params.action == 'edit'}">
-                                <li class="breadcrumb-item"><g:link controller="tag" action="show" id="${tag.id}">${tag.description}</g:link></li>
+                                <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="tag" action="show" id="${tag.id}">${tag.description}</g:link></li>
+                                <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
                             </g:if>
-                            <li class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
+                            <g:else>
+                                <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
+                            </g:else>
                         </ol>
                     </div>
                 </div>
@@ -31,9 +34,9 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
+                    <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
 
-                    <button class="btn btn-success" name="save" onclick="$('#tag-form').submit();">Save</button>
+                    <button id="save-btn" class="btn btn-success" name="save" onclick="$('#tag-form').submit();">Save</button>
                 </div>
             </div>
 

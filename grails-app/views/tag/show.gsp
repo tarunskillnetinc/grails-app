@@ -12,9 +12,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="tag" action="index">Tag Management</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${tag?.description ?: "View Tag"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="tag" action="index">Tag Management</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${tag?.description ?: "View Tag"}</li>
                         </ol>
                     </div>
                 </div>
