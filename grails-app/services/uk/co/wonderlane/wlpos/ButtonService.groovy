@@ -25,21 +25,26 @@ class ButtonService {
         return ButtonGrid.findByIdAndRetailerId(buttonGridId, springSecurityService.principal.retailerId)
     }
 
-    def getButtonGrid(ButtonGridType type) {
-        def buttonGrids = ButtonGrid.withCriteria {
+    def getButtonGrid(ButtonGridType type, String description, boolean includeHeadOffice) {
+        def buttonGridCriteria = ButtonGrid.createCriteria()
+
+        def buttonGrids = buttonGridCriteria.list() {
             eq ("type", type)
             eq ("retailerId", springSecurityService.principal.retailerId)
+            if (description != null) {
+                eq("description", description)
+            }
             or {
                 eq ("storeId", springSecurityService.principal.storeId)
-                isNull ("storeId")
+                if (includeHeadOffice) {
+                    isNull("storeId")
+                }
             }
         }
-
         if (buttonGrids){
-            return buttonGrids?.sort { storeId }?.last()
+            return buttonGrids?.sort { it.storeId }?.last()
         }
         return null
-
     }
 
     def getOtherButtonGrids() {

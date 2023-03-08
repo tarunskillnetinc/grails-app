@@ -39,6 +39,13 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.buttonService = Stub(ButtonService){
             getButtonGrid(1) >> new ButtonGrid()
         }
+        controller.springSecurityService = Stub(SpringSecurityService) {
+            getPrincipal() >>new HashMap(){{
+                put("id", 9);
+                put("retailerId", 9);
+                put("storeId", 234);
+                put("storeNumber", 100)}}
+        }
 
         when: 'The show action is executed'
         params['id'] = id
@@ -77,6 +84,13 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
     def 'Test the show action for button grid non existing type (Throwing exception) redirects index page'() {
 
         given:
+        controller.springSecurityService = Stub(SpringSecurityService) {
+            getPrincipal() >>new HashMap(){{
+                put("id", 9);
+                put("retailerId", 9);
+                put("storeId", 234);
+                put("storeNumber", 100)}}
+        }
         String id = 0
         String type = null
 
@@ -177,9 +191,10 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         int storeId = 234
         int rows = inputRow
         int columns = inputColumn
+        String description = "testGrid"
 
 
-        ButtonGrid buttonGrid = new ButtonGrid(id: 1 , retailerId : 9 , storeId : 234, type : 'SALES', rows : bgPreviousRow, columns : bgPreviousColumn)
+        ButtonGrid buttonGrid = new ButtonGrid(id: 1 , retailerId : 9 , storeId : 234, type : 'SALES', rows : bgPreviousRow, columns : bgPreviousColumn, description: description)
         Collection<Button> buttonCollection = new ArrayList<>();
         buttonGrid.setButtons(buttonCollection)
 
@@ -213,6 +228,8 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
 
         controller.buttonService = Stub(ButtonService){
             getButtonGrid(1) >> buttonGrid
+            getButtonGrid(ButtonGridType.SALES) >> buttonGrid
+            getButtonGrid(ButtonGridType.SALES, description, true) >> buttonGrid
         }
 
         when: 'The edit action is executed'
