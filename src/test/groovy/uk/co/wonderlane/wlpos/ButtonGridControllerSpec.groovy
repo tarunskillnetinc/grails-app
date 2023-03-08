@@ -229,7 +229,7 @@ class ButtonGridControllerSpec extends Specification implements ControllerUnitTe
         controller.buttonService = Stub(ButtonService){
             getButtonGrid(1) >> buttonGrid
             getButtonGrid(ButtonGridType.SALES) >> buttonGrid
-            getButtonGridByStoreId(ButtonGridType.SALES, description) >> buttonGrid
+            getButtonGrid(ButtonGridType.SALES, description, true) >> buttonGrid
         }
 
         when: 'The edit action is executed'

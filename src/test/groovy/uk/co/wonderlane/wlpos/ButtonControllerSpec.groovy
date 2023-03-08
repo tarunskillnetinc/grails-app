@@ -230,9 +230,9 @@ class ButtonControllerSpec extends Specification implements ControllerUnitTest<B
 
         where:
         ID | gridId | btnId | imageDisplay
-        1  | 1      | 1     | true
-        2  | 2      | 2     | false
-        3  | 3      | 3     | true
+        1  | 1     | 1     | true
+        2  | 1      | 2     | false
+        3  | 1      | 3     | true
     }
 
     def 'if the button is already available and valid and removeImage param provided, remove image, add button to the button grid and redirect to show'() {
@@ -429,6 +429,7 @@ class ButtonControllerSpec extends Specification implements ControllerUnitTest<B
 
     def createTestButton(int buttonId, int buttonGridId, ButtonType btnType, boolean imageDisplay) {
         ButtonGrid btnGrid = new ButtonGrid(retailerId: 9, type: ButtonGridType.SALES, rows: 2, columns: 2)
+        btnGrid.storeId = 100
         btnGrid.setId(buttonGridId)
         Button btn = new Button(row: 1, column: 1, sku: 100, buttonGrid: btnGrid, quantity: 100, description: "Test", type: btnType,
                 bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: imageDisplay, textDisplay: true);

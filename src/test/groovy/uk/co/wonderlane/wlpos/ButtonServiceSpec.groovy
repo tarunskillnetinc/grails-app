@@ -173,7 +173,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         mockDomain(ButtonGrid, [buttonGrid])
 
         when: 'The load button grid by type action is executed'
-        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES)
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, null, true)
 
         then: 'The button grid model load successfully'
         assert buttonGridReturned
@@ -202,7 +202,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         mockDomain(ButtonGrid, [buttonGrid])
 
         when: 'The load button grid by type action is executed'
-        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, "desc")
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, "desc", false)
 
         then: 'The button grid model load successfully'
         assert buttonGridReturned
@@ -231,7 +231,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         mockDomain(ButtonGrid, [buttonGrid])
 
         when: 'The load button grid by type action is executed'
-        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES)
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, null, true)
 
         then: 'The valid button grid object should not return'
         assert !buttonGridReturned

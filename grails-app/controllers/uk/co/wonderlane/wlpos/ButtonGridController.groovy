@@ -25,20 +25,18 @@ class ButtonGridController {
                 return
             }
         } else {
-            ButtonGridType type = null
-            Integer storeId = springSecurityService.principal.storeId
             if (!EnumUtils.isValidEnum(ButtonGridType.class, params.type)) {
                 flash.error = "Button grid not found. "
                 redirect(action: "index")
                 return
             }
-            type = ButtonGridType.valueOf(params.type)
+            ButtonGridType type = ButtonGridType.valueOf(params.type)
             if (type.equals(ButtonGridType.SCO_QUICK_SELL) && !springSecurityService.principal.retailer.scoEnabled) {
                 flash.error = "Button grid SCO not enabled for current retailer. "
                 redirect(action: "index")
                 return
             }
-            buttonGrid = buttonService.getButtonGrid(type)
+            buttonGrid = buttonService.getButtonGrid(type, null, true)
             if (!buttonGrid) {
                 ButtonGrid btnGridTemp = new ButtonGrid()
                 btnGridTemp.setRetailerId(springSecurityService.principal.retailerId)
@@ -74,7 +72,7 @@ class ButtonGridController {
                 }
                 if (btnGridTemp.validate()) {
                     buttonService.saveButtonGrid(btnGridTemp)
-                    buttonGrid = buttonService.getButtonGrid(type)
+                    buttonGrid = buttonService.getButtonGrid(type, null, true)
                 } else {
                     flash.error = "Button grid not found."
                     redirect(action: "index")
@@ -127,21 +125,23 @@ class ButtonGridController {
 
             // Copy buttons to new grid (they will be removed if they don't fit by following code)
             storeButtonGrid.buttons = new ArrayList<>()
-            buttonGrid.buttons.forEach({
-                def storeButton = new Button()
-                InvokerHelper.setProperties(storeButton, it.properties)
-                storeButton.id = 0
-                storeButton.buttonGrid = storeButtonGrid
-                // Fix for copying buttons that are 0 amount in database as these are no longer valid.
-                if (it.amount <=> new BigDecimal(0) == 0) {
-                    storeButton.amount = null;
-                }
-                storeButtonGrid.buttons.add(storeButton)
-            })
+            if (buttonGrid.buttons) {
+                buttonGrid.buttons.forEach({
+                    def storeButton = new Button()
+                    InvokerHelper.setProperties(storeButton, it.properties)
+                    storeButton.id = 0
+                    storeButton.buttonGrid = storeButtonGrid
+                    // Fix for copying buttons that are 0 amount in database as these are no longer valid.
+                    if (it.amount <=> new BigDecimal(0) == 0) {
+                        storeButton.amount = null;
+                    }
+                    storeButtonGrid.buttons.add(storeButton)
+                })
+            }
 
             buttonGrid = storeButtonGrid
         } else {
-            buttonGrid = buttonService.getButtonGridByStoreId(buttonGrid.type, buttonGrid.description)
+            buttonGrid = buttonService.getButtonGrid(buttonGrid.type, buttonGrid.description, true)
             if (!buttonGrid) {
                 buttonGrid = new ButtonGrid()
             }
