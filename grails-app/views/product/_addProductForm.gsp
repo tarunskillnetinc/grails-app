@@ -108,7 +108,7 @@
                     </div>
 
                     <div class="row mx-5 mt-3">
-                        <a href="#" onclick="addVariant(null);" class="btn btn-wl">Add SKU</a>
+                        <a id="add-sku-btn" href="#" onclick="addVariant(null);" class="btn btn-wl">Add SKU</a>
                     </div>
                 </div>
             </div>
@@ -309,12 +309,12 @@
                                 <%
                                     def productRanges = selectedRanges ? selectedRanges : product?.ranges*.rangeId
                                 %>
-                                <g:each in="${ranges}" var="range">
+                                <g:each in="${ranges}" var="range" status="i">
                                     <div class="col">
-                                        <label class="radio-container">${range.description}
-                                            <g:checkBox name="rangeId" id="rangeId" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
+                                        <label id="range-${i+1}-description" class="radio-container">${range.description}
+                                            <g:checkBox name="rangeId" id="range-${i+1}-check-box" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
 
-                                            <span class="checkmark"></span>
+                                            <span id="range-${i+1}-check-box-span" class="checkmark"></span>
                                         </label>
                                     </div>
                                 </g:each>

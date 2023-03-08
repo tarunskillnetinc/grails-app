@@ -299,8 +299,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Shelf Edge Labels</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Shelf Edge Labels</li>
                         </ol>
                     </div>
                 </div>
@@ -309,7 +309,7 @@
 
         <section id="central-count-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Shelf Edge Labels</h2>
+                <h2 id="page-title" class="mx-auto">Shelf Edge Labels</h2>
             </div>
 
             <g:if test="${flash.message}">
@@ -318,7 +318,7 @@
 
             <div class="row mt-4 ml-0 mr-0">
                 <div class="col-6">
-                    <div class="header-wl mt-3"><h3>Handheld batches</h3></div>
+                    <div class="header-wl mt-3"><h3 id="ad-hoc-batches-title">Handheld batches</h3></div>
 
                     <div class="row col-10 offset-1 mt-5 px-0 pb-2 table-wl bottom-border">
                         <div class="col-4 font-weight-bold">Description</div>
@@ -334,7 +334,7 @@
                 </div>
 
                 <div class="col-6">
-                    <div class="header-wl mt-3"><h3>Scheduled product changes</h3></div>
+                    <div class="header-wl mt-3"><h3 id="scheduled-batches-title">Scheduled product changes</h3></div>
 
                     <div class="row col-10 offset-1 mt-5 px-0 pb-2 table-wl bottom-border">
                         <div class="col-6 font-weight-bold">Effective Date</div>

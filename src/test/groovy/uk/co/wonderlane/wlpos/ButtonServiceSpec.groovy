@@ -163,17 +163,46 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
             getPrincipal() >>new HashMap(){{
                 put("id", 9);
                 put("retailerId", 9);
-                put("storeId", 234);
+                put("storeId", null);
                 put("storeNumber", 100)}}
         }
 
-        ButtonGrid buttonGrid = new ButtonGrid(retailerId : 9 , storeId : 234, type : 'SALES', rows : 4, columns : 4)
+        ButtonGrid buttonGrid = new ButtonGrid(retailerId : 9 , storeId : null, type : 'SALES', rows : 4, columns : 4)
         buttonGrid.setId(100)
 
         mockDomain(ButtonGrid, [buttonGrid])
 
         when: 'The load button grid by type action is executed'
-        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES)
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, null, true)
+
+        then: 'The button grid model load successfully'
+        assert buttonGridReturned
+        assert buttonGridReturned.retailerId == 9
+        assert buttonGridReturned.storeId == null
+        assert buttonGridReturned.type == ButtonGridType.SALES
+        assert buttonGridReturned.rows == 4
+        assert buttonGridReturned.columns == 4
+
+    }
+
+    def 'Test load button grid by type action and description'() {
+        given:
+        service.springSecurityService = Stub(SpringSecurityService) {
+            getPrincipal() >>new HashMap(){{
+                put("id", 9);
+                put("retailerId", 9);
+                put("storeId", 234);
+                put("storeNumber", 100);
+            put("description", 'desc')}}
+        }
+
+        ButtonGrid buttonGrid = new ButtonGrid(retailerId : 9 , storeId : 234, type : 'SALES', rows : 4, columns : 4, description : 'desc')
+        buttonGrid.setId(100)
+
+        mockDomain(ButtonGrid, [buttonGrid])
+
+        when: 'The load button grid by type action is executed'
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, "desc", false)
 
         then: 'The button grid model load successfully'
         assert buttonGridReturned
@@ -182,7 +211,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         assert buttonGridReturned.type == ButtonGridType.SALES
         assert buttonGridReturned.rows == 4
         assert buttonGridReturned.columns == 4
-
+        assert buttonGridReturned.description == 'desc'
     }
 
     def 'Test load button grid by type action for non existing object'() {
@@ -202,7 +231,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
         mockDomain(ButtonGrid, [buttonGrid])
 
         when: 'The load button grid by type action is executed'
-        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES)
+        ButtonGrid buttonGridReturned = service.getButtonGrid(ButtonGridType.SALES, null, true)
 
         then: 'The valid button grid object should not return'
         assert !buttonGridReturned
@@ -253,7 +282,7 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
 
         then: 'Load all available processes'
         assert processTypeList
-        assert processTypeList.size() == 25
+        assert processTypeList.size() == 28
 
     }
 }

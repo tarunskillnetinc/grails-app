@@ -44,8 +44,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">User Management</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">User Management</li>
                         </ol>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link controller="user" action="add" class="btn btn-wl">Add New User</g:link>
+                    <g:link elementId="add-user-button" controller="user" action="add" class="btn btn-wl">Add New User</g:link>
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-class Retailer {
+class Retailer implements Serializable {
 
     int id
     boolean snappyShopperEnabled

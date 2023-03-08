@@ -91,8 +91,8 @@
         <div class="row mt-4">
             <div class="col">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li class="breadcrumb-item active" aria-current="page">Suppliers</li>
+                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Suppliers</li>
                 </ol>
             </div>
         </div>
@@ -102,11 +102,11 @@
 <section id="suppliers-container" class="container-fluid">
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 class="mx-auto my-auto">Suppliers</h2>
+            <h2 id="suppliers-page-title" class="mx-auto my-auto">Suppliers</h2>
         </div>
 
         <div class="col-2 text-right ">
-            <a href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
+            <a id="add-new-supplier-btn" href="#" class="btn btn-wl" onclick="showAddSupplierModal();">Add New Supplier</a>
         </div>
     </div>
 

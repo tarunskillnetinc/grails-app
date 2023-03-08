@@ -13,7 +13,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'description',
             sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Description</a></div>
+        });">Product Description</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemQuantity" }?.enabled}">
         <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
@@ -21,7 +21,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'itemQuantity',
             sortOrder: ${sortParams?.sortColumn == 'itemQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Packs Delivered</a></div>
+        });">Items Delivered</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
         <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
@@ -40,25 +40,25 @@
 </div>
 
 <div id="search-results">
-    <g:if test="${!delivery || delivery?.size() == 0}">
+    <g:if test="${!items || items?.size() == 0}">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </g:if>
 
-    <g:each in="${delivery}" var="item" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'deliveryPackLines', params: [productListId: item.productList.id, productListItemId: item.id, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
+    <g:each in="${items}" var="item" status="i">
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
+             onclick="document.location.href='${createLink(action:'deliveryPackLines', params: [productListId: item.productList.id, productListItemId: item.id, storeId: storeId, supplierId: supplierId, descriptionFilter: descriptionFilter, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
+
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-                <div class="col-2 my-auto">${item?.productVariant?.sku}</div>
+                <div id="sku-${i + 1}" class="col-2 my-auto">${item?.productVariant?.sku}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div class="col-6 my-auto">${item?.productVariant?.product?.description}</div>
+                <div id="description-${i + 1}" class="col-6 my-auto">${item?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemQuantity" }?.enabled}">
-                <div class="col-2 my-auto">${item.quantity}</div>
+                <div id="item-quantity-${i + 1}" class="col-2 my-auto">${item.quantity ?: item.fillQuantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber
-                        number="${item.totalCost}"
-                        type="currency"/></div>
+                <div id="total-cost-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${item.totalCost}" type="currency" /></div>
             </g:if>
         </div>
     </g:each>
@@ -66,7 +66,7 @@
 
 <g:if test="${totalResults > 0}">
     <div class="my-3 text-right">
-        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (delivery?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
+        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (items?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
 
         <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}"
                                             max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}"

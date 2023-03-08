@@ -623,9 +623,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="promotion" action="index">Promotion Search</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${promotion?.description ?: "Add Promotion"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="promotion" action="index">Promotion Search</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${promotion?.description ?: "Add Promotion"}</li>
                         </ol>
                     </div>
                 </div>
@@ -638,17 +638,17 @@
             </div>
 
             <g:hasErrors bean="${promotion}">
-                <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <div id="maintenance-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
                     <g:renderErrors bean="${promotion}" as="list" />
                 </div>
             </g:hasErrors>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                <div id="maintenance-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
             <g:if test="${flash.badPromoMessage}">
-                <div class="alert alert-danger alert-wl mx-0" role="alert"><g:message code="${flash.badPromoMessage}"/></div>
+                <div id="maintenance-bad-promo-message" class="alert alert-danger alert-wl mx-0" role="alert"><g:message code="${flash.badPromoMessage}"/></div>
             </g:if>
 
             <div id="maintenance-errors" class="alert alert-danger alert-wl mx-0" role="alert" hidden>

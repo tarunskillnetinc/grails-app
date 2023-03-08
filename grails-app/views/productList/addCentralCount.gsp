@@ -12,9 +12,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="productList" action="listCentralCounts">Central Counts</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${productList?.description ?: "Add Central Count"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="productList" action="listCentralCounts">Central Counts</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${productList?.description ?: "Add Central Count"}</li>
                         </ol>
                     </div>
                 </div>
@@ -23,15 +23,15 @@
 
         <section id="central-count-search" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 class="mx-auto">Central Count Management</h2>
+                <h2 id="page-title" class="mx-auto">Central Count Management</h2>
             </div>
 
             <g:if test="${flash.message}">
-                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+                <div id="success-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
             <g:hasErrors bean="${productList}">
-                <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <div id="error-list" class="alert alert-danger alert-wl mx-0" role="alert">
                     <g:renderErrors bean="${productList}" as="list" />
                 </div>
             </g:hasErrors>
@@ -64,7 +64,7 @@
 
                             <div class="form-group row col-12 col-lg-6 mt-4">
                                 <div class="offset-lg-4">
-                                    <g:link action="listCentralCounts" role="button" class="btn btn-danger">Cancel</g:link>
+                                    <g:link elementId="cancel-btn" action="listCentralCounts" role="button" class="btn btn-danger">Cancel</g:link>
                                     <g:submitButton class="btn btn-success" name="save" value="Save" />
                                 </div>
                             </div>
@@ -73,7 +73,8 @@
                         <div class="col">
                             <div class="form-group row mt-4 ml-5">
                                 <label for="endDate" class="col-4 col-form-label text-left pr-4">Stores</label>
-                                <g:select name="storeIdList"
+                                <g:select id="storeIdList"
+                                          name="storeIdList"
                                           from="${availableStores}"
                                           multiple="true"
                                           value=""
@@ -93,7 +94,7 @@
                 <div class="row mt-4 mx-0">
                     <div class="col-2 offset-10 text-right px-0">
                         <!-- Button trigger modal -->
-                        <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
+                        <a id="add-product-btn" href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                             Add Product
                         </a>
                     </div>

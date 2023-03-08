@@ -322,23 +322,6 @@
                 $('#addVariantModal').modal("hide");
             }
 
-            // Delete variant button was clicked, we just delete the whole div and handle the removal server side (if it was an existing variant).
-            function deleteVariant(index) {
-                if (!confirm("This SKU will be deleted.")) {
-                    return;
-                }
-
-                $("#variantsContainer > #variant-" +index).remove();
-
-                $("#variantsContainer > div").each(function(i) {
-                    var stripedDiv = $(this).find("div:first");
-
-                    stripedDiv.removeClass("wl-striped0");
-                    stripedDiv.removeClass("wl-striped1");
-                    stripedDiv.addClass("wl-striped" +(i % 2));
-                });
-            }
-
             // If we change the SKU we may need to update the SKU in the price changes section too.
             function skuChanged(index, skuValue) {
                 var skuText = $("#priceChanges\\[" +index +"\\]\\.skuText");
@@ -605,9 +588,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
                         </ol>
                     </div>
                 </div>
@@ -621,8 +604,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link action="index" role="button" class="btn btn-wl">Cancel</g:link>
-                    <button class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
+                    <g:link elementId="product-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
                 </div>
             </div>
         </section>

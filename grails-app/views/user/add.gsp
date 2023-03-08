@@ -29,9 +29,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item"><g:link controller="user" action="index">User Management</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Add User</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="user" action="index">User Management</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Add User</li>
                         </ol>
                     </div>
                 </div>
@@ -45,9 +45,9 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link elementId="cancel" controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
 
-                    <button class="btn btn-success" name="save" onclick="$('#add-user-form').submit();">Save</button>
+                    <button id="save" class="btn btn-success" name="save" onclick="$('#add-user-form').submit();">Save</button>
                 </div>
             </div>
 

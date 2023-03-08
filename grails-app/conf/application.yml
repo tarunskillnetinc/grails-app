@@ -199,6 +199,7 @@ environments:
             apiPort: 15672
             username: rabbituser
             password: Pa**W0rd01
+            useSsl: false
 
         mysql:
             wlpos:
@@ -319,6 +320,7 @@ environments:
             apiPort: 15672
             username: wonderlane
             password: 0TS51aZARfjTC3VjOYP6
+            useSsl: false
 
         mysql:
             wlpos:
@@ -422,6 +424,7 @@ environments:
             apiPort: 15672
             username: wonderlane
             password: 0TS51aZARfjTC3VjOYP6
+            useSsl: false
 
         mysql:
             wlpos:
@@ -525,6 +528,7 @@ environments:
             apiPort: 15672
             username: wonderlane
             password: 0TS51aZARfjTC3VjOYP6
+            useSsl: false
 
         mysql:
             wlpos:

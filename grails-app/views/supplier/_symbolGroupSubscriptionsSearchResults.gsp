@@ -28,16 +28,16 @@
 
     <g:each in="${symbolGroupSubscriptions}" var="symbolGroupSubscription" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;">
-            <div class="row col-11" onclick="editSymbolGroupSubscription(${symbolGroupSubscription.id});">
-                <div class="col-3 my-auto">${symbolGroupSubscription.symbolGroup.name}</div>
+            <div id="supplier-affiliation-${i+1}" class="row col-11" onclick="editSymbolGroupSubscription(${symbolGroupSubscription.id});">
+                <div id="supplier-affiliation-${i+1}-name" class="col-3 my-auto">${symbolGroupSubscription.symbolGroup.name}</div>
 
-                <div class="col-2 my-auto"><g:message
+                <div id="supplier-affiliation-${i+1}-status" class="col-2 my-auto"><g:message
                         code="SymbolGroupSubscriptionStatus.${symbolGroupSubscription.status}"/></div>
 
-                <div class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm:ss"
+                <div id="supplier-affiliation-${i+1}-last-prod-download" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm:ss"
                                                          date="${symbolGroupSubscription.lastProductDownload?.toDate()}"/></div>
 
-                <div class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm:ss"
+                <div id="supplier-affiliation-${i+1}-last-promo-download" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm:ss"
                                                          date="${symbolGroupSubscription.lastPromotionDownload?.toDate()}"/></div>
             </div>
 

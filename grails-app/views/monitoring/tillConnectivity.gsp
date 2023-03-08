@@ -126,9 +126,9 @@
             <div class="row mt-4">
                 <div class="col">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active" aria-current="page">Monitoring</li>
-                        <li class="breadcrumb-item active" aria-current="page">Till Connectivity</li>
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Monitoring</li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Till Connectivity</li>
                     </ol>
                 </div>
             </div>
@@ -137,13 +137,13 @@
 
     <section id="heading-container" class="container-fluid">
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Till Connectivity</h2>
+            <h2 id="page-title" class="mx-auto">Till Connectivity</h2>
         </div>
 
         <div class="row mt-4 ml-0 mr-0">
             <div class="col-8 offset-2 text-center">
-                <p>This page displays the current status of the RabbitMQ till messaging system.</p>
-                <p>The Clear button will remove all messages currently on the queue for the affected till.
+                <p id="page-message-1">This page displays the current status of the RabbitMQ till messaging system.</p>
+                <p id="page-message-2">The Clear button will remove all messages currently on the queue for the affected till.
                     <br />The Sync button will send a message to the till to force it to synchronise with the central database.
                     <br />Any action taken here can be destructive and should only be performed with notice to the affected store.</p>
             </div>
@@ -162,7 +162,7 @@
     <section id="filters-section" class="container-fluid">
         <div class="row mt-3">
             <div class="col-8 offset-2">
-                <div class="card bg-light border-wl">
+                <div id="filters" class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
                         <div class="row">
                             <div class="col-10">Filters</div>
@@ -203,7 +203,7 @@
                 </div>
             </div>
             <div class="col-2 text-right">
-                <a href="#" class="btn btn-wl mt-1" onclick="getQueues(true);">Refresh</a>
+                <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getQueues(true);">Refresh</a>
             </div>
         </div>
     </section>

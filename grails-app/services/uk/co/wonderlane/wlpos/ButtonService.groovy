@@ -25,27 +25,26 @@ class ButtonService {
         return ButtonGrid.findByIdAndRetailerId(buttonGridId, springSecurityService.principal.retailerId)
     }
 
-    def getButtonGrid(ButtonGridType type) {
-        def buttonGrids;
-        if (springSecurityService.principal.storeId != null) {
-            buttonGrids = ButtonGrid.withCriteria {
-                eq ("type", type)
-                eq ("retailerId", springSecurityService.principal.retailerId)
-                eq ("storeId", springSecurityService.principal.storeId)
+    def getButtonGrid(ButtonGridType type, String description, boolean includeHeadOffice) {
+        def buttonGridCriteria = ButtonGrid.createCriteria()
+
+        def buttonGrids = buttonGridCriteria.list() {
+            eq ("type", type)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            if (description != null) {
+                eq("description", description)
             }
-        } else {
-            buttonGrids = ButtonGrid.withCriteria {
-                eq ("type", type)
-                eq ("retailerId", springSecurityService.principal.retailerId)
-                isNull ("storeId")
+            or {
+                eq ("storeId", springSecurityService.principal.storeId)
+                if (includeHeadOffice) {
+                    isNull("storeId")
+                }
             }
         }
-
         if (buttonGrids){
-            return buttonGrids?.sort { storeId }?.last()
+            return buttonGrids?.sort { it.storeId }?.last()
         }
         return null
-
     }
 
     def getOtherButtonGrids() {
@@ -78,7 +77,6 @@ class ButtonService {
                 ProcessType.NAVIGATE_CASH_LIFT,
                 ProcessType.NAVIGATE_PAID_OUT,
                 ProcessType.NAVIGATE_TRAINING,
-                ProcessType.NAVIGATE_DISCOUNT,
                 ProcessType.SAVE_BASKET,
                 ProcessType.NAVIGATE_RETRIEVE_BASKET,
                 ProcessType.LOCK_TILL,
@@ -90,7 +88,11 @@ class ButtonService {
                 ProcessType.NAVIGATE_PAYPOINT_ADMIN,
                 ProcessType.NAVIGATE_PAYPOINT_EOD,
                 ProcessType.NAVIGATE_X_READ,
-                ProcessType.NAVIGATE_Z_READ]
+                ProcessType.NAVIGATE_Z_READ,
+                ProcessType.EDIT_BASKET,
+                ProcessType.ACCEPT_AGE_CHECK,
+                ProcessType.REPRINT_RECEIPT,
+                ProcessType.NAVIGATE_TRANSACTIONS]
     }
 
 

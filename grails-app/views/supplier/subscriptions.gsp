@@ -118,8 +118,8 @@
         <div class="row mt-4">
             <div class="col">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li class="breadcrumb-item active" aria-current="page">Supplier Affiliations</li>
+                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Supplier Affiliations</li>
                 </ol>
             </div>
         </div>
@@ -129,11 +129,11 @@
 <section id="subscriptions-container" class="container-fluid">
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 class="mx-auto my-auto">Supplier Affiliations</h2>
+            <h2 id="affiliation-page-title" class="mx-auto my-auto">Supplier Affiliations</h2>
         </div>
 
         <div class="col-2 text-right">
-            <a href="#" class="btn btn-wl"
+            <a id="add-new-affiliation-btn" href="#" class="btn btn-wl"
                onclick="showAddSymbolGroupSubscriptionModal();">Add New Affiliation</a>
         </div>
     </div>

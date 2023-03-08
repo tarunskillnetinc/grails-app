@@ -36,25 +36,25 @@
     <g:each in="${orders}" var="order" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'order', params: [productListId: order.id, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderId" }?.enabled}">
-                <div class="col-1 my-auto">${order.orderId}</div>
+                <div id="order-id-${i + 1}" class="col-1 my-auto">${order.orderId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
-                <div class="col-1 my-auto">${order.storeId}</div>
+                <div id="store-id-${i + 1}" class="col-1 my-auto">${order.storeId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "status" }?.enabled}">
-                <div class="col-2 my-auto"><g:message code="OrderStatus.${order.status}" /></div>
+                <div id="status-${i + 1}" class="col-2 my-auto"><g:message code="OrderStatus.${order.status}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCompleted" }?.enabled}">
-                <div class="col-2 my-auto">${order.dateCompleted?.minus(org.joda.time.DateTimeZone.getDefault()?.toTimeZone()?.getRawOffset())?.toString("dd/MM/yyyy HH:mm:ss")}</div>
+                <div id="date-completed-${i + 1}" class="col-2 my-auto">${order.dateCompleted?.toString("dd/MM/yyyy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
-                <div class="col-2 my-auto">${order.supplierReference}</div>
+                <div id="supplier-name-${i + 1}" class="col-2 my-auto">${order.supplierReference}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
-                <div class="col-2 my-auto">${order.totalQuantity}</div>
+                <div id="quantity-${i + 1}" class="col-2 my-auto">${order.totalQuantity}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "value" }?.enabled}">
-                <div class="col-2 my-auto"><g:formatNumber number="${order.totalValue}" type="currency"/></div>
+                <div id="value-${i + 1}"class="col-2 my-auto"><g:formatNumber number="${order.totalValue}" type="currency"/></div>
             </g:if>
         </div>
     </g:each>

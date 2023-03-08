@@ -13,7 +13,7 @@ class PackLine {
 
     static belongsTo = [productListItem: ProductListItem]
 
-    static transients = [ 'totalQuantity', 'totalValue' ]
+    static transients = [ 'totalQuantity', 'totalCostPrice', 'totalValue' ]
 
     static mapping = {
         table "packlines"
@@ -31,20 +31,17 @@ class PackLine {
         pack nullable: true
     }
 
-    def getTotalQuantity() {
-        int quantity = 1 //For singles
-        if (pack){ //If pack exist means get quantity from pack
-            quantity = pack.getQuantity()
-        }
-        return quantity.multiply(productListItem.getFillQuantity())
+    int getTotalQuantity() {
+        return (quantity ?: BigDecimal.ZERO).multiply((pack?.quantity ?: BigDecimal.ZERO))?.intValue()
     }
 
-    def getTotalValue() {
-        int quantity = 1 //For singles
-        if (pack){ //If pack exist means get quantity from pack
-            quantity = pack.getQuantity()
-        }
-        def price = quantity.multiply(productListItem?.productVariant?.getCurrentPrice())
-        return price.multiply(productListItem?.getFillQuantity())
+    BigDecimal getTotalCostPrice() {
+        return (quantity ?: BigDecimal.ZERO).multiply(pack?.price ?: BigDecimal.ZERO)
+    }
+
+    BigDecimal getTotalValue() {
+        def retailPrice = productListItem?.productVariant?.currentPrice ?: BigDecimal.ZERO
+
+        return retailPrice.multiply(getTotalQuantity())
     }
 }

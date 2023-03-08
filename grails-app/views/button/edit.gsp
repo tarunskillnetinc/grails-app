@@ -158,9 +158,9 @@
             <div class="row mt-4">
                 <div class="col">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li class="breadcrumb-item active" aria-current="page">Button Grids</li>
-                        <li class="breadcrumb-item" aria-current="page">
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Button Grids</li>
+                        <li id="breadcrumb-3" class="breadcrumb-item" aria-current="page">
                             <g:link controller="buttonGrid" action="show" id="${button?.buttonGrid?.id}">
                                 <g:if test="${button?.buttonGrid?.type?.name() == 'OTHER'}">
                                     ${button?.buttonGrid?.description}
@@ -170,7 +170,7 @@
                                 </g:else>
                             </g:link>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page">${button?.description ? button.description : "New Button"}</li>
+                        <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${button?.description ? button.description : "New Button"}</li>
                     </ol>
                 </div>
             </div>
@@ -229,7 +229,7 @@
                                     </div>
                                     <div class="col-4">
                                         <!-- Button trigger modal -->
-                                        <a href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
+                                        <a id="add-product-btn" href="#" class="btn btn-wl" data-toggle="modal" data-target="#productSearchModal">
                                             Select Product
                                         </a>
                                     </div>

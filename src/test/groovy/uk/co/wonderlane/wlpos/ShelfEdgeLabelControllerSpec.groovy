@@ -253,7 +253,7 @@ class ShelfEdgeLabelControllerSpec extends Specification implements ControllerUn
         ProductList mockProductList = getMockProductList()
         mockProductList.setId(Integer.parseInt(productListId))
         mockProductList.setRetailerId(9)
-        mockProductList.setStoreId(234)
+        mockProductList.setStore(getStoreSetting("Some Store Name"))
         mockProductList.setStatus(ProductListStatus.IN_PROGRESS)
 
         mockProductList.save(flush: true, failOnError: true)
@@ -322,7 +322,7 @@ class ShelfEdgeLabelControllerSpec extends Specification implements ControllerUn
         ProductList mockProductList = getMockProductList()
         mockProductList.setId(Integer.parseInt(productListId))
         mockProductList.setRetailerId(9)
-        mockProductList.setStoreId(234)
+        mockProductList.setStore(getStoreSetting("Some Store Name"))
         mockProductList.setStatus(ProductListStatus.IN_PROGRESS)
 
         mockProductList.save(flush: true, failOnError: true)
