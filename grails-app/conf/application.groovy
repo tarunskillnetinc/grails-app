@@ -4,6 +4,7 @@ grails.plugin.springsecurity.password.bcrypt.logrounds = 8
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',                 access: ['permitAll']],
+	[pattern: '/actuator/health',  access: ['permitAll']],
 	[pattern: '/error',            access: ['permitAll']],
 	[pattern: '/index',            access: ['isAuthenticated()']],
 	[pattern: '/index.gsp',        access: ['permitAll']],
