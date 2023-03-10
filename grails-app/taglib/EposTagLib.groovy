@@ -189,11 +189,7 @@ class EposTagLib {
 
                 break;
             case ReportType.TENDER_MOVEMENTS:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Events</li>"""
-
-                break;
-            case ReportType.TENDER_MOVEMENTS_GROUPED:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Movements</li>"""
+                out << """<li class="breadcrumb-item active" aria-current="page">All Tender Movements</li>"""
 
                 break;
             default:

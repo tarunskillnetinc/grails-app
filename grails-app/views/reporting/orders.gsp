@@ -66,7 +66,6 @@
                 document.getElementById('supplier').value = "${null}";
                 document.getElementById('storeFilter').value = null;
             }
-
         </script>
     </head>
     <body>

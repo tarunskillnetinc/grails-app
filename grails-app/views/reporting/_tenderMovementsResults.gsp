@@ -1,9 +1,24 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'timestamp', sortOrder: ${sortParams?.sortColumn == 'timestamp' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Timestamp</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "store" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'store', sortOrder: ${sortParams?.sortColumn == 'store' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Store</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fromLocation" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'fromLocation', sortOrder: ${sortParams?.sortColumn == 'fromLocation' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">From Location</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "toLocation" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'toLocation', sortOrder: ${sortParams?.sortColumn == 'toLocation' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">To Location</a></div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'amount', sortOrder: ${sortParams?.sortColumn == 'amount' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Amount</a></div>
+    </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'type', sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'quantity', sortOrder: ${sortParams?.sortColumn == 'quantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Total Quantity</a></div>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reason', sortOrder: ${sortParams?.sortColumn == 'reason' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Reason</a></div>
     </g:if>
 </div>
 
@@ -19,12 +34,41 @@
     </g:if>
 
     <g:each in="${tenderMovements}" var="tenderMovement" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'tenderMovement', params: [tenderMovementType: tenderMovement.key, startDate: startDate.format("dd/MM/yyyy"), endDate: endDate.format("dd/MM/yyyy")])}';">
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                <div class="col my-auto"><g:message code="TenderType.${tenderMovement.key}" /></div>
+        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
+                <div class="col my-auto"><g:formatDate date="${tenderMovement.timestamp.toDate()}" format="dd/MM/yy HH:mm:ss" /></div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div class="col my-auto">${tenderMovement.value.size()}</div>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "store" }?.enabled}">
+                <div class="col my-auto">${tenderMovement.store?.storeId}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fromLocation" }?.enabled}">
+                <div class="col my-auto">${tenderMovement.fromLocation?.description}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "toLocation" }?.enabled}">
+                <div class="col my-auto">${tenderMovement.toLocation?.description}</div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
+                <div class="col my-auto">
+                    <g:if test="${tenderMovement.amount != null}">
+                        <g:formatNumber number="${tenderMovement.amount}" type="currency" />
+                    </g:if>
+                    <g:else>N/A</g:else>
+                </div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
+                <div class="col my-auto"><g:message code="TenderMovementType.${tenderMovement.type}" /></div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
+                <div class="col my-auto">
+                    <g:if test="${!tenderMovement.reason}">N/A</g:if>
+                    <g:elseif test="${tenderMovement.type == 'PAID_OUT'}"><g:message code="PaidOutReason.${tenderMovement.reason}" /></g:elseif>
+                    %{--                    <g:elseif test="${tenderMovement.type.name() == 'CUSTOMER_REFUSAL'}"><g:message code="CustomerRefusalReason.${tenderMovement.reason}" /></g:elseif>--}%
+                    %{--                    <g:elseif test="${tenderMovement.type.name() == 'REFUND'}"><g:message code="RefundReason.${tenderMovement.reason}" /></g:elseif>--}%
+                    %{--                    <g:elseif test="${tenderMovement.type.name() == 'MARKDOWN'}"><g:message code="MarkdownReason.${tenderMovement.reason}" /></g:elseif>--}%
+                    <g:else>${tenderMovement.reason}</g:else>
+
+                    <g:if test="${tenderMovement.reasonOther}">&nbsp;-&nbsp;${tenderMovement.reasonOther}</g:if>
+                </div>
             </g:if>
         </div>
     </g:each>

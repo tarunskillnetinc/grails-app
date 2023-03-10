@@ -150,8 +150,8 @@
                             <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
                             <g:link elementId="orders-report-dropdown" controller="reporting" action="orders" class="dropdown-item">Orders Report</g:link>
                             <g:link elementId="deliveries-report-dropdown" controller="reporting" action="deliveries" class="dropdown-item">Deliveries Report</g:link>
-                            <a id="tender-movement" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Tender Movement</a>
-                            <a id="stock-movement" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
+                            <g:link elementId="tender-movements-dropdown" controller="reporting" action="tenderMovements" class="dropdown-item">Tender Movements</g:link>
+                            <a id="stock-movement" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movements</a>
                             <a id="journal" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
                         </div>
                     </li>

@@ -1,6 +1,8 @@
 package uk.co.wonderlane.wlpos.reporting
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.StoreSettings
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 class TenderMovement {
@@ -8,7 +10,7 @@ class TenderMovement {
     int id
     int retailerId
     int storeId
-    String type
+    TenderMovementType type
     String reason
     String reasonOther
     TenderType tenderType
@@ -54,5 +56,9 @@ class TenderMovement {
         userId nullable: false
         userName nullable: false, blank: false, maxSize: 45
         timestamp nullable: true
+    }
+
+    StoreSettings getStore() {
+        return StoreSettings.get(storeId)
     }
 }

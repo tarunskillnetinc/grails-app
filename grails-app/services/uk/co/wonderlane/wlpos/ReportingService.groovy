@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.PayPointSale
@@ -279,28 +280,26 @@ class ReportingService {
         return results
     }
 
-
-    def getTenderMovements(DateTime startDate, DateTime endDate) {
-        def tenderMovementCriteria = TenderMovement.createCriteria()
-
-        return tenderMovementCriteria.list() {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq ("storeId", springSecurityService.principal.storeId)
-            }
-            between ("timestamp", startDate, endDate)
-        }
-    }
-
-    def getTenderMovements(DateTime startDate, DateTime endDate, TenderType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def getTenderMovements(DateTime startDate, DateTime endDate, TenderMovementType tenderMovementType, TenderType tenderType, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def tenderMovementCriteria = TenderMovement.createCriteria()
 
         def results = tenderMovementCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
-            eq ("tenderType", type)
             eq ("retailerId", springSecurityService.principal.retailerId)
+
             if (springSecurityService.principal.storeId != null) {
                 eq ("storeId", springSecurityService.principal.storeId)
+            } else if (storeId) {
+                eq ("storeId", storeId)
             }
+
+            if (tenderType) {
+                eq("tenderType", tenderType)
+            }
+
+            if (tenderMovementType) {
+                eq("type", tenderMovementType)
+            }
+
             between ("timestamp", startDate, endDate)
         }
 

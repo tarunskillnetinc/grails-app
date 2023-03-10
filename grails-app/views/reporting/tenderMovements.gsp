@@ -41,13 +41,26 @@
                 orientation: "bottom auto"
             });
         });
-    </script>
 
+        function resetForm() {
+            document.getElementById('startDate').value = "${startDate ? startDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 90).format("dd/MM/yyyy")}");
+            $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+            document.getElementById("endDate").value = "${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
+            $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+
+            $('#tenderMovementType').prop("selectedIndex", 0);
+            $('#tenderType').prop("selectedIndex", 0);
+            $('#storeId').prop("selectedIndex", 0);
+        }
+    </script>
 </head>
 
 <body>
     <section id="reporting-container" class="container-fluid">
-        <g:reportBreadcrumb reportType="${reportType}" />
+        <g:reportBreadcrumb reportType="${reportType}" startDate="${startDate}" endDate="${endDate}"/>
 
         <div class="header-wl mt-3">
             <h2 class="mx-auto">Tender Movements Report</h2>
@@ -71,17 +84,41 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label-sm text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label-sm text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.format("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-12 text-right">
+                                <label for="tenderMovementType" class="col-2 col-form-label-sm text-right">Type</label>
+                                <div class="col-4">
+                                    <g:select name="tenderMovementType" from="${tenderMovementTypes}"
+                                              noSelection="['':'All Movement Types']" value="${tenderMovementType}"
+                                              valueMessagePrefix="TenderMovementType" class="form-control select-border" />
+                                </div>
+
+                                <label for="tenderType" class="col-2 col-form-label-sm text-right">Tender Type</label>
+                                <div class="col-4">
+                                    <g:select name="tenderType" from="${tenderTypes}"
+                                              noSelection="['':'All Tender Types']" value="${tenderType}"
+                                              valueMessagePrefix="TenderType" class="form-control select-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="storeId" class="col-2 col-form-label-sm text-right">Store</label>
+                                <div class="col-4">
+                                    <g:select name="storeId" from="${stores}"
+                                              noSelection="['':'All Stores']" value="${storeId}"
+                                              optionValue="storeId" optionKey="id" class="form-control select-border" />
+                                </div>
+
+                                <div class="col-6 text-right">
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
                                 </div>
                             </div>
@@ -105,14 +142,33 @@
                     <div class="card-body collapse" id="columnsCollapse">
                         <g:form name="reportColumnsForm" id="reportColumnsForm">
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsTenderType" class="form-check-input" value="type" checked="${!userColumns || userColumns?.columns?.find { it.column == 'tenderType' }?.enabled}" />
-                                <label class="form-check-label" for="columnsTenderType">Tender Type</label>
+                                <g:checkBox name="columns" id="columnsTimestamp" class="form-check-input" value="timestamp" checked="${!userColumns || userColumns?.columns?.find { it.column == 'timestamp' }?.enabled}" />
+                                <label class="form-check-label" for="columnsTimestamp">Timestamp</label>
                             </div>
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsQuantity" class="form-check-input" value="quantity" checked="${!userColumns || userColumns?.columns?.find { it.column == 'quantity' }?.enabled}" />
-                                <label class="form-check-label" for="columnsQuantity">Total Quantity</label>
+                                <g:checkBox name="columns" id="columnsStore" class="form-check-input" value="store" checked="${!userColumns || userColumns?.columns?.find { it.column == 'store' }?.enabled}" />
+                                <label class="form-check-label" for="columnsStore">Store</label>
                             </div>
-
+                            <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsFromLocation" class="form-check-input" value="fromLocation" checked="${!userColumns || userColumns?.columns?.find { it.column == 'fromLocation' }?.enabled}" />
+                                <label class="form-check-label" for="columnsFromLocation">From Location</label>
+                            </div>
+                            <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsToLocation" class="form-check-input" value="toLocation" checked="${!userColumns || userColumns?.columns?.find { it.column == 'toLocation' }?.enabled}" />
+                                <label class="form-check-label" for="columnsToLocation">To Location</label>
+                            </div>
+                            <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsAmount" class="form-check-input" value="amount" checked="${!userColumns || userColumns?.columns?.find { it.column == 'amount' }?.enabled}" />
+                                <label class="form-check-label" for="columnsAmount">Amount</label>
+                            </div>
+                            <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsType" class="form-check-input" value="type" checked="${!userColumns || userColumns?.columns?.find { it.column == 'type' }?.enabled}" />
+                                <label class="form-check-label" for="columnsType">Type</label>
+                            </div>
+                            <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsReason" class="form-check-input" value="reason" checked="${!userColumns || userColumns?.columns?.find { it.column == 'reason' }?.enabled}" />
+                                <label class="form-check-label" for="columnsReason">Reason</label>
+                            </div>
                             <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>

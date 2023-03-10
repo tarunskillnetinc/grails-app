@@ -218,6 +218,8 @@ class ShiftController {
                 tenderMovement.toLocation = safeLocation as Location
                 tenderMovement.type = "CASH_UP"
                 tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+                tenderMovement.userId = springSecurityService.principal.id
+                tenderMovement.userName = springSecurityService.principal.usersName
 
                 if (reportingService.saveTenderMovement(tenderMovement)) {
                     System.out.println("Success tender movement save")
