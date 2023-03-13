@@ -45,12 +45,14 @@ class ButtonController {
 
     def save() {
         def button
+        def existingButton = true
 
         if (params.id && Integer.parseInt(params.id) > 0) {
             button = Button.get(params.id)
         } else {
             button = new Button()
             button.buttonGrid = ButtonGrid.get(params.buttonGrid.id)
+            existingButton = false
         }
 
         bindData(button, params)
@@ -59,7 +61,7 @@ class ButtonController {
             // If the user is editing a buttongrid while logged in as a store user then we need to make sure we create
             // a new button grid for store level if one does not already exist (complete with new buttons)
             if (button.buttonGrid.storeId == null && springSecurityService.principal.storeId != null) {
-                button = copyButtonGrid(button)
+                button = copyButtonGrid(button, existingButton)
             }
 
             button.buttonGrid.addToButtons(button)
@@ -145,7 +147,7 @@ class ButtonController {
         }
     }
 
-    private Button copyButtonGrid(Button button) {
+    private Button copyButtonGrid(Button button, Boolean existingButton) {
         def newStoreButton = new Button()
         def storeButtonGrid = new ButtonGrid()
         InvokerHelper.setProperties(storeButtonGrid, button.buttonGrid.properties)
@@ -166,11 +168,18 @@ class ButtonController {
             }
         })
 
+        if (!existingButton) {
+            newStoreButton = button
+        }
+
         storeButtonGrid.storeId = springSecurityService.principal.storeId
 
         newStoreButton.buttonGrid = storeButtonGrid
 
-        button.refresh()
+        if (existingButton) {
+            button.refresh()
+        }
+
         return newStoreButton
     }
 
