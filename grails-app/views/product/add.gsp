@@ -18,7 +18,9 @@
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
             var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
+            var addLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddLocation')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
+            var saveLocationUrl = "${createLink(controller: 'product', action: 'ajaxSaveLocation')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
@@ -452,6 +454,28 @@
                 $('#locationsModal').modal({ show: true });
 
                 var params = {};
+                params["index"] = variantIndex;
+
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+                params["productVariantId"] = variantId;
+
+                var locationContainers = $("#variants\\[" +variantIndex +"\\]\\.locationsContainer > div");
+
+                locationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring(13);
+                    var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locations\\[" +locationIndex +"\\]";
+
+                    params["locations[" +loopIndex +"].index"] = loopIndex;
+                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                });
 
                 $.ajax({
                     url: locationsUrl,
@@ -461,6 +485,40 @@
                         $("#locationsContent").html(resp);
                     }
                 });
+            }
+
+            // If an existing row was clicked, then hidden form is displayed, otherwise a whole new blank "add location" row is added.
+            function addLocation(variantIndex, locationIndex, productVariantId) {
+                if (locationIndex != null) {
+                    var locationContainer = $("#addLocationTextContainer-" + variantIndex + "-" + locationIndex);
+                    var addLocationContainer = $("#addLocationFieldsContainer-" + variantIndex + "-" + locationIndex);
+
+                    locationContainer.addClass("hidden");
+                    addLocationContainer.removeClass("hidden");
+                } else {
+                    var lastLocationContainer = $("#addLocationsContainer-" +variantIndex +" > div:last-child");
+                    locationIndex = 0;
+
+                    if (lastLocationContainer.length > 0) {
+                        locationIndex = parseInt(lastLocationContainer[0].id.substring(lastLocationContainer[0].id.lastIndexOf("-") + 1)) + 1;
+                    }
+
+                    $.ajax({
+                        url: addLocationUrl,
+                        method: "POST",
+                        data: { variantIndex: variantIndex, locationIndex: locationIndex, productVariantId: productVariantId },
+                        success: function(resp) {
+                            var addLocationsContainer = $("#addLocationsContainer-" +variantIndex);
+                            addLocationsContainer.append("<div id=\"addLocationContainer-" +variantIndex +"-" +locationIndex +"\"></div>");
+
+                            var addLocationContainer = $("#addLocationContainer-" +variantIndex +"-" +locationIndex);
+
+                            addLocationContainer.append(resp);
+
+                            // $("#addLocationContainer-" +variantIndex +"-" +locationIndex +" .mask-money").maskMoney({ allowZero: true });
+                        }
+                    });
+                }
             }
 
             // If an existing row was clicked, then hidden form is displayed, otherwise a whole new blank "add pack" row is added.
@@ -545,6 +603,44 @@
                             $("#suppliersContent").html(xhr.responseText);
                         }
                     });
+            }
+
+            // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
+            function saveLocations(variantIndex) {
+
+                var params = { index: variantIndex };
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+                params["productVariantId"] = variantId;
+
+                var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
+                addLocationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
+                    var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
+
+                    params["locations[" +loopIndex +"].index"] = loopIndex;
+                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
+                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                });
+                $.ajax({
+                    url: saveLocationUrl,
+                    method: "POST",
+                    data: params,
+                    success: function(resp) {
+                        var locationsContainer = $("#variants\\[" +variantIndex +"\\]\\.locationsContainer");
+                        locationsContainer.html(resp);
+                        $('#locationsModal').modal('hide');
+                    },
+                    error : function(xhr, exception) {
+                        $("#locationsContent").html(xhr.responseText);
+                    }
+                });
             }
 
             function getPromotions(productId) {

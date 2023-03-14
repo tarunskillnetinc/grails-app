@@ -1074,8 +1074,8 @@ class ProductController {
     }
 
     def ajaxLocations(LocationsCommand cmd) {
-//        def locations = Location.findByStoreId(springSecurityService.principal.storeId)
-        render(template: "locations", model: [])
+        def locations = Location.findAllByStoreId(springSecurityService.principal.storeId)
+        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, isNewLocation: false])
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
@@ -1084,6 +1084,11 @@ class ProductController {
         suppliers.removeAll { it.symbolGroup != null }
 
         render(template: "addPack", model: [variantIndex: variantIndex, productVariantId: productVariantId, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
+    }
+
+    def ajaxAddLocation(int variantIndex, int locationIndex, int productVariantId) {
+        def locations = Location.findAllByStoreId(springSecurityService.principal.storeId)
+        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, locations: locations, statuses: PackStatus.values(), isNewLocation: true])
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
@@ -1101,6 +1106,10 @@ class ProductController {
         } else {
             render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
         }
+    }
+
+    def ajaxSaveLocation(LocationsCommand cmd) {
+            render(template: "locationz", model: [locations: cmd.locations, variantIndex: cmd.index])
     }
 
     //This will render category mapped restrictions for new products
@@ -1405,10 +1414,6 @@ class SuppliersCommand {
     Boolean hasErrors = Boolean.FALSE
 }
 
-class LocationsCommand {
-
-}
-
 class AddPackCommand implements Validateable {
     int index
     Integer id
@@ -1450,6 +1455,34 @@ class AddPackCommand implements Validateable {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
         }
     }
+}
+
+class LocationsCommand {
+    int index
+    int productVariantId
+    List<AddLocationCommand> locations
+    Boolean hasErrors = Boolean.FALSE
+}
+
+class AddLocationCommand implements Validateable {
+    int index
+    int id
+    LocationCommand locationCommand
+    int storeId
+    int sku
+    String aisle
+    String bay
+    String shelf
+    String position
+    String location
+    int shelfCapacity
+    int minimumDisplayQuantity
+    boolean isNewLocation = false
+    int productVariantId
+}
+
+class LocationCommand {
+    int id
 }
 
 class SupplierCommand {

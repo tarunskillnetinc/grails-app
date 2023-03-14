@@ -83,11 +83,12 @@
                     <g:hiddenField name="relevantVariant" value="" />
 
                     <div class="row mx-5 table-wl bottom-border">
-                        <div class="col-2 font-weight-bold">SKU</div>
+                        <div class="col-1 font-weight-bold">SKU</div>
                         <div class="col-2 font-weight-bold">Retail Price</div>
                         <div class="col-2 font-weight-bold">Cost Price</div>
                         <div class="col-2 font-weight-bold">Barcodes</div>
                         <div class="col-2 font-weight-bold">Packs</div>
+                        <div class="col-2 font-weight-bold">Locations</div>
                         <div class="col-2 font-weight-bold">&nbsp;</div>
                     </div>
 
