@@ -34,10 +34,12 @@ class ProductVariant implements Serializable {
 //    Collection<Tag> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
+    Collection<Location> locations = new ArrayList<>()
 
     static transients = ['delete', 'barcodez']
 
-    static hasMany = [packs: Pack]
+    static hasMany = [packs: Pack, locations: Location
+    ]
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public ProductVariant() { }
@@ -62,6 +64,7 @@ class ProductVariant implements Serializable {
         packs cascade: "all-delete-orphan"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
+        locations lazy: false, cascade:  "save-update,delete"
     }
 
     static constraints = {
@@ -86,6 +89,7 @@ class ProductVariant implements Serializable {
         minimumDisplayQuantity nullable: true
         delete bindable: true
         barcodez bindable: true
+        locations nullable: true
     }
 
     List<ProductPrice> getPrices() {

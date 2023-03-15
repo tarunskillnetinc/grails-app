@@ -14,9 +14,9 @@ class Location {
     int minimumDisplayQuantity
     int productVariantId
 
-//    static belongsTo = [productVariant: ProductVariant]
+    static belongsTo = [productVariant: ProductVariant]
 
-//    public Location() {}
+    public Location() {}
 
     static mapping = {
         table "location"
