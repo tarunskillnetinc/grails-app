@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="col-3 text-right">
-                    <g:link controller="user" id="cancel-password-button" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link controller="user" elementId="cancel-password-button" action="index" role="button" class="btn btn-wl">Cancel</g:link>
 
                     <g:if test="${!isUserReadOnly}">
                         <button class="btn btn-success" id="save-password-button" name="save" onclick="$('#change-user-password-form').submit();">Save</button>
