@@ -274,15 +274,13 @@ class ButtonServiceSpec extends Specification  implements ServiceUnitTest<Button
     //------------------- Calling All Available Process Action ---------------------------------------------//
 
     def 'Test load available processes action'() {
-
         given:
 
         when: 'The calling available process action is executed'
-        List<ProcessType> processTypeList = service.getAvailableProcesses()
+        List<ProcessType> processTypeList = service.getAvailableProcesses(ButtonGridType.QUICK_SELL)
 
         then: 'Load all available processes'
         assert processTypeList
-        assert processTypeList.size() == 28
-
+        assert processTypeList.size() == 25
     }
 }

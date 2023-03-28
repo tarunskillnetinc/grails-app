@@ -41,9 +41,11 @@ class ButtonService {
                 }
             }
         }
+
         if (buttonGrids){
             return buttonGrids?.sort { it.storeId }?.last()
         }
+
         return null
     }
 
@@ -64,36 +66,11 @@ class ButtonService {
         return buttonGrids
     }
 
-    def getAvailableProcesses() {
-        return [ProcessType.NAVIGATE_SALES,
-                ProcessType.NAVIGATE_QUICK_SELL,
-                ProcessType.NAVIGATE_SEARCH,
-                ProcessType.NAVIGATE_RECEIPTS,
-                ProcessType.NAVIGATE_MANAGER_FUNCTIONS,
-                ProcessType.NAVIGATE_CUSTOMER_REFUSAL,
-                ProcessType.NAVIGATE_BACK,
-                ProcessType.NAVIGATE_REFUND,
-                ProcessType.NAVIGATE_ADD_FLOAT,
-                ProcessType.NAVIGATE_CASH_LIFT,
-                ProcessType.NAVIGATE_PAID_OUT,
-                ProcessType.NAVIGATE_TRAINING,
-                ProcessType.SAVE_BASKET,
-                ProcessType.NAVIGATE_RETRIEVE_BASKET,
-                ProcessType.LOCK_TILL,
-                ProcessType.VOID_BASKET,
-                ProcessType.NO_SALE,
-                ProcessType.LOG_OFF,
-                ProcessType.NAVIGATE_TO_WLIM,
-                ProcessType.NAVIGATE_PAYPOINT,
-                ProcessType.NAVIGATE_PAYPOINT_ADMIN,
-                ProcessType.NAVIGATE_PAYPOINT_EOD,
-                ProcessType.NAVIGATE_X_READ,
-                ProcessType.NAVIGATE_Z_READ,
-                ProcessType.EDIT_BASKET,
-                ProcessType.ACCEPT_AGE_CHECK,
-                ProcessType.REPRINT_RECEIPT,
-                ProcessType.NAVIGATE_TRANSACTIONS]
+    def getAvailableProcesses(ButtonGridType buttonGridType) {
+        if (buttonGridType.isIn(ButtonGridType.MANAGER_FUNCTIONS, ButtonGridType.OTHER, ButtonGridType.QUICK_SELL, ButtonGridType.SALES)) {
+            return ProcessType.values().findAll { it.isAvailableOnTill() }
+        } else if (buttonGridType.isIn(ButtonGridType.SCO_MANAGER_FUNCTIONS, ButtonGridType.SCO_QUICK_SELL)) {
+            return ProcessType.values().findAll { it.isAvailableOnSco() }
+        }
     }
-
-
 }

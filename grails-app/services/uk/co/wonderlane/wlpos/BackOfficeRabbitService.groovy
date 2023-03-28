@@ -32,7 +32,7 @@ class BackOfficeRabbitService extends RabbitService {
     BackOfficeRabbitService(String host, int port, int apiPort, String username, String password, boolean useSsl) {
         super(host, port, username, password, useSsl, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
 
-        apiUrl = "http://${host}:${apiPort}/api/"
+        apiUrl = "https://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
 
         gson = new GsonBuilder()

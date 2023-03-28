@@ -36,7 +36,7 @@ class ButtonController {
             button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type == ButtonGridType.TENDER ?  ButtonType.TENDER : ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
         }
 
-        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description]
+        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description]
     }
 
     def save() {
@@ -119,7 +119,7 @@ class ButtonController {
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
+                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
             }
         } else {
             def productVariant
@@ -133,7 +133,7 @@ class ButtonController {
                 buttonImage = imageService.getButtonImage(button.id)
             }
 
-            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
+            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
         }
     }
 
