@@ -270,9 +270,7 @@ class EposTagLib {
     }
 
     def buttonImage = {attrs, body ->
-        def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(attrs.buttonId) + ".png", File.separator)
-
-        def buttonImage = imageService.getImageFromFile(path.toString())
+        def buttonImage = imageService.getButtonImage(attrs.buttonId)
 
         if (buttonImage != null) {
             out << """<img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="mx-auto my-auto button-grid-button-image" />"""

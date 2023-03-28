@@ -7,8 +7,6 @@ import uk.co.wonderlane.wlpos.enums.ButtonType
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
-import java.nio.file.Path
-
 class ButtonController {
 
     def springSecurityService
@@ -30,9 +28,7 @@ class ButtonController {
             }
 
             if (button.imageDisplay) {
-                def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(params.id) + ".png", File.separator)
-
-                buttonImage = imageService.getImageFromFile(path.toString())
+                buttonImage = imageService.getButtonImage(button.id)
             }
         } else {
             def buttonGrid = ButtonGrid.get(params.buttonGridId)
@@ -68,7 +64,7 @@ class ButtonController {
             buttonService.saveButtonGrid(button.buttonGrid)
 
             if (params.removeImage) {
-                imageService.deleteFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.retailerId), button.id + ".png")
+                imageService.deleteButtonImage(button.id)
                 button.imageDisplay = false
                 button.textDisplay = true
                 buttonService.saveButtonGrid(button.buttonGrid)
@@ -77,7 +73,7 @@ class ButtonController {
                     byte[] image = params.image.bytes
 
                     if (image.length > 0 && params.image.contentType.equals("image/png")) {
-                        imageService.saveImageToFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.retailerId), button.id + ".png", image)
+                        imageService.saveButtonImage(button.id, image)
 
                         button.imageDisplay = true
                         buttonService.saveButtonGrid(button.buttonGrid)
@@ -91,9 +87,7 @@ class ButtonController {
                     syncMessage.setTransactionId(it.id)
 
                     if (it.imageDisplay) {
-                        def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(it.id) + ".png", File.separator)
-
-                        byte[] image = imageService.getImageFromFile(path.toString())
+                        byte[] image = imageService.getButtonImage(it.id)
 
                         syncMessage.setInsert(true)
                         syncMessage.setByteArray(image)
@@ -121,9 +115,7 @@ class ButtonController {
                 }
 
                 if (button.imageDisplay) {
-                    def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(params.id) + ".png", File.separator)
-
-                    buttonImage = imageService.getImageFromFile(path.toString())
+                    buttonImage = imageService.getButtonImage(button.id)
                 }
 
                 // TODO Populate an error to display on screen.
@@ -138,9 +130,7 @@ class ButtonController {
             }
 
             if (button.imageDisplay) {
-                def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(params.id) + ".png", File.separator)
-
-                buttonImage = imageService.getImageFromFile(path.toString())
+                buttonImage = imageService.getButtonImage(button.id)
             }
 
             render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
@@ -188,7 +178,7 @@ class ButtonController {
 
         int buttonGridId = button.buttonGrid.id
 
-        imageService.deleteFile(String.format("%s%s/", grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), springSecurityService.principal.storeId), id + ".png")
+        imageService.deleteButtonImage(button.id)
 
         buttonService.deleteButton(button)
 

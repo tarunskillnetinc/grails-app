@@ -74,6 +74,7 @@ class BackOfficeRabbitService extends RabbitService {
 
     List<RabbitQueue> getStoreQueues() {
         def rabbitQueues = []
+
         try {
             checkChannelAvailability()
 
@@ -89,10 +90,11 @@ class BackOfficeRabbitService extends RabbitService {
                     rabbitQueues.add(it)
                 }
             }
-        }catch(Exception ex){
+        } catch(Exception ex) {
             System.println("Error found when loading existing queues, Error " + ex)
             log.error("Error found when loading existing queues, Error " + ex)
         }
+
         return rabbitQueues
     }
 

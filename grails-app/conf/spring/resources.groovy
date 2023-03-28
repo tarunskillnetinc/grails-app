@@ -1,3 +1,5 @@
+import grails.util.Environment
+import uk.co.wonderlane.wlpos.ImageService
 import uk.co.wonderlane.wlpos.RetailerService
 import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
@@ -13,6 +15,7 @@ import uk.co.wonderlane.wlpos.ShiftService
 import uk.co.wonderlane.wlpos.SnapshotService
 import uk.co.wonderlane.wlpos.GroupService
 import uk.co.wonderlane.wlpos.BackOfficeRabbitService
+import uk.co.wonderlane.wlpos.AmazonImageService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 import uk.co.wonderlane.wlpos.GsonProvider
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
@@ -107,11 +110,11 @@ beans = {
 
     rabbitService(BackOfficeRabbitService,
             grailsApplication.config.getProperty('rabbitmq.host'),
-            grailsApplication.config.getProperty('rabbitmq.port'),
-            grailsApplication.config.getProperty('rabbitmq.apiPort'),
+            Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')),
+            Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')),
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password'),
-            grailsApplication.config.getProperty('rabbitmq.useSsl')) {
+            Boolean.parseBoolean(grailsApplication.config.getProperty('rabbitmq.useSsl'))) {
 
         springSecurityService = ref('springSecurityService')
     }
@@ -143,4 +146,33 @@ beans = {
 
     gsonProvider(GsonProvider)
 
+    Environment.executeForCurrentEnvironment {
+        environments {
+            development {
+                imageService(ImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageDirectory'), grailsApplication.config.getProperty('wlpos.receiptImageDirectory'), grailsApplication.config.getProperty('wlpos.buttonImageDirectory')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            test {
+                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            production {
+                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            prestage {
+                imageService(ImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageDirectory'), grailsApplication.config.getProperty('wlpos.receiptImageDirectory'), grailsApplication.config.getProperty('wlpos.buttonImageDirectory')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            stage {
+                imageService(ImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageDirectory'), grailsApplication.config.getProperty('wlpos.receiptImageDirectory'), grailsApplication.config.getProperty('wlpos.buttonImageDirectory')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+        }
+    }
 }

@@ -226,14 +226,13 @@ environments:
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: transactions
         wlpos:
-            imageDirectory: "C:\\WLPOS Files\\Images"
-            receiptImageDirectory: "C:\\WLPOS Files\\Receipts"
+            customerDisplayImageDirectory: "C:\\WLPOS Files\\Customer Display Images"
+            receiptImageDirectory: "C:\\WLPOS Files\\Receipt Images"
             buttonImageDirectory: "C:\\WLPOS Files\\Button Images"
 
-        server:
-            port: 5000
-        grails:
-            serverURL: "https://trustretail-dev.com"
+            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            receiptImageBucket: "retail-platform-receipt-images-test"
+            buttonImageBucket: "retail-platform-button-images-test"
 
     nottest:
         dataSource:
@@ -351,6 +350,11 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: transactions
+
+        wlpos:
+            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            receiptImageBucket: "retail-platform-receipt-images-test"
+            buttonImageBucket: "retail-platform-button-images-test"
 
         server:
             port: 5000
