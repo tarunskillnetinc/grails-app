@@ -5,34 +5,27 @@
 <div class="modal-body">
 
     <g:if test="${locationsType == "SIMPLE"}">
-%{--        <div class="row mx-4 pt-3 pb-2 table-wl bottom-border">--}%
         <div class="row mx-4 pt-3 pb-2 table-wl bottom-border">
             <div class="col-6 font-weight-bold">Location</div>
             <div class="col-2 font-weight-bold">Shelf Capacity</div>
             <div class="col-2 font-weight-bold">Minimum Display Quantity</div>
-%{--            <div class="col-1 font-weight-bold">&nbsp;</div>--}%
         </div>
     </g:if>
     <g:else>
         <div class="row mx-4 pt-2 pb-2 table-wl bottom-border">
-%{--            <div class="col-2 font-weight-bold">Location</div>--}%
             <div class="col-2 my-auto font-weight-bold">Aisle</div>
             <div class="col-2 my-auto font-weight-bold">Bay</div>
             <div class="col-2 my-auto font-weight-bold">Shelf</div>
             <div class="col-2 my-auto font-weight-bold">Position</div>
             <div class="col-1 my-auto font-weight-bold">Shelf Capacity</div>
             <div class="col-1 my-auto font-weight-bold">Minimum Display Quantity</div>
-%{--            <div class="col-1 font-weight-bold">&nbsp;</div>--}%
         </div>
     </g:else>
 
     <div id="addLocationsContainer-${variantIndex}">
-%{--        <g:each in="${variant.locations}" var="location" status="i">--}%
         <g:each in="${variant.locations}" var="location" status="i">
             <div id="addLocationContainer-${variantIndex}-${i}">
-                <g:render template="addLocation" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, locationIndex: i, location: location, isNewLocation: location?.isNewLocation, locationsType: locationsType
-//                                                         , locations: locations
-                ]" />
+                <g:render template="addLocation" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, locationIndex: i, location: location, isNewLocation: location?.isNewLocation, locationsType: locationsType]" />
             </div>
         </g:each>
     </div>

@@ -12,7 +12,6 @@ class Location {
     String location
     int shelfCapacity
     int minimumDisplayQuantity
-//    int productVariantId
 
     static belongsTo = [productVariant: ProductVariant]
 
@@ -48,22 +47,22 @@ class Location {
         productVariant nullable: true
     }
 
-    public uk.co.wonderlane.wlpos.entities.Location getLocation1() {
-        uk.co.wonderlane.wlpos.entities.Location location1 = new uk.co.wonderlane.wlpos.entities.Location()
+    public uk.co.wonderlane.wlpos.entities.Location getCommonLocation() {
+        uk.co.wonderlane.wlpos.entities.Location loc = new uk.co.wonderlane.wlpos.entities.Location()
 
-        location1.setId(id)
-        location1.setProductVariantId(productVariant?.id)
-        location1.setStoreId(storeId)
-        location1.setSku(sku)
-        location1.setAisle(aisle)
-        location1.setBay(bay)
-        location1.setShelf(shelf)
-        location1.setPosition(position)
-        location1.setLocation(location)
-        location1.setShelfCapacity(shelfCapacity)
-        location1.setMinimumDisplayQuantity(minimumDisplayQuantity)
+        loc.setId(id)
+        loc.setProductVariantId(productVariant?.id)
+        loc.setStoreId(storeId)
+        loc.setSku(sku)
+        loc.setAisle(aisle)
+        loc.setBay(bay)
+        loc.setShelf(shelf)
+        loc.setPosition(position)
+        loc.setLocation(location)
+        loc.setShelfCapacity(shelfCapacity)
+        loc.setMinimumDisplayQuantity(minimumDisplayQuantity)
 
-        return location1
+        return loc
     }
 
 }

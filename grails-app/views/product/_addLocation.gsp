@@ -7,7 +7,6 @@
         <div id="add-location-${variantIndex+1}-${locationIndex+1}-position" class="col-2 my-auto">${location?.minimumDisplayQuantity}</div>
     </g:if>
     <g:else>
-%{--        <div id="add-location-${variantIndex+1}-${locationIndex+1}-location" class="col-2 my-auto">${location?.location}</div>--}%
         <div id="add-location-${variantIndex+1}-${locationIndex+1}-aisle" class="col-2 my-auto">${location?.aisle}</div>
         <div id="add-location-${variantIndex+1}-${locationIndex+1}-bay" class="col-2 my-auto">${location?.bay}</div>
         <div id="add-location-${variantIndex+1}-${locationIndex+1}-shelf" class="col-2 my-auto">${location?.shelf}</div>
@@ -17,7 +16,7 @@
     </g:else>
     <div class="col-2 my-auto">
         <g:if test="${location == null}">
-            <button id="add-location-${variantIndex+1}-${locationIndex+1}-delete-btn" class="btn btn-danger disabled" title="You cannot delete locations.">Delete1</button>
+            <button id="add-location-${variantIndex+1}-${locationIndex+1}-delete-btn" class="btn btn-danger disabled" title="You cannot delete locations.">Delete</button>
         </g:if>
         <g:else>
             <button id="add-location-${variantIndex+1}-${locationIndex+1}-edit-btn" href="#" class="btn btn-wl" onclick="addLocation(${variantIndex}, ${locationIndex}, ${productVariantId});">Edit</button>
@@ -45,9 +44,6 @@
             </div>
         </g:if>
         <g:else>
-%{--            <div class="col-2 my-auto">--}%
-%{--                <g:textField name="addLocation[${locationIndex}].location" value="${location?.location}" class="form-control bottom-border" />--}%
-%{--            </div>--}%
             <div class="col-2 my-auto">
                 <g:textField name="addLocation[${locationIndex}].aisle" value="${location?.aisle}" class="form-control bottom-border" />
             </div>

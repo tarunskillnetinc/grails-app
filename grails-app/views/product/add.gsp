@@ -428,17 +428,7 @@
                     return;
                 }
 
-                // $("#addBarcodesContainer > #addBarcode" +index).remove();
                 $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove();
-
-                // var addLocationsContainer = $("#addLocationsContainer-" +variantIndex);
-                // addLocationsContainer.remove("<div id=\"addLocationContainer-" +variantIndex-1 +"-" +locationIndex-1 +"\"></div>");
-                //
-                // var addLocationContainer = $("#addLocationContainer-" +variantIndex-1 +"-" +locationIndex-1);
-                //
-                // addLocationContainer.remove(resp);
-
-
             }
 
             // The suppliers button was clicked, we display the suppliers modal for this variant.
@@ -555,8 +545,6 @@
                             var addLocationContainer = $("#addLocationContainer-" +variantIndex +"-" +locationIndex);
 
                             addLocationContainer.append(resp);
-
-                            // $("#addLocationContainer-" +variantIndex +"-" +locationIndex +" .mask-money").maskMoney({ allowZero: true });
                         }
                     });
                 }

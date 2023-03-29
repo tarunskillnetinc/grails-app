@@ -120,23 +120,6 @@ class ProductService extends MySqlDal {
         }
     }
 
-    def adjustLocations(List<ProductVariant> productVariantList) {
-        ArrayList<Integer> productVariantIdList = new ArrayList<>();
-
-        for (productVariant in productVariantList) {
-            productVariantIdList.add(productVariant.id)
-        }
-
-        def locations = Location.findAllByStoreId(springSecurityService.principal.storeId)
-        locations.each { location ->
-            if (!productVariantIdList.contains(location?.productVariant?.id)) {
-                location.removeFrom()
-                location.delete(flush: true)
-//                location.clear
-            }
-        }
-    }
-
     def saveProductVariant(ProductVariant productVariant) {
         productVariant.save()
     }
