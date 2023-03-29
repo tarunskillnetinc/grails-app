@@ -4,7 +4,7 @@ class Location {
 
     int id
     int storeId
-    int sku
+    long sku
     String aisle
     String bay
     String shelf
@@ -12,7 +12,7 @@ class Location {
     String location
     int shelfCapacity
     int minimumDisplayQuantity
-    int productVariantId
+//    int productVariantId
 
     static belongsTo = [productVariant: ProductVariant]
 
@@ -32,7 +32,7 @@ class Location {
         location column: "location"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
-        productVariantId column: "productVariantId"
+        productVariant column: "productVariantId"
     }
 
     static constraints = {
@@ -45,6 +45,25 @@ class Location {
         location nullable: true
         shelfCapacity nullable: true
         minimumDisplayQuantity nullable: true
-        productVariantId nullable: false
+        productVariant nullable: true
     }
+
+    public uk.co.wonderlane.wlpos.entities.Location getLocation1() {
+        uk.co.wonderlane.wlpos.entities.Location location1 = new uk.co.wonderlane.wlpos.entities.Location()
+
+        location1.setId(id)
+        location1.setProductVariantId(productVariant?.id)
+        location1.setStoreId(storeId)
+        location1.setSku(sku)
+        location1.setAisle(aisle)
+        location1.setBay(bay)
+        location1.setShelf(shelf)
+        location1.setPosition(position)
+        location1.setLocation(location)
+        location1.setShelfCapacity(shelfCapacity)
+        location1.setMinimumDisplayQuantity(minimumDisplayQuantity)
+
+        return location1
+    }
+
 }

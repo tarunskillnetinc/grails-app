@@ -307,6 +307,26 @@
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                 });
 
+                var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
+
+                locationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring(17);
+                    var locationSelector = "#variants\\[" +index +"\\]\\.locations\\[" +locationIndex +"\\]";
+
+                    params["locations[" +loopIndex +"].index"] = loopIndex;
+                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                });
+
                 $.ajax({
                     url: saveVariantUrl,
                     method: "POST",
@@ -402,6 +422,25 @@
                 $("#addBarcodesContainer > #addBarcode" +index).remove();
             }
 
+            // Delete location button was clicked, we just remove the div.
+            function deleteLocation(variantIndex, locationIndex) {
+                if (!confirm("This location will be deleted.")) {
+                    return;
+                }
+
+                // $("#addBarcodesContainer > #addBarcode" +index).remove();
+                $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove();
+
+                // var addLocationsContainer = $("#addLocationsContainer-" +variantIndex);
+                // addLocationsContainer.remove("<div id=\"addLocationContainer-" +variantIndex-1 +"-" +locationIndex-1 +"\"></div>");
+                //
+                // var addLocationContainer = $("#addLocationContainer-" +variantIndex-1 +"-" +locationIndex-1);
+                //
+                // addLocationContainer.remove(resp);
+
+
+            }
+
             // The suppliers button was clicked, we display the suppliers modal for this variant.
             function showSuppliersModal(variantIndex) {
                 $("#suppliersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
@@ -462,7 +501,7 @@
                 var locationContainers = $("#variants\\[" +variantIndex +"\\]\\.locationsContainer > div");
 
                 locationContainers.each(function(loopIndex) {
-                    var locationIndex = $(this).attr("id").substring(13);
+                    var locationIndex = $(this).attr("id").substring(17);
                     var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locations\\[" +locationIndex +"\\]";
 
                     params["locations[" +loopIndex +"].index"] = loopIndex;
@@ -474,6 +513,8 @@
                     params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
                     params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
                     params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                     params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
                 });
 
@@ -626,6 +667,8 @@
                     params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
                     params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
                     params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                     params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
                 });
                 $.ajax({
@@ -777,7 +820,8 @@
                                                         priceBands         : priceBands,
                                                         editedPrices       : editedPrices,
                                                         isNewProduct       : isNewProduct,
-                                                        snappyEnabled      : snappyEnabled]"/>
+                                                        snappyEnabled      : snappyEnabled,
+                                                        locationsType      : locationsType]"/>
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

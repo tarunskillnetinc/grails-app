@@ -67,6 +67,8 @@ class ProductController {
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
@@ -78,7 +80,8 @@ class ProductController {
                                     effectiveDateIndex : session.effectiveDate,
                                     now                : now,
                                     navlink            : "details",
-                                    snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled()])
+                                    snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled(),
+                                    locationsType      : locationsType])
     }
 
     private void setEffectiveDate() {
@@ -425,6 +428,11 @@ class ProductController {
                     pack.effectiveDate = pack.effectiveDate ?: now
                     pack.updateDatetime = now
                 }
+
+                variant.locations?.each {location ->
+                    location.storeId = springSecurityService.principal.storeId
+                    location.sku = variant.sku
+                }
             }
         } else {
             product = productService.getProduct(Integer.parseInt(isRequest ? paramsMap.id : editedProduct.id as String))
@@ -469,6 +477,7 @@ class ProductController {
             restrictionsService.saveRestrictions(product.restrictions)
 
             productService.saveProduct(product, productVariantsList)
+//            productService.adjustLocations(productVariantsList)
             productService.saveBarcodes(product)
 
             if (builder && builder.productHistories) {
@@ -561,7 +570,9 @@ class ProductController {
 
             if (editedVariant.id != 0 && existingVariant) {
                 // Variant we saved is one which already exists, check for changes.
-                if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
+                if (builder.getChangedProductVariantIds().contains(existingVariant.id)
+//                        && isLocationAddedOrDeleted(editedVariant, existingVariant)
+                ) {
                     // Variant has changed
                     ProductVariant newVariant = new ProductVariant()
                     newVariant.storeId = springSecurityService.principal.storeId
@@ -588,12 +599,15 @@ class ProductController {
                         product.errors.reject('productVariant.minimumDisplayQuantity.size.error', 'Minimum Display Quantity must be between 1 to 999.')
                     }
 
+//                    checkProductVariantForLocationChanges(product, newVariant, editedVariant)
                     productVariantList.add(newVariant)
 
                     checkProductVariantForPackChanges(product, newVariant, editedVariant, now)
+                    checkProductVariantForLocationChanges(product, newVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
                 } else {
                     checkProductVariantForPackChanges(product, existingVariant, editedVariant, now)
+                    checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                 }
             } else {
@@ -619,6 +633,12 @@ class ProductController {
                     newVariant.addToPacks(newPack)
                 }
 
+                editedVariant.locations?.each { editedLocation ->
+                    Location newLocation = new Location()
+                    updateLocation(newLocation, editedLocation, existingVariant)
+                    newVariant.addToLocations(newLocation)
+                }
+
                 editedVariant.barcodez.forEach({
                     barcode ->
                         Barcode newBarcode = new Barcode()
@@ -641,6 +661,15 @@ class ProductController {
         }
 
         return productVariantList;
+    }
+
+    private boolean isLocationAddedOrDeleted(def editedVariant, def existingVariant) {
+        def locations = Location.findAllByStoreIdAndProductVariant(springSecurityService.principal.storeId, existingVariant)
+        return (
+//                locations.size() > 0
+//                &&
+                editedVariant?.id == existingVariant?.id
+                && editedVariant?.locations?.size() != existingVariant?.locations?.size())
     }
 
     private DateTime getEffectiveDate(def effectiveDate) {
@@ -753,6 +782,43 @@ class ProductController {
         }
     }
 
+    private void checkProductVariantForLocationChanges(def product, def existingVariant, def editedVariant) {
+        if (product.hasErrors()) {
+            return
+        }
+
+        editedVariant.locations?.each { editedLocation ->
+            def existingLocation = existingVariant.locations?.find { existingLocation -> existingLocation.id == editedLocation.id }
+
+            if (existingLocation && locationChanged(editedLocation, existingLocation)) {
+                updateLocation(existingLocation, editedLocation, existingVariant)
+            } else if (!existingLocation) {
+                Location newLocation = new Location()
+                updateLocation(newLocation, editedLocation, existingVariant)
+                existingVariant.addToLocations(newLocation)
+            }
+        }
+
+        ArrayList<Location> deleteLocations = new ArrayList<>();
+        // Remove any locations which no longer exist.
+        existingVariant.locations?.each { existingLocation ->
+            // If the ID is not set then this must be a new location added as part of this save, so don't remove it!
+            if (existingLocation.id > 0) {
+                def editedLocation = editedVariant.locations?.find { editedLocation -> editedLocation.id == existingLocation.id }
+
+                if (!editedLocation) {
+//                    existingVariant.removeFromLocations(existingLocation)
+                    deleteLocations.add(existingLocation)
+                }
+            }
+        }
+
+        for (int i = 0; i < deleteLocations.size(); i++) {
+            existingVariant.removeFromLocations(deleteLocations.get(i))
+            deleteLocations.get(i).delete()
+        }
+    }
+
     /**
      * Manually check each field visible in the UI for detect the updated packs
      * @param newPack
@@ -771,6 +837,16 @@ class ProductController {
                 newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
     }
 
+    def locationChanged(def newLocation, def existingLocation) {
+        return newLocation.aisle != existingLocation.aisle ||
+                newLocation.bay != existingLocation.bay ||
+                newLocation.shelf != existingLocation.shelf ||
+                newLocation.position != existingLocation.position ||
+                newLocation.location != existingLocation.location ||
+                newLocation.shelfCapacity != existingLocation.shelfCapacity ||
+                newLocation.minimumDisplayQuantity != existingLocation.minimumDisplayQuantity
+    }
+
     private void updatePack(def packToBeUpdated, def editedPack, def now) {
         packToBeUpdated.supplier = editedPack.supplier
         packToBeUpdated.quantity = editedPack.quantity
@@ -787,6 +863,25 @@ class ProductController {
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
         }
+    }
+
+    private void updateLocation(def locationToBeUpdated, def editedLocation, def existingVariant) {
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        locationToBeUpdated.storeId = springSecurityService.principal.storeId
+        locationToBeUpdated.sku = existingVariant.sku
+//        locationToBeUpdated.sku = editedLocation.sku
+        if (locationToBeUpdated.id == 0 || locationsType == "ADVANCED") {
+            locationToBeUpdated.aisle = editedLocation.aisle
+            locationToBeUpdated.bay = editedLocation.bay
+            locationToBeUpdated.shelf = editedLocation.shelf
+            locationToBeUpdated.position = editedLocation.position
+        }
+
+        if (locationToBeUpdated.id == 0 || locationsType == "SIMPLE") {
+            locationToBeUpdated.location = editedLocation.location
+        }
+        locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
+        locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }
 
     private void doComparison(ProductHistoryBuilder builder, Product product, ProductCommand editedProduct) {
@@ -857,13 +952,19 @@ class ProductController {
         if ((oldVariant.retailPrice == null && variant.retailPrice != null) || (oldVariant.retailPrice != null && variant.retailPrice != null)) {
             builder.compare(id, "retailPrice", oldVariant.retailPrice ?: BigDecimal.ZERO, variant.retailPrice ?: BigDecimal.ZERO)
         }
-        builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
+        if (oldVariant.costPrice != null && variant.costPrice!= null) {
+            builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
+        }
         builder.compare(id, "size", oldVariant.size, variant.size)
         builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
-        builder.compare(id, "shelfCapacity", oldVariant.shelfCapacity, variant.shelfCapacity)
-        builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity)
+        if (oldVariant.shelfCapacity != null && variant.shelfCapacity != null) {
+            builder.compare(id, "shelfCapacity", oldVariant.shelfCapacity, variant.shelfCapacity)
+        }
+        if (oldVariant.minimumDisplayQuantity != null && variant.minimumDisplayQuantity != null) {
+            builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity)
+        }
         builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
 
         //---------------------------- Update history for barcode fields --------------------------------//
@@ -915,6 +1016,28 @@ class ProductController {
             }
         }
 
+        //---------------------------- Update history for location fields --------------------------------//
+
+        variant?.locations?.each { editedLocation ->
+            def existingLocation = oldVariant?.locations?.find { existingLocation -> existingLocation.id == editedLocation.id }
+            if (existingLocation) { //Pack already existed
+                compareLocationFields(builder, existingLocation, editedLocation)
+            } else { //Location newly added
+                compareLocationFields(builder, new Location(), editedLocation)
+            }
+        }
+
+        // Remove any locations which no longer exist.
+        oldVariant?.locations?.each { existingLocation ->
+            // If the ID is not set then this must be a new location added as part of this save
+            if (existingLocation.id > 0) {
+                def editedLocation = variant?.locations?.find { editedLocation -> editedLocation.id == existingLocation.id }
+                if (!editedLocation) { //Location is removed
+                    compareLocationFields(builder, existingLocation, new LocationCommand())
+                }
+            }
+        }
+
     }
 
     void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
@@ -926,6 +1049,17 @@ class ProductController {
         builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
+    }
+
+    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, LocationCommand location){
+        builder.compare("locationStoreId", oldLocation.storeId, location.storeId)
+        builder.compare("locationSku", oldLocation.sku, location.sku)
+        builder.compare("locationAisle", oldLocation.aisle, location.aisle)
+        builder.compare("locationBay", oldLocation.bay, location.bay)
+        builder.compare("locationShelf", oldLocation.shelf, location.shelf)
+        builder.compare("locationPosition", oldLocation.position, location.position)
+        builder.compare("locationShelfCapacity", oldLocation.shelfCapacity, location.shelfCapacity)
+        builder.compare("locationMinimumDisplayQuantity", oldLocation.minimumDisplayQuantity, location.minimumDisplayQuantity)
     }
 
     private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
@@ -1056,7 +1190,9 @@ class ProductController {
     }
 
     def ajaxSaveVariant(AddVariantCommand cmd) {
-        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez])
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        def storeId = springSecurityService.principal.storeId
+        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, locationsType: locationsType, storeId: storeId])
     }
 
     def ajaxAddPrice(int index, long sku, boolean zeroPrice) {
@@ -1075,7 +1211,8 @@ class ProductController {
 
     def ajaxLocations(LocationsCommand cmd) {
         def locations = Location.findAllByStoreId(springSecurityService.principal.storeId)
-        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, isNewLocation: false])
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: locationsType])
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
@@ -1088,7 +1225,8 @@ class ProductController {
 
     def ajaxAddLocation(int variantIndex, int locationIndex, int productVariantId) {
         def locations = Location.findAllByStoreId(springSecurityService.principal.storeId)
-        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, locations: locations, statuses: PackStatus.values(), isNewLocation: true])
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, locations: locations, statuses: PackStatus.values(), isNewLocation: true, locationsType: locationsType])
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
@@ -1109,7 +1247,15 @@ class ProductController {
     }
 
     def ajaxSaveLocation(LocationsCommand cmd) {
-            render(template: "locationz", model: [locations: cmd.locations, variantIndex: cmd.index])
+        cmd.getLocations()?.forEach({ location ->
+            if (!location.validate()) {
+                if (!cmd.hasErrors)
+                    cmd.hasErrors = Boolean.TRUE
+                location.isNewLocation = Boolean.TRUE
+            }
+        })
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locations, variantIndex: cmd.index, locationsType: locationsType])
     }
 
     //This will render category mapped restrictions for new products
@@ -1382,6 +1528,7 @@ class AddVariantCommand {
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez
     List<AddPackCommand> packs
+    List<AddLocationCommand> locations
     boolean zeroPrice
     Integer defaultSupplierId
     int operationMode
@@ -1483,6 +1630,16 @@ class AddLocationCommand implements Validateable {
 
 class LocationCommand {
     int id
+//    LocationCommand locationCommand
+    int storeId
+    int sku
+    String aisle
+    String bay
+    String shelf
+    String position
+    String location
+    int shelfCapacity
+    int minimumDisplayQuantity
 }
 
 class SupplierCommand {
@@ -1570,6 +1727,7 @@ class ProductVariantCommand {
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
+    Collection<LocationCommand> locations = new ArrayList<>()
 }
 
 class PackCommand {

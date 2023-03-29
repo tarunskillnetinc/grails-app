@@ -38,7 +38,8 @@ class ProductVariant implements Serializable {
 
     static transients = ['delete', 'barcodez']
 
-    static hasMany = [packs: Pack, locations: Location
+    static hasMany = [packs: Pack
+                      , locations: Location
     ]
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
@@ -65,6 +66,7 @@ class ProductVariant implements Serializable {
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
         locations lazy: false, cascade:  "save-update,delete"
+//        locations cascade: "all-delete-orphan"
     }
 
     static constraints = {
@@ -203,6 +205,8 @@ class ProductVariant implements Serializable {
 
         // TODO Set tags
 //        productVariant.getTags().add(it.getTag())
+
+        locations.forEach({ location -> productVariant.getLocations().add(location.getLocation1()) })
 
         return productVariant
     }
