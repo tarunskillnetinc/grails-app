@@ -6,6 +6,7 @@ class Retailer implements Serializable {
     boolean snappyShopperEnabled
     boolean twoStageSel
     boolean scoEnabled
+    String locationsType
 
     static mapping = {
         table "retailers"
@@ -15,6 +16,7 @@ class Retailer implements Serializable {
         snappyShopperEnabled column: "snappyShopperEnabled"
         twoStageSel column: "twoStageSel"
         scoEnabled column: "scoEnabled"
+        locationsType column: "locationsType"
     }
 
     static constraints = {
@@ -22,5 +24,6 @@ class Retailer implements Serializable {
         snappyShopperEnabled nullable: false
         twoStageSel nullable: false
         scoEnabled nullable: false
+        locationsType nullable: false
     }
 }

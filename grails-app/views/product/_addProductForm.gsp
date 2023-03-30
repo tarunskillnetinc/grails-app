@@ -82,26 +82,39 @@
                 <div class="card-body py-5">
                     <g:hiddenField name="relevantVariant" value="" />
 
-                    <div class="row mx-5 table-wl bottom-border">
-                        <div class="col-2 font-weight-bold">SKU</div>
-                        <div class="col-2 font-weight-bold">Retail Price</div>
-                        <div class="col-2 font-weight-bold">Cost Price</div>
-                        <div class="col-2 font-weight-bold">Barcodes</div>
-                        <div class="col-2 font-weight-bold">Packs</div>
-                        <div class="col-2 font-weight-bold">&nbsp;</div>
-                    </div>
+                    <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
+                        <div class="row mx-5 table-wl bottom-border">
+                            <div class="col-1 font-weight-bold">SKU</div>
+                            <div class="col-2 font-weight-bold">Retail Price</div>
+                            <div class="col-1 font-weight-bold">Cost Price</div>
+                            <div class="col-2 font-weight-bold">Barcodes</div>
+                            <div class="col-2 font-weight-bold">Packs</div>
+                            <div class="col-2 font-weight-bold">Locations</div>
+                            <div class="col-2 font-weight-bold">&nbsp;</div>
+                        </div>
+                    </g:if>
+                    <g:else>
+                        <div class="row mx-5 table-wl bottom-border">
+                            <div class="col-2 font-weight-bold">SKU</div>
+                            <div class="col-2 font-weight-bold">Retail Price</div>
+                            <div class="col-2 font-weight-bold">Cost Price</div>
+                            <div class="col-2 font-weight-bold">Barcodes</div>
+                            <div class="col-2 font-weight-bold">Packs</div>
+                            <div class="col-2 font-weight-bold">&nbsp;</div>
+                        </div>
+                    </g:else>
 
                     <div id="variantsContainer">
                         <g:if test="${!product || !product?.variants}">
                             <div id="variant-0">
-                                <g:render template="variant" model="[index: 0]" />
+                                <g:render template="variant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
                             </div>
                         </g:if>
 
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, locationsType: locationsType, storeId: storeId]" />
                                 </div>
                             </g:if>
                         </g:each>
