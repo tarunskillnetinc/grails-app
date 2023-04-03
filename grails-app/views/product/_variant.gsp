@@ -4,11 +4,20 @@
     <g:hiddenField name="variants[${index}].retailPrice" value="${variant?.retailPrice}" />
     <g:hiddenField name="variants[${index}].costPrice" value="${variant?.costPrice}" />
     <g:hiddenField name="variants[${index}].shelfLifeDays" value="${variant?.shelfLifeDays}" />
+    <g:hiddenField name="variants[${index}].shelfCapacity" value="${variant?.shelfCapacity}" />
+    <g:hiddenField name="variants[${index}].minimumDisplayQuantity" value="${variant?.minimumDisplayQuantity}" />
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
 
-    <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
-    <div class="col-2 my-auto" id="variants[${index}].retailPriceText"><g:formatNumber number="${variant?.currentPrice}" type="currency" /> (${variant?.retailPrice ? "store override" : "price band"})</div>
-    <div class="col-2 my-auto" id="variants[${index}].costPriceText"><g:formatNumber number="${variant?.costPrice}" type="currency" /></div>
+    <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
+        <div class="col-1 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
+        <div class="col-2 my-auto" id="variants[${index}].retailPriceText"><g:formatNumber number="${variant?.currentPrice}" type="currency" /> (${variant?.retailPrice ? "store override" : "price band"})</div>
+        <div class="col-1 my-auto" id="variants[${index}].costPriceText"><g:formatNumber number="${variant?.costPrice}" type="currency" /></div>
+    </g:if >
+    <g:else>
+        <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
+        <div class="col-2 my-auto" id="variants[${index}].retailPriceText"><g:formatNumber number="${variant?.currentPrice}" type="currency" /> (${variant?.retailPrice ? "store override" : "price band"})</div>
+        <div class="col-2 my-auto" id="variants[${index}].costPriceText"><g:formatNumber number="${variant?.costPrice}" type="currency" /></div>
+    </g:else>
 
     <div id="variants[${index}].barcodesContainer" class="col-2 my-auto">
         <g:each in="${barcodes}" var="barcode" status="i">
@@ -22,7 +31,16 @@
         <g:render template="packs" model="[variantIndex: index, packs: variant?.packs, defaultSupplier:variant?.defaultSupplierId]" />
     </div>
 
+    <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
+        <div id="variants[${index}].locationsContainer" class="col-2 my-auto">
+            <g:render template="locationz" model="[variantIndex: index, locations: variant?.locations]" />
+        </div>
+    </g:if>
+
     <div class="col-2 my-auto text-right">
-        <a id="variant-${index}-suppliers-btn" href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
+            <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
+                <a id="variant-${index}-locations-btn" href="#" onclick="event.stopPropagation(); showLocationsModal(${index});" class="btn btn-wl ">Locations</a>
+            </g:if >
+            <a id="variant-${index}-suppliers-btn" href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
     </div>
 </div>

@@ -1123,6 +1123,8 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         variantCmd.effectiveDate = variant.effectiveDate
         variantCmd.delete = variant.delete
         variantCmd.shelfLifeDays = variant.shelfLifeDays
+        variantCmd.shelfCapacity = variant.shelfCapacity
+        variantCmd.minimumDisplayQuantity = variant.minimumDisplayQuantity
         def packs = []
         variant.packs?.each {
             PackCommand packCommand = new PackCommand()
