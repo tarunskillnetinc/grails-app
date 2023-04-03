@@ -15,22 +15,18 @@ class UserController {
     def gsonProvider
 
     def index() {
-
         [users: userService.getUsers("", 0, 50), searchTerm: ""]
     }
 
     def ajaxGetUsers(String searchTerm, int offset, int max) {
-
         render (template: "userSearchResults", model: [users: userService.getUsers(searchTerm, offset, max), searchTerm: searchTerm])
     }
 
     def add() {
-
         [roleValues: Role.values()]
     }
 
     def userEdit() {
-
         if (!params.id || !params.id.isNumber() || params.id.length() > 8) {
             params.id = "-1"
         }
@@ -46,7 +42,6 @@ class UserController {
     }
 
     def changePassword() {
-
         if (!params.id || !params.id.isNumber() || params.id.length() > 8) {
             params.id = "-1"
         }
@@ -64,7 +59,6 @@ class UserController {
     }
 
     def save(SaveUserCommand saveUserCommand) {
-
         saveUserCommand.retailerId = springSecurityService.principal.retailerId
         saveUserCommand.defaultStoreId = 0
 
@@ -85,8 +79,8 @@ class UserController {
 
     //This method is responsible for edit selected user
     def editSelectedUser(SaveUserCommand saveUserCommand) {
-
         boolean isValidToEdit = true
+
         if (saveUserCommand != null && saveUserCommand.getId() != null && Integer.parseInt(saveUserCommand.getId().toString()) > 0){
 
             //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
@@ -140,7 +134,6 @@ class UserController {
 
     //This method is responsible for delete selected user
     def deleteUser() {
-
         boolean isValidToDelete = true
 
         //Load user --> Before this method invoke verify user exists, Therefore chances of user not exists is very less
@@ -166,14 +159,11 @@ class UserController {
         } else {
             render(view: "userEdit", model: [user: user, isUserReadOnly: isUserReadOnly(user), roleValues: getEligibleUserRoles(user?.getRole())])
         }
-
     }
 
     //This method is responsible for change user password
     def editUserPassword(SaveUserPasswordCommand saveUserPasswordCommand) {
-
         if (saveUserPasswordCommand != null && saveUserPasswordCommand.getId() != null && Integer.parseInt(saveUserPasswordCommand.getId().toString()) > 0){
-
             def isValidToChangePassword = true
 
             //Load user
@@ -215,7 +205,6 @@ class UserController {
 
     //Check logged in user rank and updating user rank
     private boolean isValidUserToUpdate(Role markedUserRole){
-
         User loggedInUser = User.get(springSecurityService.principal.id)
 
         //Only allow higher rank users to delete lower rank users
@@ -229,7 +218,6 @@ class UserController {
 
     //Check selected user is eligible to edit or delete
     private boolean isUserReadOnly(User user) {
-
         boolean isLoggedInFromHO = false
 
         //Check logged in user logged in HO level
@@ -250,7 +238,6 @@ class UserController {
 
     //Logged in user not allow to update role above the logged in users role. Therefore only pass eligible user roles to server
     private List getEligibleUserRoles(Role markUserRole){
-
         User loggedInUser = User.get(springSecurityService.principal.id)
 
         if (loggedInUser != null && markUserRole != null && markUserRole?.getRank() <= loggedInUser?.getRole()?.getRank()){
@@ -265,10 +252,10 @@ class UserController {
 
     //Method to return logged in type (Store user / HO)
     private boolean isLoggedInAsStoreUser(){
-
         if (springSecurityService.principal.storeId == null){
             return false
         }
+
         return true
     }
 
@@ -285,7 +272,6 @@ class UserController {
 
         rabbitService.sendMessage(syncMessage)
     }
-
 }
 
 class SaveUserCommand {
