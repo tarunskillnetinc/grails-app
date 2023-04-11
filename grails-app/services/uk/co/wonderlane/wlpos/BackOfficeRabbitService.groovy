@@ -29,10 +29,10 @@ class BackOfficeRabbitService extends RabbitService {
     def dateTimeFormatUnix = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     def dateTimeFormatWindows = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
-    BackOfficeRabbitService(String host, int port, int apiPort, String username, String password, boolean useSsl) {
+    BackOfficeRabbitService(String host, int port, String apiProtocol, int apiPort, String username, String password, boolean useSsl) {
         super(host, port, username, password, useSsl, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
 
-        apiUrl = "https://${host}:${apiPort}/api/"
+        apiUrl = "${apiProtocol}://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
 
         gson = new GsonBuilder()

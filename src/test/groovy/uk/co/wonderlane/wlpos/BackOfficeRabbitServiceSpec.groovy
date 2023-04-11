@@ -19,7 +19,7 @@ class BackOfficeRabbitServiceSpec extends Specification implements ServiceUnitTe
 
     def setup() {
         rabbitMQList = getRabbitMqList()
-        backOfficeRabbitServiceHelper = new BackOfficeRabbitServiceHelper("127.0.0.1", 80, 81, "wonderlane", "password", false, rabbitMQList)
+        backOfficeRabbitServiceHelper = new BackOfficeRabbitServiceHelper("127.0.0.1", 80, "http", 81, "wonderlane", "password", false, rabbitMQList)
     }
 
     def cleanup() {}

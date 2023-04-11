@@ -111,6 +111,7 @@ beans = {
     rabbitService(BackOfficeRabbitService,
             grailsApplication.config.getProperty('rabbitmq.host'),
             Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.port')),
+            grailsApplication.config.getProperty('rabbitmq.apiProtocol'),
             Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')),
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password'),
