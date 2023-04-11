@@ -308,6 +308,21 @@ class EposTagLib {
             case ProductHistoryType.PRODUCT_RANGE_DELETE:
                 out << """User ${productHistory?.usersName} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
+            case ProductHistoryType.LOCATION_ADD:
+                out << """User ${productHistory?.usersName} added new location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.LOCATION_EDIT:
+                out << """User ${productHistory?.usersName} edited location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.LOCATION_DELETE:
+                out << """User ${productHistory?.usersName} deleted location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
             default:
                 out << """User ${productHistory?.usersName} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 

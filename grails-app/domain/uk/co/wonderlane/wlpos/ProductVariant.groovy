@@ -185,6 +185,8 @@ class ProductVariant implements Serializable {
         productVariant.setColour(colour)
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
+        productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
+        productVariant.setShelfCapacity(shelfCapacity)
 
         getBarcodes()?.each {
             productVariant.getBarcodes().add(it.barcode)

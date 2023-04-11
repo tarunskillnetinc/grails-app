@@ -943,11 +943,11 @@ class ProductController {
         builder.compare(id, "colour", oldVariant.colour, variant.colour)
         builder.compare(id, "minimumStockLevel", oldVariant.minimumStockLevel, variant.minimumStockLevel)
         builder.compare(id, "shelfLifeDays", oldVariant.shelfLifeDays, variant.shelfLifeDays)
-        if (oldVariant.shelfCapacity != null && variant.shelfCapacity != null) {
-            builder.compare(id, "shelfCapacity", oldVariant.shelfCapacity, variant.shelfCapacity)
+        if ((oldVariant.shelfCapacity == null && variant.shelfCapacity != null) || (oldVariant.shelfCapacity != null && variant.shelfCapacity != null)) {
+            builder.compare(id, "shelfCapacity", oldVariant.shelfCapacity, variant.shelfCapacity, ProductHistoryType.LOCATION_EDIT)
         }
-        if (oldVariant.minimumDisplayQuantity != null && variant.minimumDisplayQuantity != null) {
-            builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity)
+        if ((oldVariant.minimumDisplayQuantity == null && variant.minimumDisplayQuantity != null) || (oldVariant.minimumDisplayQuantity != null && variant.minimumDisplayQuantity != null)) {
+            builder.compare(id, "minimumDisplayQuantity", oldVariant.minimumDisplayQuantity, variant.minimumDisplayQuantity, ProductHistoryType.LOCATION_EDIT)
         }
         builder.compare(id, "defaultSupplierId", oldVariant.defaultSupplierId, variant.defaultSupplierId)
 
@@ -1005,9 +1005,9 @@ class ProductController {
         variant?.locations?.each { editedLocation ->
             def existingLocation = oldVariant?.locations?.find { existingLocation -> existingLocation.id == editedLocation.id }
             if (existingLocation) { //Location already existed
-                compareLocationFields(builder, existingLocation, editedLocation)
+                compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
             } else { //Location newly added
-                compareLocationFields(builder, new Location(), editedLocation)
+                compareLocationFields(builder, new Location(), editedLocation, ProductHistoryType.LOCATION_ADD)
             }
         }
 
@@ -1017,7 +1017,7 @@ class ProductController {
             if (existingLocation.id > 0) {
                 def editedLocation = variant?.locations?.find { editedLocation -> editedLocation.id == existingLocation.id }
                 if (!editedLocation) { //Location is removed
-                    compareLocationFields(builder, existingLocation, new LocationCommand())
+                    compareLocationFields(builder, existingLocation, new LocationCommand(), ProductHistoryType.LOCATION_DELETE)
                 }
             }
         }
@@ -1034,15 +1034,14 @@ class ProductController {
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
     }
 
-    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, LocationCommand location) {
-        builder.compare("locationStoreId", oldLocation.storeId, location.storeId)
-        builder.compare("locationSku", oldLocation.sku, location.sku)
-        builder.compare("locationAisle", oldLocation.aisle, location.aisle)
-        builder.compare("locationBay", oldLocation.bay, location.bay)
-        builder.compare("locationShelf", oldLocation.shelf, location.shelf)
-        builder.compare("locationPosition", oldLocation.position, location.position)
-        builder.compare("locationShelfCapacity", oldLocation.shelfCapacity, location.shelfCapacity)
-        builder.compare("locationMinimumDisplayQuantity", oldLocation.minimumDisplayQuantity, location.minimumDisplayQuantity)
+    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, LocationCommand location, ProductHistoryType productHistoryType) {
+        builder.compare(null, "aisle", oldLocation.aisle, location.aisle, productHistoryType)
+        builder.compare(null, "bay", oldLocation.bay, location.bay, productHistoryType)
+        builder.compare(null, "shelf", oldLocation.shelf, location.shelf, productHistoryType)
+        builder.compare(null, "position", oldLocation.position, location.position, productHistoryType)
+        builder.compare(null, "location", oldLocation.location, location.location, productHistoryType)
+        builder.compare(null, "shelfCapacity", oldLocation.shelfCapacity, location.shelfCapacity, productHistoryType)
+        builder.compare(null, "minimumDisplayQuantity", oldLocation.minimumDisplayQuantity, location.minimumDisplayQuantity, productHistoryType)
     }
 
     private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
