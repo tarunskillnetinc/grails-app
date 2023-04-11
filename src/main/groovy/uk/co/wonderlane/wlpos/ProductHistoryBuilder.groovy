@@ -29,7 +29,7 @@ class ProductHistoryBuilder {
         this.productVariantChanged = new ArrayList<Integer>()
     }
 
-    def compare(Integer productVariantId, String property, Object left, Object right) {
+    def compare(Integer productVariantId, String property, Object left, Object right, ProductHistoryType productHistoryType) {
         if (left != right) {
             if (productVariantId == null) {
                 productChanged = true
@@ -43,7 +43,7 @@ class ProductHistoryBuilder {
             productHistory.fromValue = left.toString().substring(0, left.toString().length() > 100 ? 99 : left.toString().length())
             productHistory.toValue = right.toString().substring(0, right.toString().length() > 100 ? 99 : right.toString().length())
             productHistory.field = property
-            productHistory.productHistoryType = ProductHistoryType.FIELD
+            productHistory.productHistoryType = productHistoryType
             productHistory.productId = productId
             productHistory.usersName = springSecurityService.principal.usersName
             productHistory.userId = springSecurityService.principal.id
@@ -58,6 +58,10 @@ class ProductHistoryBuilder {
 
     def compare(String property, Object left, Object right) {
         compare(null, property, left, right)
+    }
+
+    def compare(Integer productVariantId, String property, Object left, Object right) {
+        compare(productVariantId, property, left, right, ProductHistoryType.FIELD)
     }
 
     def isProductChanged() {
