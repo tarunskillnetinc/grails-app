@@ -82,27 +82,14 @@
                 <div class="card-body py-5">
                     <g:hiddenField name="relevantVariant" value="" />
 
-                    <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
-                        <div class="row mx-5 table-wl bottom-border">
-                            <div class="col-1 font-weight-bold">SKU</div>
-                            <div class="col-2 font-weight-bold">Retail Price</div>
-                            <div class="col-1 font-weight-bold">Cost Price</div>
-                            <div class="col-2 font-weight-bold">Barcodes</div>
-                            <div class="col-2 font-weight-bold">Packs</div>
-                            <div class="col-2 font-weight-bold">Locations</div>
-                            <div class="col-2 font-weight-bold">&nbsp;</div>
-                        </div>
-                    </g:if>
-                    <g:else>
-                        <div class="row mx-5 table-wl bottom-border">
-                            <div class="col-2 font-weight-bold">SKU</div>
-                            <div class="col-2 font-weight-bold">Retail Price</div>
-                            <div class="col-2 font-weight-bold">Cost Price</div>
-                            <div class="col-2 font-weight-bold">Barcodes</div>
-                            <div class="col-2 font-weight-bold">Packs</div>
-                            <div class="col-2 font-weight-bold">&nbsp;</div>
-                        </div>
-                    </g:else>
+                    <div class="row mx-5 table-wl bottom-border">
+                        <div class="col-2 font-weight-bold">SKU</div>
+                        <div class="col-2 font-weight-bold">Retail Price</div>
+                        <div class="col-2 font-weight-bold">Cost Price</div>
+                        <div class="col-2 font-weight-bold">Barcodes</div>
+                        <div class="col-2 font-weight-bold">Packs</div>
+                        <div class="col-2 font-weight-bold">&nbsp;</div>
+                    </div>
 
                     <div id="variantsContainer">
                         <g:if test="${!product || !product?.variants}">
@@ -337,6 +324,63 @@
                 </div>
             </g:if>
         </sec:ifAnyGranted>
+
+    <!-- Locations. -->
+%{--    <sec:ifAnyGranted roles="ROLE_HEAD_OFFICE,ROLE_STORE_MANAGER,ROLE_USER,ROLE_GUEST">--}%
+%{--        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">--}%
+            <div class="card bg-light border-wl accordion-card">
+                <div class="card-header pointer" id="productLocations" data-toggle="collapse" data-target="#collapseProductLocations" aria-expanded="true" aria-controls="collapseProductLocations">
+                    <div class="row">
+                        <div class="col-10"><strong>Locations</strong></div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseProductLocations" class="collapse" aria-labelledby="productLocations" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <g:hiddenField name="relevantLocation" value="" />
+
+                        <g:if test="${storeId != null && locationsType == "SIMPLE"}">
+                            <div class="row mx-5 table-wl bottom-border">
+                                <div class="col-6 font-weight-bold">SKU</div>
+                                <div class="col-6 font-weight-bold">Location Description</div>
+%{--                                <div class="col-2 font-weight-bold">&nbsp;</div>--}%
+%{--                                <div class="col-3 font-weight-bold">Shelf Capacity</div>--}%
+%{--                                <div class="col-3 font-weight-bold">Minimum Display Quantity</div>--}%
+                            </div>
+                        </g:if>
+                        <g:elseif test="${storeId != null && locationsType == "ADVANCED"}">
+                            <div class="row mx-5 table-wl bottom-border">
+                                <div class="col-2 font-weight-bold">SKU</div>
+                                <div class="col-2 font-weight-bold">Location Description</div>
+                                <div class="col-2 font-weight-bold">&nbsp;</div>
+                            </div>
+                        </g:elseif>
+
+                        <div id="variantsContainer">
+                            <g:if test="${!product || !product?.variants}">
+                                <div id="variant-0">
+                                    <g:render template="locationVariant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
+                                </div>
+                            </g:if>
+
+                            <g:each in="${product?.variants}" var="variant" status="i">
+                                <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
+                                    <div id="variant-${i}">
+                                        <g:render template="locationVariant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, locationsType: locationsType, storeId: storeId]" />
+                                    </div>
+                                </g:if>
+                            </g:each>
+                        </div>
+                    </div>
+                </div>
+            </div>
+%{--        </g:if>--}%
+%{--    </sec:ifAnyGranted>--}%
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">
