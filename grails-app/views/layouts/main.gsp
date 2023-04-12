@@ -172,6 +172,9 @@
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
                             </g:if>
+                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link elementId="hardware-import-dropdown" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
+                            </g:if>
                         </div>
                     </li>
 
