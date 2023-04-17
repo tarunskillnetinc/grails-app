@@ -2,20 +2,20 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 
-class Hardware {
-    int id
+class TillStock {
+    Integer id
     String serialNumber
     String model
-    int retailerId
-    int storeId
+    Integer retailerId
+    Integer storeId
     DateTime dateUpdated
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
-    public Hardware() { }
+    public TillStock() { }
 
     static mapping = {
         autowire true
-        table "hardware"
+        table "tillstock"
         version false
 
         serialNumber column: "serialNumber"
@@ -29,5 +29,7 @@ class Hardware {
         serialNumber size:1..50, blank:false, nullable: false
         model size:1..50, blank: false, nullable: false
         dateUpdated nullable: false
+        storeId nullable: true
+        retailerId nullabe: true
     }
 }

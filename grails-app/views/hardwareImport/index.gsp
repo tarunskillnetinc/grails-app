@@ -8,6 +8,10 @@
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
 
+    <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+    <asset:javascript src="bootstrap-datepicker.min.js" />
+    <asset:javascript src="moment-with-locales.min.js"/>
+
     <script type="application/javascript">
         function selectHardwareUploadFile() {
             $("#csvFileUploadInput").trigger('click');
@@ -21,6 +25,7 @@
 
         function uploadHardwareImportFile() {
             setPreventWindowNavigation(true);
+            $("#uploadResults").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
 
             const uploadButton = document.getElementById('uploadHardwareBtn');
             uploadButton.disabled = true;
@@ -38,21 +43,13 @@
                 contentType: false,
                 cache: false,
                 processData: false,
-                success: function(data) {
-                    const response = JSON.parse(data)
-                    if (response.status === "SUCCESS") {
-                        uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Hardware"
-                        showImportPreview()
-                    } else {
-                        uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Hardware"
-                        showErrorAlert(response.errors)
-                    }
-
+                success: function(resp) {
+                    $("#uploadResults").html(resp);
+                    uploadButton.disabled = false
+                    uploadButton.innerHTML = "Upload Hardware"
+                    bindUploadButtons()
                     resetFileUploadInput();
                     setPreventWindowNavigation(null);
-
                 },
                 error: function (data) {
                     const response = JSON.parse(data)
@@ -63,30 +60,6 @@
                     setPreventWindowNavigation(null);
                 }
             });
-        }
-
-        function showImportPreview() {
-            const resultsList = $('#uploadResults');
-            const alertWindow = $('#dialog-csv-upload-error');
-            alertWindow.html("<div>"
-                + "<p>"
-                + "Successfully uploaded all the products</p>"
-                + "</div>");
-
-            alertWindow.dialog({
-                title: "Success",
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: "30%",
-                modal: true,
-                buttons: {
-                    Close: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                open: function () { $(".ui-dialog-titlebar-close").hide(); }
-            }).dialog('open');
         }
 
         function showErrorAlert(errors) {
@@ -129,9 +102,67 @@
             }).dialog('open');
         }
 
+        function showSuccessAlert() {
+            const alertWindow = $('#dialog-csv-upload-error');
+            alertWindow.html("<div>"
+                + "<p>"
+                + "Successfully uploaded all the valid serial numbers</p>"
+                + "</div>");
+
+            alertWindow.dialog({
+                title: "Success",
+                autoOpen: false,
+                resizable: false,
+                height: "auto",
+                width: "30%",
+                modal: true,
+                buttons: {
+                    Close: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                open: function () { $(".ui-dialog-titlebar-close").hide(); }
+            }).dialog('open');
+        }
 
         function resetFileUploadInput() {
             $('#csvFileUploadInput').get(0).value = null
+        }
+
+        function bindUploadButtons() {
+            $("#uploadSave").click(function () {
+                let url = "${createLink(controller: 'hardwareImport', action:'confirmImport')}";
+                const uploadButton = document.getElementById('uploadHardwareBtn');
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    mimeType: "multipart/form-data",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (resp) {
+                        $("#uploadResults").html("");
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Hardware"
+
+                        showSuccessAlert()
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                    },
+                    error: function (data) {
+                        const response = JSON.parse(data)
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Hardware"
+                        showErrorAlert(response.errors)
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                    }
+                });
+            });
+
+            $("#uploadCancel").click(function () {
+                $("#uploadResults").html("");
+            });
         }
     </script>
 </head>
@@ -169,7 +200,7 @@
         </section>
     </g:if>
 
-    <section id="uploadResultsSection">
+    <section id="uploadResultsSection" class="container-fluid">
         <div id="uploadResults">
 
         </div>

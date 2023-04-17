@@ -12,15 +12,15 @@ class HardwareService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    def saveHardware(Hardware hardware) {
+    def saveHardware(TillStock hardware) {
         hardware.setStoreId(springSecurityService.principal.storeId)
         hardware.setRetailerId(springSecurityService.principal.retailerId)
-        hardware.save()
+        hardware.save(flush: true)
     }
 
     def getHardwareBySerialNumber(String serialNumber) {
-        return Hardware.withCriteria {
+        return TillStock.withCriteria {
             eq("serialNumber", serialNumber)
-        }?.first() ?: null
+        } ?: null
     }
 }
