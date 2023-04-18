@@ -739,12 +739,6 @@
                 $('#locationsModal').modal("hide");
             }
 
-            function validateLocationField(validationMessage) {
-                confirm(validationMessage)
-                mandatoryLocationFields = false
-                return
-            }
-
             function getPromotions(productId) {
                 $('#promotionsContainer').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +

@@ -60,7 +60,7 @@
                 <g:textField name="addLocation[${locationIndex}].shelfCapacity" value="${location?.shelfCapacity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
             <div class="col-1 my-auto">
-                <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
+                <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
         </g:else>
     </div>
