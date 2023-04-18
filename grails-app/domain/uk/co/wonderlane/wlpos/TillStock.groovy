@@ -26,7 +26,7 @@ class TillStock {
     }
 
     static constraints = {
-        serialNumber size:1..50, blank:false, nullable: false
+        serialNumber size:1..50, blank:false, nullable: false, unique: true
         model size:1..50, blank: false, nullable: false
         dateUpdated nullable: false
         storeId nullable: true
