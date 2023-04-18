@@ -326,8 +326,7 @@
         </sec:ifAnyGranted>
 
     <!-- Locations. -->
-%{--    <sec:ifAnyGranted roles="ROLE_HEAD_OFFICE,ROLE_STORE_MANAGER,ROLE_USER,ROLE_GUEST">--}%
-%{--        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">--}%
+        <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
             <div class="card bg-light border-wl accordion-card">
                 <div class="card-header pointer" id="productLocations" data-toggle="collapse" data-target="#collapseProductLocations" aria-expanded="true" aria-controls="collapseProductLocations">
                     <div class="row">
@@ -344,22 +343,10 @@
                     <div class="card-body py-5">
                         <g:hiddenField name="relevantLocation" value="" />
 
-                        <g:if test="${storeId != null && locationsType == "SIMPLE"}">
-                            <div class="row mx-5 table-wl bottom-border">
-                                <div class="col-6 font-weight-bold">SKU</div>
-                                <div class="col-6 font-weight-bold">Location Description</div>
-%{--                                <div class="col-2 font-weight-bold">&nbsp;</div>--}%
-%{--                                <div class="col-3 font-weight-bold">Shelf Capacity</div>--}%
-%{--                                <div class="col-3 font-weight-bold">Minimum Display Quantity</div>--}%
-                            </div>
-                        </g:if>
-                        <g:elseif test="${storeId != null && locationsType == "ADVANCED"}">
-                            <div class="row mx-5 table-wl bottom-border">
-                                <div class="col-2 font-weight-bold">SKU</div>
-                                <div class="col-2 font-weight-bold">Location Description</div>
-                                <div class="col-2 font-weight-bold">&nbsp;</div>
-                            </div>
-                        </g:elseif>
+                        <div class="row mx-5 table-wl bottom-border">
+                            <div class="col-5 font-weight-bold">SKU</div>
+                            <div class="col-5 font-weight-bold">Location Description</div>
+                        </div>
 
                         <div id="variantsContainer">
                             <g:if test="${!product || !product?.variants}">
@@ -371,7 +358,7 @@
                             <g:each in="${product?.variants}" var="variant" status="i">
                                 <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                     <div id="variant-${i}">
-                                        <g:render template="locationVariant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, locationsType: locationsType, storeId: storeId]" />
+                                        <g:render template="locationVariant" model="[index: i, variant: variant, locationsType: locationsType, storeId: storeId]" />
                                     </div>
                                 </g:if>
                             </g:each>
@@ -379,8 +366,7 @@
                     </div>
                 </div>
             </div>
-%{--        </g:if>--}%
-%{--    </sec:ifAnyGranted>--}%
+        </g:if>
 
         <!-- Product history. -->
         <div class="card bg-light border-wl accordion-card">

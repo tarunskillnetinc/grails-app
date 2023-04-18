@@ -424,7 +424,7 @@
 
             // Delete location button was clicked, we just remove the div.
             function deleteLocation(variantIndex, locationIndex) {
-                if (!confirm("This location will be deleted.")) {
+                if (!confirm("This location will be deleted.\nAre you sure you want to delete this location?")) {
                     return;
                 }
 
@@ -635,16 +635,67 @@
             }
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
-            function saveLocations(variantIndex) {
+            function saveLocations(variantIndex, locationsType) {
 
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["productVariantId"] = variantId;
 
+                // For 'SIMPLE' location type, mandatory fields are location description, shelf capacity and minimum display quantity
+                // For 'ADVANCED' location type, mandatory fields are aisle, bay, shelf, position, shelf capacity and minimum display quantity
+                var mandatoryLocationFields = true;
+
                 var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
                 addLocationContainers.each(function(loopIndex) {
+                    if (!mandatoryLocationFields) {
+                        return
+                    }
                     var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
                     var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
+
+                    if (locationsType === "SIMPLE") {
+                        if ($(locationSelector + "\\.location").val() === '') {
+                            confirm("Location can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+                    } else if (locationsType === "ADVANCED") {
+                        if ($(locationSelector + "\\.aisle").val() === '') {
+                            confirm("Aisle can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+
+                        if ($(locationSelector + "\\.bay").val() === '') {
+                            confirm("Bay can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+
+                        if ($(locationSelector + "\\.shelf").val() === '') {
+                            confirm("Shelf can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+
+                        if ($(locationSelector + "\\.position").val() === '') {
+                            confirm("Position can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+                    }
+
+                    if ($(locationSelector + "\\.shelfCapacity").val() === '') {
+                        confirm("Shelf Capacity can not be empty.")
+                        mandatoryLocationFields = false
+                        return
+                    }
+
+                    if ($(locationSelector + "\\.minimumDisplayQuantity").val() === '') {
+                        confirm("Minimum Display Quantity can not be empty.")
+                        mandatoryLocationFields = false
+                        return
+                    }
 
                     params["locations[" +loopIndex +"].index"] = loopIndex;
                     params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
@@ -659,6 +710,11 @@
                     params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                     params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
                 });
+
+                if (!mandatoryLocationFields) {
+                    return;
+                }
+
                 $.ajax({
                     url: saveLocationUrl,
                     method: "POST",
@@ -672,6 +728,21 @@
                         $("#locationsContent").html(xhr.responseText);
                     }
                 });
+            }
+
+            // The "Cancel" button was clicked on the locations modal, add a confirmation cancel pop-up.
+            function cancelLocations() {
+                if (!confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+                    return;
+                }
+
+                $('#locationsModal').modal("hide");
+            }
+
+            function validateLocationField(validationMessage) {
+                confirm(validationMessage)
+                mandatoryLocationFields = false
+                return
             }
 
             function getPromotions(productId) {
