@@ -18,7 +18,7 @@
 
     <div class="col-2 my-auto text-right">
         <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
-            <a id="variant-${index}-locations-btn" href="#" onclick="event.stopPropagation(); showLocationsModal(${index});" class="btn btn-wl btn-">Add / Edit</a>
+            <a id="variant-${index}-locations-btn" href="#" onclick="event.stopPropagation(); showLocationsModal(${index});" class="btn btn-wl btn-">Add / Edit Locations</a>
         </g:if>
     </div>
 </div>
