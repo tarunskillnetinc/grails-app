@@ -1,4 +1,5 @@
 import grails.util.Environment
+import uk.co.wonderlane.wlpos.HardwareService
 import uk.co.wonderlane.wlpos.ImageService
 import uk.co.wonderlane.wlpos.RetailerService
 import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
@@ -142,6 +143,15 @@ beans = {
     }
 
     groupService(GroupService) {
+        springSecurityService = ref('springSecurityService')
+    }
+
+    hardwareService(HardwareService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
     }
 
