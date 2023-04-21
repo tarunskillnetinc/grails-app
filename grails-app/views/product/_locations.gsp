@@ -36,8 +36,8 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" id="cancelAddVariantButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="saveLocations(${variantIndex});">Ok</button>
+    <button type="button" id="cancelAddVariantButton" class="btn btn-secondary" onclick="cancelLocations();">Cancel</button>
+    <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="saveLocations(${variantIndex}, '${locationsType}');">Ok</button>
 </div>
 
 <asset:javascript src="validators/input-validator.js" />

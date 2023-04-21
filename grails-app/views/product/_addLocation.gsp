@@ -34,33 +34,33 @@
     <div class="row mx-4 pt-2 wl-striped${locationIndex % 2}">
         <g:if test="${locationsType == "SIMPLE"}">
             <div class="col-6 my-auto">
-                <g:textField name="addLocation[${locationIndex}].location" value="${location?.location}" class="form-control bottom-border" />
+                <g:textField name="addLocation[${locationIndex}].location" value="${location?.location}" class="form-control bottom-border" minlength="1" maxlength="40"/>
             </div>
             <div class="col-2 my-auto">
-                <g:textField name="addLocation[${locationIndex}].shelfCapacity" value="${location?.shelfCapacity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
+                <g:textField name="addLocation[${locationIndex}].shelfCapacity" value="${location?.shelfCapacity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
             <div class="col-2 my-auto">
-                <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
+                <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
         </g:if>
         <g:else>
             <div class="col-2 my-auto">
-                <g:textField name="addLocation[${locationIndex}].aisle" value="${location?.aisle}" class="form-control bottom-border" />
+                <g:textField name="addLocation[${locationIndex}].aisle" value="${location?.aisle}" class="form-control bottom-border" minlength="1" maxlength="10"/>
             </div>
             <div class="col-2 my-auto">
-                <g:textField name="addLocation[${locationIndex}].bay" value="${location?.bay}" class="form-control bottom-border" />
+                <g:textField name="addLocation[${locationIndex}].bay" value="${location?.bay}" class="form-control bottom-border" minlength="1" maxlength="10" />
             </div>
             <div class="col-2 my-auto">
-                <g:textField name="addLocation[${locationIndex}].shelf" value="${location?.shelf}" class="form-control bottom-border" />
+                <g:textField name="addLocation[${locationIndex}].shelf" value="${location?.shelf}" class="form-control bottom-border" minlength="1" maxlength="10" />
             </div>
             <div class="col-2 my-auto">
-                <g:textField name="addLocation[${locationIndex}].position" value="${location?.position}" class="form-control bottom-border" />
+                <g:textField name="addLocation[${locationIndex}].position" value="${location?.position}" class="form-control bottom-border" minlength="1" maxlength="10" />
             </div>
             <div class="col-1 my-auto">
-                <g:textField name="addLocation[${locationIndex}].shelfCapacity" value="${location?.shelfCapacity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
+                <g:textField name="addLocation[${locationIndex}].shelfCapacity" value="${location?.shelfCapacity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
             <div class="col-1 my-auto">
-                <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
+                <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
         </g:else>
     </div>
