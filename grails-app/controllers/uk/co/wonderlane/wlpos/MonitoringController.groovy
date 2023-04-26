@@ -77,6 +77,7 @@ class MonitoringController {
         try {
             if (!rabbitService.isOpen()) {
                 render status: 500, text: "Unable to open connection to RabbitMQ."
+                return
             }
 
             rabbitService.purgeQueue(springSecurityService.principal.retailerId, storeId, tillId)
@@ -92,6 +93,7 @@ class MonitoringController {
         try {
             if (!rabbitService.isOpen()) {
                 render status: 500, text: "Unable to open connection to RabbitMQ."
+                return
             }
 
             rabbitService.deleteQueue(springSecurityService.principal.retailerId, storeId, tillId)

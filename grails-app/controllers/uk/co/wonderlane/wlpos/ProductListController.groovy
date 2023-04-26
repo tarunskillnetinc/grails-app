@@ -10,9 +10,10 @@ class ProductListController {
     def springSecurityService
     def productListService
     def productService
+    def availableStores
 
     def index() {
-        redirect (action: "listCentralCounts")
+        redirect(action: "listCentralCounts")
     }
 
     def listCentralCounts() {
@@ -22,7 +23,7 @@ class ProductListController {
     }
 
     def showCentralCount(int id) {
-        def productList = productListService.getProductList(id)
+        def productList = productListService.getProductList(id, springSecurityService.principal.retailerId)
 
         [productList: productList]
     }
@@ -30,52 +31,91 @@ class ProductListController {
     def ajaxGetCentralCounts(String searchTerm) {
         def productLists = productListService.getCentralCounts(searchTerm)
 
-        render (template: "centralCountSearchResults", model: [productLists: productLists, searchTerm: searchTerm])
+        render(template: "centralCountSearchResults", model: [productLists: productLists, searchTerm: searchTerm])
     }
 
     def addCentralCount() {
+        def retailerId = springSecurityService.principal.retailerId
+        availableStores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(retailerId)
 
+        [availableStores: availableStores]
     }
 
     def saveCentralCount(SaveCentralCountCommand cmd) {
-        def productList = new ProductList()
+        if (!cmd.validate()) {
+            ProductList productList = new ProductList()
+            productList.properties = cmd.properties
 
-        productList.properties = cmd.properties
+            onError(cmd, productList)
 
-        productList.userId = springSecurityService.principal.id
-        productList.retailerId = springSecurityService.principal.retailerId
-        productList.storeId = springSecurityService.principal.storeId
-
-        cmd.productVariantId?.each {
-            def productVariant = productService.getProductVariant(it)
-
-            if (productVariant) {
-                productList.addToProductListItems(new ProductListItem(productVariant: productVariant))
-            }
+            return
         }
 
-        if (cmd.validate() && productList.validate()) {
-            productListService.saveProductList(productList)
+        def productListsToBeSaved = new ArrayList()
 
+        for (int storeId : cmd.storeIdList) {
+            def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeId)
+
+            def productList = new ProductList()
+
+            productList.properties = cmd.properties
+
+            productList.userId = springSecurityService.principal.id
+            productList.retailerId = springSecurityService.principal.retailerId
+            productList.store = storeSettings
+
+            if (cmd.productVariantId) {
+                cmd.productVariantId.each {
+                    def productVariant = productService.getProductVariant(it)
+
+                    if (productVariant) {
+                        ProductListItem productListItem = new ProductListItem()
+                        productListItem.productVariant = productVariant
+                        productListItem.fillQuantity = 0
+                        productListItem.productList = productList
+                        productList.productListItems.add(productListItem)
+                    }
+                }
+            }
+
+            if (!productList.validate()) {
+                onError(cmd, productList);
+                return
+            }
+
+            productListsToBeSaved.add(productList)
+        }
+
+        try {
+            productListService.saveProductLists(productListsToBeSaved)
             flash.message = "Central count saved successfully."
-
             redirect(action: "listCentralCounts")
-        } else {
-            cmd.errors.allErrors.each { FieldError error ->
-                final String field = error.field?.replace('profile.', '')
-                final String code = "productList.$field.$error.code"
-
-                productList.errors.rejectValue((field == "productVariantId" ? "productListItems" : field), code)
-            }
-
-            render(view: "addCentralCount", model: [productList: productList])
+        } catch (Exception e) {
+            e.printStackTrace()
         }
+    }
+
+    private onError(SaveCentralCountCommand cmd, ProductList productList) {
+        cmd.errors.allErrors.each { FieldError error ->
+            final String field = error.field?.replace('profile.', '')
+            final String code = "productList.$field.$error.code"
+
+            if (field == "productVariantId") {
+                productList.errors.rejectValue("productListItems", code)
+            } else if (field == "storeIdList") {
+                productList.errors.reject("productList.centralCount.noStoreSelected")
+            } else {
+                productList.errors.rejectValue(field, code)
+            }
+        }
+
+        render(view: "addCentralCount", model: [productList: productList, availableStores: availableStores])
     }
 
     def ajaxAddProduct(int productVariantId) {
         def productVariant = productService.getProductVariant(productVariantId)
 
-        render (template: "centralCountProductRow", model: [productVariant: productVariant])
+        render(template: "centralCountProductRow", model: [productVariant: productVariant])
     }
 }
 
@@ -89,11 +129,17 @@ class SaveCentralCountCommand {
     ProductListType type = ProductListType.SCHEDULED_COUNT
     ProductListStatus status = ProductListStatus.PENDING
     Integer[] productVariantId
+    List<Integer> storeIdList = new ArrayList<>()
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
         startDate nullable: false
         endDate nullable: false
         productVariantId nullable: false
+        storeIdList validator: {
+            if (it.size() == 0) {
+                ["productList.centralCount.noStoreSelected"]
+            }
+        }
     }
 }

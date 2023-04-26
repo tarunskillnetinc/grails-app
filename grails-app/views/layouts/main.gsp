@@ -21,14 +21,14 @@
 <body>
     <div class="align-items-center topbar d-flex">
         <div class="col-12 col-sm-2">
-            <g:link uri="/">
-                <asset:image src="wl_logo_topbar.png" class="topbar-logo" />
+            <g:link elementId="wl-logo-link" uri="/">
+                <asset:image id="wl-logo-image" src="wl_logo_topbar.png" class="topbar-logo" />
             </g:link>
         </div>
 
         <sec:ifLoggedIn>
             <div class="col-12 col-sm-9 text-right">
-                <span style="margin-right: 50px;">Store:&nbsp;
+                <span id="store-number" style="margin-right: 50px;">Store:&nbsp;
                     <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                         <sec:loggedInUserInfo field="storeNumber" />
                     </g:if>
@@ -39,16 +39,16 @@
 
                 <asset:image src="user_icon.png" width="25" style="margin-right: 10px;" />
 
-                <span><sec:loggedInUserInfo field="usersName" /></span>
+                <span id="user"><sec:loggedInUserInfo field="usersName" /></span>
             </div>
             <div class="col-12 col-sm-1 text-right">
-                <g:link controller="logoff" class="btn btn-wl red">Log out</g:link>
+                <g:link elementId="logout-button" controller="logoff" class="btn btn-wl red">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
 
         <sec:ifNotLoggedIn>
             <div class="col-12 col-sm-10 text-right px-0">
-                <span class="mr-4">Website version: <g:meta name="info.app.version" /></span>
+                <span id="website-version" class="mr-4">Website version: <g:meta name="info.app.version" /></span>
             </div>
         </sec:ifNotLoggedIn>
     </div>
@@ -62,11 +62,11 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav m-auto align-items-center">
                     <li class="nav-item">
-                        <g:link uri="/" class="nav-link">Home</g:link>
+                        <g:link elementId="home-dropdown" uri="/" class="nav-link">Home</g:link>
                     </li>
 
                     <li class="nav-item">
-                        <g:link controller="user" class="nav-link">Users</g:link>
+                        <g:link elementId="users-dropdown" controller="user" class="nav-link">Users</g:link>
                     </li>
 
                     <li class="nav-item dropdown">
@@ -77,30 +77,36 @@
                                 <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="productsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Products</a>
 
                                 <div class="dropdown-menu" aria-labelledby="productsDropdown">
-                                    <g:link controller="product" class="dropdown-item">Product Maintenance</g:link>
+                                    <g:link elementId="product-maintenance-dropdown" controller="product" class="dropdown-item">Product Maintenance</g:link>
 
                                     <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
                                         <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                             <div class="dropdown-divider"></div>
-                                            <g:link controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
-                                            <g:link controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
+                                            <g:link elementId="price-changes-dropdown" controller="product" action="prices" class="dropdown-item">Price Changes</g:link>
+                                            <g:link elementId="product-ranging-dropdown" controller="product" action="ranges" class="dropdown-item">Product Ranging</g:link>
                                             <div class="dropdown-divider"></div>
-                                            <g:link controller="product" action="supplierUpdates" class="dropdown-item">Supplier Price Updates</g:link>
+                                            <g:link elementId="supplier-price-updates-dropdown" controller="product" action="supplierUpdates" class="dropdown-item">Supplier Price Updates</g:link>
                                         </g:if>
                                     </sec:ifAnyGranted>
                                 </div>
                             </div>
 
-                            <g:link controller="promotion" class="dropdown-item">Promotions</g:link>
+                            <g:link elementId="promotions-dropdown" controller="promotion" class="dropdown-item">Promotions</g:link>
 
                             <div class="dropdown-submenu">
                                 <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="buttonGridsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Button Grids</a>
-
+                                <g:set var="service" value="service" bean="springSecurityService" />
                                 <div class="dropdown-menu" aria-labelledby="buttonGridsDropdown">
-                                    <g:link controller="buttonGrid" action="show" params="[type: 'SALES']" class="dropdown-item">Sales</g:link>
-                                    <g:link controller="buttonGrid" action="show" params="[type: 'QUICK_SELL']" class="dropdown-item">Quicksell</g:link>
-                                    <g:link controller="buttonGrid" action="show" params="[type: 'TENDER']" class="dropdown-item">Tender</g:link>
-                                    <g:link controller="buttonGrid" action="show" params="[type: 'MANAGER_FUNCTIONS']" class="dropdown-item">Manager Functions</g:link>
+                                    <g:link elementId="sales-dropdown" controller="buttonGrid" action="show" params="[type: 'SALES']" class="dropdown-item">Sales</g:link>
+                                    <g:link elementId="quicksell-dropdown" controller="buttonGrid" action="show" params="[type: 'QUICK_SELL']" class="dropdown-item">Quicksell</g:link>
+                                    <g:link elementId="tender-dropdown" controller="buttonGrid" action="show" params="[type: 'TENDER']" class="dropdown-item">Tender</g:link>
+                                    <g:if test="${service.principal.retailer.scoEnabled}">
+                                        <g:link elementId="sco-quicksell-dropdown" controller="buttonGrid" action="show" params="[type: 'SCO_QUICK_SELL']" class="dropdown-item">Self Checkout</g:link>
+                                    </g:if>
+                                    <g:link elementId="manager-functions-dropdown" controller="buttonGrid" action="show" params="[type: 'MANAGER_FUNCTIONS']" class="dropdown-item">Manager Functions</g:link>
+                                    <g:if test="${service.principal.retailer.scoEnabled}">
+                                        <g:link controller="buttonGrid" action="show" params="[type: 'SCO_MANAGER_FUNCTIONS']" class="dropdown-item">SCO Manager Functions</g:link>
+                                    </g:if>
 
                                     <div class="dropdown-divider"></div>
 
@@ -110,14 +116,16 @@
 
                                     <div class="dropdown-divider"></div>
 
-                                    <g:link controller="buttonGrid" action="add" class="dropdown-item">+ Add Page</g:link>
+                                    <g:link elementId="add-page-dropdown" controller="buttonGrid" action="add" class="dropdown-item">+ Add Page</g:link>
                                 </div>
                             </div>
 
-                            <g:link controller="tag" class="dropdown-item">Tags</g:link>
+                            <g:link elementId="tags-dropdown" controller="tag" class="dropdown-item">Tags</g:link>
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                <g:link controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
+                                <g:link elementId="shelf-edge-labels-dropdown" controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                             </g:if>
+
+                            <g:link elementId="suppliers-dropdown" controller="supplier" class="dropdown-item">Suppliers</g:link>
                         </div>
                     </li>
 
@@ -125,27 +133,29 @@
                         <a class="nav-link dropdown-toggle" href="#" id="reportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reporting</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="reportingDropdown">
-                            <span class="dropdown-header">Sales Reports</span>
+                            <span id="sales-report" class="dropdown-header">Sales Reports</span>
 
-                            <g:link controller="reporting" action="salesDepartment" class="dropdown-item">Sales Report</g:link>
-                            <g:link controller="reporting" action="categorySales" class="dropdown-item">Category Sales</g:link>
-                            <g:link controller="reporting" action="sales" class="dropdown-item">Product Sales</g:link>
+                            <g:link elementId="department-sales-report-dropdown" controller="reporting" action="salesDepartment" class="dropdown-item">Department Sales Report</g:link>
+                            <g:link elementId="category-sales-dropdown" controller="reporting" action="categorySales" class="dropdown-item">Category Sales</g:link>
+                            <g:link elementId="product-sales-dropdown" controller="reporting" action="sales" class="dropdown-item">Product Sales</g:link>
                             <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link controller="reporting" action="paypointSales" class="dropdown-item">PayPoint Sales</g:link>
+                                    <g:link elementId="paypoint-sales-dropdown" controller="reporting" action="paypointSales" class="dropdown-item">PayPoint Sales</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
-                            <g:link controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotional Sales</g:link>
+                            <g:link elementId="promotional-sales-dropdown" controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotional Sales</g:link>
 
                             <div class="dropdown-divider"></div>
 
-                            <span class="dropdown-header">Other Reports</span>
+                            <span id="other-reports" class="dropdown-header">Other Reports</span>
 
-                            <g:link controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
-                            <g:link controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
-                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Tender Movement</a>
-                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
-                            <a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
+                            <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
+                            <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <g:link elementId="orders-report-dropdown" controller="reporting" action="orders" class="dropdown-item">Orders Report</g:link>
+                            <g:link elementId="deliveries-report-dropdown" controller="reporting" action="deliveries" class="dropdown-item">Deliveries Report</g:link>
+                            <a id="tender-movement" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Tender Movement</a>
+                            <a id="stock-movement" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Stock Movement</a>
+                            <a id="journal" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
                         </div>
                     </li>
 
@@ -153,13 +163,18 @@
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
-                            <g:link controller="storeSettings" class="dropdown-item">Store Settings</g:link>
-                            <g:link controller="group" class="dropdown-item disabled">User Groups</g:link>
-                            <g:link controller="supplier" class="dropdown-item">Suppliers & Affiliations</g:link>
+                            <g:link elementId="store-settings-dropdown" controller="storeSettings" class="dropdown-item">Store Settings</g:link>
+                            <g:link elementId="user-groups-dropdown" controller="group" class="dropdown-item disabled">User Groups</g:link>
+                            <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                <g:link controller="shift" class="dropdown-item">Shift Management</g:link>
+                                <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
                             </g:if>
-                            <g:link controller="productList" class="dropdown-item disabled">Central Counts</g:link>
+                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
+                            </g:if>
+                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link elementId="hardware-import-dropdown" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
+                            </g:if>
                         </div>
                     </li>
 
@@ -167,10 +182,11 @@
                         <a class="nav-link dropdown-toggle" href="#" id="monitoringDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Monitoring</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="monitoringDropdown">
-                            <g:link controller="monitoring" action="tillConnectivity" class="dropdown-item">Till Connectivity</g:link>
-                            <g:link controller="monitoring" action="transactionServiceStatus" class="dropdown-item">Transaction Service Status</g:link>
+                            <g:link elementId="till-connectivity-dropdown" controller="monitoring" action="tillConnectivity" class="dropdown-item">Till Connectivity</g:link>
+                            <g:link elementId="transaction-service-status-dropdown" controller="monitoring" action="transactionServiceStatus" class="dropdown-item">Transaction Service Status</g:link>
                         </div>
                     </li>
+
                 </ul>
             </div>
         </nav>

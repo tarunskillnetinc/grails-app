@@ -6,6 +6,7 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 class ProductHistory {
 
     Integer id
+    int retailerId
     Integer productId
     Integer storeId
     DateTime updateDate
@@ -19,11 +20,14 @@ class ProductHistory {
     String usersName
     Integer productVariantId
 
+    static hasMany = [ shelfEdgeLabels: ShelfEdgeLabel ]
+
     static mapping = {
         table "producthistory"
         version false
 
         productId column: "productId", sqlType: "smallint"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId", sqlType: "smallint"
         updateDate column: "updateDate"
         effectiveDate column: "effectiveDate"
@@ -39,6 +43,7 @@ class ProductHistory {
 
     static constraints = {
         priceBandId nullable: true
+        retailerId nullable: false
         storeId nullable: true
         field nullable: true, maxSize: 45
         fromValue nullable: true, maxSize: 100

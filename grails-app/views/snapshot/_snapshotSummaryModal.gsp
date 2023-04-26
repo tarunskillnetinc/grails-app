@@ -11,18 +11,18 @@
             <div class="col-3 font-weight-bold text-right" style="border-bottom: 1px solid black;">Diff</div>
         </div>
 
-        <g:each in="${snapshot.totals}" var="reconciliationTotal">
+        <g:each in="${snapshot.totals}" var="reconciliationTotal" status="i">
             <div class="row ml-0 mr-0 pt-2 pb-2">
                 <div class="col-2 my-auto text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
-                <div class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
-                <div class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
-                <div class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.variance}" type="currency" /></div>
+                <div id="expected-${i + 1}" class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
+                <div id="counted-${i + 1}" class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
+                <div id="diff-${i + 1}" class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.variance}" type="currency" /></div>
             </div>
         </g:each>
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
             <div class="col-5 my-auto text-right">Total</div>
-            <div class="col-3 my-auto text-right" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${snapshot.totals.sum { it.value }}" type="currency" /></div>
+            <div id="total" class="col-3 my-auto text-right" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${snapshot.totals.sum { it.value }}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
@@ -32,7 +32,7 @@
 
                 <g:if test="${snapshot.totals.sum { it.variance } ?: 0 != 0}">
                     <div class="row ml-0 mr-0 pt-5 pb-2">
-                        <p class="mx-auto">You are about to declare a safe variance of <g:formatNumber number="${snapshot.totals.sum { it.variance.abs() }}" type="currency" />.</p>
+                        <p id="safe-variance-message" class="mx-auto">You are about to declare a safe variance of <g:formatNumber number="${snapshot.totals.sum { it.variance.abs() }}" type="currency" />.</p>
                     </div>
                     <div class="row ml-0 mr-0 pt-2 pb-2">
                         <p class="mx-auto">Please select a reason:</p>
@@ -60,19 +60,19 @@
             <g:if test="${snapshot.varianceReason != null }">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance reason:</div>
-                    <div class="col-7"><g:message code="TenderReconciliationVarianceReason.${snapshot.varianceReason}" /></div>
+                    <div id="variance-reason-after-save" class="col-7"><g:message code="TenderReconciliationVarianceReason.${snapshot.varianceReason}" /></div>
                 </div>
             </g:if>
 
             <g:if test="${snapshot.varianceReasonText != null }">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance additional reason:</div>
-                    <div class="col-7">${snapshot.varianceReasonText}</div>
+                    <div id="variance-additional-reason-after-save" class="col-7">${snapshot.varianceReasonText}</div>
                 </div>
             </g:if>
 
             <div class="row mb-2 ml-0 mr-0">
-                <div class="col-5 text-right">Reconciled by:</div>
+                <div id="reconciled-by" class="col-5 text-right">Reconciled by:</div>
                 <div class="col-7">${snapshot.countedByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${snapshot.countDate.toDate()}" /></div>
             </div>
         </g:else>

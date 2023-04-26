@@ -19,13 +19,13 @@
 
     <g:each in="${receipts}" var="receipt" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showReceiptModal(${receipt.id});">
-            <div class="col-2 my-auto">${receipt.storeId}</div>
-            <div class="col-2 my-auto">${receipt.tillId}</div>
-            <div class="col-2 my-auto">${receipt.transactionId}</div>
-            <div class="col-3 my-auto">
+            <div id="store-id-${i + 1}" class="col-2 my-auto">${receipt.storeId}</div>
+            <div id="till-id-${i + 1}" class="col-2 my-auto">${receipt.tillId}</div>
+            <div id="transaction-id-${i + 1}" class="col-2 my-auto">${receipt.transactionId}</div>
+            <div id="transaction-amount-${i + 1}" class="col-3 my-auto">
                 <g:formatNumber number="${receipt.receiptLines?.find{ it.type.name() == 'TOTAL' }?.total ?: BigDecimal.ZERO}" type="currency" />
             </div>
-            <div class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy" date="${receipt.dateGenerated.toDate()}" /></div>
+            <div id="date-generated-${i + 1}" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy" date="${receipt.dateGenerated.toDate()}" /></div>
         </div>
     </g:each>
 </div>

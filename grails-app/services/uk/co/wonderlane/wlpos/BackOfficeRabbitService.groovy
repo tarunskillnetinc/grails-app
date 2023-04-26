@@ -26,13 +26,14 @@ class BackOfficeRabbitService extends RabbitService {
     private String apiUrl
     private String apiAuthorization
 
-    BackOfficeRabbitService(String host, int port, int apiPort, String username, String password) {
-        super(host, port, username, password, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
+    def dateTimeFormatUnix = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    def dateTimeFormatWindows = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
-        apiUrl = "http://${host}:${apiPort}/api/"
+    BackOfficeRabbitService(String host, int port, String apiProtocol, int apiPort, String username, String password, boolean useSsl) {
+        super(host, port, username, password, useSsl, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
+
+        apiUrl = "${apiProtocol}://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
-
-        def dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
         gson = new GsonBuilder()
                 .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
@@ -44,12 +45,21 @@ class BackOfficeRabbitService extends RabbitService {
                 .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
                     @Override
                     DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return new DateTime(dateTimeFormat.parse(json.getAsString()).getTime())
+                        return new DateTime(getDateFormat().parse(json.getAsString()).getTime())
                     }
                 })
                 .create()
 
         init()
+    }
+
+    private SimpleDateFormat getDateFormat() {
+        String osName = System.getProperty("os.name")
+        if (osName != null && osName.contains("Windows")) {
+            return dateTimeFormatWindows
+        } else {
+            return dateTimeFormatUnix
+        }
     }
 
     private void checkChannelAvailability() {
@@ -63,21 +73,26 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     List<RabbitQueue> getStoreQueues() {
-        checkChannelAvailability()
-
-        def allRabbitQueues = getQueues()
-
         def rabbitQueues = []
 
-        // Only return the queues for our retailer.
-        allRabbitQueues?.each {
-            if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
-                it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
-                it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
-                it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
+        try {
+            checkChannelAvailability()
 
-                rabbitQueues.add(it)
+            def allRabbitQueues = getQueues()
+
+            // Only return the queues for our retailer.
+            allRabbitQueues?.each {
+                if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
+                    it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
+                    it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
+                    it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
+
+                    rabbitQueues.add(it)
+                }
             }
+        } catch(Exception ex) {
+            System.println("Error found when loading existing queues, Error " + ex)
+            log.error("Error found when loading existing queues, Error " + ex)
         }
 
         return rabbitQueues
@@ -100,19 +115,26 @@ class BackOfficeRabbitService extends RabbitService {
         return rabbitQueues
     }
 
-    private List<RabbitQueue> getQueues() {
-        // Open a connection to the RabbitMQ REST API.
-        def url = (apiUrl + "queues").toURL()
+    protected List<RabbitQueue> getQueues() {
+        try {
+            // Open a connection to the RabbitMQ REST API.
+            def url = (apiUrl + "queues").toURL()
 
-        def urlConnection = url.openConnection()
-        urlConnection.addRequestProperty("Authorization", "Basic ${apiAuthorization}")
+            def urlConnection = url.openConnection()
+            urlConnection.addRequestProperty("Authorization", "Basic ${apiAuthorization}")
 
-        def responseJson = urlConnection.inputStream.text
+            def responseJson = urlConnection.inputStream.text
 
-        // Convert the response JSON into a list of RabbitQueue objects.
-        Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
+            // Convert the response JSON into a list of RabbitQueue objects.
+            Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
 
-        return gson.fromJson(responseJson, listType)
+            return gson.fromJson(responseJson, listType)
+        }catch(Exception ex){
+            System.println("Error found when loading existing queues, Error " + ex)
+            log.error("Exception when creating till connection")
+        }
+        return []
+
     }
 
     void declareExchange(String exchange) {

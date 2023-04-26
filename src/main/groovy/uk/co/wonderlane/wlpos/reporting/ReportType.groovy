@@ -16,5 +16,8 @@ enum ReportType {
     TILL_CONTROL_EVENT,
     PAYPOINT_SALES,
     ORDERS,
-    ORDER
+    ORDER,
+    DELIVERIES,
+    DELIVERY,
+    DELIVERY_ITEM
 }

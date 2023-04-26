@@ -1,0 +1,27 @@
+package uk.co.wonderlane.wlpos.helpers
+
+import uk.co.wonderlane.wlpos.ProductListService
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+
+import java.sql.Connection
+import java.sql.SQLException
+
+class ProductListServiceHelperService extends ProductListService {
+
+    public DatabaseCredentials fakeDatabaseCredentials
+    public Connection fakeConnection
+
+    @Override
+    protected Connection getConnection() throws SQLException {
+        return fakeConnection
+    }
+
+    ProductListServiceHelperService(DatabaseCredentials databaseCredentials) {
+        super(databaseCredentials)
+    }
+
+    ProductListServiceHelperService(DatabaseCredentials databaseCredentials, Connection fakeConnection) {
+        super(databaseCredentials)
+        this.fakeConnection = fakeConnection
+    }
+}

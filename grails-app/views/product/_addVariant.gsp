@@ -12,7 +12,9 @@
             <label for="addVariantSku" class="col-3 offset-1 col-form-label text-right">SKU</label>
 
             <div class="input-group col-4">
-                <g:field type="number" name="addVariantSku" value="${variant?.sku}" class="form-control bottom-border" />
+                <g:field type="number" name="addVariantSku" value="${variant?.sku}"
+                         disabled="${isEditMode}"
+                         class="form-control bottom-border"/>
             </div>
         </div>
 
@@ -24,7 +26,7 @@
                     <span class="input-group-text">&pound;</span>
                 </div>
 
-                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
+                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId') || zeroPrice}" />
             </div>
         </div>
 
@@ -45,6 +47,21 @@
 
             <div class="input-group col-4">
                 <g:textField name="addVariantShelfLifeDays" value="${variant?.shelfLifeDays}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="addVariantShelfCapacity" class="col-3 offset-1 col-form-label text-right">Shelf Capacity</label>
+
+            <div class="input-group col-4">
+                <g:textField name="addVariantShelfCapacity" value="${variant?.shelfCapacity}" class="form-control bottom-border" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="addVariantMinimumDisplayQuantity" class="col-3 offset-1 col-form-label text-right">Minimum Display Quantity</label>
+            <div class="input-group col-4">
+                <g:textField name="addVariantMinimumDisplayQuantity" value="${variant?.minimumDisplayQuantity}" class="form-control bottom-border" disabled="${!sec.loggedInUserInfo(field: 'storeId')}" />
             </div>
         </div>
 

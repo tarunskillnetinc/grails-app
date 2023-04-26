@@ -1,37 +1,73 @@
 package uk.co.wonderlane.wlpos
 
+import java.math.RoundingMode
+
 class ProductListItem {
 
     int id
     ProductVariant productVariant
-    int productQuantityShopFloor
-    int productQuantityStockroom
-    int quantity
+    int productQuantityInStock
+    Integer quantity
     int fillQuantity = 0
-    int parentQuantity
+    Integer parentQuantity
 
-    static belongsTo = [ productList: ProductList ]
+    static belongsTo = [ productList: ProductList, productListItemGroup: ProductListItemGroup ]
+
+    static hasMany = [ packLines: PackLine ]
+
+    static transients = [ 'totalValue', 'totalCost' ]
 
     static mapping = {
         table "productlistitem"
         version false
 
         productVariant column: "productVariantId", cascade: "save-update"
-        productQuantityShopFloor column: "productQuantityShopFloor"
-        productQuantityStockroom column: "productQuantityStockroom"
+        productQuantityInStock column: "productQuantityInStock"
         quantity column: "quantity"
         fillQuantity column: "fillQuantity"
         parentQuantity column: "parentQuantity"
 
         productList column: "productListId"
+        productListItemGroup column: "productListItemGroupId"
     }
 
     static constraints = {
         productVariant nullable: false
-        productQuantityShopFloor nullable: true
-        productQuantityStockroom nullable: true
+        productQuantityInStock nullable: true
         quantity nullable: true
         fillQuantity nullable: false
         parentQuantity nullable: true
+        productListItemGroup nullable: true
+    }
+
+    def getTotalValue() {
+        if (fillQuantity == 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+        }
+
+        if (productVariant == null) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+        }
+
+        return packLines?.sum {
+            it?.getTotalValue()
+        }
+    }
+
+    def getTotalCost() {
+        BigDecimal totalPackQuantity = packLines?.sum { it.totalQuantity } ?: BigDecimal.ZERO
+        BigDecimal totalSinglesQuantity = BigDecimal.valueOf(quantity ?: fillQuantity) - totalPackQuantity
+
+        // Get total pack cost.
+        BigDecimal totalPackCost = packLines?.sum {it.totalCostPrice } ?: BigDecimal.ZERO
+
+        // Get total singles cost.
+        BigDecimal totalSinglesCost = BigDecimal.ZERO
+        if (totalSinglesQuantity > BigDecimal.ZERO) {
+            totalSinglesCost = totalSinglesQuantity * (productVariant?.costPrice ?: BigDecimal.ZERO)
+        }
+
+        // Estimated delivery cost = total pack cost + singles cost.
+        return totalPackCost + totalSinglesCost
     }
 }

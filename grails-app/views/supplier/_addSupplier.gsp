@@ -5,6 +5,14 @@
 <div class="modal-body">
     <div class="text-center mt-4 mb-5">Please complete the following form to add a new supplier.</div>
 
+    <g:hasErrors bean="${supplier}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${supplier}" as="list" />
+            </div>
+        </section>
+    </g:hasErrors>
+
     <g:form name="addSupplierForm">
         <g:hiddenField name="id" value="${supplier?.id}" />
 
@@ -105,7 +113,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="addressPostCode" class="col-3 offset-1 col-form-label text-right">Address Post Code</label>
+            <label for="addressPostCode" class="col-3 offset-1 col-form-label text-right">Address Postcode</label>
 
             <div class="input-group col-4">
                 <g:textField name="addressPostCode" value="${supplier?.addressPostCode}" class="form-control bottom-border" />
@@ -116,5 +124,10 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelAddSupplierButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveSupplierButton" class="btn btn-success" onclick="saveSupplier();">Save</button>
+    <g:if test="${enableSave}">
+        <button type="button" id="saveSupplierButton" class="btn btn-success" onclick="saveSupplier();">Save</button>
+    </g:if>
+    <g:else>
+        <button type="button" id="saveSupplierButton" class="btn btn-success" disabled onclick="saveSupplier();">Save</button>
+    </g:else>
 </div>

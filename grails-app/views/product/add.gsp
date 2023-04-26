@@ -6,7 +6,9 @@
         <title>WonderLane Product Maintenance</title>
 
         <asset:stylesheet href="radio.css" />
+        <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="money-mask.js" />
+        <asset:javascript src="bootstrap-datepicker.min.js" />
 
         <script type="text/javascript">
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
@@ -14,12 +16,25 @@
             var saveVariantUrl = "${createLink(controller: 'product', action: 'ajaxSaveVariant')}";
             var addPriceUrl = "${createLink(controller: 'product', action: 'ajaxAddPrice')}";
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
+            var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
+            var addLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddLocation')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
+            var saveLocationUrl = "${createLink(controller: 'product', action: 'ajaxSaveLocation')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
             $(document).ready(function () {
+                $('#effectiveDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: new Date().toString(),
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+
                 // Enable the VAT override when "Other" is selected.
                 $('#vatCode').change(function() {
                     var vatCode = $('#vatCode option:selected').attr("data-code");
@@ -79,12 +94,19 @@
                 });
 
                 $("#zeroPrice").change(function() {
+                    var checked = this.checked;
+
                     $("#weightedItem").prop("checked", false);
-                    $("#weightedItem").attr("disabled", this.checked);
+                    $("#weightedItem").attr("disabled", checked);
                     $("#pricePerKg").prop("checked", false);
                     $("#pricePer100g").prop("checked", false);
                     $("#deliItem").prop("checked", false);
-                    $("#deliItem").attr("disabled", this.checked);
+                    $("#deliItem").attr("disabled", checked);
+
+
+                    $("#pricesContainer .mask-money").each(function() {
+                        $(this).prop("disabled", checked);
+                    });
                 });
 
                 $(".mask-money").maskMoney({ allowZero: true });
@@ -92,10 +114,46 @@
                 $('#collapsePromotions').on('show.bs.collapse', function () {
                     getPromotions(${product?.id});
                 });
+
+                $('#collapseProductHistory').on('show.bs.collapse', function () {
+                    getProductHistory(${product?.id});
+                });
+
+                $('#effectiveDatesPicker').on('change', function () {
+                    var effectiveDate = $(this).val()
+                    var getProductUrl = '${createLink(controller: 'product', action: 'show')}/' + ${product?.id} + '?effectiveDate=' + encodeURI(effectiveDate);
+                    if (getProductUrl) { // require a URL
+                        window.location = getProductUrl; // redirect
+                    }
+                    return false;
+                });
+
+                $('.add-product-desc').on("change", function() {
+                    $('.add-product-desc').val(this.value);
+                    if ( $('.add-product-receiptDesc').val() === "") {
+                        $('.add-product-receiptDesc').val(this.value);
+                        $('.add-product-receiptDesc').removeClass("is-invalid");
+                    }
+                    $('.add-product-desc').removeClass("is-invalid");
+                });
+
+                $('.add-product-receiptDesc').on("change", function() {
+                    $('.add-product-receiptDesc').val(this.value);
+                    if ( $('.add-product-desc').val() === "") {
+                        $('.add-product-desc').val(this.value);
+                        $('.add-product-desc').removeClass("is-invalid");
+                    }
+                    $('.add-product-receiptDesc').removeClass("is-invalid");
+                });
             });
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
             function itemCodeChanged(itemCode) {
+
+                if (itemCode.match(/[^0-9]/)) {
+                    return
+                }
+
                 var sku = $("#variants\\[0\\]\\.sku");
 
                 // Only change the SKU the first time we change the main item code.
@@ -123,22 +181,17 @@
             // Expand or collapse the category and show all children categories.
             function expandCollapseCategory(categoryId, level, selectedCategoryId) {
                 event.preventDefault();
-
                 var plusMinusButton = $("#plusMinus-" +categoryId);
                 var expanded = plusMinusButton.attr("aria-expanded");
-
                 if (expanded === "true") {
                     plusMinusButton.text("+");
                     plusMinusButton.attr("aria-expanded", "false");
-
                     $("#categoryContainer-" +categoryId).html("");
                 } else {
                     var params = {};
-
                     params["categoryId"] = categoryId;
                     params["level"] = level;
                     params["selectedCategoryId"] = selectedCategoryId;
-
                     $.ajax({
                         url: getChildCategoriesUrl,
                         method: "GET",
@@ -146,7 +199,6 @@
                         success: function(resp) {
                             plusMinusButton.text("-");
                             plusMinusButton.attr("aria-expanded", "true");
-
                             $("#categoryContainer-" +categoryId).html(resp);
                         }
                     });
@@ -163,11 +215,15 @@
                 if (index != null) {
                     var selector = "#variants\\[" +index +"\\]\\.";
 
+                    params["operationMode"] = ${uk.co.wonderlane.wlpos.OperationMode.EDIT.value};
                     params["id"] = $(selector + "id").val();
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
                     params["shelfLifeDays"] = $(selector + "shelfLifeDays").val();
+                    params["shelfCapacity"] = $(selector + "shelfCapacity").val();
+                    params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
+                    params["zeroPrice"] = $("#zeroPrice").prop("checked");
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -179,6 +235,8 @@
                         params["barcodez[" +loopIndex +"].recordStatus"] = $(selector + "barcodez\\[" +barcodeIndex +"\\]\\.recordStatus").val();
                     });
                 } else {
+                    params["operationMode"] = ${uk.co.wonderlane.wlpos.OperationMode.ADD.value};
+
                     var lastVariantContainer = $("#variantsContainer > div:last-child");
 
                     if (lastVariantContainer.length > 0) {
@@ -209,8 +267,11 @@
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
+                var shelfCapacity = $("#addVariantShelfCapacity").val();
+                var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
+                var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
-                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays };
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
 
@@ -246,6 +307,26 @@
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                 });
 
+                var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
+
+                locationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring(17);
+                    var locationSelector = "#variants\\[" +index +"\\]\\.locations\\[" +locationIndex +"\\]";
+
+                    params["locations[" +loopIndex +"].index"] = loopIndex;
+                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                });
+
                 $.ajax({
                     url: saveVariantUrl,
                     method: "POST",
@@ -268,23 +349,6 @@
                 $('#addVariantModal').modal("hide");
             }
 
-            // Delete variant button was clicked, we just delete the whole div and handle the removal server side (if it was an existing variant).
-            function deleteVariant(index) {
-                if (!confirm("This SKU will be deleted.")) {
-                    return;
-                }
-
-                $("#variantsContainer > #variant-" +index).remove();
-
-                $("#variantsContainer > div").each(function(i) {
-                    var stripedDiv = $(this).find("div:first");
-
-                    stripedDiv.removeClass("wl-striped0");
-                    stripedDiv.removeClass("wl-striped1");
-                    stripedDiv.addClass("wl-striped" +(i % 2));
-                });
-            }
-
             // If we change the SKU we may need to update the SKU in the price changes section too.
             function skuChanged(index, skuValue) {
                 var skuText = $("#priceChanges\\[" +index +"\\]\\.skuText");
@@ -300,7 +364,7 @@
                         $(this).val(skuValue);
                     });
                 } else {
-                    var params = { index: index, sku: skuValue };
+                    var params = { index: index, sku: skuValue, zeroPrice: $("#zeroPrice").prop("checked") };
 
                     $.ajax({
                         url: addPriceUrl,
@@ -358,6 +422,15 @@
                 $("#addBarcodesContainer > #addBarcode" +index).remove();
             }
 
+            // Delete location button was clicked, we just remove the div.
+            function deleteLocation(variantIndex, locationIndex) {
+                if (!confirm("This location will be deleted.\nAre you sure you want to delete this location?")) {
+                    return;
+                }
+
+                $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove();
+            }
+
             // The suppliers button was clicked, we display the suppliers modal for this variant.
             function showSuppliersModal(variantIndex) {
                 $("#suppliersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
@@ -365,6 +438,11 @@
 
                 var params = {};
                 params["index"] = variantIndex;
+
+                var defaultSupplier = $("#variants\\[" + variantIndex + "\\]\\.defaultSupplierId").val();
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+                params["defaultSupplier"] = defaultSupplier;
+                params["productVariantId"] = variantId;
 
                 var packContainers = $("#variants\\[" +variantIndex +"\\]\\.packsContainer > div");
 
@@ -399,8 +477,81 @@
                 });
             }
 
+            // The locations button was clicked, we display the locations modal for this variant.
+            function showLocationsModal(variantIndex) {
+                $("#locationsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                $('#locationsModal').modal({ show: true });
+
+                var params = {};
+                params["index"] = variantIndex;
+
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+                params["productVariantId"] = variantId;
+
+                var locationContainers = $("#variants\\[" +variantIndex +"\\]\\.locationsContainer > div");
+
+                locationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring(17);
+                    var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locations\\[" +locationIndex +"\\]";
+
+                    params["locations[" +loopIndex +"].index"] = loopIndex;
+                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                });
+
+                $.ajax({
+                    url: locationsUrl,
+                    method: "POST",
+                    data: params,
+                    success: function(resp) {
+                        $("#locationsContent").html(resp);
+                    }
+                });
+            }
+
+            // If an existing row was clicked, then hidden form is displayed, otherwise a whole new blank "add location" row is added.
+            function addLocation(variantIndex, locationIndex, productVariantId) {
+                if (locationIndex != null) {
+                    var locationContainer = $("#addLocationTextContainer-" + variantIndex + "-" + locationIndex);
+                    var addLocationContainer = $("#addLocationFieldsContainer-" + variantIndex + "-" + locationIndex);
+
+                    locationContainer.addClass("hidden");
+                    addLocationContainer.removeClass("hidden");
+                } else {
+                    var lastLocationContainer = $("#addLocationsContainer-" +variantIndex +" > div:last-child");
+                    locationIndex = 0;
+
+                    if (lastLocationContainer.length > 0) {
+                        locationIndex = parseInt(lastLocationContainer[0].id.substring(lastLocationContainer[0].id.lastIndexOf("-") + 1)) + 1;
+                    }
+
+                    $.ajax({
+                        url: addLocationUrl,
+                        method: "POST",
+                        data: { variantIndex: variantIndex, locationIndex: locationIndex, productVariantId: productVariantId },
+                        success: function(resp) {
+                            var addLocationsContainer = $("#addLocationsContainer-" +variantIndex);
+                            addLocationsContainer.append("<div id=\"addLocationContainer-" +variantIndex +"-" +locationIndex +"\"></div>");
+
+                            var addLocationContainer = $("#addLocationContainer-" +variantIndex +"-" +locationIndex);
+
+                            addLocationContainer.append(resp);
+                        }
+                    });
+                }
+            }
+
             // If an existing row was clicked, then hidden form is displayed, otherwise a whole new blank "add pack" row is added.
-            function addPack(variantIndex, packIndex) {
+            function addPack(variantIndex, packIndex, productVariantId) {
                 if (packIndex != null) {
                     var packContainer = $("#addPackTextContainer-" + variantIndex + "-" + packIndex);
                     var addPackContainer = $("#addPackFieldsContainer-" + variantIndex + "-" + packIndex);
@@ -418,7 +569,7 @@
                     $.ajax({
                         url: addPackUrl,
                         method: "POST",
-                        data: { variantIndex: variantIndex, packIndex: packIndex },
+                        data: { variantIndex: variantIndex, packIndex: packIndex, productVariantId: productVariantId },
                         success: function(resp) {
                             var addPacksContainer = $("#addPacksContainer-" +variantIndex);
                             addPacksContainer.append("<div id=\"addPackContainer-" +variantIndex +"-" +packIndex +"\"></div>");
@@ -435,7 +586,16 @@
 
             // The "Ok" button was clicked on the suppliers modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function savePacks(variantIndex) {
+                var filterValues = {};
+                $("#defaultSupplierForm select").each(function () {
+                    filterValues[$(this).attr("name")] = $(this).find(":selected").val();
+                }).get();
+
                 var params = { index: variantIndex };
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+
+                params["defaultSupplier"] = filterValues["defaultSupplier"];
+                params["productVariantId"] = variantId;
 
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
@@ -457,20 +617,126 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
+                });
+                    $.ajax({
+                        url: savePackUrl,
+                        method: "POST",
+                        data: params,
+                        success: function(resp) {
+                            var packsContainer = $("#variants\\[" +variantIndex +"\\]\\.packsContainer");
+                            packsContainer.html(resp);
+                            $('#suppliersModal').modal("hide");
+                        },
+                        error : function(xhr, exception) {
+                            $("#suppliersContent").html(xhr.responseText);
+                        }
+                    });
+            }
+
+            // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
+            function saveLocations(variantIndex, locationsType) {
+
+                var params = { index: variantIndex };
+                var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
+                params["productVariantId"] = variantId;
+
+                // For 'SIMPLE' location type, mandatory fields are location description, shelf capacity and minimum display quantity
+                // For 'ADVANCED' location type, mandatory fields are aisle, bay, shelf, position, shelf capacity and minimum display quantity
+                var mandatoryLocationFields = true;
+
+                var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
+                addLocationContainers.each(function(loopIndex) {
+                    if (!mandatoryLocationFields) {
+                        return
+                    }
+                    var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
+                    var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
+
+                    if (locationsType === "SIMPLE") {
+                        if ($(locationSelector + "\\.location").val() === '') {
+                            confirm("Location can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+                    } else if (locationsType === "ADVANCED") {
+                        if ($(locationSelector + "\\.aisle").val() === '') {
+                            confirm("Aisle can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+
+                        if ($(locationSelector + "\\.bay").val() === '') {
+                            confirm("Bay can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+
+                        if ($(locationSelector + "\\.shelf").val() === '') {
+                            confirm("Shelf can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+
+                        if ($(locationSelector + "\\.position").val() === '') {
+                            confirm("Position can not be empty.")
+                            mandatoryLocationFields = false
+                            return
+                        }
+                    }
+
+                    if ($(locationSelector + "\\.shelfCapacity").val() === '') {
+                        confirm("Shelf Capacity can not be empty.")
+                        mandatoryLocationFields = false
+                        return
+                    }
+
+                    if ($(locationSelector + "\\.minimumDisplayQuantity").val() === '') {
+                        confirm("Minimum Display Quantity can not be empty.")
+                        mandatoryLocationFields = false
+                        return
+                    }
+
+                    params["locations[" +loopIndex +"].index"] = loopIndex;
+                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
+                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
                 });
 
+                if (!mandatoryLocationFields) {
+                    return;
+                }
+
                 $.ajax({
-                    url: savePackUrl,
+                    url: saveLocationUrl,
                     method: "POST",
                     data: params,
                     success: function(resp) {
-                        var packsContainer = $("#variants\\[" +variantIndex +"\\]\\.packsContainer");
-
-                        packsContainer.html(resp);
-
-                        $('#suppliersModal').modal("hide");
+                        var locationsContainer = $("#variants\\[" +variantIndex +"\\]\\.locationsContainer");
+                        locationsContainer.html(resp);
+                        $('#locationsModal').modal('hide');
+                    },
+                    error : function(xhr, exception) {
+                        $("#locationsContent").html(xhr.responseText);
                     }
                 });
+            }
+
+            // The "Cancel" button was clicked on the locations modal, add a confirmation cancel pop-up.
+            function cancelLocations() {
+                if (!confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+                    return;
+                }
+
+                $('#locationsModal').modal("hide");
             }
 
             function getPromotions(productId) {
@@ -489,6 +755,44 @@
                     }
                 });
             }
+
+            //trigger this when category is selected
+            function onCategoryChanged(selectedCategoryId) {
+                //call category map restrictions only when adding new product and restriction tab is not change by manually
+                var getRestrictionsUrl = "${createLink(controller: 'product', action: 'ajaxGetRestrictions')}";
+                var productOpenPrice = $("#openPrice").prop("checked");
+                $.ajax({
+                    url: getRestrictionsUrl,
+                    method: "GET",
+                    data: {
+                        selectedCategoryId: selectedCategoryId,
+                        productOpenPrice: productOpenPrice
+                    },
+                    success: function (resp) {
+                        $("#restrictionsContainer").html(resp);
+                    }
+                });
+            }
+
+            function getProductHistory(productId) {
+                $('#productHistoryContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                    "  <div class=\"spinner-border\" role=\"status\">\n" +
+                    "    <span class=\"sr-only\">Loading...</span>\n" +
+                    "  </div>\n" +
+                    "</div>");
+
+                var getProductHistoryUrl = "${createLink(controller: 'product', action: 'ajaxGetProductHistory')}";
+
+                $.ajax({
+                    url: getProductHistoryUrl,
+                    method: "GET",
+                    data: { productId: productId },
+                    success: function(resp) {
+                        $("#productHistoryContainer").html(resp);
+                    }
+                });
+            }
+
         </script>
     </head>
 
@@ -498,9 +802,9 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="product" action="index">Product Search</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${product?.itemCode ?: "Add Product"}</li>
                         </ol>
                     </div>
                 </div>
@@ -514,8 +818,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link action="index" role="button" class="btn btn-wl">Cancel</g:link>
-                    <button class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
+                    <g:link elementId="product-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
                 </div>
             </div>
         </section>
@@ -563,10 +867,14 @@
                                                         categoryValues     : categoryValues,
                                                         productCategoryList: productCategoryList,
                                                         vatValues          : vatValues,
+                                                        effectiveDateIndex : effectiveDateIndex,
                                                         ranges             : ranges,
+                                                        selectedRanges     : selectedRanges,
                                                         priceBands         : priceBands,
+                                                        editedPrices       : editedPrices,
                                                         isNewProduct       : isNewProduct,
-                                                        snappyEnabled      : snappyEnabled]"/>
+                                                        snappyEnabled      : snappyEnabled,
+                                                        locationsType      : locationsType]"/>
         </section>
 
         <section id="addVariant-modal" class="container-fluid">
@@ -585,6 +893,17 @@
             <div class="modal fade" id="suppliersModal" tabindex="-1" role="dialog" aria-labelledby="suppliersModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div id="suppliersContent" class="modal-content">
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="locations-modal" class="container-fluid">
+            <!-- Locations modal. -->
+            <div class="modal fade" id="locationsModal" tabindex="-1" role="dialog" aria-labelledby="locationsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div id="locationsContent" class="modal-content">
 
                     </div>
                 </div>

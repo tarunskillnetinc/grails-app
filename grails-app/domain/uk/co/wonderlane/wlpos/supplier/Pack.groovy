@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos.supplier
 
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.ProductVariant
+import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
 
 class Pack {
@@ -10,7 +11,7 @@ class Pack {
 
     int id
     Supplier supplier
-    int quantity
+    Integer quantity
     BigDecimal price
     String orderCode
     String barcode
@@ -43,18 +44,37 @@ class Pack {
         updateDatetime column: "updateDatetime"
     }
 
+    int getQuantity(List<PackLine> packLines){
+        PackLine packLine = packLines?.find {it?.orderCode == this?.orderCode}
+        if (packLine != null){
+            return packLine.quantity
+        }
+        return 0;
+    }
+
     static constraints = {
         productVariant nullable: true
-        supplier nullable: true
-        quantity nullable: false
-        price nullable: true
-        orderCode nullable: true
-        barcode nullable: true
-        recommendedRetailPrice nullable: true
+        supplier nullable: false, blank: false
+        quantity nullable: false, blank: false, min: 0 as Integer, max: 2147483647 as Integer
+        price nullable: false, blank: false, min: 0.00 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
+        orderCode nullable: true, size: 1..20
+        barcode nullable: true, size: 1..20, validator: { val, obj ->
+            if (val) {
+                def existingPacks = Pack.findAllByBarcode(val)
+                boolean isDuplicateBarcode = existingPacks?.stream().anyMatch({ pack -> pack.productVariantId != obj.productVariantId })
+
+                if (isDuplicateBarcode) {
+                    return ['pack.barcodes.notUnique', val]
+                }
+            } else {
+                return true
+            }
+        }
+        recommendedRetailPrice nullable: true, max: 9999.99 as BigDecimal, scale: 2
         effectiveDate nullable: true
         effectiveEndDate nullable: true
         status nullable: false
-        maximumOrderQuantity nullable: true
+        maximumOrderQuantity nullable: true, min: 0 as Integer, max: 99999 as Integer
         allowSubstitutes nullable: false
         priceMarked nullable: false
         updateDatetime nullable: false

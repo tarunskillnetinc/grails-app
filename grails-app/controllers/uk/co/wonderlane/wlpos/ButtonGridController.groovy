@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import org.apache.commons.lang3.EnumUtils
+import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 
 class ButtonGridController {
@@ -23,15 +25,64 @@ class ButtonGridController {
                 return
             }
         } else {
-            ButtonGridType type = null
-            try {
-                type = ButtonGridType.valueOf(params.type)
-            } catch (Exception e) {
+            if (!EnumUtils.isValidEnum(ButtonGridType.class, params.type)) {
+                flash.error = "Button grid not found. "
                 redirect(action: "index")
                 return
             }
-
-            buttonGrid = buttonService.getButtonGrid(type)
+            ButtonGridType type = ButtonGridType.valueOf(params.type)
+            if (type.isIn(ButtonGridType.SCO_QUICK_SELL, ButtonGridType.SCO_MANAGER_FUNCTIONS) && !springSecurityService.principal.retailer.scoEnabled) {
+                flash.error = "Button grid SCO not enabled for current retailer. "
+                redirect(action: "index")
+                return
+            }
+            buttonGrid = buttonService.getButtonGrid(type, null, true)
+            if (!buttonGrid) {
+                ButtonGrid btnGridTemp = new ButtonGrid()
+                btnGridTemp.setRetailerId(springSecurityService.principal.retailerId)
+                btnGridTemp.setStoreId(springSecurityService.principal.storeId)
+                btnGridTemp.setType(type)
+                btnGridTemp.setDescription(null)
+                btnGridTemp.setButtons(null)
+                switch (type) {
+                    case 'SALES':
+                        btnGridTemp.setRows(1)
+                        btnGridTemp.setColumns(4)
+                        break
+                    case 'TENDER':
+                        btnGridTemp.setRows(3)
+                        btnGridTemp.setColumns(4)
+                        break
+                    case 'QUICK_SELL':
+                        btnGridTemp.setRows(3)
+                        btnGridTemp.setColumns(3)
+                        break
+                    case 'SCO_QUICK_SELL':
+                        btnGridTemp.setRows(3)
+                        btnGridTemp.setColumns(3)
+                        break
+                    case 'MANAGER_FUNCTIONS':
+                        btnGridTemp.setRows(4)
+                        btnGridTemp.setColumns(2)
+                        break
+                    case 'SCO_MANAGER_FUNCTIONS':
+                        btnGridTemp.setRows(4)
+                        btnGridTemp.setColumns(2)
+                        break
+                    case 'OTHER':
+                        btnGridTemp.setRows(4)
+                        btnGridTemp.setColumns(4)
+                        break
+                }
+                if (btnGridTemp.validate()) {
+                    buttonService.saveButtonGrid(btnGridTemp)
+                    buttonGrid = buttonService.getButtonGrid(type, null, true)
+                } else {
+                    flash.error = "Button grid not found."
+                    redirect(action: "index")
+                    return
+                }
+            }
         }
 
         [buttonGrid: buttonGrid]
@@ -71,17 +122,52 @@ class ButtonGridController {
         int previousColumns = buttonGrid.columns
         int previousRows = buttonGrid.rows
 
-        bindData(buttonGrid, params)
+        // Create a new store level grid if no existing
+        if (springSecurityService.principal.storeId != buttonGrid.storeId) {
+            def storeButtonGrid = new ButtonGrid()
+            bindData(storeButtonGrid, params)
+
+            // Copy buttons to new grid (they will be removed if they don't fit by following code)
+            storeButtonGrid.buttons = new ArrayList<>()
+            if (buttonGrid.buttons) {
+                buttonGrid.buttons.forEach({
+                    def storeButton = new Button()
+                    InvokerHelper.setProperties(storeButton, it.properties)
+                    storeButton.id = 0
+                    storeButton.buttonGrid = storeButtonGrid
+                    // Fix for copying buttons that are 0 amount in database as these are no longer valid.
+                    if (it.amount <=> new BigDecimal(0) == 0) {
+                        storeButton.amount = null;
+                    }
+                    storeButtonGrid.buttons.add(storeButton)
+                })
+            }
+
+            buttonGrid = storeButtonGrid
+        } else {
+            buttonGrid = buttonService.getButtonGrid(buttonGrid.type, buttonGrid.description, true)
+            if (!buttonGrid) {
+                buttonGrid = new ButtonGrid()
+            }
+            bindData(buttonGrid, params)
+        }
 
         buttonGrid.retailerId = springSecurityService.principal.retailerId
         buttonGrid.storeId = springSecurityService.principal.storeId
 
+
         if (buttonGrid.validate()) {
+
+            int buttonGridNewColumns = buttonGrid.columns
+            int buttonGridNewRows = buttonGrid.rows
+
+            List<Button> gridButtonList = buttonGrid?.buttons
+
             // If we made the button grid smaller, remove any buttons which were on the row/column which no longer exists.
-            if (buttonGrid.columns < previousColumns || buttonGrid.rows < previousRows) {
+            if (buttonGridNewColumns < previousColumns || buttonGridNewRows < previousRows) {
                 def buttonsToRemove = []
 
-                buttonGrid.buttons?.each {
+                gridButtonList?.each {
                     if (it.row >= buttonGrid.rows || it.column >= buttonGrid.columns) {
                         buttonsToRemove.add(Button.get(it.id))
                     }

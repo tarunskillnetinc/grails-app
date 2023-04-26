@@ -3,8 +3,6 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 
 @Transactional
@@ -20,8 +18,8 @@ class PromotionService {
         def promotionCriteria = Promotion.createCriteria()
 
         return promotionCriteria.get() {
-            eq ("id", promotionId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("id", promotionId)
+            eq("retailerId", springSecurityService.principal.retailerId)
         }
     }
 
@@ -37,15 +35,17 @@ class PromotionService {
         def tagCriteria = Tag.createCriteria()
         def allTags = tagCriteria.list() {
             tagProducts {
-                "in" ("sku", allSkus)
+                "in"("sku", allSkus)
             }
         }
 
+        //loop over tags to get all tag ids
+        def tagIds = []
+        tagIds = allTags?.collect { Tag it -> it.id }
+
         def promotionCriteria = Promotion.createCriteria()
 
-        def promotions = promotionCriteria.list([sort : "description",
-                                                 order: "ASC"]) {
-
+        def promotions = promotionCriteria.list([sort: "description", order: "ASC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("active", true)
             lte("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
@@ -63,7 +63,7 @@ class PromotionService {
                     relevantPromotions.add(promotion)
                 } else if (promotionGroup.categoryId && promotionGroup.categoryId == product.category.id) {
                     relevantPromotions.add(promotion)
-                } else if (promotionGroup.tagId && allTags?.contains(promotionGroup.tagId)) {
+                } else if (promotionGroup.tagId && tagIds?.contains(promotionGroup.tagId)) {
                     relevantPromotions.add(promotion)
                 }
             }
@@ -86,7 +86,7 @@ class PromotionService {
 
             if (validDate != null) {
                 lte("startDate", validDate)
-                gte ("endDate", validDate)
+                gte("endDate", validDate)
             }
 
             if (updatedSince != null) {
@@ -106,7 +106,7 @@ class PromotionService {
             }
 
             if (status != null && !status.isBlank()) {
-                eq ("active", status == "ACTIVE")
+                eq("active", status == "ACTIVE")
             }
 
             if (searchTerm != null && searchTerm != "") {
@@ -121,41 +121,7 @@ class PromotionService {
             }
 
             if (sortColumn != "supplierName") {
-                order (sortColumn ?: "description", sortOrder ?: "asc")
-            }
-        }
-
-        return promotions
-    }
-
-    def getSymbolGroupPromotion(Object val) {
-        def symbolGroupPromotion = SymbolGroupPromotion.createCriteria()
-
-        promotions = criteria.list([max: max ? Integer.parseInt(max) : 50, offset: offset ? Integer.parseInt(offset) : 0, sort: "description", order: "ASC"]) {
-            eq("retailerId", retailerId)
-
-            if (startDate != null) {
-                gte("startDate", startDate)
-            }
-
-            if (endDate != null) {
-                lte("endDate", endDate)
-            }
-
-            if (updatedDate != null) {
-                gte("updateDatetime", updatedDate)
-            }
-
-            if (promotionType != null) {
-                eq("type", promotionType)
-            }
-
-            if (searchTerm != null && searchTerm != "") {
-                if (descriptionSearch) {
-                    like("description", searchTerm)
-                } else {
-                    like("retailerPromotionId", searchTerm)
-                }
+                order(sortColumn ?: "description", sortOrder ?: "asc")
             }
         }
 

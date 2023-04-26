@@ -110,8 +110,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Promotion Search</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Promotion Search</li>
                         </ol>
                     </div>
                 </div>
@@ -120,25 +120,25 @@
 
         <section id="alerts-container" class="container-fluid">
             <g:if test="${flash.message}">
-                <div class="alert alert-success" role="alert">${flash.message}</div>
+                <div id="alerts-container-message" class="alert alert-success" role="alert">${flash.message}</div>
             </g:if>
         </section>
 
         <section id="promo-maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 class="mx-auto my-auto">Promotion Search</h2>
+                    <h2 id="promo-maintenance-search-title" class="mx-auto my-auto">Promotion Search</h2>
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
+                    <g:link elementId="add-new-promotion" controller="promotion" action="add" class="btn btn-wl">Add New Promotion</g:link>
                 </div>
             </div>
 
             <div class="row mt-4">
                 <div class="col-6">
                     <div class="card bg-light border-wl">
-                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
                                 <div class="col-10">Filters</div>
                                 <div class="col-2 text-right">
@@ -192,7 +192,7 @@
                                 </div>
 
                                 <div class="col-4 offset-2 text-right">
-                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                                 </div>
                             </div>

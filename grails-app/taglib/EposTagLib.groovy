@@ -1,5 +1,6 @@
 import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.Category
+import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.math.RoundingMode
@@ -19,7 +20,7 @@ class EposTagLib {
         def buttonGrids = buttonService.getOtherButtonGrids()
 
         buttonGrids.each { buttonGrid ->
-            out << """<a class="dropdown-item" href="${createLink(controller: "buttonGrid", action: "show", id: buttonGrid.id)}">${buttonGrid.description}</a>"""
+            out << """<a id = ${buttonGrid.description} class="dropdown-item" href="${createLink(controller: "buttonGrid", action: "show", id: buttonGrid.id)}">${buttonGrid.description}</a>"""
         }
     }
 
@@ -66,11 +67,11 @@ class EposTagLib {
     def reportBreadcrumb = { attrs, body ->
         out << """<nav aria-label="breadcrumb"><div class="row mt-4"><div class="col"><ol class="breadcrumb">"""
 
-        out << """<li class="breadcrumb-item">${g.link(uri:"/") { "Home" }}"""
+        out << """<li id="breadcrumb-1" class="breadcrumb-item">${g.link(uri:"/") { "Home" }}"""
 
         switch ((ReportType)attrs.reportType) {
             case ReportType.SALES_DEPARTMENT:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Sales</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Department Sales</li>"""
 
                 break
             case ReportType.SALES_CATEGORY:
@@ -86,13 +87,15 @@ class EposTagLib {
 
                 hierarchy = hierarchy.reverse()
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Department Sales" }}"""
 
+                int i = 2;
                 hierarchy.each { cat ->
+                    i++
                     if (cat == null || cat?.id == attrs.categoryId) {
-                        out << """<li class="breadcrumb-item active" aria-current="page">${cat?.description ?: "Invalid Category"}</li>"""
+                        out << """<li id="breadcrumb-${i}" class="breadcrumb-item active" aria-current="page">${cat?.description ?: "Invalid Category"}</li>"""
                     } else {
-                        out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
+                        out << """<li id="breadcrumb-${i}" class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
                     }
                 }
 
@@ -111,52 +114,78 @@ class EposTagLib {
 
                 hierarchy = hierarchy.reverse()
 
-                out << """<li class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Sales" }}"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"salesDepartment", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Department Sales" }}"""
 
+                int i = 3;
                 hierarchy.each { cat ->
-                    out << """<li class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
+                    out << """<li id="breadcrumb-${i}" class="breadcrumb-item">${g.link(action:"salesCategory", params:[categoryId: cat?.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { cat?.description ?: "Invalid Category" }}"""
+                    i++
                 }
 
-                out << """<li class="breadcrumb-item active" aria-current="page">${product?.description ?: "Invalid Product"}</li>"""
+                out << """<li id="breadcrumb-${i}" class="breadcrumb-item active" aria-current="page">${product?.description ?: "Invalid Product"}</li>"""
 
                 break
             case ReportType.CATEGORY_SALES:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Category Sales</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Category Sales</li>"""
                 break
             case ReportType.SALES:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Product Sales</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Product Sales</li>"""
                 break
             case ReportType.PROMOTIONS_GROUPED:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Promotional Sales</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Promotional Sales</li>"""
 
                 break
             case ReportType.PROMOTIONS:
                 def promotion = promotionService.getPromotion(attrs.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Promotional Sales" }}"""
-                out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Promotional Sales" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break
             case ReportType.PROMOTION:
                 def promotionSale = reportingService.getPromotionSale(attrs.promotionSaleId)
                 def promotion = promotionService.getPromotion(promotionSale.promotionId)
 
-                out << """<li class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Promotional Sales" }}"""
-                out << """<li class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { promotion.description }}"""
-                out << """<li class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"promotionsGrouped", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Promotional Sales" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item">${g.link(action:"promotions", params:[promotionId: promotion.id, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { promotion.description }}"""
+                out << """<li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${promotion.description}</li>"""
 
                 break
             case ReportType.TILL_CONTROL_EVENTS:
-                out << """<li class="breadcrumb-item active" aria-current="page">All Events</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Events</li>"""
 
                 break
             case ReportType.TILL_CONTROL_EVENT:
-                out << """<li class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Events" }}"""
-                out << """<li class="breadcrumb-item active" aria-current="page">${g.message(code: 'TillControlEventType.' +attrs.tillControlEventType)}</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"tillControlEvents", params:[startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Events" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${g.message(code: 'TillControlEventType.' +attrs.tillControlEventType)}</li>"""
 
                 break
             case ReportType.PAYPOINT_SALES:
-                out << """<li class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All PayPoint Sales</li>"""
+
+                break
+            case ReportType.ORDERS:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">All Orders</li>"""
+
+                break
+            case ReportType.ORDER:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"orders", params:[productListId: attrs.productListId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Orders" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Order</li>"""
+
+                break
+            case ReportType.DELIVERIES:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Deliveries Report</li>"""
+
+                break
+            case ReportType.DELIVERY:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"deliveries", params:[storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})</li>"""
+                break
+
+            case ReportType.DELIVERY_ITEM:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"deliveries", params:[productListId: attrs.productListId, storeId: attrs.storeId, supplierId: attrs.supplierId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Deliveries Report" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item">${g.link(action:"delivery", params:[productListId: attrs.productListId, productListItemId: attrs.productListItemId, storeId: attrs.storeId, supplierId: attrs.supplierId, descriptionFilter: attrs.descriptionFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "${attrs.supplierName} (${attrs.deliveryDate?.toString("dd/MM/yyyy") ?: 'Unknown date'})" }}"""
+                out << """<li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${attrs.productDescription}</li>"""
 
                 break
             default:
@@ -201,14 +230,14 @@ class EposTagLib {
         groups.eachWithIndex { it, index ->
             if (index == 0) {
                 breadcrumb += """<nav aria-label="breadcrumb"><ol class="breadcrumb">"""
-                breadcrumb += """<li class="breadcrumb-item"><a href=# onclick="navigateToGroup(0, 1);">Home</a></li>"""
+                breadcrumb += """<li id="breadcrumb-1" class="breadcrumb-item"><a href=# onclick="navigateToGroup(0, 1);">Home</a></li>"""
             }
 
             if (index == groups.size() - 1) {
-                breadcrumb += """<li class="breadcrumb-item active" aria-current="page">${it.name}</li>"""
+                breadcrumb += """<li id="breadcrumb-${index + 1}" class="breadcrumb-item active" aria-current="page">${it.name}</li>"""
                 breadcrumb += """</ol></nav>"""
             } else {
-                breadcrumb += """<li class="breadcrumb-item"><a href=# onclick="navigateToGroup(${it.id}, ${it.level.level});">${it.name}</a></li>"""
+                breadcrumb += """<li id="breadcrumb-${index + 1}" class="breadcrumb-item"><a href=# onclick="navigateToGroup(${it.id}, ${it.level.level});">${it.name}</a></li>"""
             }
         }
 
@@ -241,9 +270,7 @@ class EposTagLib {
     }
 
     def buttonImage = {attrs, body ->
-        def path = Path.of(grailsApplication.config.getProperty('wlpos.buttonImageDirectory'), String.valueOf(springSecurityService.principal.retailerId), String.valueOf(attrs.buttonId) + ".png", File.separator)
-
-        def buttonImage = imageService.getImageFromFile(path.toString())
+        def buttonImage = imageService.getButtonImage(attrs.buttonId)
 
         if (buttonImage != null) {
             out << """<img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="mx-auto my-auto button-grid-button-image" />"""
@@ -261,6 +288,46 @@ class EposTagLib {
             out << """${margin.compareTo(BigDecimal.ZERO) < 0 ? "0.00" : margin}%"""
         } else {
             out << "0.00%"
+        }
+    }
+
+    def productHistory = { attrs, body ->
+        def productHistory = attrs.productHistory
+        switch ((ProductHistoryType)productHistory?.productHistoryType) {
+            case ProductHistoryType.FIELD:
+                out << """User ${productHistory?.usersName} changed 
+                        ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.PRICE:
+                out << """User ${productHistory?.usersName} changed price from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.PRODUCT_RANGE_ADD:
+                out << """User ${productHistory?.usersName} added product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.PRODUCT_RANGE_DELETE:
+                out << """User ${productHistory?.usersName} deleted product range ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.LOCATION_ADD:
+                out << """User ${productHistory?.usersName} added new location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.LOCATION_EDIT:
+                out << """User ${productHistory?.usersName} edited location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            case ProductHistoryType.LOCATION_DELETE:
+                out << """User ${productHistory?.usersName} deleted location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
+            default:
+                out << """User ${productHistory?.usersName} changed 
+                        ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
         }
     }
 }

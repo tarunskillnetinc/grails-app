@@ -1,9 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+import org.grails.web.util.WebUtils
+
 import java.math.RoundingMode
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
+
+import uk.co.wonderlane.wlpos.ProductStock
 
 class ProductVariant implements Serializable {
 
@@ -13,6 +17,7 @@ class ProductVariant implements Serializable {
 
     int id
     Integer storeId
+    Integer defaultSupplierId
     long sku
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -22,15 +27,18 @@ class ProductVariant implements Serializable {
     DateTime effectiveDate
     boolean delete
     Integer shelfLifeDays
+    Integer shelfCapacity
+    Integer minimumDisplayQuantity
 
     Collection<Pack> packs = new ArrayList<>()
 //    Collection<Tag> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
+    Collection<Location> locations = new ArrayList<>()
 
     static transients = ['delete', 'barcodez']
 
-    static hasMany = [packs: Pack]
+    static hasMany = [packs: Pack, locations: Location]
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public ProductVariant() { }
@@ -39,9 +47,11 @@ class ProductVariant implements Serializable {
         autowire true
         table "productvariant"
         version false
+        sort effectiveDate: "desc"
 
         product column: "productId"
         storeId column: "storeId", sqlType: "smallint"
+        defaultSupplierId column: "defaultSupplierId"
         sku column: "sku"
         retailPrice column: "price"
         costPrice column: "costPrice"
@@ -51,11 +61,22 @@ class ProductVariant implements Serializable {
         minimumStockLevel column: "minimumStockLevel"
         effectiveDate column: "effectiveDate"
         packs cascade: "all-delete-orphan"
+        shelfCapacity column: "shelfCapacity"
+        minimumDisplayQuantity column: "minimumDisplayQuantity"
+        locations lazy: false, cascade:  "save-update,delete"
     }
 
     static constraints = {
         storeId nullable: true
-        sku nullable: false
+        sku nullable: false, validator: {val, obj ->
+            if (val > 0) {
+                def existingVariant = ProductVariant.findBySku(val)
+                return (existingVariant != null && obj.productId != existingVariant.productId) ? ["error.ProductVariant.duplicateSku"] : true
+            } else {
+                return true
+            }
+        }
+        defaultSupplierId nullable: true
         retailPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         costPrice min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: true, scale: 2
         size size: 0..45, blank: true, nullable: true
@@ -63,12 +84,19 @@ class ProductVariant implements Serializable {
         shelfLifeDays nullable: true
         effectiveDate nullable: false
         packs nullable: true
+        shelfCapacity nullable: true
+        minimumDisplayQuantity nullable: true
         delete bindable: true
         barcodez bindable: true
+        locations nullable: true
     }
 
     List<ProductPrice> getPrices() {
-        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
+        return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
+    }
+
+    List<ProductPrice> getAllPrices() {
+        return ProductPrice.findAllBySku(sku, [sort: "effectiveDate", order: "desc"])
     }
 
     BigDecimal getCostPrice() {
@@ -86,14 +114,62 @@ class ProductVariant implements Serializable {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, DateTime.now(DateTimeZone.UTC), [sort: "effectiveDate", order: "desc", max: 1])
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc", max: 1])
 
             return productPrice?.price ?: BigDecimal.ZERO.setScale(2)
         }
     }
 
-    List<Barcode> getBarcodes() {
-        return Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, product.retailerId, DateTime.now(DateTimeZone.UTC))
+    public List<Barcode> getBarcodes() {
+
+        //Load all barcodes based on sku
+        def barcodesOnSku = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
+
+
+        //Declare list to populate displaying barcodes
+        def barcodesToShow = new ArrayList<Barcode>()
+
+        //Group by barcodes based on barcode value
+        def barcodesMap = barcodesOnSku?.groupBy {it.barcode}
+
+        //Then loop over map of barcode to find out all active barcode
+        for (Map.Entry<String, List<Barcode>> barcodeList : barcodesMap.entrySet()){
+
+            int deletedBarcode = 0
+            int activeBarcodes = 0
+
+            //For barcode belonging to particular sku check occurrence of active and deleted
+            barcodeList.getValue()?.forEach({ barcode ->
+                if (barcode.recordStatus == ('D' as char)) {
+                    deletedBarcode ++
+                } else {
+                    activeBarcodes ++
+                }
+            })
+
+            //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we pick latest active barcode and add it to show item list
+            if (activeBarcodes > deletedBarcode){
+                int limit = activeBarcodes - deletedBarcode
+                //Sort all active barcodes into descending order and pick top most item list
+                def activeBarcodeList = barcodeList.getValue()?.findAll{it.getRecordStatus() == ('C' as char)}?.sort{it.effectiveDate}?.reverse()?.subList(0, limit)
+                if (activeBarcodeList != null && activeBarcodeList.size() > 0){
+                    barcodesToShow.addAll(activeBarcodeList)
+                }
+            }
+
+        }
+
+        return barcodesToShow
+    }
+
+    public List<Barcode> getAllBarcodes() {
+        return Barcode.findAllBySkuAndRetailerId(sku, springSecurityService.principal.retailerId)
+    }
+
+    public DateTime getSessionEffectiveDate() {
+        def sessionEffectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")
+
+        return sessionEffectiveDate != null && sessionEffectiveDate.size() > 0 ? sessionEffectiveDate[1] : DateTime.now(DateTimeZone.UTC)
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {
@@ -103,12 +179,14 @@ class ProductVariant implements Serializable {
         productVariant.setProductId(product.id)
         productVariant.setStoreId(storeId)
         productVariant.setSku(sku)
-        productVariant.setRetailPrice(retailPrice)
-        productVariant.setCostPrice(costPrice)
+        productVariant.setRetailPrice(getCurrentPrice())
+        productVariant.setCostPrice(getCostPrice())
         productVariant.setSize(size)
         productVariant.setColour(colour)
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
+        productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
+        productVariant.setShelfCapacity(shelfCapacity)
 
         getBarcodes()?.each {
             productVariant.getBarcodes().add(it.barcode)
@@ -127,7 +205,13 @@ class ProductVariant implements Serializable {
         // TODO Set tags
 //        productVariant.getTags().add(it.getTag())
 
+        locations.forEach({ location -> productVariant.getLocations().add(location.getCommonLocation()) })
+
         return productVariant
+    }
+
+    public ProductStock getProductStock(Integer storeId) {
+        return ProductStock.findBySkuAndStoreId(sku, storeId)
     }
 
     @Override

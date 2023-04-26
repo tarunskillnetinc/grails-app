@@ -89,4 +89,12 @@ class Restrictions {
         restrictions.setReceiptPrintForced(receiptPrintForced)
         return restrictions
     }
+
+    public BigDecimal getDefaultMinOpenPrice() {
+        return 0.01 as BigDecimal
+    }
+
+    public BigDecimal getDefaultMaxOpenPrice() {
+        return 9999.99 as BigDecimal
+    }
 }

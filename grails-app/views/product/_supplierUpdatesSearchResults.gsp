@@ -1,3 +1,5 @@
+<g:hiddenField name="supplierPriceUpdateCount" id="supplierPriceUpdateCount" value="${supplierPriceUpdates?.size() ?: 0}" />
+
 <g:if test="${supplierPriceUpdates == null}">
     <div class="row ml-0 mr-0 text-center">
         <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>

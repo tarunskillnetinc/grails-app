@@ -32,6 +32,9 @@
                     }
                 })
             }
+
+
+
         </script>
     </head>
 
@@ -41,8 +44,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">User Management</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">User Management</li>
                         </ol>
                     </div>
                 </div>
@@ -56,12 +59,18 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link controller="user" action="add" class="btn btn-wl">Add New User</g:link>
+                    <g:link elementId="add-user-button" controller="user" action="add" class="btn btn-wl">Add New User</g:link>
                 </div>
             </div>
 
             <g:if test="${flash.message}">
                 <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            </g:if>
+
+            <g:if test="${flash.error}">
+                <section id="errors-container">
+                    <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+                </section>
             </g:if>
 
             <div class="row mt-4 ml-0 mr-0">
@@ -82,7 +91,7 @@
             </div>
 
             <div id="search-results" class="align-content-center">
-                <g:render template="userSearchResults" model="[users: users]" />
+                <g:render template="userSearchResults"  model="[users: users]"/>
             </div>
         </section>
     </body>

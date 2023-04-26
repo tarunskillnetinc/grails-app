@@ -64,6 +64,8 @@
             $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('descriptionFilter').value = null;
+            $('#storeFilter').prop("selectedIndex", 0);
+            $('#statusFilter').prop("selectedIndex", 0);
         }
     </script>
 
@@ -74,15 +76,15 @@
         <g:reportBreadcrumb reportType="${reportType}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">PayPoint Sales Report</h2>
+            <h2 id="page-title" class="mx-auto">PayPoint Sales Report</h2>
         </div>
 
-        <div class="row ml-2 mt-4">
-            <div class="col-6">
+        <div class="row mt-4">
+            <div class="col-5">
                 <div class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                    <div id="filter-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                         <div class="row">
-                            <div class="col-10">Filters</div>
+                            <div id="filter-text" class="col-10">Filters</div>
                             <div class="col-2 text-right">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
@@ -107,12 +109,16 @@
                             <div class="form-group row">
                                 <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store Id</label>
                                 <div class="col-4">
-                                    <g:field type="number" step="1" min="0" id="storeFilter" name="storeFilter" value="${storeFilter}" class="form-control bottom-border" autocomplete="off"/>
+                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                              optionKey="id"
+                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                              class="form-control select-border"
+                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                                 </div>
 
                                 <label for="statusFilter" class="col-2 col-form-label-sm text-right">Status</label>
                                 <div class="col-4">
-                                    <g:select id="statusFilter" name="statusFilter" from="${['', 'Success', 'Failure']}" value="${statusFilter}"  class="form-control bottom-border"/>
+                                    <g:select id="statusFilter" name="statusFilter" from="${['Success', 'Failure']}" noSelection="['':'']" value="${statusFilter}" class="form-control select-border" />
                                 </div>
                             </div>
 
@@ -123,7 +129,7 @@
                                 </div>
 
                                 <div class="col-4 text-right">
-                                    <button type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport()">Search</button>
                                 </div>
                             </div>
@@ -133,15 +139,15 @@
             </div>
 
             <div class="col-2 offset-2 text-right" style="margin-top: 8px;">
-                <button class="btn btn-wl" onclick="exportToPPCsv();">Export weekly PP Report</button>
-                <button class="btn btn-wl mt-2" onclick="exportToCsv();">Export filtered CSV</button>
+                <button id="export-to-pp-csv" class="btn btn-wl" onclick="exportToPPCsv();">Export weekly PP Report</button>
+                <button id="export-to-csv" class="btn btn-wl mt-2" onclick="exportToCsv();">Export filtered CSV</button>
             </div>
 
             <div class="col-2">
                 <div class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
+                    <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                         <div class="row">
-                            <div class="col-10">Columns</div>
+                            <div id="columns-text" class="col-10">Columns</div>
                             <div class="col-2 text-right">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
@@ -173,11 +179,11 @@
                             </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsType" class="form-check-input" value="type" checked="${!userColumns || userColumns?.columns?.find { it.column == 'type' }?.enabled}" />
-                                <label class="form-check-label" for="columnsDescription">Type</label>
+                                <label class="form-check-label" for="columnsType">Type</label>
                             </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsValue" class="form-check-input" value="value" checked="${!userColumns || userColumns?.columns?.find { it.column == 'value' }?.enabled}" />
-                                <label class="form-check-label" for="columnsValue">Vlue</label>
+                                <label class="form-check-label" for="columnsValue">Value</label>
                             </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsStatus" class="form-check-input" value="status" checked="${!userColumns || userColumns?.columns?.find { it.column == 'status' }?.enabled}" />

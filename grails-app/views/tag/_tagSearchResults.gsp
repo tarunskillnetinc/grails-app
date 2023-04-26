@@ -3,10 +3,10 @@
 </g:if>
 
 <g:each in="${tags}" var="tag" status="i">
-    <div class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(action:'show', id: tag.id)}';">
-        <div class="col-3">${tag.id}</div>
-        <div class="col-6">${tag.description}</div>
-        <div class="col-3">${tag.tagProducts?.size()}</div>
+    <div id="tag-${i+1}" class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(action:'show', id: tag.id)}';">
+        <div id="tag-${i+1}-id" class="col-3">${tag.id}</div>
+        <div id="tag-${i+1}-description" class="col-6">${tag.description}</div>
+        <div id="tag-${i+1}-prod-count" class="col-3">${tag.tagProducts?.size()}</div>
     </div>
 </g:each>
 

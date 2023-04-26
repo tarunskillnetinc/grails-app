@@ -29,7 +29,7 @@
         <g:form method="post" action="save" class="mt-5" name="bogof-form">
             <g:hiddenField name="promotionType" value="bogof"/>
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="bogof-promotionItemsType" value="product"/>
+            <g:hiddenField name="bogof-promotionItemsType" value="${productItemType}"/>
             <g:hiddenField name="bogof-noItemChange" value="true"/>
 
             <div id="bogof-details">
@@ -155,8 +155,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="bogof-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -164,7 +164,7 @@
         <g:form method="post" action="save" class="mt-5" name="xfory-form">
             <g:hiddenField name="promotionType" value="xfory" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="xfory-promotionItemsType" value="product" />
+            <g:hiddenField name="xfory-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="xfory-noItemChange" value="true" />
 
             <div id="xfory-details">
@@ -344,8 +344,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="xfory-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -353,7 +353,7 @@
         <g:form method="post" action="save" class="mt-5" name="percentage-form">
             <g:hiddenField name="promotionType" value="percentage"/>
             <g:hiddenField name="promotionId" value="${promotion?.id}"/>
-            <g:hiddenField name="percentage-promotionItemsType" value="product"/>
+            <g:hiddenField name="percentage-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="percentage-noItemChange" value="true"/>
 
             <div id="percentage-details">
@@ -486,8 +486,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="percentage-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -495,7 +495,7 @@
         <g:form method="post" action="save" class="mt-5" name="fixedAmount-form">
             <g:hiddenField name="promotionType" value="fixedAmount" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="fixedAmount-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedAmount-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="fixedAmount-noItemChange" value="true" />
 
             <div id="fixedAmount-details">
@@ -636,8 +636,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>
@@ -645,7 +645,7 @@
         <g:form method="post" action="save" class="mt-5" name="fixedPrice-form">
             <g:hiddenField name="promotionType" value="fixedPrice" />
             <g:hiddenField name="promotionId" value="${promotion?.id}" />
-            <g:hiddenField name="fixedPrice-promotionItemsType" value="product" />
+            <g:hiddenField name="fixedPrice-promotionItemsType" value="${productItemType}" />
             <g:hiddenField name="fixedPrice-noItemChange" value="true" />
 
             <div id="fixedPrice-details">
@@ -786,8 +786,8 @@
                 </div>
             </div>
             <div class="row my-5">
-                <g:link action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
-                <button type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
+                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
     </div>

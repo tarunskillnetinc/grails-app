@@ -4,6 +4,7 @@ grails.plugin.springsecurity.password.bcrypt.logrounds = 8
 // Added by the Spring Security Core plugin:
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',                 access: ['permitAll']],
+	[pattern: '/actuator/health',  access: ['permitAll']],
 	[pattern: '/error',            access: ['permitAll']],
 	[pattern: '/index',            access: ['isAuthenticated()']],
 	[pattern: '/index.gsp',        access: ['permitAll']],
@@ -28,7 +29,9 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/receipt/**',       access: 'isAuthenticated()'],
 	[pattern: '/tag/**',           access: 'isAuthenticated()'],
 	[pattern: '/shelfEdgeLabel/**',access: 'isAuthenticated()'],
-	[pattern: '/snapshot/**',  	   access: 'isAuthenticated()']
+	[pattern: '/snapshot/**',  	   access: 'isAuthenticated()'],
+	[pattern: '/order/**',  	   access: 'isAuthenticated()'],
+	[pattern: '/hardwareImport/**',access: 'isAuthenticated()']
 ]
 
 grails.plugin.springsecurity.filterChain.chainMap = [

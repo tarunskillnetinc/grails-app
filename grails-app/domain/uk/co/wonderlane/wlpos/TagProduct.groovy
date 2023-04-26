@@ -59,4 +59,22 @@ class TagProduct implements Serializable {
 
         return tagProduct
     }
+
+    @Override
+    boolean equals(that) {
+        if (this.is(that)) return true
+        if (getClass() != that.class) return false
+
+        TagProduct tagProduct = (TagProduct)that
+        if (sku != tagProduct.sku || productVariantId != tagProduct.productVariantId || productId != tagProduct.productId || tag?.id != tagProduct.tag?.id) {
+            return false
+        }
+
+        return true
+    }
+
+    @Override
+    int hashCode() {
+        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (tag?.id?.hashCode() ?: 123)
+    }
 }

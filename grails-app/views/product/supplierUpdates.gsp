@@ -91,10 +91,24 @@
             function savePricesButtonClicked(acceptRrps) {
                 var checkedBoxes = $("input:checked:not(#checkAllCheckbox)");
 
+                //Calculate total product price list
+                totalProductListCount = 0;
+                var supplierCountIdTag = $("#supplierPriceUpdateCount");
+                if(supplierCountIdTag != null){
+                    totalProductListCount =  parseInt(supplierCountIdTag.val());
+                }
+
                 // Change the confirm message depending which button you pressed and whether you have any products selected.
                 if (checkedBoxes.length > 0 && acceptRrps) {
                     $("#confirmModalHeader").html("Accept RRPs");
-                    $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for the selected products?");
+
+                    //If check box count == total product price list show error message or else show different error message
+                    if(checkedBoxes.length === totalProductListCount){
+                        $("#confirmModalContent").html("This will update all prices in the list without exceptions");
+                    } else {
+                        $("#confirmModalContent").html("This will update selected prices in the list without exceptions");
+                    }
+
                 } else if (checkedBoxes.length === 0 && acceptRrps) {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
@@ -105,7 +119,12 @@
                     $("#confirmModalContent").html("Are you sure you wish to accept the recommended retail price for ALL products?");
                 } else if (checkedBoxes.length > 0 && !acceptRrps) {
                     $("#confirmModalHeader").html("Save Prices");
-                    $("#confirmModalContent").html("Are you sure you wish to accept the entered retail price for the selected products?");
+
+                    if(checkedBoxes.length === totalProductListCount){
+                        $("#confirmModalContent").html("This will update all prices in the list");
+                    } else {
+                        $("#confirmModalContent").html("This will update the price on selected items only");
+                    }
                 } else {
                     if ($(":checkbox:not(#checkAllCheckbox)").length === 0) {
                         alert("No products found.");
@@ -199,8 +218,8 @@
                 <div class="row mt-4">
                     <div class="col">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li class="breadcrumb-item active" aria-current="page">Supplier Price Updates</li>
+                            <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Supplier Price Updates</li>
                         </ol>
                     </div>
                 </div>
