@@ -311,20 +311,19 @@
 
                 locationContainers.each(function(loopIndex) {
                     var locationIndex = $(this).attr("id").substring(17);
-                    var locationSelector = "#variants\\[" +index +"\\]\\.locations\\[" +locationIndex +"\\]";
+                    var locationSelector = "#variants\\[" +index +"\\]\\.locationz\\[" +locationIndex +"\\]";
 
-                    params["locations[" +loopIndex +"].index"] = loopIndex;
-                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
-                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
-                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
-                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
-                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
-                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
-                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
-                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
-                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
-                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
-                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
                 $.ajax({
@@ -478,12 +477,13 @@
             }
 
             // The locations button was clicked, we display the locations modal for this variant.
-            function showLocationsModal(variantIndex) {
+            function showLocationsModal(variantIndex, sku) {
                 $("#locationsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#locationsModal').modal({ show: true });
 
                 var params = {};
                 params["index"] = variantIndex;
+                params["sku"] = sku;
 
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["productVariantId"] = variantId;
@@ -492,20 +492,19 @@
 
                 locationContainers.each(function(loopIndex) {
                     var locationIndex = $(this).attr("id").substring(17);
-                    var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locations\\[" +locationIndex +"\\]";
+                    var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locationz\\[" +locationIndex +"\\]";
 
-                    params["locations[" +loopIndex +"].index"] = loopIndex;
-                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
-                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
-                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
-                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
-                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
-                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
-                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
-                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
-                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
-                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
-                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
                 $.ajax({
@@ -697,18 +696,17 @@
                         return
                     }
 
-                    params["locations[" +loopIndex +"].index"] = loopIndex;
-                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
-                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
-                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
-                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
-                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
-                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
-                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
-                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
-                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
-                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
-                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
                 if (!mandatoryLocationFields) {

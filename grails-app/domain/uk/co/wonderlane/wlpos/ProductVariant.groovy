@@ -7,8 +7,6 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
 
-import uk.co.wonderlane.wlpos.ProductStock
-
 class ProductVariant implements Serializable {
 
     def springSecurityService
@@ -34,11 +32,11 @@ class ProductVariant implements Serializable {
 //    Collection<Tag> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
-    Collection<Location> locations = new ArrayList<>()
+    Collection<Location> locationz = new ArrayList<>()
 
-    static transients = ['delete', 'barcodez']
+    static transients = ['delete', 'barcodez', 'locationz']
 
-    static hasMany = [packs: Pack, locations: Location]
+    static hasMany = [packs: Pack]
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public ProductVariant() { }
@@ -63,7 +61,6 @@ class ProductVariant implements Serializable {
         packs cascade: "all-delete-orphan"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
-        locations lazy: false, cascade:  "save-update,delete"
     }
 
     static constraints = {
@@ -88,7 +85,7 @@ class ProductVariant implements Serializable {
         minimumDisplayQuantity nullable: true
         delete bindable: true
         barcodez bindable: true
-        locations nullable: true
+        locationz bindable: true
     }
 
     List<ProductPrice> getPrices() {
@@ -166,6 +163,10 @@ class ProductVariant implements Serializable {
         return Barcode.findAllBySkuAndRetailerId(sku, springSecurityService.principal.retailerId)
     }
 
+    public List<Location> getLocations() {
+        return Location.findAllBySkuAndStoreId(sku, springSecurityService.principal.storeId)
+    }
+
     public DateTime getSessionEffectiveDate() {
         def sessionEffectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")
 
@@ -205,7 +206,9 @@ class ProductVariant implements Serializable {
         // TODO Set tags
 //        productVariant.getTags().add(it.getTag())
 
-        locations.forEach({ location -> productVariant.getLocations().add(location.getCommonLocation()) })
+        getLocations()?.each {
+            productVariant.getLocations().add(it.getCommonLocation())
+        }
 
         return productVariant
     }

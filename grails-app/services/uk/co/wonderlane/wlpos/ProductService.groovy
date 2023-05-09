@@ -9,7 +9,6 @@ import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
-import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -17,7 +16,6 @@ import uk.co.wonderlane.wlpos.reporting.ReportType
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.SQLException
 import java.sql.Types
 import java.util.stream.Collectors
 
@@ -115,6 +113,28 @@ class ProductService extends MySqlDal {
                     deletedBarcode.save()
                 } else if (barcode instanceof Barcode) {
                     barcode.save()
+                }
+            }
+        }
+    }
+
+    def saveLocations(Product product) {
+        product?.variants?.each { variant ->
+            variant.locationz?.each { location ->
+                if (location.hasProperty('delete') && location.delete) {
+                    Location deletedLocation = new Location()
+                    deletedLocation.sku = location.sku
+                    deletedLocation.storeId = location.storeId
+                    deletedLocation.aisle = location.aisle
+                    deletedLocation.bay = location.bay
+                    deletedLocation.shelf = location.shelf
+                    deletedLocation.position = location.position
+                    deletedLocation.location = location.location
+                    deletedLocation.shelfCapacity = location.shelfCapacity
+                    deletedLocation.minimumDisplayQuantity = location.minimumDisplayQuantity
+                    deletedLocation.save()
+                } else if (location instanceof Location) {
+                    location.save()
                 }
             }
         }

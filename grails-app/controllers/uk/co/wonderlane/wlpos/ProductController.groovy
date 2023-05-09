@@ -427,7 +427,7 @@ class ProductController {
                     pack.updateDatetime = now
                 }
 
-                variant.locations?.each { location ->
+                variant.locationz?.each { location ->
                     location.storeId = springSecurityService.principal.storeId
                     location.sku = variant.sku
                 }
@@ -476,6 +476,7 @@ class ProductController {
 
             productService.saveProduct(product, productVariantsList)
             productService.saveBarcodes(product)
+            productService.saveLocations(product)
 
             if (builder && builder.productHistories) {
                 productService.saveProductHistories(builder.productHistories)
@@ -627,10 +628,10 @@ class ProductController {
                     newVariant.addToPacks(newPack)
                 }
 
-                editedVariant.locations?.each { editedLocation ->
+                editedVariant.locationz?.each { editedLocation ->
                     Location newLocation = new Location()
                     updateLocation(newLocation, editedLocation, existingVariant)
-                    newVariant.addToLocations(newLocation)
+                    newVariant.locationz.add(newLocation)
                 }
 
                 editedVariant.barcodez.forEach({
@@ -772,33 +773,34 @@ class ProductController {
             return
         }
 
-        editedVariant.locations?.each { editedLocation ->
-            def existingLocation = existingVariant.locations?.find { existingLocation -> existingLocation.id == editedLocation.id }
+        def variantLocations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, editedVariant.sku)
 
-            if (existingLocation && locationChanged(editedLocation, existingLocation)) {
+        editedVariant.locationz?.each { editedLocation ->
+            def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == editedLocation.id }
+
+            if (existingLocation && existingLocation.id > 0 && locationChanged(editedLocation, existingLocation)) {
                 updateLocation(existingLocation, editedLocation, existingVariant)
             } else if (!existingLocation) {
                 Location newLocation = new Location()
                 updateLocation(newLocation, editedLocation, existingVariant)
-                existingVariant.addToLocations(newLocation)
+                existingVariant.locationz.add(newLocation)
             }
         }
 
         ArrayList<Location> deleteLocations = new ArrayList<>();
         // Remove any locations which no longer exist.
-        existingVariant.locations?.each { existingLocation ->
+        variantLocations?.each { existingLocation ->
             // If the ID is not set then this must be a new location added as part of this save, so don't remove it!
             if (existingLocation.id > 0) {
-                def editedLocation = editedVariant.locations?.find { editedLocation -> editedLocation.id == existingLocation.id }
+                def editedLocation = editedVariant.locationz?.find { editedLocation -> editedLocation.id == existingLocation.id }
 
-                if (!editedLocation) {
+                if (!editedLocation && editedLocation?.sku != 0 && editedLocation?.storeId != 0) {
                     deleteLocations.add(existingLocation)
                 }
             }
         }
 
         for (int i = 0; i < deleteLocations.size(); i++) {
-            existingVariant.removeFromLocations(deleteLocations.get(i))
             deleteLocations.get(i).delete()
         }
     }
@@ -1002,8 +1004,8 @@ class ProductController {
 
         //---------------------------- Update history for location fields --------------------------------//
 
-        variant?.locations?.each { editedLocation ->
-            def existingLocation = oldVariant?.locations?.find { existingLocation -> existingLocation.id == editedLocation.id }
+        variant?.locationz?.each { editedLocation ->
+            def existingLocation = oldVariant?.locationz?.find { existingLocation -> existingLocation.id == editedLocation.id }
             if (existingLocation) { //Location already existed
                 compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
             } else { //Location newly added
@@ -1012,10 +1014,10 @@ class ProductController {
         }
 
         // Remove any locations which no longer exist.
-        oldVariant?.locations?.each { existingLocation ->
+        oldVariant?.locationz?.each { existingLocation ->
             // If the ID is not set then this must be a new location added as part of this save
             if (existingLocation.id > 0) {
-                def editedLocation = variant?.locations?.find { editedLocation -> editedLocation.id == existingLocation.id }
+                def editedLocation = variant?.locationz?.find { editedLocation -> editedLocation.id == existingLocation.id }
                 if (!editedLocation) { //Location is removed
                     compareLocationFields(builder, existingLocation, new LocationCommand(), ProductHistoryType.LOCATION_DELETE)
                 }
@@ -1192,7 +1194,7 @@ class ProductController {
     }
 
     def ajaxLocations(LocationsCommand cmd) {
-        def locations = Location.findAllByStoreId(springSecurityService.principal.storeId)
+        def locations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, params.sku)
         def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: locationsType])
     }
@@ -1228,7 +1230,7 @@ class ProductController {
     }
 
     def ajaxSaveLocation(LocationsCommand cmd) {
-        cmd.getLocations()?.forEach({ location ->
+        cmd.getLocationz()?.forEach({ location ->
             if (!location.validate()) {
                 if (!cmd.hasErrors)
                     cmd.hasErrors = Boolean.TRUE
@@ -1236,7 +1238,7 @@ class ProductController {
             }
         })
         def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
-        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locations, variantIndex: cmd.index, locationsType: locationsType])
+        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: locationsType])
     }
 
     //This will render category mapped restrictions for new products
@@ -1509,7 +1511,7 @@ class AddVariantCommand {
     DateTime effectiveDate
     List<AddBarcodeCommand> barcodez
     List<AddPackCommand> packs
-    List<AddLocationCommand> locations
+    List<AddLocationCommand> locationz
     boolean zeroPrice
     Integer defaultSupplierId
     int operationMode
@@ -1588,7 +1590,7 @@ class AddPackCommand implements Validateable {
 class LocationsCommand {
     int index
     int productVariantId
-    List<AddLocationCommand> locations
+    List<AddLocationCommand> locationz
     Boolean hasErrors = Boolean.FALSE
 }
 
@@ -1707,7 +1709,7 @@ class ProductVariantCommand {
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
-    Collection<LocationCommand> locations = new ArrayList<>()
+    Collection<LocationCommand> locationz = new ArrayList<>()
 }
 
 class PackCommand {

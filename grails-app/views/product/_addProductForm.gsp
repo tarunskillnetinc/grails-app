@@ -358,7 +358,7 @@
                             <g:each in="${product?.variants}" var="variant" status="i">
                                 <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                     <div id="variant-${i}">
-                                        <g:render template="locationVariant" model="[index: i, variant: variant, locationsType: locationsType, storeId: storeId]" />
+                                        <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations, locationsType: locationsType, storeId: storeId]" />
                                     </div>
                                 </g:if>
                             </g:each>
