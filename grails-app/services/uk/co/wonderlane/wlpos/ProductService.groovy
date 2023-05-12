@@ -475,6 +475,7 @@ class ProductService extends MySqlDal {
                     def result = [:]
                     result.productId = rs.getInt("id")
                     result.sku = rs.getLong("sku")
+                    result.itemCode = rs.getString("itemCode")
                     result.productDescription = rs.getString("productDescription")
                     result.price = rs.getBigDecimal("price")
                     result.priceBandDescription = rs.getString("priceBandDescription")

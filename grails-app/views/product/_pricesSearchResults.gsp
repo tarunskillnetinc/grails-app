@@ -14,8 +14,8 @@
     <div id="product-price-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
         <div class="col-2 my-auto">
             <div class="row form-group form-check mb-0">
-                <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="col-2 form-check-input wl-checkbox" style="margin-top: 8px;" />
-                <label id="product-price-${i+1}-item-code" for="product-${productPrice.key}" class="col-10 col-form-label pl-4">${productPrice.key}</label>
+                <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="col-1 form-check-input wl-checkbox" style="margin-top: 8px;" />
+                <label id="product-price-${i+1}-item-code" for="product-${productPrice.key}" class="col-10 col-form-label pl-2 text-truncate">${productPrice.value[0].itemCode}</label>
             </div>
         </div>
         <div id="product-price-${i+1}-description" class="col-4 my-auto">${productPrice.value[0].productDescription}</div>

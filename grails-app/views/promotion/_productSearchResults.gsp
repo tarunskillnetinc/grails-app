@@ -12,7 +12,7 @@
 
 <g:each in="${products}" var="product" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to select." style="cursor: pointer;" onclick="productSelected(${product.variants?.find { it.storeId == storeId }?.id}, '${product.variants?.find { it.storeId == storeId }?.sku}', '${product.description}');" data-dismiss="modal">
-        <div class="col-2">${product.itemCode}</div>
+        <div class="col-2 text-truncate">${product.itemCode}</div>
         <div class="col-4">${product.description}</div>
         <div class="col-2">${product.category?.description}</div>
         <div class="col-2">£${product.variants?.find { it.storeId == storeId }?.costPrice ?: '0.00'}</div>
