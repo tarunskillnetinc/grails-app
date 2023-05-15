@@ -1,5 +1,5 @@
 <g:if test="${!successful}">
-    <div id="noResultsRow" class="col-6 offset-3 pt-2 pb-2 text-center wl-striped0">The hardware could not be processed because of one or more errors</div>
+    <div id="noResultsRow" class="col-6 offset-3 pt-2 pb-2 text-center wl-striped0">The hardware could not be processed because of the following error - ${importError}  </div>
 </g:if>
 <g:else>
     <div class="row mt-5 pb-2 table-wl bottom-border align-content-center">
@@ -25,11 +25,11 @@
 </g:else>
 
 <div class="col-2 text-right">
-    <g:if test="${rows.any{ it.validRow }}">
-        <button class="btn btn-wl" id="uploadSave" name="save">Import</button>
+    <g:if test="${rows.any{ it.validRow } && successful}">
+        <button class="btn btn-wl mt-2" id="uploadSave" name="save">Import</button>
     </g:if>
-    <button class="btn btn-wl" id="uploadCancel" name="cancel">Cancel</button>
-    <g:if test="${rows.any{ it.validRow }}">
-        <button class="btn btn-wl" id="exportResults" name="export" onclick="window.location='${createLink(action:'exportResults')}';">Export Results</button>
+    <button class="btn btn-wl ml-2 mt-2" id="uploadCancel" name="cancel">Cancel</button>
+    <g:if test="${rows.any{ it.validRow } && successful}">
+        <button class="btn btn-wl ml-2 mt-2" id="exportResults" name="export" onclick="window.location='${createLink(action:'exportResults')}';">Export Results</button>
     </g:if>
 </div>

@@ -14,7 +14,7 @@ class HardwareImportController {
     def ajaxCSVHardwareUpload() {
         def file = request.getFile('file')
         def inputStream = file.inputStream
-        List<String> errors = new ArrayList<>()
+        String importError
 
         try {
             List<CSVUploadHardware> rows = new CsvToBeanBuilder(inputStream.newReader())
@@ -22,10 +22,10 @@ class HardwareImportController {
                 .build()
                 .parse()
 
-            validateImport(file, errors, rows)
+            importError = validateImport(file, rows)
 
             // No validation errors, can continue with the import preparation
-            if(errors.isEmpty()) {
+            if(!importError) {
                 rows.forEach({CSVUploadHardware row ->
                     if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0) {
                         row.validRow = false;
@@ -36,10 +36,10 @@ class HardwareImportController {
             session.ROWS = rows
         } catch (Exception e) {
             e.printStackTrace()
-            errors.add("Error occurred during processing of file")
+            importError = "Error occurred during processing of file"
         }
 
-        render(template: "importResults", model: [successful: errors.isEmpty(), errors: errors, rows: session.ROWS])
+        render(template: "importResults", model: [successful: !importError, importError: importError, rows: session.ROWS])
     }
 
     def exportResults() {
@@ -83,14 +83,15 @@ class HardwareImportController {
         render(model: [successful: errors.isEmpty(), errors: errors, rows: session.ROWS])
     }
 
-    private void validateImport(file, ArrayList<String> errors, List<CSVUploadHardware> rows) {
+    private String validateImport(file, List<CSVUploadHardware> rows) {
         def anyEmptyRows = rows.any { !it.serialNumber?.trim() || !it.model?.trim() }
 
         if (anyEmptyRows) {
             log.error("Could not import hardware file due to failing validation - $file.filename")
-            errors.add("Could not import file as one or more rows did not have a serial number or model. Please verify the data and try again.")
-            return;
+            return "Could not import file as one or more rows did not have a serial number or model. Please verify the data and try again."
         }
+
+        return null
     }
 }
 
