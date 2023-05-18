@@ -1,8 +1,5 @@
 <g:each in="${locations}" var="location" status="locationIndex">
     <div id="locationContainer${locationIndex}">
-        <g:hiddenField name="variants[${variantIndex}].locationz[${locationIndex}].id" value="${location.id ?: ''}" />
-        <g:hiddenField name="variants[${variantIndex}].locationz[${locationIndex}].storeId" value="${location.storeId}" />
-        <g:hiddenField name="variants[${variantIndex}].locationz[${locationIndex}].sku" value="${location.sku}" />
         <g:hiddenField name="variants[${variantIndex}].locationz[${locationIndex}].location" value="${location.location}" />
         <g:hiddenField name="variants[${variantIndex}].locationz[${locationIndex}].aisle" value="${location.aisle}" />
         <g:hiddenField name="variants[${variantIndex}].locationz[${locationIndex}].bay" value="${location.bay}" />

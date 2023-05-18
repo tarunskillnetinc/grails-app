@@ -14,6 +14,7 @@
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
             var addBarcodeUrl = "${createLink(controller: 'product', action: 'ajaxAddBarcode')}";
             var saveVariantUrl = "${createLink(controller: 'product', action: 'ajaxSaveVariant')}";
+            var addTempLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddTempLocation')}";
             var addPriceUrl = "${createLink(controller: 'product', action: 'ajaxAddPrice')}";
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
             var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
@@ -346,6 +347,54 @@
                 });
 
                 $('#addVariantModal').modal("hide");
+            }
+
+            function saveTempLocations(index) {
+                var id = $("#addVariantId").val();
+                var sku = $("#addVariantSku").val();
+                var retailPrice = $("#addVariantRetailPrice").val();
+                var costPrice = $("#addVariantCostPrice").val();
+                var shelfLifeDays = $("#addVariantShelfLifeDays").val();
+                var shelfCapacity = $("#addVariantShelfCapacity").val();
+                var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
+                var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
+
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
+                var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
+
+                locationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring(17);
+                    var locationSelector = "#variants\\[" +index +"\\]\\.locationz\\[" +locationIndex +"\\]";
+
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                });
+
+                $.ajax({
+                    url: addTempLocationUrl,
+                    method: "POST",
+                    data: params,
+                    success: function(resp) {
+                        var locationContainer = $("#locationsContainer > #location-" +index);
+
+                        if (locationContainer.length === 0) {
+                            $("#locationsContainer").append("<div id=\"location-" +index +"\"></div>");
+
+                            locationContainer = $("#locationsContainer > #location-" +index);
+                        }
+                        locationContainer.html(resp);
+                        skuChanged(index, sku);
+                    }
+                });
             }
 
             // If we change the SKU we may need to update the SKU in the price changes section too.

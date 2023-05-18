@@ -93,5 +93,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelAddVariantButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="saveVariant(${variant?.index});">Ok</button>
+    <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="saveVariant(${variant?.index}); saveTempLocations(${variant?.index})">Ok</button>
 </div>

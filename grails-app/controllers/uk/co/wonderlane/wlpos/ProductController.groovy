@@ -112,7 +112,8 @@ class ProductController {
                                     ranges        : ranges,
                                     priceBands    : priceBands,
                                     now           : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
-                                    isNewProduct  : true])
+                                    isNewProduct  : true,
+                                    locationsType : Retailer.findById(springSecurityService.principal.retailerId).locationsType])
     }
 
     def search() {
@@ -555,7 +556,8 @@ class ProductController {
                                         selectedRanges     : editedProduct.rangeId,
                                         priceBands         : priceBands,
                                         editedPrices       : editedPrices,
-                                        vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)])
+                                        vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                        locationsType      : Retailer.findById(springSecurityService.principal.retailerId).locationsType])
         }
     }
 
@@ -630,7 +632,7 @@ class ProductController {
 
                 editedVariant.locationz?.each { editedLocation ->
                     Location newLocation = new Location()
-                    updateLocation(newLocation, editedLocation, existingVariant)
+                    updateLocation(newLocation, editedLocation, editedVariant)
                     newVariant.locationz.add(newLocation)
                 }
 
@@ -779,10 +781,10 @@ class ProductController {
             def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == editedLocation.id }
 
             if (existingLocation && existingLocation.id > 0 && locationChanged(editedLocation, existingLocation)) {
-                updateLocation(existingLocation, editedLocation, existingVariant)
+                updateLocation(existingLocation, editedLocation, editedVariant)
             } else if (!existingLocation) {
                 Location newLocation = new Location()
-                updateLocation(newLocation, editedLocation, existingVariant)
+                updateLocation(newLocation, editedLocation, editedVariant)
                 existingVariant.locationz.add(newLocation)
             }
         }
@@ -851,10 +853,10 @@ class ProductController {
         }
     }
 
-    private void updateLocation(def locationToBeUpdated, def editedLocation, def existingVariant) {
+    private void updateLocation(def locationToBeUpdated, def editedLocation, def editedVariant) {
         def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         locationToBeUpdated.storeId = springSecurityService.principal.storeId
-        locationToBeUpdated.sku = existingVariant.sku
+        locationToBeUpdated.sku = editedVariant.sku
 
         if (locationToBeUpdated.id == 0 || locationsType == "ADVANCED") {
             locationToBeUpdated.aisle = editedLocation.aisle
@@ -1177,6 +1179,12 @@ class ProductController {
         def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         def storeId = springSecurityService.principal.storeId
         render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, locationsType: locationsType, storeId: storeId])
+    }
+
+    def ajaxAddTempLocation(AddVariantCommand cmd) {
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        def storeId = springSecurityService.principal.storeId
+        render(template: "locationVariant", model: [index: cmd.index, variant: cmd, locationsType: locationsType, storeId: storeId])
     }
 
     def ajaxAddPrice(int index, long sku, boolean zeroPrice) {

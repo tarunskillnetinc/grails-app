@@ -348,9 +348,9 @@
                             <div class="col-5 font-weight-bold">Location Description</div>
                         </div>
 
-                        <div id="variantsContainer">
+                        <div id="locationsContainer">
                             <g:if test="${!product || !product?.variants}">
-                                <div id="variant-0">
+                                <div id="location-0">
                                     <g:render template="locationVariant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
                                 </div>
                             </g:if>
