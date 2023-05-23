@@ -8,8 +8,12 @@
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="money-mask.js" />
+        <asset:javascript src="category-select.js" />
+        <asset:stylesheet href="radio.css" />
 
         <script type="text/javascript">
+            var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+
             $(document).ready(function () {
                 $('#sinceDate').datepicker({
                     format: "dd/mm/yyyy",
@@ -54,7 +58,7 @@
 
             function resetButtonClicked() {
                 $('#supplier').prop("selectedIndex", 0);
-                $('#category').prop("selectedIndex", 0);
+                $('input[name="category.id"]:checked').prop("checked", false);
                 $('#sinceDate').val("${new Date().format("dd/MM/yyyy")}");
 
                 search();
@@ -64,7 +68,7 @@
                 var URL = "${createLink(controller: 'product', action: 'supplierUpdatesSearch')}";
 
                 var supplierId = $('#supplier').val();
-                var categoryId = $('#category').val();
+                var categoryId = $('input[name="category.id"]:checked').val();
                 var sinceDate = $('#sinceDate').val();
                 var priceBandId = $('#priceBand').val();
 
@@ -247,7 +251,7 @@
 
         <section id="maintenance-search" class="container-fluid">
             <div class="row mt-4">
-                <div class="col-5">
+                <div class="col-6">
                     <div class="card bg-light border-wl">
                         <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
@@ -260,34 +264,44 @@
                             </div>
                         </div>
                         <div class="card-body collapse" id="filterCollapse">
-                            <div class="form-group row">
-                                <label for="supplier" class="col-2 col-form-label-sm text-right">Supplier</label>
-                                <div class="col-4">
-                                    <g:select name="supplier" from="${suppliers}" noSelection="['':'All Suppliers']" value="${supplier}" optionValue="name" optionKey="id" class="form-control select-border" />
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group row">
+                                        <label for="category" class="col-4 col-form-label-sm text-right">Category</label>
+                                        <div class="col-8" style="max-height: 300px; overflow-y: scroll;">
+                                            <g:render template="categorySelect" model="[categories: categories, productCategoryList: null, selectedCategoryId: null, level: 1]" />
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <label for="sinceDate" class="col-2 col-form-label-sm text-right">Updates Since</label>
-                                <div class="col-4">
-                                    <g:textField name="sinceDate" class="form-control bottom-border" value="${new Date().format("dd/MM/yyyy")}" autocomplete="off" />
-                                </div>
-                            </div>
+                                <div class="col-6">
+                                    <div class="form-group row">
+                                        <label for="supplier" class="col-4 col-form-label-sm text-right">Supplier</label>
+                                        <div class="col-8">
+                                            <g:select name="supplier" from="${suppliers}" noSelection="['':'All Suppliers']" value="${supplier}" optionValue="name" optionKey="id" class="form-control select-border" />
+                                        </div>
+                                    </div>
 
-                            <div class="form-group row">
-                                <label for="category" class="col-2 col-form-label-sm text-right">Category</label>
-                                <div class="col-4">
-                                    <g:categorySelect name="category" categories="${categories}" noSelectionValue="All Categories" />
-                                </div>
+                                    <div class="form-group row">
+                                        <label for="sinceDate" class="col-4 col-form-label-sm text-right">Updates Since</label>
+                                        <div class="col-8">
+                                            <g:textField name="sinceDate" class="form-control bottom-border" value="${new Date().format("dd/MM/yyyy")}" autocomplete="off" />
+                                        </div>
+                                    </div>
 
-                                <div class="col-4 offset-2 text-right">
-                                    <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
+                                    <div class="form-group row">
+                                        <div class="col-12 text-right">
+                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
+                                            <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-3 offset-4">
+                <div class="col-3 offset-3">
                     <div class="form-group row mt-5">
                         <label for="priceBand" class="col-4 col-form-label-sm text-right">Price Band</label>
                         <div class="col-8">

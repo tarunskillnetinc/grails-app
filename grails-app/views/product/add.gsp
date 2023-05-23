@@ -803,7 +803,7 @@
                 });
             }
 
-            //trigger this when category is selected
+            // Trigger this when category is selected.
             function onCategoryChanged(selectedCategoryId) {
                 //call category map restrictions only when adding new product and restriction tab is not change by manually
                 var getRestrictionsUrl = "${createLink(controller: 'product', action: 'ajaxGetRestrictions')}";

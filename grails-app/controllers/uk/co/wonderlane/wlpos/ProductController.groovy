@@ -1164,7 +1164,7 @@ class ProductController {
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {
         def category = categoryService.getCategory(categoryId)
-        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId])
+        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: true])
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {
