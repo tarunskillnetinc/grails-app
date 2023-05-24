@@ -776,16 +776,19 @@ class ProductController {
         }
 
         def variantLocations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, editedVariant.sku)
+        def builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
 
         editedVariant.locationz?.each { editedLocation ->
             def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == editedLocation.id }
 
             if (existingLocation && existingLocation.id > 0 && locationChanged(editedLocation, existingLocation)) {
+                compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
                 updateLocation(existingLocation, editedLocation, editedVariant)
             } else if (!existingLocation) {
                 Location newLocation = new Location()
                 updateLocation(newLocation, editedLocation, editedVariant)
                 existingVariant.locationz.add(newLocation)
+                compareLocationFields(builder, new Location(), newLocation, ProductHistoryType.LOCATION_ADD)
             }
         }
 
@@ -797,10 +800,13 @@ class ProductController {
                 def editedLocation = editedVariant.locationz?.find { editedLocation -> editedLocation.id == existingLocation.id }
 
                 if (!editedLocation && editedLocation?.sku != 0 && editedLocation?.storeId != 0) {
+                    compareLocationFields(builder, existingLocation, new Location(), ProductHistoryType.LOCATION_DELETE)
                     deleteLocations.add(existingLocation)
                 }
             }
         }
+
+        productService.saveProductHistories(builder.productHistories)
 
         for (int i = 0; i < deleteLocations.size(); i++) {
             deleteLocations.get(i).delete()
@@ -1003,28 +1009,6 @@ class ProductController {
                 }
             }
         }
-
-        //---------------------------- Update history for location fields --------------------------------//
-
-        variant?.locationz?.each { editedLocation ->
-            def existingLocation = oldVariant?.locationz?.find { existingLocation -> existingLocation.id == editedLocation.id }
-            if (existingLocation) { //Location already existed
-                compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
-            } else { //Location newly added
-                compareLocationFields(builder, new Location(), editedLocation, ProductHistoryType.LOCATION_ADD)
-            }
-        }
-
-        // Remove any locations which no longer exist.
-        oldVariant?.locationz?.each { existingLocation ->
-            // If the ID is not set then this must be a new location added as part of this save
-            if (existingLocation.id > 0) {
-                def editedLocation = variant?.locationz?.find { editedLocation -> editedLocation.id == existingLocation.id }
-                if (!editedLocation) { //Location is removed
-                    compareLocationFields(builder, existingLocation, new LocationCommand(), ProductHistoryType.LOCATION_DELETE)
-                }
-            }
-        }
     }
 
     void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
@@ -1038,7 +1022,7 @@ class ProductController {
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
     }
 
-    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, LocationCommand location, ProductHistoryType productHistoryType) {
+    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
         builder.compare(null, "aisle", oldLocation.aisle, location.aisle, productHistoryType)
         builder.compare(null, "bay", oldLocation.bay, location.bay, productHistoryType)
         builder.compare(null, "shelf", oldLocation.shelf, location.shelf, productHistoryType)

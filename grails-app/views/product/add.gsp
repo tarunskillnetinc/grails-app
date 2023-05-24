@@ -700,53 +700,54 @@
                     }
                     var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
                     var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
+                    var errorString = "";
 
                     if (locationsType === "SIMPLE") {
                         if ($(locationSelector + "\\.location").val() === '') {
-                            confirm("Location can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                            errorString += "Location can not be empty.\n"
                         }
                     } else if (locationsType === "ADVANCED") {
                         if ($(locationSelector + "\\.aisle").val() === '') {
-                            confirm("Aisle can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                            errorString += "Aisle can not be empty.\n"
                         }
 
                         if ($(locationSelector + "\\.bay").val() === '') {
-                            confirm("Bay can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                            errorString += "Bay can not be empty.\n"
                         }
 
                         if ($(locationSelector + "\\.shelf").val() === '') {
-                            confirm("Shelf can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                            errorString += "Shelf can not be empty.\n"
                         }
 
                         if ($(locationSelector + "\\.position").val() === '') {
-                            confirm("Position can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                            errorString += "Position can not be empty.\n"
                         }
                     }
 
                     if ($(locationSelector + "\\.shelfCapacity").val() === '') {
-                        confirm("Shelf Capacity can not be empty.")
-                        mandatoryLocationFields = false
-                        return
+                        errorString += "Shelf Capacity can not be empty.\n"
+                    }
+
+                    if ($(locationSelector + "\\.shelfCapacity").val() < 1) {
+                        errorString += "Shelf Capacity should be between 1 and 999.\n"
                     }
 
                     if ($(locationSelector + "\\.minimumDisplayQuantity").val() === '') {
-                        confirm("Minimum Display Quantity can not be empty.")
+                        errorString += "Minimum Display Quantity can not be empty.\n"
+                    }
+
+                    if ($(locationSelector + "\\.minimumDisplayQuantity").val() < 1) {
+                        errorString += "Minimum Display Quantity should be between 1 and 999.\n"
+                    }
+
+                    if (errorString !== "") {
+                        confirm(errorString)
                         mandatoryLocationFields = false
                         return
                     }
 
                     params["locationz[" +loopIndex +"].index"] = loopIndex;
-                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
                     params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
                     params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
                     params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
