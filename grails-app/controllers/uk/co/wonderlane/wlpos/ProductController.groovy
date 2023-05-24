@@ -1162,9 +1162,18 @@ class ProductController {
 
     }
 
-    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {
+    def ajaxSearchCategories(String searchTerm) {
+        def categories = categoryService.searchCategories(categoryId)
+        def productCategoryList =
+
+
+        render(template: "categorySelect", model: [categories: categories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: true])
+    }
+
+    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
         def category = categoryService.getCategory(categoryId)
-        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: true])
+
+        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {
@@ -1178,6 +1187,7 @@ class ProductController {
     def ajaxSaveVariant(AddVariantCommand cmd) {
         def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         def storeId = springSecurityService.principal.storeId
+
         render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, locationsType: locationsType, storeId: storeId])
     }
 
