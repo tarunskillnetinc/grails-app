@@ -4,7 +4,6 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.math.RoundingMode
-import java.nio.file.Path
 
 class EposTagLib {
 
@@ -310,17 +309,17 @@ class EposTagLib {
                 break
             case ProductHistoryType.LOCATION_ADD:
                 out << """User ${productHistory?.usersName} added new location with 
-                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_EDIT:
-                out << """User ${productHistory?.usersName} edited location with 
-                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                out << """User ${productHistory?.usersName} changed location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_DELETE:
                 out << """User ${productHistory?.usersName} deleted location with 
-                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             default:
@@ -329,5 +328,10 @@ class EposTagLib {
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
         }
+    }
+    
+    private static String getLocationField(String field) {
+        def formattedFieldArray = field?.split("(?=\\p{Upper})")
+        return String.join(" ", formattedFieldArray).toLowerCase()
     }
 }
