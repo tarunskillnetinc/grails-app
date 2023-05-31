@@ -70,7 +70,7 @@ class ProductController {
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
-                                    categoryValues     : categoryService.getFullCategoryHierarchy(),
+                                    categoryValues     : categoryService.getTopLevelCategories(),
                                     productCategoryList: productCategoryList,
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges             : ranges,
@@ -107,7 +107,7 @@ class ProductController {
 
         render(view: "add", model: [storeId       : springSecurityService.principal.storeId,
                                     statusValues  : ProductStatus.values(),
-                                    categoryValues: categoryService.getFullCategoryHierarchy(),
+                                    categoryValues: categoryService.getTopLevelCategories(),
                                     vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges        : ranges,
                                     priceBands    : priceBands,
@@ -146,7 +146,7 @@ class ProductController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
-        def categories = categoryService.getFullCategoryHierarchy()
+        def categories = categoryService.getTopLevelCategories()
         def tags = tagService.getTags()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
@@ -167,7 +167,7 @@ class ProductController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
-        def categories = categoryService.getFullCategoryHierarchy()
+        def categories = categoryService.getTopLevelCategories()
         def tags = tagService.getTags()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
@@ -189,7 +189,7 @@ class ProductController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def supplierUpdates() {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
-        def categories = categoryService.getFullCategoryHierarchy()
+        def categories = categoryService.getTopLevelCategories()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description"])
 
         [suppliers: suppliers, categories: categories, priceBands: priceBands]
@@ -549,7 +549,7 @@ class ProductController {
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
-                                        categoryValues     : categoryService.getFullCategoryHierarchy(),
+                                        categoryValues     : categoryService.getTopLevelCategories(),
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
                                         ranges             : ranges,
@@ -1128,7 +1128,6 @@ class ProductController {
         if (productHistories != null && productHistories.size() > 0){
             productService.saveProductHistories(productHistories)
         }
-
     }
 
     private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
@@ -1143,21 +1142,44 @@ class ProductController {
                         effectiveDate: effectiveDate, updateDate: now)
 
         return productHistory
-
     }
 
-    def ajaxSearchCategories(String searchTerm) {
-        def categories = categoryService.searchCategories(categoryId)
-        def productCategoryList =
+    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
+        def topLevelCategories = []
+        def productCategoryList = []
 
+        boolean isSearch = searchTerm?.length() > 0
 
-        render(template: "categorySelect", model: [categories: categories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: true])
+        // If no search term is provided then we should reset this back to default (i.e. just the top level departments).
+        if (isSearch) {
+            def categories = categoryService.searchCategories(searchTerm)
+
+            productCategoryList.addAll(categories?.collect { it.id })
+
+            categories?.each {
+                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
+            }
+        } else {
+            topLevelCategories = categoryService.getTopLevelCategories()
+        }
+
+        render(template: "categorySelectInputs", model: [categories: topLevelCategories.unique(), level: isSearch ? level : 1, productCategoryList: productCategoryList, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
+    }
+
+    private void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
+        if (category.parentCategory) {
+            productCategoryList.add(category.parentCategory.id)
+
+            addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory)
+        } else {
+            topCategories.add(category)
+        }
     }
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
         def category = categoryService.getCategory(categoryId)
 
-        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
+        render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {

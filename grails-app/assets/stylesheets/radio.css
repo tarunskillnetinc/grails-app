@@ -89,3 +89,15 @@
 .radio-container.level-4 {
     margin-left: 114px;
 }
+
+.category-select {
+    max-height: 300px;
+    min-height: 150px;
+    overflow-y: scroll;
+}
+
+.category-select .search {
+    padding-top: 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+}

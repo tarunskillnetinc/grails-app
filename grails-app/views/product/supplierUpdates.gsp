@@ -13,6 +13,7 @@
 
         <script type="text/javascript">
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+            var categorySearchUrl = "${createLink(controller: 'product', action: 'ajaxSearchCategories')}";
 
             $(document).ready(function () {
                 $('#sinceDate').datepicker({
@@ -268,7 +269,7 @@
                                 <div class="col-6">
                                     <div class="form-group row">
                                         <label for="category" class="col-4 col-form-label-sm text-right">Category</label>
-                                        <div class="col-8" style="max-height: 300px; overflow-y: scroll;">
+                                        <div class="col-8">
                                             <g:render template="categorySelect" model="[categories: categories, productCategoryList: null, selectedCategoryId: null, level: 1]" />
                                         </div>
                                     </div>

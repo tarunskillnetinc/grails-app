@@ -10,6 +10,7 @@
 
         <script type="text/javascript">
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+            var categorySearchUrl = "${createLink(controller: 'product', action: 'ajaxSearchCategories')}";
 
             $(document).ready(function () {
                 $('#searchTerm').on('keyup', function(event) {
@@ -22,6 +23,12 @@
             function searchButtonClicked2() {
                 $('#offset').val(0);
                 search();
+            }
+
+            function resetButtonClicked() {
+                $('#tag').prop("selectedIndex", 0);
+                $('input[name="category.id"]:checked').prop("checked", false);
+                $('#searchTerm').val("");
             }
 
             function search() {
@@ -131,8 +138,8 @@
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group row">
-                                        <label for="category" class="col-4 col-form-label-sm text-right">Category</label>
-                                        <div class="col-8" style="max-height: 300px; overflow-y: scroll;">
+                                        <label for="category" class="col-4 col-form-label text-right">Category</label>
+                                        <div class="col-8">
                                             <g:render template="categorySelect" model="[categories: categories, productCategoryList: null, selectedCategoryId: null, level: 1]" />
                                         </div>
                                     </div>
@@ -140,21 +147,22 @@
 
                                 <div class="col-6">
                                     <div class="form-group row">
-                                        <label for="searchTerm" class="col-4 col-form-label-sm text-right">Search Term</label>
+                                        <label for="searchTerm" class="col-4 col-form-label text-right">Description</label>
                                         <div class="col-8">
                                             <g:textField name="searchTerm" class="form-control bottom-border" value="${searchTerm}" autocomplete="off" />
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="tag" class="col-4 col-form-label-sm text-right">Tag</label>
+                                        <label for="tag" class="col-4 col-form-label text-right">Tag</label>
                                         <div class="col-8">
-                                            <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                            <g:select name="tag" from="${tags}" noSelection="['':'All Tags']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
-                                        <div class="col-4 offset-8 text-right">
+                                        <div class="col-12 text-right">
+                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
                                             <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                         </div>
                                     </div>

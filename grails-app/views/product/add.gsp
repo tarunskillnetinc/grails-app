@@ -7,6 +7,7 @@
 
         <asset:stylesheet href="radio.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="category-select.js" />
         <asset:javascript src="money-mask.js" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
 
@@ -23,6 +24,7 @@
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
             var saveLocationUrl = "${createLink(controller: 'product', action: 'ajaxSaveLocation')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+            var categorySearchUrl = "${createLink(controller: 'product', action: 'ajaxSearchCategories')}";
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
             $(document).ready(function () {

@@ -1,3 +1,6 @@
+var currentTimeout;
+var searchInProgress = false;
+
 // Expand or collapse the category and show all children categories.
 function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOnCategoryChange) {
     event.preventDefault();
@@ -34,15 +37,6 @@ function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOn
 
 $(document).ready(function() {
     setRadioClickAction('input[name="category.id"]');
-
-    var categoryFilterSearch = $("#category-filter-search");
-    categoryFilterSearch.on("keyup", function() {
-        var searchTerm = categoryFilterSearch.val();
-
-        if (searchTerm.length > 2) {
-            console.log("Search term: " +searchTerm);
-        }
-    });
 });
 
 function setRadioClickAction(selector) {
@@ -61,4 +55,43 @@ function setRadioClickAction(selector) {
         // Remove was checked from other radios.
         $radio.siblings(selector).data('waschecked', false);
     });
+}
+
+function searchCategories(e, level, triggerOnCategoryChange, searchTerm) {
+    // Since all keyup events trigger this, here are a couple of standard keys to be ignored..
+    if (e.keyCode === 16 || e.keyCode === 17 || e.keyCode === 20) {
+        return;
+    }
+
+    if (searchInProgress === false) {
+        $("#category-container-results").html("<div class=\"d-flex justify-content-center pt-2\">\n" +
+            "  <div class=\"spinner-border\" role=\"status\">\n" +
+            "    <span class=\"sr-only\">Loading...</span>\n" +
+            "  </div>\n" +
+            "</div>");
+    }
+
+    clearTimeout(currentTimeout);
+
+    searchInProgress = true;
+
+    currentTimeout = setTimeout(function() {
+        var params = {};
+        params["level"] = level;
+        params["triggerOnCategoryChange"] = triggerOnCategoryChange;
+        params["searchTerm"] = searchTerm;
+
+        $.ajax({
+            url: categorySearchUrl,
+            method: "GET",
+            data: params,
+            success: function(resp) {
+                $("#category-container-results").html(resp);
+
+                setRadioClickAction('#category-container-results input[name="category.id"]');
+
+                searchInProgress = false;
+            }
+        });
+    }, 750);
 }

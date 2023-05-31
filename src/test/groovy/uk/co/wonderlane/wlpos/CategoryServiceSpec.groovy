@@ -30,7 +30,7 @@ class CategoryServiceSpec extends Specification implements ServiceUnitTest<Categ
         serviceResponse instanceof Category
     }
 
-    //-------------------------------getFullCategoryHierarchy function Unit tests----------------------------//
+    //-------------------------------getTopLevelCategories function Unit tests----------------------------//
 
     void "should retrieve category hierarchy"() {
         given:
@@ -46,10 +46,10 @@ class CategoryServiceSpec extends Specification implements ServiceUnitTest<Categ
         category2.setRetailerId(9)
         category2.save(flush: true, failOnError: true)
 
-        when: 'getFullCategoryHierarchy action is executed'
-        def serviceResponse = service.getFullCategoryHierarchy()
+        when: 'getTopLevelCategories action is executed'
+        def serviceResponse = service.getTopLevelCategories()
 
-        then: 'getFullCategoryHierarchy action response is correct'
+        then: 'getTopLevelCategories action response is correct'
         serviceResponse != null
         serviceResponse instanceof List
         serviceResponse.size() == 2

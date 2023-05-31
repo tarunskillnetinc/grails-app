@@ -102,7 +102,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         session.effectiveDate = DateTime.now()
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         when: 'show action is executed'
@@ -166,7 +166,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         session.effectiveDate = DateTime.now()
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         PriceBand testPriceBand = new PriceBand(retailerId: 9, description: "Test")
@@ -233,7 +233,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         testVatCode.save(flush: true, failOnError: true)
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         when: 'setEffectiveDate action is executed'
@@ -285,7 +285,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         testVatCode.save(flush: true, failOnError: true)
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         PriceBand testPriceBand = new PriceBand(retailerId: 9, description: "Test")
@@ -394,7 +394,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         testPriceBand.save(flush: true, failOnError: true)
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         controller.tagService = Stub(TagService) {
@@ -455,7 +455,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         testRange.save(flush: true, failOnError: true)
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         controller.tagService = Stub(TagService) {
@@ -516,7 +516,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         testRange.save(flush: true, failOnError: true)
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()
@@ -743,7 +743,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
     void "should show to add product page if save product has errors for non head_office or engineer user"() {
         given:
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         params.category = new Category(retailerId: 9, description: "TestCategory",
@@ -797,7 +797,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
     void "should show to add product page if save product has errors for head_office or engineer user"() {
         given:
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         controller.springSecurityService = Stub(SpringSecurityService) {
@@ -867,7 +867,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
                 effectiveDate: DateTime.now(), recordStatus: 'A' as char)], packs: [new Pack()])]
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
 
         controller.springSecurityService = Stub(SpringSecurityService) {
@@ -952,7 +952,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         params.priceChanges = sendCommand ? [savePriceChangeCommand] : null
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
         controller.springSecurityService = Stub(SpringSecurityService) {
             SimpleGrantedAuthority simpleGrantedAuthority1 = new SimpleGrantedAuthority("ROLE_USER")
@@ -1037,7 +1037,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         SavePriceChangesCommand savePriceChangeCommand = new SavePriceChangesCommand(priceChanges: updates)
 
         controller.categoryService = Stub(CategoryService) {
-            getFullCategoryHierarchy() >> new ArrayList()
+            getTopLevelCategories() >> new ArrayList()
         }
         controller.springSecurityService = Stub(SpringSecurityService) {
             SimpleGrantedAuthority simpleGrantedAuthority1 = new SimpleGrantedAuthority("ROLE_USER")

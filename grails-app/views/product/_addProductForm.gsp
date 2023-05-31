@@ -55,7 +55,7 @@
                             <div class="row form-group">
                                 <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
 
-                                <div class="col-lg-9 pt-2" style="max-height: 300px; overflow-y: scroll;">
+                                <div class="col-lg-9 pt-2">
                                     <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1, triggerOnCategoryChange: true]" />
                                 </div>
                             </div>
@@ -325,7 +325,7 @@
             </g:if>
         </sec:ifAnyGranted>
 
-    <!-- Locations. -->
+        <!-- Locations. -->
         <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
             <div class="card bg-light border-wl accordion-card">
                 <div class="card-header pointer" id="productLocations" data-toggle="collapse" data-target="#collapseProductLocations" aria-expanded="true" aria-controls="collapseProductLocations">

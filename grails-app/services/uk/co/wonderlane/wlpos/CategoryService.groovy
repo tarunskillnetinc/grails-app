@@ -15,7 +15,7 @@ class CategoryService {
         return Category.findAllByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId, "%$searchTerm%")
     }
 
-    def getFullCategoryHierarchy() {
+    def getTopLevelCategories() {
         return Category.findAllByRetailerIdAndParentCategoryIsNull(springSecurityService.principal.retailerId, [sort: 'description', order: 'asc'])
     }
 }
