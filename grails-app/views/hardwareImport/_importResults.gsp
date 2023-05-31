@@ -20,12 +20,35 @@
 
     <g:each in="${rows}" var="row" status="i">
         <div class="row align-content-center pt-2 pb-2 wl-striped${i%2} ml-0 mr-0">
-            <div class="col-4">${row.serialNumber}</div>
-            <div class="col-4">${row.model}</div>
+            <div class="col-4">
+                <g:if test="${row.serialNumber.length() > 50}">
+                    ${row.serialNumber.substring(0, 25)}...
+                </g:if>
+                <g:else>
+                    ${row.serialNumber}
+                </g:else>
+            </div>
+            <div class="col-4">
+                <g:if test="${row.model.length() > 50}">
+                    ${row.model.substring(0, 25)}...
+                </g:if>
+                <g:else>
+                    ${row.model}
+                </g:else>
+            </div>
             <div class="col-4">
                 <g:if test="${row.validRow}">
                     Valid
                 </g:if>
+                <g:elseif test="${row.serialNumber.length() > 50 && row.model.length() > 50}">
+                    Invalid - Serial number and model must be less than 50 characters
+                </g:elseif>
+                <g:elseif test="${row.serialNumber.length() > 50}">
+                    Invalid - Serial number must be less than 50 characters
+                </g:elseif>
+                <g:elseif test="${row.model.length() > 50}">
+                    Invalid - Model must be less than 50 characters
+                </g:elseif>
                 <g:else>
                     Invalid
                 </g:else>
