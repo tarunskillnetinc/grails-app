@@ -310,7 +310,7 @@ class EposTagLib {
             case ProductHistoryType.LOCATION_ADD:
                 out << """User ${productHistory?.usersName} added new location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
-                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                            from ${(productHistory?.fromValue) == "0" ? "unset" : productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_EDIT:
                 out << """User ${productHistory?.usersName} changed location with 
@@ -320,7 +320,7 @@ class EposTagLib {
             case ProductHistoryType.LOCATION_DELETE:
                 out << """User ${productHistory?.usersName} deleted location with 
                         ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
-                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                            from ${productHistory?.fromValue} to ${(productHistory?.toValue) == "0" ? "unset" : productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             default:
                 out << """User ${productHistory?.usersName} changed 

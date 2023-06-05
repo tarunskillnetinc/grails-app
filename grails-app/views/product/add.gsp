@@ -732,17 +732,13 @@
 
                     if ($(locationSelector + "\\.shelfCapacity").val() === '') {
                         errorString += "Shelf Capacity can not be empty.\n"
-                    }
-
-                    if ($(locationSelector + "\\.shelfCapacity").val() < 1) {
+                    } else if ($(locationSelector + "\\.shelfCapacity").val() < 1) {
                         errorString += "Shelf Capacity should be between 1 and 999.\n"
                     }
 
                     if ($(locationSelector + "\\.minimumDisplayQuantity").val() === '') {
                         errorString += "Minimum Display Quantity can not be empty.\n"
-                    }
-
-                    if ($(locationSelector + "\\.minimumDisplayQuantity").val() < 1) {
+                    } else if ($(locationSelector + "\\.minimumDisplayQuantity").val() < 1) {
                         errorString += "Minimum Display Quantity should be between 1 and 999.\n"
                     }
 
