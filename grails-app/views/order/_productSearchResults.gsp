@@ -25,9 +25,9 @@
 
     <g:each in="${products}" var="product" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="selectVariant(${product?.id});">
-            <div class="col-2 text-truncate">${product?.itemCode}</div>
-            <div class="col-7">${product?.description}</div>
-            <div class="col-3">${product?.category?.description}</div>
+            <div id="product-result-${i+1}-item-code" class="col-2 text-truncate">${product?.itemCode}</div>
+            <div id="product-result-${i+1}-description" class="col-7">${product?.description}</div>
+            <div id="product-result-${i+1}-category" class="col-3">${product?.category?.description}</div>
         </div>
     </g:each>
 </div>

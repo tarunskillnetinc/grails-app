@@ -234,7 +234,7 @@
                             <div id="xfory-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="xfory-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
                                 <label for="xfory-product-required-1-quantity" class="">Quantity</label>
-                                <g:field type="number" name="xfory-product-required-1-quantity" value="${productsRequired.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
+                                <g:field type="number" id="xfory-product-required-1-quantity" name="xfory-product-required-1-quantity" value="${productsRequired.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
                                 <label for="xfory-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
                                 <a href="#" onclick="return deleteThis(this, 'xfory', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>
@@ -291,7 +291,7 @@
                             <div id="xfory-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="xfory-product-offer-1-productId" value="${productsOffer.isEmpty() ? productsRequired.first().product.id : productsOffer.first().product.id}"/>
                                 <label for="xfory-product-offer-1-quantity" class="">Quantity</label>
-                                <g:field type="number" name="xfory-product-offer-1-quantity" value="${productsOffer.isEmpty() ? productsRequired.first().quantity : productsOffer.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
+                                <g:field type="number" id="xfory-product-offer-1-quantity" name="xfory-product-offer-1-quantity" value="${productsOffer.isEmpty() ? productsRequired.first().quantity : productsOffer.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
                                 <label for="xfory-product-offer-1-quantity" class="mr-3"> x ${String.valueOf(productsOffer.isEmpty() ? productsRequired.first().product.itemCode : productsOffer.first().product.itemCode)} - ${productsOffer.isEmpty() ? productsRequired.first().product.description : productsOffer.first().product.description}</label>
                                 <a href="#" onclick="return deleteThis(this, 'xfory', 'offer');" class="text-dark"><sup>X</sup></a>
                             </div>
@@ -429,7 +429,7 @@
                             <div id="percentage-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="percentage-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
                                 <label for="percentage-product-required-1-quantity" class="">Quantity</label>
-                                <g:field type="number" name="percentage-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'percentage');"/>
+                                <g:field type="number" id="percentage-product-required-1-quantity" name="percentage-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'percentage');"/>
                                 <label for="percentage-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired?.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired?.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
                                 <a href="#" onclick="return deleteThis(this, 'xfory', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>
@@ -572,9 +572,9 @@
                             <div id="fixedAmount-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="fixedAmount-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
                                 <label for="fixedAmount-product-required-1-value" class="">Value</label>
-                                <g:field type="number" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().requiredValue : productsRequired.first().requiredValue}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                <g:field type="number" id="fixedAmount-product-required-1-value" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().requiredValue : productsRequired.first().requiredValue}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
                                 <label for="fixedAmount-product-required-1-quantity" class=""> or Quantity</label>
-                                <g:field type="number" name="fixedAmount-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityValueChange(this, 'quantity');;"/>
+                                <g:field type="number" id="fixedAmount-product-required-1-quantity" name="fixedAmount-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityValueChange(this, 'quantity');;"/>
                                 <label for="fixedAmount-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired?.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired?.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
                                 <a href="#" onclick="return deleteThis(this, 'fixedAmount', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>

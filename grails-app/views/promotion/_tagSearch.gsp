@@ -10,7 +10,7 @@
                         <g:textField name="tagSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
 
                         <div class="input-group-append">
-                            <asset:image src="search.png" name="tagSearchButton" onclick="tagSearchButtonClicked()" class="wl-search-button" />
+                            <asset:image src="search.png" id="tagSearchButton" name="tagSearchButton" onclick="tagSearchButtonClicked()" class="wl-search-button" />
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
 
                 <div class="row mt-3">
                     <span class="col-12 text-right">
-                        <button class="btn btn-danger" data-dismiss="modal" style="margin-right: 13px;">Cancel</button>
+                        <button id="tag-cancel" class="btn btn-danger" data-dismiss="modal" style="margin-right: 13px;">Cancel</button>
                     </span>
                 </div>
             </div>
