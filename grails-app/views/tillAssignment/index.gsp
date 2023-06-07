@@ -8,6 +8,13 @@
 
     <script type="text/javascript">
 
+        var getTillsUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSearchForTills')}"
+        var deleteTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxDeleteTill')}"
+        var addTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxAddTill')}"
+        var editTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxEditTill')}"
+        var saveTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveTill')}"
+        var generatePinUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxGeneratePin')}"
+
         $(function() {
             getTills();
         });
@@ -24,10 +31,8 @@
             }).get();
 
 
-            var url = "${createLink(controller: 'tillAssignment', action: 'ajaxSearchForTills')}";
-
             $.ajax({
-                url: url,
+                url: getTillsUrl,
                 data: filterParams,
                 success: function(resp) {
                     $('#results-container').html(resp);
@@ -35,15 +40,85 @@
             });
         }
 
+        function deleteTill(storeId, tillId, serialNumber) {
+            if (confirm("This will delete till " + tillId + " from Store " + storeId)) {
+                $.ajax({
+                    url: deleteTillUrl,
+                    method: "DELETE",
+                    data: {storeId: storeId, tillId: tillId, serialNumber: serialNumber},
+                    success: function (data, textStatus, resp) {
+                        $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        getTills();
+                    },
+                    error: function (resp) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                        getTills();
+                    }
+                });
+            }
+        }
+
         function clearFilters() {
             $("#storeIdFilter").val("");
             $("#tillIdFilter").val("");
             $("#serialNumberFilter").val("");
+            getTills();
         }
 
-        function searchButtonClicked() {
-            $('#offset').val(0);
-            getTills();
+        function addTill() {
+            $("#addTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $('#addTillModal').modal({show: true});
+            $.ajax({
+                url: addTillUrl,
+                method: "GET",
+                success: function (resp) {
+                    $("#addTillContent").html(resp);
+                }
+            });
+        }
+
+        function editTill(storeId, tillId, serialNumber) {
+            $("#addTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $('#addTillModal').modal({show: true});
+            $.ajax({
+                url: editTillUrl,
+                method: "GET",
+                data: {storeId: storeId, tillId: tillId, serialNumber: serialNumber},
+                success: function (resp) {
+                    $("#addTillContent").html(resp);
+                }
+            });
+        }
+
+        function saveTill() {
+            var formValues = $("#addTillForm").serialize();
+            $("#addTillContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>")
+            $.ajax({
+                url: saveTillUrl,
+                method: "POST",
+                data: formValues,
+                success: function (resp) {
+                    if (resp === "OK") {
+                        $('#addTillModal').modal('hide')
+                        getTills();
+                    } else {
+                        $("#addTillContent").html(resp);
+                    }
+                }
+            });
+        }
+
+        function generatePin() {
+            var formValues = $("#addTillForm").serialize();
+            $.ajax({
+                url: generatePinUrl,
+                method: "POST",
+                data: formValues,
+                success: function (resp) {
+                    document.getElementById("registration-code-holder").style.display = "block";
+                    document.getElementById("registration-code-value").innerText = resp
+                }
+            })
         }
 
     </script>
@@ -103,7 +178,7 @@
 
                             <div class="col-6 text-right">
                                 <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Clear</button>
-                                <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked();">Filter</button>
+                                <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getTills();">Filter</button>
                             </div>
                         </div>
                     </g:form>
@@ -111,7 +186,8 @@
             </div>
         </div>
         <div class="col-2 text-right">
-            <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="searchButtonClicked();">Refresh</a>
+            <a id="addTill" href="#" class="btn btn-wl mt-1" onclick="addTill();">Add Till</a>
+            <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getTills();">Refresh</a>
         </div>
     </div>
 
@@ -127,6 +203,16 @@
 
     <div id="results-container">
 
+    </div>
+</section>
+
+<section id="addTill-modal" class="container-fluid">
+    <!-- Add supplier modal -->
+    <div class="modal fade" id="addTillModal" tabindex="-1" role="dialog" aria-labelledby="addTillModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div id="addTillContent" class="modal-content"></div>
+        </div>
     </div>
 </section>
 </body>

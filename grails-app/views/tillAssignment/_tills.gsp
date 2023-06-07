@@ -15,9 +15,9 @@
             <div id="till-id-${i + 1}" class="col-1 my-auto text-center">${tillList[i].tillId}</div>
             <div id="serial-number-${i + 1}" class="col-2 my-auto text-center">${tillList[i].serialNumber}</div>
             <div class="col-3 my-auto text-center">
-                <button id="clear-${i + 1}" class="btn btn-wl mx-2" onclick="purgeQueue(${tillList[i].storeId}, ${tillList[i].tillId})">Edit Till</button>
-                <button id="sync-${i + 1}" class="btn btn-wl mx-2" onclick="forceSync(${tillList[i].storeId}, ${tillList[i].tillId})">Delete Till</button>
-                <button id="delete-${i + 1}" class="btn btn-danger mx-2" onclick="deleteQueue(${tillList[i].storeId}, ${tillList[i].tillId})">Advanced Configuration</button>
+                <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick="editTill(${tillList[i].storeId}, ${tillList[i].tillId}, '${tillList[i].serialNumber}')">Edit Till</button>
+                <button id="delete-${i + 1}" class="btn btn-wl mx-2" onclick="deleteTill(${tillList[i].storeId}, ${tillList[i].tillId}, '${tillList[i].serialNumber}')">Delete Till</button>
+                <button id="configuration-${i + 1}" class="btn btn-danger mx-2" onclick="advancedConfigurationPressed(${tillList[i].storeId}, ${tillList[i].tillId}, '${tillList[i].serialNumber}')">Advanced Configuration</button>
             </div>
         </div>
     </g:each>

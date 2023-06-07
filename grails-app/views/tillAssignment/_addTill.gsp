@@ -1,0 +1,79 @@
+
+<div class="modal-header">
+    <g:if test="${enableEdit}">
+        <h2>Edit Till</h2>
+    </g:if>
+    <g:else>
+        <h2>Add Till</h2>
+    </g:else>
+</div>
+
+<div class="modal-body">
+    <div class="text-center mt-4 mb-5">Please complete the following form to add a new till.</div>
+
+    <g:hasErrors bean="${till}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${till}" as="list" />
+            </div>
+        </section>
+    </g:hasErrors>
+
+    <g:form name="addTillForm">
+        <g:hiddenField name="id" value="${till?.id}" />
+
+        <div class="row form-group mb-4">
+            <label for="tillId" class="col-3 offset-1 col-form-label text-right">Till ID </label>
+
+            <div class="input-group col-4">
+                <g:textField name="tillId" value="${till?.tillId}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="storeId" class="col-3 offset-1 col-form-label text-right">Store ID</label>
+
+            <div class="input-group col-4">
+                <g:select name="storeId" from="${stores}" optionValue="storeName"
+                    value="${till?.storeId}"
+                    optionKey="storeId"
+                    class="form-control select-border"
+                    disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="description" class="col-3 offset-1 col-form-label text-right">Description</label>
+
+            <div class="input-group col-4">
+                <g:textField name="description" value="${till?.description}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="serialNumber" class="col-3 offset-1 col-form-label text-right">Serial Number</label>
+
+            <div class="input-group col-4">
+                <g:select name="serialNumber" from="${serialNumbers}" optionValue="serialNumber"
+                    value="${till?.serialNumber}"
+                    optionKey="serialNumber"
+                    class="form-control select-border"
+                    disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+            </div>
+        </div>
+
+        <div id="registration-code-holder" class="border-top" style="display: none;">
+            <div id="registration-code" class="text-center mt-4 mb-5">Registration Code</div>
+            <div id="registration-code-value" class="text-center mt-4 mb-5"></div>
+        </div>
+
+    </g:form>
+</div>
+
+<div class="modal-footer">
+    <g:if test="${enableEdit}">
+        <button type="button" id="saveAddSupplierButton" class="btn btn-secondary" onclick="generatePin();">Generate Pin</button>
+    </g:if>
+    <button type="button" id="cancelAddTillButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveTill();">Save</button>
+</div>

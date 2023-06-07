@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
 
 @Transactional
 class TillAssignmentService {
@@ -37,5 +38,44 @@ class TillAssignmentService {
 
     def getTillsBySerialNumber(String serialNumber) {
         return TillConfiguration.findAllByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%")
+    }
+
+    def getTillBySerialNumber(String serialNumber) {
+        return TillConfiguration.findByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%")
+    }
+
+    def deleteEntryForStoreIdAndTillId(int storeIdValue, int tillIdValue) {
+        def tills = getTillsByStoreIdAndTillId(storeIdValue, tillIdValue)
+        tills.first().delete()
+    }
+
+    def saveTill(TillConfiguration newTill) {
+        newTill.save()
+    }
+
+    def updateTillStock(String serialNumber) {
+        // Update this serial number in Till Stock to remove the Store ID + Till ID for reallocation
+        def tillStockEntry = TillStock.findBySerialNumber(serialNumber)
+        tillStockEntry.storeId = null
+        tillStockEntry.tillId = null
+        tillStockEntry.dateUpdated = DateTime.now()
+        tillStockEntry.save(flush: true)
+    }
+
+    def updateTillStock(TillConfiguration newTill) {
+        // Update this serial number in Till Stock to allocate it to the Store ID + Till ID
+        def tillStockEntry = TillStock.findBySerialNumber(newTill.serialNumber)
+        tillStockEntry.storeId = newTill.storeId
+        tillStockEntry.tillId = newTill.tillId
+        tillStockEntry.dateUpdated = DateTime.now()
+        tillStockEntry.save(flush: true)
+    }
+
+    def updateTillConfiguration(String serialNumber, int pin, DateTime expiry) {
+        def tillConfiguration = getTillBySerialNumber(serialNumber)
+        tillConfiguration.pin = pin
+        tillConfiguration.pinExpiry = expiry
+        tillConfiguration.dateTimeUpdated = DateTime.now()
+        tillConfiguration.save()
     }
 }
