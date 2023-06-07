@@ -45,7 +45,7 @@
             </g:if>
 
             <g:hasErrors bean="${tag}">
-                <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
                     <g:renderErrors bean="${tag}" as="list" />
                 </div>
             </g:hasErrors>
