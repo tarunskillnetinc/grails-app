@@ -1,7 +1,9 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 
+import java.security.SecureRandom
 import java.text.SimpleDateFormat
 
 class TillAssignmentController {
@@ -9,6 +11,7 @@ class TillAssignmentController {
     def springSecurityService
     def tillAssignmentService
     def stores
+    def configuration
 
     def index() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
@@ -70,63 +73,89 @@ class TillAssignmentController {
     }
 
     def ajaxAddTill() {
+        stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
-        render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, enableEdit: false])
+        render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers.size() >= 5 ? serialNumbers.subList(0, 5) : serialNumbers, enableEdit: false])
     }
 
     def ajaxEditTill() {
-        def configuration = TillConfiguration.findBySerialNumber(params.get("serialNumber").toString())
+        stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        configuration = TillConfiguration.findBySerialNumber(params.get("serialNumber").toString())
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
 
         //Append the selected Serial Number to the list
         serialNumbers.add(TillStock.findBySerialNumber(params.get("serialNumber").toString()))
 
-        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, enableEdit: true])
+        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers.size() >= 5 ? serialNumbers.subList(0, 5) : serialNumbers, enableEdit: true])
     }
 
     def ajaxSaveTill() {
-        def newTill = new TillConfiguration()
+        if (configuration != null) {
+            // Check for existing Till Configuration for this serial number
+            def existingConfig = TillConfiguration.findBySerialNumber(configuration.serialNumber)
+            if (existingConfig != null) {
+                // Update the configuration with the new details (if any)
+                existingConfig.storeId = Integer.parseInt(params.get("storeId").toString())
+                existingConfig.tillId = Integer.parseInt(params.get("tillId").toString())
+                existingConfig.description = params.get("description").toString()
+                existingConfig.serialNumber = params.get("serialNumber").toString()
+                existingConfig.dateTimeUpdated = DateTime.now()
 
-        newTill.retailerId = springSecurityService.principal.retailerId
-        newTill.storeId = Integer.parseInt(params.get("storeId").toString())
-        newTill.tillId = Integer.parseInt(params.get("tillId").toString())
-        newTill.description = params.get("description").toString()
-        newTill.serialNumber = params.get("serialNumber").toString()
+                tillAssignmentService.saveTill(existingConfig)
+                tillAssignmentService.updateTillStock(existingConfig)
 
-        // Set temp values to be done via other modals / generated later
-        newTill.scpTxnEndIndicator = ""
-        newTill.pposControlBar = ""
-        newTill.pposAdmin = false
-        newTill.pposRefund = false
-        newTill.pposSmartToken = false
-        newTill.printCardReceipts = false
-        newTill.baudRate = 0
-        newTill.pin = 0
-        newTill.pinExpiry = DateTime.now()
-        newTill.dateTimeCreated = DateTime.now()
-        newTill.dateTimeUpdated = DateTime.now()
+                // If the serial number has changed, update Till Stock to reflect the Serial Number becoming free
+                if (configuration.serialNumber != params.get("serialNumber").toString()) {
+//                    tillAssignmentService.deleteEntryForSerialNumber(configuration.serialNumber)
+                    tillAssignmentService.updateTillStock(configuration.serialNumber)
+                }
+                render "OK"
 
-        if (newTill.validate()) {
-            // Store the New Till within the Till Configuration table
-            tillAssignmentService.saveTill(newTill)
-            tillAssignmentService.updateTillStock(newTill)
-            render "OK"
+            // Update the Till Stock list to reflect any Store / Till / Serial changes
+            }
         } else {
-            def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
-            render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
+            def newTill = new TillConfiguration()
+            newTill.retailerId = springSecurityService.principal.retailerId
+            newTill.storeId = Integer.parseInt(params.get("storeId").toString())
+            newTill.tillId = Integer.parseInt(params.get("tillId").toString())
+            newTill.description = params.get("description").toString()
+            newTill.serialNumber = params.get("serialNumber").toString()
+
+            // Set temp values to be done via other modals / generated later
+            newTill.scpTxnEndIndicator = ""
+            newTill.pposControlBar = ""
+            newTill.pposAdmin = false
+            newTill.pposRefund = false
+            newTill.pposSmartToken = false
+            newTill.printCardReceipts = false
+            newTill.baudRate = 0
+            newTill.pin = 0
+            newTill.pinExpiry = DateTime.now()
+            newTill.dateTimeCreated = DateTime.now()
+            newTill.dateTimeUpdated = DateTime.now()
+
+            if (newTill.validate()) {
+                // Store the New Till within the Till Configuration table
+                tillAssignmentService.saveTill(newTill)
+                tillAssignmentService.updateTillStock(newTill)
+                render "OK"
+            } else {
+                def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
+                render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
+            }
         }
     }
 
     def ajaxGeneratePin() {
         // Generate 8 digit code
-        def random = new Random()
+        def random = new SecureRandom()
         int minimumValue = 10000000
         int maximumValue = 99999999
         int pin = random.nextInt((maximumValue - minimumValue) + 1) + minimumValue
 
-        def expiry = DateTime.now().plusHours(1)
+        def expiry = DateTime.now().plusHours(2)
 
-        tillAssignmentService.updateTillConfiguration(params.get("serialNumber").toString(), pin, expiry)
+        tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
 
         render "The registration code for this till is ${pin} and will expire in one hour."
 
