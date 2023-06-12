@@ -9,7 +9,30 @@
 </div>
 
 <div class="modal-body">
-    <div class="text-center mt-4 mb-5">Please complete the following form to add a new till.</div>
+    <g:if test="${enableEdit}">
+        <div class="text-center mt-4 mb-5">Please complete the following form to edit an existing till. Till ID and Store are required.</div>
+    </g:if>
+    <g:else>
+        <div class="text-center mt-4 mb-5">Please complete the following form to add a new till. Till ID and Store are required.</div>
+    </g:else>
+
+    <g:if test="${saveStoreError}">
+        <g:if test="${enableEdit}">
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a Store is selected when editing a till.</div>
+        </g:if>
+        <g:else>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a Store is selected when adding a till.</div>
+        </g:else>
+    </g:if>
+
+    <g:elseif test="${saveTillError}">
+        <g:if test="${enableEdit}">
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique Till ID is provided when editing a till.</div>
+        </g:if>
+        <g:else>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique Till ID is provided when adding a till.</div>
+        </g:else>
+    </g:elseif>
 
     <g:hasErrors bean="${till}">
         <section id="errors-container" class="container-fluid">
@@ -23,7 +46,7 @@
         <g:hiddenField name="id" value="${till?.id}" />
 
         <div class="row form-group mb-4">
-            <label for="tillId" class="col-3 offset-1 col-form-label text-right">Till ID </label>
+            <label for="tillId" class="col-3 offset-1 col-form-label-mandatory text-right" >Till ID </label>
 
             <div class="input-group col-4">
                 <g:textField name="tillId" value="${till?.tillId}" class="form-control bottom-border" />
@@ -31,10 +54,10 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="storeId" class="col-3 offset-1 col-form-label text-right">Store ID</label>
-
-            <div class="input-group col-4">
-                <g:select name="storeId" from="${stores}" optionValue="storeName"
+            <label for="storeId" class="col-3 offset-1 col-form-label-mandatory text-right">Store ID</label>
+            <div class="dropdown-content col-4">
+                <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','storeId')">
+                <g:select id="storeId" size="5" name="storeId" style="overflow:hidden" from="${stores}" optionValue="storeName"
                     value="${till?.storeId}"
                     optionKey="storeId"
                     class="form-control select-border"
@@ -52,9 +75,9 @@
 
         <div class="row form-group mb-4">
             <label for="serialNumber" class="col-3 offset-1 col-form-label text-right">Serial Number</label>
-
-            <div class="input-group col-4">
-                <g:select name="serialNumber" from="${serialNumbers}" optionValue="serialNumber"
+            <div class="dropdown-content col-4">
+                <input type="text" class="form-control bottom-border" placeholder="Search for serial number.." id="serialNumberInput" onkeyup="filter('serialNumberInput','serialNumber')">
+                <g:select name="serialNumber" size="5" style="overflow:hidden" from="${serialNumbers}" optionValue="serialNumber"
                     value="${till?.serialNumber}"
                     optionKey="serialNumber"
                     class="form-control select-border"
@@ -74,6 +97,6 @@
     <g:if test="${enableEdit}">
         <button type="button" id="saveAddSupplierButton" class="btn btn-secondary" onclick="generatePin();">Generate Pin</button>
     </g:if>
-    <button type="button" id="cancelAddTillButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    <button type="button" id="cancelAddTillButton" class="btn btn-secondary" onclick="cancelTill();">Cancel</button>
     <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveTill();">Save</button>
 </div>

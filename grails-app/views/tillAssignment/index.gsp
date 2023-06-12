@@ -14,6 +14,7 @@
         var editTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxEditTill')}"
         var saveTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveTill')}"
         var generatePinUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxGeneratePin')}"
+        var cancelTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxCancelTill')}"
 
         $(function() {
             getTills();
@@ -67,7 +68,7 @@
 
         function addTill() {
             $("#addTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#addTillModal').modal({show: true});
+            $('#addTillModal').modal({show: true, backdrop: 'static', keyboard: false});
             $.ajax({
                 url: addTillUrl,
                 method: "GET",
@@ -79,7 +80,7 @@
 
         function editTill(storeId, tillId, serialNumber) {
             $("#addTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#addTillModal').modal({show: true});
+            $('#addTillModal').modal({show: true, backdrop: 'static', keyboard: false});
             $.ajax({
                 url: editTillUrl,
                 method: "GET",
@@ -108,6 +109,20 @@
             });
         }
 
+        function cancelTill() {
+            if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+                $.ajax({
+                    url: cancelTillUrl,
+                    method: "POST",
+                    success: function () {
+                        $('#addTillModal').modal('hide')
+                        getTills();
+                    }
+                })
+
+            }
+        }
+
         function generatePin() {
             var formValues = $("#addTillForm").serialize();
             $.ajax({
@@ -119,6 +134,19 @@
                     document.getElementById("registration-code-value").innerText = resp
                 }
             })
+        }
+
+        function filter(inputName, dropDownName) {
+            var keyword = document.getElementById(inputName).value.toLowerCase();
+            var select = document.getElementById(dropDownName);
+            for (var i = 0; i < select.length; i++) {
+                var txt = select.options[i].text.toLowerCase();
+                if (!txt.match(keyword)) {
+                    $(select.options[i]).attr('disabled', 'disabled').hide();
+                } else {
+                    $(select.options[i]).removeAttr('disabled').show();
+                }
+            }
         }
 
     </script>

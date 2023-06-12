@@ -12,6 +12,7 @@ class TillAssignmentController {
     def tillAssignmentService
     def stores
     def configuration
+    def editingTill = false
 
     def index() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
@@ -81,6 +82,7 @@ class TillAssignmentController {
     def ajaxEditTill() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         configuration = TillConfiguration.findBySerialNumber(params.get("serialNumber").toString())
+        editingTill = true
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
 
         //Append the selected Serial Number to the list
@@ -90,6 +92,47 @@ class TillAssignmentController {
     }
 
     def ajaxSaveTill() {
+        def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
+        if (!params.containsKey("storeId")) {
+            if (configuration != null) {
+                serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
+                render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
+            } else {
+                render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
+            }
+            return
+        }
+
+        if (params.get("tillId").toString().isBlank()) {
+            if (configuration != null) {
+                serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
+                render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
+            } else {
+                render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
+            }
+            return
+        } else {
+            // check that the Till ID hasn't been previously added
+            def entry
+            if (editingTill) {
+                if (configuration.tillId != (Integer.parseInt(params.get("tillId").toString()))) {
+                    entry = tillAssignmentService.getTillsByTillId(Integer.parseInt(params.get("tillId").toString()))
+                }
+            } else {
+                entry = tillAssignmentService.getTillsByTillId(Integer.parseInt(params.get("tillId").toString()))
+            }
+
+            if (entry != null && entry.size != 0) {
+                if (configuration != null) {
+                    serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
+                    render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
+                } else {
+                    render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
+                }
+                return
+            }
+        }
+
         if (configuration != null) {
             // Check for existing Till Configuration for this serial number
             def existingConfig = TillConfiguration.findBySerialNumber(configuration.serialNumber)
@@ -106,12 +149,16 @@ class TillAssignmentController {
 
                 // If the serial number has changed, update Till Stock to reflect the Serial Number becoming free
                 if (configuration.serialNumber != params.get("serialNumber").toString()) {
-//                    tillAssignmentService.deleteEntryForSerialNumber(configuration.serialNumber)
                     tillAssignmentService.updateTillStock(configuration.serialNumber)
                 }
-                render "OK"
 
-            // Update the Till Stock list to reflect any Store / Till / Serial changes
+                configuration = null
+                editingTill = false
+                render "OK"
+            } else {
+                configuration = null
+                editingTill = false
+                render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
             }
         } else {
             def newTill = new TillConfiguration()
@@ -140,10 +187,15 @@ class TillAssignmentController {
                 tillAssignmentService.updateTillStock(newTill)
                 render "OK"
             } else {
-                def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
                 render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
             }
         }
+    }
+
+    def ajaxCancelTill() {
+        editingTill = false
+        configuration = null
+        render "OK"
     }
 
     def ajaxGeneratePin() {
@@ -158,6 +210,5 @@ class TillAssignmentController {
         tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
 
         render "The registration code for this till is ${pin} and will expire in one hour."
-
     }
 }
