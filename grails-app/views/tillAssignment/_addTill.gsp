@@ -24,13 +24,12 @@
             <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a Store is selected when adding a till.</div>
         </g:else>
     </g:if>
-
     <g:elseif test="${saveTillError}">
         <g:if test="${enableEdit}">
-            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique Till ID is provided when editing a till.</div>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique numerical Till ID is provided when editing a till.</div>
         </g:if>
         <g:else>
-            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique Till ID is provided when adding a till.</div>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique numerical Till ID is provided when adding a till.</div>
         </g:else>
     </g:elseif>
 
@@ -49,7 +48,7 @@
             <label for="tillId" class="col-3 offset-1 col-form-label-mandatory text-right" >Till ID </label>
 
             <div class="input-group col-4">
-                <g:textField name="tillId" value="${till?.tillId}" class="form-control bottom-border" />
+                <g:field type="number" min="0" name="tillId" value="${till?.tillId}" class="form-control bottom-border" />
             </div>
         </div>
 

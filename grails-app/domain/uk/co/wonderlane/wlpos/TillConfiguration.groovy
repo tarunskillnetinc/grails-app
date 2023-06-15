@@ -22,7 +22,7 @@ class TillConfiguration {
     int baudRate
     boolean printCardReceipts
 
-    public TillConfiguration() { }
+    TillConfiguration() { }
 
     static mapping = {
         autowire true
@@ -49,5 +49,7 @@ class TillConfiguration {
     }
 
     static constraints = {
+        scpTxnEndIndicator maxSize: 100
+        pposControlBar maxSize: 100
     }
 }

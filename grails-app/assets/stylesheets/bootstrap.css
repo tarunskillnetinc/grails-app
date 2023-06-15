@@ -8072,6 +8072,11 @@ button.bg-dark:focus {
   margin-left: 3rem !important;
 }
 
+.ml-6,
+.mx-6 {
+  margin-left: 4rem !important;
+}
+
 .p-0 {
   padding: 0 !important;
 }

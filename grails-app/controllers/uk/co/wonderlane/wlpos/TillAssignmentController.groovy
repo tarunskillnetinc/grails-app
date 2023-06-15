@@ -76,7 +76,7 @@ class TillAssignmentController {
     def ajaxAddTill() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
-        render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers.size() >= 5 ? serialNumbers.subList(0, 5) : serialNumbers, enableEdit: false])
+        render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, enableEdit: false])
     }
 
     def ajaxEditTill() {
@@ -88,7 +88,7 @@ class TillAssignmentController {
         //Append the selected Serial Number to the list
         serialNumbers.add(TillStock.findBySerialNumber(params.get("serialNumber").toString()))
 
-        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers.size() >= 5 ? serialNumbers.subList(0, 5) : serialNumbers, enableEdit: true])
+        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, enableEdit: true])
     }
 
     def ajaxSaveTill() {
@@ -103,6 +103,7 @@ class TillAssignmentController {
             return
         }
 
+        //Non-Numerical inputs for TillID will be considered as Blank ("")
         if (params.get("tillId").toString().isBlank()) {
             if (configuration != null) {
                 serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
@@ -210,5 +211,36 @@ class TillAssignmentController {
         tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
 
         render "The registration code for this till is ${pin} and will expire in one hour."
+    }
+
+    def ajaxAdvancedConfiguration(String serialNumber) {
+        configuration = TillConfiguration.findBySerialNumber(serialNumber)
+        render(template: "advancedConfig", model: [config: configuration])
+    }
+
+    def ajaxSaveAdvancedConfiguration() {
+        configuration.scpTxnEndIndicator = params.get("scpTxnIndicator").toString()
+        configuration.pposControlBar = params.get("pposControlBar").toString()
+
+        //Numerical field protection against Non-numerical character input
+        if (params.get("baudRate").toString() == "") {
+            configuration.baudRate = 0
+        } else {
+            configuration.baudRate = Integer.parseInt(params.get("baudRate").toString())
+        }
+
+        configuration.pposAdmin = params.getBoolean("pposAdmin")
+        configuration.pposRefund = params.getBoolean("pposRefund")
+        configuration.pposSmartToken = params.getBoolean("pposSmartToken")
+        configuration.printCardReceipts = params.getBoolean("printCardReceipts")
+
+        if (configuration.validate()) {
+            // Store the New Till within the Till Configuration table
+            tillAssignmentService.saveTill(configuration)
+            configuration = null
+            render "OK"
+        } else {
+            render(template: "advancedConfig", model: [config: configuration])
+        }
     }
 }

@@ -15,6 +15,8 @@
         var saveTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveTill')}"
         var generatePinUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxGeneratePin')}"
         var cancelTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxCancelTill')}"
+        var advancedConfigurationUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxAdvancedConfiguration')}"
+        var saveAdvancedConfigurationUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveAdvancedConfiguration')}"
 
         $(function() {
             getTills();
@@ -57,6 +59,19 @@
                     }
                 });
             }
+        }
+
+        function advancedConfiguration(serialNumber) {
+            $("#advancedTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $('#advancedTillModal').modal({show: true, backdrop: 'static', keyboard: false});
+            $.ajax({
+                url: advancedConfigurationUrl,
+                method: "GET",
+                data: {serialNumber: serialNumber},
+                success: function (resp) {
+                    $("#advancedTillContent").html(resp);
+                }
+            });
         }
 
         function clearFilters() {
@@ -109,6 +124,24 @@
             });
         }
 
+        function saveAdvancedConfiguration() {
+            var formValues = $("#advancedConfigForm").serialize();
+            $("#advancedTillContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>")
+            $.ajax({
+                url: saveAdvancedConfigurationUrl,
+                method: "POST",
+                data: formValues,
+                success: function (resp) {
+                    if (resp === "OK") {
+                        $('#advancedTillModal').modal('hide')
+                        getTills();
+                    } else {
+                        $("#advancedTillContent").html(resp);
+                    }
+                }
+            });
+        }
+
         function cancelTill() {
             if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
                 $.ajax({
@@ -116,6 +149,7 @@
                     method: "POST",
                     success: function () {
                         $('#addTillModal').modal('hide')
+                        $('#advancedTillModal').modal('hide')
                         getTills();
                     }
                 })
@@ -235,11 +269,21 @@
 </section>
 
 <section id="addTill-modal" class="container-fluid">
-    <!-- Add supplier modal -->
+    <!-- Add Till modal -->
     <div class="modal fade" id="addTillModal" tabindex="-1" role="dialog" aria-labelledby="addTillModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div id="addTillContent" class="modal-content"></div>
+        </div>
+    </div>
+</section>
+
+<section id="advancedConfiguration-modal" class="container-fluid">
+    <!-- Advanced Configuration modal -->
+    <div class="modal fade" id="advancedTillModal" tabindex="-1" role="dialog" aria-labelledby="advancedTillModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div id="advancedTillContent" class="modal-content"></div>
         </div>
     </div>
 </section>
