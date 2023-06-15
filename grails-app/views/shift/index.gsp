@@ -104,7 +104,7 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
                                     <div class="col-2">
-                                        <g:field type="number" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field id="tillId" type="number" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" />
                                     </div>
 
                                     <div class="col-4 offset-4 text-right">
