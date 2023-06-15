@@ -10,7 +10,7 @@
         <g:each in="${variants}" var="variant" status="i">
             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDate, variant.id, variant.sku)}">
                 <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'productListItem', params: [supplierId: supplierId,variantId: variant?.id, productListId: productListId])}';">
-                    <div class="row" style="text-align: center; margin: auto"><h3>SKU : ${variant?.sku}</h3></div>
+                    <div id="variant-sku-${i + 1}" class="row" style="text-align: center; margin: auto"><h3>SKU : ${variant?.sku}</h3></div>
                 </div>
             </g:if>
         </g:each>

@@ -164,12 +164,12 @@
             </div>
 
             <div class="col-2 text-right">
-                <button class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
+                <button id="cancel" class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
                 <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
-                    <button class="btn btn-success" name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" name="save" onclick="save()">Save</button>
                 </g:if>
                 <g:else>
-                    <button class="btn btn-success" disabled name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" disabled name="save" onclick="save()">Save</button>
                 </g:else>
 
             </div>
