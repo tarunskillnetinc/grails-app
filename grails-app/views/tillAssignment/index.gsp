@@ -23,6 +23,8 @@
         });
 
         function getTills() {
+            $("#loading-indicator").show();
+
             var filterParams = {};
 
             $("#filtersForm input").each(function() {
@@ -32,7 +34,6 @@
             $("#filtersForm select").each(function() {
                 filterParams[$(this).attr("name")] = $(this).find(":selected").val();
             }).get();
-
 
             $.ajax({
                 url: getTillsUrl,
