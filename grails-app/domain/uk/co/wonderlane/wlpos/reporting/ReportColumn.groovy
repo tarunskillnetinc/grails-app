@@ -9,7 +9,7 @@ class ReportColumn {
     static belongsTo = [ reportColumns: ReportColumns ]
 
     static mapping = {
-        datasources (["reporting"])
+        datasources (["reporting", "reportingReadOnly"])
 
         table "reportcolumn"
         version false

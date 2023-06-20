@@ -22,8 +22,7 @@ class PayPointSale {
     static transients = ['visibleStoreId']
 
     static mapping = {
-        datasources (["reporting"])
-
+        datasources (["reporting", "reportingReadOnly"])
         table "paypointsale"
         version false
 
