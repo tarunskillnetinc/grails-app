@@ -49,6 +49,9 @@
                 <g:elseif test="${row.model.length() > 50}">
                     Invalid - Model must be less than 50 characters
                 </g:elseif>
+                <g:elseif test="${hardwareService.getHardwareBySerialNumber(row.serialNumber).size() > 0}">
+                    Invalid - Serial number already exists
+                </g:elseif>
                 <g:else>
                     Invalid
                 </g:else>
