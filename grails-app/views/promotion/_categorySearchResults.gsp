@@ -13,10 +13,10 @@
 </g:if>
 
 <g:each in="${categories}" var="category" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
+    <div id="category-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
         <div id="category-result-${i+1}-category-code" class="col-2 my-auto">${category.retailerCategoryCode}</div>
         <div id="category-result-${i+1}-description" class="col-9 my-auto">${category.description}</div>
-        <a href="#" class="col-1 btn btn-wl my-auto" onclick="addPromotionCategory(${category.id}, '${category.description}', ${category.retailerCategoryCode})" data-dismiss="modal">Select</a>
+        <a id="category-result-${i+1}-select-button" href="#" class="col-1 btn btn-wl my-auto" onclick="addPromotionCategory(${category.id}, '${category.description}', ${category.retailerCategoryCode})" data-dismiss="modal">Select</a>
     </div>
 </g:each>
 

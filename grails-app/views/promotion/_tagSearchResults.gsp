@@ -13,9 +13,9 @@
 </g:if>
 
 <g:each in="${tags}" var="tag" status="i">
-    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
+    <div id="tag-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
         <div id="tag-result-${i+1}-description" class="col-11 my-auto">${tag.description}</div>
-        <a href="#" class="col-1 btn btn-wl my-auto" onclick="addPromotionTag(${tag.id}, '${tag.description}')" data-dismiss="modal">Select</a>
+        <a id="tag-result-${i+1}-select-button" href="#" class="col-1 btn btn-wl my-auto" onclick="addPromotionTag(${tag.id}, '${tag.description}')" data-dismiss="modal">Select</a>
     </div>
 </g:each>
 
