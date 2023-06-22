@@ -49,10 +49,6 @@ class TillAssignmentService {
         tills.first().delete()
     }
 
-    def deleteEntryForSerialNumber(String serialNumber) {
-        TillConfiguration.findBySerialNumber(serialNumber).delete()
-    }
-
     def saveTill(TillConfiguration newTill) {
         newTill.save()
     }
