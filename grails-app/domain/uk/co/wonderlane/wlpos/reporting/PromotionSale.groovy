@@ -25,7 +25,7 @@ class PromotionSale {
     static transients = ['quantity']
 
     static mapping = {
-        datasources (["reporting"])
+        datasources (["reporting", "reportingReadOnly"])
         table "promotionsale"
         version false
 

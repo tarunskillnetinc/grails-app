@@ -27,7 +27,9 @@ class HardwareImportController {
             // No validation errors, can continue with the import preparation
             if(!importError) {
                 rows.forEach({CSVUploadHardware row ->
-                    if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0) {
+                    if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0
+                    || row.serialNumber.length() > 50
+                    || row.model.length() > 50) {
                         row.validRow = false;
                     }
                 })
@@ -39,7 +41,7 @@ class HardwareImportController {
             importError = "Error occurred during processing of file"
         }
 
-        render(template: "importResults", model: [successful: !importError, importError: importError, rows: session.ROWS])
+        render(template: "importResults", model: [successful: !importError, importError: importError, rows: session.ROWS, hardwareService: hardwareService])
     }
 
     def exportResults() {

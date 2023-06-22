@@ -101,6 +101,7 @@ class StoreSettings {
         id nullable: true
         retailerId nullable: false
         parentStoreId nullable: true
+        type nullable: true
         storeId nullable: true
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100

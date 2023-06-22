@@ -10,7 +10,7 @@ class SaleCategory implements Comparable {
     static belongsTo = [ sales: Sale ]
 
     static mapping = {
-        datasources (["reporting"])
+        datasources (["reporting", "reportingReadOnly"])
         table "salescategories"
         version false
 

@@ -70,7 +70,7 @@ class ProductController {
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
-                                    categoryValues     : categoryService.getFullCategoryHierarchy(),
+                                    categoryValues     : categoryService.getTopLevelCategories(),
                                     productCategoryList: productCategoryList,
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges             : ranges,
@@ -107,7 +107,7 @@ class ProductController {
 
         render(view: "add", model: [storeId       : springSecurityService.principal.storeId,
                                     statusValues  : ProductStatus.values(),
-                                    categoryValues: categoryService.getFullCategoryHierarchy(),
+                                    categoryValues: categoryService.getTopLevelCategories(),
                                     vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges        : ranges,
                                     priceBands    : priceBands,
@@ -146,7 +146,7 @@ class ProductController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
-        def categories = categoryService.getFullCategoryHierarchy()
+        def categories = categoryService.getTopLevelCategories()
         def tags = tagService.getTags()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
@@ -167,7 +167,7 @@ class ProductController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
-        def categories = categoryService.getFullCategoryHierarchy()
+        def categories = categoryService.getTopLevelCategories()
         def tags = tagService.getTags()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
@@ -189,7 +189,7 @@ class ProductController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def supplierUpdates() {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
-        def categories = categoryService.getFullCategoryHierarchy()
+        def categories = categoryService.getTopLevelCategories()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description"])
 
         [suppliers: suppliers, categories: categories, priceBands: priceBands]
@@ -549,7 +549,7 @@ class ProductController {
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
-                                        categoryValues     : categoryService.getFullCategoryHierarchy(),
+                                        categoryValues     : categoryService.getTopLevelCategories(),
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
                                         ranges             : ranges,
@@ -776,16 +776,19 @@ class ProductController {
         }
 
         def variantLocations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, editedVariant.sku)
+        def builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
 
         editedVariant.locationz?.each { editedLocation ->
             def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == editedLocation.id }
 
             if (existingLocation && existingLocation.id > 0 && locationChanged(editedLocation, existingLocation)) {
+                compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
                 updateLocation(existingLocation, editedLocation, editedVariant)
             } else if (!existingLocation) {
                 Location newLocation = new Location()
                 updateLocation(newLocation, editedLocation, editedVariant)
                 existingVariant.locationz.add(newLocation)
+                compareLocationFields(builder, new Location(), newLocation, ProductHistoryType.LOCATION_ADD)
             }
         }
 
@@ -797,10 +800,13 @@ class ProductController {
                 def editedLocation = editedVariant.locationz?.find { editedLocation -> editedLocation.id == existingLocation.id }
 
                 if (!editedLocation && editedLocation?.sku != 0 && editedLocation?.storeId != 0) {
+                    compareLocationFields(builder, existingLocation, new Location(), ProductHistoryType.LOCATION_DELETE)
                     deleteLocations.add(existingLocation)
                 }
             }
         }
+
+        productService.saveProductHistories(builder.productHistories)
 
         for (int i = 0; i < deleteLocations.size(); i++) {
             deleteLocations.get(i).delete()
@@ -1003,28 +1009,6 @@ class ProductController {
                 }
             }
         }
-
-        //---------------------------- Update history for location fields --------------------------------//
-
-        variant?.locationz?.each { editedLocation ->
-            def existingLocation = oldVariant?.locationz?.find { existingLocation -> existingLocation.id == editedLocation.id }
-            if (existingLocation) { //Location already existed
-                compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
-            } else { //Location newly added
-                compareLocationFields(builder, new Location(), editedLocation, ProductHistoryType.LOCATION_ADD)
-            }
-        }
-
-        // Remove any locations which no longer exist.
-        oldVariant?.locationz?.each { existingLocation ->
-            // If the ID is not set then this must be a new location added as part of this save
-            if (existingLocation.id > 0) {
-                def editedLocation = variant?.locationz?.find { editedLocation -> editedLocation.id == existingLocation.id }
-                if (!editedLocation) { //Location is removed
-                    compareLocationFields(builder, existingLocation, new LocationCommand(), ProductHistoryType.LOCATION_DELETE)
-                }
-            }
-        }
     }
 
     void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
@@ -1038,7 +1022,7 @@ class ProductController {
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
     }
 
-    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, LocationCommand location, ProductHistoryType productHistoryType) {
+    void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
         builder.compare(null, "aisle", oldLocation.aisle, location.aisle, productHistoryType)
         builder.compare(null, "bay", oldLocation.bay, location.bay, productHistoryType)
         builder.compare(null, "shelf", oldLocation.shelf, location.shelf, productHistoryType)
@@ -1144,7 +1128,6 @@ class ProductController {
         if (productHistories != null && productHistories.size() > 0){
             productService.saveProductHistories(productHistories)
         }
-
     }
 
     private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
@@ -1159,12 +1142,44 @@ class ProductController {
                         effectiveDate: effectiveDate, updateDate: now)
 
         return productHistory
-
     }
 
-    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId) {
+    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
+        def topLevelCategories = []
+        def productCategoryList = []
+
+        boolean isSearch = searchTerm?.length() > 0
+
+        // If no search term is provided then we should reset this back to default (i.e. just the top level departments).
+        if (isSearch) {
+            def categories = categoryService.searchCategories(searchTerm)
+
+            productCategoryList.addAll(categories?.collect { it.id })
+
+            categories?.each {
+                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
+            }
+        } else {
+            topLevelCategories = categoryService.getTopLevelCategories()
+        }
+
+        render(template: "categorySelectInputs", model: [categories: topLevelCategories.unique(), level: isSearch ? level : 1, productCategoryList: productCategoryList, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
+    }
+
+    private void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
+        if (category.parentCategory) {
+            productCategoryList.add(category.parentCategory.id)
+
+            addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory)
+        } else {
+            topCategories.add(category)
+        }
+    }
+
+    def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
         def category = categoryService.getCategory(categoryId)
-        render(template: "categorySelect", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId])
+
+        render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
     def ajaxAddVariant(AddVariantCommand cmd) {
@@ -1178,6 +1193,7 @@ class ProductController {
     def ajaxSaveVariant(AddVariantCommand cmd) {
         def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         def storeId = springSecurityService.principal.storeId
+
         render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, locationsType: locationsType, storeId: storeId])
     }
 

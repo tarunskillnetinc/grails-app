@@ -55,8 +55,8 @@
                             <div class="row form-group">
                                 <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
 
-                                <div class="col-lg-9 pt-2" style="max-height: 300px; overflow-y: scroll;">
-                                    <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1]" />
+                                <div class="col-lg-9 pt-2">
+                                    <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1, triggerOnCategoryChange: true]" />
                                 </div>
                             </div>
                         </div>
@@ -310,8 +310,8 @@
                                     def productRanges = selectedRanges ? selectedRanges : product?.ranges*.rangeId
                                 %>
                                 <g:each in="${ranges}" var="range" status="i">
-                                    <div class="col">
-                                        <label id="range-${i+1}-description" class="radio-container">${range.description}
+                                    <div class="col radio-container">
+                                        <label id="range-${i+1}-description" class="radio-input">${range.description}
                                             <g:checkBox name="rangeId" id="range-${i+1}-check-box" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
 
                                             <span id="range-${i+1}-check-box-span" class="checkmark"></span>
@@ -325,7 +325,7 @@
             </g:if>
         </sec:ifAnyGranted>
 
-    <!-- Locations. -->
+        <!-- Locations. -->
         <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
             <div class="card bg-light border-wl accordion-card">
                 <div class="card-header pointer" id="productLocations" data-toggle="collapse" data-target="#collapseProductLocations" aria-expanded="true" aria-controls="collapseProductLocations">

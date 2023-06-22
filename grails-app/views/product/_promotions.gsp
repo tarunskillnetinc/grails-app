@@ -5,7 +5,7 @@
 </g:if>
 
 <g:each in="${promotions}" var="promotion" status="i">
-    <div class="row mx-5 pt-2 pb-2 wl-striped${i % 2} hoverable" title="Click to view promotion." style="cursor: pointer;" onclick="document.location.href='${createLink(controller: 'promotion', action: 'maintenance', params: [promotionId: promotion.id])}';">
+    <div id="promotion-${i+1}" class="row mx-5 pt-2 pb-2 wl-striped${i % 2} hoverable" title="Click to view promotion." style="cursor: pointer;" onclick="document.location.href='${createLink(controller: 'promotion', action: 'maintenance', params: [promotionId: promotion.id])}';">
         <div id="promotion-${i+1}-id" class="col-1 my-auto">${promotion.id}</div>
         <div id="promotion-${i+1}-type" class="col-2 my-auto"><g:message code="PromotionType.${promotion.type.name()}" /></div>
         <div id="promotion-${i+1}-description" class="col-5 my-auto">${promotion.description}</div>

@@ -23,9 +23,18 @@
             };
         }
 
+        function resetMessages()
+        {
+            $('#successMessage').hide();
+            $('#failureMessage').hide();
+        }
+
         function uploadHardwareImportFile() {
-            setPreventWindowNavigation(true);
-            $("#uploadResults").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            setPreventWindowNavigation(true)
+            resetMessages();
+            $("#uploadResults").html("<div class=\"modal-body\">"
+                + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait uploading file...</h3></div></div>"
+                + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
 
             const uploadButton = document.getElementById('uploadHardwareBtn');
             uploadButton.disabled = true;
@@ -63,66 +72,13 @@
         }
 
         function showErrorAlert(errors) {
-            const alertWindow = $('#dialog-csv-upload-error');
-            let warningItems = "<ul>"
-            let errorHtml = '';
-
-            errors.forEach((error) => {
-                errorHtml += "<li>" + error + "</li>"
-            })
-
-            warningItems += errorHtml
-            warningItems += "<hr>"
-
-            warningItems = warningItems.length > 4 ? warningItems.slice(0, -4) : warningItems
-            warningItems += "</ul>"
-
-
-            alertWindow.html("<div>"
-                + "<p><span class='ui-icon ui-icon-alert' style='float:left; margin:12px 12px 20px 0;'></span></p>"
-                +  warningItems +
-                "</div>");
-
-            alertWindow.dialog({
-                title: "The following errors were found while uploading the hardware",
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: "40%",
-                modal: true,
-                buttons: {
-                    Close: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                open: function () {
-                    $(".ui-dialog-titlebar-close").hide();
-                    $(this).dialog('option', 'maxHeight', $(window).height());
-                }
-            }).dialog('open');
+            $('#failureMessage').show();
+            $('#failureMessage').text("There was an error completing the import. Please try again.")
         }
 
         function showSuccessAlert() {
-            const alertWindow = $('#dialog-csv-upload-error');
-            alertWindow.html("<div>"
-                + "<p>"
-                + "Successfully uploaded all the valid serial numbers</p>"
-                + "</div>");
-
-            alertWindow.dialog({
-                title: "Success",
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: "30%",
-                modal: true,
-                buttons: {
-                    Close: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                open: function () { $(".ui-dialog-titlebar-close").hide(); }
-            }).dialog('open');
+            $('#successMessage').show();
+            $('#successMessage').text("Hardware import completed successfully");
         }
 
         function resetFileUploadInput() {
@@ -131,6 +87,9 @@
 
         function bindUploadButtons() {
             $("#uploadSave").click(function () {
+                $("#uploadResults").html("<div class=\"modal-body\">"
+                    + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait importing results...</h3></div></div>"
+                    + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 let url = "${createLink(controller: 'hardwareImport', action:'confirmImport')}";
                 const uploadButton = document.getElementById('uploadHardwareBtn');
                 $.ajax({
@@ -144,7 +103,6 @@
                         $("#uploadResults").html("");
                         uploadButton.disabled = false
                         uploadButton.innerHTML = "Upload Hardware"
-
                         showSuccessAlert()
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
@@ -161,6 +119,7 @@
             });
 
             $("#uploadCancel").click(function () {
+                resetMessages();
                 $("#uploadResults").html("");
             });
         }
@@ -183,10 +142,11 @@
 
     <section id="hardwareUpload" class="container-fluid">
         <div class="row header-wl mt-3">
-            <div class="col-6 offset-2">
-                <h2 id="page-title" class="mx-auto">Hardware Import</h2>
+            <div class="col-8 offset-2">
+                <h2 id="page-title" class="mx-auto my-auto">Hardware Import</h2>
             </div>
-            <div class="col-4 text-right d-inline-flex flex-row justify-content-end">
+            <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
+
                 <button class="btn btn-wl p-2 ml-2" onclick="selectHardwareUploadFile()" id="uploadHardwareBtn">Upload Hardware</button>
                 <input type="file" name="file" accept=".csv,.CSV"
                        id="csvFileUploadInput" style="display:none" oninput="uploadHardwareImportFile()" oncancel="resetHardwareInput()">
@@ -194,11 +154,9 @@
         </div>
     </section>
 
-    <g:if test="${flash.message}">
-        <section id="alerts-container" class="container-fluid">
-            <div id="alerts-container-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-        </section>
-    </g:if>
+    <div class="alert alert-success alert-wl" role="alert" id="successMessage" style="display: none"></div>
+
+    <div class="alert alert-danger alert-wl" role="alert" id="failureMessage" style="display: none"></div>
 
     <section id="uploadResultsSection" class="container-fluid">
         <div id="uploadResults">

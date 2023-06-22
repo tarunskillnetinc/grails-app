@@ -170,6 +170,33 @@ environments:
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://localhost:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "root"
+                password: "Pa**W0rd01"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
@@ -246,6 +273,9 @@ environments:
             reporting:
                 dbCreate: update
                 url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            reportingReadOnly:
+                dbCreate: update
+                url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
 
 
     test:
@@ -303,6 +333,34 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retailplatform.cluster-ro-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "CdtfudWdnGVS87IKs7dV"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
@@ -418,6 +476,34 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://127.0.0.1:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
@@ -523,6 +609,34 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://127.0.0.1:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
@@ -628,6 +742,34 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://localhost:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
