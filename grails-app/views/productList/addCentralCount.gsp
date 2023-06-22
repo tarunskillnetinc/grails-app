@@ -79,7 +79,7 @@
                                           multiple="true"
                                           value=""
                                           optionValue="storeName"
-                                          optionKey="id"
+                                          optionKey="storeId"
                                           class="form-control col-8"
                                           style="height: 200px;"/>
                             </div>
