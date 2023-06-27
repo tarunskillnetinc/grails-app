@@ -592,9 +592,7 @@ class ProductService extends MySqlDal {
 
             log.println("Syncing ${productEntities.size()} product updates to store ${store.storeId}")
 
-            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendMessage(syncMessage)
         }
     }
 
@@ -635,9 +633,7 @@ class ProductService extends MySqlDal {
 
             log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
 
-            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendMessage(syncMessage)
         }
     }
 
