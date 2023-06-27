@@ -1,18 +1,18 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'sku', sortOrder: ${sortParams?.sortColumn == 'sku' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Product SKU</a></div>
+        <div class="col-2 font-weight-bold"><a id="sku" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'sku', sortOrder: ${sortParams?.sortColumn == 'sku' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Product SKU</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-4 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'description', sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
+        <div class="col-4 font-weight-bold"><a id="description" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'description', sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderedQuantity" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'orderedQuantity', sortOrder: ${sortParams?.sortColumn == 'orderedQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Ordered Quantity</a></div>
+        <div class="col-2 font-weight-bold"><a id="ordered-quantity" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'orderedQuantity', sortOrder: ${sortParams?.sortColumn == 'orderedQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Ordered Quantity</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packQuantity" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'packQuantity', sortOrder: ${sortParams?.sortColumn == 'packQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Pack Quantity</a></div>
+        <div class="col-2 font-weight-bold"><a id="pack-quantity" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'packQuantity', sortOrder: ${sortParams?.sortColumn == 'packQuantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Pack Quantity</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "lineValue" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'lineValue', sortOrder: ${sortParams?.sortColumn == 'lineValue' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Line Value</a></div>
+        <div class="col-2 font-weight-bold"><a id="line-value" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'lineValue', sortOrder: ${sortParams?.sortColumn == 'lineValue' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Line Value</a></div>
     </g:if>
 </div>
 

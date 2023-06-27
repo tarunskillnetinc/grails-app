@@ -1,24 +1,24 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-4 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'description', sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
+        <div class="col-4 font-weight-bold"><a id="description" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'description', sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-        <div class="col-1 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'quantity', sortOrder: ${sortParams?.sortColumn == 'quantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Total Quantity</a></div>
+        <div class="col-1 font-weight-bold"><a id="total-quantity" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'quantity', sortOrder: ${sortParams?.sortColumn == 'quantity' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Total Quantity</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'avgCostPrice', sortOrder: ${sortParams?.sortColumn == 'avgCostPrice' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Avg Cost Price</a></div>
+        <div class="col font-weight-bold"><a id="avg-cost-price" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'avgCostPrice', sortOrder: ${sortParams?.sortColumn == 'avgCostPrice' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Avg Cost Price</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgRetailPrice" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'avgRetailPrice', sortOrder: ${sortParams?.sortColumn == 'avgRetailPrice' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Avg Sales Price</a></div>
+        <div class="col font-weight-bold"><a id="avg-sales-price" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'avgRetailPrice', sortOrder: ${sortParams?.sortColumn == 'avgRetailPrice' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Avg Sales Price</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'retailPrice', sortOrder: ${sortParams?.sortColumn == 'retailPrice' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Total Sales</a></div>
+        <div class="col font-weight-bold"><a id="total-sales" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'retailPrice', sortOrder: ${sortParams?.sortColumn == 'retailPrice' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Total Sales</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatAmount" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'vatAmount', sortOrder: ${sortParams?.sortColumn == 'vatAmount' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">VAT Amount</a></div>
+        <div class="col font-weight-bold"><a id="vat-amount" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'vatAmount', sortOrder: ${sortParams?.sortColumn == 'vatAmount' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">VAT Amount</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgMargin" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'avgMargin', sortOrder: ${sortParams?.sortColumn == 'avgMargin' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Avg Margin</a></div>
+        <div class="col font-weight-bold"><a id="avg-margin" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'avgMargin', sortOrder: ${sortParams?.sortColumn == 'avgMargin' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Avg Margin</a></div>
     </g:if>
 </div>
 

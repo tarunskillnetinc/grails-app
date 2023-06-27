@@ -19,7 +19,7 @@
             text-align: center;
         }
 
-        #counterButton {
+        .counterButton {
             width: 60px;
             height: 40px;
             font-size: 20px;
@@ -50,11 +50,13 @@
                 width: 400,
                 draggable: false,
                 resizable: false,
-                buttons: {
-                    Ok: function() {
-                        $( this ).dialog( "close" );
+                buttons: [{
+                    id: "ok-button",
+                    text: "Ok",
+                    click: function () {
+                        $(this).dialog("close");
                     }
-                }
+                }]
             });
 
             $("#dialog-pack-save-error").dialog({
@@ -202,24 +204,24 @@
                             <!--This is for non symbol group orders, quantities are calculated in server and passed into view-->
                             <g:if test="${isNoSymbolOrders}">
                                 <div class="quantity-${packSingles}" id="${packSingles}" style="width: 100%; margin-bottom: 30px" >
-                                    <button id="counterButton" onclick="decrement(${packSingles})">-</button>
+                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles})">-</button>
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="text" class="quantity__input" value="${singleQuantity}" >
-                                    <button id="counterButton" onclick="increment(${packSingles})" >+</button>
+                                    <input name="packLines[${packSingles}].quantity" id="packLinesSingles.quantity" type="text" class="quantity__input" value="${singleQuantity}" >
+                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
                                     <span id="packQty">x Singles</span>
                                 </div>
                             </g:if>
                             <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
                                 <g:each in="${packs}" var="pack" status="i">
                                     <div class="quantity-${pack.id}" id="${pack.id}" style="width: 100%; margin-bottom: 30px" >
-                                        <button id="counterButton" onclick="decrement(${pack.id})">-</button>
+                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id})">-</button>
                                         <g:hiddenField name="packLines[${pack.id}].id" id="packLines[${pack.id}].id" value="${pack?.id ?: 0}" />
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="text" class="quantity__input" value="${pack?.getQuantity(packLinesList)}" >
-                                        <button id="counterButton" onclick="increment(${pack.id})" >+</button>
+                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
                                 </g:each>
