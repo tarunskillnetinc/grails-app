@@ -15,6 +15,7 @@ class HardwareImportController {
         def file = request.getFile('file')
         def inputStream = file.inputStream
         String importError
+        def serialNumbersToImport = []
 
         try {
             List<CSVUploadHardware> rows = new CsvToBeanBuilder(inputStream.newReader())
@@ -26,11 +27,25 @@ class HardwareImportController {
 
             // No validation errors, can continue with the import preparation
             if(!importError) {
-                rows.forEach({CSVUploadHardware row ->
-                    if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0
-                    || row.serialNumber.length() > 50
-                    || row.model.length() > 50) {
-                        row.validRow = false;
+                rows.forEach({ CSVUploadHardware row ->
+                    if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0) {
+                        row.validRow = false
+                        row.errorRow = "Invalid - Serial number already exists"
+                    } else if (row.serialNumber.length() > 50 && row.model.length() > 50) {
+                        row.validRow = false
+                        row.errorRow = "Invalid - Serial number and model must be less than 50 characters"
+                    } else if (row.serialNumber.length() > 50) {
+                        row.validRow = false
+                        row.errorRow = "Invalid - Serial number must be less than 50 characters"
+                    } else if (row.model.length() > 50) {
+                        row.validRow = false
+                        row.errorRow = "Invalid - Model must be less than 50 characters"
+                    } else if (serialNumbersToImport.contains(row.serialNumber)) { // Check that this serial number has not successfully been added before this in the same import
+                        row.validRow = false
+                        row.errorRow = "Invalid - Duplicate Serial Number in file"
+                    } else {
+                        // Since there are no issues add the serial number to serialNumbersToImport in order to check against later
+                        serialNumbersToImport.add(row.serialNumber)
                     }
                 })
             }
@@ -41,7 +56,7 @@ class HardwareImportController {
             importError = "Error occurred during processing of file"
         }
 
-        render(template: "importResults", model: [successful: !importError, importError: importError, rows: session.ROWS, hardwareService: hardwareService])
+        render(template: "importResults", model: [successful: !importError, importError: importError, rows: session.ROWS])
     }
 
     def exportResults() {
@@ -105,4 +120,6 @@ class CSVUploadHardware implements Serializable {
     String model
 
     boolean validRow = true
+
+    String errorRow = ""
 }
