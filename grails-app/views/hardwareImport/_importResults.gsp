@@ -1,3 +1,4 @@
+
 <div class="col-6 text-left">
     <g:if test="${rows.any{ it.validRow } && successful}">
         <button class="btn btn-wl p-2 ml-2" id="uploadSave" name="save">Import</button>
@@ -40,17 +41,8 @@
                 <g:if test="${row.validRow}">
                     Valid
                 </g:if>
-                <g:elseif test="${row.serialNumber.length() > 50 && row.model.length() > 50}">
-                    Invalid - Serial number and model must be less than 50 characters
-                </g:elseif>
-                <g:elseif test="${row.serialNumber.length() > 50}">
-                    Invalid - Serial number must be less than 50 characters
-                </g:elseif>
-                <g:elseif test="${row.model.length() > 50}">
-                    Invalid - Model must be less than 50 characters
-                </g:elseif>
-                <g:elseif test="${hardwareService.getHardwareBySerialNumber(row.serialNumber).size() > 0}">
-                    Invalid - Serial number already exists
+                <g:elseif test="${row.errorRow != ""}">
+                    ${row.errorRow}
                 </g:elseif>
                 <g:else>
                     Invalid
