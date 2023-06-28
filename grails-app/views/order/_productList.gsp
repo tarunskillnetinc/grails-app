@@ -268,7 +268,7 @@
             </div>
 
             <div class="col-2 text-right">
-                    <button class="btn btn-wl" onclick="AddProduct();">Add Product</button>
+                    <button id="add-product-button" class="btn btn-wl" onclick="AddProduct();">Add Product</button>
             </div>
 
         </div>

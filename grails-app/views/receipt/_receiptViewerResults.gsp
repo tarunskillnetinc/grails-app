@@ -1,9 +1,9 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-2 font-weight-bold">Store ID</div>
-    <div class="col-2 font-weight-bold">Till ID</div>
-    <div class="col-2 font-weight-bold">Transaction Number</div>
-    <div class="col-3 font-weight-bold">Transaction Amount</div>
-    <div class="col-3 font-weight-bold">Date Generated</div>
+    <div id="storeId" class="col-2 font-weight-bold">Store ID</div>
+    <div id="tillId" class="col-2 font-weight-bold">Till ID</div>
+    <div id="transactionNumber" class="col-2 font-weight-bold">Transaction Number</div>
+    <div id="transactionAmount" class="col-3 font-weight-bold">Transaction Amount</div>
+    <div id="dateGenerated" class="col-3 font-weight-bold">Date Generated</div>
 </div>
 
 <div class="d-flex justify-content-center">
