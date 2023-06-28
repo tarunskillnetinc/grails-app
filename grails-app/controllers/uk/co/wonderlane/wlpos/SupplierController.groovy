@@ -126,6 +126,7 @@ class SupplierController {
             case 4: // Snappy
                 SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.SYNC, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
+                rabbitService.setVirtualHost("/")
                 rabbitService.sendQueueMessage("SnappyService", gsonProvider.gson.toJson(snappyServiceMessage))
                 break;
         }
@@ -188,11 +189,13 @@ class SupplierController {
                         SymbolGroupMessage symbolGroupMessage = new SymbolGroupMessage(SymbolGroupMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
                         // TODO Considering using routing key to reach Nisa?
+                        rabbitService.setVirtualHost("/")
                         rabbitService.sendExchangeMessage("SymbolGroups", gsonProvider.gson.toJson(symbolGroupMessage))
                         break;
                     case 4: // Snappy
                         SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
+                        rabbitService.setVirtualHost("/")
                         rabbitService.sendQueueMessage("SnappyService", gsonProvider.gson.toJson(snappyServiceMessage))
                         break;
                 }
