@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import org.joda.time.DateTime
 
 class TillStock {
+
     Integer id
     String serialNumber
     String model

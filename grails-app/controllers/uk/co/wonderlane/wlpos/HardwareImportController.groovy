@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
 class HardwareImportController {
+
     def hardwareService
 
     def index() { }
@@ -15,7 +16,7 @@ class HardwareImportController {
         def file = request.getFile('file')
         def inputStream = file.inputStream
         String importError
-        def serialNumbersToImport = []
+        def serialNumbersInFile = []
 
         try {
             List<CSVUploadHardware> rows = new CsvToBeanBuilder(inputStream.newReader())
@@ -26,11 +27,13 @@ class HardwareImportController {
             importError = validateImport(file, rows)
 
             // No validation errors, can continue with the import preparation
-            if(!importError) {
+            if (!importError) {
+                def serialsInStock = hardwareService.getSerialsInStock()
+
                 rows.forEach({ CSVUploadHardware row ->
-                    if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0) {
+                    if (serialNumbersInFile.contains(row.serialNumber)) { // Check that this serial number has not successfully been added before this in the same import
                         row.validRow = false
-                        row.errorRow = "Invalid - Serial number already exists"
+                        row.errorRow = "Invalid - Duplicate serial number in file"
                     } else if (row.serialNumber.length() > 50 && row.model.length() > 50) {
                         row.validRow = false
                         row.errorRow = "Invalid - Serial number and model must be less than 50 characters"
@@ -40,13 +43,12 @@ class HardwareImportController {
                     } else if (row.model.length() > 50) {
                         row.validRow = false
                         row.errorRow = "Invalid - Model must be less than 50 characters"
-                    } else if (serialNumbersToImport.contains(row.serialNumber)) { // Check that this serial number has not successfully been added before this in the same import
+                    } else if (serialsInStock.contains(row.serialNumber?.trim())) {
                         row.validRow = false
-                        row.errorRow = "Invalid - Duplicate Serial Number in file"
-                    } else {
-                        // Since there are no issues add the serial number to serialNumbersToImport in order to check against later
-                        serialNumbersToImport.add(row.serialNumber)
+                        row.errorRow = "Invalid - Serial number already exists"
                     }
+
+                    serialNumbersInFile.add(row.serialNumber?.trim())
                 })
             }
 
@@ -89,6 +91,7 @@ class HardwareImportController {
                     hardware.setSerialNumber(row.serialNumber)
                     hardware.setModel(row.model)
                     hardware.setDateUpdated(DateTime.now(DateTimeZone.UTC))
+
                     hardwareService.saveHardware(hardware)
                 }
             })
@@ -122,4 +125,8 @@ class CSVUploadHardware implements Serializable {
     boolean validRow = true
 
     String errorRow = ""
+}
+
+class TillStockCommand {
+    List<TillStock> tillStocks
 }
