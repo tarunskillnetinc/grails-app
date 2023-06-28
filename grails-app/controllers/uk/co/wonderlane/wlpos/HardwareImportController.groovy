@@ -16,7 +16,7 @@ class HardwareImportController {
         def file = request.getFile('file')
         def inputStream = file.inputStream
         String importError
-        def serialNumbersInFile = []
+        def validSerialNumbersInFile = []
 
         try {
             List<CSVUploadHardware> rows = new CsvToBeanBuilder(inputStream.newReader())
@@ -31,7 +31,7 @@ class HardwareImportController {
                 def serialsInStock = hardwareService.getSerialsInStock()
 
                 rows.forEach({ CSVUploadHardware row ->
-                    if (serialNumbersInFile.contains(row.serialNumber)) { // Check that this serial number has not successfully been added before this in the same import
+                    if (validSerialNumbersInFile.contains(row.serialNumber)) { // Check that this serial number has not successfully been added before this in the same import
                         row.validRow = false
                         row.errorRow = "Invalid - Duplicate serial number in file"
                     } else if (row.serialNumber.length() > 50 && row.model.length() > 50) {
@@ -46,9 +46,9 @@ class HardwareImportController {
                     } else if (serialsInStock.contains(row.serialNumber?.trim())) {
                         row.validRow = false
                         row.errorRow = "Invalid - Serial number already exists"
+                    } else {
+                        validSerialNumbersInFile.add(row.serialNumber?.trim())
                     }
-
-                    serialNumbersInFile.add(row.serialNumber?.trim())
                 })
             }
 
