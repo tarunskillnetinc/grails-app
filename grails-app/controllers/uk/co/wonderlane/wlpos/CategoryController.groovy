@@ -42,11 +42,18 @@ class CategoryController extends BaseController {
     }
 
     def add() {
-        render(view: "maintenance", model: [category: null, topLevelCategories: getTopLevelCategories()])
+        def blankCategory = new Category()
+        blankCategory.setRestrictions(new Restrictions())
+        render(view: "maintenance", model: [category: blankCategory, topLevelCategories: getTopLevelCategories()])
     }
 
     def save() {
-        Category category = new Category()
+        def category = categoryService.getCategory(Integer.parseInt(params.get("id").toString()))
+        if (category == null) {
+            category = new Category()
+            category.retailerId = springSecurityService.principal.retailerId
+        }
+
         bindData(category, params)
         category.save()
 

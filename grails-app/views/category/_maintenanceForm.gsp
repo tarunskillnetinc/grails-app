@@ -3,18 +3,18 @@
     <h2 class="row col-1">Details</h2>
     <div class="row">
         <div class="form-group row col-12 col-sm-6">
-            <label for="categoryDescription" class="col-3 col-form-label text-right pr-4">Description</label>
-            <g:textField name="categoryDescription" class="col-5 form-control bottom-border" required="true" value="${category?.description}"/>
+            <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
+            <g:field type="text" maxlength="60" name="description" class="col-5 form-control bottom-border" required="true" value="${category?.description}"/>
         </div>
         <div class="form-group row col-12 col-sm-6">
             <label for="shortDescription" class="col-3 col-form-label text-right pr-4">Short Description</label>
-            <g:textField name="shortDescription" class="col-5 form-control bottom-border" required="true" value="${category?.shortDescription}"/>
+            <g:field type="text" maxlength="40" name="shortDescription" class="col-5 form-control bottom-border" required="true" value="${category?.shortDescription}"/>
         </div>
     </div>
     <div class="row">
         <div class="form-group row col-12 col-sm-6">
             <label for="retailerCategoryCode" class="col-3 col-form-label text-right pr-4">Retailer Category Code</label>
-            <g:textField name="retailerCategoryCode" class="col-5 form-control bottom-border" required="true" value="${category?.retailerCategoryCode}"/>
+            <g:field type="text" maxlength="30" name="retailerCategoryCode" class="col-5 form-control bottom-border" required="true" value="${category?.retailerCategoryCode}"/>
         </div>
     </div>
 

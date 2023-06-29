@@ -96,7 +96,7 @@
                 <h2 id="page-title" class="mx-auto">Category Maintenance</h2>
             </div>
             <div class="col-2 text-right">
-                <g:link elementId="add-new-category" controller="category" action="add" class="btn btn-wl">Add New Promotion</g:link>
+                <g:link elementId="add-new-category" controller="category" action="add" class="btn btn-wl">Add New Category</g:link>
             </div>
         </div>
 
