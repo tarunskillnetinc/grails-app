@@ -42,4 +42,8 @@ class CategoryService {
         return Category.countByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId, "%$searchTerm%")
     }
 
+    def saveCategory(Category category) {
+        category.save()
+    }
+
 }

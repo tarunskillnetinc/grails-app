@@ -55,7 +55,7 @@ class CategoryController extends BaseController {
         }
 
         bindData(category, params)
-        category.save()
+        categoryService.saveCategory(category)
 
         if(!category.hasErrors()) {
             flash.message = "Category saved successfully"
