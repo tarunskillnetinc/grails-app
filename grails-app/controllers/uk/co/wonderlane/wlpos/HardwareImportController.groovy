@@ -3,59 +3,83 @@ package uk.co.wonderlane.wlpos
 
 import com.opencsv.bean.CsvBindByPosition
 import com.opencsv.bean.CsvToBeanBuilder
+import org.apache.commons.io.input.XmlStreamReader
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
 class HardwareImportController {
+
     def hardwareService
 
     def index() { }
 
     def ajaxCSVHardwareUpload() {
         def file = request.getFile('file')
-        def inputStream = file.inputStream
+        byte[] fileBytes = file.getBytes()
         String importError
-        def serialNumbersToImport = []
 
-        try {
-            List<CSVUploadHardware> rows = new CsvToBeanBuilder(inputStream.newReader())
-                .withType(CSVUploadHardware)
-                .build()
-                .parse()
+        XmlStreamReader xmlStreamReader = new XmlStreamReader(new ByteArrayInputStream(fileBytes))
+        String detectedEncoding = xmlStreamReader.getEncoding()
 
-            importError = validateImport(file, rows)
+        // Check if the file is UTF-8 encoded
+        if (!detectedEncoding.equals("UTF-8")) {
+            importError = 'Could not import file please ensure the file is using UTF-8 for encoding'
+        } else {
+            // Check if the file is UTF-8 encoded with BOM
+            if (fileBytes.length >= 3 &&
+                    (fileBytes[0] & 0xFF) == 0xEF &&
+                    (fileBytes[1] & 0xFF) == 0xBB &&
+                    (fileBytes[2] & 0xFF) == 0xBF) {
+                // Byte array is UTF-8 with BOM display error
+                importError = 'Could not import file please ensure the file is using UTF-8 without BOM for encoding'
+            } else {
+                // File is UTF-8 encoded correctly without BOM proceed with upload
+                def inputStream = file.inputStream
+                def validSerialNumbersInFile = []
 
-            // No validation errors, can continue with the import preparation
-            if(!importError) {
-                rows.forEach({ CSVUploadHardware row ->
-                    if (hardwareService.getHardwareBySerialNumber(row.serialNumber)?.size() > 0) {
-                        row.validRow = false
-                        row.errorRow = "Invalid - Serial number already exists"
-                    } else if (row.serialNumber.length() > 50 && row.model.length() > 50) {
-                        row.validRow = false
-                        row.errorRow = "Invalid - Serial number and model must be less than 50 characters"
-                    } else if (row.serialNumber.length() > 50) {
-                        row.validRow = false
-                        row.errorRow = "Invalid - Serial number must be less than 50 characters"
-                    } else if (row.model.length() > 50) {
-                        row.validRow = false
-                        row.errorRow = "Invalid - Model must be less than 50 characters"
-                    } else if (serialNumbersToImport.contains(row.serialNumber)) { // Check that this serial number has not successfully been added before this in the same import
-                        row.validRow = false
-                        row.errorRow = "Invalid - Duplicate Serial Number in file"
-                    } else {
-                        // Since there are no issues add the serial number to serialNumbersToImport in order to check against later
-                        serialNumbersToImport.add(row.serialNumber)
+                try {
+                    List<CSVUploadHardware> rows = new CsvToBeanBuilder(inputStream.newReader())
+                            .withType(CSVUploadHardware)
+                            .build()
+                            .parse()
+
+                    importError = validateImport(file, rows)
+
+                    // No validation errors, can continue with the import preparation
+                    if (!importError) {
+                        def serialsInStock = hardwareService.getSerialsInStock()
+
+                        rows.forEach({ CSVUploadHardware row ->
+                            if (validSerialNumbersInFile.contains(row.serialNumber?.trim()) || validSerialNumbersInFile.contains(row.serialNumber)) {
+                                // Check that this serial number has not successfully been added before this in the same import
+                                row.validRow = false
+                                row.errorRow = "Invalid - Duplicate serial number in file"
+                            } else if (row.serialNumber.length() > 50 && row.model.length() > 50) {
+                                row.validRow = false
+                                row.errorRow = "Invalid - Serial number and model must be less than 50 characters"
+                            } else if (row.serialNumber.length() > 50) {
+                                row.validRow = false
+                                row.errorRow = "Invalid - Serial number must be less than 50 characters"
+                            } else if (row.model.length() > 50) {
+                                row.validRow = false
+                                row.errorRow = "Invalid - Model must be less than 50 characters"
+                            } else if (serialsInStock.contains(row.serialNumber?.trim()) || serialsInStock.contains(row.serialNumber)) {
+                                row.validRow = false
+                                row.errorRow = "Invalid - Serial number already exists"
+                            } else {
+                                validSerialNumbersInFile.add(row.serialNumber?.trim())
+                            }
+                        })
                     }
-                })
+
+                    session.ROWS = rows
+                } catch (Exception e) {
+                    e.printStackTrace()
+                    importError = "Error occurred during processing of file"
+                }
             }
-
-            session.ROWS = rows
-        } catch (Exception e) {
-            e.printStackTrace()
-            importError = "Error occurred during processing of file"
         }
-
+        
         render(template: "importResults", model: [successful: !importError, importError: importError, rows: session.ROWS])
     }
 
