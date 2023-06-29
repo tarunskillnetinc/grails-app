@@ -59,7 +59,7 @@ class StoreSettingsController {
                 syncMessage.setInsert(true)
                 syncMessage.setStoreSettings(storeSettings.getStoreSettings());
 
-                rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+                rabbitService.sendMessage(syncMessage)
             }
 
             if (oldPriceBand != storeSettings.priceBand.id || oldProductRange != storeSettings.range.id) {
