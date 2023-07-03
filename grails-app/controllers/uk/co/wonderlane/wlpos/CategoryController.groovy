@@ -48,13 +48,30 @@ class CategoryController extends BaseController {
     }
 
     def save() {
+        def addingCategory = false
         def category = categoryService.getCategory(Integer.parseInt(params.get("id").toString()))
         if (category == null) {
             category = new Category()
             category.retailerId = springSecurityService.principal.retailerId
+            category.restrictions = new Restrictions()
+            addingCategory = true
         }
 
         bindData(category, params)
+
+        //Check for a Parent Category being selected.
+        def parentCategory = params.get("category.id")
+        if (parentCategory != null) {
+            category.parentCategory = categoryService.getCategory(Integer.parseInt(parentCategory))
+        }
+
+        if (!addingCategory) {
+            def restriction = Restrictions.findById(category.restrictions.id)
+            categoryService.saveRestriction(restriction)
+        } else {
+            categoryService.saveRestriction(category.restrictions)
+        }
+
         categoryService.saveCategory(category)
 
         if(!category.hasErrors()) {
@@ -63,6 +80,10 @@ class CategoryController extends BaseController {
         } else {
             redirect(controller: "category", action:"show", id: category.id)
         }
+    }
+
+    def ajaxDeleteCategory() {
+
     }
 
     def show(int id) {

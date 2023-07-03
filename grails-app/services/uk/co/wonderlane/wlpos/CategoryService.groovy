@@ -46,4 +46,8 @@ class CategoryService {
         category.save()
     }
 
+    def saveRestriction(Restrictions restrictions) {
+        restrictions.save()
+    }
+
 }

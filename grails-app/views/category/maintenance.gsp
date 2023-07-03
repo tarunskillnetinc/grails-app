@@ -54,6 +54,7 @@
 
             <div class="col-2 text-right">
                 <g:link elementId="category-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                <button id="category-delete" class="btn btn-danger" name="delete" onclick="deleteCategory();">Delete</button>
                 <button id="category-save-btn" class="btn btn-success" name="save" onclick="$('#category-form').submit();">Save</button>
             </div>
         </div>

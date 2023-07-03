@@ -73,6 +73,18 @@
                 }
             });
         }
+
+        function deleteCategory() {
+            var url = "${createLink(controller: 'category', action' ajaxDeleteCategory')}";
+
+            $.ajax({
+                url: url,
+                method: "POST",
+                success: function(resp) {
+
+                }
+            });
+        }
     </script>
 </head>
 
