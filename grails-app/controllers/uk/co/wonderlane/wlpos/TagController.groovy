@@ -155,7 +155,7 @@ class TagController {
             syncMessage.setInsert(true)
             syncMessage.setTag(tag.getTag())
 
-            rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendMessage(syncMessage)
         } catch (Exception e) {
             e.printStackTrace()
         }

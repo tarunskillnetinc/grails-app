@@ -62,13 +62,12 @@ class BackOfficeRabbitService extends RabbitService {
         }
     }
 
-    private void checkChannelAvailability() {
-        if (channel == null || !channel.isOpen()) {
-            init()
+    private void initVirtualHost(String virtualHost) {
+        setVirtualHost(virtualHost)
+        init()
 
-            if (channel == null || !channel.isOpen()) {
-                throw new IOException("Rabbit MQ not available.")
-            }
+        if (channel == null || !channel.isOpen()) {
+            throw new IOException("Rabbit MQ not available.")
         }
     }
 
@@ -76,8 +75,6 @@ class BackOfficeRabbitService extends RabbitService {
         def rabbitQueues = []
 
         try {
-            checkChannelAvailability()
-
             def allRabbitQueues = getQueues()
 
             // Only return the queues for our retailer.
@@ -99,8 +96,6 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     List<RabbitQueue> getServiceQueues(String... queueNames) {
-        checkChannelAvailability()
-
         def allRabbitQueues = getQueues()
 
         def rabbitQueues = []
@@ -129,39 +124,37 @@ class BackOfficeRabbitService extends RabbitService {
             Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
 
             return gson.fromJson(responseJson, listType)
-        }catch(Exception ex){
+        } catch(Exception ex) {
             System.println("Error found when loading existing queues, Error " + ex)
             log.error("Exception when creating till connection")
         }
-        return []
 
+        return []
     }
 
     void declareExchange(String exchange) {
-        checkChannelAvailability()
-
         this.channel.exchangeDeclare(exchange, "fanout", true)
     }
 
     void declareQueue(String queue, String exchange) {
-        checkChannelAvailability()
-
         this.channel.queueBind(queue, exchange, "")
     }
 
     def purgeQueue(int retailerId, int storeId, int tillId) {
-        checkChannelAvailability()
+        initVirtualHost(springSecurityService.principal.retailer.rabbitMqVirtualHost)
 
         channel.queuePurge(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     def deleteQueue(int retailerId, int storeId, int tillId) {
-        checkChannelAvailability()
+        initVirtualHost(springSecurityService.principal.retailer.rabbitMqVirtualHost)
 
         channel.queueDelete(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     void sendMessage(SyncMessage syncMessage) throws IOException {
+        initVirtualHost(springSecurityService.principal.retailer.rabbitMqVirtualHost)
+
         if (syncMessage.getStoreNumber() > 0 && syncMessage.getTillId() > 0) {
             String exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
             String queueName = String.format("R%d_S%d_T%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber(), syncMessage.getTillId())
@@ -170,24 +163,20 @@ class BackOfficeRabbitService extends RabbitService {
             declareQueue(queueName, exchangeName)
 
             sendQueueMessage(queueName, gson.toJson(syncMessage))
+        } else if (syncMessage.getStoreNumber() > 0) {
+            String exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
+
+            // Note, declaring the exchange here means that we don't throw any errors, but there would be no queues attached to it so our message wouldn't go anywhere.
+            declareExchange(exchangeName)
+
+            sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         } else {
-            sendExchangeMessage(syncMessage)
+            String exchangeName = String.format("R%d", syncMessage.getRetailerId())
+
+            // Note, declaring the exchange here means that we don't throw any errors, but there would be no queues attached to it so our message wouldn't go anywhere.
+            declareExchange(exchangeName)
+
+            sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         }
-    }
-
-    void sendExchangeMessage(SyncMessage syncMessage) throws IOException {
-        checkChannelAvailability()
-
-        String exchangeName
-
-        if (syncMessage.getStoreNumber() > 0) {
-            exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())
-        } else {
-            exchangeName = String.format("R%d", syncMessage.getRetailerId())
-        }
-
-        // TODO Note that whilst we will declare the exchange if it is missing, we are not declaring any queues, which means that the message will still not go anywhere.
-        declareExchange(exchangeName)
-        sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
     }
 }

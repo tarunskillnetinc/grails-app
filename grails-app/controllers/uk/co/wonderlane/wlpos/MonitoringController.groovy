@@ -109,12 +109,12 @@ class MonitoringController {
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.FORCE_DATA_SYNC, springSecurityService.principal.retailerId, Integer.parseInt(params.storeId), null, Integer.parseInt(params.tillId))
         syncMessage.setInsert(false)
 
-        if (!rabbitService.isOpen()) {
+        try {
+            rabbitService.sendMessage(syncMessage)
+        } catch (Exception e) {
             render status: 500, text: "Unable to open connection to RabbitMQ."
             return
         }
-
-        rabbitService.sendQueueMessage(String.format("R%d_S%d_T%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber(), syncMessage.getTillId()), gsonProvider.gson.toJson(syncMessage))
 
         render status: 200, text: "Sync should begin shortly for Till " + params.tillId + " in Store " + params.storeId + "."
     }

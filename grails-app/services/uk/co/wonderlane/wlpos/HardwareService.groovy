@@ -23,4 +23,17 @@ class HardwareService extends MySqlDal {
             eq("serialNumber", serialNumber)
         } ?: null
     }
+
+    // This just returns a list of strings (serial numbers).
+    def getSerialsInStock() {
+        def tillStockCriteria = TillStock.createCriteria()
+
+        def serialsInStock = tillStockCriteria.list {
+            projections {
+                property("serialNumber")
+            }
+        }
+
+        return serialsInStock
+    }
 }

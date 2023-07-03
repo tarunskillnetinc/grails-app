@@ -1,6 +1,6 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
+        <div class="col-2 font-weight-bold"><a id="sku" href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
             sortColumn: 'sku',
@@ -8,7 +8,7 @@
         });">Product SKU</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-6 font-weight-bold"><a href="#" onclick="getReportData({
+        <div class="col-6 font-weight-bold"><a id="description" href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
             sortColumn: 'description',
@@ -16,7 +16,7 @@
         });">Product Description</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemQuantity" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
+        <div class="col-2 font-weight-bold"><a id="item-quantity" href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
             sortColumn: 'itemQuantity',
@@ -24,7 +24,7 @@
         });">Items Delivered</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({
+        <div class="col-2 font-weight-bold"><a id="total-cost" href="#" onclick="getReportData({
             max: ${sortParams?.max},
             offset: ${sortParams?.offset},
             sortColumn: 'totalCost',
