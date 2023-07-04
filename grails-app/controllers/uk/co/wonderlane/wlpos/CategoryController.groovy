@@ -82,8 +82,22 @@ class CategoryController extends BaseController {
         }
     }
 
-    def ajaxDeleteCategory() {
+    def ajaxDeleteCategory(int categoryId) {
+        def category = categoryService.getCategory(categoryId)
 
+        // Search for any products that use this category ID
+        def products = Product.findAllByCategory(category)
+        if (products.size != 0) {
+            flash.message = "All products must be removed from this category before it can be deleted."
+            render(view: "maintenance", model: [category: category, topLevelCategories: getTopLevelCategories()])
+            return
+        }
+
+        if (category.childCategories > 0) {
+            flash.message = "All child categories must be removed from this parent category before it can be deleted."
+            render(view: "maintenance", model: [category: category, topLevelCategories: getTopLevelCategories()])
+            return
+        }
     }
 
     def show(int id) {
