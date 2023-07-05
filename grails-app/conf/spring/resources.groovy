@@ -153,6 +153,7 @@ beans = {
                     grailsApplication.config.getProperty('mysql.wlpos.password'),
                     grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
     }
 
     gsonProvider(GsonProvider)

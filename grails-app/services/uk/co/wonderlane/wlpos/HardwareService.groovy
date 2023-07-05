@@ -27,6 +27,8 @@ class HardwareService extends MySqlDal {
         Transaction transaction = session.beginTransaction()
 
         tillStocks.eachWithIndex { tillStock, index ->
+            tillStock.setStoreId(springSecurityService.principal.storeId)
+            tillStock.setRetailerId(springSecurityService.principal.retailerId)
             session.saveOrUpdate(tillStock)
 
             // Clear the session for speed purposes.
