@@ -100,7 +100,7 @@
                     cache: false,
                     processData: false,
                     success: function (resp) {
-                        $("#uploadResults").html("");
+                        $("#uploadResults").html("");// Stop spinner as it has finished
                         uploadButton.disabled = false
                         uploadButton.innerHTML = "Upload Hardware"
                         showSuccessAlert()
@@ -108,12 +108,23 @@
                         setPreventWindowNavigation(null);
                     },
                     error: function (data) {
-                        const response = JSON.parse(data)
-                        uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Hardware"
-                        showErrorAlert(response.errors)
-                        resetFileUploadInput();
-                        setPreventWindowNavigation(null);
+                        if(!data.status === 504){
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Hardware"
+                            showErrorAlert(response.errors)
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        } else {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Hardware"
+                            showErrorAlert("Server Timeout")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        }
+
                     }
                 });
             });
