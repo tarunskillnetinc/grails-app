@@ -1,10 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.annotation.Secured
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 
 import java.security.SecureRandom
-import java.text.SimpleDateFormat
 
 class TillAssignmentController {
 
@@ -14,7 +13,14 @@ class TillAssignmentController {
     def configuration
     def editingTill = false
 
+    @Secured(['ROLE_ENGINEER'])
     def index() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
+
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [stores: stores]

@@ -69,7 +69,7 @@
     </g:if>
 
     <g:each in="${deliveries}" var="delivery" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
+        <div id="delivery-search-results-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
                 onclick="document.location.href = '${createLink(action:'delivery', params: [productListId: delivery.id, storeId: storeId, supplierId: supplierId, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryId" }?.enabled}">
                 <div id="delivery-id-${i + 1}" class="col-1 my-auto">${delivery?.orderId}</div>
