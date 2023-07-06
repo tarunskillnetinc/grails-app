@@ -105,17 +105,26 @@ class HardwareImportController {
 
     def confirmImport() {
         List<String> errors = new ArrayList<>()
+
         try {
             var rows = session.ROWS
-            rows.forEach({ CSVUploadHardware row ->
+
+            def now = DateTime.now(DateTimeZone.UTC)
+
+            def validRows = []
+
+            rows?.each { CSVUploadHardware row ->
                 if (row.validRow) {
                     TillStock hardware = new TillStock()
                     hardware.setSerialNumber(row.serialNumber)
                     hardware.setModel(row.model)
-                    hardware.setDateUpdated(DateTime.now(DateTimeZone.UTC))
-                    hardwareService.saveHardware(hardware)
+                    hardware.setDateUpdated(now)
+
+                    validRows.add(hardware)
                 }
-            })
+            }
+
+            hardwareService.saveHardware(validRows)
         } catch (Exception e) {
             e.printStackTrace()
             errors.add("Error occurred during completion of hardware import")
