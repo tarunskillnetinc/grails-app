@@ -30,16 +30,23 @@
         }
 
         function deleteCategory(categoryId) {
-            var url = "${createLink(controller: 'category', action: 'ajaxDeleteCategory')}";
+            if (confirm("Category deletion is irreversible, are you sure you want to continue?")) {
+                var url = "${createLink(controller: 'category', action: 'ajaxDeleteCategory')}";
 
-            $.ajax({
-                url: url,
-                method: "POST",
-                data: {categoryId: categoryId},
-                success: function(resp) {
-
-                }
-            });
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {categoryId: categoryId},
+                    success: function (resp) {
+                        if (resp === "OK") {
+                            // Exit the Add/Edit till modal and return back to index
+                            window.location.href = "/category/index";
+                        } else {
+                            $("#category-form").html(resp);
+                        }
+                    }
+                });
+            }
         }
     </script>
 </head>
@@ -67,7 +74,9 @@
 
             <div class="col-2 text-right">
                 <g:link elementId="category-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
-                <button id="category-delete" class="btn btn-danger" name="delete" onclick="deleteCategory(${category?.id})">Delete</button>
+                <g:if test="${!addCategory}">
+                    <button id="category-delete" class="btn btn-danger" name="delete" onclick="deleteCategory(${category?.id})">Delete</button>
+                </g:if>
                 <button id="category-save-btn" class="btn btn-success" name="save" onclick="$('#category-form').submit();">Save</button>
             </div>
         </div>

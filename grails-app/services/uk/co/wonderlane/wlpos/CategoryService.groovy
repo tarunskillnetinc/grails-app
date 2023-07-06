@@ -50,4 +50,8 @@ class CategoryService {
         restrictions.save()
     }
 
+    def deleteCategory(Category category) {
+        category.delete()
+    }
+
 }

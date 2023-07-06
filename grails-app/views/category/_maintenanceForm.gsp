@@ -1,5 +1,14 @@
 <g:form method="post" action="save" class="mt-5" name="category-form">
     <g:hiddenField name="id" value="${category?.id}"/>
+
+    <g:if test="${hasProducts}">
+        <div class="alert alert-danger text-center alert-wl mx-0" role="alert">All products must be removed from this category before it can be deleted</div>
+    </g:if>
+
+    <g:if test="${hasChildren}">
+        <div class="alert alert-danger text-center alert-wl mx-0" role="alert">All child categories must be removed from this parent category before it can be deleted.</div>
+    </g:if>
+
     <h2 class="row col-1">Details</h2>
     <div class="row">
         <div class="form-group row col-12 col-sm-6">
