@@ -23,18 +23,18 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label class="col-3 offset-1 col-form-label text-right">PPOS Control Bar</label>
-
-            <div class="input-group col-4">
-                <g:field type="text" maxlength="100" name="pposControlBar" value="${config?.pposControlBar}" class="form-control bottom-border" />
-            </div>
-        </div>
-
-        <div class="row form-group mb-4">
             <label class="col-3 offset-1 col-form-label text-right">Baud Rate</label>
 
             <div class="input-group col-4">
                 <g:field type="number" min="0" name="baudRate" value="${config?.baudRate}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label class="col-3 offset-1 col-form-label text-right">PPOS Control Bar</label>
+
+            <div class="input-group col-4">
+                <g:select name="pposControlBar" from="${['BELOW_WINDOW', 'RIGHT_OF_WINDOW', 'NO_CONTROL_BAR']}" value="${config?.pposControlBar}" class="form-control select-border" />
             </div>
         </div>
 
