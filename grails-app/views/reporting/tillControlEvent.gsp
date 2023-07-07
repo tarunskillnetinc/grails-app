@@ -152,7 +152,7 @@
                                 <label class="form-check-label" for="columnsAmount">Amount</label>
                             </div>
 
-                            <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
+                            <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
                 </div>

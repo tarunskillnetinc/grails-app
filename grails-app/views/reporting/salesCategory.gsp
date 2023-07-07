@@ -74,7 +74,7 @@
         <g:reportBreadcrumb reportType="${reportType}" categoryId="${categoryId}" startDate="${startDate}" endDate="${endDate}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Department Sales Report</h2>
+            <h2 id="page-title" class="mx-auto">Department Sales Report</h2>
         </div>
 
         <div class="row mt-4">
