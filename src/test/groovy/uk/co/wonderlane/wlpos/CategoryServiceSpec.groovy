@@ -68,4 +68,72 @@ class CategoryServiceSpec extends Specification implements ServiceUnitTest<Categ
         }
     }
 
+    void "should save a category and restriction to simulate category creation"() {
+        given:
+        service.springSecurityService = getFakeSpringSecurityService()
+        var category = createCategory()
+
+        when: 'Category + Restrictions are saved'
+        service.saveRestriction(category.restrictions)
+        service.saveCategory(category)
+
+        then: 'Check that we can find the result'
+        def categories = Category.findById(2)
+
+        assert categories != null
+        assert categories.first().id == 2
+        assert categories.first().restrictions.id == 1
+
+        def restrictions = Restrictions.findById(1)
+
+        assert restrictions != null
+        assert restrictions.first().id == 1
+    }
+
+    void "should delete a category to simulate category deletion"() {
+        given:
+        service.springSecurityService = getFakeSpringSecurityService()
+        var category = createCategory()
+        service.saveCategory(category)
+
+        when: 'Category is deleted'
+        service.deleteCategory(category)
+
+        then: 'Check that we cannot find the result'
+        def categories = Category.findById(2)
+
+        assert categories == null
+    }
+
+    private Category createCategory() {
+        var category = new Category()
+        category.id = 2
+        category.description = "TestDescription"
+        category.shortDescription = "TestShortDescription"
+        category.retailerCategoryCode = "1234"
+        category.retailerId = service.springSecurityService.principal.retailerId
+        category.restrictions = createRestrictions()
+        return category
+    }
+
+    private Restrictions createRestrictions() {
+        var restrictions = new Restrictions()
+        restrictions.id = 1
+        restrictions.minOpenPrice = 0.01
+        restrictions.maxOpenPrice = 999.99
+        restrictions.buyerIdRequired = true
+        restrictions.buyerIdForced = true
+        restrictions.buyerAgeRestriction = 18
+        restrictions.buyerChallengeAge = 18
+        restrictions.sellerAgeRestriction = 18
+        restrictions.refundAllowed = true
+        restrictions.markdownAllowed = true
+        restrictions.discountAllowed = true
+        restrictions.creditPaymentAllowed = true
+        restrictions.quantityChangeAllowed = true
+        restrictions.quantityChangeForced = true
+        restrictions.receiptPrintForced = true
+        return restrictions
+    }
+
 }
