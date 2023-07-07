@@ -34,7 +34,7 @@
             <label class="col-3 offset-1 col-form-label text-right">PPOS Control Bar</label>
 
             <div class="input-group col-4">
-                <g:select name="pposControlBar" from="${['BELOW_WINDOW', 'RIGHT_OF_WINDOW', 'NO_CONTROL_BAR']}" value="${config?.pposControlBar}" class="form-control select-border" />
+                <g:select name="pposControlBar" from="${['NO_CONTROL_BAR', 'BELOW_WINDOW', 'RIGHT_OF_WINDOW']}" valueMessagePrefix="PPOSControlBarPosition" value="${config?.pposControlBar}" class="form-control select-border" />
             </div>
         </div>
 

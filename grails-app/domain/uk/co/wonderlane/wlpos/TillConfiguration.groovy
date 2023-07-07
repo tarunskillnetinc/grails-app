@@ -51,5 +51,6 @@ class TillConfiguration {
     static constraints = {
         scpTxnEndIndicator maxSize: 100
         pposControlBar maxSize: 100
+        nullable: true
     }
 }

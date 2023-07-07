@@ -12,6 +12,7 @@
         var deleteTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxDeleteTill')}"
         var addTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxAddTill')}"
         var editTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxEditTill')}"
+        var unassignSerialUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxUnassignSerial')}"
         var saveTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSaveTill')}"
         var generatePinUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxGeneratePin')}"
         var cancelTillUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxCancelTill')}"
@@ -24,6 +25,7 @@
         });
 
         function getTills() {
+            $('#results-container').html("");
             $("#loading-indicator").show();
 
             var filterParams = {};
@@ -99,6 +101,7 @@
         function editTill(storeId, tillId, serialNumber) {
             $("#addTillContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
             $('#addTillModal').modal({show: true, backdrop: 'static', keyboard: false});
+
             $.ajax({
                 url: editTillUrl,
                 method: "GET",
@@ -109,6 +112,23 @@
                 }
             });
         }
+
+        function unassignSerial(id, serialNumber, tillId) {
+            if (confirm("Unassign serial " + serialNumber +" from till ID " +tillId +"?")) {
+                $.ajax({
+                    url: unassignSerialUrl,
+                    method: "POST",
+                    data: { tillConfigId: id },
+                    success: function (resp) {
+                        if (resp === "OK") {
+                            alert("Successfully unassigned serial " +serialNumber +" from till ID " +tillId +".");
+                            getTills();
+                        }
+                    }
+                });
+            }
+        }
+
 
         function saveTill() {
             var formValues = $("#addTillForm").serialize();
@@ -235,92 +255,99 @@
         </nav>
     </section>
 
+    <section id="tillAssignment" class="container-fluid">
+        <div class="row header-wl mt-3">
+            <div class="col-6 offset-3">
+                <h2 id="page-title" class="mx-auto my-auto">Till Assignment</h2>
+            </div>
+
+            <div class="col-3 text-right">
+                <a id="addTill" href="#" class="btn btn-wl mt-1" onclick="addTill();">Add Till</a>
+                <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getTills();">Refresh</a>
+            </div>
+        </div>
+    </section>
+
     <section id="filters-section" class="container-fluid">
-    <div class="row mt-3">
-        <div class="col-8 offset-2">
-            <div id="filters" class="card bg-light border-wl">
-                <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
-                    <div class="row">
-                        <div class="col-10">Filters</div>
-                        <div class="col-2 text-right">
-                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                            </svg>
+        <div class="row mt-3">
+            <div class="col-6">
+                <div id="filters" class="card bg-light border-wl">
+                    <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
+                        <div class="row">
+                            <div class="col-10">Filters</div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-body collapse" id="filterCollapse">
-                    <g:form name="filtersForm" id="filtersForm">
-                        <div class="form-group row">
-                            <label for="storeIdFilter" class="col-2 col-form-label-sm text-right">Store</label>
-                            <div class="col-3">
-                                <g:select name="storeIdFilter" from="${stores}" optionValue="storeId"
-                                          optionKey="storeId"
-                                          noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
-                                          class="form-control select-border"
-                                          disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                    <div class="card-body collapse" id="filterCollapse">
+                        <g:form name="filtersForm" id="filtersForm">
+                            <div class="form-group row">
+                                <label for="storeIdFilter" class="col-2 col-form-label-sm text-right">Store</label>
+                                <div class="col-3">
+                                    <g:select name="storeIdFilter" from="${stores}" optionValue="storeId"
+                                              optionKey="storeId"
+                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                              class="form-control select-border"
+                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                </div>
+
+                                <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till ID</label>
+                                <div class="col-4">
+                                        <g:field id="tillIdFilter" type="number" min="0" max="2147483647" name="tillIdFilter" value="${tillId}" class="form-control bottom-border" />
+                                </div>
                             </div>
 
-                            <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till ID</label>
-                            <div class="col-4">
-                                    <g:field id="tillIdFilter" type="number" min="0" max="2147483647" name="tillIdFilter" value="${tillId}" class="form-control bottom-border" />
-                            </div>
-                        </div>
+                            <div class="form-group row">
+                                <label for="serialNumberFilter" class="col-2 col-form-label-sm text-right">Serial Number</label>
+                                <div class="col-4">
+                                    <g:textField name="serialNumberFilter" class="form-control bottom-border" value="${serialNumber}" autocomplete="off"/>
+                                </div>
 
-                        <div class="form-group row">
-                            <label for="serialNumberFilter" class="col-2 col-form-label-sm text-right">Serial Number</label>
-                            <div class="col-4">
-                                <g:textField name="serialNumberFilter" class="form-control bottom-border" value="${serialNumber}" autocomplete="off"/>
+                                <div class="col-6 text-right">
+                                    <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Clear</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getTills();">Filter</button>
+                                </div>
                             </div>
-
-                            <div class="col-6 text-right">
-                                <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Clear</button>
-                                <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getTills();">Filter</button>
-                            </div>
-                        </div>
-                    </g:form>
+                        </g:form>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-2 text-right">
-            <a id="addTill" href="#" class="btn btn-wl mt-1" onclick="addTill();">Add Till</a>
-            <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getTills();">Refresh</a>
+    </section>
+
+    <section id="tills-container" class="container-fluid mb-3">
+        <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+            <div class="col-1 font-weight-bold text-center">Store ID</div>
+            <div class="col-1 font-weight-bold text-center">Till ID</div>
+            <div class="col-2 font-weight-bold text-center">Serial Number</div>
         </div>
-    </div>
 
+        <div id="results-container">
 
-</section>
-
-<section id="tills-container" class="container-fluid mb-3">
-    <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-        <div class="col-1 font-weight-bold text-center">Store ID</div>
-        <div class="col-1 font-weight-bold text-center">Till ID</div>
-        <div class="col-2 font-weight-bold text-center">Serial Number</div>
-    </div>
-
-    <div id="results-container">
-
-    </div>
-</section>
-
-<section id="addTill-modal" class="container-fluid">
-    <!-- Add Till modal -->
-    <div class="modal fade" id="addTillModal" tabindex="-1" role="dialog" aria-labelledby="addTillModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div id="addTillContent" class="modal-content"></div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section id="advancedConfiguration-modal" class="container-fluid">
-    <!-- Advanced Configuration modal -->
-    <div class="modal fade" id="advancedTillModal" tabindex="-1" role="dialog" aria-labelledby="advancedTillModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div id="advancedTillContent" class="modal-content"></div>
+    <section id="addTill-modal" class="container-fluid">
+        <!-- Add Till modal -->
+        <div class="modal fade" id="addTillModal" tabindex="-1" role="dialog" aria-labelledby="addTillModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div id="addTillContent" class="modal-content"></div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+
+    <section id="advancedConfiguration-modal" class="container-fluid">
+        <!-- Advanced Configuration modal -->
+        <div class="modal fade" id="advancedTillModal" tabindex="-1" role="dialog" aria-labelledby="advancedTillModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div id="advancedTillContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
 </body>
 </html>

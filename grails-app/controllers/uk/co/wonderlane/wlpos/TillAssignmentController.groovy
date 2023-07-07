@@ -96,13 +96,29 @@ class TillAssignmentController {
         editingTill = true
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
 
-        //Append the selected Serial Number to the list
+        // Append the selected Serial Number to the list
         def currentSerial = TillStock.findBySerialNumber(params.get("serialNumber").toString())
         if (currentSerial != null) {
             serialNumbers.add(currentSerial)
         }
 
         render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, enableEdit: true])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxUnassignSerial() {
+        def tillConfiguration = TillConfiguration.findById(params.tillConfigId)
+
+        if (!tillConfiguration?.retailerId == springSecurityService.principal.retailerId) {
+            render status: 404, text: "Till configuration not found."
+            return
+        }
+
+        tillConfiguration.serialNumber = null
+
+        tillAssignmentService.saveTill(tillConfiguration)
+
+        render status: 200, text: "OK"
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

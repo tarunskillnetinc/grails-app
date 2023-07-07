@@ -55,11 +55,12 @@
             <label for="storeId" class="col-3 offset-1 col-form-label-mandatory text-right">Store ID</label>
             <div class="dropdown-content col-4">
                 <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','storeId')">
-                <g:select id="storeId" size="5" name="storeId" style="overflow:hidden" from="${stores}" optionValue="storeName"
+
+                <g:select id="storeId" size="6" name="storeId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="storeName"
                     value="${till?.storeId}"
                     optionKey="storeId"
                     class="form-control select-border"
-                    disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                    disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}" />
             </div>
         </div>
 
@@ -75,11 +76,12 @@
             <label for="serialNumber" class="col-3 offset-1 col-form-label text-right">Serial Number</label>
             <div class="dropdown-content col-4">
                 <input type="text" class="form-control bottom-border" placeholder="Search for serial number.." id="serialNumberInput" onkeyup="filter('serialNumberInput','serialNumber')">
-                <g:select name="serialNumber" size="5" style="overflow:hidden" from="${serialNumbers}" optionValue="serialNumber"
+
+                <g:select name="serialNumber" size="6" style="overflow-y: scroll; overflow-x: hidden;" from="${serialNumbers}" optionValue="serialNumber"
                     value="${till?.serialNumber}"
                     optionKey="serialNumber"
                     class="form-control select-border"
-                    disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                    disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}" />
             </div>
         </div>
 
@@ -93,8 +95,8 @@
 
 <div class="modal-footer">
     <g:if test="${enableEdit}">
-        <button type="button" id="saveAddSupplierButton" class="btn btn-secondary" onclick="generatePin();">Generate Pin</button>
+        <button type="button" id="saveAddSupplierButton" class="btn btn-info" onclick="generatePin();">Generate PIN</button>
     </g:if>
-    <button type="button" id="cancelAddTillButton" class="btn btn-secondary" onclick="cancelTill();">Cancel</button>
+    <button type="button" id="cancelAddTillButton" class="btn btn-wl" onclick="cancelTill();">Cancel</button>
     <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveTill();">Save</button>
 </div>
