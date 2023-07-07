@@ -138,7 +138,7 @@ class HardwareImportController {
 
         if (anyEmptyRows) {
             log.error("Could not import hardware file due to failing validation - $file.filename")
-            return "Could not import file as one or more rows did not have a serial number or model. Please verify the data and try again."
+            return "Could not import file. One or more rows was either empty or did not have a serial number or model. Please verify the data and try again."
         }
 
         return null
