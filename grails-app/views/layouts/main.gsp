@@ -177,7 +177,7 @@
                                     <g:link elementId="hardware-import-dropdown" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="till-assignment-dropdown" controller="tillAssignment" class="dropdown-item">Till Assignment</g:link>
                                 </g:if>

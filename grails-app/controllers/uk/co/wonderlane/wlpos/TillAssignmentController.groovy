@@ -13,7 +13,7 @@ class TillAssignmentController {
     def configuration
     def editingTill = false
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         if (springSecurityService.principal.storeId) {
             flash.error = "You cannot access this page when logged in as a store."
@@ -26,6 +26,7 @@ class TillAssignmentController {
         [stores: stores]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearchForTills() {
         Integer storeIdValue = params.storeIdFilter ? Integer.parseInt(params.storeIdFilter) : null
         Integer tillIdValue = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
@@ -64,6 +65,7 @@ class TillAssignmentController {
         render (template: "tills", model: [tillList: tills])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxDeleteTill(int storeId, int tillId, String serialNumber) {
         try {
             tillAssignmentService.deleteEntryForStoreIdAndTillId(storeId, tillId)
@@ -75,16 +77,19 @@ class TillAssignmentController {
         }
     }
 
-    def saveNewTill(TillConfiguration tillConfiguration){
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def saveNewTill(TillConfiguration tillConfiguration) {
         tillConfiguration.save()
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddTill() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
         render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, enableEdit: false])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditTill() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         configuration = TillConfiguration.findBySerialNumber(params.get("serialNumber").toString())
@@ -97,6 +102,7 @@ class TillAssignmentController {
         render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, enableEdit: true])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveTill() {
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
         if (!params.containsKey("storeId")) {
@@ -199,12 +205,14 @@ class TillAssignmentController {
         }
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxCancelTill() {
         editingTill = false
         configuration = null
         render "OK"
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGeneratePin() {
         // Generate 8 digit code
         def random = new SecureRandom()
@@ -219,11 +227,13 @@ class TillAssignmentController {
         render "The registration code for this till is ${pin} and will expire in one hour."
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAdvancedConfiguration(String serialNumber) {
         configuration = TillConfiguration.findBySerialNumber(serialNumber)
         render(template: "advancedConfig", model: [config: configuration])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveAdvancedConfiguration() {
         configuration.scpTxnEndIndicator = params.get("scpTxnIndicator").toString()
         configuration.pposControlBar = params.get("pposControlBar").toString()
