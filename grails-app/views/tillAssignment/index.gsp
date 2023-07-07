@@ -20,6 +20,7 @@
 
         $(function() {
             getTills();
+            applyListeners();
         });
 
         function getTills() {
@@ -90,6 +91,7 @@
                 method: "GET",
                 success: function (resp) {
                     $("#addTillContent").html(resp);
+                    applyListeners();
                 }
             });
         }
@@ -103,6 +105,7 @@
                 data: {storeId: storeId, tillId: tillId, serialNumber: serialNumber},
                 success: function (resp) {
                     $("#addTillContent").html(resp);
+                    applyListeners();
                 }
             });
         }
@@ -184,6 +187,37 @@
             }
         }
 
+        function applyListeners() {
+            var tillIdFilter = document.getElementById("tillIdFilter")
+            var addTillIdField = document.getElementById("tillId")
+            var maxLength = 10
+            var maxValue = 2147483647
+
+            if (addTillIdField != null) {
+                addTillIdField.addEventListener("input", function () {
+                    if (addTillIdField.value.length > maxLength) {
+                        addTillIdField.value = addTillIdField.value.slice(0, maxLength)
+                    }
+
+                    if (addTillIdField.value > maxValue) {
+                        addTillIdField.value = maxValue
+                    }
+                });
+            }
+
+            if (tillIdFilter != null) {
+                tillIdFilter.addEventListener("input", function () {
+                    if (tillIdFilter.value.length > maxLength) {
+                        tillIdFilter.value = tillIdFilter.value.slice(0, maxLength)
+                    }
+
+                    if (tillIdFilter.value > maxValue) {
+                        tillIdFilter.value = maxValue
+                    }
+                });
+            }
+        }
+
     </script>
 </head>
 
@@ -229,7 +263,7 @@
 
                             <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till ID</label>
                             <div class="col-4">
-                                <g:textField name="tillIdFilter" class="form-control bottom-border" value="${tillId}" autocomplete="off" />
+                                    <g:field id="tillIdFilter" type="number" min="0" max="2147483647" name="tillIdFilter" value="${tillId}" class="form-control bottom-border" />
                             </div>
                         </div>
 

@@ -92,7 +92,10 @@ class TillAssignmentController {
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
 
         //Append the selected Serial Number to the list
-        serialNumbers.add(TillStock.findBySerialNumber(params.get("serialNumber").toString()))
+        def currentSerial = TillStock.findBySerialNumber(params.get("serialNumber").toString())
+        if (currentSerial != null) {
+            serialNumbers.add(currentSerial)
+        }
 
         render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, enableEdit: true])
     }

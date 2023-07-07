@@ -1,4 +1,3 @@
-
 <div class="modal-header">
     <g:if test="${enableEdit}">
         <h2>Edit Till</h2>
@@ -48,7 +47,7 @@
             <label for="tillId" class="col-3 offset-1 col-form-label-mandatory text-right" >Till ID </label>
 
             <div class="input-group col-4">
-                <g:field type="number" min="0" name="tillId" value="${till?.tillId}" class="form-control bottom-border" />
+                <g:field type="number" min="0" max="2147483647" id="tillId" name="tillId" value="${till?.tillId}" class="form-control bottom-border" />
             </div>
         </div>
 
