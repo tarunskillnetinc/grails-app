@@ -1,7 +1,7 @@
 
-<div class="col-6 text-left">
+<div class="text-right mt-2">
     <g:if test="${rows.any{ it.validRow } && successful}">
-        <button class="btn btn-wl p-2 ml-2" id="uploadSave" name="save">Import</button>
+        <button class="btn btn-success p-2" id="uploadSave" name="save">Import</button>
     </g:if>
     <button class="btn btn-wl p-2 ml-2" id="uploadCancel" name="cancel">Cancel</button>
     <g:if test="${rows.any{ it.validRow } && successful}">
