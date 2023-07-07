@@ -14,7 +14,7 @@
             <div id="store-id-${i + 1}" class="col-1 my-auto text-center">${tillList[i].storeId}</div>
             <div id="till-id-${i + 1}" class="col-1 my-auto text-center">${tillList[i].tillId}</div>
             <div id="serial-number-${i + 1}" class="col-2 my-auto text-center">${tillList[i].serialNumber}</div>
-            <div class="col-3 my-auto text-center">
+            <div class="col-5 my-auto text-left">
                 <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick="editTill(${tillList[i].storeId}, ${tillList[i].tillId}, '${tillList[i].serialNumber}')">Edit Till</button>
                 <button id="delete-${i + 1}" class="btn btn-wl mx-2" onclick="deleteTill(${tillList[i].storeId}, ${tillList[i].tillId}, '${tillList[i].serialNumber}')">Delete Till</button>
                 <button id="configuration-${i + 1}" class="btn btn-danger mx-2" onclick="advancedConfiguration('${tillList[i].serialNumber}')">Advanced Configuration</button>
