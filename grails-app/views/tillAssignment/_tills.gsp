@@ -19,7 +19,6 @@
                 <g:if test="${till.serialNumber}">
                     <button id="unassign-${i + 1}" class="btn btn-info mx-2" onclick="unassignSerial(${till.id}, ${till.serialNumber}, ${till.tillId});">Unassign Serial</button>
                 </g:if>
-                <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick="editTill(${till.storeId}, ${till.tillId}, '${till.serialNumber}')">Edit Till</button>
                 <button id="delete-${i + 1}" class="btn btn-wl mx-2" onclick="deleteTill(${till.storeId}, ${till.tillId}, '${till.serialNumber}')">Delete Till</button>
                 <button id="configuration-${i + 1}" class="btn btn-danger mx-2" onclick="advancedConfiguration('${till.serialNumber}')">Advanced Configuration</button>
             </div>
