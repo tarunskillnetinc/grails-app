@@ -69,22 +69,22 @@ class PromotionController {
 
         tagsRequired?.each { tagRequired ->
             tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
-                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+                def productVariant = productService.getProductVariant(tagProduct.sku)
 
-                if (product) {
-                    tagProduct.productId = product.id
-                    tagProduct.productDescription = product.description
+                if (productVariant?.product) {
+                    tagProduct.productId = productVariant.product.id
+                    tagProduct.productDescription = productVariant.product.description
                 }
             }
         }
 
         tagsOffer?.each { tagOffer ->
             tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
-                def product = Product.findByRetailerIdAndRetailerProductId(springSecurityService.principal.retailerId, tagProduct.sku)
+                def productVariant = productService.getProductVariant(tagProduct.sku)
 
-                if (product) {
-                    tagProduct.productId = product.id
-                    tagProduct.productDescription = product.description
+                if (productVariant?.product) {
+                    tagProduct.productId = productVariant.product.id
+                    tagProduct.productDescription = productVariant.product.description
                 }
             }
         }
