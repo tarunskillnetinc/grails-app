@@ -80,7 +80,7 @@ class PromotionController {
 
         tagsOffer?.each { tagOffer ->
             tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
-                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+                def product = Product.findByRetailerIdAndRetailerProductId(springSecurityService.principal.retailerId, tagProduct.sku)
 
                 if (product) {
                     tagProduct.productId = product.id
