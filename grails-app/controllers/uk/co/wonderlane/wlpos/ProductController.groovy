@@ -566,6 +566,8 @@ class ProductController {
                 }
             }
 
+            product.discard()
+
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
@@ -832,7 +834,11 @@ class ProductController {
             }
         }
 
-        productService.saveProductHistories(builder.productHistories)
+        // Don't save histories unless the product is valid otherwise this triggers a product save due to it being dirty
+        //  even when restrictions fail.
+        if(product.validate()) {
+            productService.saveProductHistories(builder.productHistories)
+        }
 
         for (int i = 0; i < deleteLocations.size(); i++) {
             deleteLocations.get(i).delete()
