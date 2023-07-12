@@ -479,16 +479,14 @@ class ProductController {
             productService.saveProduct(product, productVariantsList)
             if (product.hasErrors()) {
                 return product
-            } else {
-                productService.saveBarcodes(product)
             }
 
+            productService.saveBarcodes(product)
             if (product.hasErrors()) {
                 return product
-            } else {
-                productService.saveLocations(product)
             }
 
+            productService.saveLocations(product)
             if (product.hasErrors()) {
                 return product
             }
