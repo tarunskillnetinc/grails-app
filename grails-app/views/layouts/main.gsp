@@ -182,9 +182,11 @@
                                     <g:link elementId="till-assignment-dropdown" controller="tillAssignment" class="dropdown-item">Till Assignment</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Category Maintenance</g:link>
                             </g:if>
+                            </sec:ifAnyGranted>
                         </div>
                     </li>
 

@@ -9976,6 +9976,22 @@ a.text-dark:hover, a.text-dark:focus {
   visibility: hidden !important;
 }
 
+.text-indent-1 {
+  text-indent: 15px;
+}
+.text-indent-2 {
+  text-indent: 30px;
+}
+.text-indent-3 {
+  text-indent: 45px;
+}
+.text-indent-4 {
+  text-indent: 60px;
+}
+.text-indent-5 {
+  text-indent: 75px;
+}
+
 @media print {
   *,
   *::before,

@@ -1,9 +1,9 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "parentCategory" }?.enabled}">
-        <div class="col-2 font-weight-bold">Parent Category</div>
-    </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col font-weight-bold">Description</div>
+        <div class="col-4 font-weight-bold">Description</div>
+    </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "parentCategory" }?.enabled}">
+        <div class="col-4 font-weight-bold">Parent Category</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
         <div class="col-1 font-weight-bold">Retailer Category Code</div>
@@ -36,21 +36,28 @@
     </g:if>
 
     <g:each in="${categories}" var="category" status="i">
-        <div id="category-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: category.id)}';">
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "parentCategory" }?.enabled}">
-                <div id="category-result-${i+1}-parentCategory" class="col-2 text-truncate">${category.parentCategory?.description}</div>
-            </g:if>
+        <div id="category-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: category.category.id)}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div id="category-result-${i+1}-description" class="col">${category.description}</div>
+                <div id="category-result-${i+1}-description" class="col-4">${category.category.description}</div>
+            </g:if>
+
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "parentCategory" }?.enabled}">
+                <div id="category-result-${i+1}-parentCategory" class="col-4">
+                    <g:if test="${category.categoryLevel == 1}"><div class="text-indent-1">&boxur;&nbsp;&nbsp;${category.category.parentCategory?.description}</div></g:if>
+                    <g:elseif test="${category.categoryLevel == 2}"><div class="text-indent-2">&boxur;&nbsp;&nbsp;${category.category.parentCategory?.description}</div></g:elseif>
+                    <g:elseif test="${category.categoryLevel == 3}"><div class="text-indent-3">&boxur;&nbsp;&nbsp;${category.category.parentCategory?.description}</div></g:elseif>
+                    <g:elseif test="${category.categoryLevel == 4}"><div class="text-indent-4">&boxur;&nbsp;&nbsp;${category.category.parentCategory?.description}</div></g:elseif>
+                    <g:elseif test="${category.categoryLevel == 5}"><div class="text-indent-5">&boxur;&nbsp;&nbsp;${category.category.parentCategory?.description}</div></g:elseif>
+                </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
-                <div id="category-result-${i+1}-retailer-Category-Code" class="col-1">${category.retailerCategoryCode}</div>
+                <div id="category-result-${i+1}-retailer-Category-Code" class="col-1 text-left">${category.category.retailerCategoryCode}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerId" }?.enabled}">
-                <div id="category-result-${i+1}-buyerId" class="col-1">${category.restrictions.buyerIdRequired}</div>
+                <div id="category-result-${i+1}-buyerId" class="col-1">${category.category.restrictions.buyerIdRequired}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerAge" }?.enabled}">
-                <div id="category-result-${i+1}-buyer-age" class="col-1">${category.restrictions.buyerAgeRestriction}</div>
+                <div id="category-result-${i+1}-buyer-age" class="col-1">${category.category.restrictions.buyerAgeRestriction}</div>
             </g:if>
         </div>
     </g:each>
