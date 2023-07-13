@@ -472,9 +472,22 @@ class ProductController extends BaseController {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
+            // Check for errors after each save, otherwise the BO will report a 500 - EntityInsertAction was vetoed error.
             productService.saveProduct(product, productVariantsList)
+            if (product.hasErrors()) {
+                return product
+            }
+
             productService.saveBarcodes(product)
+            if (product.hasErrors()) {
+                return product
+            }
+
             productService.saveLocations(product)
+            if (product.hasErrors()) {
+                return product
+            }
+
 
             if (builder && builder.productHistories) {
                 productService.saveProductHistories(builder.productHistories)
@@ -519,6 +532,11 @@ class ProductController extends BaseController {
     }
 
     def save(ProductCommand editedProduct) {
+        // Domain calls moved prior to Save Product in case of EntityInsertAction was vetoed error that prevents further Domain Calls.
+        def topLevelCategories = categoryService.getTopLevelCategories()
+        def vatValues = VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+
         Product product = saveProduct(editedProduct, params, true)
 
         if (!product.hasErrors()) {
@@ -552,15 +570,15 @@ class ProductController extends BaseController {
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
-                                        categoryValues     : categoryService.getTopLevelCategories(),
+                                        categoryValues     : topLevelCategories,
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
                                         ranges             : ranges,
                                         selectedRanges     : editedProduct.rangeId,
                                         priceBands         : priceBands,
                                         editedPrices       : editedPrices,
-                                        vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
-                                        locationsType      : Retailer.findById(springSecurityService.principal.retailerId).locationsType])
+                                        vatValues          : vatValues,
+                                        locationsType      : locationsType])
         }
     }
 
@@ -655,6 +673,12 @@ class ProductController extends BaseController {
                             product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
                         }
                 })
+
+                // Check whether the SKU is used elsewhere
+                if (!isValidSku(newVariant.sku)) {
+                    product.errors.reject('product.productVariants.notUnique', [newVariant.sku] as Object[], 'SKU already exists on another product.')
+                }
+
 
                 productVariantList.add(newVariant);
             }
@@ -1458,6 +1482,11 @@ class ProductController extends BaseController {
 
     def isValidBarcode(Barcode barcode) {
         barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+    }
+
+    def isValidSku(Long sku) {
+        def existingVariant = ProductVariant.findBySku(sku)
+        return existingVariant == null
     }
 
     def ajaxCSVProductUpload() {
