@@ -4,6 +4,6 @@
     </div>
 
     <div id="category-container-results">
-        <g:render template="categorySelectInputs" model="[categories: categories, level: level, productCategoryList: productCategoryList, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange]" />
+        <g:render template="/product/categorySelectInputs" model="[categories: categories, level: level, productCategoryList: productCategoryList, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange]" />
     </div>
 </div>

@@ -25,12 +25,9 @@ import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
-class ProductController {
+class ProductController extends BaseController {
 
     def springSecurityService
-
-    def productService
-    def categoryService
     def restrictionsService
     def supplierService
     def tagService
@@ -515,6 +512,10 @@ class ProductController {
         }
 
         return product
+    }
+
+    def getColumns() {
+        return productService.getColumns()
     }
 
     def save(ProductCommand editedProduct) {
@@ -1321,39 +1322,6 @@ class ProductController {
         }
 
         render(view: "/product/_productHistory", model: [productHistoryMap: productHistoryMap])
-    }
-
-    /**
-     * Action for saving selected columns on product search screen.
-     */
-    def ajaxSaveColumns() {
-        try {
-            if (params.reportColumns && params.reportType) {
-                def userReportColumns = new JsonSlurper().parseText(params.reportColumns)
-                def reportType = ReportType.valueOf(params.reportType)
-
-                def reportColumns = productService.getColumns()
-
-                if (!reportColumns) {
-                    reportColumns = new ReportColumns(userId: springSecurityService.principal.id, reportType: reportType)
-                }
-
-                userReportColumns?.each { userReportColumn ->
-                    if (reportColumns?.columns?.find { it.column == userReportColumn.key }) {
-                        reportColumns?.columns?.find { it.column == userReportColumn.key }?.enabled = userReportColumn.value
-                    } else {
-                        reportColumns.addToColumns(new ReportColumn(column: userReportColumn.key, enabled: userReportColumn.value))
-                    }
-                }
-
-                productService.saveColumns(reportColumns)
-
-                render(status: 200)
-            }
-        } catch (Exception e) {
-            e.printStackTrace()
-            render(status: 500, text: "An error occurred saving your report column preferences.")
-        }
     }
 
     private boolean checkChangeAffectsSel(boolean changeAffectsSel, Object left, Object right) {
