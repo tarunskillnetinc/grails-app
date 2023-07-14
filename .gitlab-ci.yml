@@ -1,0 +1,52 @@
+image: gradle:jdk11-alpine
+
+stages:
+    - build
+
+cache:
+    paths:
+        - .gradle/
+
+default:
+    stage: build
+    script:
+        - apk update
+        - apk upgrade
+        - apk add zip curl bash
+        - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+
+develop:
+    stage: build
+    only: 
+        - branches
+        - /^develop$/
+    script:
+        - apk update
+        - apk upgrade
+        - apk add zip curl bash
+        - bash doGrailsBuild.sh prestage $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+        - export BUILD_VERSION=$(grep 'version[a-zA-Z0-9,-]*' build.gradle | head -1 | cut -d " " -f 2 | sed 's/^.//;s/.$//')
+        - git add build.gradle
+        - git commit -m "Tagging build $BUILD_VERSION for release"
+        - git tag -am "Tagging for release $BUILD_VERSION" $BUILD_VERSION
+        - git push origin $BUILD_VERSION
+
+release:
+    stage: build
+    only: 
+        - branches
+        - /^release.*$/
+    script:    
+        - apk update
+        - apk upgrade
+        - apk add zip curl bash
+        - bash doGrailsBuild.sh stage $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+    
+tags:
+    stage: build
+    only: 
+        - tags
+        - /^.*\..*$/
+    script:        
+        - echo "Do nothing currently... Production release?"
+
