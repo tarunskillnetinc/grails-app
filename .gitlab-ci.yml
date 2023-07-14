@@ -5,7 +5,8 @@ stages:
 
 cache:
     paths:
-        - .gradle/
+        - .gradle/wrapper
+        - .gradle/caches
 
 default:
     stage: build
