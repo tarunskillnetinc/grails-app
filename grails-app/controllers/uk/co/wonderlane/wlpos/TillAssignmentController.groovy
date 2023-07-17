@@ -92,7 +92,7 @@ class TillAssignmentController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditTill() {
         stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
-        configuration = TillConfiguration.findBySerialNumber(params.get("serialNumber").toString())
+        configuration = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, Integer.parseInt(params.get("storeId").toString()), Integer.parseInt(params.get("tillId").toString()))
         editingTill = true
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
 
@@ -114,8 +114,9 @@ class TillAssignmentController {
             return
         }
 
-        tillConfiguration.serialNumber = null
+        tillAssignmentService.updateTillStock(tillConfiguration.serialNumber)
 
+        tillConfiguration.serialNumber = null
         tillAssignmentService.saveTill(tillConfiguration)
 
         render status: 200, text: "OK"
@@ -167,22 +168,25 @@ class TillAssignmentController {
 
         if (configuration != null) {
             // Check for existing Till Configuration for this serial number
-            def existingConfig = TillConfiguration.findBySerialNumber(configuration.serialNumber)
+            def existingConfig = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, configuration.storeId, configuration.tillId)
             if (existingConfig != null) {
                 // Update the configuration with the new details (if any)
                 existingConfig.storeId = Integer.parseInt(params.get("storeId").toString())
                 existingConfig.tillId = Integer.parseInt(params.get("tillId").toString())
                 existingConfig.description = params.get("description").toString()
-                existingConfig.serialNumber = params.get("serialNumber").toString()
+
+                if (params.containsKey("serialNumber")) {
+                    existingConfig.serialNumber = params.get("serialNumber").toString()
+                    tillAssignmentService.updateTillStock(existingConfig)
+
+                    // If the serial number has changed, update Till Stock to reflect the Serial Number becoming free
+                    if (configuration.serialNumber != params.get("serialNumber").toString()) {
+                        tillAssignmentService.updateTillStock(configuration.serialNumber)
+                    }
+                }
                 existingConfig.dateTimeUpdated = DateTime.now()
 
                 tillAssignmentService.saveTill(existingConfig)
-                tillAssignmentService.updateTillStock(existingConfig)
-
-                // If the serial number has changed, update Till Stock to reflect the Serial Number becoming free
-                if (configuration.serialNumber != params.get("serialNumber").toString()) {
-                    tillAssignmentService.updateTillStock(configuration.serialNumber)
-                }
 
                 configuration = null
                 editingTill = false
@@ -198,7 +202,10 @@ class TillAssignmentController {
             newTill.storeId = Integer.parseInt(params.get("storeId").toString())
             newTill.tillId = Integer.parseInt(params.get("tillId").toString())
             newTill.description = params.get("description").toString()
-            newTill.serialNumber = params.get("serialNumber").toString()
+
+            if (params.containsKey("serialNumber")) {
+                newTill.serialNumber = params.get("serialNumber").toString()
+            }
 
             // Set temp values to be done via other modals / generated later
             newTill.scpTxnEndIndicator = ""
@@ -216,7 +223,10 @@ class TillAssignmentController {
             if (newTill.validate()) {
                 // Store the New Till within the Till Configuration table
                 tillAssignmentService.saveTill(newTill)
-                tillAssignmentService.updateTillStock(newTill)
+                // If we don't have a serial Number
+                if (newTill.serialNumber != null) {
+                    tillAssignmentService.updateTillStock(newTill)
+                }
                 render "OK"
             } else {
                 render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
