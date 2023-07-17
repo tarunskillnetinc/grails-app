@@ -30,6 +30,7 @@ class Category {
 
     static constraints = {
         retailerCategoryCode nullable: true
+        parentCategory nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.Category getCategory() {
