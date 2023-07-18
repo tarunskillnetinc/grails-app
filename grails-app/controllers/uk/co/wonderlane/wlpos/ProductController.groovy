@@ -5,7 +5,6 @@ import com.opencsv.bean.CsvToBeanBuilder
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
-import groovy.json.JsonSlurper
 import org.apache.commons.lang3.StringUtils
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.joda.time.DateTime
@@ -16,12 +15,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
 import org.springframework.validation.ObjectError
+import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.reporting.ReportColumn
-import uk.co.wonderlane.wlpos.reporting.ReportColumns
-import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -42,27 +39,34 @@ class ProductController extends BaseController {
 
     def show(int id) {
         setEffectiveDate()
-        def product = productService.getProduct(id)
+
         DateTime now = DateTime.now(DateTimeZone.UTC)
+
+        def product = productService.getProduct(id)
+
         if (!product) {
             flash.message = "Product not found"
             redirect(action: "index")
             return
         }
+
         def ranges = []
         def priceBands = []
         def productCategoryList = []
         def category = product.category
-        def productId = product.id
+
         while (category) {
             productCategoryList.add(category.id)
             category = category.parentCategory
         }
+
         def userRoles = springSecurityService.principal.authorities*.authority
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
             priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
+
+        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.locationsType)
 
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
@@ -75,8 +79,9 @@ class ProductController extends BaseController {
                                     effectiveDateIndex : session.effectiveDate,
                                     now                : now,
                                     navlink            : "details",
-                                    snappyEnabled      : Retailer.findById(springSecurityService.principal.retailerId).isSnappyShopperEnabled(),
-                                    locationsType      : Retailer.findById(springSecurityService.principal.retailerId).locationsType])
+                                    snappyEnabled      : springSecurityService.principal.retailer.snappyShopperEnabled,
+                                    locationsEnabled   : locationsEnabled,
+                                    locationsType      : springSecurityService.principal.retailer.locationsType.name()])
     }
 
     private void setEffectiveDate() {
@@ -110,7 +115,7 @@ class ProductController extends BaseController {
                                     priceBands    : priceBands,
                                     now           : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
                                     isNewProduct  : true,
-                                    locationsType : Retailer.findById(springSecurityService.principal.retailerId).locationsType])
+                                    locationsType : springSecurityService.principal.retailer.locationsType.name()])
     }
 
     def search() {
@@ -535,7 +540,6 @@ class ProductController extends BaseController {
         // Domain calls moved prior to Save Product in case of EntityInsertAction was vetoed error that prevents further Domain Calls.
         def topLevelCategories = categoryService.getTopLevelCategories()
         def vatValues = VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
 
         Product product = saveProduct(editedProduct, params, true)
 
@@ -578,7 +582,7 @@ class ProductController extends BaseController {
                                         priceBands         : priceBands,
                                         editedPrices       : editedPrices,
                                         vatValues          : vatValues,
-                                        locationsType      : locationsType])
+                                        locationsType      : springSecurityService.principal.retailer.locationsType.name()])
         }
     }
 
@@ -895,14 +899,14 @@ class ProductController extends BaseController {
         locationToBeUpdated.storeId = springSecurityService.principal.storeId
         locationToBeUpdated.sku = editedVariant.sku
 
-        if (locationToBeUpdated.id == 0 || locationsType == "ADVANCED") {
+        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.ADVANCED) {
             locationToBeUpdated.aisle = editedLocation.aisle
             locationToBeUpdated.bay = editedLocation.bay
             locationToBeUpdated.shelf = editedLocation.shelf
             locationToBeUpdated.position = editedLocation.position
         }
 
-        if (locationToBeUpdated.id == 0 || locationsType == "SIMPLE") {
+        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.SIMPLE) {
             locationToBeUpdated.location = editedLocation.location
         }
         locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
@@ -1222,16 +1226,16 @@ class ProductController extends BaseController {
     }
 
     def ajaxSaveVariant(AddVariantCommand cmd) {
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         def storeId = springSecurityService.principal.storeId
 
-        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, locationsType: locationsType, storeId: storeId])
+        render(template: "variant", model: [index: cmd.index, variant: cmd, barcodes: cmd.barcodez, storeId: storeId])
     }
 
     def ajaxAddTempLocation(AddVariantCommand cmd) {
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
         def storeId = springSecurityService.principal.storeId
-        render(template: "locationVariant", model: [index: cmd.index, variant: cmd, locationsType: locationsType, storeId: storeId])
+        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.locationsType)
+
+        render(template: "locationVariant", model: [index: cmd.index, variant: cmd, locationsEnabled: locationsEnabled, storeId: storeId])
     }
 
     def ajaxAddPrice(int index, long sku, boolean zeroPrice) {
@@ -1250,8 +1254,8 @@ class ProductController extends BaseController {
 
     def ajaxLocations(LocationsCommand cmd) {
         def locations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, params.sku)
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
-        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: locationsType])
+
+        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.locationsType.name()])
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
@@ -1263,8 +1267,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddLocation(int variantIndex, int locationIndex, int productVariantId) {
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
-        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, isNewLocation: true, locationsType: locationsType])
+        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, isNewLocation: true, locationsType: springSecurityService.principal.retailer.locationsType.name()])
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
@@ -1292,8 +1295,8 @@ class ProductController extends BaseController {
                 location.isNewLocation = Boolean.TRUE
             }
         })
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
-        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: locationsType])
+
+        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.locationsType.name()])
     }
 
     //This will render category mapped restrictions for new products

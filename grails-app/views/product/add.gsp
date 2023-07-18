@@ -690,7 +690,6 @@
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
-
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["productVariantId"] = variantId;
@@ -713,20 +712,13 @@
                             errorString += "Location can not be empty.\n"
                         }
                     } else if (locationsType === "ADVANCED") {
-                        if ($(locationSelector + "\\.aisle").val() === '') {
-                            errorString += "Aisle can not be empty.\n"
-                        }
+                        var aisle = $(locationSelector + "\\.aisle").val();
+                        var bay = $(locationSelector + "\\.bay").val();
+                        var shelf = $(locationSelector + "\\.shelf").val();
+                        var position = $(locationSelector + "\\.position").val();
 
-                        if ($(locationSelector + "\\.bay").val() === '') {
-                            errorString += "Bay can not be empty.\n"
-                        }
-
-                        if ($(locationSelector + "\\.shelf").val() === '') {
-                            errorString += "Shelf can not be empty.\n"
-                        }
-
-                        if ($(locationSelector + "\\.position").val() === '') {
-                            errorString += "Position can not be empty.\n"
+                        if (aisle === '' && bay === '' && shelf === '' && position === '') {
+                            errorString += "Please enter at least one of aisle, bay, shelf or position.\n"
                         }
                     }
 
@@ -924,7 +916,8 @@
                                                         editedPrices       : editedPrices,
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled,
-                                                        locationsType      : locationsType]"/>
+                                                        locationsEnabled   : locationsEnabled,
+                                                        locationsType      : locationsType]" />
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

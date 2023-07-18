@@ -94,14 +94,14 @@
                     <div id="variantsContainer">
                         <g:if test="${!product || !product?.variants}">
                             <div id="variant-0">
-                                <g:render template="variant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
+                                <g:render template="variant" model="[index: 0, storeId: storeId]" />
                             </div>
                         </g:if>
 
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, locationsType: locationsType, storeId: storeId]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, storeId: storeId]" />
                                 </div>
                             </g:if>
                         </g:each>
@@ -326,7 +326,7 @@
         </sec:ifAnyGranted>
 
         <!-- Locations. -->
-        <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
+        <g:if test="${storeId != null && locationsEnabled}">
             <div class="card bg-light border-wl accordion-card">
                 <div class="card-header pointer" id="productLocations" data-toggle="collapse" data-target="#collapseProductLocations" aria-expanded="true" aria-controls="collapseProductLocations">
                     <div class="row">
@@ -351,14 +351,14 @@
                         <div id="locationsContainer">
                             <g:if test="${!product || !product?.variants}">
                                 <div id="location-0">
-                                    <g:render template="locationVariant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
+                                    <g:render template="locationVariant" model="[index: 0, locationsEnabled: locationsEnabled, storeId: storeId]" />
                                 </div>
                             </g:if>
 
                             <g:each in="${product?.variants}" var="variant" status="i">
                                 <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                     <div id="variant-${i}">
-                                        <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations, locationsType: locationsType, storeId: storeId]" />
+                                        <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations, locationsEnabled: locationsEnabled, storeId: storeId]" />
                                     </div>
                                 </g:if>
                             </g:each>
