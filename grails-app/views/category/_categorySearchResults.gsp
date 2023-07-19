@@ -51,7 +51,7 @@
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
-                <div id="category-result-${i+1}-retailer-Category-Code" class="col-1 text-left">${category.category.retailerCategoryCode}</div>
+                <div id="category-result-${i+1}-retailer-Category-Code" class="col-1 text-truncate">${category.category.retailerCategoryCode}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerId" }?.enabled}">
                 <div id="category-result-${i+1}-buyerId" class="col-1">${category.category.restrictions.buyerIdRequired}</div>
