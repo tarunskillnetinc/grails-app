@@ -99,14 +99,37 @@ class CategoryController extends BaseController {
         //Check for a Parent Category being selected.
         def parentCategory = params.get("category.id")
         if (parentCategory != null) {
-            category.parentCategory = categoryService.getCategory(Integer.parseInt(parentCategory))
+            def parentCategorySearch= categoryService.getCategory(Integer.parseInt(parentCategory))
+            // Make sure we're not saving the same ID otherwise we'll spin forever
+            if (parentCategorySearch != null) {
+                if (parentCategorySearch.id != category.id) {
+                    category.parentCategory = parentCategorySearch
+                } else {
+                    category.errors.reject('category.parentCategory.notUnique', [category.parentCategory] as Object[], 'Categories cannot be their own parent, please select a new category or none.')
+                }
+            }
+        }
+
+        if (category.hasErrors()) {
+            render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: getTopLevelCategories()])
+            return
         }
 
         if (!addingCategory) {
             def restriction = Restrictions.findById(category.restrictions.id)
             categoryService.saveRestriction(restriction)
+
+            if (restriction.hasErrors()) {
+                render(view: "maintenance", model: [category: category, restrictions: restriction, addCategory: false, topLevelCategories: getTopLevelCategories()])
+                return
+            }
         } else {
             categoryService.saveRestriction(category.restrictions)
+
+            if (category.restrictions.hasErrors()) {
+                render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: getTopLevelCategories()])
+                return
+            }
         }
 
         categoryService.saveCategory(category)

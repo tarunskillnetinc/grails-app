@@ -95,6 +95,12 @@
             </div>
         </g:hasErrors>
 
+        <g:hasErrors bean="${restrictions}">
+            <div class="alert alert-danger alert-wl" role="alert">
+                <g:renderErrors bean="${restrictions}" as="list" />
+            </div>
+        </g:hasErrors>
+
         <g:render template="maintenanceForm" model="[category: category, topLevelCategories: topLevelCategories]"/>
     </section>
 </body>
