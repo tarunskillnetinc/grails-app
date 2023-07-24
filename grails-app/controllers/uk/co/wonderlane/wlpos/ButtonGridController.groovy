@@ -31,7 +31,7 @@ class ButtonGridController {
                 return
             }
             ButtonGridType type = ButtonGridType.valueOf(params.type)
-            if (type.isIn(ButtonGridType.SCO_QUICK_SELL, ButtonGridType.SCO_MANAGER_FUNCTIONS) && !springSecurityService.principal.retailer.scoEnabled) {
+            if (type.isIn(ButtonGridType.SCO_QUICK_SELL, ButtonGridType.SCO_MANAGER_FUNCTIONS) && !springSecurityService.principal.retailer.config.scoEnabled) {
                 flash.error = "Button grid SCO not enabled for current retailer. "
                 redirect(action: "index")
                 return

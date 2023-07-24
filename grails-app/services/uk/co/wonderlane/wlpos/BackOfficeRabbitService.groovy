@@ -141,19 +141,19 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     def purgeQueue(int retailerId, int storeId, int tillId) {
-        initVirtualHost(springSecurityService.principal.retailer.rabbitMqVirtualHost)
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
 
         channel.queuePurge(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     def deleteQueue(int retailerId, int storeId, int tillId) {
-        initVirtualHost(springSecurityService.principal.retailer.rabbitMqVirtualHost)
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
 
         channel.queueDelete(String.format("R%d_S%d_T%d", retailerId, storeId, tillId))
     }
 
     void sendMessage(SyncMessage syncMessage) throws IOException {
-        initVirtualHost(springSecurityService.principal.retailer.rabbitMqVirtualHost)
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
 
         if (syncMessage.getStoreNumber() > 0 && syncMessage.getTillId() > 0) {
             String exchangeName = String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber())

@@ -597,7 +597,7 @@ class ProductService extends MySqlDal {
     }
 
     def isSingleStageSel() {
-        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.twoStageSel) {
+        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.config.twoStageSel) {
             return false
         }
         return true

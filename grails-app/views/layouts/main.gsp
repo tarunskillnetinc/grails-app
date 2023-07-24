@@ -100,11 +100,11 @@
                                     <g:link elementId="sales-dropdown" controller="buttonGrid" action="show" params="[type: 'SALES']" class="dropdown-item">Sales</g:link>
                                     <g:link elementId="quicksell-dropdown" controller="buttonGrid" action="show" params="[type: 'QUICK_SELL']" class="dropdown-item">Quicksell</g:link>
                                     <g:link elementId="tender-dropdown" controller="buttonGrid" action="show" params="[type: 'TENDER']" class="dropdown-item">Tender</g:link>
-                                    <g:if test="${service.principal.retailer.scoEnabled}">
+                                    <g:if test="${service.principal.retailer.config.scoEnabled}">
                                         <g:link elementId="sco-quicksell-dropdown" controller="buttonGrid" action="show" params="[type: 'SCO_QUICK_SELL']" class="dropdown-item">Self Checkout</g:link>
                                     </g:if>
                                     <g:link elementId="manager-functions-dropdown" controller="buttonGrid" action="show" params="[type: 'MANAGER_FUNCTIONS']" class="dropdown-item">Manager Functions</g:link>
-                                    <g:if test="${service.principal.retailer.scoEnabled}">
+                                    <g:if test="${service.principal.retailer.config.scoEnabled}">
                                         <g:link controller="buttonGrid" action="show" params="[type: 'SCO_MANAGER_FUNCTIONS']" class="dropdown-item">SCO Manager Functions</g:link>
                                     </g:if>
 

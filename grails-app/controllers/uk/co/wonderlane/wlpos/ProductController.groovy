@@ -66,7 +66,7 @@ class ProductController extends BaseController {
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
-        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.locationsType)
+        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
 
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
@@ -79,9 +79,9 @@ class ProductController extends BaseController {
                                     effectiveDateIndex : session.effectiveDate,
                                     now                : now,
                                     navlink            : "details",
-                                    snappyEnabled      : springSecurityService.principal.retailer.snappyShopperEnabled,
+                                    snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
-                                    locationsType      : springSecurityService.principal.retailer.locationsType.name()])
+                                    locationsType      : springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     private void setEffectiveDate() {
@@ -115,7 +115,7 @@ class ProductController extends BaseController {
                                     priceBands    : priceBands,
                                     now           : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
                                     isNewProduct  : true,
-                                    locationsType : springSecurityService.principal.retailer.locationsType.name()])
+                                    locationsType : springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     def search() {
@@ -582,7 +582,7 @@ class ProductController extends BaseController {
                                         priceBands         : priceBands,
                                         editedPrices       : editedPrices,
                                         vatValues          : vatValues,
-                                        locationsType      : springSecurityService.principal.retailer.locationsType.name()])
+                                        locationsType      : springSecurityService.principal.retailer.config.locationsType.name()])
         }
     }
 
@@ -1233,7 +1233,7 @@ class ProductController extends BaseController {
 
     def ajaxAddTempLocation(AddVariantCommand cmd) {
         def storeId = springSecurityService.principal.storeId
-        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.locationsType)
+        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
 
         render(template: "locationVariant", model: [index: cmd.index, variant: cmd, locationsEnabled: locationsEnabled, storeId: storeId])
     }
@@ -1255,7 +1255,7 @@ class ProductController extends BaseController {
     def ajaxLocations(LocationsCommand cmd) {
         def locations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, params.sku)
 
-        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.locationsType.name()])
+        render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
@@ -1267,7 +1267,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddLocation(int variantIndex, int locationIndex, int productVariantId) {
-        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, isNewLocation: true, locationsType: springSecurityService.principal.retailer.locationsType.name()])
+        render(template: "addLocation", model: [variantIndex: variantIndex, productVariantId: productVariantId, locationIndex: locationIndex, isNewLocation: true, locationsType: springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
@@ -1296,7 +1296,7 @@ class ProductController extends BaseController {
             }
         })
 
-        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.locationsType.name()])
+        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     //This will render category mapped restrictions for new products

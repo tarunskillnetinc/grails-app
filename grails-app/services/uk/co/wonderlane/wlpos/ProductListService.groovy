@@ -172,7 +172,7 @@ class ProductListService extends MySqlDal {
             }
 
             // Call again for changes to be OKd if this is a two stage retailer.
-            if (springSecurityService.principal.retailer.twoStageSel) {
+            if (springSecurityService.principal.retailer.config.twoStageSel) {
                 cstmt.clearParameters()
                 cstmt.setInt(1, springSecurityService.principal.retailerId)
                 cstmt.setInt(2, springSecurityService.principal.storeId)
