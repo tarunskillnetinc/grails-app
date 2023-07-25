@@ -86,7 +86,11 @@ class PromotionService {
 
             if (validDate != null) {
                 lte("startDate", validDate)
-                gte("endDate", validDate)
+                or {
+                    isNull('endDate')
+                    gte("endDate", validDate)
+                }
+
             }
 
             if (updatedSince != null) {

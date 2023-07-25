@@ -49,7 +49,7 @@ class Promotion {
         description nullable: false, size: 1..200
         receiptDescription nullable: false, size: 1..50
         startDate nullable: false
-        endDate nullable: false
+        endDate nullable: true
         type nullable: false
         amount nullable: false, range: 0F..9999.99F
         lossCategoryId nullable: true
