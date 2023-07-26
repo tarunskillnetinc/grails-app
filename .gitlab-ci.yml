@@ -14,7 +14,6 @@ default:
 develop:
     stage: build
     only: 
-#        - branches
         - /^develop$/
     script:
         - apk update
@@ -30,7 +29,6 @@ develop:
 release:
     stage: build
     only: 
-#        - branches
         - /^release.*$/
     script:    
         - apk update
@@ -41,7 +39,6 @@ release:
 tags:
     stage: build
     only: 
-#        - tags
         - /^.*\..*$/
     script:        
         - echo "Do nothing currently... Production release?"
