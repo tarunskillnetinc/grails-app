@@ -1,7 +1,9 @@
 package uk.co.wonderlane.wlpos.supplier
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.Product
 import uk.co.wonderlane.wlpos.ProductVariant
+import uk.co.wonderlane.wlpos.Retailer
 import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
 
@@ -60,12 +62,16 @@ class Pack {
         orderCode nullable: true, size: 1..20
         barcode nullable: true, size: 1..20, validator: { val, obj ->
             if (val) {
-                def existingPacks = Pack.findAllByBarcode(val)
-                boolean isDuplicateBarcode = existingPacks?.stream().anyMatch({ pack -> pack.productVariantId != obj.productVariantId })
-
-                if (isDuplicateBarcode) {
-                    return ['pack.barcodes.notUnique', val]
+                def supplierVar = Supplier.findAllById(obj.supplier.id)
+                def existingPacks = Pack.findAllBySupplierAndBarcode(supplierVar[0], val)
+                existingPacks.remove(obj)
+                // Check if the barcode exists on another SKU
+                existingPacks.each {
+                    if (it.productVariant.sku != obj.productVariant.sku) {
+                        return ['product.barcodes.notUnique', val]
+                    }
                 }
+                return true
             } else {
                 return true
             }

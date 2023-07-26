@@ -461,12 +461,16 @@ class ProductController extends BaseController {
             product.retailerProductId = editedProduct.retailerProductId
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
-                if (editedProduct.restrictions.validate() && editedProduct.restrictions.id == product.category.restrictions.id) {
-                    // Changed restrictions and the product was currently pointing at the category restrictions object. Create a new restrictions.
-                    product.restrictions = new Restrictions()
-                }
+                if (product.category != null) {
+                    if (editedProduct.restrictions.validate() && editedProduct.restrictions.id == product.category.restrictions.id) {
+                        // Changed restrictions and the product was currently pointing at the category restrictions object. Create a new restrictions.
+                        product.restrictions = new Restrictions()
+                    }
 
-                copyRestrictions(editedProduct.restrictions, product.restrictions)
+                    copyRestrictions(editedProduct.restrictions, product.restrictions)
+                } else {
+                    product.errors.reject('product.category.nullable.error', 'No Category Selected')
+                }
             }
 
             // Variants.
@@ -961,7 +965,7 @@ class ProductController extends BaseController {
             })
         })
 
-        product?.variants?.each {existingVariants ->
+        product?.variants?.stream().filter ({v -> v.effectiveDate == editedProduct.effectiveDate}).each { existingVariants ->
             def editedVariant = editedProduct?.find {editedVariant -> editedVariant.id == existingVariants.id}
             if (!editedVariant){
                 // Variant deleted
@@ -1261,6 +1265,7 @@ class ProductController extends BaseController {
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
+        // TODO - THIS IS THE AREA with the issue of NISA packs supplier being invalid
         suppliers.removeAll { it.symbolGroup != null }
 
         render(template: "addPack", model: [variantIndex: variantIndex, productVariantId: productVariantId, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
@@ -1280,6 +1285,7 @@ class ProductController extends BaseController {
         })
         if (cmd.hasErrors) {
             def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            // TODO - THIS IS THE AREA with the issue of NISA packs supplier being invalid
             suppliers.removeAll { Objects.nonNull(it.symbolGroup) }
             render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
         } else {
