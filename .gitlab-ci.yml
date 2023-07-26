@@ -1,5 +1,9 @@
 image: gradle:jdk11-alpine
 
+cache:
+    paths:
+        - gradle
+
 stages:
     - build
 
