@@ -54,7 +54,12 @@ chmod +x gradlew
 ./gradlew --stacktrace clean test bootRun
 /root/.sdkman/candidates/grails/5.3.2/bin/grails -Dgrails.env=$1 assemble --info
 
-pwd
-ls
+ls /builds/securetrading-gl/retail-platform/retail-platform/cloud-office/build
+
+ls /builds/securetrading-gl/retail-platform/retail-platform/cloud-office/build/libs/
+
+ls /builds/securetrading-gl/retail-platform/retail-platform/cloud-office/build/build
+
+ls /builds/securetrading-gl/retail-platform/retail-platform/cloud-office/build/build/libs
 
 curl -u $2:$3 -X PUT "https://wonderlane.jfrog.io/artifactory/$repo/uk/co/wonderlane/wlpos/wlpos-back-office/$versionWithoutTimestamp/$1/wlpos-back-office-$version.jar" -T /opt/atlassian/pipelines/agent/build/build/libs/build-$version.jar
