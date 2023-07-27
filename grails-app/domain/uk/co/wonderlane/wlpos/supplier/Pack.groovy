@@ -67,8 +67,8 @@ class Pack {
                 existingPacks.remove(obj)
                 // Check if the barcode exists on another SKU
                 existingPacks.each {
-                    if (it.productVariant.sku != obj.productVariant.sku) {
-                        return ['product.barcodes.notUnique', val]
+                    if (obj.hasProperty("productVariant") && it.productVariant.sku != obj.productVariant.sku) {
+                        return ['pack.barcodes.notUnique', val]
                     }
                 }
                 return true

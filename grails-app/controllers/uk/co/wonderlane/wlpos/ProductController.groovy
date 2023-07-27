@@ -1277,10 +1277,13 @@ class ProductController extends BaseController {
 
     def ajaxSavePack(SuppliersCommand cmd) {
         cmd.getPacks().forEach({ pack ->
-            if (!pack.validate()) {
-                if (!cmd.hasErrors)
-                    cmd.hasErrors = Boolean.TRUE
-                pack.isNewPack = Boolean.TRUE
+            // We dont want to save NISA packs
+            if (pack.supplier.symbolGroupId == null){
+                if (!pack.validate()) {
+                    if (!cmd.hasErrors)
+                        cmd.hasErrors = Boolean.TRUE
+                    pack.isNewPack = Boolean.TRUE
+                }
             }
         })
         if (cmd.hasErrors) {
