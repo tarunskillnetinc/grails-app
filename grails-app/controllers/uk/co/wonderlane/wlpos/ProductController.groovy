@@ -421,7 +421,7 @@ class ProductController extends BaseController {
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
 
                     if (!isValidBarcode(barcode)) {
-                        product.errors.reject('pack.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another pack.')
+                        product.errors.reject('product.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
                     }
                 }
 
@@ -678,7 +678,7 @@ class ProductController extends BaseController {
                         newVariant.barcodez.add(newBarcode)
 
                         if (!isValidBarcode(newBarcode)) {
-                            product.errors.reject('pack.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another pack.')
+                            product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
                         }
                 })
 
@@ -725,9 +725,9 @@ class ProductController extends BaseController {
 
                 if (!isValidBarcode(barcode)) {
                     product.errors.reject(
-                            'pack.barcodes.notUnique',
+                            'product.barcodes.notUnique',
                             [barcode.barcode] as Object[],
-                            'Barcode {0} already exists on another pack.')
+                            'Barcode {0} already exists on another SKU.')
                 }
             } else { // If barcode do exists change update existing values
 
@@ -749,9 +749,9 @@ class ProductController extends BaseController {
 
                     if (!isValidBarcode(futureBarcode)) {
                         product.errors.reject(
-                                'pack.barcodes.notUnique',
+                                'product.barcodes.notUnique',
                                 [futureBarcode.barcode] as Object[],
-                                'Barcode {0} already exists on another pack.')
+                                'Barcode {0} already exists on another SKU.')
                     } else {
                         //Add mark deleted barcode and newly updated barcode to add into DB
                         existingVariant.barcodez.add(existingBarcode)
