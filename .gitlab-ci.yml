@@ -11,8 +11,8 @@ stages:
     - tags
 
 before_script:
-    - git config user.email $GITLAB_USER_EMAIL
-    - git config user.name $GITLAB_USER_NAME
+    - git config user.email ${GITLAB_USER_EMAIL}
+    - git config user.name ${GITLAB_USER_NAME}
 
 default:
     stage: default
