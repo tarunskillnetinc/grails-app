@@ -177,10 +177,6 @@ class SupplierController {
         if (symbolGroupSubscription.validate()) {
             // Make sure the RabbitMQ connection is available, otherwise reject the save.
             try {
-                if (!rabbitService.isOpen()) {
-                    throw new Exception("Rabbit MQ not available")
-                }
-
                 supplierService.saveSymbolGroupSubscription(symbolGroupSubscription)
 
                 // TODO Not always REGISTRATION
@@ -190,12 +186,14 @@ class SupplierController {
 
                         // TODO Considering using routing key to reach Nisa?
                         rabbitService.setVirtualHost("/")
+                        rabbitService.init()
                         rabbitService.sendExchangeMessage("SymbolGroups", gsonProvider.gson.toJson(symbolGroupMessage))
                         break;
                     case 4: // Snappy
                         SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
                         rabbitService.setVirtualHost("/")
+                        rabbitService.init()
                         rabbitService.sendQueueMessage("SnappyService", gsonProvider.gson.toJson(snappyServiceMessage))
                         break;
                 }

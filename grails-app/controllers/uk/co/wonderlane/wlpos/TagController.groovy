@@ -79,6 +79,7 @@ class TagController {
 
     def save(SaveTagCommand cmd) {
         def tag
+        def tagProductsToRemove
 
         if (cmd.id) {
             tag = tagService.getTag(cmd.id)
@@ -89,11 +90,14 @@ class TagController {
                 return
             }
 
-            // Remove any TagProducts which are no longer in the tag.
-            def tagProductsToRemove = tag.tagProducts?.findAll { !cmd.sku.contains(it.sku) }
-
-            tagProductsToRemove?.each {
-                tagService.deleteTagProduct(tag.id, it.sku)
+            // Find the products that needs to be Removed upon successful save
+            // If there are no products left the CMD will have no skus so we can just use the whole tag products list
+            // which will fail save validation but lets the user rectify.
+            if (!cmd.sku) {
+                tagProductsToRemove = tag.tagProducts
+            } else {
+                // Remove any TagProducts which are no longer in the tag.
+                tagProductsToRemove = tag.tagProducts?.findAll { !cmd.sku.contains(it.sku) }
             }
         } else {
             tag = new Tag()
@@ -114,6 +118,12 @@ class TagController {
         }
 
         if (cmd.validate() && tag.validate()) {
+            // Commit the product deletion if the final tag is valid for saving
+            //  and there are products to remove
+            tagProductsToRemove?.each {
+                tagService.deleteTagProduct(tag.id, it.sku)
+            }
+
             tagService.saveTag(tag)
 
             // Send this update to the whole Retailer exchange!

@@ -35,7 +35,7 @@
             <div id="promo-result-${i+1}-description" class="col-3">${promotion.description}</div>
             <div id="promo-result-${i+1}-updated" class="col-1 font-weight-bold">${promotion.updateDatetime.toString("dd/MM/yyyy")}</div>
             <div id="promo-result-${i+1}-start" class="col-1 font-weight-bold">${promotion.startDate.toString("dd/MM/yyyy")}</div>
-            <div id="promo-result-${i+1}-end" class="col-1 font-weight-bold">${promotion.endDate.toString("dd/MM/yyyy")}</div>
+            <div id="promo-result-${i+1}-end" class="col-1 font-weight-bold">${promotion.endDate?.toString("dd/MM/yyyy")}</div>
             <div id="promo-result-${i+1}-active" class="col-1">
                 <g:checkBox name="promo-${i}-active" value="${promotion.active}" disabled="true"/>
             </div>
