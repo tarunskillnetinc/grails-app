@@ -17,7 +17,7 @@ before_script:
     - git config user.email "$GIT_USER_EMAIL"
     - git config user.name "$GIT_USER_NAME"
 
-default:
+default_build:
     stage: default
     script:
         - apk update
@@ -25,7 +25,7 @@ default:
         - apk add zip curl bash
         - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
 
-develop:
+build_develop_branch:
     stage: develop
     script:
         - apk update
@@ -40,7 +40,7 @@ develop:
     rules:
         - if: '$CI_COMMIT_BRANCH == "develop"'
 
-release:
+build_release_branches:
     stage: release
     script:    
         - apk update
@@ -50,7 +50,7 @@ release:
     rules:
         - if: '$CI_COMMIT_BRANCH =~ /^release/'
     
-tags:
+tags_no_build:
     stage: tags
     script:        
         - echo "Do nothing currently... Production release?"
