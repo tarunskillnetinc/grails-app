@@ -11,8 +11,10 @@ stages:
     - tags
 
 before_script:
-    - git config user.email ${GITLAB_USER_EMAIL}
-    - git config user.name ${GITLAB_USER_NAME}
+    - GIT_USER_EMAIL=$(git log -1 --pretty=format:"%ae")
+    - GIT_USER_NAME=$(git log -1 --pretty=format:"%an")
+    - git config user.email "$GIT_USER_EMAIL"
+    - git config user.name "$GIT_USER_NAME"
 
 default:
     stage: default
