@@ -10,6 +10,7 @@ stages:
     - release
     - tags
 
+## before_script configuration added to resolve 'Author Identity Unknown' error for git commands
 before_script:
     - GIT_USER_EMAIL=$(git log -1 --pretty=format:"%ae")
     - GIT_USER_NAME=$(git log -1 --pretty=format:"%an")
