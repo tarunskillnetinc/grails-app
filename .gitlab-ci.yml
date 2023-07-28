@@ -24,6 +24,14 @@ default_build:
         - apk upgrade
         - apk add zip curl bash
         - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+    rules:
+        - changes
+        - when: never
+          variables:
+              - key: CI_COMMIT_REF_NAME
+                value: /^(develop|release.*)$/
+              - key: CI_COMMIT_TAG
+                value: "/^[^.]*$/"
 
 build_develop_branch:
     stage: develop
