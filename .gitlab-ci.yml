@@ -5,10 +5,13 @@ cache:
         - gradle
 
 stages:
-    - build
+    - default
+    - develop
+    - release
+    - tags
 
 default:
-    stage: build
+    stage: default
     script:
         - apk update
         - apk upgrade
@@ -16,9 +19,7 @@ default:
         - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
 
 develop:
-    stage: build
-    only: 
-        - /^develop$/
+    stage: develop
     script:
         - apk update
         - apk upgrade
@@ -29,20 +30,22 @@ develop:
         - git commit -m "Tagging build $BUILD_VERSION for release"
         - git tag -am "Tagging for release $BUILD_VERSION" $BUILD_VERSION
         - git push origin $BUILD_VERSION
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "develop"'
 
 release:
-    stage: build
-    only: 
-        - /^release.*$/
+    stage: release
     script:    
         - apk update
         - apk upgrade
         - apk add zip curl bash
         - bash doGrailsBuild.sh stage $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+    rules:
+        - if: '$CI_COMMIT_BRANCH =~ /^release/'
     
 tags:
-    stage: build
-    only: 
-        - /^.*\..*$/
+    stage: tags
     script:        
         - echo "Do nothing currently... Production release?"
+    rules:
+        - if: '$CI_COMMIT_TAG =~ /\..*/'
