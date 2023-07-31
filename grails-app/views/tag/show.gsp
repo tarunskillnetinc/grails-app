@@ -51,7 +51,7 @@
             </div>
 
             <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">Product ID</div>
+                <div class="col-2 font-weight-bold">Item Code</div>
                 <div class="col-4 font-weight-bold">SKU</div>
                 <div class="col-6 font-weight-bold">Description</div>
             </div>
@@ -63,7 +63,7 @@
 
                 <g:each in="${tag.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
                     <div id="tag-product-${i+1}" class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2}">
-                        <div id="tag-product-${i+1}-id" class="col-2">${tagProduct.productVariantId}</div>
+                        <div id="tag-product-${i+1}-id" class="col-2">${tagProduct.itemCode}</div>
                         <div id="tag-product-${i+1}-sku" class="col-4">${tagProduct.sku}</div>
                         <div id="tag-product-${i+1}-description" class="col-6">${tagProduct.productDescription}</div>
                     </div>
