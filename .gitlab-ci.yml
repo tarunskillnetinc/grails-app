@@ -22,17 +22,12 @@ default_build:
     except:
         - /^develop$/
         - /^release.*$/
-        - /^[^.]*$/
+        - /^[0-9.]+$/
     script:
         - apk update
         - apk upgrade
         - apk add zip curl bash
         - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
-#    rules:  Following rules is not working as expected
-#        - if: '$CI_COMMIT_REF_NAME =~ /^(develop|release.*)$/'
-#          when: never
-#        - if: '$CI_COMMIT_TAG =~ /^[^.]*$/'
-#          when: never
 
 build_develop_branch:
     stage: develop
@@ -64,4 +59,4 @@ tags_no_build:
     script:        
         - echo "Do nothing currently... Production release?"
     rules:
-        - if: '$CI_COMMIT_TAG =~ /\..*/'
+        - if: '$CI_COMMIT_TAG =~ /^[0-9.]+$/'
