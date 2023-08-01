@@ -24,7 +24,7 @@ import java.sql.ResultSet
 class ProductServiceSpec extends Specification implements ServiceUnitTest<ProductServiceHelperService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [VatCode, Retailer, PriceBand, Range, Supplier, StoreSettings,
+        [VatCode, Retailer, PriceBand, Range, Supplier, Store,
          RangeProduct, Product, Barcode, ProductVariant, ProductPrice, ReportColumns] as Class<?>[]
     }
 
@@ -611,7 +611,7 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
 
         service.gsonProvider = new GsonProvider()
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -691,7 +691,7 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
 
         service.gsonProvider = new GsonProvider()
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 150,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -769,7 +769,7 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
 
         service.gsonProvider = new GsonProvider()
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 150,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -826,7 +826,7 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
 
         service.gsonProvider = new GsonProvider()
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 150,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -858,7 +858,7 @@ class ProductServiceSpec extends Specification implements ServiceUnitTest<Produc
 
         service.gsonProvider = new GsonProvider()
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 150,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",

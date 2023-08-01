@@ -32,7 +32,7 @@ class GroupController {
 
     def ajaxGetAvailableStores(int groupId) {
         def group = Group.get(groupId)
-        def storeSettings = StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "storeId", order: "ASC"])
+        def storeSettings = Store.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "storeId", order: "ASC"])
 
         storeSettings.removeAll(group.stores)
 
@@ -40,7 +40,7 @@ class GroupController {
     }
 
     def ajaxAddStoreToGroup(int storeId, int groupId) {
-        def store = StoreSettings.findByIdAndRetailerId(storeId, springSecurityService.principal.retailerId)
+        def store = Store.findByIdAndRetailerId(storeId, springSecurityService.principal.retailerId)
         def group = Group.findByIdAndRetailerId(groupId, springSecurityService.principal.retailerId)
 
         group.addToStores(store)
@@ -51,7 +51,7 @@ class GroupController {
     }
 
     def ajaxRemoveStoreFromGroup(int storeId, int groupId) {
-        def store = StoreSettings.findByIdAndRetailerId(storeId, springSecurityService.principal.retailerId)
+        def store = Store.findByIdAndRetailerId(storeId, springSecurityService.principal.retailerId)
         def group = Group.findByIdAndRetailerId(groupId, springSecurityService.principal.retailerId)
 
         group.removeFromStores(store)

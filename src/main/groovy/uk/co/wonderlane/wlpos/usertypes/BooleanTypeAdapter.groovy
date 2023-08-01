@@ -13,22 +13,22 @@ class BooleanTypeAdapter implements JsonDeserializer<Boolean> {
     @Override
     Boolean deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         if (((JsonPrimitive) jsonElement).isBoolean()) {
-            return jsonElement.getAsBoolean();
+            return jsonElement.getAsBoolean()
         }
 
         if (((JsonPrimitive) jsonElement).isString()) {
-            String jsonValue = jsonElement.getAsString();
+            String jsonValue = jsonElement.getAsString()
             if (jsonValue.equalsIgnoreCase("true")) {
-                return true;
+                return true
             } else if (jsonValue.equalsIgnoreCase("false")) {
-                return false;
+                return false
             } else {
-                return null;
+                return null
             }
         }
 
-        int code = jsonElement.getAsInt();
+        int code = jsonElement.getAsInt()
 
-        return code == 0 ? false : code == 1 ? true : null;
+        return code == 0 ? false : code == 1 ? true : null
     }
 }

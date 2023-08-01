@@ -21,7 +21,7 @@ import java.sql.ResultSet
 class ProductListServiceSpec extends Specification implements ServiceUnitTest<ProductListServiceHelperService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [StoreSettings, ProductList] as Class<?>[]
+        [Store, ProductList] as Class<?>[]
     }
 
     ProductListServiceHelperService productListServiceHelperService
@@ -408,8 +408,8 @@ class ProductListServiceSpec extends Specification implements ServiceUnitTest<Pr
         return productList
     }
 
-    private StoreSettings getDummyStoreSettings(int id) {
-        StoreSettings storeSettings = new StoreSettings()
+    private Store getDummyStoreSettings(int id) {
+        Store storeSettings = new Store()
 
         storeSettings.id = id
         storeSettings.storeId = id

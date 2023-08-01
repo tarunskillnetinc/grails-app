@@ -14,6 +14,8 @@ class Retailer implements Serializable {
 
     static transients = [ "gson" ]
 
+    public Retailer() { }
+
     static mapping = {
         table "retailers"
         version false

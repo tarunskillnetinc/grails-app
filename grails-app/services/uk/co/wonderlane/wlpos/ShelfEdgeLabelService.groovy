@@ -13,7 +13,6 @@ import org.apache.pdfbox.pdmodel.font.PDFont
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
-import org.apache.pdfbox.rendering.PDFRenderer
 import org.apache.pdfbox.util.Matrix
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -27,8 +26,6 @@ import uk.co.wonderlane.wlpos.labelling.LabelTemplate
 import uk.co.wonderlane.wlpos.labelling.LabelTemplateField
 import uk.co.wonderlane.wlpos.labelling.LabelTemplateMapping
 
-import java.awt.Graphics
-import java.awt.image.BufferedImage
 import java.math.RoundingMode
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -67,7 +64,7 @@ class ShelfEdgeLabelService extends MySqlDal {
         return LabelTemplate.findByIdAndRetailerId(labelTemplateId, springSecurityService.principal.retailerId)
     }
 
-    def generatePdf(ProductList productList, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) {
+    def generatePdf(ProductList productList, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, Store storeSettings) {
         // Find our labels.
         List<ShelfEdgeLabel> shelfEdgeLabels = new ArrayList<>()
 
@@ -123,7 +120,7 @@ class ShelfEdgeLabelService extends MySqlDal {
         return out.toByteArray()
     }
 
-    def generatePdf(DateTime effectiveDate, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) {
+    def generatePdf(DateTime effectiveDate, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, Store storeSettings) {
         def labels = getShelfEdgeLabelsForDate(effectiveDate, printProcess)
 
         PDDocument doc = generatePdfDocument(labels, labelTemplate, printProcess, printType, storeSettings)
@@ -135,7 +132,7 @@ class ShelfEdgeLabelService extends MySqlDal {
         return out.toByteArray()
     }
 
-    private PDDocument generatePdfDocument(List<ShelfEdgeLabel> shelfEdgeLabels, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, StoreSettings storeSettings) throws Exception {
+    private PDDocument generatePdfDocument(List<ShelfEdgeLabel> shelfEdgeLabels, LabelTemplate labelTemplate, PrintProcess printProcess, PrintType printType, Store storeSettings) throws Exception {
         PDDocument doc = new PDDocument()
 
         // Since the original logic was provided an expanded list of products (ie, the same product multiple times to account for multiple labels), I'm doing
@@ -190,7 +187,7 @@ class ShelfEdgeLabelService extends MySqlDal {
     }
 
     private void generatePdfPage(PDDocument doc, PDPageContentStream contentStream, PDPage page, LabelTemplate labelTemplate, List<ShelfEdgeLabel> shelfEdgeLabels,
-                                 StoreSettings storeSettings, int pageNumber, int labelsPerPage, PrintProcess printProcess) throws Exception {
+                                 Store storeSettings, int pageNumber, int labelsPerPage, PrintProcess printProcess) throws Exception {
 
         // Loop this page of labels by row and column.
         for (int row = 0 ; row < labelTemplate.rows ; row++) {

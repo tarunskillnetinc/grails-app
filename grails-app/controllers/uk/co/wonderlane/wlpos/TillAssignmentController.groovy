@@ -21,7 +21,7 @@ class TillAssignmentController {
             return
         }
 
-        stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        stores = Store.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
 
         [stores: stores]
     }
@@ -84,14 +84,14 @@ class TillAssignmentController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddTill() {
-        stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        stores = Store.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
         render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, enableEdit: false])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditTill() {
-        stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        stores = Store.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
         configuration = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, Integer.parseInt(params.get("storeId").toString()), Integer.parseInt(params.get("tillId").toString()))
         editingTill = true
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)

@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import grails.validation.Validateable
+import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -12,29 +14,26 @@ class StoreSettingsController {
     def rabbitService
     def gsonProvider
 
-    def storeId
-    def storeNumber
-    def retailerId
-
     def availableParentStores
     def availablePriceBands
     def availableProductRanges
 
-    private StoreSettings storeSettings
-
     protected final StoreSettingViewOptions viewOptions = new StoreSettingViewOptions()
 
     def index() {
-        storeId = springSecurityService.principal.storeId
-        storeNumber = springSecurityService.principal.storeNumber
-        retailerId = springSecurityService.principal.retailerId
+        def store
 
-        storeSettings = getStoreSettings(storeId, retailerId)
-        (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(retailerId, storeNumber)
+        if (springSecurityService.principal.storeId) {
+            store = storeSettingsService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        } else {
+            store = storeSettingsService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
+        }
 
-        setViewOptions();
+        (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber)
 
-        [storeSettings               : storeSettings,
+        setViewOptions(store.config.storeType.name())
+
+        [storeSettings               : store,
          availablePriceBands         : availablePriceBands,
          availableProductRanges      : availableProductRanges,
          availablePrintReceiptOptions: PrintReceiptOption.values(),
@@ -42,27 +41,37 @@ class StoreSettingsController {
          viewOptions                 : viewOptions]
     }
 
-    def save() {
-        def storeSettings = getStoreSettings(storeId, retailerId)
-        def oldPriceBand = storeSettings?.priceBand?.id
-        def oldProductRange = storeSettings?.range?.id
+    def save(StoreCommand storeCommand) {
+        def store
 
-        bindData(storeSettings, params)
-        storeSettings.retailerId = retailerId
+        if (springSecurityService.principal.storeId) {
+            store = storeSettingsService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        } else {
+            store = storeSettingsService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
+        }
 
-        if (storeSettings.validate()) {
-            storeSettingsService.saveStoreSettings(storeSettings)
+        def oldPriceBand = store?.priceBand?.id
+        def oldProductRange = store?.range?.id
+
+        // Note, this saving is deliberately being done completely outside of Hibernate and GORM because they don't handle JSON columns well (at all).
+
+        if (storeCommand.validate() & storeCommand.config.validate()) { // Deliberately a single & so that both validates get called even if the first one fails.
+            StoreConfig storeConfig = new StoreConfig()
+
+            bindData(storeConfig, storeCommand.config)
+
+            storeSettingsService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(storeSettings.getStoreSettings());
+                syncMessage.setStoreSettings(storeSettingsService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).getStore())
 
                 rabbitService.sendMessage(syncMessage)
             }
 
-            if (oldPriceBand != storeSettings.priceBand.id || oldProductRange != storeSettings.range.id) {
+            if (oldPriceBand != storeCommand.priceBand.id || oldProductRange != storeCommand.range.id) {
                 flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
             } else {
                 flash.message = ["Store settings saved successfully."]
@@ -70,9 +79,10 @@ class StoreSettingsController {
 
             redirect(action: "index")
         } else {
-            (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(retailerId, storeNumber)
+            (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber)
 
-            render(view: "index", model: [storeSettings               : storeSettings,
+            render(view: "index", model: [storeSettings               : storeCommand,
+                                          configErrors                : storeCommand.config,
                                           availablePriceBands         : availablePriceBands,
                                           availableProductRanges      : availableProductRanges,
                                           availableParentStores       : availableParentStores,
@@ -84,27 +94,30 @@ class StoreSettingsController {
     private List loadDropdownData(retailerId, storeNumber) {
         def availablePriceBands = PriceBand.findAllByRetailerId(retailerId)
         def availableProductRanges = Range.findAllByRetailerId(retailerId)
-        def availableParentStores = StoreSettings.findAllByRetailerIdAndTypeAndStoreIdNotEqual(retailerId, StoreType.STORE.getValue(), storeNumber)
+
+        def allParentStores = storeSettingsService.getStoresByType(retailerId, StoreType.STORE)
+        allParentStores.removeAll { it.config.storeNumber == storeNumber }
 
         [availablePriceBands, availableProductRanges, availableParentStores]
     }
 
-    private StoreSettings getStoreSettings(storeId, retailerId) {
-        storeId ? StoreSettings.findById(storeId) : StoreSettings.findByRetailerIdAndStoreIdIsNull(retailerId)
-    }
-
-    private void setViewOptions() {
+    private void setViewOptions(String storeType) {
         def userRoles = springSecurityService.principal.authorities*.authority
 
         boolean isHeadOffice = false
         boolean isHeadOfficeUser = false
         boolean isEngineerUser = false
-        if (storeId == null){isHeadOffice = true}
+
+        if (springSecurityService.principal.storeId == null) {
+            isHeadOffice = true
+        }
+
         if (userRoles && userRoles.size() > 0) {
             isHeadOfficeUser = userRoles.contains("ROLE_HEAD_OFFICE")
             isEngineerUser = userRoles.contains("ROLE_ENGINEER")
         }
-        boolean isChildStore = Arrays.asList(StoreType.CAFE.getValue(), StoreType.CANTEEN.getValue()).contains(storeSettings.type)
+
+        boolean isChildStore = Arrays.asList(StoreType.CAFE.getValue(), StoreType.CANTEEN.getValue()).contains(storeType)
 
         viewOptions.showUISettings = !isHeadOffice
         viewOptions.showParentStoreSettings = !isHeadOffice && (isHeadOfficeUser || isEngineerUser) && isChildStore
@@ -114,4 +127,125 @@ class StoreSettingsController {
 class StoreSettingViewOptions {
     public boolean showUISettings
     public boolean showParentStoreSettings
+}
+
+class StoreCommand implements Validateable {
+    int id
+    int retailerId
+    Integer parentStoreId
+    PriceBand priceBand
+    Range range
+
+    StoreConfigCommand config
+
+    static constraints = {
+        id nullable: true
+        retailerId nullable: false
+        parentStoreId nullable: true
+        priceBand nullable: false
+        range nullable: false
+        config nullable: false
+    }
+}
+
+class StoreConfigCommand implements Validateable {
+    Integer storeNumber
+    uk.co.wonderlane.wlpos.enums.StoreType storeType
+    String receiptMessage1
+    String receiptMessage2
+    String vatRegistrationNumber
+    String storeName
+    String addressBuildingNumberOrName
+    String addressLine1
+    String addressLine2
+    String addressTown
+    String addressCounty
+    String addressCountry
+    String addressPostCode
+    String phoneNumber
+    PrintReceiptOption printReceiptOption
+    Integer quantityPromptThreshold
+    BigDecimal valuePromptThreshold
+    Integer varianceQuantity
+    BigDecimal varianceValue
+    Boolean pickListForceZeroCount
+    String primaryColour
+    String secondaryColour
+    String accentColour
+    String primaryTextColour
+    String secondaryTextColour
+    String accentTextColour
+    int stockLevelThreshold
+    BigDecimal countIncrement
+
+    static constraints = {
+        storeNumber nullable: true
+        storeType nullable: true
+        receiptMessage1 nullable: true, maxSize: 100
+        receiptMessage2 nullable: true, maxSize: 100
+        vatRegistrationNumber nullable: true, maxSize: 45
+        storeName nullable: false, blank: false, maxSize: 45
+        addressBuildingNumberOrName nullable: true, maxSize: 45
+        addressLine1 nullable: true, maxSize: 45
+        addressLine2 nullable: true, maxSize: 45
+        addressTown nullable: true, maxSize: 45
+        addressCounty nullable: true, maxSize: 45
+        addressCountry nullable: true, maxSize: 45
+        addressPostCode nullable: true, maxSize: 45
+        phoneNumber nullable: true, maxSize: 45
+        printReceiptOption nullable: false
+        quantityPromptThreshold nullable: true, min: 1, max: 999
+        valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
+        varianceQuantity nullable: true, min: 1, max: 999
+        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999.99
+        pickListForceZeroCount nullable: true
+        primaryColour nullable: true
+        secondaryColour nullable: true
+        accentColour nullable: true
+        primaryTextColour nullable: true
+        secondaryTextColour nullable: true
+        accentTextColour nullable: true
+        stockLevelThreshold nullable: false
+//        selMarginLeft nullable: true
+//        selMarginTop nullable: true
+        primaryColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        secondaryColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        accentColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        primaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE, validator: { value ->
+            if (value < new BigDecimal(0.01)) {
+                return ['storeConfigCommand.countIncrement.min.notmet']
+            }
+
+            if (value > BigDecimal.ONE) {
+                return ['storeConfigCommand.countIncrement.max.exceeded']
+            }
+
+            return true
+        }
+    }
+
+    def colorCodeValidator(String colorCode) {
+        if (colorCode == null || colorCode.trim().isEmpty()) {
+            return true
+        }
+
+        if (colorCode.length() != 6) {
+            return ['storeConfigCommand.colourCode.length.notmet', colorCode]
+        }
+
+        if (colorCode.startsWith('#')) {
+            return ['storeConfigCommand.colourCode.format.startsWith.notmet', colorCode]
+        }
+
+        if (!isValidHexCode(colorCode)) {
+            return ['storeConfigCommand.colourCode.format.notmet', colorCode]
+        }
+    }
+
+    private boolean isValidHexCode(String s) {
+        return s.chars().allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
+    }
 }

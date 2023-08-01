@@ -56,7 +56,7 @@ class GroupControllerSpec extends Specification implements ControllerUnitTest<Gr
         groupLevel2.setId(250)
         groupLevel2.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings1 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings1 = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -71,7 +71,7 @@ class GroupControllerSpec extends Specification implements ControllerUnitTest<Gr
         testGroup1.addToStores(testStoreSettings1)
         testGroup1.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings2 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings2 = new Store(retailerId: 9,
                 storeId: 200,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -119,7 +119,7 @@ class GroupControllerSpec extends Specification implements ControllerUnitTest<Gr
         groupLevel.setId(150)
         groupLevel.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -155,7 +155,7 @@ class GroupControllerSpec extends Specification implements ControllerUnitTest<Gr
         groupLevel.setId(150)
         groupLevel.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 120,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -190,7 +190,7 @@ class GroupControllerSpec extends Specification implements ControllerUnitTest<Gr
         groupLevel.setId(150)
         groupLevel.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 120,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",

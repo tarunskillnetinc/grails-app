@@ -293,7 +293,7 @@ class ProductController extends BaseController {
         }
 
         productService.syncProductUpdatesToAllStoresForRetailer(productIds)
-        productService.sendProductPriceUpdate(productPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand))
+        productService.sendProductPriceUpdate(productPrices, Store.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, priceBand))
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -371,7 +371,7 @@ class ProductController extends BaseController {
                 allProducts.add(productService.getProduct(rangeProductCommand.productId))
             }
 
-            productService.sendProductUpdate(allProducts, StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
+            productService.sendProductUpdate(allProducts, Store.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
 
         render "OK"
@@ -517,12 +517,12 @@ class ProductController extends BaseController {
         if (!product.hasErrors()) {
             if (productService.isSingleStageSel() || !changeAffectsSel) {
                 if (springSecurityService.principal.storeId) {
-                    productService.sendProductUpdate([product], [StoreSettings.findById(springSecurityService.principal.storeId)])
+                    productService.sendProductUpdate([product], [Store.findById(springSecurityService.principal.storeId)])
                 } else {
                     def rangeProducts = RangeProduct.findAllByProductId(product.id)
 
                     rangeProducts?.each { rangeProduct ->
-                        productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range))
+                        productService.sendProductUpdate([product], Store.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, rangeProduct.range))
                     }
                 }
             }
@@ -1123,7 +1123,7 @@ class ProductController extends BaseController {
                     commonProductPrices.add(pp.getProductPrice())
                 }
 
-                productService.sendProductPriceUpdate(commonProductPrices, StoreSettings.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key))
+                productService.sendProductPriceUpdate(commonProductPrices, Store.findAllByRetailerIdAndPriceBandAndStoreIdIsNotNull(springSecurityService.principal.retailerId, it.key))
             }
         }
     }
@@ -1157,7 +1157,7 @@ class ProductController extends BaseController {
             RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
             productHistories.add(handleProductRangeHistory(rangeProduct, true))
             productService.saveRangeProduct(rangeProduct)
-            productService.sendProductUpdate([product], StoreSettings.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
+            productService.sendProductUpdate([product], Store.findAllByRetailerIdAndRangeAndStoreIdIsNotNull(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
 
         if (productHistories != null && productHistories.size() > 0){

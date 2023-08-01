@@ -7,12 +7,12 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 
 @Ignore
 class ReportingControllerSpecBase extends Specification {
-    StoreSettings getMockStoreSettings(int id, int retailerId, int storeNumber) {
+    Store getMockStoreSettings(int id, int retailerId, int storeNumber) {
         return getMockStoreSettings(id, retailerId, storeNumber, StoreType.STORE)
     }
 
-    StoreSettings getMockStoreSettings(int id, int retailerId, int storeNumber, StoreType type) {
-        StoreSettings storeSettings = new StoreSettings()
+    Store getMockStoreSettings(int id, int retailerId, int storeNumber, StoreType type) {
+        Store storeSettings = new Store()
 
         storeSettings.setId(id)
         storeSettings.setRetailerId(retailerId)

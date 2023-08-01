@@ -2,6 +2,7 @@ import grails.util.Environment
 import uk.co.wonderlane.wlpos.HardwareService
 import uk.co.wonderlane.wlpos.ImageService
 import uk.co.wonderlane.wlpos.RetailerService
+import uk.co.wonderlane.wlpos.StoreSettingsService
 import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
@@ -38,10 +39,12 @@ beans = {
     }
 
     userPasswordEncoderListener(UserPasswordEncoderListener)
-
     authenticationDetailsSource(WonderLaneAuthenticationDetailsSource)
-    storeNumberValidator(StoreNumberValidatorService)
     retailerProvider(RetailerService)
+
+    storeNumberValidator(StoreNumberValidatorService) {
+        storeSettingsService = ref('storeSettingsService')
+    }
 
     productService(ProductService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
@@ -143,6 +146,16 @@ beans = {
     }
 
     groupService(GroupService) {
+        springSecurityService = ref('springSecurityService')
+    }
+
+    storeSettingsService(StoreSettingsService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+
         springSecurityService = ref('springSecurityService')
     }
 

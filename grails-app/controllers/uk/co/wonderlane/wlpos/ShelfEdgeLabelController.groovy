@@ -2,7 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import grails.web.http.HttpHeaders
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.wlim.PrintProcess
@@ -44,7 +43,7 @@ class ShelfEdgeLabelController {
         LabelTemplate labelTemplate = shelfEdgeLabelService.getLabelTemplate(Integer.parseInt(params.labelTemplateId))
         PrintProcess printProcess = PrintProcess.valueOf(params.printProcess)
         PrintType printType = PrintType.valueOf(params.printType)
-        StoreSettings storeSettings = StoreSettings.findByIdAndRetailerId(springSecurityService.principal.storeId, springSecurityService.principal.retailerId)
+        Store storeSettings = Store.findByIdAndRetailerId(springSecurityService.principal.storeId, springSecurityService.principal.retailerId)
 
         def documentBytes = shelfEdgeLabelService.generatePdf(productList, labelTemplate, printProcess, printType, storeSettings)
 
@@ -69,7 +68,7 @@ class ShelfEdgeLabelController {
             return
         }
 
-        StoreSettings storeSettings = StoreSettings.findByIdAndRetailerId(springSecurityService.principal.storeId, springSecurityService.principal.retailerId)
+        Store storeSettings = Store.findByIdAndRetailerId(springSecurityService.principal.storeId, springSecurityService.principal.retailerId)
 
         def documentBytes = shelfEdgeLabelService.generatePdf(effectiveDate, labelTemplate, printProcess, printType, storeSettings)
 
