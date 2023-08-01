@@ -50,7 +50,7 @@ class PromotionService {
             eq("active", true)
             lte("startDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())
             or {
-                eq("endDate", null)
+                isNull("endDate")
                 gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1))
             }
         }
