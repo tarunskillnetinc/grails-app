@@ -1249,11 +1249,12 @@ class ProductController extends BaseController {
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        suppliers.removeAll { it.symbolGroup != null }
+        def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
-        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
+
+        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, defaultSuppliers: defaultSuppliers])
     }
 
     def ajaxLocations(LocationsCommand cmd) {
@@ -1286,9 +1287,10 @@ class ProductController extends BaseController {
             }
         })
         if (cmd.hasErrors) {
-            def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
-            suppliers.removeAll { Objects.nonNull(it.symbolGroup) }
-            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
+            def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
+
+            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, defaultSuppliers: defaultSuppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
         } else {
             render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
         }
