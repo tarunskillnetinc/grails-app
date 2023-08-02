@@ -1265,7 +1265,6 @@ class ProductController extends BaseController {
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        // TODO - THIS IS THE AREA with the issue of NISA packs supplier being invalid
         suppliers.removeAll { it.symbolGroup != null }
 
         render(template: "addPack", model: [variantIndex: variantIndex, productVariantId: productVariantId, packIndex: packIndex, suppliers: suppliers, statuses: PackStatus.values(), isNewPack: true])
@@ -1288,9 +1287,8 @@ class ProductController extends BaseController {
         })
         if (cmd.hasErrors) {
             def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
-            // TODO - THIS IS THE AREA with the issue of NISA packs supplier being invalid
             suppliers.removeAll { Objects.nonNull(it.symbolGroup) }
-            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
+            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
         } else {
             render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
         }
