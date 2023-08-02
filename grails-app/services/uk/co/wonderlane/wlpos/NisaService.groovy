@@ -39,7 +39,7 @@ class NisaService extends MySqlDal {
         String nisaXml = getNisaRequest(orderProductList);
         String responseBody = doRequest(nisaXml);
         NisaBrowserResponse response = saveResponseValues(connection, responseBody, orderProductList.getId())
-        return response.getUrlResponse()
+        return !Objects.equals(response.getUrlResponse(), null) ? response.getUrlResponse() : (String.valueOf(url).replace(orderApiUrl, ""))
     }
 
     private String getNisaRequest(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList) throws SQLException, MalformedURLException {

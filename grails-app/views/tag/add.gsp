@@ -77,7 +77,7 @@
                 </div>
 
                 <div class="row col-8 offset-2 mt-4 table-wl bottom-border">
-                    <div class="col-2 font-weight-bold">Product ID</div>
+                    <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col-3 font-weight-bold">SKU</div>
                     <div class="col font-weight-bold">Description</div>
                     <div class="col-1 font-weight-bold">&nbsp;</div>
