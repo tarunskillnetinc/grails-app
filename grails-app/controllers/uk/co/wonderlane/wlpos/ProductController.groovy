@@ -615,7 +615,6 @@ class ProductController extends BaseController {
                     newVariant.shelfCapacity = editedVariant.shelfCapacity
                     newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     newVariant.defaultSupplierId = editedVariant.defaultSupplierId
-
                     if (newVariant.getShelfCapacity() != null
                             && !(newVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
@@ -626,13 +625,12 @@ class ProductController extends BaseController {
                         product.errors.reject('productVariant.minimumDisplayQuantity.size.error', 'Minimum Display Quantity must be between 1 to 999.')
                     }
 
-                    productVariantList.add(newVariant)
-
-                    checkProductVariantForPackChanges(product, newVariant, editedVariant, now)
+                    checkProductVariantForPackChanges(product, newVariant, editedVariant, now, true)
                     checkProductVariantForLocationChanges(product, newVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
+                    productVariantList.add(newVariant)
                 } else {
-                    checkProductVariantForPackChanges(product, existingVariant, editedVariant, now)
+                    checkProductVariantForPackChanges(product, existingVariant, editedVariant, now, false)
                     checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                 }
@@ -775,8 +773,17 @@ class ProductController extends BaseController {
         }
     }
 
-    private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now) {
+    private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now, boolean newVariant) {
         if (product.hasErrors()) {
+            return
+        }
+
+        if (newVariant){
+            editedVariant.packs?.each { editedPac ->
+                Pack newPack = new Pack()
+                updatePack(newPack, editedPac, now)
+                existingVariant.addToPacks(newPack)
+            }
             return
         }
 
