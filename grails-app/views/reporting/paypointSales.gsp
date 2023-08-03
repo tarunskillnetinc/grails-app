@@ -109,7 +109,7 @@
                             <div class="form-group row">
                                 <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store Id</label>
                                 <div class="col-4">
-                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                    <g:select name="storeFilter" from="${stores}" optionValue="${{it.config.storeNumber}}"
                                               optionKey="id"
                                               noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
                                               class="form-control select-border"

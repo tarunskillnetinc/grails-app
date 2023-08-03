@@ -25,12 +25,20 @@ class StoreService extends MySqlDal {
         return Store.find("FROM Store s WHERE s.retailerId = :retailerId AND (JSON_EXTRACT(config, '\$.storeNumber') = :storeNumber OR (:storeNumber IS NULL AND JSON_TYPE(JSON_EXTRACT(config, '\$.storeNumber')) = 'NULL')) ORDER BY s.id DESC", [retailerId: retailerId, storeNumber: storeNumber])
     }
 
+    def getStores(int retailerId) {
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId])
+    }
+
     def getStoresByType(int retailerId, StoreType storeType) {
         return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') = :storeType ORDER BY s.id DESC", [retailerId: retailerId, storeType: storeType.name()])
     }
 
-    def getStores(int retailerId) {
-        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId])
+    def getStoresByRange(int retailerId, Range range) {
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.rangeId = :rangeId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId, rangeId: range.id])
+    }
+
+    def getStoresByPriceBand(int retailerId, PriceBand priceBand) {
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.priceBandId = :priceBandId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId, priceBandId: priceBand.id])
     }
 
     def saveStoreSettings(StoreCommand store, String configString) {

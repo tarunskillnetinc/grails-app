@@ -22,7 +22,7 @@
     <div class="align-items-center topbar d-flex">
         <div class="col-12 col-sm-2">
             <g:link elementId="wl-logo-link" uri="/">
-                <asset:image id="wl-logo-image" src="topbar_logo.svg" class="topbar-logo" />
+                <asset:image id="wl-logo-image" src="topbar_logo.png" class="topbar-logo" />
             </g:link>
         </div>
 
