@@ -27,7 +27,7 @@
             <label for="defaultSupplier" class="col-10 col-form-label text-right">Default Supplier</label>
 
             <div class="col-2 px-0">
-                <g:select name="defaultSupplier" from="${suppliers}"
+                <g:select name="defaultSupplier" from="${defaultSuppliers}"
                           noSelection="['': '']" value="${defaultSupplier}"
                           optionValue="name" optionKey="id"
                           class="form-control select-border"/>

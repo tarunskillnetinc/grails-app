@@ -615,7 +615,6 @@ class ProductController extends BaseController {
                     newVariant.shelfCapacity = editedVariant.shelfCapacity
                     newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     newVariant.defaultSupplierId = editedVariant.defaultSupplierId
-
                     if (newVariant.getShelfCapacity() != null
                             && !(newVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
@@ -626,13 +625,12 @@ class ProductController extends BaseController {
                         product.errors.reject('productVariant.minimumDisplayQuantity.size.error', 'Minimum Display Quantity must be between 1 to 999.')
                     }
 
-                    productVariantList.add(newVariant)
-
-                    checkProductVariantForPackChanges(product, newVariant, editedVariant, now)
+                    checkProductVariantForPackChanges(product, newVariant, editedVariant, now, true)
                     checkProductVariantForLocationChanges(product, newVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
+                    productVariantList.add(newVariant)
                 } else {
-                    checkProductVariantForPackChanges(product, existingVariant, editedVariant, now)
+                    checkProductVariantForPackChanges(product, existingVariant, editedVariant, now, false)
                     checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
                     checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                 }
@@ -775,8 +773,17 @@ class ProductController extends BaseController {
         }
     }
 
-    private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now) {
+    private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now, boolean newVariant) {
         if (product.hasErrors()) {
+            return
+        }
+
+        if (newVariant){
+            editedVariant.packs?.each { editedPac ->
+                Pack newPack = new Pack()
+                updatePack(newPack, editedPac, now)
+                existingVariant.addToPacks(newPack)
+            }
             return
         }
 
@@ -1249,11 +1256,12 @@ class ProductController extends BaseController {
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        suppliers.removeAll { it.symbolGroup != null }
+        def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
-        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier])
+
+        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, defaultSuppliers: defaultSuppliers])
     }
 
     def ajaxLocations(LocationsCommand cmd) {
@@ -1286,9 +1294,10 @@ class ProductController extends BaseController {
             }
         })
         if (cmd.hasErrors) {
-            def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
-            suppliers.removeAll { Objects.nonNull(it.symbolGroup) }
-            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
+            def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
+
+            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, defaultSuppliers: defaultSuppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
         } else {
             render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
         }
