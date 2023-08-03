@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Tag Management</title>
+        <title>Tag Management</title>
     </head>
 
     <body>

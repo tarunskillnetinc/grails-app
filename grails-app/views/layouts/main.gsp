@@ -7,7 +7,7 @@
     <meta name="format-detection" content="telephone=no">
 
     <title>
-        <g:layoutTitle default="WonderLane" />
+        <g:layoutTitle default="Trust Retail" />
     </title>
 
     <asset:link rel="icon" href="favicon.ico" type="image/x-ico" />

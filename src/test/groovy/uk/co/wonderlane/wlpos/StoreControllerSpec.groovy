@@ -202,7 +202,7 @@ class StoreControllerSpec extends Specification implements ControllerUnitTest<St
         SimpleGrantedAuthority simpleGrantedAuthority1 = new SimpleGrantedAuthority("ROLE_HEAD_OFFICE")
         Collection authorities = Arrays.asList(simpleGrantedAuthority1)
 
-        controller.storeSettingsService = Stub(StoreSettingsService){}
+        controller.storeService = Stub(StoreService){}
 
         controller.springSecurityService = Stub(SpringSecurityService) {
 

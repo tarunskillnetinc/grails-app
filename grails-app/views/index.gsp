@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="layout" content="main" />
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -26,7 +26,7 @@
     <section id="main-container" class="container-fluid">
         <div class="row">
             <div class="col-12 header-wl">
-                <h2 id="welcome-message-1">Welcome to WonderLane!</h2>
+                <h2 id="welcome-message-1">Welcome to Trust Retail!</h2>
             </div>
         </div>
 

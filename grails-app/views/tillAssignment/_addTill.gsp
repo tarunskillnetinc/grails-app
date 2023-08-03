@@ -56,9 +56,9 @@
             <div class="dropdown-content col-4">
                 <input type="text" class="form-control bottom-border" placeholder="Search for store.." id="storeIdInput" onkeyup="filter('storeIdInput','storeId')">
 
-                <g:select id="storeId" size="6" name="storeId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="storeName"
+                <g:select id="storeId" size="6" name="storeId" style="overflow-y: scroll; overflow-x: hidden;" from="${stores}" optionValue="${{it.config.storeName}}"
                     value="${till?.storeId}"
-                    optionKey="storeId"
+                    optionKey="${{it.config.storeNumber}}"
                     class="form-control select-border"
                     disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}" />
             </div>

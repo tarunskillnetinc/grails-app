@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="layout" content="main" />
-    <title>WonderLane Store Settings</title>
+    <title>Store Settings</title>
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
 </head>

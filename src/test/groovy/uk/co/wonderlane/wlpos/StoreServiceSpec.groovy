@@ -6,7 +6,7 @@ import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
-class StoreServiceSpec extends Specification implements ServiceUnitTest<StoreSettingsService>, DataTest{
+class StoreServiceSpec extends Specification implements ServiceUnitTest<StoreService>, DataTest{
 
     Class<?>[] getDomainClassesToMock(){
         return [Store, PriceBand, Range] as Class[]

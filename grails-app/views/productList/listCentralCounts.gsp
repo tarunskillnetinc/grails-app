@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Central Count Management</title>
+        <title>Central Count Management</title>
 
         <script type="text/javascript">
             $(document).ready(function () {

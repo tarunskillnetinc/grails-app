@@ -2,7 +2,7 @@ import grails.util.Environment
 import uk.co.wonderlane.wlpos.HardwareService
 import uk.co.wonderlane.wlpos.ImageService
 import uk.co.wonderlane.wlpos.RetailerService
-import uk.co.wonderlane.wlpos.StoreSettingsService
+import uk.co.wonderlane.wlpos.StoreService
 import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
@@ -43,7 +43,7 @@ beans = {
     retailerProvider(RetailerService)
 
     storeNumberValidator(StoreNumberValidatorService) {
-        storeSettingsService = ref('storeSettingsService')
+        storeService = ref('storeService')
     }
 
     productService(ProductService,
@@ -149,7 +149,7 @@ beans = {
         springSecurityService = ref('springSecurityService')
     }
 
-    storeSettingsService(StoreSettingsService,
+    storeService(StoreService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
                     grailsApplication.config.getProperty('mysql.wlpos.username'),

@@ -10,7 +10,7 @@ class StoreSettingsController {
 
     def springSecurityService
 
-    def storeSettingsService
+    def storeService
     def rabbitService
     def gsonProvider
 
@@ -24,9 +24,9 @@ class StoreSettingsController {
         def store
 
         if (springSecurityService.principal.storeId) {
-            store = storeSettingsService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         } else {
-            store = storeSettingsService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
+            store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
         }
 
         (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber)
@@ -45,9 +45,9 @@ class StoreSettingsController {
         def store
 
         if (springSecurityService.principal.storeId) {
-            store = storeSettingsService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
         } else {
-            store = storeSettingsService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
+            store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
         }
 
         def oldPriceBand = store?.priceBand?.id
@@ -60,13 +60,13 @@ class StoreSettingsController {
 
             bindData(storeConfig, storeCommand.config)
 
-            storeSettingsService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
+            storeService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(storeSettingsService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).getStore())
+                syncMessage.setStoreSettings(storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).getStore())
 
                 rabbitService.sendMessage(syncMessage)
             }
@@ -95,7 +95,7 @@ class StoreSettingsController {
         def availablePriceBands = PriceBand.findAllByRetailerId(retailerId)
         def availableProductRanges = Range.findAllByRetailerId(retailerId)
 
-        def allParentStores = storeSettingsService.getStoresByType(retailerId, StoreType.STORE)
+        def allParentStores = storeService.getStoresByType(retailerId, StoreType.STORE)
         allParentStores.removeAll { it.config.storeNumber == storeNumber }
 
         [availablePriceBands, availableProductRanges, availableParentStores]

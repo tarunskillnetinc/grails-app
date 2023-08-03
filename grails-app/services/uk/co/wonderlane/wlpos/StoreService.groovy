@@ -9,11 +9,11 @@ import java.sql.Connection
 import java.sql.Types
 
 @Transactional
-class StoreSettingsService extends MySqlDal {
+class StoreService extends MySqlDal {
 
     def springSecurityService
 
-    StoreSettingsService(DatabaseCredentials databaseCredentials) {
+    StoreService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
     }
 
@@ -26,7 +26,11 @@ class StoreSettingsService extends MySqlDal {
     }
 
     def getStoresByType(int retailerId, StoreType storeType) {
-        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.type') = :storeType ORDER BY s.id DESC", [retailerId: retailerId, storeType: storeType.name()])
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') = :storeType ORDER BY s.id DESC", [retailerId: retailerId, storeType: storeType.name()])
+    }
+
+    def getStores(int retailerId) {
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId])
     }
 
     def saveStoreSettings(StoreCommand store, String configString) {
