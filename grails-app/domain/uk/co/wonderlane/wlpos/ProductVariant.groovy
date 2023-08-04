@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.supplier.Pack
 class ProductVariant implements Serializable {
 
     def springSecurityService
+    def productService
 
     static belongsTo = [product: Product]
 
@@ -67,8 +68,8 @@ class ProductVariant implements Serializable {
         storeId nullable: true
         sku nullable: false, validator: {val, obj ->
             if (val > 0) {
-                def existingVariant = ProductVariant.findBySku(val)
-                return (existingVariant != null && obj.productId != existingVariant.productId) ? ["error.ProductVariant.duplicateSku"] : true
+                def existingVariants = obj.productService.getProductVariants([val]).find {obj.product.id != it.product.id}.collect()
+                return existingVariants.isEmpty() ? true : ['productVariant.sku.validator.error']
             } else {
                 return true
             }
