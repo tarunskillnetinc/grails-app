@@ -13,6 +13,12 @@
 
     <script type="text/javascript">
         let getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+        let categorySearchUrl = "${createLink(controller: 'category', action: 'ajaxSearchMaintenanceCategories')}";
+
+        $(document).ready(function () {
+            $(".mask-money").maskMoney({ allowZero: true });
+            $(".mask-money").maskMoney('mask');
+        });
 
         function onCategoryChanged(selectedCategoryId) {
             //call category map restrictions only when adding new product and restriction tab is not change by manually
@@ -25,6 +31,8 @@
                 },
                 success: function (resp) {
                     $("#categoryRestrictions").html(resp);
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
                 }
             });
         }

@@ -1184,35 +1184,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
-        def topLevelCategories = []
-        def productCategoryList = []
-
-        boolean isSearch = searchTerm?.length() > 0
-
-        // If no search term is provided then we should reset this back to default (i.e. just the top level departments).
-        if (isSearch) {
-            def categories = categoryService.searchCategories(searchTerm)
-
-            productCategoryList.addAll(categories?.collect { it.id })
-
-            categories?.each {
-                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
-            }
-        } else {
-            topLevelCategories = categoryService.getTopLevelCategories()
-        }
-
-        render(template: "categorySelectInputs", model: [categories: topLevelCategories.unique(), level: isSearch ? level : 1, productCategoryList: productCategoryList, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
-    }
-
-    private void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
-        if (category.parentCategory) {
-            productCategoryList.add(category.parentCategory.id)
-
-            addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory)
-        } else {
-            topCategories.add(category)
-        }
+        baseSearchCategories(searchTerm, triggerOnCategoryChange, level)
     }
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {
