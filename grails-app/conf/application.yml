@@ -10,7 +10,7 @@ grails:
             events: false
 info:
     app:
-        name: 'WonderLane EPOS Back Office'
+        name: 'Trust Retail Cloud Office'
         version: '@info.app.version@'
         grailsVersion: '@info.app.grailsVersion@'
 spring:

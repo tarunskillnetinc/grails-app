@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane User Groups</title>
+    <title>User Groups</title>
 
     <script type="text/javascript">
         function levelChanged() {

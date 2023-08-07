@@ -10,6 +10,7 @@ class ProductListController {
     def springSecurityService
     def productListService
     def productService
+    def storeService
     def availableStores
 
     def index() {
@@ -36,7 +37,7 @@ class ProductListController {
 
     def addCentralCount() {
         def retailerId = springSecurityService.principal.retailerId
-        availableStores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(retailerId)
+        availableStores = storeService.getStores(retailerId)
 
         [availableStores: availableStores]
     }
@@ -54,7 +55,7 @@ class ProductListController {
         def productListsToBeSaved = new ArrayList()
 
         for (int storeId : cmd.storeIdList) {
-            def storeSettings = StoreSettings.findByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeId)
+            def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
 
             def productList = new ProductList()
 

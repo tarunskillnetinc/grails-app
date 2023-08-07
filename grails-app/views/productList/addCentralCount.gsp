@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Central Count Management</title>
+        <title>Central Count Management</title>
     </head>
 
     <body>
@@ -78,8 +78,8 @@
                                           from="${availableStores}"
                                           multiple="true"
                                           value=""
-                                          optionValue="storeName"
-                                          optionKey="storeId"
+                                          optionValue="${{it.config.storeName}}"
+                                          optionKey="${{it.config.storeNumber}}"
                                           class="form-control col-8"
                                           style="height: 200px;"/>
                             </div>

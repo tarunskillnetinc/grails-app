@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Product Maintenance</title>
+        <title>Product Maintenance</title>
 
         <asset:javascript src="jquery-ui.js" />
         <asset:stylesheet src="jquery-ui.css" />

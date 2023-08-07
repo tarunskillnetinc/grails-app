@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane Button Grids</title>
+    <title>Button Grids</title>
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">

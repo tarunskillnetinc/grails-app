@@ -1,7 +1,7 @@
 package uk.co.wonderlane.wlpos.reporting
 
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.StoreSettings
+import uk.co.wonderlane.wlpos.Store
 
 class PayPointSale {
 
@@ -43,6 +43,6 @@ class PayPointSale {
     }
 
     Integer getVisibleStoreId() {
-        return StoreSettings.findById(storeId).storeId
+        return Store.findById(storeId).storeId
     }
 }

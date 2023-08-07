@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Promotion Maintenance</title>
+        <title>Promotion Maintenance</title>
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />

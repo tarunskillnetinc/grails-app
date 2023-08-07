@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane User Management</title>
+        <title>User Management</title>
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />

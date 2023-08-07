@@ -9,7 +9,7 @@ class ProductList {
     int id
     String userId
     int retailerId
-    StoreSettings store
+    Store store
     ProductListType type
     ProductListStatus status
     Integer parentId

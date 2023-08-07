@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane Category Maintenance</title>
+    <title>Category Maintenance</title>
 
     <asset:stylesheet href="radio.css" />
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />

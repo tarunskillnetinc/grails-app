@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Receipt Viewer</title>
+        <title>Receipt Viewer</title>
 
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />

@@ -12,7 +12,7 @@ import uk.co.wonderlane.wlpos.reporting.SortParams
 
 class ReportingControllerPromotionsSpec extends ReportingControllerSpecBase implements ControllerUnitTest<ReportingController>, DataTest {
     Class<?>[] getDomainClassesToMock() {
-        return [StoreSettings, PromotionSale, Sale, SaleCategory] as Class[]
+        return [Store, PromotionSale, Sale, SaleCategory] as Class[]
     }
 
     def setup() {
@@ -111,7 +111,7 @@ class ReportingControllerPromotionsSpec extends ReportingControllerSpecBase impl
         params['startDate'] = startDate
         params['endDate'] = endDate
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 

@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <script type='text/javascript'>
         var getQueuesUrl = "${createLink(controller: 'monitoring', action: 'ajaxGetQueues')}";

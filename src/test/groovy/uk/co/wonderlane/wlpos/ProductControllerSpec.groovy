@@ -27,7 +27,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
     DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
 
     Class<?>[] getDomainClassesToMock() {
-        [VatCode, Retailer, PriceBand, Range, Supplier, StoreSettings,
+        [VatCode, Retailer, PriceBand, Range, Supplier, Store,
          RangeProduct, Product, Barcode, ProductVariant, ProductPrice, ReportColumns] as Class<?>[]
     }
 

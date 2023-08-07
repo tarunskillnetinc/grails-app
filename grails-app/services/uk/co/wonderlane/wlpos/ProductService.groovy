@@ -568,17 +568,17 @@ class ProductService extends MySqlDal {
         reportColumns.save()
     }
 
-    def sendProductPriceUpdate(def prices, List<StoreSettings> stores) {
+    def sendProductPriceUpdate(def prices, List<Store> stores) {
         if (isSingleStageSel()) {
             sendProductPriceUpdateToRabbitMq(prices, stores)
         }
     }
 
-    def sendProductUpdate(List<Product> products, List<StoreSettings> stores) {
+    def sendProductUpdate(List<Product> products, List<Store> stores) {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
-        stores?.each { StoreSettings store ->
+        stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
                 uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.storeId)
@@ -597,7 +597,7 @@ class ProductService extends MySqlDal {
     }
 
     def isSingleStageSel() {
-        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.twoStageSel) {
+        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.config.twoStageSel) {
             return false
         }
         return true
@@ -605,15 +605,15 @@ class ProductService extends MySqlDal {
 
     def syncProductUpdatesToAllStoresForRetailer(List<Integer> productIds) {
         if (isSingleStageSel()) {
-            syncProductListUpdatesToStores(productIds, StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId))
+            syncProductListUpdatesToStores(productIds, Store.findAllByRetailerId(springSecurityService.principal.retailerId))
         }
     }
 
     def syncProductUpdatesToSingleStore(List<Integer> productIds, Integer storeId) {
-        syncProductListUpdatesToStores(productIds.unique(), [StoreSettings.findById(storeId)])
+        syncProductListUpdatesToStores(productIds.unique(), [Store.findById(storeId)])
     }
 
-    private void syncProductListUpdatesToStores(List<Integer> productIds, List<StoreSettings> stores) {
+    private void syncProductListUpdatesToStores(List<Integer> productIds, List<Store> stores) {
         def productIdsAsInt = productIds.findAll { it != null && it > 0 }.stream().map({ it.intValue() }).collect(Collectors.toSet())
         productIdsAsInt.removeAll(Collections.singleton(null))
         if (productIdsAsInt && productIdsAsInt?.size() > 0) {
@@ -621,11 +621,11 @@ class ProductService extends MySqlDal {
         }
     }
 
-    private void sendProductPriceUpdateToRabbitMq(def prices, List<StoreSettings> stores) {
+    private void sendProductPriceUpdateToRabbitMq(def prices, List<Store> stores) {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
-        stores?.each { StoreSettings store ->
+        stores?.each { Store store ->
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
             syncMessage.setInsert(true)
             syncMessage.setStoreId(store.storeId)

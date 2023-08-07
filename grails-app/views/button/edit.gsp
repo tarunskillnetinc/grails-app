@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane Button Grids</title>
+    <title>Button Grids</title>
 
     <asset:javascript src="button.js" />
     <script type="text/javascript">

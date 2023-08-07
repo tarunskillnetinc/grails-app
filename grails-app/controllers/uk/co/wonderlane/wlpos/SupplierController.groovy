@@ -47,7 +47,7 @@ class SupplierController {
     def ajaxGetSymbolGroupSubscriptions() {
         def symbolGroupSubscriptions = supplierService.getSymbolGroupSubscriptions()
         def symbolGroups = supplierService.getSymbolGroups()
-        if (!springSecurityService.principal.retailer.snappyShopperEnabled) {
+        if (!springSecurityService.principal.retailer.config.snappyShopperEnabled) {
             symbolGroupSubscriptions.removeAll { it.symbolGroup.id == 4 }
             symbolGroups.removeAll {it.symbolGroup.id == 4 }
         }
@@ -94,7 +94,7 @@ class SupplierController {
     def ajaxAddSymbolGroupSubscription() {
         def symbolGroups = supplierService.getSymbolGroups()
 
-        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.snappyShopperEnabled) {
+        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.config.snappyShopperEnabled) {
             symbolGroups.removeAll {it.id == 4 }
         }
 
@@ -110,7 +110,7 @@ class SupplierController {
 
         def symbolGroups = supplierService.getSymbolGroups()
 
-        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.snappyShopperEnabled) {
+        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.config.snappyShopperEnabled) {
             symbolGroups.removeAll { it.id == 4 }
         }
 
@@ -150,7 +150,7 @@ class SupplierController {
                                                                            symbolGroups           : symbolGroups])
                 break;
             case 4: // Snappy
-                if (springSecurityService.principal.retailer.snappyShopperEnabled) {
+                if (springSecurityService.principal.retailer.config.snappyShopperEnabled) {
                     render(template: "addSymbolGroupSubscriptionSnappy", model: [symbolGroupSubscription: symbolGroupSubscription,
                                                                                  symbolGroups           : symbolGroups])
                 }

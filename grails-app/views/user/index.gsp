@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane User Management</title>
+        <title>User Management</title>
 
         <script type="text/javascript">
             $(document).ready(function () {

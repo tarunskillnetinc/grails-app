@@ -17,7 +17,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
     def 'Should retrieve stores in group'() {
         given:
 
-        StoreSettings testStoreSettings1 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings1 = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -32,7 +32,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
         testGroup1.addToStores(testStoreSettings1)
         testGroup1.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings2 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings2 = new Store(retailerId: 9,
                 storeId: 200,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -62,7 +62,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
     def 'Should retrieve first store in group'() {
         given:
 
-        StoreSettings testStoreSettings1 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings1 = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -77,7 +77,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
         testGroup1.addToStores(testStoreSettings1)
         testGroup1.save(flush: true, failOnError: true)
 
-        StoreSettings testStoreSettings2 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings2 = new Store(retailerId: 9,
                 storeId: 200,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -106,7 +106,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
     def 'Should retrieve group by id'() {
         given:
 
-        StoreSettings testStoreSettings1 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings1 = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -136,7 +136,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
     def 'Should retrieve group by level'() {
         given:
 
-        StoreSettings testStoreSettings1 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings1 = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -171,7 +171,7 @@ class GroupServiceSpec extends Specification implements ServiceUnitTest<GroupSer
     def 'Should save group'() {
         given:
 
-        StoreSettings testStoreSettings1 = new StoreSettings(retailerId: 9,
+        Store testStoreSettings1 = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
