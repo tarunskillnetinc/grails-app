@@ -163,7 +163,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
-                            <g:link elementId="store-settings-dropdown" controller="storeSettings" class="dropdown-item">Store Settings</g:link>
+                            <g:link elementId="store-settings-dropdown" controller="store" class="dropdown-item">Store Settings</g:link>
                             <g:link elementId="user-groups-dropdown" controller="group" class="dropdown-item disabled">User Groups</g:link>
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">

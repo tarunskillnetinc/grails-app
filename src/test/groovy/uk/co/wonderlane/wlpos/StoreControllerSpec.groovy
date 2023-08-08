@@ -9,7 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
-class StoreControllerSpec extends Specification implements ControllerUnitTest<StoreSettingsController>, DataTest{
+class StoreControllerSpec extends Specification implements ControllerUnitTest<StoreController>, DataTest{
 
     Class<?>[] getDomainClassesToMock(){
         return [Store, PriceBand, Range] as Class[]

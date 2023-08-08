@@ -6,7 +6,7 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
-class StoreSettingsController {
+class StoreController {
 
     def springSecurityService
 
