@@ -14,8 +14,17 @@
     <asset:javascript src="moment-with-locales.min.js"/>
 
     <script type="application/javascript">
-        $(function() {
-            searchButtonClicked();
+        $(document).ready(function () {
+            $('#categorySearchTerm').on('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchButtonClicked();
+                }
+            });
+
+            let existingSearchTerm = $('#categorySearchTerm').val();
+            if (existingSearchTerm != null && existingSearchTerm !== "") {
+                searchButtonClicked();
+            }
         });
 
         function searchButtonClicked() {
