@@ -34,11 +34,11 @@ class StoreService extends MySqlDal {
     }
 
     def getStoresByRange(int retailerId, Range range) {
-        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.rangeId = :rangeId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId, rangeId: range.id])
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.range = :range AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId, range: range])
     }
 
     def getStoresByPriceBand(int retailerId, PriceBand priceBand) {
-        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.priceBandId = :priceBandId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId, priceBandId: priceBand.id])
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.priceBand = :priceBand AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId, priceBand: priceBand])
     }
 
     def saveStoreSettings(StoreCommand store, String configString) {

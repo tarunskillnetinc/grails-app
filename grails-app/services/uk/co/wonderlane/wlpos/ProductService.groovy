@@ -578,19 +578,20 @@ class ProductService extends MySqlDal {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
+
         stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.storeId)
-                if (checkProductHasPriceForStore(productEntity, store.storeId)) {
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.config.storeNumber)
+                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber)) {
                     productEntities.add(productEntity)
                 }
             })
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
             syncMessage.setInsert(true)
             syncMessage.setProducts(productEntities)
 
-            log.println("Syncing ${productEntities.size()} product updates to store ${store.storeId}")
+            log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
 
             rabbitService.sendMessage(syncMessage)
         }
@@ -626,12 +627,12 @@ class ProductService extends MySqlDal {
             throw new Exception("Rabbit MQ not available")
         }
         stores?.each { Store store ->
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
             syncMessage.setInsert(true)
-            syncMessage.setStoreId(store.storeId)
+            syncMessage.setStoreId(store.config.storeNumber)
             syncMessage.setProductPrices(prices)
 
-            log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
+            log.println("Syncing ${prices.size()} price updates to store ${store.config.storeNumber}")
 
             rabbitService.sendMessage(syncMessage)
         }
