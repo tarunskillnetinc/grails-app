@@ -20,24 +20,25 @@ class CategoryController extends BaseController {
     }
 
     class CategoryWithLevel {
-        Category category
-        int categoryLevel
+        Category category;
+        int categoryLevel;
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearchCategories() {
-        session.CATEGORY_SEARCH_TERM = params.searchTerm
+        session.CATEGORIES_SEARCH_TERM = params.searchTerm
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
         def categories = categoryService.searchCategoriesPaged(params.searchTerm,
                 params.max ? Integer.parseInt(params.max) : 50,
                 params.offset ? Integer.parseInt(params.offset) : 0,
                 "description",
-                "desc")
+                "asc")
 
         ArrayList<CategoryWithLevel> extendedCategories = new ArrayList<CategoryWithLevel>()
 
         categories.forEach {category ->
+
             var extendedCategory = new CategoryWithLevel()
             extendedCategory.category = category
             extendedCategory.categoryLevel = 0 // How many sub categories deep is this category?
@@ -51,25 +52,17 @@ class CategoryController extends BaseController {
                     break
                 }
             }
+
             extendedCategories.add(extendedCategory)
         }
 
-        extendedCategories.sort { it.categoryLevel }
-        def relationTree = new CategoryTree()
-        extendedCategories.forEach { relationTree.insert(it) }
-
-        render(template: "categorySearchResults", model: [categories    : relationTree.toList(),
+        render(template: "categorySearchResults", model: [categories    : extendedCategories,
                                                          storeId     : springSecurityService.principal.storeId,
                                                          userColumns : categoryService.getColumns(),
                                                          searchTerm  : params.searchTerm,
                                                          max         : params.max ?: 50,
                                                          offset      : params.offset,
                                                          totalResults: categoryService.countCategories(params.searchTerm)])
-    }
-
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxSearchMaintenanceCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
-        baseSearchCategories(searchTerm, triggerOnCategoryChange, level)
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -87,26 +80,13 @@ class CategoryController extends BaseController {
     def add() {
         def blankCategory = new Category()
         blankCategory.setRestrictions(new Restrictions())
-
-        // default values for new category:
-        blankCategory.restrictions.refundAllowed = true
-        blankCategory.restrictions.markdownAllowed = true
-        blankCategory.restrictions.discountAllowed = true
-        blankCategory.restrictions.creditPaymentAllowed = true
-        blankCategory.restrictions.quantityChangeAllowed = true
         render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: getTopLevelCategories()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def save() {
         def addingCategory = false
-        def category = null
-        def categoryId = tryParseInt(params.get("id").toString())
-
-        if (categoryId.isPresent()) {
-            category = categoryService.getCategory(categoryId.get())
-        }
-
+        def category = categoryService.getCategory(Integer.parseInt(params.get("id").toString()))
         if (category == null) {
             category = new Category()
             category.retailerId = springSecurityService.principal.retailerId
@@ -117,9 +97,9 @@ class CategoryController extends BaseController {
         bindData(category, params)
 
         //Check for a Parent Category being selected.
-        def parentId = tryParseInt(params.get("category.id"))
-        if (parentId.isPresent()) {
-            def parentCategorySearch = categoryService.getCategory(parentId.get())
+        def parentCategory = params.get("category.id")
+        if (parentCategory != null) {
+            def parentCategorySearch= categoryService.getCategory(Integer.parseInt(parentCategory))
             // Make sure we're not saving the same ID otherwise we'll spin forever
             if (parentCategorySearch != null) {
                 if (parentCategorySearch.id != category.id) {
@@ -127,8 +107,6 @@ class CategoryController extends BaseController {
                 } else {
                     category.errors.reject('category.parentCategory.notUnique', [category.parentCategory] as Object[], 'Categories cannot be their own parent, please select a new category or none.')
                 }
-            } else {
-                category.parentCategory = null
             }
         }
 
@@ -139,7 +117,6 @@ class CategoryController extends BaseController {
 
         if (!addingCategory) {
             def restriction = Restrictions.findById(category.restrictions.id)
-            nullOptionalAmountFields(restriction)
             categoryService.saveRestriction(restriction)
 
             if (restriction.hasErrors()) {
@@ -147,7 +124,6 @@ class CategoryController extends BaseController {
                 return
             }
         } else {
-            nullOptionalAmountFields(category.restrictions)
             categoryService.saveRestriction(category.restrictions)
 
             if (category.restrictions.hasErrors()) {
@@ -165,7 +141,7 @@ class CategoryController extends BaseController {
             flash.message = "Category saved successfully"
             redirect("controller": "category", action:"index")
         } else {
-            render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: getTopLevelCategories()])
+            redirect(controller: "category", action:"show", id: category.id)
         }
     }
 
@@ -235,71 +211,5 @@ class CategoryController extends BaseController {
         }
         syncMessage.setCategories(categoryList)
         rabbitService.sendMessage(syncMessage)
-    }
-
-    private static Optional<Integer> tryParseInt(String str) {
-        try {
-            return Optional.of(Integer.parseInt(str))
-        } catch (Exception ignored) {
-            return Optional.empty()
-        }
-    }
-
-    private static void nullOptionalAmountFields(Restrictions restrictions) {
-        if (restrictions.minOpenPrice == 0) {
-            restrictions.minOpenPrice = null
-        }
-        if (restrictions.maxOpenPrice == 0) {
-            restrictions.maxOpenPrice = null
-        }
-    }
-
-    private class CategoryTree {
-        HashMap<Integer, CategoryWithLevel> mapping
-        CategoryNode head;
-
-        CategoryTree() {
-            mapping = new HashMap<>()
-        }
-
-        private void insert(CategoryWithLevel cat) {
-            if (mapping.containsKey(cat.category.parentCategoryId)) {
-                def parent = mapping.get(cat.category.parentCategoryId)
-                def newNode = new CategoryNode(cat, null, parent.child)
-                parent.child = newNode
-                mapping.put(cat.category.id, newNode)
-                return
-            }
-            head = new CategoryNode(cat, null, head)
-            mapping.put(cat.category.id, head)
-        }
-
-        private ArrayList<CategoryWithLevel> toList() {
-            return head.toList();
-        }
-
-        private class CategoryNode {
-            CategoryWithLevel cat;
-            CategoryNode child;
-            CategoryNode next;
-
-            CategoryNode(CategoryWithLevel cat, CategoryNode child, CategoryNode next) {
-                this.cat = cat
-                this.child = child
-                this.next = next
-            }
-
-            private ArrayList<CategoryWithLevel> toList() {
-                ArrayList<CategoryWithLevel> result = new ArrayList<>()
-                result.add(cat)
-                if (child != null) {
-                    result.addAll(child.toList())
-                }
-                if (next != null) {
-                    result.addAll(next.toList())
-                }
-                return result
-            }
-        }
     }
 }

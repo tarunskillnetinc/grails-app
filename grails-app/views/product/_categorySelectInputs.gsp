@@ -19,7 +19,7 @@
 
         <div id="categoryContainer-${category.id}">
             <g:if test="${category.childCategories && productCategoryList?.contains(category.id)}">
-                <g:render template="/product/categorySelectInputs" model="[categories: category.childCategories, productCategoryList: productCategoryList, selectedCategoryId: selectedCategoryId, level: level + 1, triggerOnCategoryChange: triggerOnCategoryChange]" />
+                <g:render template="categorySelectInputs" model="[categories: category.childCategories, productCategoryList: productCategoryList, selectedCategoryId: selectedCategoryId, level: level + 1, triggerOnCategoryChange: triggerOnCategoryChange]" />
             </g:if>
         </div>
     </g:if>

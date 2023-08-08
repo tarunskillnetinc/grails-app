@@ -29,8 +29,6 @@ class Category {
     }
 
     static constraints = {
-        description nullable: false, blank: false
-        shortDescription nullable: true, blank: true
         retailerCategoryCode nullable: true
         parentCategory nullable: true
     }

@@ -49,31 +49,4 @@ abstract class BaseController {
             render(status: 500, text: "An error occurred saving your report column preferences.")
         }
     }
-
-    protected void baseSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
-        def topLevelCategories = []
-        def productCategoryList = []
-        boolean isSearch = searchTerm?.length() > 0
-
-        // If no search term is provided then we should reset this back to default (i.e. just the top level departments).
-        if (isSearch) {
-            def categories = categoryService.searchCategories(searchTerm)
-            productCategoryList.addAll(categories?.collect { it.id })
-            categories?.each {
-                addCategoriesHierarchy(topLevelCategories, productCategoryList, it)
-            }
-        } else {
-            topLevelCategories = categoryService.getTopLevelCategories()
-        }
-        render(template: "/product/categorySelectInputs", model: [categories: topLevelCategories.unique(), level: isSearch ? level : 1, productCategoryList: productCategoryList, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
-    }
-
-    protected void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
-        if (category.parentCategory) {
-            productCategoryList.add(category.parentCategory.id)
-            addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory)
-        } else {
-            topCategories.add(category)
-        }
-    }
 }
