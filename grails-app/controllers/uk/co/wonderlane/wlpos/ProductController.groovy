@@ -1258,16 +1258,18 @@ class ProductController extends BaseController {
     }
 
     def ajaxSavePack(SuppliersCommand cmd) {
-        cmd.getPacks().forEach({ pack ->
-            // We dont want to save NISA packs
-            if (pack.supplier.symbolGroupId == null){
-                if (!pack.validate()) {
-                    if (!cmd.hasErrors)
-                        cmd.hasErrors = Boolean.TRUE
-                    pack.isNewPack = Boolean.TRUE
+        if (cmd.getPacks()) {
+            cmd.getPacks().forEach({ pack ->
+                // We dont want to save NISA packs
+                if (pack.supplier.symbolGroupId == null) {
+                    if (!pack.validate()) {
+                        if (!cmd.hasErrors)
+                            cmd.hasErrors = Boolean.TRUE
+                        pack.isNewPack = Boolean.TRUE
+                    }
                 }
-            }
-        })
+            })
+        }
         if (cmd.hasErrors) {
             def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
             def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
