@@ -20,49 +20,38 @@ class CategoryController extends BaseController {
     }
 
     class CategoryWithLevel {
-        Category category;
-        int categoryLevel;
+        Category category
+        int categoryLevel
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearchCategories() {
-        session.CATEGORIES_SEARCH_TERM = params.searchTerm
+        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        int max = params.max ? Integer.parseInt(params.max) : 50
+        String searchTerm = params.searchTerm
+
+        session.CATEGORY_SEARCH_TERM = searchTerm
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def categories = categoryService.searchCategoriesPaged(params.searchTerm,
-                params.max ? Integer.parseInt(params.max) : 50,
-                params.offset ? Integer.parseInt(params.offset) : 0,
-                "description",
-                "asc")
+        def searchResults = baseSearchCategories(searchTerm)
+        def topLevelCats = searchResults.getaValue().drop(offset).take(max)
+        def matchingCats = searchResults.getbValue()
 
-        ArrayList<CategoryWithLevel> extendedCategories = new ArrayList<CategoryWithLevel>()
+        render(template: "categorySearchResults", model: [topLevelCategories : topLevelCats.unique(),
+                                                          matchedCategories: searchTerm.isEmpty() ? null : matchingCats,
+                                                          storeId     : springSecurityService.principal.storeId,
+                                                          userColumns : categoryService.getColumns(),
+                                                          searchTerm  : searchTerm,
+                                                          max         : max,
+                                                          offset      : offset,
+                                                          totalResults: searchResults.getaValue().size()])
+    }
 
-        categories.forEach {category ->
-
-            var extendedCategory = new CategoryWithLevel()
-            extendedCategory.category = category
-            extendedCategory.categoryLevel = 0 // How many sub categories deep is this category?
-
-            var currentCategory = category
-            while (currentCategory.parentCategory != null) {
-                currentCategory = categoryService.getCategory(currentCategory.parentCategory.id)
-                if (currentCategory != null) {
-                    extendedCategory.categoryLevel++
-                } else {
-                    break
-                }
-            }
-
-            extendedCategories.add(extendedCategory)
-        }
-
-        render(template: "categorySearchResults", model: [categories    : extendedCategories,
-                                                         storeId     : springSecurityService.principal.storeId,
-                                                         userColumns : categoryService.getColumns(),
-                                                         searchTerm  : params.searchTerm,
-                                                         max         : params.max ?: 50,
-                                                         offset      : params.offset,
-                                                         totalResults: categoryService.countCategories(params.searchTerm)])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSearchMaintenanceCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
+        def searchResults = baseSearchCategories(searchTerm)
+        boolean isSearch = searchTerm?.length() > 0
+        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -80,13 +69,26 @@ class CategoryController extends BaseController {
     def add() {
         def blankCategory = new Category()
         blankCategory.setRestrictions(new Restrictions())
+
+        // default values for new category:
+        blankCategory.restrictions.refundAllowed = true
+        blankCategory.restrictions.markdownAllowed = true
+        blankCategory.restrictions.discountAllowed = true
+        blankCategory.restrictions.creditPaymentAllowed = true
+        blankCategory.restrictions.quantityChangeAllowed = true
         render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: getTopLevelCategories()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def save() {
         def addingCategory = false
-        def category = categoryService.getCategory(Integer.parseInt(params.get("id").toString()))
+        def category = null
+        def categoryId = tryParseInt(params.get("id").toString())
+
+        if (categoryId.isPresent()) {
+            category = categoryService.getCategory(categoryId.get())
+        }
+
         if (category == null) {
             category = new Category()
             category.retailerId = springSecurityService.principal.retailerId
@@ -97,9 +99,9 @@ class CategoryController extends BaseController {
         bindData(category, params)
 
         //Check for a Parent Category being selected.
-        def parentCategory = params.get("category.id")
-        if (parentCategory != null) {
-            def parentCategorySearch= categoryService.getCategory(Integer.parseInt(parentCategory))
+        def parentId = tryParseInt(params.get("category.id"))
+        if (parentId.isPresent()) {
+            def parentCategorySearch = categoryService.getCategory(parentId.get())
             // Make sure we're not saving the same ID otherwise we'll spin forever
             if (parentCategorySearch != null) {
                 if (parentCategorySearch.id != category.id) {
@@ -107,6 +109,8 @@ class CategoryController extends BaseController {
                 } else {
                     category.errors.reject('category.parentCategory.notUnique', [category.parentCategory] as Object[], 'Categories cannot be their own parent, please select a new category or none.')
                 }
+            } else {
+                category.parentCategory = null
             }
         }
 
@@ -117,6 +121,7 @@ class CategoryController extends BaseController {
 
         if (!addingCategory) {
             def restriction = Restrictions.findById(category.restrictions.id)
+            nullOptionalAmountFields(restriction)
             categoryService.saveRestriction(restriction)
 
             if (restriction.hasErrors()) {
@@ -124,6 +129,7 @@ class CategoryController extends BaseController {
                 return
             }
         } else {
+            nullOptionalAmountFields(category.restrictions)
             categoryService.saveRestriction(category.restrictions)
 
             if (category.restrictions.hasErrors()) {
@@ -141,7 +147,7 @@ class CategoryController extends BaseController {
             flash.message = "Category saved successfully"
             redirect("controller": "category", action:"index")
         } else {
-            redirect(controller: "category", action:"show", id: category.id)
+            render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: getTopLevelCategories()])
         }
     }
 
@@ -179,7 +185,7 @@ class CategoryController extends BaseController {
     private List<Category> getTopLevelCategories() {
         def topLevelCategories = categoryService.getTopLevelCategories()
         topLevelCategories.add(0, new Category(description: "NONE"))
-        return topLevelCategories;
+        return topLevelCategories
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -211,5 +217,22 @@ class CategoryController extends BaseController {
         }
         syncMessage.setCategories(categoryList)
         rabbitService.sendMessage(syncMessage)
+    }
+
+    private static Optional<Integer> tryParseInt(String str) {
+        try {
+            return Optional.of(Integer.parseInt(str))
+        } catch (Exception ignored) {
+            return Optional.empty()
+        }
+    }
+
+    private static void nullOptionalAmountFields(Restrictions restrictions) {
+        if (restrictions.minOpenPrice == 0) {
+            restrictions.minOpenPrice = null
+        }
+        if (restrictions.maxOpenPrice == 0) {
+            restrictions.maxOpenPrice = null
+        }
     }
 }

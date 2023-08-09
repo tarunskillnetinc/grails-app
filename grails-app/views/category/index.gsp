@@ -14,8 +14,17 @@
     <asset:javascript src="moment-with-locales.min.js"/>
 
     <script type="application/javascript">
-        $(function() {
-            searchButtonClicked();
+        $(document).ready(function () {
+            $('#categorySearchTerm').on('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchButtonClicked();
+                }
+            });
+
+            let existingSearchTerm = $('#categorySearchTerm').val();
+            if (existingSearchTerm != null && existingSearchTerm !== "") {
+                searchButtonClicked();
+            }
         });
 
         function searchButtonClicked() {
@@ -142,10 +151,6 @@
                     </div>
                     <div class="card-body collapse" id="columnsCollapse">
                         <g:form name="reportColumnsForm" id="reportColumnsForm">
-                            <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsParentCategory" class="form-check-input" value="parentCategory" checked="${!userColumns || userColumns?.columns?.find { it.column == 'parentCategory' }?.enabled}" />
-                                <label class="form-check-label" for="columnsParentCategory">Parent Category</label>
-                            </div>
                             <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsDescription" class="form-check-input" value="description" checked="${!userColumns || userColumns?.columns?.find { it.column == 'description' }?.enabled}" />
                                 <label class="form-check-label" for="columnsDescription">Description</label>
