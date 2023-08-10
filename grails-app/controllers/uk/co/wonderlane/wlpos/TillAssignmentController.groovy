@@ -70,7 +70,7 @@ class TillAssignmentController {
     def ajaxDeleteTill(int storeId, int tillId, String serialNumber) {
         try {
             tillAssignmentService.deleteEntryForStoreIdAndTillId(storeId, tillId)
-            tillAssignmentService.updateTillStock(serialNumber)
+            tillAssignmentService.updateTillStockBySerial(serialNumber)
             render status: 200, text: "Till " + tillId + "has been deleted from Store"
         } catch (Exception e) {
             e.printStackTrace()
@@ -115,7 +115,7 @@ class TillAssignmentController {
             return
         }
 
-        tillAssignmentService.updateTillStock(tillConfiguration.serialNumber)
+        tillAssignmentService.updateTillStockBySerial(tillConfiguration.serialNumber)
 
         tillConfiguration.serialNumber = null
         tillAssignmentService.saveTill(tillConfiguration)
@@ -128,7 +128,10 @@ class TillAssignmentController {
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
         if (!params.containsKey("storeId")) {
             if (configuration != null) {
-                serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
+                def serial = TillStock.findBySerialNumber(configuration.serialNumber)
+                if (serial != null) {
+                    serialNumbers.add(serial)
+                }
                 render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
             } else {
                 render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
@@ -182,7 +185,7 @@ class TillAssignmentController {
 
                     // If the serial number has changed, update Till Stock to reflect the Serial Number becoming free
                     if (configuration.serialNumber != params.get("serialNumber").toString()) {
-                        tillAssignmentService.updateTillStock(configuration.serialNumber)
+                        tillAssignmentService.updateTillStockBySerial(configuration.serialNumber)
                     }
                 }
                 existingConfig.dateTimeUpdated = DateTime.now()
