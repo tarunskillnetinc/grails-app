@@ -260,10 +260,12 @@ environments:
             customerDisplayImageDirectory: "C:\\WLPOS Files\\Customer Display Images"
             receiptImageDirectory: "C:\\WLPOS Files\\Receipt Images"
             buttonImageDirectory: "C:\\WLPOS Files\\Button Images"
+            brandAssetsDirectory: "C:\\WLPOS Files\\Retailer Images"
 
             customerDisplayImageBucket: "retail-platform-customer-display-images-test"
             receiptImageBucket: "retail-platform-receipt-images-test"
             buttonImageBucket: "retail-platform-button-images-test"
+            brandAssetsBucket: "retail-platform-brand-assets-test"
 
     nottest:
         dataSource:
@@ -418,6 +420,7 @@ environments:
             customerDisplayImageBucket: "retail-platform-customer-display-images-test"
             receiptImageBucket: "retail-platform-receipt-images-test"
             buttonImageBucket: "retail-platform-button-images-test"
+            brandAssetsBucket: "retail-platform-brand-assets-test"
 
         server:
             port: 5000
