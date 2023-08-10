@@ -53,13 +53,15 @@ class TillAssignmentService {
         newTill.save()
     }
 
-    def updateTillStock(String serialNumber) {
+    def updateTillStockBySerial(String serialNumber) {
         // Update this serial number in Till Stock to remove the Store ID + Till ID for reallocation
         def tillStockEntry = TillStock.findBySerialNumber(serialNumber)
-        tillStockEntry.storeId = null
-        tillStockEntry.tillId = null
-        tillStockEntry.dateUpdated = DateTime.now()
-        tillStockEntry.save(flush: true)
+        if (tillStockEntry != null) {
+            tillStockEntry.storeId = null
+            tillStockEntry.tillId = null
+            tillStockEntry.dateUpdated = DateTime.now()
+            tillStockEntry.save(flush: true)
+        }
     }
 
     def updateTillStock(TillConfiguration newTill) {
