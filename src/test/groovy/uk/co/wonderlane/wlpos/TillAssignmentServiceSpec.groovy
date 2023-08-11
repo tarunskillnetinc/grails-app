@@ -216,7 +216,7 @@ class TillAssignmentServiceSpec extends Specification implements ServiceUnitTest
 
         when: 'Till Stock is updated removing the Store ID + Till Id for the specific serial'
         tillAssignmentService.saveTill(tillConfiguration)
-        tillAssignmentService.updateTillStock(tillAssignmentService.springSecurityService.principal.serialNumber)
+        tillAssignmentService.updateTillStockBySerial(tillAssignmentService.springSecurityService.principal.serialNumber)
 
         then: 'Check that the stock has been updated correctly'
         def tillStockEntry = TillStock.findBySerialNumber(tillAssignmentService.springSecurityService.principal.serialNumber)

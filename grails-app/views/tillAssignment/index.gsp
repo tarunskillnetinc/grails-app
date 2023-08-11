@@ -133,6 +133,7 @@
         function saveTill() {
             var formValues = $("#addTillForm").serialize();
             $("#addTillContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>")
+            hideBtns();
             $.ajax({
                 url: saveTillUrl,
                 method: "POST",
@@ -142,6 +143,7 @@
                         $('#addTillModal').modal('hide')
                         getTills();
                     } else {
+                        showBtns();
                         $("#addTillContent").html(resp);
                     }
                 }
@@ -151,6 +153,7 @@
         function saveAdvancedConfiguration() {
             var formValues = $("#advancedConfigForm").serialize();
             $("#advancedTillContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>")
+            hideBtns();
             $.ajax({
                 url: saveAdvancedConfigurationUrl,
                 method: "POST",
@@ -160,6 +163,7 @@
                         $('#advancedTillModal').modal('hide')
                         getTills();
                     } else {
+                        showBtns();
                         $("#advancedTillContent").html(resp);
                     }
                 }
@@ -236,6 +240,14 @@
                     }
                 });
             }
+        }
+
+        function showBtns() {
+            $('.modal-footer').show()
+        }
+
+        function hideBtns() {
+            $('.modal-footer').hide()
         }
 
     </script>
