@@ -840,3 +840,4 @@ wlpos:
     nisaServiceQueue: "NisaService"
     receiptServiceQueue: "ReceiptService"
     rawTransactionWriterQueue: "RawTransactionWriter"
+    snappyServiceQueue: "SnappyService"

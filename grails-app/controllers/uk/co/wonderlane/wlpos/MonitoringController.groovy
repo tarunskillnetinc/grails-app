@@ -60,7 +60,8 @@ class MonitoringController {
                                                           grailsApplication.config.getProperty('wlpos.stockProcessorQueue'),
                                                           grailsApplication.config.getProperty('wlpos.nisaServiceQueue'),
                                                           grailsApplication.config.getProperty('wlpos.receiptServiceQueue'),
-                                                          grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue'))
+                                                          grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.snappyServiceQueue'))
 
         render (template: "transactionServiceStatus", model: [transactionProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.transactionProcessorQueue') },
                                                               dataSyncServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.dataSyncServiceQueue') },
@@ -70,7 +71,8 @@ class MonitoringController {
                                                               stockProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.stockProcessorQueue') },
                                                               nisaServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.nisaServiceQueue') },
                                                               receiptServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.receiptServiceQueue') },
-                                                              rawTransactionWriterQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue') }])
+                                                              rawTransactionWriterQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue') },
+                                                              snappyServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.snappyServiceQueue') }])
     }
 
     def ajaxPurgeQueue(int storeId, int tillId) {

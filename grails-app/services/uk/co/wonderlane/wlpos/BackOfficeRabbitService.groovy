@@ -26,8 +26,7 @@ class BackOfficeRabbitService extends RabbitService {
     private String apiUrl
     private String apiAuthorization
 
-    def dateTimeFormatUnix = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    def dateTimeFormatWindows = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    def rabbitMqDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
     BackOfficeRabbitService(String host, int port, String apiProtocol, int apiPort, String username, String password, boolean useSsl) {
         super(host, port, username, password, useSsl, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
@@ -45,21 +44,12 @@ class BackOfficeRabbitService extends RabbitService {
                 .registerTypeAdapter(DateTime.class, new JsonDeserializer<DateTime>() {
                     @Override
                     DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return new DateTime(getDateFormat().parse(json.getAsString()).getTime())
+                        return new DateTime(rabbitMqDateFormat.parse(json.getAsString()).getTime())
                     }
                 })
                 .create()
 
         init()
-    }
-
-    private SimpleDateFormat getDateFormat() {
-        String osName = System.getProperty("os.name")
-        if (osName != null && osName.contains("Windows")) {
-            return dateTimeFormatWindows
-        } else {
-            return dateTimeFormatUnix
-        }
     }
 
     private void initVirtualHost(String virtualHost) {
