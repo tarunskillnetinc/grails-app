@@ -281,14 +281,23 @@
                 var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
+                var barcodeValues = []; // To store the barcode values for validation
+                var error = false;
 
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
+                    var barcode = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
 
-                    params["barcodez[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
-                    params["barcodez[" +loopIndex +"].barcode"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val();
-                    params["barcodez[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
-                    params["barcodez[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                    if(barcodeValues.includes(barcode)){
+                        $("#addVariantContent").prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
+                        error = true
+                    } else {
+                        params["barcodez[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
+                        params["barcodez[" +loopIndex +"].barcode"] = barcode;
+                        params["barcodez[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
+                        params["barcodez[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                        barcodeValues.push(barcode)
+                    }
                 });
 
                 // Need to add all of the pack data for this variant to the save call otherwise we lose the packs from the screen when re-rendering the variant row.
@@ -333,7 +342,8 @@
                     params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
-                $.ajax({
+                if(!error){
+                    $.ajax({
                     url: saveVariantUrl,
                     method: "POST",
                     data: params,
@@ -349,10 +359,12 @@
                         variantContainer.html(resp);
 
                         skuChanged(index, sku);
+                        $('#addVariantModal').modal("hide");
                     }
-                });
+                });}
 
-                $('#addVariantModal').modal("hide");
+
+
             }
 
             function saveTempLocations(index) {
