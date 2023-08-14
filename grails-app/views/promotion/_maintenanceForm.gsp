@@ -59,7 +59,10 @@
                     <div class="form-group row col-12 col-sm-6" id="bogof-endDate-container">
                         <label for="bogof-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="bogof-endDatepicker">
-                            <g:textField name="bogof-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="bogof-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
+                                         value="${promotion ?
+                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
+                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -194,7 +197,10 @@
                     <div class="form-group row col-12 col-sm-6" id="xfory-endDate-container">
                         <label for="xfory-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="xfory-endDatepicker">
-                            <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
+                                         value="${promotion ?
+                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
+                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -383,7 +389,10 @@
                     <div class="form-group row col-12 col-sm-6" id="percentage-endDate-container">
                         <label for="percentage-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="percentage-endDatepicker">
-                            <g:textField name="percentage-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="percentage-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
+                                         value="${promotion ?
+                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
+                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -525,7 +534,10 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="fixedAmount-endDatepicker">
-                            <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
+                                         value="${promotion ?
+                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
+                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -675,7 +687,10 @@
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-endDate" class="col-3 col-form-label text-right pr-4">End Date</label>
                         <div class="input-group date endDate col-7 mb-auto" id="fixedPrice-endDatepicker">
-                            <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}" value="${promotion ? promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : promotion.startDate.plus(7).toString("EEEE dd MMMM yyyy") : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                            <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
+                                         value="${promotion ?
+                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
+                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
