@@ -43,6 +43,11 @@
                     $('.wl-noExpire').prop("checked", this.checked);
                     $('.promo-endDate').prop('disabled', this.checked);
                     $('.input-group.date.startDate').datepicker('setEndDate', (this.checked ? "" : $('.promo-endDate').val()));
+
+                    if(this.checked) {
+                        $('.promo-endDate').val('');
+                    }
+
                     if (!this.checked) {
                         $('.promo-endDate').val(moment($('.promo-startDate').val(), "dddd DD MMMM YYYY").add(7, 'days').format("dddd DD MMMM YYYY"));
                     }
@@ -534,7 +539,8 @@
                     $('#' + promoType + '-startDate').addClass("is-invalid");
                 }
 
-                if (!moment($('#' + promoType + '-endDate').val(), "dddd DD MMMM YYYY", true).isValid()) {
+                if (!moment($('#' + promoType + '-endDate').val(), "dddd DD MMMM YYYY", true).isValid() &&
+                        !document.getElementById(promoType + '-doesNotExpire').checked) {
                     error = true;
                     errorString = errorString.concat("\n<li>End date invalid</li>");
                     $('#' + promoType + '-endDate').addClass("is-invalid");
