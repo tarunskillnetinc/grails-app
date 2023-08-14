@@ -331,14 +331,8 @@
     </section>
 
     <section id="tills-container" class="container-fluid mb-3">
-        <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-            <div class="col-1 font-weight-bold text-center">Store ID</div>
-            <div class="col-1 font-weight-bold text-center">Till ID</div>
-            <div class="col-2 font-weight-bold text-center">Serial Number</div>
-        </div>
-
         <div id="results-container">
-
+            <g:render template="tillSearchResults"/>
         </div>
     </section>
 

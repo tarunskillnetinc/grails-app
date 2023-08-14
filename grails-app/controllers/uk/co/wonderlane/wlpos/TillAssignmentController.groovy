@@ -32,6 +32,8 @@ class TillAssignmentController {
         Integer storeIdValue = params.storeIdFilter ? Integer.parseInt(params.storeIdFilter) : null
         Integer tillIdValue = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
         String serialNumberValue = params.serialNumberFilter ? String.valueOf(params.serialNumberFilter) : null
+        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+        int max = params.max ? Integer.parseInt(params.max) : 50
 
         /* There's several different combinations of filters we can have:
         1. Store ID + Till ID + Serial Number
@@ -63,7 +65,10 @@ class TillAssignmentController {
             tills = tillAssignmentService.getTills()
         }
 
-        render (template: "tills", model: [tillList: tills])
+        def totalResults = tills.size()
+        tills = tills.drop(offset).take(max);
+
+        render (template: "tillSearchResults", model: [tillList: tills, offset: offset, max: max, totalResults: totalResults])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
