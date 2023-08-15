@@ -55,20 +55,20 @@ class ButtonController {
 
         bindData(button, params)
 
-        if (button.validate()) {
+        if (button?.validate()) {
             // If the user is editing a buttongrid while logged in as a store user then we need to make sure we create
             // a new button grid for store level if one does not already exist (complete with new buttons)
-            if (button.buttonGrid.storeId == null && !isHeadOffice) {
+            if (button.buttonGrid?.storeId == null && !isHeadOffice) {
                 button = copyButtonGrid(button, existingButton)
             }
 
-            boolean buttonGridExists     = button.buttonGrid.getButtonGrid()
+            boolean buttonGridExists     = button.buttonGrid?.getButtonGrid()
             boolean singularButtonUpdate = buttonGridExists && isHeadOffice
 
             if (singularButtonUpdate) {
                 buttonService.saveButton(button)
             } else {
-                button.buttonGrid.addToButtons(button)
+                button.buttonGrid?.addToButtons(button)
                 buttonService.saveButtonGrid(button.buttonGrid)
             }
 
@@ -102,7 +102,7 @@ class ButtonController {
                 if (singularButtonUpdate) {
                     buildAndSendButtonImageMessage(button)
                 }
-                button.buttonGrid.buttons.forEach({iteratedButton ->
+                button.buttonGrid.buttons?.forEach({iteratedButton ->
                     buildAndSendButtonImageMessage(iteratedButton)
                 })
 
