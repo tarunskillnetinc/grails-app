@@ -40,6 +40,8 @@ class ButtonController {
     }
 
     def save() {
+        boolean isHeadOffice = springSecurityService.principal.storeId == null
+
         def button
         def existingButton = true
 
@@ -53,21 +55,32 @@ class ButtonController {
 
         bindData(button, params)
 
-        if (button.validate()) {
+        if (button?.validate()) {
             // If the user is editing a buttongrid while logged in as a store user then we need to make sure we create
             // a new button grid for store level if one does not already exist (complete with new buttons)
-            if (button.buttonGrid.storeId == null && springSecurityService.principal.storeId != null) {
+            if (button.buttonGrid?.storeId == null && !isHeadOffice) {
                 button = copyButtonGrid(button, existingButton)
             }
 
-            button.buttonGrid.addToButtons(button)
-            buttonService.saveButtonGrid(button.buttonGrid)
+            boolean buttonGridExists     = button.buttonGrid?.getButtonGrid()
+            boolean singularButtonUpdate = buttonGridExists && isHeadOffice
+
+            if (singularButtonUpdate) {
+                buttonService.saveButton(button)
+            } else {
+                button.buttonGrid?.addToButtons(button)
+                buttonService.saveButtonGrid(button.buttonGrid)
+            }
 
             if (params.removeImage) {
                 imageService.deleteButtonImage(button.id)
                 button.imageDisplay = false
                 button.textDisplay = true
-                buttonService.saveButtonGrid(button.buttonGrid)
+                if (singularButtonUpdate) {
+                    buttonService.saveButton(button)
+                } else {
+                    buttonService.saveButtonGrid(button.buttonGrid)
+                }
             } else {
                 if (params.image) {
                     byte[] image = params.image.bytes
@@ -76,32 +89,32 @@ class ButtonController {
                         imageService.saveButtonImage(button.id, image)
 
                         button.imageDisplay = true
-                        buttonService.saveButtonGrid(button.buttonGrid)
+                        if (singularButtonUpdate) {
+                            buttonService.saveButton(button)
+                        } else {
+                            buttonService.saveButtonGrid(button.buttonGrid)
+                        }
                     }
                 }
             }
 
             try {
-                button.buttonGrid.buttons.forEach({
-                    SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
-                    syncMessage.setTransactionId(it.id)
-
-                    if (it.imageDisplay) {
-                        byte[] image = imageService.getButtonImage(it.id)
-
-                        syncMessage.setInsert(true)
-                        syncMessage.setByteArray(image)
-                    } else {
-                        syncMessage.setInsert(false)
-                    }
-
-                    rabbitService.sendMessage(syncMessage)
+                if (singularButtonUpdate) {
+                    buildAndSendButtonImageMessage(button)
+                }
+                button.buttonGrid.buttons?.forEach({iteratedButton ->
+                    buildAndSendButtonImageMessage(iteratedButton)
                 })
 
-                SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
-                syncMessage.setInsert(true)
-                syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
-
+                SyncMessage syncMessage
+                if (singularButtonUpdate) {
+                    syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON)
+                    syncMessage.setInsert(true)
+                } else {
+                    syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
+                    syncMessage.setInsert(true)
+                    syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
+                }
                 rabbitService.sendMessage(syncMessage)
 
                 redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id)
@@ -135,6 +148,32 @@ class ButtonController {
 
             render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
         }
+    }
+
+    private void buildAndSendButtonImageMessage(Button button) {
+        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_IMAGE)
+        syncMessage.setTransactionId(button.id)
+
+        if (button.imageDisplay) {
+            byte[] image = imageService.getButtonImage(button.id)
+
+            syncMessage.setInsert(true)
+            syncMessage.setByteArray(image)
+        } else {
+            syncMessage.setInsert(false)
+        }
+
+        rabbitService.sendMessage(syncMessage)
+    }
+
+    private SyncMessage buildButtonSyncMessage(SyncMessageType messageType) {
+        return new SyncMessage(
+            messageType,
+            springSecurityService.principal.retailerId,
+            springSecurityService.principal.storeNumber,
+            springSecurityService.principal.storeId,
+            null
+        )
     }
 
     private Button copyButtonGrid(Button button, Boolean existingButton) {

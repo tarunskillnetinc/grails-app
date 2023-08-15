@@ -2,12 +2,15 @@ package uk.co.wonderlane.wlpos
 
 import org.apache.commons.lang3.EnumUtils
 import org.codehaus.groovy.runtime.InvokerHelper
+import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 class ButtonGridController {
 
     def springSecurityService
     def buttonService
+    def rabbitService
 
     def index() {
 
@@ -104,20 +107,7 @@ class ButtonGridController {
     }
 
     def save() {
-        def buttonGrid
-
-        if (params.id && Integer.parseInt(params.id) > 0) {
-            buttonGrid = buttonService.getButtonGrid(Integer.parseInt(params.id))
-
-            // Ensure this is one of their button grids.
-            if (!buttonGrid) {
-                flash.error = "Button grid not found."
-                redirect(action: "index")
-                return
-            }
-        } else {
-            buttonGrid = new ButtonGrid()
-        }
+        ButtonGrid buttonGrid = getButtonGrid()
 
         int previousColumns = buttonGrid.columns
         int previousRows = buttonGrid.rows
@@ -185,5 +175,43 @@ class ButtonGridController {
         } else {
             render(view: "add", model: [buttonGrid: buttonGrid])
         }
+    }
+
+    ButtonGrid getButtonGrid() {
+        ButtonGrid result
+        if (params.id && Integer.parseInt(params.id) > 0) {
+            result = buttonService.getButtonGrid(Integer.parseInt(params.id))
+
+            // Ensure this is one of their button grids.
+            if (!result) {
+                flash.error = "Button grid not found."
+                redirect(action: "index")
+                return
+            }
+        } else {
+            result = new ButtonGrid()
+        }
+        return result
+    }
+
+    def ajaxSyncButtonGrid() {
+        ButtonGrid buttonGrid = getButtonGrid()
+
+        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
+        syncMessage.setInsert(true)
+        syncMessage.setButtonGrid(buttonGrid.getButtonGrid())
+
+        rabbitService.sendMessage(syncMessage)
+        return buttonGrid
+    }
+
+    private SyncMessage buildButtonSyncMessage(SyncMessageType messageType) {
+        return new SyncMessage(
+                messageType,
+                springSecurityService.principal.retailerId,
+                springSecurityService.principal.storeNumber,
+                springSecurityService.principal.storeId,
+                null
+        )
     }
 }

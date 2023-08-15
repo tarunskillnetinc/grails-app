@@ -4,6 +4,21 @@
     <meta name="layout" content="main" />
 
     <title>Button Grids</title>
+    <script type="application/javascript">
+        function fullSync(id) {
+            if (confirm("This will fully sync tills, are you sure you want to continue?")) {
+                var url = "${createLink(controller: 'buttonGrid', action: 'ajaxSyncButtonGrid')}";
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {id: id},
+                    success: function (params) {
+                        alert("Sync message has been sent to tills.")
+                    }
+                });
+            }
+        }
+    </script>
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -40,6 +55,7 @@
 
     <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4 px-0 text-right" style="padding-right: 5px !important;">
         <g:link elementId="edit-button-grid-btn" action="edit" id="${buttonGrid.id}" class="btn btn-wl">Edit Button Grid</g:link>
+        <button name="sync-button-grid-btn" onclick="fullSync(${buttonGrid.id})" id="${buttonGrid.id}" class="btn btn-success">Sync Button Grid</button>
     </div>
 
     <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4">
