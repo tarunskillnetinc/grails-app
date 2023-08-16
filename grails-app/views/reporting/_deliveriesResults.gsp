@@ -75,7 +75,7 @@
                 <div id="delivery-id-${i + 1}" class="col-1 my-auto">${delivery?.orderId}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
-                <div id="store-id-${i + 1}" class="col-1 my-auto">${delivery?.store?.storeId}</div>
+                <div id="store-id-${i + 1}" class="col-1 my-auto">${delivery?.store?.config?.storeNumber}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "status" }?.enabled}">
                 <div id="status-${i + 1}" class="col-2 my-auto"><g:message code="DeliveryStatus.${delivery?.status}" /></div>

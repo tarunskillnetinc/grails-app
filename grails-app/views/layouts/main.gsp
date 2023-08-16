@@ -27,7 +27,7 @@
         </div>
 
         <sec:ifLoggedIn>
-            <div class="col-12 col-sm-9 text-right">
+            <div class="col-12 col-sm-7 col-lg-9 text-right">
                 <span id="store-number" style="margin-right: 50px;">Store:&nbsp;
                     <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                         <sec:loggedInUserInfo field="storeNumber" />
@@ -41,7 +41,7 @@
 
                 <span id="user"><sec:loggedInUserInfo field="usersName" /></span>
             </div>
-            <div class="col-12 col-sm-1 text-right">
+            <div class="col-12 col-sm-3 col-lg-1 text-right">
                 <g:link elementId="logout-button" controller="logoff" class="btn btn-wl red">Log out</g:link>
             </div>
         </sec:ifLoggedIn>
@@ -151,6 +151,7 @@
 
                             <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
                             <g:link elementId="receipt-viewer-dropdown" controller="receipt" action="index" class="dropdown-item">Receipt Viewer</g:link>
+                            <g:link elementId="product-lists-report-dropdown" controller="reporting" action="productLists" class="dropdown-item">Product Lists Report</g:link>
                             <g:link elementId="orders-report-dropdown" controller="reporting" action="orders" class="dropdown-item">Orders Report</g:link>
                             <g:link elementId="deliveries-report-dropdown" controller="reporting" action="deliveries" class="dropdown-item">Deliveries Report</g:link>
                             <a id="tender-movement" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Tender Movement</a>

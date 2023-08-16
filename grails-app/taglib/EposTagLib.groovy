@@ -187,6 +187,14 @@ class EposTagLib {
                 out << """<li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${attrs.productDescription}</li>"""
 
                 break
+            case ReportType.PRODUCT_LISTS:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Lists Report</li>"""
+
+                break
+            case ReportType.PRODUCT_LIST:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"productLists", params:[storeId: attrs.storeId, type: attrs.typeFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Product Lists Report" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${g.message(code:"ProductListType." +attrs.type)} (${attrs.dateStarted?.toString("dd/MM/yyyy") ?: 'Unknown date'})</li>"""
+                break
             default:
                 out << ""
 

@@ -276,7 +276,7 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4 offset-8 text-right">
+                                <div class="col-sm-8 col-xl-6 offset-sm-4 offset-xl-6 text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                                 </div>
