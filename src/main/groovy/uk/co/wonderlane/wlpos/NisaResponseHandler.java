@@ -7,7 +7,7 @@ import uk.co.wonderlane.wlpos.responses.wlim.NisaBrowserResponse;
 public class NisaResponseHandler extends DefaultHandler {
 
     private static final String urlResponse = "urlResponse";
-    private static final String orderId = "orderId";
+    private static final String orderId = "ocsOrderNumber";
 
     private NisaBrowserResponse nisaBrowserResponse;
     private StringBuilder elementValue;
@@ -52,7 +52,7 @@ public class NisaResponseHandler extends DefaultHandler {
                 nisaBrowserResponse.setUrlResponse(currentValue.toString().trim());
                 break;
             case orderId:
-                nisaBrowserResponse.setOrderId(Integer.valueOf(currentValue.toString().trim()));
+                nisaBrowserResponse.setOrderId(Integer.parseInt(currentValue.toString().trim()));
                 break;
         }
         currentElement = "";
