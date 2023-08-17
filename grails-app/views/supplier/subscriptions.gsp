@@ -49,6 +49,34 @@
             });
         }
 
+        function rerenderAndEditSymbolGroupSubscription(symbolGroupSubscriptionId){
+            $("#subscriptions-search-results").hide();
+            $("#subscriptions-loading-indicator").show();
+
+            $.ajax({
+                url: getSymbolGroupSubscriptionsUrl,
+                method: "GET",
+                success: function(resp) {
+                    $("#subscriptions-results-container").html(resp);
+                   editSymbolGroupSubscription(symbolGroupSubscriptionId)
+                }
+            });
+        }
+        
+        function rerenderAndShowAddSymbolGroupSubscriptionModal(){
+            $("#subscriptions-search-results").hide();
+            $("#subscriptions-loading-indicator").show();
+
+            $.ajax({
+                url: getSymbolGroupSubscriptionsUrl,
+                method: "GET",
+                success: function(resp) {
+                    $("#subscriptions-results-container").html(resp);
+                    showAddSymbolGroupSubscriptionModal()
+                }
+            });
+        }
+
         function showAddSymbolGroupSubscriptionModal() {
             $("#addSymbolGroupSubscriptionContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
             $('#addSymbolGroupSubscriptionModal').modal({ show: true });
@@ -134,7 +162,7 @@
 
         <div class="col-2 text-right">
             <a id="add-new-affiliation-btn" href="#" class="btn btn-wl"
-               onclick="showAddSymbolGroupSubscriptionModal();">Add New Affiliation</a>
+               onclick="rerenderAndShowAddSymbolGroupSubscriptionModal();">Add New Affiliation</a>
         </div>
     </div>
 
