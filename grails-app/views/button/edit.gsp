@@ -111,6 +111,13 @@
             })
         })
 
+        function saveOverride(btnId, storeId) {
+            $("input[id*=btnId]").val(-1);
+            $("input[id*=btnStoreId]").val(storeId);
+            $("input[id*=overrideId]").val(btnId);
+            document.querySelector('#submission-form').submit();
+        }
+
         function onTypeChange(newType) {
             var type = $("#type");
 
@@ -368,7 +375,7 @@
 
         <div class="col-12">
             <g:form name="submission-form" action="save" novalidate="novalidate" enctype="multipart/form-data">
-                <g:hiddenField name="id" value="${button?.id}" />
+                <g:hiddenField id="btnId" name="id" value="${button?.id}" />
                 <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
                 <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
                 <g:hiddenField name="storeId" value="${button?.buttonGrid?.storeId}" />
@@ -386,6 +393,8 @@
                 <g:hiddenField name="textColour" value="${button?.textColour}" />
                 <g:hiddenField name="imageDisplay" value="${button?.imageDisplay}" />
                 <g:hiddenField name="textDisplay" value="${button?.textDisplay}" />
+                <g:hiddenField id="btnStoreId" name="storeId" value="${button?.storeId}" />
+                <g:hiddenField id="overrideId" name="overrideId" value="${button?.overrideId}" />
                 <g:hiddenField name="removeImage" value=""/>
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>

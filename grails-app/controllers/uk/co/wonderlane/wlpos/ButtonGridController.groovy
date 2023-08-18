@@ -43,7 +43,6 @@ class ButtonGridController {
             if (!buttonGrid) {
                 ButtonGrid btnGridTemp = new ButtonGrid()
                 btnGridTemp.setRetailerId(springSecurityService.principal.retailerId)
-                btnGridTemp.setStoreId(springSecurityService.principal.storeId)
                 btnGridTemp.setType(type)
                 btnGridTemp.setDescription(null)
                 btnGridTemp.setButtons(null)
@@ -88,7 +87,7 @@ class ButtonGridController {
             }
         }
 
-        [buttonGrid: buttonGrid]
+        [buttonGrid: buttonGrid, storeId: getStoreId()]
     }
 
     def add() {
@@ -99,7 +98,7 @@ class ButtonGridController {
         def buttonGrid = buttonService.getButtonGrid(id)
 
         if (buttonGrid) {
-            render (view: "add", model: [buttonGrid: buttonGrid])
+            render (view: "add", model: [buttonGrid: buttonGrid, storeId: getStoreId()])
         } else {
             flash.error = "Button grid not found."
             redirect(action: "index")
@@ -112,35 +111,11 @@ class ButtonGridController {
         int previousColumns = buttonGrid.columns
         int previousRows = buttonGrid.rows
 
-        // Create a new store level grid if no existing
-        if (springSecurityService.principal.storeId != buttonGrid.storeId) {
-            def storeButtonGrid = new ButtonGrid()
-            bindData(storeButtonGrid, params)
-
-            // Copy buttons to new grid (they will be removed if they don't fit by following code)
-            storeButtonGrid.buttons = new ArrayList<>()
-            if (buttonGrid.buttons) {
-                buttonGrid.buttons.forEach({
-                    def storeButton = new Button()
-                    InvokerHelper.setProperties(storeButton, it.properties)
-                    storeButton.id = 0
-                    storeButton.buttonGrid = storeButtonGrid
-                    // Fix for copying buttons that are 0 amount in database as these are no longer valid.
-                    if (it.amount <=> new BigDecimal(0) == 0) {
-                        storeButton.amount = null;
-                    }
-                    storeButtonGrid.buttons.add(storeButton)
-                })
-            }
-
-            buttonGrid = storeButtonGrid
-        } else {
-            buttonGrid = buttonService.getButtonGrid(buttonGrid.type, buttonGrid.description, true)
-            if (!buttonGrid) {
-                buttonGrid = new ButtonGrid()
-            }
-            bindData(buttonGrid, params)
+        buttonGrid = buttonService.getButtonGrid(buttonGrid.type, buttonGrid.description, true)
+        if (!buttonGrid) {
+            buttonGrid = new ButtonGrid()
         }
+        bindData(buttonGrid, params)
 
         buttonGrid.retailerId = springSecurityService.principal.retailerId
         buttonGrid.storeId = springSecurityService.principal.storeId
@@ -171,9 +146,9 @@ class ButtonGridController {
 
             buttonService.saveButtonGrid(buttonGrid)
 
-            redirect(controller: "buttonGrid", action: "show", id: buttonGrid.id)
+            redirect(controller: "buttonGrid", action: "show", id: buttonGrid.id, storeId: getStoreId())
         } else {
-            render(view: "add", model: [buttonGrid: buttonGrid])
+            render(view: "add", model: [buttonGrid: buttonGrid, storeId: getStoreId()])
         }
     }
 
@@ -213,5 +188,9 @@ class ButtonGridController {
                 springSecurityService.principal.storeId,
                 null
         )
+    }
+
+    def getStoreId() {
+        return springSecurityService.principal.storeId
     }
 }
