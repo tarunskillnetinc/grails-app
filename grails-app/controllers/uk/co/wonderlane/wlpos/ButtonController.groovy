@@ -36,7 +36,7 @@ class ButtonController {
             button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type == ButtonGridType.TENDER ?  ButtonType.TENDER : ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
         }
 
-        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description]
+        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()]
     }
 
     def save() {
@@ -55,19 +55,20 @@ class ButtonController {
 
         bindData(button, params)
 
-        if (button?.validate()) {
-            // If the user is editing a buttongrid while logged in as a store user then we need to make sure we create
-            // a new button grid for store level if one does not already exist (complete with new buttons)
-            if (button.buttonGrid?.storeId == null && !isHeadOffice) {
-                button = copyButtonGrid(button, existingButton)
-            }
+        if (springSecurityService.principal.storeId != null) {
+            button.storeId = springSecurityService.principal.storeId
+        }
 
+        if (button?.validate()) {
             boolean buttonGridExists     = button.buttonGrid?.getButtonGrid()
             boolean singularButtonUpdate = buttonGridExists && isHeadOffice
 
             if (singularButtonUpdate) {
                 buttonService.saveButton(button)
             } else {
+                if (button.overrideId != null) {
+                    buttonService.saveButton(button)
+                }
                 button.buttonGrid?.addToButtons(button)
                 buttonService.saveButtonGrid(button.buttonGrid)
             }
@@ -117,7 +118,7 @@ class ButtonController {
                 }
                 rabbitService.sendMessage(syncMessage)
 
-                redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id)
+                redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id, storeId: getStoreId())
             } catch (Exception e) {
                 e.printStackTrace()
                 def productVariant
@@ -132,7 +133,7 @@ class ButtonController {
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
+                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
             }
         } else {
             def productVariant
@@ -146,7 +147,7 @@ class ButtonController {
                 buttonImage = imageService.getButtonImage(button.id)
             }
 
-            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description])
+            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
         }
     }
 
@@ -188,7 +189,7 @@ class ButtonController {
             storeButton.buttonGrid = storeButtonGrid
             // Fix for copying buttons that are 0 amount in database as these are no longer valid.
             if (it.amount <=> new BigDecimal(0) == 0) {
-                storeButton.amount = null;
+                storeButton.amount = null
             }
             storeButtonGrid.buttons.add(storeButton)
 
@@ -214,25 +215,35 @@ class ButtonController {
 
     def unassign(int id) {
         Button button = Button.get(id)
-
         int buttonGridId = button.buttonGrid.id
-
         imageService.deleteButtonImage(button.id)
-
         buttonService.deleteButton(button)
+        syncAfterBtnRemoval(id, buttonGridId)
+        redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
+    }
 
+    def deleteOverride(int id) {
+        Button button = Button.get(id)
+        int buttonGridId = button.buttonGrid.id
+        imageService.deleteButtonImage(button.id)
+        buttonService.deleteOverrideBtn(button.id)
+        syncAfterBtnRemoval(id, buttonGridId)
+        redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
+    }
+
+    def syncAfterBtnRemoval(id, buttonGridId) {
         SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
         removeImageSyncMessage.setTransactionId(id)
         removeImageSyncMessage.setInsert(false)
-
         rabbitService.sendMessage(removeImageSyncMessage)
 
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
         syncMessage.setInsert(true)
         syncMessage.setButtonGrid(ButtonGrid.get(buttonGridId).getButtonGrid())
-
         rabbitService.sendMessage(syncMessage)
+    }
 
-        redirect (controller: "buttonGrid", action: "show", id: buttonGridId)
+    def getStoreId() {
+        return springSecurityService.principal.storeId
     }
 }

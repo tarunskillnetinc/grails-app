@@ -32,6 +32,9 @@ class Button {
     Date updateDatetime
     Integer updatedUserId
 
+    Integer storeId
+    Integer overrideId
+
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Button() { }
 
@@ -57,6 +60,8 @@ class Button {
         createdUserId column: "createdUserId"
         updateDatetime column: "updateDatetime"
         updatedUserId column: "updatedUserId"
+        storeId column: "storeId", sqlType: "smallint"
+        overrideId column: "overrideId"
     }
 
     static constraints = {
@@ -99,6 +104,8 @@ class Button {
         createdUserId nullable: true
         updateDatetime nullable: true
         updatedUserId nullable: true
+        storeId nullable: true
+        overrideId nullable: true
     }
 
     boolean equals(that) {
@@ -124,6 +131,33 @@ class Button {
         updatedUserId = springSecurityService.principal.id
     }
 
+    def replaceWithOverride(Button override, boolean copyId) {
+        if (copyId) {
+            id = override.id
+        }
+        type = override.type
+        row = override.row
+        column = override.column
+        description = override.description
+        amount = override.amount
+        quantity = override.quantity
+        sku = override.sku
+        subPageId = override.subPageId
+        process = override.process
+        tenderType = override.tenderType
+        bgColour = override.bgColour
+        textColour = override.textColour
+        imageDisplay = override.imageDisplay
+        textDisplay = override.textDisplay
+        createdDatetime = override.createdDatetime
+        createdUserId = override.createdUserId
+        updateDatetime = override.updateDatetime
+        updatedUserId = override.updatedUserId
+        storeId = override.storeId
+        overrideId = override.overrideId
+        buttonGrid = override.buttonGrid
+    }
+
     /**
      * Convert this Groovy ButtonG into the pure Java version for data sync etc.
      *
@@ -147,6 +181,8 @@ class Button {
         button.setTextColour(textColour)
         button.setImageDisplay(imageDisplay)
         button.setTextDisplay(textDisplay)
+        button.setStoreId(storeId)
+        button.setOverrideId(overrideId)
 
         return button
     }

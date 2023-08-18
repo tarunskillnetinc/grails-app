@@ -22,7 +22,19 @@ class ButtonService {
     }
 
     def getButtonGrid(int buttonGridId) {
-        return ButtonGrid.findByIdAndRetailerId(buttonGridId, springSecurityService.principal.retailerId)
+        ButtonGrid grid = ButtonGrid.findByIdAndRetailerId(buttonGridId, springSecurityService.principal.retailerId)
+        if (springSecurityService.principal.storeId != null) {
+            addOverriddenButtons(grid)
+        }
+        return grid
+    }
+
+    def deleteOverrideBtn(int btnId) {
+        def storeId = springSecurityService.principal.storeId
+        Button btn = Button.findById(btnId)
+        if (btn != null && btn.overrideId != null && storeId != null && btn.storeId == storeId) {
+            btn.delete()
+        }
     }
 
     def getButtonGrid(ButtonGridType type, String description, boolean includeHeadOffice) {
@@ -43,10 +55,23 @@ class ButtonService {
         }
 
         if (buttonGrids){
-            return buttonGrids?.sort { it.storeId }?.last()
+            ButtonGrid grid = buttonGrids?.sort { it.storeId }?.last()
+            if (springSecurityService.principal.storeId != null) {
+                addOverriddenButtons(grid)
+            }
+            return grid
         }
 
         return null
+    }
+
+    def addOverriddenButtons(ButtonGrid grid) {
+        grid.buttons.forEach {
+            Button override = Button.findByOverrideIdAndStoreId(it.id, springSecurityService.principal.storeId)
+            if (override != null) {
+                it.replaceWithOverride(override, true)
+            }
+        }
     }
 
     def getOtherButtonGrids() {
