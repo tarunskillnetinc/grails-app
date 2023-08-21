@@ -25,10 +25,10 @@
     </g:if>
     <g:elseif test="${saveTillError}">
         <g:if test="${enableEdit}">
-            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique numerical Till ID is provided when editing a till.</div>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique positive integer Till ID is provided when editing a till.</div>
         </g:if>
         <g:else>
-            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique numerical Till ID is provided when adding a till.</div>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique positive integer Till ID is provided when adding a till.</div>
         </g:else>
     </g:elseif>
 
