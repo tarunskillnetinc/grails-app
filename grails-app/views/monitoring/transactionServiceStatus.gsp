@@ -38,8 +38,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Monitoring</li>
-                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Transaction Service Status</li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Transaction Service Status</li>
                     </ol>
                 </div>
             </div>
