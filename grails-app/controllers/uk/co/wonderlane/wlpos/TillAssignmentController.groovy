@@ -133,10 +133,7 @@ class TillAssignmentController {
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
         if (!params.containsKey("storeId")) {
             if (configuration != null) {
-                def serial = TillStock.findBySerialNumber(configuration.serialNumber)
-                if (serial != null) {
-                    serialNumbers.add(serial)
-                }
+                addTillStockToList(configuration.serialNumber, serialNumbers)
                 render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
             } else {
                 render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
@@ -144,10 +141,9 @@ class TillAssignmentController {
             return
         }
 
-        //Non-Numerical inputs for TillID will be considered as Blank ("")
-        if (params.get("tillId").toString().isBlank()) {
+        if (!isValidTillId(params.get("tillId").toString())) {
             if (configuration != null) {
-                serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
+                addTillStockToList(configuration.serialNumber, serialNumbers)
                 render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
             } else {
                 render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
@@ -166,7 +162,7 @@ class TillAssignmentController {
 
             if (entry != null && entry.size != 0) {
                 if (configuration != null) {
-                    serialNumbers.add(TillStock.findBySerialNumber(configuration.serialNumber))
+                    addTillStockToList(configuration.serialNumber, serialNumbers)
                     render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
                 } else {
                     render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
@@ -295,6 +291,26 @@ class TillAssignmentController {
             render "OK"
         } else {
             render(template: "advancedConfig", model: [config: configuration])
+        }
+    }
+
+    def isValidTillId(String tillIdStr) {
+        if (tillIdStr == null || tillIdStr.isEmpty()) {
+            return false
+        }
+        int id
+        try {
+            id = Integer.parseInt(tillIdStr)
+        } catch (NumberFormatException ignore) {
+            return false
+        }
+        return id >= 0
+    }
+
+    def addTillStockToList(String searchNo, def serialNumbers) {
+        def tillStock = TillStock.findBySerialNumber(searchNo)
+        if (tillStock != null) {
+            serialNumbers.add(tillStock)
         }
     }
 }
