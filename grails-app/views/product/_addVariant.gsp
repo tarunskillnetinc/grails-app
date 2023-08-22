@@ -43,7 +43,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="addVariantShelfLifeDays" class="col-3 offset-1 col-form-label text-right">Shelf life (days)</label>
+            <label for="addVariantShelfLifeDays" class="col-3 offset-1 col-form-label text-right">Shelf Life (Days)</label>
 
             <div class="input-group col-4">
                 <g:textField name="addVariantShelfLifeDays" value="${variant?.shelfLifeDays}" class="form-control bottom-border" />
