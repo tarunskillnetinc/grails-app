@@ -218,6 +218,7 @@ class ButtonController {
         int buttonGridId = button.buttonGrid.id
         imageService.deleteButtonImage(button.id)
         buttonService.deleteButton(button)
+        buttonService.deleteOverrides(id)
         syncAfterBtnRemoval(id, buttonGridId)
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
     }

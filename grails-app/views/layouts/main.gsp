@@ -114,9 +114,11 @@
                                         <g:quicksellMenu />
                                     </div>
 
-                                    <div class="dropdown-divider"></div>
 
-                                    <g:link elementId="add-page-dropdown" controller="buttonGrid" action="add" class="dropdown-item">+ Add Page</g:link>
+                                    <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                        <div class="dropdown-divider"></div>
+                                        <g:link elementId="add-page-dropdown" controller="buttonGrid" action="add" class="dropdown-item">+ Add Page</g:link>
+                                    </g:if>
                                 </div>
                             </div>
 

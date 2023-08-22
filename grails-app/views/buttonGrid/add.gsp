@@ -73,6 +73,10 @@
                 <div class="col-8 offset-3">
                     <g:link elementId="cancel-btn" controller="buttonGrid" action="show" id="${buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
 
+                    <g:if test="${buttonGrid != null && buttonGrid.type.toString() == "OTHER"}">
+                        <g:link elementId="delete-button-grid-btn" action="delete" id="${buttonGrid.id}" class="btn btn-wl">Delete</g:link>
+                    </g:if>
+
                     <g:submitButton class="btn btn-success" name="save" value="Save" />
                 </div>
             </div>
