@@ -105,6 +105,17 @@ class ButtonGridController {
         }
     }
 
+    def delete(int id) {
+        def buttonGrid = buttonService.getButtonGrid(id)
+        try {
+            buttonService.deleteButtonGrid(buttonGrid)
+            redirect(uri: "/")
+        } catch (Exception ex) {
+            flash.error = "Error deleting button grid"
+            render (view: "add", model: [buttonGrid: buttonGrid, storeId: getStoreId()])
+        }
+    }
+
     def save() {
         ButtonGrid buttonGrid = getButtonGrid()
 
