@@ -40,7 +40,7 @@
     <button type="button" id="cancelAddSymbolGroupSubscriptionButton" class="btn btn-secondary"
             data-dismiss="modal" onclick="getSymbolGroupSubscriptions()">Cancel</button>
     <% def specifiedValues = [SymbolGroupSubscriptionStatus.PENDING, SymbolGroupSubscriptionStatus.IN_PROGRESS, SymbolGroupSubscriptionStatus.DELETED] %>
-    <g:if test="${!specifiedValues.contains(symbolGroupSubscription.status)}">
+    <g:if test="${!specifiedValues.contains(symbolGroupSubscription?.status)}">
         <button type="button" id="saveSynbolGroupSubscriptionButton" class="btn btn-success"
                 onclick="saveSymbolGroupSubscription();">Save</button>
     </g:if>
