@@ -158,6 +158,20 @@ class Button {
         buttonGrid = override.buttonGrid
     }
 
+    def setBlankFields() {
+        description = "BLANK"
+        amount = null
+        quantity = null
+        sku = null
+        subPageId = null
+        process = null
+        tenderType = null
+        bgColour = "#FFFFFF"
+        textColour = "#000000"
+        imageDisplay = false
+        textDisplay = false
+    }
+
     /**
      * Convert this Groovy ButtonG into the pure Java version for data sync etc.
      *
