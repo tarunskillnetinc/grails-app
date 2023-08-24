@@ -278,6 +278,11 @@
                 var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
                 var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
+                if (sku === "") {
+                    $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">SKU cannot be empty.</div>`)
+                    return
+                }
+
                 var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
