@@ -20,7 +20,6 @@
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
             var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
-            var removePackUrl = "${createLink(controller: 'product', action: 'ajaxRemovePack')}"
             var addLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddLocation')}";
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
             var saveLocationUrl = "${createLink(controller: 'product', action: 'ajaxSaveLocation')}";
@@ -651,10 +650,9 @@
                 }
             }
 
-            function removePacks(variantIndex, packIndex) {
-                alert("'bout to fuck shit up yo")
-                var addPacksContainer = $("#addPacksContainer-" + variantIndex);
-                addPacksContainer.remove("addPackContainer-" + variantIndex + "-" + packIndex)
+            function removePack(variantIndex, packIndex) {
+                // remove the pack using the query selector no need for Ajax call here
+                $("#addPackContainer-" + variantIndex + "-" + packIndex).remove();
             }
 
             // The "Ok" button was clicked on the suppliers modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
