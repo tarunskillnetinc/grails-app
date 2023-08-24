@@ -59,6 +59,13 @@ class ButtonController {
             button.storeId = springSecurityService.principal.storeId
         }
 
+        if (button.type == ButtonType.BLANK) {
+            button.setBlankFields()
+            if (existingButton) {
+                imageService.deleteButtonImage(button.id)
+            }
+        }
+
         if (button?.validate()) {
             boolean buttonGridExists     = button.buttonGrid?.getButtonGrid()
             boolean singularButtonUpdate = buttonGridExists && isHeadOffice

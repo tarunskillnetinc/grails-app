@@ -97,7 +97,7 @@
                     </g:elseif>
                     <g:else><!-- All other assigned buttons -->
                         <g:link controller="button" action="edit" id="${button.id}" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                            <div id="button-${c+1}-${r+1}" class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px solid black;">
+                            <div id="button-${c+1}-${r+1}" class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px ${button.type.name() == 'BLANK' ? 'dashed' : 'solid'} black;">
                                 <g:if test="${button.imageDisplay && button.textDisplay}">
                                     <div class="button-grid-image-container">
                                         <g:buttonImage buttonId="${button.id}" />
