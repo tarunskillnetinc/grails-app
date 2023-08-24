@@ -153,7 +153,7 @@
 
                 <div class="col-2">
                     <div class="card bg-light border-wl">
-                        <div id="columns-collapse class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse"
+                        <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse"
                              aria-expanded="false" aria-controls="columnsCollapse">
                             <div class="row">
                                 <div id="columns-text" class="col-10">Columns</div>
