@@ -53,8 +53,7 @@ class TagProduct implements Serializable {
     }
 
     private void setValues() {
-        // TODO For some reason springSecurityService is null, need to add the storeId check to the ProductVariant.findBySkuAndStoreId....
-        ProductVariant productVariant = ProductVariant.findBySku(sku)
+        ProductVariant productVariant = ProductVariant.findById(productVariantId)
 
         productId = productVariant?.product?.id
         productDescription = productVariant?.product?.receiptDescription
