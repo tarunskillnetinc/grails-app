@@ -47,7 +47,7 @@
     <div id="addPacksContainer-${variantIndex}">
         <g:each in="${variant.packs}" var="pack" status="i">
             <div id="addPackContainer-${variantIndex}-${i}">
-                <g:render template="addPack" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, suppliers: suppliers]" />
+                <g:render template="addPack" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, existingPackIds: existingPackIds, suppliers: suppliers]" />
             </div>
         </g:each>
     </div>

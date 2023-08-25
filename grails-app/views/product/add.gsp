@@ -655,6 +655,11 @@
                 }
             }
 
+            function removePack(variantIndex, packIndex) {
+                // remove the pack using the query selector no need for Ajax call here
+                $("#addPackContainer-" + variantIndex + "-" + packIndex).remove();
+            }
+
             // The "Ok" button was clicked on the suppliers modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function savePacks(variantIndex) {
                 var filterValues = {};
