@@ -212,7 +212,6 @@ class PromotionController {
         }
 
         flash.promotion = promotion
-        flash.badPromoMessage = "error.Promotion.badPromoValidation"
 
         return promotion
     }
