@@ -137,6 +137,16 @@
                 $("input[id*=amountInput]").val("");
                 $("input[id*=tenderTypeInput]").val("");
 
+                if (newType === "BLANK") {
+                    $("input[id*=descriptionInput]").val("Blank");
+                    $("input[id*=bgColourInput]").val("#FFFFFF");
+                    $("input[id*=textColourInput]").val("#000000");
+                    $("input[id*=buttonSku]").val("");
+                    $("input[id*=imageDisplayInput]").val(false);
+                    $(".button-example").css("backgroundColor", $("#bgColourInput").val());
+                    $(".button-example").css("color", $("#textColourInput").val());
+                }
+
                 type.val(newType);
             } else if (newType === "${button?.type}") {
                 $("#quantity").val("${button?.quantity}");
@@ -195,6 +205,7 @@
             </div>
         </section>
     </g:hasErrors>
+
 
     <section id="addProduct-section" class="container-fluid mt-4">
         <div id="accordion">
@@ -341,7 +352,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseTenderButton" class="collapse show" aria-labelledby="tenderButton" data-parent="#accordion">
+                    <div id="collapseTenderButton" class="collapse ${button?.type?.name() == 'TENDER' ? 'show' : ''}" aria-labelledby="tenderButton" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="form-group row">
                                 <label for="description" class="col-4 col-sm-2 offset-sm-2 col-form-label">Description</label>
@@ -371,6 +382,34 @@
                     </div>
                 </div>
             </g:if>
+
+            <!-- Blank button. -->
+            <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                <div class="card-header pointer" id="blankButton" data-toggle="collapse" data-target="#collapseBlankButton" aria-expanded="true" aria-controls="collapseBlankButton" onclick="onTypeChange('BLANK')">
+                    <div class="row">
+                        <div class="col-10 font-weight-bold">Blank Button</div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseBlankButton" class="collapse ${button?.type?.name() == 'BLANK' ? 'show' : ''}" aria-labelledby="blankButton" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <div class="form-group row margin-top-2rem">
+                            <div class="col-12 d-flex justify-content-center">
+                                <div class="button-example">
+                                    <img src="" hidden class="justify-content-center button-image"/>
+                                    <p class="button-example-text"}>Blank</p>
+                                </div>
+                            </div>
+                        </div>
+                        <g:render template="saveCancelButtons" model="${[button: button]}" />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-12">

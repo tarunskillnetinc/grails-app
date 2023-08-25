@@ -36,7 +36,7 @@ class ButtonController {
             button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type == ButtonGridType.TENDER ?  ButtonType.TENDER : ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
         }
 
-        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()]
+        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK }, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()]
     }
 
     def save() {
@@ -57,6 +57,13 @@ class ButtonController {
 
         if (springSecurityService.principal.storeId != null) {
             button.storeId = springSecurityService.principal.storeId
+        }
+
+        if (button.type == ButtonType.BLANK) {
+            button.setBlankFields()
+            if (existingButton) {
+                imageService.deleteButtonImage(button.id)
+            }
         }
 
         if (button?.validate()) {
@@ -133,7 +140,7 @@ class ButtonController {
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
+                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK }, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
             }
         } else {
             def productVariant
@@ -147,7 +154,7 @@ class ButtonController {
                 buttonImage = imageService.getButtonImage(button.id)
             }
 
-            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values(), productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
+            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK }, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
         }
     }
 
