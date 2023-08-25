@@ -33,7 +33,7 @@
         <g:reportBreadcrumb reportType="${reportType}" type="${productList?.type}" dateStarted="${productList?.dateStarted}" storeId="${storeId}" typeFilter="${type}" startDate="${startDate}" endDate="${endDate}" />
 
         <div class="header-wl mt-3">
-            <h2 class="mx-auto">Product List Report</h2>
+            <h2 id="page-title" class="mx-auto">Product List Report</h2>
         </div>
 
         <div class="row mt-4">
