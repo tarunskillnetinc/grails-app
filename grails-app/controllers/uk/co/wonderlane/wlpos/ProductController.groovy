@@ -1235,8 +1235,15 @@ class ProductController extends BaseController {
 
         def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
+        // Get IDs of already saved Packs
+        ArrayList<Integer> existingPackIds = new ArrayList<Integer>()
+        cmd.getPacks().each {
+            if (Pack.findById(it.id) != null) {
+                existingPackIds.add(it.id)
+            }
+        }
 
-        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, defaultSuppliers: defaultSuppliers])
+        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, defaultSuppliers: defaultSuppliers, existingPackIds: existingPackIds])
     }
 
     def ajaxLocations(LocationsCommand cmd) {
@@ -1260,21 +1267,7 @@ class ProductController extends BaseController {
     def ajaxSavePack(SuppliersCommand cmd) {
         List<AddPackCommand> packs = cmd.getPacks()
         if (packs) {
-            def packsToRemove = new HashSet<AddPackCommand>()
             packs.each { pack ->
-                if (pack.noFieldsFilled()) {
-//                    // If the pack exists we don't want to delete it, let the validation handle this.
-//                    def productVar =  ProductVariant.findAllById(pack.productVariantId).first()
-//                    def originalPack = Pack.findAllByProductVariant(productVar)
-//                    if (originalPack) {
-//                        return
-//                    }
-
-                    packsToRemove.add(pack)
-                    // Returns from .each closure
-                    return
-                }
-
                 // We dont want to save NISA packs
                 if (pack.supplier.symbolGroupId == null) {
                     if (!pack.validate()) {
@@ -1284,14 +1277,20 @@ class ProductController extends BaseController {
                     }
                 }
             }
-            packs.removeAll(packsToRemove)
-            cmd.setPacks(packs)
         }
         if (cmd.hasErrors) {
             def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
             def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
-            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, defaultSuppliers: defaultSuppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
+            // Get IDs of already saved Packs
+            ArrayList<Integer> existingPackIds = new ArrayList<Integer>()
+            cmd.getPacks().each {
+                if (Pack.findById(it.id) != null) {
+                    existingPackIds.add(it.id)
+                }
+            }
+
+            render(status: HttpStatus.BAD_REQUEST, template: "suppliers", model: [suppliers: suppliers, defaultSuppliers: defaultSuppliers, existingPackIds: existingPackIds, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, packs: cmd.packs])
         } else {
             render(status: HttpStatus.OK, template: "packs", model: [variantIndex: cmd.index, packs: cmd.packs, defaultSupplier: params.defaultSupplier])
         }
@@ -1624,18 +1623,6 @@ class AddPackCommand implements Validateable {
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
         }
-    }
-
-    Boolean noFieldsFilled() {
-        ArrayList<Boolean> fieldsFilled = [
-                quantity != null,
-                price != null,
-                orderCode != null,
-                barcode != null,
-                recommendedRetailPrice != null,
-                maximumOrderQuantity != null
-        ]
-        return !fieldsFilled.contains(true)
     }
 }
 

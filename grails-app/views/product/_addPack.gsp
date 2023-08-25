@@ -82,9 +82,11 @@
         </div>
     </div>
 
-    <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
-        <div class="col-1 my-auto">
-            <a href="#" class="btn btn-wl red" onclick="removePack(${variantIndex}, ${packIndex});">Remove</a>
+    <div class="${existingPackIds?.contains(pack?.id) == true ? 'hidden' : ''}">
+        <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
+            <div class="col-1 my-auto">
+                <a href="#" class="btn btn-wl red" onclick="removePack(${variantIndex}, ${packIndex});">Remove</a>
+            </div>
         </div>
     </div>
 </div>
