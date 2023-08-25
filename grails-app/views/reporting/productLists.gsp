@@ -206,7 +206,7 @@
                             <g:checkBox name="columns" id="columnsNumberOfItems" class="form-check-input"
                                         value="numberOfItems"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'numberOfItems' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsNumberOfItems">Number of Products</label>
+                            <label class="form-check-label" for="columnsNumberOfItems">Number of Items</label>
                         </div>
 
                         <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
