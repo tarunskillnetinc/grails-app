@@ -96,7 +96,33 @@
                 $('.promo-amount').on("change", function() {
                     $('.promo-amount').removeClass("is-invalid");
                 });
+                applyListeners();
             });
+
+            function applyListeners() {
+                intListener("bogof-retailerPromoId");
+                intListener("xfory-retailerPromoId");
+                intListener("percentage-retailerPromoId");
+                intListener("fixedAmount-retailerPromoId");
+                intListener("fixedPrice-retailerPromoId");
+            }
+
+            function intListener(elementId) {
+                var maxLength = 10
+                var maxValue = 2147483647
+                var element = document.getElementById(elementId)
+
+                if (element != null) {
+                    element.addEventListener("input", function () {
+                        if (element.value.length > maxLength) {
+                            element.value = element.value.slice(0, maxLength)
+                        }
+                        if (element.value > maxValue) {
+                            element.value = maxValue
+                        }
+                    });
+                }
+            }
 
             function productSelected(id, sku, description) {
                 var promoType = $('#productModal-currentPromotionType').val();
