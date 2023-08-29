@@ -68,20 +68,43 @@
                 <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
             </g:if>
 
-            <div class="row mt-4 ml-0 mr-0">
-                <div class="input-group offset-2 col-8">
-                    <g:textField id="tagSearchTerm" name="tagSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+            <div class="row mt-4">
+                <div class="col-6">
+                    <div class="card bg-light border-wl">
+                        <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                            <div class="row">
+                                <div class="col-10">Filters</div>
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="input-group-append">
-                        <asset:image src="search.png" id="tagSearchButton" name="tagSearchButton" onclick="search()" class="wl-search-button" />
+                        <div class="card-body collapse" id="filterCollapse">
+                            <div class="form-group row">
+                                <label for="tagSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <div class="col-10 input-group">
+                                    <g:textField id="tagSearchTerm" name="tagSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 offset-8 text-right">
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
-                <div class="col-3 font-weight-bold">Tag ID</div>
+                <div class="col-2 font-weight-bold">Tag ID</div>
                 <div class="col-6 font-weight-bold">Description</div>
-                <div class="col-3 font-weight-bold">Product Count</div>
+                <div class="col-2 font-weight-bold">Product Count</div>
+                <div class="col-2 font-weight-bold">Maximum Sell Quantity</div>
             </div>
 
             <div id="search-results" class="align-content-center">
