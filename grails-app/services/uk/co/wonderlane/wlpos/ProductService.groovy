@@ -147,9 +147,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-
-        productPrices.unique { [it.sku, it.effectiveDate, it.price] }
-
+        
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price) {
                 session.saveOrUpdate(productPrice)
