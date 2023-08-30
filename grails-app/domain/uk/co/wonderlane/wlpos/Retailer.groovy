@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.GsonBuilder
 import uk.co.wonderlane.wlpos.entities.RetailerConfig
+import uk.co.wonderlane.wlpos.entities.RetailerIMConfig
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
 
 class Retailer implements Serializable {
@@ -11,6 +12,7 @@ class Retailer implements Serializable {
     int id
     String name
     String config
+    String imConfig
 
     static transients = [ "gson" ]
 
@@ -23,19 +25,28 @@ class Retailer implements Serializable {
         id column: "id", sqlType: "tinyint"
         name column: "`name`"
         config column: "`config`", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        imConfig column: "`imConfig`", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
         id nullable: false
         name nullable: false
         config nullable: false
+        imConfig nullable: false
     }
 
     RetailerConfig getConfig() {
         return gson.fromJson(config, RetailerConfig.class)
     }
 
+    RetailerIMConfig getIMConfig() {
+        return gson.fromJson(imConfig, RetailerIMConfig.class)
+    }
+
     void setConfig(RetailerConfig retailerConfig) {
         config = gson.toJson(retailerConfig)
+    }
+    void setIMConfig(RetailerIMConfig retailerIMConfig) {
+        imConfig = gson.toJson(retailerIMConfig)
     }
 }

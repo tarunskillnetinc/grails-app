@@ -20,7 +20,8 @@
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
             var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
             var addPackUrl = "${createLink(controller: 'product', action: 'ajaxAddPack')}";
-            var addLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddLocation')}";
+            var addLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddLocation')}";5
+
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
             var saveLocationUrl = "${createLink(controller: 'product', action: 'ajaxSaveLocation')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
