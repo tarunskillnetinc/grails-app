@@ -208,7 +208,7 @@
 
             <div id="collapseRestrictions" class="collapse collapsed" aria-labelledby="productRestrictions" data-parent="#accordion">
                 <div id="restrictionsContainer">
-                    <g:render template="restrictions" model="[restrictions: product?.restrictions, isNewProduct: isNewProduct]" />
+                    <g:render template="restrictions" model="[restrictions: product?.restrictions, productOpenPrice: product?.openPrice, isNewProduct: isNewProduct]" />
                 </div>
             </div>
         </div>
