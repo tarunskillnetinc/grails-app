@@ -1,15 +1,15 @@
-<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+<div class="row col-10 offset-1 mt-5 pb-2 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-4 font-weight-bold">Description</div>
+        <div class="col-6 font-weight-bold">Description</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailerCategoryCode" }?.enabled}">
-        <div class="col-1 font-weight-bold">Retailer Category Code</div>
+        <div class="col-2 font-weight-bold">Retailer Category Code</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerId" }?.enabled}">
-        <div class="col-1 font-weight-bold">Buyer ID Required</div>
+        <div class="col-2 font-weight-bold">Buyer ID Required</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "buyerAge" }?.enabled}">
-        <div class="col-1 font-weight-bold">Buyer Age</div>
+        <div class="col-2 font-weight-bold">Buyer Age</div>
     </g:if>
 </div>
 
@@ -21,17 +21,19 @@
 
 <div id="search-results">
     <g:if test="${topLevelCategories == null}">
-        <div class="row ml-0 mr-0 text-center">
-            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>
+        <div class="col-10 px-0 offset-1 text-center">
+            <div class="pt-2 pb-2 text-center my-auto wl-striped0">Please enter a search term.</div>
         </div>
     </g:if>
 
     <g:if test="${topLevelCategories?.size() == 0}">
-        <div class="row ml-0 mr-0 text-center">
-            <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
+        <div class="col-10 offset-1 px-0 text-center">
+            <div id="noResultsRow" class="pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
         </div>
     </g:if>
-    <g:set var="row" value="${0}" scope="request"/>
+
+    <g:set var="row" value="${0}" scope="request" />
+
     <g:render template="categorySearchRows" model="[topLevelCategories: topLevelCategories, matchedCategories: matchedCategories, level: 0, userColumns: userColumns]"/>
 </div>
 
