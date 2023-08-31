@@ -34,7 +34,7 @@
     <h2 class="row col-4">Parent Category</h2>
     <div class="row form-group">
         <div class="col-6 col-lg-9 pt-2">
-            <g:render template="/product/categorySelect" model="[categories: topLevelCategories, productCategoryList: null, selectedCategoryId: null, level: 1, triggerOnCategoryChange: true]" />
+            <g:render template="/product/categorySelect" model="[categories: topLevelCategories, productCategoryList: categoryList, selectedCategoryId: category?.parentCategory?.id, level: 1, triggerOnCategoryChange: true]" />
         </div>
     </div>
 </g:form>

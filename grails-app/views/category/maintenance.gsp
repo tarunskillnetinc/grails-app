@@ -109,7 +109,7 @@
             </div>
         </g:hasErrors>
 
-        <g:render template="maintenanceForm" model="[category: category, topLevelCategories: topLevelCategories]"/>
+        <g:render template="maintenanceForm" model="[category: category, categoryList: categoryList, topLevelCategories: topLevelCategories]"/>
     </section>
 </body>
 </html>
