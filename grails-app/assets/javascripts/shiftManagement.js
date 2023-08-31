@@ -16,6 +16,18 @@ function getShifts() {
     });
 }
 
+function resetFilters(startDate, endDate) {
+    $("#startDate").val(startDate);
+    $("#startDate").datepicker('setDate', startDate);
+
+    $("#endDate").val(endDate);
+    $("#endDate").datepicker('setDate', endDate);
+
+    $("#tillId").val("");
+
+    getShifts();
+}
+
 function showCashModal(shiftId, isReconciled) {
     $("#cashModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#cashModal').modal({ show: true });

@@ -108,6 +108,7 @@
                                     </div>
 
                                     <div class="col-4 offset-4 text-right">
+                                        <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="resetFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
                                         <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getShifts();">Filter</button>
                                     </div>
                                 </div>
