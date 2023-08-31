@@ -114,15 +114,9 @@ class ButtonController {
                     buildAndSendButtonImageMessage(iteratedButton)
                 })
 
-                SyncMessage syncMessage
-                if (singularButtonUpdate) {
-                    syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON)
-                    syncMessage.setInsert(true)
-                } else {
-                    syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
-                    syncMessage.setInsert(true)
-                    syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
-                }
+                SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
+                syncMessage.setInsert(true)
+                syncMessage.setButtonGrid(button.buttonGrid.getButtonGrid())
                 rabbitService.sendMessage(syncMessage)
 
                 redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id, storeId: getStoreId())
