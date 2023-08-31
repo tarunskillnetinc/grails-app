@@ -109,14 +109,21 @@ class ButtonController {
             try {
                 if (singularButtonUpdate) {
                     buildAndSendButtonImageMessage(button)
+                } else {
+                    button.buttonGrid.buttons?.forEach({ iteratedButton ->
+                        buildAndSendButtonImageMessage(iteratedButton)
+                    })
                 }
-                button.buttonGrid.buttons?.forEach({iteratedButton ->
-                    buildAndSendButtonImageMessage(iteratedButton)
-                })
 
                 SyncMessage syncMessage
                 if (singularButtonUpdate) {
+                    // Creating a temporary button grid just for the purpose of telling the till app which button grid this button belongs to.
+                    uk.co.wonderlane.wlpos.entities.ButtonGrid tempButtonGrid = new uk.co.wonderlane.wlpos.entities.ButtonGrid()
+                    tempButtonGrid.setId(button.buttonGrid.id)
+
                     syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON)
+                    syncMessage.setButton(button.getButton())
+                    syncMessage.setButtonGrid(tempButtonGrid)
                     syncMessage.setInsert(true)
                 } else {
                     syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
