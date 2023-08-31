@@ -16,6 +16,18 @@ function getSnapshots() {
     });
 }
 
+function resetSnapshotFilters(startDate, endDate) {
+    $("#startDate").val(startDate);
+    $("#startDate").datepicker('setDate', startDate);
+
+    $("#endDate").val(endDate);
+    $("#endDate").datepicker('setDate', endDate);
+
+    $("#tillId").val("");
+
+    getSnapshots();
+}
+
 function showSnapshotModal(snapshotId) {
     $("#snapshotModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#snapshotModal').modal({ show: true });
