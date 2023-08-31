@@ -105,6 +105,7 @@ class TagController {
 
         tag.retailerId = springSecurityService.principal.retailerId
         tag.description = cmd.description
+        tag.maxSellQuantity = cmd.maxSellQuantity
 
         def skusInTag = tag.tagProducts?.collect { it.sku }
 
@@ -176,10 +177,12 @@ class SaveTagCommand {
 
     int id
     String description
+    Integer maxSellQuantity
     Long[] sku
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
+        maxSellQuantity nullable: true, max: 999
         sku nullable: false
     }
 }

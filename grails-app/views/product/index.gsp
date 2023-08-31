@@ -239,11 +239,12 @@
             <div class="row header-wl mt-3">
                 <input type="file" name="file" accept=".csv,.CSV"
                        id="csvFileUploadInput" style="display:none" oninput="uploadProductsCSVFile()" oncancel="resetFileUploadInput()">
-                <div class="col-6 offset-2">
+
+                <div class="col-6 offset-3">
                     <h2 id="page-title" class="mx-auto my-auto">Product Search</h2>
                 </div>
 
-                <div class="col-4 text-right d-inline-flex flex-row justify-content-end">
+                <div class="col-3 text-right d-inline-flex flex-row justify-content-end">
                     <g:link elementId="add-new-product-btn" controller="product" action="add" class="btn btn-wl p-2">Add New Product</g:link>
                     <button class="btn btn-wl p-2 ml-2" onclick="selectProductsCSVFile()" id="uploadProductsBtn">Upload Products</button>
                 </div>
