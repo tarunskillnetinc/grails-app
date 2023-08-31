@@ -16,7 +16,7 @@ function getShifts() {
     });
 }
 
-function resetFilters(startDate, endDate) {
+function resetShiftFilters(startDate, endDate) {
     $("#startDate").val(startDate);
     $("#startDate").datepicker('setDate', startDate);
 

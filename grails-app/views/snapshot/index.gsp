@@ -94,6 +94,7 @@
 
                             <div class="form-group row">
                                 <div class="col-4 offset-6 text-right">
+                                    <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetSnapshotFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getSnapshots();">Filter</button>
                                 </div>
                             </div>
