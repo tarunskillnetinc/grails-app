@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import org.apache.commons.lang3.EnumUtils
-import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -17,6 +16,12 @@ class ButtonGridController {
     }
 
     def show() {
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
+
         def buttonGrid
 
         if (params.id && Integer.parseInt(params.id) > 0) {
