@@ -52,7 +52,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index">ShiftManagement</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index">Shift Viewer</g:link></li>
                         <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
                     </ol>
                 </div>
