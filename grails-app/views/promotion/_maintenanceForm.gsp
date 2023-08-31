@@ -449,7 +449,7 @@
                                 <label for="percentage-product-required-1-quantity" class="">Quantity</label>
                                 <g:field type="number" name="percentage-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'percentage');"/>
                                 <label for="percentage-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired?.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired?.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
-                                <a href="#" onclick="return deleteThis(this, 'xfory', 'required');" class="text-dark"><sup>X</sup></a>
+                                <a href="#" onclick="return deleteThis(this, 'percentage', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>
                         </g:if>
                         <g:if test="${!categoriesRequired.isEmpty() || !categoriesOffer.isEmpty()}">
