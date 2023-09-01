@@ -3,7 +3,9 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.springframework.web.multipart.MultipartFile
-import uk.co.wonderlane.wlpos.entities.RetailerIMConfig
+import uk.co.wonderlane.wlpos.entities.RetailerConfig
+import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
+import uk.co.wonderlane.wlpos.enums.LocationsType
 
 class RetailerController {
 
@@ -20,44 +22,41 @@ class RetailerController {
 
     @Secured(['ROLE_ENGINEER'])
     def save(RetailerCommand retailerCommand) {
-        if (retailerCommand.brandLogo?.filename != "") {
+        if (retailerCommand.brandLogo?.filename != "" && retailerCommand.brandLogo?.filename != null) {
             brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
         }
-        RetailerIMConfig imConfig = new RetailerIMConfig()
+        RetailerConfig retailerConfig = new RetailerConfig()
+        RetailerTerminologyConfig imConfig = new RetailerTerminologyConfig()
 
-        if (retailerCommand?.product != "") {
-            imConfig["product"] = retailerCommand.product
-        } else {
-            imConfig["product"] = "Product"
-        }
-        if (retailerCommand?.pack != "") {
-            imConfig["pack"] = retailerCommand.pack;
-        } else {
-            imConfig["pack"] = "Pack";
-        }
-        if (retailerCommand?.qis != "") {
-            imConfig["qis"] = retailerCommand.qis;
-        } else {
-            imConfig["qis"] = "Qis";
-        }
-        if (retailerCommand?.qoo != "") {
-            imConfig["qoo"] = retailerCommand.qoo;
-        } else {
-            imConfig["qoo"] = "Qoo";
-        }
-        if (retailerCommand?.user != "") {
-            imConfig["user"] = retailerCommand.user;
-        } else {
-            imConfig["user"] = "User";
-        }
-        if (retailerCommand?.store != "") {
-            imConfig["store"] = retailerCommand.store;
-        } else {
-            imConfig["store"] = "Store";
+        bindData(retailerCommand, springSecurityService.principal.retailer.config)
+
+        if (retailerCommand?.retailerTerminologyConfig == null){
+            retailerCommand.retailerTerminologyConfig = new RetailerTerminologyCommand()
         }
 
-        // NOTE - This function will update both config and imConfig depending what you pass it
-        retailerConfigService.saveRetailerConfig(null, imConfig)
+        if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
+            retailerCommand.retailerTerminologyConfig.productTerm = "Product"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.packTerm == "" || retailerCommand?.retailerTerminologyConfig?.packTerm == null) {
+            retailerCommand.retailerTerminologyConfig.packTerm = "Pack";
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.quantityInStockTerm == "" || retailerCommand?.retailerTerminologyConfig?.quantityInStockTerm == null) {
+            retailerCommand.retailerTerminologyConfig.quantityInStockTerm = "Quantity In Stock";
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.quantityOnOrderTerm == "" || retailerCommand?.retailerTerminologyConfig?.quantityOnOrderTerm == null) {
+            retailerCommand.retailerTerminologyConfig.quantityOnOrderTerm = "Quantity On Order";
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.userTerm == "" || retailerCommand?.retailerTerminologyConfig?.userTerm == null) {
+            retailerCommand.retailerTerminologyConfig.userTerm = "User";
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.storeTerm == "" || retailerCommand?.retailerTerminologyConfig?.storeTerm == null) {
+            retailerCommand.retailerTerminologyConfig.storeTerm = "Store";
+        }
+
+        bindData(imConfig, retailerCommand.retailerTerminologyConfig)
+        retailerConfig.retailerTerminologyConfig = imConfig
+        bindData(retailerConfig, retailerCommand)
+        retailerConfigService.saveRetailerConfig(retailerConfig)
 
         flash.message = ["Retailer saved successfully."]
 
@@ -88,11 +87,35 @@ class RetailerController {
 
 class RetailerCommand implements Validateable {
 
+    LocationsType locationsType;
+    boolean headOfficeProductMaintenance;
+    boolean snappyShopperEnabled;
+    boolean twoStageSel;
+    boolean averyEnabled;
+    boolean scoEnabled;
+    String rabbitMqUrl;
+    boolean rabbitMqSslEnabled;
+    int rabbitMqPort;
+    String rabbitMqVirtualHost;
+    String rabbitMqUsername;
+    String rabbitMqPassword;
+    String rabbitMqTransactionsExchange;
+    String rabbitMqDataSyncExchange;
+    String rabbitMqReceiptsExchange;
+
     MultipartFile brandLogo
-    String product
-    String pack
-    String qis
-    String qoo
-    String user
-    String store
+
+    // TODO - Implement this later
+    // InventoryManagementConfigCommand imConfig
+    RetailerTerminologyCommand retailerTerminologyConfig
+
+}
+
+class RetailerTerminologyCommand {
+    String productTerm
+    String packTerm
+    String quantityInStockTerm
+    String quantityOnOrderTerm
+    String userTerm
+    String storeTerm
 }

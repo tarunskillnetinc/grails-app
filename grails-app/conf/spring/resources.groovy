@@ -5,6 +5,7 @@ import uk.co.wonderlane.wlpos.HardwareService
 import uk.co.wonderlane.wlpos.ImageService
 import uk.co.wonderlane.wlpos.RetailerService
 import uk.co.wonderlane.wlpos.StoreService
+import uk.co.wonderlane.wlpos.RetailerConfigService
 import uk.co.wonderlane.wlpos.WonderLaneUserDetailsService
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationProvider
 import uk.co.wonderlane.wlpos.WonderLaneAuthenticationDetailsSource
@@ -27,6 +28,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 // Place your Spring DSL code here
 beans = {
     userDetailsService(WonderLaneUserDetailsService)
+    retailerConfigService(RetailerConfigService)
 
     wonderLaneAuthenticationProvider(WonderLaneAuthenticationProvider) {
         storeNumberValidator = ref('storeNumberValidator')
@@ -37,6 +39,7 @@ beans = {
         preAuthenticationChecks = ref('preAuthenticationChecks')
         postAuthenticationChecks = ref('postAuthenticationChecks')
         authoritiesMapper = ref('authoritiesMapper')
+        retailerConfigService = ref('retailerConfigService')
         hideUserNotFoundExceptions = true
     }
 
@@ -160,6 +163,18 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
     }
+
+    retailerConfigService(RetailerConfigService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+
+        springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
+    }
+
 
     hardwareService(HardwareService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),

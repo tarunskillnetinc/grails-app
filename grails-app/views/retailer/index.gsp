@@ -145,9 +145,9 @@
                         <div class="card-body py-5">
                             <div class="col-12">
                                 <div class="form-group row">
-                                    <label for="productTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Product</label>
+                                    <label for="productTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Product Term</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" name="productTerm" id="productTerm" />
+                                        <input type="text" name="retailerTerminologyConfig.productTerm" id="productTerm" />
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger offset-5" id="reset-product-term-button" onclick="$('#productTerm').val('')">Reset</div>
@@ -156,7 +156,7 @@
                                 <div class="form-group row">
                                     <label for="packTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Pack</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" name="packTerm" id="packTerm" />
+                                        <input type="text" name="retailerTerminologyConfig.packTerm" id="packTerm" />
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger offset-5" id="reset-pack-term-button" onclick="$('#packTerm').val('')">Reset</div>
@@ -165,7 +165,7 @@
                                 <div class="form-group row">
                                     <label for="qisTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QIS (Quantity In Stock)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" name="qisTerm" id="qisTerm" />
+                                        <input type="text" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" />
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger offset-5" id="reset-qis-term-button" onclick="$('#qisTerm').val('')">Reset</div>
@@ -174,7 +174,7 @@
                                 <div class="form-group row">
                                     <label for="qooTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QOO (Quantity On Order)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" name="qooTerm" id="qooTerm"/>
+                                        <input type="text" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger offset-5" id="reset-qoo-term-button"onclick="$('#qooTerm').val('')">Reset</div>
@@ -183,7 +183,7 @@
                                 <div class="form-group row">
                                     <label for="userTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">User</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" name="userTerm" id="userTerm"/>
+                                        <input type="text" name="retailerTerminologyConfig.userTerm" id="userTerm"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger offset-5" id="reset-user-term-button"onclick="$('#userTerm').val('')">Reset</div>
@@ -192,7 +192,7 @@
                                 <div class="form-group row">
                                     <label for="storeTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" name="storeTerm" id="storeTerm"/>
+                                        <input type="text" name="retailerTerminologyConfig.storeTerm" id="storeTerm"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger offset-5" id="reset-store-term-button"onclick="$('#storeTerm').val('')">Reset</div>
