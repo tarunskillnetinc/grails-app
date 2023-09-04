@@ -7,6 +7,7 @@
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="snapshotUrls.js"/>
+    <asset:javascript src="snapshotManagement.js"/>
 
     <script type='text/javascript'>
         $(function() {
@@ -41,8 +42,6 @@
             getSnapshots();
         });
     </script>
-
-    <asset:javascript src="snapshotManagement.js"/>
 </head>
 
 <body>
@@ -83,12 +82,12 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
                                 </div>
                             </div>
 
