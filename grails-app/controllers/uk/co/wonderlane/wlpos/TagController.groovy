@@ -109,7 +109,7 @@ class TagController {
 
         def skusInTag = tag.tagProducts?.collect { it.sku }
 
-        cmd.sku?.each {
+        cmd.sku?.toUnique().each {
             if (!cmd.id || !skusInTag.contains(it)) {
                 def tagProduct = new TagProduct()
                 tagProduct.sku = it
