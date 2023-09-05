@@ -11,10 +11,10 @@
             <nav aria-label="breadcrumb">
                 <div class="row mt-4">
                     <div class="col">
-                        <ol class="breadcrumb">
+                        <ol class="breadcrumb flex-nowrap">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="productList" action="listCentralCounts">Central Counts</g:link></li>
-                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${productList?.description ?: "Add Central Count"}</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item text-truncate" aria-current="page"><g:link controller="productList" action="listCentralCounts">Central Counts</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active text-truncate" aria-current="page">${productList?.description ?: "Add Central Count"}</li>
                         </ol>
                     </div>
                 </div>
