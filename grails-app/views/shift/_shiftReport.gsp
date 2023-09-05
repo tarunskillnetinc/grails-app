@@ -251,7 +251,7 @@
         </div>
 
         <div class="col-6 text-right">
-            <g:formatNumber number="${shift.refunds.sum { it.value }?.negate() ?: 0}" type="currency" />
+            <g:formatNumber number="${shift.refunds.sum { it.value } ?: 0}" type="currency" />
         </div>
     </div>
 
