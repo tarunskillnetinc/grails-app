@@ -38,8 +38,8 @@ class TagController {
         [tag: tag]
     }
 
-    def ajaxGetTags(String searchTerm) {
-        def tags = tagService.getTags(searchTerm)
+    def ajaxGetTags(String searchTerm, String searchBy) {
+        def tags = tagService.getTags(searchTerm, searchBy)
 
         render (template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm])
     }
