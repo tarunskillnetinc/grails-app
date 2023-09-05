@@ -63,23 +63,23 @@
 
                 var data = { };
 
-                var checkedBoxes = $("input:checked");
+                var checkedBoxes = $("#search-results input:checked");
 
                 checkedBoxes.each(function(i, checkbox) {
-                    var prices = $("[id^=price-" +$(checkbox).attr("id").substring(8) +"-]");
+                    var prices = $("[name^=price-" + $(checkbox).attr("name").substring(8) + "-]");
 
-                    prices.each(function(index, price) {
-                        var id = $(price).attr("id");
-                        var sku = id.substring(6, id.lastIndexOf("-"));
-                        var priceBandId = id.substring(id.lastIndexOf("-") + 1);
+                    prices.each(function (index, price) {
+                        var name = $(price).attr("name");
+                        var sku = name.substring(6, name.lastIndexOf("-"));
+                        var priceBandId = name.substring(name.lastIndexOf("-") + 1);
                         var oldPrice = $("[id^=oldPrice-" + sku + "-" + priceBandId + "]").val();
                         var productId = $("[id^=productId-" + sku + "-" + priceBandId + "]").val();
 
-                        data["priceChanges[" +((i * 3) + index) +"].sku"] = sku;
-                        data["priceChanges[" +((i * 3) + index) +"].priceBandId"] = priceBandId;
-                        data["priceChanges[" +((i * 3) + index) +"].price"] = $(price).val();
-                        data["priceChanges[" +((i * 3) + index) +"].oldPrice"] = oldPrice;
-                        data["priceChanges[" +((i * 3) + index) +"].productId"] = productId;
+                        data["priceChanges[" + ((i * 3) + index) + "].sku"] = sku;
+                        data["priceChanges[" + ((i * 3) + index) + "].priceBandId"] = priceBandId;
+                        data["priceChanges[" + ((i * 3) + index) + "].price"] = $(price).val();
+                        data["priceChanges[" + ((i * 3) + index) + "].oldPrice"] = oldPrice;
+                        data["priceChanges[" + ((i * 3) + index) + "].productId"] = productId;
                     });
                 });
 
@@ -90,6 +90,10 @@
                     method: "POST",
                     data: data,
                     success: function(resp) {
+
+                        $('#confirm-modal-success').attr("hidden", resp !== "OK" );
+                        $('#confirm-modal-empty').attr("hidden", resp !== "EMPTY" );
+
                         $('#confirmModal').modal({ show: true });
 
                         checkedBoxes.each(function(i, checkbox) {
@@ -215,11 +219,18 @@
             <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="confirm-modal-title">Success</h2>
+                        <div id="confirm-modal-success">
+                            <div class="modal-header">
+                                <h2 id="confirm-modal-title-success">Success</h2>
+                            </div>
+                            <div id="confirm-modal-message-success" class="modal-body">Price changes saved successfully.</div>
                         </div>
-
-                        <div id="confirm-modal-message" class="modal-body">Price changes saved successfully.</div>
+                        <div id="confirm-modal-empty">
+                            <div class="modal-header">
+                                <h2 id="confirm-modal-title-empty">Save failed</h2>
+                            </div>
+                            <div id="confirm-modal-message-empty" class="modal-body">Nothing was selected to be saved.</div>
+                        </div>
 
                         <div class="modal-footer">
                             <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
