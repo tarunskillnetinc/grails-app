@@ -17,6 +17,7 @@
             function search() {
                 var URL = "${createLink(controller: 'tag', action: 'ajaxGetTags')}";
                 var searchTerm = $('#tagSearchTerm').val();
+                var searchBy = $('#tagSearchBy').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -26,7 +27,7 @@
 
                 $.ajax({
                     url: URL,
-                    data: { searchTerm: searchTerm },
+                    data: { searchTerm: searchTerm, searchBy: searchBy },
                     success: function(resp) {
                         $('#search-results').html(resp);
                     }
@@ -87,6 +88,9 @@
                                 <label for="tagSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
                                 <div class="col-10 input-group">
                                     <g:textField id="tagSearchTerm" name="tagSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+                                    <div class="input-group-append">
+                                        <g:select id="tagSearchBy" name="tagSearchBy" from="${['everything', 'description', 'tagId']}" value="everything" valueMessagePrefix="TagSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -100,7 +104,7 @@
                 </div>
             </div>
 
-            <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
+            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-2 font-weight-bold">Tag ID</div>
                 <div class="col-6 font-weight-bold">Description</div>
                 <div class="col-2 font-weight-bold">Product Count</div>
