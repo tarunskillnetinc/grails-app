@@ -337,6 +337,12 @@ class ProductController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveRangeProducts(SaveRangeProductsCommand cmd) {
+
+        if (cmd?.rangeProducts === null) {
+            render "EMPTY"
+            return
+        }
+
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
 
         def newlyRangedProducts = []
