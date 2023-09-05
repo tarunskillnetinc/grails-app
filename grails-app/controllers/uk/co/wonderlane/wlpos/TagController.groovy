@@ -38,8 +38,8 @@ class TagController {
         [tag: tag]
     }
 
-    def ajaxGetTags(String searchTerm) {
-        def tags = tagService.getTags(searchTerm)
+    def ajaxGetTags(String searchTerm, String searchBy) {
+        def tags = tagService.getTags(searchTerm, searchBy)
 
         render (template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm])
     }
@@ -109,7 +109,7 @@ class TagController {
 
         def skusInTag = tag.tagProducts?.collect { it.sku }
 
-        cmd.sku?.each {
+        cmd.sku?.toUnique().each {
             if (!cmd.id || !skusInTag.contains(it)) {
                 def tagProduct = new TagProduct()
                 tagProduct.sku = it

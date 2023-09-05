@@ -22,7 +22,7 @@ class StoreService extends MySqlDal {
     }
 
     def getStoreByStoreNumber(int retailerId, Integer storeNumber) {
-        return Store.find("FROM Store s WHERE s.retailerId = :retailerId AND (JSON_EXTRACT(config, '\$.storeNumber') = :storeNumber OR (:storeNumber IS NULL AND JSON_TYPE(JSON_EXTRACT(config, '\$.storeNumber')) = 'NULL')) ORDER BY s.id DESC", [retailerId: retailerId, storeNumber: storeNumber])
+        return Store.find("FROM Store s WHERE s.retailerId = :retailerId AND (JSON_EXTRACT(config, '\$.storeNumber') = :storeNumber OR (:storeNumber IS NULL AND JSON_EXTRACT(config, '\$.storeType') = 'HEAD_OFFICE')) ORDER BY s.id DESC", [retailerId: retailerId, storeNumber: storeNumber])
     }
 
     def getStores(int retailerId) {

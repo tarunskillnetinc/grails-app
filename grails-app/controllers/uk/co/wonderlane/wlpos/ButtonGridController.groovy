@@ -16,12 +16,6 @@ class ButtonGridController {
     }
 
     def show() {
-        if (springSecurityService.principal.storeId) {
-            flash.error = "You cannot access this page when logged in as a store."
-            redirect(uri: "/")
-            return
-        }
-
         def buttonGrid
 
         if (params.id && Integer.parseInt(params.id) > 0) {

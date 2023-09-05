@@ -62,13 +62,13 @@
                 var checkedBoxes = $("input.selections:checked");
 
                 checkedBoxes.each(function(i, checkbox) {
-                    var ranges = $("[id^=range-" +$(checkbox).attr("id").substring(8) +"-]");
+                    var ranges = $("[name^=range-" +$(checkbox).attr("name").substring(8) +"-]");
 
                     ranges.each(function(index, range) {
-                        var id = $(range).attr("id");
+                        var name = $(range).attr("name");
 
-                        var productId = id.substring(6, id.lastIndexOf("-"));
-                        var rangeId = id.substring(id.lastIndexOf("-") + 1);
+                        var productId = name.substring(6, name.lastIndexOf("-"));
+                        var rangeId = name.substring(name.lastIndexOf("-") + 1);
 
                         data["rangeProducts[" +((i * 3) + index) +"].productId"] = productId;
                         data["rangeProducts[" +((i * 3) + index) +"].rangeId"] = rangeId;
@@ -83,6 +83,10 @@
                     method: "POST",
                     data: data,
                     success: function(resp) {
+
+                        $('#confirm-modal-success').attr("hidden", resp !== "OK" );
+                        $('#confirm-modal-empty').attr("hidden", resp !== "EMPTY" );
+
                         $('#confirmModal').modal({ show: true });
 
                         checkedBoxes.each(function(i, checkbox) {
@@ -195,11 +199,18 @@
             <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h2>Success</h2>
+                        <div id="confirm-modal-success">
+                            <div class="modal-header">
+                                <h2 id="confirm-modal-title-success">Success</h2>
+                            </div>
+                            <div id="confirm-modal-message-success" class="modal-body">Product range updates saved successfully.</div>
                         </div>
-
-                        <div id="modal-message" class="modal-body">Product range updates saved successfully.</div>
+                        <div id="confirm-modal-empty">
+                            <div class="modal-header">
+                                <h2 id="confirm-modal-title-empty">Save failed</h2>
+                            </div>
+                            <div id="confirm-modal-message-empty" class="modal-body">Nothing was selected to be saved.</div>
+                        </div>
 
                         <div class="modal-footer">
                             <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>

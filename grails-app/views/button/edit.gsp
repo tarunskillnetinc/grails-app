@@ -13,7 +13,7 @@
             }
 
             $("#image").on("change", function() {
-                if (this.files[0].size < 26214400) {
+                if (this.files[0].size < 1048576 /* 1MB */) { // max size should match number value in SaveButtonFormCommand.groovy
                     if (this.files[0].type === "image/png") {
                         const fileData = this.files[0];
                         if (FileReader && fileData) {
@@ -198,10 +198,10 @@
         <h2 class="mx-auto">Edit Button</h2>
     </div>
 
-    <g:hasErrors bean="${button}">
+    <g:hasErrors beans="[button, form]">
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${button}" as="list" />
+                <g:renderErrors beans="[button, form]" as="list" />
             </div>
         </section>
     </g:hasErrors>
@@ -413,9 +413,18 @@
         </div>
 
         <div class="col-12">
-            <g:form name="submission-form" action="save" novalidate="novalidate" enctype="multipart/form-data">
+            <g:uploadForm
+                    name="submission-form"
+                    action="save"
+                    params="[
+                            id: button?.id,
+                            buttonGridId: button?.buttonGrid?.id,
+                            row: button?.row,
+                            column: button?.column
+                    ]"
+            >
                 <g:hiddenField id="btnId" name="id" value="${button?.id}" />
-                <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
+                <g:hiddenField name="buttonGridId" value="${button?.buttonGrid?.id}" />
                 <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
                 <g:hiddenField name="storeId" value="${button?.buttonGrid?.storeId}" />
                 <g:hiddenField name="row" value="${button?.row}" />
@@ -437,7 +446,7 @@
                 <g:hiddenField name="removeImage" value=""/>
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
-            </g:form>
+            </g:uploadForm>
         </div>
     </section>
 

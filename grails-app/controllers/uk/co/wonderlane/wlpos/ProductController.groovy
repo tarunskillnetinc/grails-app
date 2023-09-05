@@ -299,6 +299,12 @@ class ProductController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSavePriceChanges(SavePriceChangesCommand cmd) {
+
+        if (cmd?.priceChanges === null) {
+            render "EMPTY"
+            return
+        }
+
         def now = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()//Get current date as start of a day
 
         def priceBandMap = [:] //Declare price band map to keep price band id against price band
@@ -331,6 +337,12 @@ class ProductController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveRangeProducts(SaveRangeProductsCommand cmd) {
+
+        if (cmd?.rangeProducts === null) {
+            render "EMPTY"
+            return
+        }
+
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
 
         def newlyRangedProducts = []

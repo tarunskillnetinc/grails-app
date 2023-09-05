@@ -188,7 +188,7 @@ class ReportingController {
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
-                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity > 0 ? it.quantity : 0 }
+                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity }
                     groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)

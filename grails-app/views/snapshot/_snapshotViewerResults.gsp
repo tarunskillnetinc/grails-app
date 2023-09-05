@@ -18,8 +18,8 @@
     <g:each in="${snapshots}" var="snapshot" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showSnapshotModal(${snapshot.id});">
             <div id="count-date-${i + 1}" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy" date="${snapshot.countDate.toDate()}" /></div>
-            <div id="total-${i + 1}" class="col-3 my-auto"><g:formatNumber number="${snapshot.totals.sum { it.value } ?: BigDecimal.ZERO}" type="currency" /></div>
-            <div id="variance-${i + 1}" class="col-3 my-auto"><g:formatNumber number="${snapshot.variance ?: BigDecimal.ZERO}" type="currency" /></div>
+            <div id="total-${i + 1}" class="col-3 my-auto text-truncate"><g:formatNumber number="${snapshot.totals.sum { it.value } ?: BigDecimal.ZERO}" type="currency" /></div>
+            <div id="variance-${i + 1}" class="col-3 my-auto text-truncate"><g:formatNumber number="${snapshot.variance ?: BigDecimal.ZERO}" type="currency" /></div>
             <div id="counted-by-${i + 1}" class="col-3 my-auto">${snapshot.countedByUsersName}</div>
         </div>
     </g:each>
