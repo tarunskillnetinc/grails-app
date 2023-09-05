@@ -278,7 +278,7 @@
                                 <div class="form-group row">
                                     <label for="brandLogo" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Brand Logo</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="file" name="brandLogo" accept=".png,.PNG" id="brandLogo" />
+                                        <input type="file" class="col-5 form-control-file bottom-border bg-transparent p-0" name="brandLogo" accept=".png,.PNG" id="brandLogo" />
                                     </div>
                                 </div>
 
