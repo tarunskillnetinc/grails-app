@@ -19,6 +19,12 @@
                         $('#brand-logo-container').html('<img id="brand-logo" src="data:image/png;base64,' + resp + '" style="width: 100%;" />');
                         $('#reset-brand-logo-button').show();
                     }
+                    // Iterate over each element with the class "item-label" and update its content
+                    $(".item-label").each(function() {
+                        const item = $(this).text(); // Get the text content of the current div
+                        const readableItem = camelToReadable(item); // Convert to readable format
+                        $(this).text(readableItem); // Update the div's content
+                    });
                 }
             });
         });
@@ -33,6 +39,13 @@
                     }
                 });
             }
+        }
+        function camelToReadable(camelCaseString) {
+            // Use a regular expression to split the string at capital letters
+            const words = camelCaseString.split(/(?=[A-Z])/);
+            // Capitalize the first letter of each word and join with spaces
+            const readableString = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            return readableString;
         }
     </script>
 </head>
@@ -199,6 +212,159 @@
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="accordionFunctionModification">
+                <!-- Function Modification. -->
+                <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                    <div class="card-header pointer" id="functionModification" data-toggle="collapse" data-target="#collapseFunctionModification" aria-expanded="true" aria-controls="collapseFunctionModification">
+                        <div class="row">
+                            <div class="col-10 font-weight-bold">Function Modification</div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseFunctionModification" class="collapse show" aria-labelledby="functionModificationDetails" data-parent="#accordionFunctionModification">
+                        <div class="card-body py-5">
+                            <div class="col-12">
+                                <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                                    <div class="card-header pointer" id="productLookup" data-toggle="collapse" data-target="#collapseProductLookup" aria-expanded="true" aria-controls="collapseProductLookup">
+                                        <div class="row">
+                                            <div class="col-10 font-weight-bold">Product Lookup</div>
+                                            <div class="col-2 text-right">
+                                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="collapseProductLookup" class="collapse" aria-labelledby="productLookup" data-parent="#productLookup">
+                                        <div class="card-body py-5">
+                                            <div class="col-12">
+                                                <div class="form-group row">
+                                                    <label for="productLookupName" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Name</label>
+                                                    <div class="col-7 col-lg-4">
+                                                        <input type="text" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName"/>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="btn btn-danger offset-5" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
+                                                    </div>
+                                                </div>
+                                                <h3 class="text-center">SEL & RTC Visibility Status</h3>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="selVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityEnabled" value="ENABLED"/>
+                                                    </div>
+                                                    <label for="selVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityDisabled" value="DISABLED"/>
+                                                    </div>
+                                                    <label for="selVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE"/>
+                                                    </div>
+                                                </div>
+                                                <h3 class="text-center">Visibility Status</h3>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" name="retailerFunctionConfig.functionMenuItems[productLookup].functionModificationMenuItemVisibility" id="productLookupVisibilityEnabled" value="ENABLED"/>
+                                                    </div>
+                                                    <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" name="retailerFunctionConfig.functionMenuItems[productLookup].functionModificationMenuItemVisibility" id="productLookupVisibilityDisabled" value="DISABLED"/>
+                                                    </div>
+                                                    <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" name="retailerFunctionConfig.functionMenuItems[productLookup].functionModificationMenuItemVisibility" id="productLookupVisibilityInvisible" value="INVISIBLE"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <%
+                                    var itemList = [
+                                            "gapCheck",
+                                            "stockCount",
+                                            "replenishment",
+                                            "shelfAudit",
+                                            "excessCount",
+                                            "pickList",
+                                            "centralCounts",
+                                            "dynamicReplenishment",
+                                            "fitToShelf",
+                                            "orders",
+                                            "deliveries",
+                                            "releaseItem",
+                                            "inventoryAdjustment",
+                                            "transfersIn",
+                                            "transfersOut",
+                                            "shelfEdgeLabels",
+                                            "priceCheck",
+                                            "storeSales",
+                                            "storeReports",
+                                            "varianceReport",
+                                            "bottomHomeButton",
+                                            "bottomProductButton",
+                                            "bottomFileButton",
+                                            "bottomSettingsButton"
+                                    ]
+                                %>
+                                <g:each in="${itemList}" var="item" status="index">
+                                    <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                                        <div class="card-header pointer" id="${item}" data-toggle="collapse" data-target="#collapse${item}" aria-expanded="true" aria-controls="collapse${item}">
+                                            <div class="row">
+                                                <div class="col-10 font-weight-bold item-label">${item}</div>
+                                                <div class="col-2 text-right">
+                                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="collapse${item}" class="collapse" aria-labelledby="${item}" data-parent="#${item}">
+                                            <div class="card-body py-5">
+                                                <div class="col-12">
+                                                    <div class="form-group row">
+                                                        <label for="${item}Name" class="col-5 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Name</label>
+                                                        <div class="col-7 col-lg-4">
+                                                            <input type="text" name="retailerFunctionConfig.functionMenuItems[${item}].name" id="${item}Name"/>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <div class="btn btn-danger offset-5" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
+                                                        </div>
+                                                    </div>
+                                                    <h3 class="text-center">Visibility Status</h3>
+                                                    <div class="form-group row justify-content-center">
+                                                        <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                        <div class="col-10 col-lg-1">
+                                                            <input type="radio" name="retailerFunctionConfig.functionMenuItems[${item}].functionModificationMenuItemVisibility" id="${item}VisibilityEnabled" value="ENABLED"/>
+                                                        </div>
+                                                        <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                        <div class="col-10 col-lg-1">
+                                                            <input type="radio" name="retailerFunctionConfig.functionMenuItems[${item}].functionModificationMenuItemVisibility" id="${item}VisibilityDisabled" value="DISABLED"/>
+                                                        </div>
+                                                        <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                        <div class="col-10 col-lg-1">
+                                                            <input type="radio" name="retailerFunctionConfig.functionMenuItems[${item}].functionModificationMenuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </g:each>
                             </div>
                         </div>
                     </div>

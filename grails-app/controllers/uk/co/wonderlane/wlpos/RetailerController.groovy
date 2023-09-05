@@ -4,6 +4,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.springframework.web.multipart.MultipartFile
 import uk.co.wonderlane.wlpos.entities.RetailerConfig
+import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
 import uk.co.wonderlane.wlpos.enums.LocationsType
 
@@ -12,6 +13,15 @@ class RetailerController {
     def springSecurityService
     def brandAssetsService
     def retailerConfigService
+
+    String camelToReadable(String camelCaseString) {
+        // Use a regular expression to split the string at capital letters
+        def words = camelCaseString.split(/(?=[A-Z])/)
+        // Capitalize the first letter of each word and join with spaces
+        def readableString = words.collect { it.capitalize() }.join(' ')
+        return readableString
+    }
+
 
     @Secured(['ROLE_ENGINEER'])
     def index() {
@@ -26,9 +36,8 @@ class RetailerController {
             brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
         }
         RetailerConfig retailerConfig = new RetailerConfig()
-        RetailerTerminologyConfig imConfig = new RetailerTerminologyConfig()
-
-        bindData(retailerCommand, springSecurityService.principal.retailer.config)
+        RetailerTerminologyConfig terminologyConfig = new RetailerTerminologyConfig()
+        RetailerFunctionConfig functionConfig = new RetailerFunctionConfig()
 
         if (retailerCommand?.retailerTerminologyConfig == null){
             retailerCommand.retailerTerminologyConfig = new RetailerTerminologyCommand()
@@ -53,9 +62,31 @@ class RetailerController {
             retailerCommand.retailerTerminologyConfig.storeTerm = "Store";
         }
 
-        bindData(imConfig, retailerCommand.retailerTerminologyConfig)
-        retailerConfig.retailerTerminologyConfig = imConfig
+        if (!retailerCommand.retailerFunctionConfig.hasProperty('shelfEdgeVisibility')){
+            retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = FunctionModificationCommand.Visibility.DISABLED
+        }
+
+        retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
+            if (value.name == ""){
+                value.name = camelToReadable(key)
+            }
+            if (!value.functionModificationMenuItemVisibility) {
+                value.functionModificationMenuItemVisibility = FunctionModificationCommand.Visibility.DISABLED
+            }
+        }
+
+        bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
+        bindData(functionConfig, retailerCommand.retailerFunctionConfig)
+
+        // Populate the retailer cmd with the existing retailer config
+        // (This will override the terminology and function configs but we have set them to objects above)
+        bindData(retailerCommand, springSecurityService.principal.retailer.config)
         bindData(retailerConfig, retailerCommand)
+
+        // Set those objects to the retailer config object
+        retailerConfig.retailerTerminologyConfig = terminologyConfig
+        retailerConfig.retailerFunctionConfig = functionConfig
+
         retailerConfigService.saveRetailerConfig(retailerConfig)
 
         flash.message = ["Retailer saved successfully."]
@@ -87,26 +118,26 @@ class RetailerController {
 
 class RetailerCommand implements Validateable {
 
-    LocationsType locationsType;
-    boolean headOfficeProductMaintenance;
-    boolean snappyShopperEnabled;
-    boolean twoStageSel;
-    boolean averyEnabled;
-    boolean scoEnabled;
-    String rabbitMqUrl;
-    boolean rabbitMqSslEnabled;
-    int rabbitMqPort;
-    String rabbitMqVirtualHost;
-    String rabbitMqUsername;
-    String rabbitMqPassword;
-    String rabbitMqTransactionsExchange;
-    String rabbitMqDataSyncExchange;
-    String rabbitMqReceiptsExchange;
+    LocationsType locationsType
+    boolean headOfficeProductMaintenance
+    boolean snappyShopperEnabled
+    boolean twoStageSel
+    boolean averyEnabled
+    boolean scoEnabled
+    String rabbitMqUrl
+    boolean rabbitMqSslEnabled
+    int rabbitMqPort
+    String rabbitMqVirtualHost
+    String rabbitMqUsername
+    String rabbitMqPassword
+    String rabbitMqTransactionsExchange
+    String rabbitMqDataSyncExchange
+    String rabbitMqReceiptsExchange
 
     MultipartFile brandLogo
 
-    // TODO - Implement this later
-    // InventoryManagementConfigCommand imConfig
+    FunctionModificationCommand retailerFunctionConfig
+
     RetailerTerminologyCommand retailerTerminologyConfig
 
 }
@@ -119,3 +150,26 @@ class RetailerTerminologyCommand {
     String userTerm
     String storeTerm
 }
+
+class FunctionModificationCommand {
+    enum Visibility {
+        ENABLED("Enabled"),
+        DISABLED("Disabled"),
+        INVISIBLE("Invisible")
+
+        final String label
+
+        Visibility(String label) {
+            this.label = label
+        }
+    }
+    Visibility shelfEdgeVisibility
+    Map<String, FunctionModificationMenuItemCommand> functionMenuItems
+
+}
+
+class FunctionModificationMenuItemCommand {
+    String name
+    FunctionModificationCommand.Visibility functionModificationMenuItemVisibility
+}
+
