@@ -62,13 +62,13 @@
                 var checkedBoxes = $("input.selections:checked");
 
                 checkedBoxes.each(function(i, checkbox) {
-                    var ranges = $("[id^=range-" +$(checkbox).attr("id").substring(8) +"-]");
+                    var ranges = $("[name^=range-" +$(checkbox).attr("name").substring(8) +"-]");
 
                     ranges.each(function(index, range) {
-                        var id = $(range).attr("id");
+                        var name = $(range).attr("name");
 
-                        var productId = id.substring(6, id.lastIndexOf("-"));
-                        var rangeId = id.substring(id.lastIndexOf("-") + 1);
+                        var productId = name.substring(6, name.lastIndexOf("-"));
+                        var rangeId = name.substring(name.lastIndexOf("-") + 1);
 
                         data["rangeProducts[" +((i * 3) + index) +"].productId"] = productId;
                         data["rangeProducts[" +((i * 3) + index) +"].rangeId"] = rangeId;
