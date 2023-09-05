@@ -7,6 +7,7 @@ import uk.co.wonderlane.wlpos.entities.RetailerConfig
 import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
 import uk.co.wonderlane.wlpos.enums.LocationsType
+import uk.co.wonderlane.wlpos.enums.Visibility
 
 class RetailerController {
 
@@ -26,8 +27,8 @@ class RetailerController {
     @Secured(['ROLE_ENGINEER'])
     def index() {
         def retailer = Retailer.get(springSecurityService.principal.retailerId)
-
-        [retailer: retailer]
+        def config = springSecurityService.principal.retailer.config
+        [retailer: retailer, config: config]
     }
 
     @Secured(['ROLE_ENGINEER'])
@@ -62,25 +63,21 @@ class RetailerController {
             retailerCommand.retailerTerminologyConfig.storeTerm = "Store";
         }
 
-        if (!retailerCommand.retailerFunctionConfig.hasProperty('shelfEdgeVisibility')){
-            retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = FunctionModificationCommand.Visibility.DISABLED
+        if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null){
+            retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = RetailerFunctionCommand.Visibility.ENABLED
         }
 
         retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
             if (value.name == ""){
                 value.name = camelToReadable(key)
             }
-            if (!value.functionModificationMenuItemVisibility) {
-                value.functionModificationMenuItemVisibility = FunctionModificationCommand.Visibility.DISABLED
+            if (!value.menuItemVisibility) {
+                value.menuItemVisibility = RetailerFunctionCommand.Visibility.ENABLED
             }
         }
 
         bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
         bindData(functionConfig, retailerCommand.retailerFunctionConfig)
-
-        // Populate the retailer cmd with the existing retailer config
-        // (This will override the terminology and function configs but we have set them to objects above)
-        bindData(retailerCommand, springSecurityService.principal.retailer.config)
         bindData(retailerConfig, retailerCommand)
 
         // Set those objects to the retailer config object
@@ -136,7 +133,7 @@ class RetailerCommand implements Validateable {
 
     MultipartFile brandLogo
 
-    FunctionModificationCommand retailerFunctionConfig
+    RetailerFunctionCommand retailerFunctionConfig
 
     RetailerTerminologyCommand retailerTerminologyConfig
 
@@ -151,25 +148,13 @@ class RetailerTerminologyCommand {
     String storeTerm
 }
 
-class FunctionModificationCommand {
-    enum Visibility {
-        ENABLED("Enabled"),
-        DISABLED("Disabled"),
-        INVISIBLE("Invisible")
-
-        final String label
-
-        Visibility(String label) {
-            this.label = label
-        }
-    }
+class RetailerFunctionCommand {
     Visibility shelfEdgeVisibility
-    Map<String, FunctionModificationMenuItemCommand> functionMenuItems
+    Map<String, FunctionMenuItemCommand> functionMenuItems
 
 }
 
-class FunctionModificationMenuItemCommand {
+class FunctionMenuItemCommand {
     String name
-    FunctionModificationCommand.Visibility functionModificationMenuItemVisibility
+    Visibility menuItemVisibility
 }
-
