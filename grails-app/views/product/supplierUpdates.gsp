@@ -94,7 +94,7 @@
             }
 
             function savePricesButtonClicked(acceptRrps) {
-                var checkedBoxes = $("input:checked:not(#checkAllCheckbox)");
+                var checkedBoxes = $("#search-results input:checked");
 
                 //Calculate total product price list
                 totalProductListCount = 0;
@@ -180,7 +180,7 @@
 
                 var data = { supplierId: supplierId, sinceDate: sinceDate, priceBandId: priceBandId, effectiveDate: effectiveDate, acceptRrps: acceptRrps };
 
-                var checkedBoxes = $("input:checked:not(#checkAllCheckbox)");
+                var checkedBoxes = $("#search-results input:checked");
 
                 checkedBoxes.each(function(i, checkbox) {
                     var packId = $("[id^=product-" +$(checkbox).attr("id").substring(8) +"-packId]").val();
