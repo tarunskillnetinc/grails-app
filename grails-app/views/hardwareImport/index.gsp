@@ -41,8 +41,14 @@
             uploadButton.innerHTML = "Uploading...";
             let url = "${createLink(controller: 'hardwareImport', action: 'ajaxCSVHardwareUpload')}";
 
+            const file = $('#csvFileUploadInput').get(0).files[0]
+            if (!file || file.type !== 'text/csv') {
+                handleUploadError(uploadButton, "Incorrect file format. Please upload a valid .csv file.");
+                return
+            }
+
             let jForm = new FormData();
-            jForm.append("file", $('#csvFileUploadInput').get(0).files[0]);
+            jForm.append("file", file);
 
             $.ajax({
                 url: url,
@@ -60,20 +66,24 @@
                     resetFileUploadInput();
                     setPreventWindowNavigation(null);
                 },
-                error: function (data) {
-                    const response = JSON.parse(data)
-                    uploadButton.disabled = false
-                    uploadButton.innerHTML = "Upload Hardware"
-                    showErrorAlert(response.errors)
-                    resetFileUploadInput();
-                    setPreventWindowNavigation(null);
+                error: function () {
+                    handleUploadError(uploadButton, "There was an error completing the import. Please ensure the file is valid.")
                 }
             });
         }
 
-        function showErrorAlert(errors) {
+        function handleUploadError(uploadButton, msg) {
+            $("#uploadResults").html("");
+            uploadButton.disabled = false
+            uploadButton.innerHTML = "Upload Hardware"
+            showErrorAlert(msg)
+            resetFileUploadInput();
+            setPreventWindowNavigation(null);
+        }
+
+        function showErrorAlert(msg) {
             $('#failureMessage').show();
-            $('#failureMessage').text("There was an error completing the import. Please try again.")
+            $('#failureMessage').text(msg)
         }
 
         function showSuccessAlert() {
@@ -113,7 +123,7 @@
                             const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
                             uploadButton.disabled = false
                             uploadButton.innerHTML = "Upload Hardware"
-                            showErrorAlert(response.errors)
+                            showErrorAlert("There was an error completing the import. Please try again.")
                             resetFileUploadInput();
                             setPreventWindowNavigation(null);
                         } else {
