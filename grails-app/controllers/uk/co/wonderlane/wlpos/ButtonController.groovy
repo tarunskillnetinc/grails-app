@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException
 import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -17,43 +18,85 @@ class ButtonController {
     def gsonProvider
 
     def edit() {
-        def button
-        def productVariant
+        def button = getButton(params.id, params.buttonGridId, params.row, params.column)
+        def productVariant = null
         def buttonImage = null
 
-        if (params.id && Integer.parseInt(params.id) > 0) {
-            button = Button.get(params.id)
-            if (button.type == ButtonType.PRODUCT && button.sku) {
-                productVariant = productService.getProductVariant(button.sku)
-            }
-
-            if (button.imageDisplay) {
-                buttonImage = imageService.getButtonImage(button.id)
-            }
-        } else {
-            def buttonGrid = ButtonGrid.get(params.buttonGridId)
-
-            button = new Button(row: params.row, column: params.column, buttonGrid: buttonGrid, type: buttonGrid.type == ButtonGridType.TENDER ?  ButtonType.TENDER : ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
+        if (button.type == ButtonType.PRODUCT && button.sku) {
+            productVariant = productService.getProductVariant(button.sku)
         }
 
-        [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK }, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()]
+        if (button.imageDisplay) {
+            buttonImage = imageService.getButtonImage(button.id)
+        }
+
+        [button: button,
+         buttonImage: buttonImage,
+         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type),
+         availableSubPages: buttonService.getOtherButtonGrids(),
+         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+         productSku: productVariant?.sku,
+         productDescription: productVariant?.product?.description,
+         storeId: getStoreId()]
     }
 
-    def save() {
-        boolean isHeadOffice = springSecurityService.principal.storeId == null
+    private Button getButton(String idS, String buttonGridIdS, String rowS, String columnS) {
+        def id = 0
+        if (idS) {
+            id = Integer.parseInt(idS)
+        }
+        def buttonGridId = 0
+        if (buttonGridIdS) {
+            buttonGridId = Integer.parseInt(buttonGridIdS)
+        }
+        def row = 0
+        if (rowS) {
+            row = Integer.parseInt(rowS)
+        }
+        def column = 0
+        if (columnS) {
+            column = Integer.parseInt(columnS)
+        }
+
+        def button
+        if (id > 0) {
+            button = Button.get(id)
+        } else {
+            def buttonGrid = ButtonGrid.get(buttonGridId)
+
+            button = new Button(row: row, column: column, buttonGrid: buttonGrid, type: buttonGrid.type == ButtonGridType.TENDER ?  ButtonType.TENDER : ButtonType.PRODUCT, bgColour: "#FFFFFF", textColour: "#000000", imageDisplay: false, textDisplay: true)
+        }
+
+        return button
+    }
+
+    def save(SaveButtonFormCommand form) {
+        def fileSizeError = request.getAttribute(MaxFileUploadSizeResolver.FILE_SIZE_EXCEEDED_ERROR)
+        if (fileSizeError != null && fileSizeError instanceof SizeLimitExceededException) {
+            form.errors.reject('button.error.fileSize.message')
+            renderError(getButton(params.id, params.buttonGridId, params.row, params.column), form)
+            return
+        }
 
         def button
         def existingButton = true
 
-        if (params.id && Integer.parseInt(params.id) > 0) {
-            button = Button.get(params.id)
+        if (form.id > 0) {
+            button = Button.get(form.id)
         } else {
             button = new Button()
-            button.buttonGrid = ButtonGrid.get(params.buttonGrid.id)
+            button.buttonGrid = ButtonGrid.get(form.buttonGridId)
             existingButton = false
         }
 
-        bindData(button, params)
+        bindData(button, form)
+
+        if (form.hasErrors()) {
+            renderError(button, form)
+            return
+        }
+
+        boolean isHeadOffice = springSecurityService.principal.storeId == null
 
         if (springSecurityService.principal.storeId != null) {
             button.storeId = springSecurityService.principal.storeId
@@ -80,7 +123,7 @@ class ButtonController {
                 buttonService.saveButtonGrid(button.buttonGrid)
             }
 
-            if (params.removeImage) {
+            if (form.removeImage) {
                 imageService.deleteButtonImage(button.id)
                 button.imageDisplay = false
                 button.textDisplay = true
@@ -90,10 +133,10 @@ class ButtonController {
                     buttonService.saveButtonGrid(button.buttonGrid)
                 }
             } else {
-                if (params.image) {
-                    byte[] image = params.image.bytes
+                if (form.image) {
+                    byte[] image = form.image.bytes
 
-                    if (image.length > 0 && params.image.contentType.equals("image/png")) {
+                    if (image.length > 0 && form.image.contentType == "image/png") {
                         imageService.saveButtonImage(button.id, image)
 
                         button.imageDisplay = true
@@ -109,14 +152,21 @@ class ButtonController {
             try {
                 if (singularButtonUpdate) {
                     buildAndSendButtonImageMessage(button)
+                } else {
+                    button.buttonGrid.buttons?.forEach({ iteratedButton ->
+                        buildAndSendButtonImageMessage(iteratedButton)
+                    })
                 }
-                button.buttonGrid.buttons?.forEach({iteratedButton ->
-                    buildAndSendButtonImageMessage(iteratedButton)
-                })
 
                 SyncMessage syncMessage
                 if (singularButtonUpdate) {
+                    // Creating a temporary button grid just for the purpose of telling the till app which button grid this button belongs to.
+                    uk.co.wonderlane.wlpos.entities.ButtonGrid tempButtonGrid = new uk.co.wonderlane.wlpos.entities.ButtonGrid()
+                    tempButtonGrid.setId(button.buttonGrid.id)
+
                     syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON)
+                    syncMessage.setButton(button.getButton())
+                    syncMessage.setButtonGrid(tempButtonGrid)
                     syncMessage.setInsert(true)
                 } else {
                     syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
@@ -128,7 +178,7 @@ class ButtonController {
                 redirect(controller: "buttonGrid", action: "show", id: button.buttonGrid.id, storeId: getStoreId())
             } catch (Exception e) {
                 e.printStackTrace()
-                def productVariant
+                def productVariant = null
                 def buttonImage = null
 
                 if (button.type == ButtonType.PRODUCT && button.sku) {
@@ -140,22 +190,45 @@ class ButtonController {
                 }
 
                 // TODO Populate an error to display on screen.
-                render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK }, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
+                render (view: "edit", model: [
+                        button: button,
+                        buttonImage: buttonImage,
+                        availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                        availableSubPages: buttonService.getOtherButtonGrids(),
+                        availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+                        productSku: productVariant?.sku,
+                        productDescription: productVariant?.product?.description,
+                        storeId: getStoreId()
+                ])
             }
         } else {
-            def productVariant
-            def buttonImage = null
-
-            if (button.type == ButtonType.PRODUCT && button.sku) {
-                productVariant = productService.getProductVariant(button.sku)
-            }
-
-            if (button.imageDisplay) {
-                buttonImage = imageService.getButtonImage(button.id)
-            }
-
-            render (view: "edit", model: [button: button, buttonImage: buttonImage, availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type), availableSubPages: buttonService.getOtherButtonGrids(), availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK }, productSku: productVariant?.sku, productDescription: productVariant?.product?.description, storeId: getStoreId()])
+            renderError(button, form)
         }
+    }
+
+    private void renderError(Button button, SaveButtonFormCommand form) {
+        def productVariant = null
+        def buttonImage = null
+
+        if (button.type == ButtonType.PRODUCT && button.sku) {
+            productVariant = productService.getProductVariant(button.sku)
+        }
+
+        if (button.imageDisplay) {
+            buttonImage = imageService.getButtonImage(button.id)
+        }
+
+        render (view: "edit", model: [
+                button: button,
+                buttonImage: buttonImage,
+                availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
+                availableSubPages: buttonService.getOtherButtonGrids(),
+                availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+                productSku: productVariant?.sku,
+                productDescription: productVariant?.product?.description,
+                storeId: getStoreId(),
+                form: form
+        ])
     }
 
     private void buildAndSendButtonImageMessage(Button button) {

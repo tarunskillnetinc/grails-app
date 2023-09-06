@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import org.apache.commons.lang3.EnumUtils
-import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ButtonGridType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType

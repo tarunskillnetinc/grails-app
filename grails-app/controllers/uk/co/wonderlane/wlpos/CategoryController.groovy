@@ -19,11 +19,6 @@ class CategoryController extends BaseController {
         super.ajaxSaveColumns()
     }
 
-    class CategoryWithLevel {
-        Category category
-        int categoryLevel
-    }
-
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSearchCategories() {
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
@@ -76,7 +71,8 @@ class CategoryController extends BaseController {
         blankCategory.restrictions.discountAllowed = true
         blankCategory.restrictions.creditPaymentAllowed = true
         blankCategory.restrictions.quantityChangeAllowed = true
-        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: getTopLevelCategories()])
+
+        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -115,7 +111,7 @@ class CategoryController extends BaseController {
         }
 
         if (category.hasErrors()) {
-            render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: getTopLevelCategories()])
+            render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories()])
             return
         }
 
@@ -125,7 +121,7 @@ class CategoryController extends BaseController {
             categoryService.saveRestriction(restriction)
 
             if (restriction.hasErrors()) {
-                render(view: "maintenance", model: [category: category, restrictions: restriction, addCategory: false, topLevelCategories: getTopLevelCategories()])
+                render(view: "maintenance", model: [category: category, restrictions: restriction, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories()])
                 return
             }
         } else {
@@ -133,21 +129,30 @@ class CategoryController extends BaseController {
             categoryService.saveRestriction(category.restrictions)
 
             if (category.restrictions.hasErrors()) {
-                render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: getTopLevelCategories()])
+                render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: categoryService.getTopLevelCategories()])
                 return
             }
         }
 
         categoryService.saveCategory(category)
 
-        if(!category.hasErrors()) {
+        if (!category.hasErrors()) {
             // Send the category to Rabbit to be inserted / updated in the tills
             sendMessageToRabbit(true, category)
 
             flash.message = "Category saved successfully"
             redirect("controller": "category", action:"index")
         } else {
-            render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, topLevelCategories: getTopLevelCategories()])
+            def categoryList = []
+            def tempCategory = category
+
+            while (tempCategory) {
+                categoryList.add(tempCategory.id)
+
+                tempCategory = tempCategory.parentCategory
+            }
+
+            render(view: "maintenance", model: [category: category, restrictions: category.restrictions, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories()])
         }
     }
 
@@ -158,13 +163,13 @@ class CategoryController extends BaseController {
         // Search for any products that use this category ID
         def products = Product.findAllByCategory(category)
         if (products.size() != 0) {
-            render(template: "maintenanceForm", model: [category: category, hasProducts: true, topLevelCategories: getTopLevelCategories()])
+            render(template: "maintenanceForm", model: [category: category, hasProducts: true, topLevelCategories: categoryService.getTopLevelCategories()])
             return
         }
 
         // Check whether this category has any children
         if (category.childCategories.size() > 0) {
-            render(template: "maintenanceForm", model: [category: category, hasChildren: true, topLevelCategories: getTopLevelCategories()])
+            render(template: "maintenanceForm", model: [category: category, hasChildren: true, topLevelCategories: categoryService.getTopLevelCategories()])
             return
         }
 
@@ -178,14 +183,22 @@ class CategoryController extends BaseController {
     def show(int id) {
         def category = categoryService.getCategory(id)
 
-        render(view: "maintenance", model: [category: category, addCategory: false, topLevelCategories: getTopLevelCategories()])
-    }
+        if (!category) {
+            flash.error = "Category not found"
+            redirect(action: "index")
+            return
+        }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    private List<Category> getTopLevelCategories() {
-        def topLevelCategories = categoryService.getTopLevelCategories()
-        topLevelCategories.add(0, new Category(description: "NONE"))
-        return topLevelCategories
+        def categoryList = []
+        def tempCategory = category
+
+        while (tempCategory) {
+            categoryList.add(tempCategory.id)
+
+            tempCategory = tempCategory.parentCategory
+        }
+
+        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories()])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

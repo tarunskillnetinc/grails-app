@@ -3,6 +3,7 @@ import uk.co.wonderlane.wlpos.AmazonBrandAssetsService
 import uk.co.wonderlane.wlpos.BrandAssetsService
 import uk.co.wonderlane.wlpos.HardwareService
 import uk.co.wonderlane.wlpos.ImageService
+import uk.co.wonderlane.wlpos.MaxFileUploadSizeResolver
 import uk.co.wonderlane.wlpos.RetailerService
 import uk.co.wonderlane.wlpos.StoreService
 import uk.co.wonderlane.wlpos.RetailerConfigService
@@ -232,4 +233,6 @@ beans = {
             }
         }
     }
+
+    multipartResolver(MaxFileUploadSizeResolver)
 }

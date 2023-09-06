@@ -235,6 +235,19 @@ class OrderController {
         }
     }
 
+    // Remove an individual item from an order
+    def deleteOrderItem() {
+        try {
+            orderService.deleteProductListItem(Integer.parseInt(params.productListId), Integer.parseInt(params.productItemId))
+            response.setStatus(200)
+            redirect(controller: "order", action: "productList")
+        } catch (Exception ex) {
+            ex.printStackTrace()
+            log.error("Error removing item from order , Exception " + ex)
+            response.sendError(500)
+        }
+    }
+
     def ajaxAddProduct(){
         render(view: "productSearch", model: [])
     }

@@ -56,7 +56,7 @@
                 $('.promo-desc').on("change", function() {
                     $('.promo-desc').val(this.value);
                     if ( $('.promo-receiptDesc').val() === "") {
-                        $('.promo-receiptDesc').val(this.value);
+                        $('.promo-receiptDesc').val(this.value.substring(0, 50));
                         $('.promo-receiptDesc').removeClass("is-invalid");
                     }
                     $('.promo-desc').removeClass("is-invalid");
@@ -105,11 +105,12 @@
                 intListener("percentage-retailerPromoId");
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
+                intListener("percentage-amount", 5, 100)
+                intListener("fixedAmount-amount", 7, 9999.99)
+                intListener("fixedPrice-amount", 7, 9999.99)
             }
 
-            function intListener(elementId) {
-                var maxLength = 10
-                var maxValue = 2147483647
+            function intListener(elementId, maxLength = 9, maxValue = 999999999) {
                 var element = document.getElementById(elementId)
 
                 if (element != null) {
@@ -173,7 +174,7 @@
                             "                                <label id=\"percentage-product-required-1-quantity-label\" for=\"percentage-product-required-1-quantity\" class=\"\">Quantity</label>\n" +
                             "                                <input type=\"number\" id=\"percentage-product-required-1-quantity\" name=\"percentage-product-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
                             "                                <label for=\"percentage-product-required-1-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
-                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
+                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'percentage', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         countRequiredDOM.val(parseInt(countRequiredDOM.val()) + 1);
@@ -298,7 +299,7 @@
                             "                                <label id=\"percentage-category-required-1-quantity-label\" for=\"percentage-category-required-1-quantity\" class=\"\">Quantity</label>\n" +
                             "                                <input type=\"number\" id=\"percentage-category-required-1-quantity\" name=\"percentage-category-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
                             "                                <label for=\"percentage-category-required-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
-                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
+                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'percentage', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         countRequiredDOM.val(parseInt(countRequiredDOM.val()) + 1);
@@ -422,7 +423,7 @@
                             "                                <label id=\"percentage-tag-required-1-quantity-label\" for=\"percentage-tag-required-1-quantity\" class=\"\">Quantity</label>\n" +
                             "                                <input type=\"number\" id=\"percentage-tag-required-1-quantity\" name=\"percentage-tag-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
                             "                                <label for=\"percentage-tag-required-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
-                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
+                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'percentage', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         countRequiredDOM.val(parseInt(countRequiredDOM.val()) + 1);

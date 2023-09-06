@@ -23,7 +23,7 @@
                 <g:field name="restrictions.sellerAgeRestriction" type="number" value="${restrictions?.sellerAgeRestriction}" class="col-2 form-control bottom-border" readonly="${!restrictions?.buyerIdRequired}" />
             </div>
             <div class="row form-group">
-                <label for="restrictions.minOpenPrice" class="col-4 col-form-label text-right pr-4">Min Open Price</label>
+                <label for="restrictions.minOpenPrice" class="col-4 col-form-label text-right pr-4">Minimum Open Price</label>
 
                 <div class="input-group col-3 px-0">
                     <div class="input-group-prepend">
@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="row form-group">
-                <label for="restrictions.maxOpenPrice" class="col-4 col-form-label text-right pr-4">Max Open Price</label>
+                <label for="restrictions.maxOpenPrice" class="col-4 col-form-label text-right pr-4">Maximum Open Price</label>
 
                 <div class="input-group col-3 px-0">
                     <div class="input-group-prepend">

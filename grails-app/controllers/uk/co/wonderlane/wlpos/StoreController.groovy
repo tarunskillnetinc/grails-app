@@ -214,17 +214,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
-        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE, validator: { value ->
-            if (value < new BigDecimal(0.01)) {
-                return ['storeConfigCommand.countIncrement.min.notmet']
-            }
-
-            if (value > BigDecimal.ONE) {
-                return ['storeConfigCommand.countIncrement.max.exceeded']
-            }
-
-            return true
-        }
+        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE
     }
 
     def colorCodeValidator(String colorCode) {

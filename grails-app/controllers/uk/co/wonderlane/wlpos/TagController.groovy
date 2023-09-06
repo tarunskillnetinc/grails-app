@@ -38,8 +38,8 @@ class TagController {
         [tag: tag]
     }
 
-    def ajaxGetTags(String searchTerm) {
-        def tags = tagService.getTags(searchTerm)
+    def ajaxGetTags(String searchTerm, String searchBy) {
+        def tags = tagService.getTags(searchTerm, searchBy)
 
         render (template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm])
     }
@@ -105,10 +105,11 @@ class TagController {
 
         tag.retailerId = springSecurityService.principal.retailerId
         tag.description = cmd.description
+        tag.maxSellQuantity = cmd.maxSellQuantity
 
         def skusInTag = tag.tagProducts?.collect { it.sku }
 
-        cmd.sku?.each {
+        cmd.sku?.toUnique().each {
             if (!cmd.id || !skusInTag.contains(it)) {
                 def tagProduct = new TagProduct()
                 tagProduct.sku = it
@@ -176,10 +177,12 @@ class SaveTagCommand {
 
     int id
     String description
+    Integer maxSellQuantity
     Long[] sku
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
+        maxSellQuantity nullable: true, max: 999
         sku nullable: false
     }
 }

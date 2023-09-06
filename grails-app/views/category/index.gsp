@@ -105,6 +105,10 @@
             <div id="success-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
         </g:if>
 
+        <g:if test="${flash.error}">
+            <div id="error-message" class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+        </g:if>
+
         <div class="row mt-4">
             <div class="col-6">
                 <div class="card bg-light border-wl">

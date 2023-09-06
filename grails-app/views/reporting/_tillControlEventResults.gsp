@@ -44,6 +44,8 @@
                     <g:elseif test="${tillControlEvent.type.name() == 'LINE_VOID'}"><g:message code="LineVoidReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:elseif test="${tillControlEvent.type.name() == 'PAID_OUT'}"><g:message code="PaidOutReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:else>${tillControlEvent.reason}</g:else>
+
+                    <g:if test="${tillControlEvent.reasonOther}">&nbsp;-&nbsp;${tillControlEvent.reasonOther}</g:if>
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">

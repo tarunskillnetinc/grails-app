@@ -43,7 +43,12 @@
 
             <div class="form-group row col-12 col-lg-6 mt-4">
                 <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                <g:textField name="description" class="col-8 form-control bottom-border" value="${tag.description}" disabled="disabled" />
+                <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" disabled="disabled" />
+            </div>
+
+            <div class="form-group row col-12 col-lg-6 mt-4">
+                <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
+                <g:textField name="maxSellQuantity" class="col-2 form-control bottom-border" value="${tag?.maxSellQuantity}" disabled="disabled" />
             </div>
 
             <div class="header-wl mt-5">
