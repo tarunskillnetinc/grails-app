@@ -32,7 +32,7 @@
 
     <div class="row mt-2">
         <div class="form-group row col-12 col-sm-6 offset-sm-1">
-            <label for="categorySelect" class="col-3 col-form-label text-right pr-4">Parent Catecory</label>
+            <label for="categorySelect" class="col-3 col-form-label text-right pr-4">Parent Category</label>
             <div class="col-12 col-sm-8 px-0">
                 <g:render template="/product/categorySelect" model="[categories: topLevelCategories, productCategoryList: categoryList, selectedCategoryId: category?.parentCategory?.id, level: 1, triggerOnCategoryChange: true]" />
             </div>
