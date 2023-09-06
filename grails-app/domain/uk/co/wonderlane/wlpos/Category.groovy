@@ -29,9 +29,33 @@ class Category {
     }
 
     static constraints = {
-        description nullable: false, blank: false
-        shortDescription nullable: true, blank: true
-        retailerCategoryCode nullable: true
+        description nullable: false, blank: false, validator: { val, obj ->
+            if (val == null) {
+                return true
+            }
+
+            if (!val.matches("\\A\\p{ASCII}*\\z")) {
+                return ['category.description.ascii.error']
+            }
+        }
+        shortDescription nullable: true, blank: true, validator: { val, obj ->
+            if (val == null) {
+                return true
+            }
+
+            if (!val.matches("\\A\\p{ASCII}*\\z")) {
+                return ['category.shortDescription.ascii.error']
+            }
+        }
+        retailerCategoryCode nullable: true, validator: { val, obj ->
+            if (val == null) {
+                return true
+            }
+
+            if (!val.matches("\\A\\p{ASCII}*\\z")) {
+                return ['category.retailerCategoryCode.ascii.error']
+            }
+        }
         parentCategory nullable: true
     }
 
