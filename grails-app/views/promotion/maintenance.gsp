@@ -56,7 +56,7 @@
                 $('.promo-desc').on("change", function() {
                     $('.promo-desc').val(this.value);
                     if ( $('.promo-receiptDesc').val() === "") {
-                        $('.promo-receiptDesc').val(this.value);
+                        $('.promo-receiptDesc').val(this.value.substring(0, 50));
                         $('.promo-receiptDesc').removeClass("is-invalid");
                     }
                     $('.promo-desc').removeClass("is-invalid");
@@ -105,11 +105,12 @@
                 intListener("percentage-retailerPromoId");
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
+                intListener("percentage-amount", 5, 100)
+                intListener("fixedAmount-amount", 7, 9999.99)
+                intListener("fixedPrice-amount", 7, 9999.99)
             }
 
-            function intListener(elementId) {
-                var maxLength = 10
-                var maxValue = 2147483647
+            function intListener(elementId, maxLength = 9, maxValue = 999999999) {
                 var element = document.getElementById(elementId)
 
                 if (element != null) {
