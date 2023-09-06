@@ -37,11 +37,11 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="bogof-description" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="bogof-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                        <g:textField name="bogof-receiptDescription" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
+                        <g:textField name="bogof-receiptDescription" maxLength="50" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -79,7 +79,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="bogof-retailerPromoId" min="0" max="2147483647" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="bogof-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -178,11 +178,11 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="xfory-description" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="xfory-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                        <g:textField name="xfory-receiptDescription" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
+                        <g:textField name="xfory-receiptDescription" maxLength="50" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -220,7 +220,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="xfory-retailerPromoId" min="0" max="2147483647" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="xfory-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -373,11 +373,11 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="percentage-description" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="percentage-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                        <g:textField name="percentage-receiptDescription" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
+                        <g:textField name="percentage-receiptDescription" maxLength="50" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -415,7 +415,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="percentage-retailerPromoId" min="0" max="2147483647" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="percentage-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -521,11 +521,11 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="fixedAmount-description" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="fixedAmount-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                        <g:textField name="fixedAmount-receiptDescription" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
+                        <g:textField name="fixedAmount-receiptDescription" maxLength="50" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -563,7 +563,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="2147483647" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -677,11 +677,11 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="fixedPrice-description" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="fixedPrice-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                        <g:textField name="fixedPrice-receiptDescription" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
+                        <g:textField name="fixedPrice-receiptDescription" maxLength="50" class="col-5 form-control bottom-border promo-receiptDesc" required="true" value="${promotion?.receiptDescription}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -719,7 +719,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="2147483647" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -729,7 +729,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-amount" class="col-3 col-form-label text-right pr-4">Fixed Amount</label>
-                        <g:field type="number" step="0.01" min="0" max="99999.99" name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">

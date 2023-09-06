@@ -38,6 +38,10 @@
             background-image: url("");
         }
 
+        input[type="number"]::-webkit-inner-spin-button{
+            display: none;
+        }
+
     </style>
 
     <script type='text/javascript'>
@@ -75,12 +79,37 @@
 
         });
 
+        document.addEventListener("DOMContentLoaded", function() {
+            let numbers = document.querySelectorAll('.quantity__input');
+            numbers.forEach(function(input) {
+                input.addEventListener("input", function(event) {
+                    let inputValue = parseInt(input.value);
+                    if (isNaN(inputValue)) {
+                        // Reset to the minimum value if the input is not a valid number
+                        input.value = input.min;
+                    } else if (inputValue < input.min) {
+                        // If the input value is less than the minimum, set it to the minimum value
+                        input.value = input.min;
+                    } else if (inputValue > input.max) {
+                        // If the input value is greater than the maximum, set it to the maximum value
+                        input.value = input.max;
+                    } else {
+                        // Set the value to the parsed int value
+                        input.value = inputValue;
+                    }
+                });
+            });
+        });
+
         function increment(id) {
             var packLineSelector = "#packLines\\[" + id + "\\]\\.";
             var value = parseInt($(packLineSelector + "quantity").val());
             value = isNaN(value) ? 0 : value;
             value++;
-            $(packLineSelector + "quantity").val(value)
+            $(packLineSelector + "quantity").val(value);
+            if (value > $(packLineSelector + "quantity")[0].max) {
+                $(packLineSelector + "quantity").val($(packLineSelector + "quantity")[0].max);
+            }
         }
 
         function decrement(id) {
@@ -138,7 +167,6 @@
                 $('#dialog-confirm').dialog('open');
             }
         }
-
     </script>
 
 </head>
@@ -220,7 +248,8 @@
                                         <g:hiddenField name="packLines[${pack.id}].id" id="packLines[${pack.id}].id" value="${pack?.id ?: 0}" />
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
-                                        <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="text" class="quantity__input" value="${pack?.getQuantity(packLinesList)}" >
+                                        <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
+                                            min="0" max="${pack.maximumOrderQuantity}" style="width: fit-content">
                                         <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
