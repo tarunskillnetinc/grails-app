@@ -56,6 +56,20 @@
                 });
             }
         }
+
+        $(function() {
+            $('#description').on('input', function () {
+                $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
+            })
+
+            $('#shortDescription').on('input', function () {
+                $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
+            })
+
+            $('#retailerCategoryCode').on('input', function () {
+                $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
+            })
+        })
     </script>
 </head>
 
