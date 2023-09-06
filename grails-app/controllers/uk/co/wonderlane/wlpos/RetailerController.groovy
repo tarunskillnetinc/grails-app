@@ -27,8 +27,7 @@ class RetailerController {
     @Secured(['ROLE_ENGINEER'])
     def index() {
         def retailer = Retailer.get(springSecurityService.principal.retailerId)
-        def config = springSecurityService.principal.retailer.config
-        [retailer: retailer, config: config]
+        [retailer: retailer]
     }
 
     @Secured(['ROLE_ENGINEER'])
