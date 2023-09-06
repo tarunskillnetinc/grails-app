@@ -134,6 +134,34 @@ class OrderService extends MySqlDal  {
         }
     }
 
+    def deleteProductListItem(int productListId, int productItemId) {
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = getProductListById(productListId)
+
+            def foundItem = productList.getProductListItems().find(item -> item.id == productItemId)
+            if (foundItem) {
+                deletePackLinesId(connection, foundItem.getId())
+                deleteProductListItemId(connection, foundItem.getId())
+            }
+
+            connection.commit()
+        }catch(Exception ex){
+            log.error("Order exception found when deleting product item, request is rollback , Exception " + ex.getMessage())
+            if (connection != null){
+                connection.rollback()
+            }
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+    }
+
     /** =================================== Start product list creation methods =========================================================== **/
 
     private createNewProductList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, User user){
