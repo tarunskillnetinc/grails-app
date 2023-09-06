@@ -45,8 +45,8 @@ class ReceiptService {
             eq ("id", receiptId)
             eq ("retailerId", springSecurityService.principal.retailerId)
 
-            if (springSecurityService.principal.storeId != null) {
-                eq ("storeId", springSecurityService.principal.storeId)
+            if (springSecurityService.principal.storeNumber != null) {
+                eq ("storeId", springSecurityService.principal.storeNumber)
             }
         }
     }
