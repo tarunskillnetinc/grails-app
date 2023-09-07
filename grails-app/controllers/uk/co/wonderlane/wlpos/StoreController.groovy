@@ -6,6 +6,9 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
+import java.math.MathContext
+import java.math.RoundingMode
+
 class StoreController {
 
     def springSecurityService
@@ -214,7 +217,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
-        countIncrement nullable: false, min: new BigDecimal(0.01), max: BigDecimal.ONE
+        countIncrement nullable: false, min: new BigDecimal(0.01).round(new MathContext(1, RoundingMode.HALF_EVEN)), max: BigDecimal.ONE
     }
 
     def colorCodeValidator(String colorCode) {
