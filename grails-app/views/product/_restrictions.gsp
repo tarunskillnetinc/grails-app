@@ -29,7 +29,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text">&pound;</span>
                     </div>
-                    <g:textField name="restrictions.minOpenPrice" value="${restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money" readonly="${!productOpenPrice}" />
+                    <g:textField name="restrictions.minOpenPrice" value="${restrictions?.minOpenPrice ?: '0.01'}" class="form-control mask-money open-price" readonly="${!productOpenPrice}" />
                 </div>
             </div>
             <div class="row form-group">
@@ -39,7 +39,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text">&pound;</span>
                     </div>
-                    <g:textField name="restrictions.maxOpenPrice" value="${restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money" readonly="${!productOpenPrice}" />
+                    <g:textField name="restrictions.maxOpenPrice" value="${restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money open-price"  readonly="${!productOpenPrice}" />
                 </div>
             </div>
         </div>
