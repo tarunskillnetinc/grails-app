@@ -1,3 +1,13 @@
+<script type="application/javascript">
+    $(document).ready(function() {
+        // Assuming your page buttons have a specific class (e.g., "page-button")
+        $('.step').on('click', function() {
+            // Scroll to the top of the page with a smooth animation
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        });
+    });
+</script>
+
 <g:if test="${!productLists || productLists?.size() == 0}">
     <div id="noResultsRow" class="col pt-2 pb-2 my-auto text-center wl-striped0">No results found.</div>
 </g:if>
