@@ -156,6 +156,11 @@ class ButtonGridController {
 
             buttonService.saveButtonGrid(buttonGrid)
 
+            SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
+            syncMessage.setInsert(true)
+            syncMessage.setButtonGrid(buttonGrid.getButtonGrid())
+            rabbitService.sendMessage(syncMessage)
+
             redirect(controller: "buttonGrid", action: "show", id: buttonGrid.id, storeId: getStoreId())
         } else {
             render(view: "add", model: [buttonGrid: buttonGrid, storeId: getStoreId()])
