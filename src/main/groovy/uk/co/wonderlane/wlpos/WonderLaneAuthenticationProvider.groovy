@@ -11,6 +11,7 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
     def storeNumberValidator
 
     def retailerProvider
+    def retailerConfigService
 
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         // If we reach here then a user with the username was found.
