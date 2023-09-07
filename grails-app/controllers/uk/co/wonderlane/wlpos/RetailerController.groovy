@@ -39,7 +39,7 @@ class RetailerController {
         RetailerTerminologyConfig terminologyConfig = new RetailerTerminologyConfig()
         RetailerFunctionConfig functionConfig = new RetailerFunctionConfig()
 
-        if (retailerCommand?.retailerTerminologyConfig == null){
+        if (retailerCommand?.retailerTerminologyConfig == null) {
             retailerCommand.retailerTerminologyConfig = new RetailerTerminologyCommand()
         }
 
@@ -67,7 +67,7 @@ class RetailerController {
         }
 
         retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
-            if (value.name == ""){
+            if (value.name == "") {
                 value.name = camelToReadable(key)
             }
             if (!value.menuItemVisibility) {
