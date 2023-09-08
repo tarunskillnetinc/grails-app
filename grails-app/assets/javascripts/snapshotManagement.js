@@ -26,14 +26,13 @@ function getSnapshots() {
 }
 
 function resetSnapshotFilters(startDate, endDate) {
-    $("#startDate").val(startDate);
-    $("#startDate").datepicker('setDate', startDate);
-
-    $("#endDate").val(endDate);
-    $("#endDate").datepicker('setDate', endDate);
-
+    setDatePickers(
+        'startDate',
+        'endDate',
+        startDate,
+        endDate
+    );
     $("#tillId").val("");
-
     getSnapshots();
 }
 
