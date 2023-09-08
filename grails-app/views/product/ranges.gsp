@@ -166,7 +166,7 @@
 
                                     <div class="form-group row">
                                         <div class="col-12 text-right">
-                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
+                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset Filters</button>
                                             <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
                                         </div>
                                     </div>
