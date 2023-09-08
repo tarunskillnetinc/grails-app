@@ -113,6 +113,14 @@
                 });
 
                 $(".mask-money").maskMoney({ allowZero: true });
+                $('.mask-money:read-only').maskMoney('destroy');
+                $('#openPrice').change(function() { // This is the checkbox
+                    if (this.checked){
+                        $('.mask-money.open-price').maskMoney({ allowZero: true });
+                    } else {
+                        $('.mask-money.open-price').maskMoney('destroy');
+                    }
+                });
 
                 $('#collapsePromotions').on('show.bs.collapse', function () {
                     getPromotions(${product?.id});
