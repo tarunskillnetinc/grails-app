@@ -1,3 +1,26 @@
+<script type="application/javascript">
+    $(function() {
+        intListener("baudRate");
+    });
+
+    function intListener(elementId) {
+        var element = document.getElementById(elementId)
+        var maxLength = 10
+        var maxValue = 2147483647
+
+        if (element != null) {
+            element.addEventListener("input", function () {
+                if (element.value.length > maxLength) {
+                    element.value = element.value.slice(0, maxLength)
+                }
+                if (element.value > maxValue) {
+                    element.value = maxValue
+                }
+            });
+        }
+    }
+</script>
+
 <div class="modal-header">
     <h2>Advanced Configuration</h2>
 </div>
@@ -26,7 +49,7 @@
             <label class="col-3 offset-1 col-form-label text-right">Baud Rate</label>
 
             <div class="input-group col-4">
-                <g:field type="number" min="0" name="baudRate" value="${config?.baudRate}" class="form-control bottom-border" />
+                <g:field type="number" min="0" max="2147483647" name="baudRate" value="${config?.baudRate}" class="form-control bottom-border" />
             </div>
         </div>
 

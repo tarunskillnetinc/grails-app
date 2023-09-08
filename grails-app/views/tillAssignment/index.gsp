@@ -212,31 +212,22 @@
         }
 
         function applyListeners() {
-            var tillIdFilter = document.getElementById("tillIdFilter")
-            var addTillIdField = document.getElementById("tillId")
+            intListener("tillIdFilter");
+            intListener("tillId");
+        }
+
+        function intListener(elementId) {
+            var element = document.getElementById(elementId)
             var maxLength = 10
             var maxValue = 2147483647
 
-            if (addTillIdField != null) {
-                addTillIdField.addEventListener("input", function () {
-                    if (addTillIdField.value.length > maxLength) {
-                        addTillIdField.value = addTillIdField.value.slice(0, maxLength)
+            if (element != null) {
+                element.addEventListener("input", function () {
+                    if (element.value.length > maxLength) {
+                        element.value = element.value.slice(0, maxLength)
                     }
-
-                    if (addTillIdField.value > maxValue) {
-                        addTillIdField.value = maxValue
-                    }
-                });
-            }
-
-            if (tillIdFilter != null) {
-                tillIdFilter.addEventListener("input", function () {
-                    if (tillIdFilter.value.length > maxLength) {
-                        tillIdFilter.value = tillIdFilter.value.slice(0, maxLength)
-                    }
-
-                    if (tillIdFilter.value > maxValue) {
-                        tillIdFilter.value = maxValue
+                    if (element.value > maxValue) {
+                        element.value = maxValue
                     }
                 });
             }
