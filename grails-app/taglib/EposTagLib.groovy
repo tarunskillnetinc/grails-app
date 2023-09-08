@@ -43,26 +43,6 @@ class EposTagLib {
         }
     }
 
-    def wlPagination = { attrs, body ->
-        if (attrs.totalResults > attrs.max) {
-            if (attrs.offset > 0) {
-                out << """<a id="page-prev-btn" class="prevLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset - attrs.max}, ${attrs.max});">Previous</a>"""
-            }
-
-            for (int i = 0 ; (i * attrs.max) < attrs.totalResults ; i++) {
-                if (attrs.offset >= (i * attrs.max) && attrs.offset < ((i + 1) * attrs.max)) {
-                    out << """<span class="currentStep">${i + 1}</span>"""
-                } else {
-                    out << """<a id="page-${i + 1}-btn" class="step" href="#" onclick="${attrs.searchFunction}(${i * attrs.max}, ${attrs.max});">${i + 1}</a>"""
-                }
-            }
-
-            if ((attrs.offset + attrs.max) < attrs.totalResults) {
-                out << """<a id="page-next-btn" class="nextLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset + attrs.max}, ${attrs.max});">Next</a>"""
-            }
-        }
-    }
-
     def reportBreadcrumb = { attrs, body ->
         out << """<nav aria-label="breadcrumb"><div class="row mt-4"><div class="col"><ol class="breadcrumb">"""
 

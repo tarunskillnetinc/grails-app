@@ -193,7 +193,7 @@
                                 </div>
 
                                 <div class="col-6 text-right">
-                                    <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Clear</button>
+                                    <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getQueues();">Filter</button>
                                 </div>
                             </div>

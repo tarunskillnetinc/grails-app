@@ -1,5 +1,15 @@
 <%@ page import="java.util.stream.Collectors" %>
 
+<script type="application/javascript">
+    $(document).ready(function() {
+        // Assuming your page buttons have a specific class (e.g., "page-button")
+        $('.step').on('click', function() {
+            // Scroll to the top of the page with a smooth animation
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        });
+    });
+</script>
+
 <g:if test="${categories == null}">
     <div class="row text-center">
         <div class="col-12">Please enter a search term.</div>
