@@ -40,8 +40,15 @@ $(document).ready(function() {
 });
 
 function setRadioClickAction(selector) {
+    var selected = {};
+
     $(selector).click(function () {
         var $radio = $(this);
+
+        if (this.name in selected && this !== selected[this.name]) {
+            $(selected[this.name]).trigger("deselect");
+        }
+        selected[this.name] = this;
 
         // If this was previously checked.
         if ($radio.data('waschecked') === true) {
@@ -51,10 +58,12 @@ function setRadioClickAction(selector) {
             $radio.prop('checked', true);
             $radio.data('waschecked', true);
         }
-
-        // Remove was checked from other radios.
-        $radio.siblings(selector).data('waschecked', false);
     });
+
+    $(selector).on('deselect', function () {
+        // Remove waschecked from previous checked radio.
+        $(this).data('waschecked', false)
+    })
 }
 
 function searchCategories(e, level, triggerOnCategoryChange, searchTerm) {
