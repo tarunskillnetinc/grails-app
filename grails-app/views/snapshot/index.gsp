@@ -8,6 +8,7 @@
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="snapshotUrls.js"/>
     <asset:javascript src="snapshotManagement.js"/>
+    <asset:javascript src="date-pickers.js"/>
 
     <script type='text/javascript'>
         $(function() {
@@ -17,28 +18,12 @@
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
 
-            $('#startDate').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
-
-            $('#endDate').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
-
+            initDatePickers(
+                'startDate',
+                'endDate',
+                "${(new Date() - 90).format("dd/MM/yyyy")}",
+                "${new Date().format("dd/MM/yyyy")}"
+            );
             getSnapshots();
         });
     </script>
