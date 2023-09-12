@@ -190,7 +190,7 @@
             }
 
             // Expand or collapse the category and show all children categories.
-            function expandCollapseCategory(categoryId, level, selectedCategoryId) {
+            function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOnCategoryChange) {
                 event.preventDefault();
 
                 var plusMinusButton = $("#plusMinus-" +categoryId);
@@ -205,6 +205,7 @@
                     params["categoryId"] = categoryId;
                     params["level"] = level;
                     params["selectedCategoryId"] = selectedCategoryId;
+                    params["triggerOnCategoryChange"] = triggerOnCategoryChange;
 
                     $.ajax({
                         url: getChildCategoriesUrl,
