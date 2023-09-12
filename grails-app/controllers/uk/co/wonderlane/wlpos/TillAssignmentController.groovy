@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 
 import java.security.SecureRandom
 
@@ -254,7 +255,7 @@ class TillAssignmentController {
         int maximumValue = 99999999
         int pin = random.nextInt((maximumValue - minimumValue) + 1) + minimumValue
 
-        def expiry = DateTime.now().plusHours(2)
+        def expiry = DateTime.now(DateTimeZone.UTC).plusHours(1)
 
         tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
 
