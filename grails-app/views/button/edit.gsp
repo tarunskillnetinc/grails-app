@@ -8,15 +8,10 @@
     <asset:javascript src="button.js" />
     <script type="text/javascript">
         $(function() {
-            if ($("#image")[0].files.length <= 0 ) {
-                    var displayTextCheck = $("input[id*=textDisplayInput]");
-                    displayTextCheck.prop("checked", true);
-                    displayTextCheck.prop("value", true);
-                    displayTextCheck.attr("disabled", true);
-            }
-            
             if ("${button?.imageDisplay}" === "false") {
-                $("input[id*=displayTextInput]").attr("disabled", true)
+                $("input[id*=textDisplayInput]").attr("checked", true);
+                $("input[id*=textDisplayInput]").attr("value", true)
+                $("input[id*=textDisplayInput]").attr("disabled", true)
             }
 
             $("#image").on("change", function() {
