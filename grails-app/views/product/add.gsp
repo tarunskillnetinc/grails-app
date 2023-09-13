@@ -866,6 +866,13 @@
                 });
             }
 
+            $(function() {
+                ['#itemCode', '#description', '#receiptDescription', '#unitSize'].forEach((textField) => {
+                    $(textField).on('input', function () {
+                        $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
+                    })
+                })
+            })
         </script>
     </head>
 
