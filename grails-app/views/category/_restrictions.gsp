@@ -11,13 +11,13 @@
 </div>
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1 form-check">
-         <div class="col-3 col-form-label text-right pr-4">
+         <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.buyerIdRequired" class="col-form-label text-right wl-label">Customer ID Required</label>
             <g:checkBox name="restrictions.buyerIdRequired" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.buyerIdRequired}" />
          </div>
     </div>
     <div class="form-group row col-12 col-sm-5 form-check">
-        <div class="col-3 col-form-label text-right pr-4">
+        <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.buyerIdForced" class="col-form-label text-right wl-label">Customer ID Forced</label>
             <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.buyerIdForced}" />
         </div>
@@ -39,7 +39,7 @@
             <g:field name="restrictions.sellerAgeRestriction" type="number" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.sellerAgeRestriction}"/>
     </div>
     <div class="form-group row col-12 col-sm-5 form-check">
-            <div class="col-3 col-form-label text-right pr-4">
+            <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
                 <label for="restrictions.refundAllowed" class="col-form-label text-right wl-label">Refund Allowed</label>
                 <g:checkBox name="restrictions.refundAllowed" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.refundAllowed}" />
             </div>
@@ -48,13 +48,13 @@
 
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1 form-check">
-         <div class="col-3 col-form-label text-right pr-4">
+         <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.markdownAllowed" class="col-form-label text-right wl-label">Markdown Allowed</label>
             <g:checkBox name="restrictions.markdownAllowed" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.markdownAllowed}" />
          </div>
     </div>
     <div class="form-group row col-12 col-sm-5 form-check">
-        <div class="col-3 col-form-label text-right pr-4">
+        <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.discountAllowed" class="col-form-label text-right wl-label">Discount Allowed</label>
             <g:checkBox name="restrictions.discountAllowed" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.discountAllowed}" />
         </div>
@@ -62,13 +62,13 @@
 </div>
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1 form-check">
-         <div class="col-3 col-form-label text-right pr-4">
+         <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.creditPaymentAllowed" class="col-form-label text-right wl-label">Credit Payment Allowed</label>
             <g:checkBox name="restrictions.creditPaymentAllowed" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.creditPaymentAllowed}" />
          </div>
     </div>
     <div class="form-group row col-12 col-sm-5 form-check">
-        <div class="col-3 col-form-label text-right pr-4">
+        <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.quantityChangeAllowed" class="col-form-label text-right wl-label">Quantity Change Allowed</label>
             <g:checkBox name="restrictions.quantityChangeAllowed" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.quantityChangeAllowed}"/>
         </div>
@@ -76,13 +76,13 @@
 </div>
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1 form-check">
-         <div class="col-3 col-form-label text-right pr-4">
+         <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.quantityChangeForced" class="col-form-label text-right wl-label">Quantity Change Forced</label>
             <g:checkBox name="restrictions.quantityChangeForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.quantityChangeForced}" />
          </div>
     </div>
     <div class="form-group row col-12 col-sm-5 form-check">
-        <div class="col-3 col-form-label text-right pr-4">
+        <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.receiptPrintForced" class="col-form-label text-right wl-label">Receipt Print Forced</label>
             <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.receiptPrintForced}" />
         </div>
