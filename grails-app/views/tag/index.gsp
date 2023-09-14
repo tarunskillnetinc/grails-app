@@ -33,6 +33,12 @@
                     }
                 })
             }
+
+            function resetForm() {
+                document.getElementById('tagSearchTerm').value = null;
+                document.getElementById('tagSearchBy').value = 'everything';
+                search();
+            }
         </script>
     </head>
 
@@ -96,6 +102,7 @@
 
                             <div class="form-group row">
                                 <div class="col-4 offset-8 text-right">
+                                    <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                                 </div>
                             </div>
