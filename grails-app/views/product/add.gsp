@@ -293,7 +293,7 @@
 
                 if (sku === "") {
                     $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">SKU cannot be empty.</div>`)
-                    return
+                    return;
                 }
 
                 var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
@@ -390,7 +390,7 @@
                 var sku = $("#addVariantSku").val();
                 if (sku < 0) {
                     // We already show an alert in saveVariant(index), so just return here
-                    return
+                    return;
                 }
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
