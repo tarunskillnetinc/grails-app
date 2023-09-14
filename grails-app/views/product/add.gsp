@@ -280,6 +280,10 @@
             function saveVariant(index) {
                 var id = $("#addVariantId").val();
                 var sku = $("#addVariantSku").val();
+                if (sku < 0) {
+                    alert("SKU cannot be a negative number.")
+                    return
+                }
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -384,6 +388,10 @@
             function saveTempLocations(index) {
                 var id = $("#addVariantId").val();
                 var sku = $("#addVariantSku").val();
+                if (sku < 0) {
+                    // We already show an alert in saveVariant(index), so just return here
+                    return
+                }
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
