@@ -117,7 +117,6 @@ class CategoryController extends BaseController {
 
         if (!addingCategory) {
             def restriction = Restrictions.findById(category.restrictions.id)
-            nullOptionalAmountFields(restriction)
             categoryService.saveRestriction(restriction)
 
             if (restriction.hasErrors()) {
@@ -125,7 +124,6 @@ class CategoryController extends BaseController {
                 return
             }
         } else {
-            nullOptionalAmountFields(category.restrictions)
             categoryService.saveRestriction(category.restrictions)
 
             if (category.restrictions.hasErrors()) {
@@ -237,15 +235,6 @@ class CategoryController extends BaseController {
             return Optional.of(Integer.parseInt(str))
         } catch (Exception ignored) {
             return Optional.empty()
-        }
-    }
-
-    private static void nullOptionalAmountFields(Restrictions restrictions) {
-        if (restrictions.minOpenPrice == 0) {
-            restrictions.minOpenPrice = null
-        }
-        if (restrictions.maxOpenPrice == 0) {
-            restrictions.maxOpenPrice = null
         }
     }
 }
