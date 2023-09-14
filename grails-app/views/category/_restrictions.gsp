@@ -2,11 +2,11 @@
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1">
         <label for="restrictions.minOpenPrice" class="col-3 col-form-label text-right pr-4">Minimum Open Price</label>
-        <g:textField name="restrictions.minOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.minOpenPrice}" />
+        <g:textField name="restrictions.minOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.minOpenPrice ?: '0.01'}" />
     </div>
     <div class="form-group row col-12 col-sm-5">
         <label for="restrictions.maxOpenPrice" class="col-3 col-form-label text-right pr-4">Maximum Open Price</label>
-        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.maxOpenPrice}" />
+        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.maxOpenPrice ?: '9999.99'}" />
     </div>
 </div>
 <div class="row">
