@@ -8,20 +8,20 @@
     </div>
 
     <div class="row font-weight-bolder">
-        <div class="col-8">
+        <div class="col-6">
             Description
         </div>
-        <div class="col-4 text-right">
+        <div class="col-6 text-right">
             Total
         </div>
     </div>
 
     <g:each in="${snapshot.expectedTotals?.sort { it.tenderType.name() }}" var="safeExpectedTotal">
         <div class="row">
-            <div class="col-8">
+            <div class="col-6">
                 <g:message code="TenderType.${safeExpectedTotal.tenderType}" />
             </div>
-            <div class="col-4 text-right">
+            <div class="col-6 text-right text-truncate">
                 <g:formatNumber number="${safeExpectedTotal.value}" type="currency" />
             </div>
         </div>
