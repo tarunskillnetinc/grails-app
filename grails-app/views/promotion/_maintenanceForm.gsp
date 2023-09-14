@@ -104,6 +104,7 @@
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="bogof-product1" class="offset-1 promotion-product-container mt-3">
                                 <g:hiddenField name="bogof-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
+                                <g:hiddenField name="bogof-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 Quantity 1 x ${String.valueOf(productsRequired.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}
                                 <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
                             </div>
@@ -245,6 +246,7 @@
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="xfory-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="xfory-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
+                                <g:hiddenField name="xfory-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 <label for="xfory-product-required-1-quantity" class="">Quantity</label>
                                 <g:field type="number" name="xfory-product-required-1-quantity" value="${productsRequired.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
                                 <label for="xfory-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
@@ -302,6 +304,7 @@
                         <g:if test="${!productsOffer?.isEmpty() || !productsRequired.isEmpty()}">
                             <div id="xfory-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="xfory-product-offer-1-productId" value="${productsOffer.isEmpty() ? productsRequired.first().product.id : productsOffer.first().product.id}"/>
+                                <g:hiddenField name="xfory-product-offer-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 <label for="xfory-product-offer-1-quantity" class="">Quantity</label>
                                 <g:field type="number" name="xfory-product-offer-1-quantity" value="${productsOffer.isEmpty() ? productsRequired.first().quantity : productsOffer.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'xfory');"/>
                                 <label for="xfory-product-offer-1-quantity" class="mr-3"> x ${String.valueOf(productsOffer.isEmpty() ? productsRequired.first().product.itemCode : productsOffer.first().product.itemCode)} - ${productsOffer.isEmpty() ? productsRequired.first().product.description : productsOffer.first().product.description}</label>
@@ -446,6 +449,7 @@
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="percentage-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="percentage-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
+                                <g:hiddenField name="percentage-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 <label for="percentage-product-required-1-quantity" class="">Quantity</label>
                                 <g:field type="number" name="percentage-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'percentage');"/>
                                 <label for="percentage-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired?.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired?.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
@@ -595,6 +599,7 @@
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="fixedAmount-product1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="fixedAmount-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
+                                <g:hiddenField name="fixedAmount-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 <label for="fixedAmount-product-required-1-value" class="">Value</label>
                                 <g:field type="number" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().requiredValue : productsRequired.first().requiredValue}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
                                 <label for="fixedAmount-product-required-1-quantity" class=""> or Quantity</label>

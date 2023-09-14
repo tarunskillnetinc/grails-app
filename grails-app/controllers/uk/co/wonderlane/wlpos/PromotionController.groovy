@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import groovy.time.Duration
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -50,7 +51,7 @@ class PromotionController {
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
                 if (it.sku != null) {
-                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
+                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
                 } else if (it.categoryId != null) {
                     categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
@@ -58,7 +59,7 @@ class PromotionController {
                 }
             } else {
                 if (it.sku != null) {
-                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
+                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
                 } else if (it.categoryId != null) {
                     categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
@@ -365,6 +366,8 @@ class PromotionController {
         }
 
         if (promotion.validate()) {
+            // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
+            promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
             promotionService.savePromotion(promotion)
 
             redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
