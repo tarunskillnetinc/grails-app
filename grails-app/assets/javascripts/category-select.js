@@ -47,6 +47,7 @@ function setRadioClickAction(selector) {
 
         if (this.name in selected && this !== selected[this.name]) {
             $(selected[this.name]).trigger("deselect");
+            $radio.siblings(selector).trigger("deselect")
         }
         selected[this.name] = this;
 
@@ -58,6 +59,11 @@ function setRadioClickAction(selector) {
             $radio.prop('checked', true);
             $radio.data('waschecked', true);
         }
+
+        $radio.siblings(selector).on('deselect', function () {
+            // Remove waschecked from previous checked radio.
+            $(this).data('waschecked', false)
+        })
     });
 
     $(selector).on('deselect', function () {

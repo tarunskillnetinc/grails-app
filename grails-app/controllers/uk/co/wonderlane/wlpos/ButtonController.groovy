@@ -81,6 +81,10 @@ class ButtonController {
         def button
         def existingButton = true
 
+        if (form.overrideId == form.id) {
+            form.id = 0
+        }
+
         if (form.id > 0) {
             button = Button.get(form.id)
         } else {
