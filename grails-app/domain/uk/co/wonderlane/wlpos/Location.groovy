@@ -13,7 +13,9 @@ class Location {
     int shelfCapacity
     int minimumDisplayQuantity
 
-    static belongsTo = [productVariant: ProductVariant]
+    boolean delete
+
+    static transients = ['delete']
 
     public Location() {}
 
@@ -31,27 +33,24 @@ class Location {
         location column: "location"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
-        productVariant column: "productVariantId"
     }
 
     static constraints = {
-        storeId nullable: true
-        sku nullable: true
+        storeId nullable: false
+        sku nullable: false
         aisle nullable: true
         bay nullable: true
         shelf nullable: true
         position nullable: true
         location nullable: true
-        shelfCapacity nullable: true
-        minimumDisplayQuantity nullable: true
-        productVariant nullable: true
+        shelfCapacity nullable: false
+        minimumDisplayQuantity nullable: false
     }
 
     public uk.co.wonderlane.wlpos.entities.Location getCommonLocation() {
         uk.co.wonderlane.wlpos.entities.Location loc = new uk.co.wonderlane.wlpos.entities.Location()
 
         loc.setId(id)
-        loc.setProductVariantId(productVariant?.id)
         loc.setStoreId(storeId)
         loc.setSku(sku)
         loc.setAisle(aisle)

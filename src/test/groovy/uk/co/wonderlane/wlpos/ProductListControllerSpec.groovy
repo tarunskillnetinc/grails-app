@@ -14,7 +14,7 @@ import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 class ProductListControllerSpec extends Specification implements ControllerUnitTest<ProductListController>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [StoreSettings, ProductList] as Class<?>[]
+        [Store, ProductList] as Class<?>[]
     }
 
     //-------------------------------index function Unit tests----------------------------//
@@ -92,7 +92,7 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
             getCentralCounts(_) >> new Object()
         }
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -123,7 +123,7 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
             getCentralCounts(_) >> new Object()
         }
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -156,7 +156,7 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
             getCentralCounts(_) >> new Object()
         }
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -201,7 +201,7 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
         given:
         controller.productListService = Stub(ProductListService) {}
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",
@@ -243,7 +243,7 @@ class ProductListControllerSpec extends Specification implements ControllerUnitT
     void "should handle exception when saving product lists"() {
         given:
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",

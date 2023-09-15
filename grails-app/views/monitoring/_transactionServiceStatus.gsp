@@ -159,3 +159,21 @@
         </div>
     </div>
 </div>
+
+<h3 id="snappy-service-title" class="text-center mt-5">Snappy Service</h3>
+<p class="text-center">Service handling subscriptions to Snappy Shopper, updating menus, prices etc.</p>
+
+<div class="card bg-light border-wl col-6 offset-3">
+    <div class="card-body text-center">
+        <div>Snappy service is <span id="snappy-service-availability" class="badge badge-${snappyServiceQueue?.consumers > 0 ? 'success' : 'danger'}">${snappyServiceQueue?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div id="snappy-service-messages">Messages waiting to be processed: ${snappyServiceQueue != null ? snappyServiceQueue.messages : 0}.</div>
+        <div id="snappy-service-activity">Latest activity:
+        <g:if test="${snappyServiceQueue?.idle_since}">
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${snappyServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
+        </g:if>
+        <g:else>
+            Now.
+        </g:else>
+        </div>
+    </div>
+</div>

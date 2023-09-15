@@ -1,3 +1,13 @@
+<script type="application/javascript">
+    $(document).ready(function() {
+        // Assuming your page buttons have a specific class (e.g., "page-button")
+        $('.step').on('click', function() {
+            // Scroll to the top of the page with a smooth animation
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        });
+    });
+</script>
+
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'retailerPromotionId', sortOrder: ${sortColumn == 'retailerPromotionId' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Promotion ID</a></div>
     <div class="col-3 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'description', sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
@@ -35,7 +45,7 @@
             <div id="promo-result-${i+1}-description" class="col-3">${promotion.description}</div>
             <div id="promo-result-${i+1}-updated" class="col-1 font-weight-bold">${promotion.updateDatetime.toString("dd/MM/yyyy")}</div>
             <div id="promo-result-${i+1}-start" class="col-1 font-weight-bold">${promotion.startDate.toString("dd/MM/yyyy")}</div>
-            <div id="promo-result-${i+1}-end" class="col-1 font-weight-bold">${promotion.endDate.toString("dd/MM/yyyy")}</div>
+            <div id="promo-result-${i+1}-end" class="col-1 font-weight-bold">${promotion.endDate?.toString("dd/MM/yyyy")}</div>
             <div id="promo-result-${i+1}-active" class="col-1">
                 <g:checkBox name="promo-${i}-active" value="${promotion.active}" disabled="true"/>
             </div>

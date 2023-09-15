@@ -4,7 +4,6 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.math.RoundingMode
-import java.nio.file.Path
 
 class EposTagLib {
 
@@ -40,26 +39,6 @@ class EposTagLib {
 
             if ((attrs.offset + attrs.max) < attrs.totalResults) {
                 out << """<a id="page-next-btn" class="nextLink" href="#" onclick="getReportData({ max: ${attrs.max}, offset: ${attrs.offset + attrs.max}, sortColumn: '${attrs.sortColumn}', sortOrder: '${attrs.sortOrder}' });">Next</a>"""
-            }
-        }
-    }
-
-    def wlPagination = { attrs, body ->
-        if (attrs.totalResults > attrs.max) {
-            if (attrs.offset > 0) {
-                out << """<a id="page-prev-btn" class="prevLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset - attrs.max}, ${attrs.max});">Previous</a>"""
-            }
-
-            for (int i = 0 ; (i * attrs.max) < attrs.totalResults ; i++) {
-                if (attrs.offset >= (i * attrs.max) && attrs.offset < ((i + 1) * attrs.max)) {
-                    out << """<span class="currentStep">${i + 1}</span>"""
-                } else {
-                    out << """<a id="page-${i + 1}-btn" class="step" href="#" onclick="${attrs.searchFunction}(${i * attrs.max}, ${attrs.max});">${i + 1}</a>"""
-                }
-            }
-
-            if ((attrs.offset + attrs.max) < attrs.totalResults) {
-                out << """<a id="page-next-btn" class="nextLink" href="#" onclick="${attrs.searchFunction}(${attrs.offset + attrs.max}, ${attrs.max});">Next</a>"""
             }
         }
     }
@@ -188,6 +167,14 @@ class EposTagLib {
                 out << """<li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${attrs.productDescription}</li>"""
 
                 break
+            case ReportType.PRODUCT_LISTS:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Product Lists Report</li>"""
+
+                break
+            case ReportType.PRODUCT_LIST:
+                out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"productLists", params:[storeId: attrs.storeId, type: attrs.typeFilter, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "Product Lists Report" }}"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${g.message(code:"ProductListType." +attrs.type)} (${attrs.dateStarted?.toString("dd/MM/yyyy") ?: 'Unknown date'})</li>"""
+                break
             default:
                 out << ""
 
@@ -310,18 +297,18 @@ class EposTagLib {
                 break
             case ProductHistoryType.LOCATION_ADD:
                 out << """User ${productHistory?.usersName} added new location with 
-                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
-                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
+                            from ${(productHistory?.fromValue) == "0" ? "unset" : productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_EDIT:
-                out << """User ${productHistory?.usersName} edited location with 
-                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
+                out << """User ${productHistory?.usersName} changed location with 
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             case ProductHistoryType.LOCATION_DELETE:
                 out << """User ${productHistory?.usersName} deleted location with 
-                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: productHistory?.field) : productHistory?.field} 
-                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                        ${(g.message(code: productHistory?.field) != null && !g.message(code: productHistory?.field).isEmpty()) ? g.message(code: getLocationField(productHistory?.field)) : getLocationField(productHistory?.field)} 
+                            from ${productHistory?.fromValue} to ${(productHistory?.toValue) == "0" ? "unset" : productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
             default:
                 out << """User ${productHistory?.usersName} changed 
@@ -329,5 +316,10 @@ class EposTagLib {
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
         }
+    }
+    
+    private static String getLocationField(String field) {
+        def formattedFieldArray = field?.split("(?=\\p{Upper})")
+        return String.join(" ", formattedFieldArray).toLowerCase()
     }
 }

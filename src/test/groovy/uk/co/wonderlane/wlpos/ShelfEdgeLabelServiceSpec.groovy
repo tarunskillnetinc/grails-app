@@ -377,7 +377,7 @@ class ShelfEdgeLabelServiceSpec extends Specification  implements ServiceUnitTes
         List<ProductPrice> mockProductPrice = getProductPrice()
         LabelTemplate labelTemplate =  getLabelTemplate(1, 1, 1, labelTemplateFieldType, "1", 10)
         List<Barcode> mockBarcodeList = getBarcodeList("101010110", false)
-        StoreSettings mockStoreSettings = getStoreSetting(inputStoreName)
+        Store mockStoreSettings = getStoreSetting(inputStoreName)
         ProductVariant productVariant = getMockProductVariant(true, false, shelfEdgeLabelHelperService.springSecurityService, false, false, new BigDecimal(1), false, "1", DateTime.now(DateTimeZone.UTC))
         mockDomain(ProductVariant, [productVariant])
 
@@ -429,7 +429,7 @@ class ShelfEdgeLabelServiceSpec extends Specification  implements ServiceUnitTes
         List<ProductPrice> mockProductPrice = getProductPrice()
         LabelTemplate labelTemplate =  getLabelTemplate(1, 1, 1, labelTemplateFieldType, defaultValue, 10)
         List<Barcode> mockBarcodeList = getBarcodeList("101010110", false)
-        StoreSettings mockStoreSettings = getStoreSetting("Store dummy Name")
+        Store mockStoreSettings = getStoreSetting("Store dummy Name")
         ProductVariant productVariant = getMockProductVariant(true, false, shelfEdgeLabelHelperService.springSecurityService, false, false, new BigDecimal(1), false, unitSize, DateTime.now(DateTimeZone.UTC))
         mockDomain(ProductVariant, [productVariant])
 
@@ -667,8 +667,8 @@ class ShelfEdgeLabelServiceSpec extends Specification  implements ServiceUnitTes
         return labelTemplateFieldList
     }
 
-    StoreSettings getStoreSetting(String storeName){
-        StoreSettings storeSettings = new StoreSettings()
+    Store getStoreSetting(String storeName){
+        Store storeSettings = new Store()
         storeSettings.setPrintReceiptOption(PrintReceiptOption.ALWAYS_PRINT)
         storeSettings.setPriceBand(new PriceBand())
         storeSettings.setRange(new Range())

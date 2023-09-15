@@ -7,7 +7,7 @@ class Group {
     String name
     GroupLevel level
 
-    static hasMany = [ groups: Group, stores: StoreSettings, users: User ]
+    static hasMany = [groups: Group, stores: Store, users: User ]
     static belongsTo = [ parentGroup: Group ]
 
     static mapping = {

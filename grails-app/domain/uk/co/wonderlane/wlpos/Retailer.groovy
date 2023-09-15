@@ -1,29 +1,41 @@
 package uk.co.wonderlane.wlpos
 
+import com.google.gson.GsonBuilder
+import uk.co.wonderlane.wlpos.entities.RetailerConfig
+import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
+
 class Retailer implements Serializable {
 
+    def gson = new GsonBuilder().registerTypeAdapter(boolean.class, new BooleanTypeAdapter()).create()
+
     int id
-    boolean snappyShopperEnabled
-    boolean twoStageSel
-    boolean scoEnabled
-    String locationsType
+    String name
+    String config
+
+    static transients = [ "gson" ]
+
+    public Retailer() { }
 
     static mapping = {
         table "retailers"
         version false
 
-        id column: "retailerId", sqlType: "tinyint"
-        snappyShopperEnabled column: "snappyShopperEnabled"
-        twoStageSel column: "twoStageSel"
-        scoEnabled column: "scoEnabled"
-        locationsType column: "locationsType"
+        id column: "id", sqlType: "tinyint"
+        name column: "`name`"
+        config column: "`config`", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
     static constraints = {
         id nullable: false
-        snappyShopperEnabled nullable: false
-        twoStageSel nullable: false
-        scoEnabled nullable: false
-        locationsType nullable: false
+        name nullable: false
+        config nullable: false
+    }
+
+    RetailerConfig getConfig() {
+        return gson.fromJson(config, RetailerConfig.class)
+    }
+
+    void setConfig(RetailerConfig retailerConfig) {
+        config = gson.toJson(retailerConfig)
     }
 }

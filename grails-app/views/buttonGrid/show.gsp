@@ -3,7 +3,22 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane Button Grids</title>
+    <title>Button Grids</title>
+    <script type="application/javascript">
+        function fullSync(id) {
+            if (confirm("This will fully sync tills, are you sure you want to continue?")) {
+                var url = "${createLink(controller: 'buttonGrid', action: 'ajaxSyncButtonGrid')}";
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    data: {id: id},
+                    success: function (params) {
+                        alert("Sync message has been sent to tills.")
+                    }
+                });
+            }
+        }
+    </script>
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -39,7 +54,12 @@
     </div>
 
     <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4 px-0 text-right" style="padding-right: 5px !important;">
-        <g:link elementId="edit-button-grid-btn" action="edit" id="${buttonGrid.id}" class="btn btn-wl">Edit Button Grid</g:link>
+        <g:if test="${storeId}">
+        </g:if>
+        <g:else>
+            <g:link elementId="edit-button-grid-btn" action="edit" id="${buttonGrid.id}" class="btn btn-wl">Edit Button Grid</g:link>
+        </g:else>
+        <button name="sync-button-grid-btn" onclick="fullSync(${buttonGrid.id})" id="${buttonGrid.id}" class="btn btn-success">Sync Button Grid</button>
     </div>
 
     <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4">
@@ -50,11 +70,20 @@
                         def button = buttonGrid.buttons.find { it.row == row && it.column == column }
                     %>
                     <g:if test="${!button}"><!-- Unassigned buttons -->
-                        <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                            <div id="button-${c+1}-${r+1}" class="button-grid-button blank">
-                                Unassigned Button
+                        <g:if test="${storeId}">
+                            <div class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
+                                <div id="button-${c+1}-${r+1}" class="button-grid-button blank">
+                                    Unassigned Button
+                                </div>
                             </div>
-                        </g:link>
+                        </g:if>
+                        <g:else>
+                            <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
+                                <div id="button-${c+1}-${r+1}" class="button-grid-button blank">
+                                    Unassigned Button
+                                </div>
+                            </g:link>
+                        </g:else>
                     </g:if>
                     <g:elseif test="${button.type.name() == 'TENDER' && button.tenderType.name() == 'CASH' && !button.description}"><!-- Exact cash button -->
                         <div id="button-${c+1}-${r+1}" class=" col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
@@ -68,7 +97,7 @@
                     </g:elseif>
                     <g:else><!-- All other assigned buttons -->
                         <g:link controller="button" action="edit" id="${button.id}" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                            <div id="button-${c+1}-${r+1}" class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px solid black;">
+                            <div id="button-${c+1}-${r+1}" class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px ${button.type.name() == 'BLANK' ? 'dashed' : 'solid'} black;">
                                 <g:if test="${button.imageDisplay && button.textDisplay}">
                                     <div class="button-grid-image-container">
                                         <g:buttonImage buttonId="${button.id}" />

@@ -55,8 +55,8 @@
                             <div class="row form-group">
                                 <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
 
-                                <div class="col-lg-9 pt-2" style="max-height: 300px; overflow-y: scroll;">
-                                    <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1]" />
+                                <div class="col-lg-9 pt-2">
+                                    <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1, triggerOnCategoryChange: true]" />
                                 </div>
                             </div>
                         </div>
@@ -94,14 +94,14 @@
                     <div id="variantsContainer">
                         <g:if test="${!product || !product?.variants}">
                             <div id="variant-0">
-                                <g:render template="variant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
+                                <g:render template="variant" model="[index: 0, storeId: storeId]" />
                             </div>
                         </g:if>
 
                         <g:each in="${product?.variants}" var="variant" status="i">
                             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                 <div id="variant-${i}">
-                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, locationsType: locationsType, storeId: storeId]" />
+                                    <g:render template="variant" model="[index: i, variant: variant, barcodes: variant.barcodez ? variant.barcodez : variant.barcodes, storeId: storeId]" />
                                 </div>
                             </g:if>
                         </g:each>
@@ -208,7 +208,7 @@
 
             <div id="collapseRestrictions" class="collapse collapsed" aria-labelledby="productRestrictions" data-parent="#accordion">
                 <div id="restrictionsContainer">
-                    <g:render template="restrictions" model="[restrictions: product?.restrictions, isNewProduct: isNewProduct]" />
+                    <g:render template="restrictions" model="[restrictions: product?.restrictions, productOpenPrice: product?.openPrice, isNewProduct: isNewProduct]" />
                 </div>
             </div>
         </div>
@@ -310,8 +310,8 @@
                                     def productRanges = selectedRanges ? selectedRanges : product?.ranges*.rangeId
                                 %>
                                 <g:each in="${ranges}" var="range" status="i">
-                                    <div class="col">
-                                        <label id="range-${i+1}-description" class="radio-container">${range.description}
+                                    <div class="col radio-container">
+                                        <label id="range-${i+1}-description" class="radio-input">${range.description}
                                             <g:checkBox name="rangeId" id="range-${i+1}-check-box" checked="${productRanges?.contains(range.id)}" value="${range.id}" class="form-check-input" />
 
                                             <span id="range-${i+1}-check-box-span" class="checkmark"></span>
@@ -325,8 +325,8 @@
             </g:if>
         </sec:ifAnyGranted>
 
-    <!-- Locations. -->
-        <g:if test="${storeId != null && (locationsType == "SIMPLE" || locationsType == "ADVANCED")}">
+        <!-- Locations. -->
+        <g:if test="${storeId != null && locationsEnabled}">
             <div class="card bg-light border-wl accordion-card">
                 <div class="card-header pointer" id="productLocations" data-toggle="collapse" data-target="#collapseProductLocations" aria-expanded="true" aria-controls="collapseProductLocations">
                     <div class="row">
@@ -348,17 +348,17 @@
                             <div class="col-5 font-weight-bold">Location Description</div>
                         </div>
 
-                        <div id="variantsContainer">
+                        <div id="locationsContainer">
                             <g:if test="${!product || !product?.variants}">
-                                <div id="variant-0">
-                                    <g:render template="locationVariant" model="[index: 0, locationsType: locationsType, storeId: storeId]" />
+                                <div id="location-0">
+                                    <g:render template="locationVariant" model="[index: 0, locationsEnabled: locationsEnabled, storeId: storeId]" />
                                 </div>
                             </g:if>
 
                             <g:each in="${product?.variants}" var="variant" status="i">
                                 <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                     <div id="variant-${i}">
-                                        <g:render template="locationVariant" model="[index: i, variant: variant, locationsType: locationsType, storeId: storeId]" />
+                                        <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations, locationsEnabled: locationsEnabled, storeId: storeId]" />
                                     </div>
                                 </g:if>
                             </g:each>

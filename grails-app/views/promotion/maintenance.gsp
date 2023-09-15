@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Promotion Maintenance</title>
+        <title>Promotion Maintenance</title>
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -43,6 +43,11 @@
                     $('.wl-noExpire').prop("checked", this.checked);
                     $('.promo-endDate').prop('disabled', this.checked);
                     $('.input-group.date.startDate').datepicker('setEndDate', (this.checked ? "" : $('.promo-endDate').val()));
+
+                    if(this.checked) {
+                        $('.promo-endDate').val('');
+                    }
+
                     if (!this.checked) {
                         $('.promo-endDate').val(moment($('.promo-startDate').val(), "dddd DD MMMM YYYY").add(7, 'days').format("dddd DD MMMM YYYY"));
                     }
@@ -51,7 +56,7 @@
                 $('.promo-desc').on("change", function() {
                     $('.promo-desc').val(this.value);
                     if ( $('.promo-receiptDesc').val() === "") {
-                        $('.promo-receiptDesc').val(this.value);
+                        $('.promo-receiptDesc').val(this.value.substring(0, 50));
                         $('.promo-receiptDesc').removeClass("is-invalid");
                     }
                     $('.promo-desc').removeClass("is-invalid");
@@ -91,7 +96,34 @@
                 $('.promo-amount').on("change", function() {
                     $('.promo-amount').removeClass("is-invalid");
                 });
+                applyListeners();
             });
+
+            function applyListeners() {
+                intListener("bogof-retailerPromoId");
+                intListener("xfory-retailerPromoId");
+                intListener("percentage-retailerPromoId");
+                intListener("fixedAmount-retailerPromoId");
+                intListener("fixedPrice-retailerPromoId");
+                intListener("percentage-amount", 5, 100)
+                intListener("fixedAmount-amount", 7, 9999.99)
+                intListener("fixedPrice-amount", 7, 9999.99)
+            }
+
+            function intListener(elementId, maxLength = 9, maxValue = 999999999) {
+                var element = document.getElementById(elementId)
+
+                if (element != null) {
+                    element.addEventListener("input", function () {
+                        if (element.value.length > maxLength) {
+                            element.value = element.value.slice(0, maxLength)
+                        }
+                        if (element.value > maxValue) {
+                            element.value = maxValue
+                        }
+                    });
+                }
+            }
 
             function productSelected(id, sku, description) {
                 var promoType = $('#productModal-currentPromotionType').val();
@@ -115,16 +147,16 @@
                     case 'xfory':
                         $('#xfory-productsRequiredContainer').append("<div id=\"xfory-product-required-1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"xfory-product-required-1-sku\" value=\"" + sku + "\"/>\n" +
-                            "                                <label for=\"xfory-product-required-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"xfory-product-required-1-quantity\" value=\"2\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
+                            "                                <label id=\"xfory-product-required-1-quantity-label\" for=\"xfory-product-required-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"xfory-product-required-1-quantity\" name=\"xfory-product-required-1-quantity\" value=\"2\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
                             "                                <label for=\"xfory-product-required-1-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         $('#xfory-productsOfferContainer').append("<div id=\"xfory-product1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"xfory-product-offer-1-sku\" value=\"" + sku + "\"/>\n" +
-                            "                                <label for=\"xfory-product-offer-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"xfory-product-offer-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
+                            "                                <label id=\"xfory-product-offer-1-quantity-label\" for=\"xfory-product-offer-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"xfory-product-offer-1-quantity\" name=\"xfory-product-offer-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
                             "                                <label for=\"xfory-product-offer-1-quantity\" class=\"mr-3\"> x " + sku +" - " + description + "</label>\n" +
                             "                            </div>");
 
@@ -139,10 +171,10 @@
                     case 'percentage':
                         $('#percentage-productsRequiredContainer').append("<div id=\"percentage-product1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"percentage-product-required-1-sku\" value=\"" + sku + "\"/>\n" +
-                            "                                <label for=\"percentage-product-required-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"percentage-product-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
+                            "                                <label id=\"percentage-product-required-1-quantity-label\" for=\"percentage-product-required-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"percentage-product-required-1-quantity\" name=\"percentage-product-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
                             "                                <label for=\"percentage-product-required-1-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
-                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
+                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'percentage', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         countRequiredDOM.val(parseInt(countRequiredDOM.val()) + 1);
@@ -155,10 +187,10 @@
                     case 'fixedAmount':
                         $('#fixedAmount-productsRequiredContainer').append("<div id=\"fixedAmount-product1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"fixedAmount-product-required-1-sku\" value=\"" + sku + "\"/>\n" +
-                            "                                <label for=\"fixedAmount-product-required-1-value\" class=\"\">Value</label>\n" +
-                            "                                <input type=\"number\" name=\"fixedAmount-product-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
-                            "                                <label for=\"fixedAmount-product-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"fixedAmount-product-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <label id=\"fixedAmount-product-required-1-value-label\" for=\"fixedAmount-product-required-1-value\" class=\"\">Value</label>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-value\" name=\"fixedAmount-product-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
+                            "                                <label id=\"fixedAmount-product-required-1-quantity-label\" for=\"fixedAmount-product-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-quantity\" name=\"fixedAmount-product-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
                             "                                <label for=\"fixedAmount-product-required-1-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -198,8 +230,8 @@
 
                             $('#fixedPrice-productsRequiredContainer').append("<div id=\"fixedPrice-product" + nextValidIndex + "\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                                 "                                    <input type=\"hidden\" name=\"fixedPrice-product-required-" + nextValidIndex + "-sku\" value=\"" + sku + "\"  class=\"promo-itemId\"/>\n" +
-                                "                                    <label for=\"fixedPrice-product-required-" + nextValidIndex + "-quantity\" class=\"\">Quantity</label>\n" +
-                                "                                    <input type=\"number\" name=\"fixedPrice-product-required-" + nextValidIndex + "-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'fixedPrice');\"/>\n" +
+                                "                                    <label id=\"fixedPrice-product-required-" + nextValidIndex + "-quantity-label\" for=\"fixedPrice-product-required-" + nextValidIndex + "-quantity\" class=\"\">Quantity</label>\n" +
+                                "                                    <input type=\"number\" id=\"fixedPrice-product-required-" + nextValidIndex + "-quantity\" name=\"fixedPrice-product-required-" + nextValidIndex + "-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'fixedPrice');\"/>\n" +
                                 "                                    <label for=\"fixedPrice-product-required-" + nextValidIndex + "-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
                                 "                                    <a href=\"#\" onclick=\"return deleteThis(this, 'fixedPrice', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                                 "                                </div>");
@@ -240,16 +272,16 @@
                     case 'xfory':
                         $('#xfory-productsRequiredContainer').append("<div id=\"xfory-category-required-1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"xfory-category-required-1-categoryId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"xfory-category-required-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"xfory-category-required-1-quantity\" value=\"2\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
+                            "                                <label id=\"xfory-category-required-1-quantity-label\" for=\"xfory-category-required-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"xfory-category-required-1-quantity\" name=\"xfory-category-required-1-quantity\" value=\"2\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
                             "                                <label for=\"xfory-category-required-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         $('#xfory-productsOfferContainer').append("<div id=\"xfory-category1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"xfory-category-offer-1-categoryId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"xfory-category-offer-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"xfory-category-offer-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
+                            "                                <label id=\"xfory-category-offer-1-quantity-label\" for=\"xfory-category-offer-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"xfory-category-offer-1-quantity\" name=\"xfory-category-offer-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
                             "                                <label for=\"xfory-category-offer-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
                             "                            </div>");
 
@@ -264,10 +296,10 @@
                     case 'percentage':
                         $('#percentage-productsRequiredContainer').append("<div id=\"percentage-category1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"percentage-category-required-1-categoryId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"percentage-category-required-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"percentage-category-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
+                            "                                <label id=\"percentage-category-required-1-quantity-label\" for=\"percentage-category-required-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"percentage-category-required-1-quantity\" name=\"percentage-category-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
                             "                                <label for=\"percentage-category-required-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
-                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
+                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'percentage', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         countRequiredDOM.val(parseInt(countRequiredDOM.val()) + 1);
@@ -280,10 +312,10 @@
                     case 'fixedAmount':
                         $('#fixedAmount-productsRequiredContainer').append("<div id=\"fixedAmount-category1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"fixedAmount-category-required-1-categoryId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"fixedAmount-category-required-1-value\" class=\"\">Value</label>\n" +
-                            "                                <input type=\"number\" name=\"fixedAmount-category-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
-                            "                                <label for=\"fixedAmount-category-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"fixedAmount-category-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <label id=\"fixedAmount-category-required-1-value-label\" for=\"fixedAmount-category-required-1-value\" class=\"\">Value</label>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-value\" name=\"fixedAmount-category-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
+                            "                                <label id=\"fixedAmount-category-required-1-quantity-label\" for=\"fixedAmount-category-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-quantity\" name=\"fixedAmount-category-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
                             "                                <label for=\"fixedAmount-category-required-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -321,8 +353,8 @@
 
                             $('#fixedPrice-productsRequiredContainer').append("<div id=\"fixedPrice-category" + nextValidIndex + "\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                                 "                                    <input type=\"hidden\" name=\"fixedPrice-category-required-" + nextValidIndex + "-categoryId\" value=\"" + id + "\"  class=\"promo-itemId\"/>\n" +
-                                "                                    <label for=\"fixedPrice-category-required-" + nextValidIndex + "-quantity\" class=\"\">Quantity</label>\n" +
-                                "                                    <input type=\"number\" name=\"fixedPrice-category-required-" + nextValidIndex + "-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'fixedPrice');\"/>\n" +
+                                "                                    <label id=\"fixedPrice-category-required-" + nextValidIndex + "-quantity-label\" for=\"fixedPrice-category-required-" + nextValidIndex + "-quantity\" class=\"\">Quantity</label>\n" +
+                                "                                    <input type=\"number\" id=\"fixedPrice-category-required-" + nextValidIndex + "-quantity\" name=\"fixedPrice-category-required-" + nextValidIndex + "-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'fixedPrice');\"/>\n" +
                                 "                                    <label for=\"fixedPrice-category-required-" + nextValidIndex + "-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? categoryCode : "") + "</label>\n" +
                                 "                                    <a href=\"#\" onclick=\"return deleteThis(this, 'fixedPrice', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                                 "                                </div>");
@@ -364,16 +396,16 @@
                     case 'xfory':
                         $('#xfory-productsRequiredContainer').append("<div id=\"xfory-tag-required-1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"xfory-tag-required-1-tagId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"xfory-tag-required-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"xfory-tag-required-1-quantity\" value=\"2\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
+                            "                                <label id=\"xfory-tag-required-1-quantity-label\" for=\"xfory-tag-required-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"xfory-tag-required-1-quantity\" name=\"xfory-tag-required-1-quantity\" value=\"2\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
                             "                                <label for=\"xfory-tag-required-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         $('#xfory-productsOfferContainer').append("<div id=\"xfory-tag1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"xfory-tag-offer-1-tagId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"xfory-tag-offer-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"xfory-tag-offer-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
+                            "                                <label id=\"xfory-tag-offer-1-quantity-label\" for=\"xfory-tag-offer-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"xfory-tag-offer-1-quantity\" name=\"xfory-tag-offer-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'xfory');\"/>\n" +
                             "                                <label for=\"xfory-tag-offer-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
                             "                            </div>");
 
@@ -388,10 +420,10 @@
                     case 'percentage':
                         $('#percentage-productsRequiredContainer').append("<div id=\"percentage-tag1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"percentage-tag-required-1-tagId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"percentage-tag-required-1-quantity\" class=\"\">Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"percentage-tag-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
+                            "                                <label id=\"percentage-tag-required-1-quantity-label\" for=\"percentage-tag-required-1-quantity\" class=\"\">Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"percentage-tag-required-1-quantity\" name=\"percentage-tag-required-1-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'percentage');\"/>\n" +
                             "                                <label for=\"percentage-tag-required-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
-                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'xfory', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
+                            "                                <a href=\"#\" onclick=\"return deleteThis(this, 'percentage', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
 
                         countRequiredDOM.val(parseInt(countRequiredDOM.val()) + 1);
@@ -404,10 +436,10 @@
                     case 'fixedAmount':
                         $('#fixedAmount-productsRequiredContainer').append("<div id=\"fixedAmount-tag1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"fixedAmount-tag-required-1-tagId\" value=\"" + id + "\"/>\n" +
-                            "                                <label for=\"fixedAmount-tag-required-1-value\" class=\"\">Value</label>\n" +
-                            "                                <input type=\"number\" name=\"fixedAmount-tag-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
-                            "                                <label for=\"fixedAmount-tag-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" name=\"fixedAmount-tag-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <label id=\"fixedAmount-tag-required-1-value-label\" for=\"fixedAmount-tag-required-1-value\" class=\"\">Value</label>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-value\" name=\"fixedAmount-tag-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
+                            "                                <label id=\"fixedAmount-tag-required-1-quantity-label\" for=\"fixedAmount-tag-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-quantity\" name=\"fixedAmount-tag-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
                             "                                <label for=\"fixedAmount-tag-required-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -445,8 +477,8 @@
 
                             $('#fixedPrice-productsRequiredContainer').append("<div id=\"fixedPrice-tag" + nextValidIndex + "\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                                 "                                    <input type=\"hidden\" name=\"fixedPrice-tag-required-" + nextValidIndex + "-tagId\" value=\"" + id + "\"  class=\"promo-itemId\"/>\n" +
-                                "                                    <label for=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity\" class=\"\">Quantity</label>\n" +
-                                "                                    <input type=\"number\" name=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'fixedPrice');\"/>\n" +
+                                "                                    <label id=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity-label\" for=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity\" class=\"\">Quantity</label>\n" +
+                                "                                    <input type=\"number\" id=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity\" name=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity\" value=\"1\" class=\"py-1 pl-1 mx-1 form-control\" onChange=\"quantityChange(this, 'fixedPrice');\"/>\n" +
                                 "                                    <label for=\"fixedPrice-tag-required-" + nextValidIndex + "-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
                                 "                                    <a href=\"#\" onclick=\"return deleteThis(this, 'fixedPrice', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                                 "                                </div>");
@@ -534,7 +566,8 @@
                     $('#' + promoType + '-startDate').addClass("is-invalid");
                 }
 
-                if (!moment($('#' + promoType + '-endDate').val(), "dddd DD MMMM YYYY", true).isValid()) {
+                if (!moment($('#' + promoType + '-endDate').val(), "dddd DD MMMM YYYY", true).isValid() &&
+                        !document.getElementById(promoType + '-doesNotExpire').checked) {
                     error = true;
                     errorString = errorString.concat("\n<li>End date invalid</li>");
                     $('#' + promoType + '-endDate').addClass("is-invalid");

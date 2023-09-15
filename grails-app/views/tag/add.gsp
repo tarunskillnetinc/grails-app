@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Tag Management</title>
+        <title>Tag Management</title>
     </head>
 
     <body>
@@ -45,7 +45,7 @@
             </g:if>
 
             <g:hasErrors bean="${tag}">
-                <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
                     <g:renderErrors bean="${tag}" as="list" />
                 </div>
             </g:hasErrors>
@@ -63,6 +63,11 @@
                     <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" />
                 </div>
 
+                <div class="form-group row col-12 col-lg-6 mt-4">
+                    <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
+                    <g:field name="maxSellQuantity" type="number" min="0" max="999" value="${tag?.maxSellQuantity}" class="col-2 form-control bottom-border" />
+                </div>
+
                 <div class="header-wl mt-5">
                     <h3 class="mx-auto">Products</h3>
                 </div>
@@ -77,7 +82,7 @@
                 </div>
 
                 <div class="row col-8 offset-2 mt-4 table-wl bottom-border">
-                    <div class="col-2 font-weight-bold">Product ID</div>
+                    <div class="col-2 font-weight-bold">Item Code</div>
                     <div class="col-3 font-weight-bold">SKU</div>
                     <div class="col font-weight-bold">Description</div>
                     <div class="col-1 font-weight-bold">&nbsp;</div>

@@ -1,3 +1,4 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.SymbolGroupSubscriptionStatus" %>
 <div class="modal-header">
     <h2>Add Supplier Affiliation</h2>
 </div>
@@ -37,7 +38,13 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelAddSymbolGroupSubscriptionButton" class="btn btn-secondary"
-            data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveSynbolGroupSubscriptionButton" class="btn btn-success"
-            onclick="saveSymbolGroupSubscription();">Save</button>
+            data-dismiss="modal" onclick="getSymbolGroupSubscriptions()">Cancel</button>
+    <% def specifiedValues = [SymbolGroupSubscriptionStatus.PENDING, SymbolGroupSubscriptionStatus.IN_PROGRESS, SymbolGroupSubscriptionStatus.DELETED] %>
+    <g:if test="${!specifiedValues.contains(symbolGroupSubscription?.status)}">
+        <button type="button" id="saveSynbolGroupSubscriptionButton" class="btn btn-success"
+                onclick="saveSymbolGroupSubscription();">Save</button>
+    </g:if>
+    <g:else>
+        <button type="button" id="saveSynbolGroupSubscriptionButton" class="btn btn-wl disabled" title="Download in progress or deleted can not save">Save</button>
+    </g:else>
 </div>

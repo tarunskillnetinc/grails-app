@@ -14,7 +14,7 @@
         <div id="add-location-${variantIndex+1}-${locationIndex+1}-position" class="col-1 my-auto">${location?.shelfCapacity}</div>
         <div id="add-location-${variantIndex+1}-${locationIndex+1}-position" class="col-1 my-auto">${location?.minimumDisplayQuantity}</div>
     </g:else>
-    <div class="col-2 my-auto">
+    <div class="col-2 text-right">
         <g:if test="${location == null}">
             <button id="add-location-${variantIndex+1}-${locationIndex+1}-delete-btn" class="btn btn-danger disabled" title="You cannot delete locations.">Delete</button>
         </g:if>
@@ -63,5 +63,8 @@
                 <g:textField name="addLocation[${locationIndex}].minimumDisplayQuantity" value="${location?.minimumDisplayQuantity}" class="form-control bottom-border" minlength="1" maxlength="3" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)" />
             </div>
         </g:else>
+        <div class="col-2 text-right">
+            <button id="add-location-${variantIndex+1}-${locationIndex+1}-delete-btn" href="#" class="btn btn-danger" onclick="deleteLocation(${variantIndex}, ${locationIndex});">Delete</button>
+        </div>
     </div>
 </div>

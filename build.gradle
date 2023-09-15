@@ -12,10 +12,9 @@ buildscript {
     }
 }
 
-version "1.11.8-SNAPSHOT"
+version "1.12.9"
 group "uk.co.wonderlane.wlpos"
 
-apply plugin:"eclipse"
 apply plugin:"idea"
 //apply plugin:"war"
 apply plugin:"org.grails.grails-web"
@@ -68,6 +67,9 @@ dependencies {
     implementation ("org.springframework.boot:spring-boot-autoconfigure") {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
+
+    implementation 'uk.co.wonderlane.wlpos:Common:1.12.8'
+
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
     implementation ("org.springframework.boot:spring-boot-starter-tomcat")
@@ -97,7 +99,6 @@ dependencies {
     runtimeOnly 'com.bertramlabs.plugins:asset-pipeline-grails:3.4.7'
     runtimeOnly 'org.codehaus.groovy:groovy-dateutil'
     implementation 'mysql:mysql-connector-java:8.0.32'
-    implementation 'uk.co.wonderlane.wlpos:Common:1.11.3-SNAPSHOT'
     implementation 'joda-time:joda-time:2.12.2'
     implementation group: 'org.jadira.usertype', name: 'usertype.core', version: '6.0.1.GA' // Mappings for Joda time to Hibernate.
     implementation 'org.grails.plugins:remote-pagination:0.5.0'
@@ -107,6 +108,7 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox-tools:2.0.27'
     implementation 'com.opencsv:opencsv:5.7.1'
     implementation 'software.amazon.awssdk:s3:2.20.26'
+    implementation 'commons-io:commons-io:2.11.0'
 
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"

@@ -1,3 +1,13 @@
+<script type="application/javascript">
+    $(document).ready(function() {
+        // Assuming your page buttons have a specific class (e.g., "page-button")
+        $('.step').on('click', function() {
+            // Scroll to the top of the page with a smooth animation
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        });
+    });
+</script>
+
 <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
         <div class="col-4 font-weight-bold">Variant Id</div>
         <div class="col-6 font-weight-bold">Description</div>
@@ -15,9 +25,13 @@
     <g:each in="${productListItems}" var="productListItem" status="i">
         <div class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2} hoverable productListItems" title="Click to edit." style="cursor: pointer;"
              onclick="document.location.href='${createLink(action:'productListItem', params: [supplierId: supplier?.id, variantId: productListItem?.productVariantId, productListId: productList?.id])}';">
-            <div class="col-4">${productListItem.getProductVariantId()}</div>
+            <div class="col-2">${productListItem.getProductVariantId()}</div>
             <div class="col-6" style='word-break: break-all; word-wrap: break-word;'>${productListItem.getProductLongDescription()}</div>
             <div class="col-2">${productListItem.getQuantity()}</div>
+            <div class="col-2">
+                <button type="button" id="removeItemButton_${productListItem.getProductVariantId()}" class="btn btn-danger itemDeleteButton"
+                        data-dismiss="modal" data-productItemId="${productListItem?.id}" style="margin-left: -12px; float: left; top: 0; right: 0;">Delete</button>
+            </div>
         </div>
     </g:each>
 
@@ -43,7 +57,3 @@
     </g:else>
 
 </div>
-
-
-
-

@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Shelf Edge Labels</title>
+        <title>Shelf Edge Labels</title>
 
         <asset:stylesheet href="radio.css" />
 

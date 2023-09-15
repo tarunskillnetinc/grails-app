@@ -32,7 +32,8 @@ class GsonProvider {
                     DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
                         return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC)
                     }
-                }).create()
+                })
+                .create()
     }
 
     def getGson() {

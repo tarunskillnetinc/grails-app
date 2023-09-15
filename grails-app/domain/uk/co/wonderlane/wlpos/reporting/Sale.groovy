@@ -40,8 +40,7 @@ class Sale {
     static transients = [ 'refundQuantity', 'avgCostPrice', 'avgRetailPrice', 'avgMargin' ]
 
     static mapping = {
-        datasources (["reporting"])
-
+        datasources (["reporting", "reportingReadOnly"])
         table "sales"
         version false
 

@@ -12,7 +12,7 @@ import uk.co.wonderlane.wlpos.reporting.SortParams
 
 class ReportingControllerPayPointSalesSpec extends ReportingControllerSpecBase implements ControllerUnitTest<ReportingController>, DataTest {
     Class<?>[] getDomainClassesToMock() {
-        return [StoreSettings] as Class[]
+        return [Store] as Class[]
     }
 
     def setup() {
@@ -36,11 +36,11 @@ class ReportingControllerPayPointSalesSpec extends ReportingControllerSpecBase i
         params['startDate'] = startDate
         params['endDate'] = endDate
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
 
         when:
         HashMap model = controller.paypointSales()
@@ -120,7 +120,7 @@ class ReportingControllerPayPointSalesSpec extends ReportingControllerSpecBase i
             getReportColumns(_) >> getMockReportColumns()
         }
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 

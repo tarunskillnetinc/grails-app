@@ -43,7 +43,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="addVariantShelfLifeDays" class="col-3 offset-1 col-form-label text-right">Shelf life (days)</label>
+            <label for="addVariantShelfLifeDays" class="col-3 offset-1 col-form-label text-right">Shelf Life (Days)</label>
 
             <div class="input-group col-4">
                 <g:textField name="addVariantShelfLifeDays" value="${variant?.shelfLifeDays}" class="form-control bottom-border" />
@@ -93,5 +93,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelAddVariantButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="saveVariant(${variant?.index});">Ok</button>
+    <button type="button" id="saveAddVariantButton" class="btn btn-success" onclick="saveVariant(${variant?.index}); saveTempLocations(${variant?.index})">Ok</button>
 </div>

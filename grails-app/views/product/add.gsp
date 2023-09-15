@@ -3,10 +3,11 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Product Maintenance</title>
+        <title>Product Maintenance</title>
 
         <asset:stylesheet href="radio.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+        <asset:javascript src="category-select.js" />
         <asset:javascript src="money-mask.js" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
 
@@ -14,6 +15,7 @@
             var addVariantUrl = "${createLink(controller: 'product', action: 'ajaxAddVariant')}";
             var addBarcodeUrl = "${createLink(controller: 'product', action: 'ajaxAddBarcode')}";
             var saveVariantUrl = "${createLink(controller: 'product', action: 'ajaxSaveVariant')}";
+            var addTempLocationUrl = "${createLink(controller: 'product', action: 'ajaxAddTempLocation')}";
             var addPriceUrl = "${createLink(controller: 'product', action: 'ajaxAddPrice')}";
             var suppliersUrl = "${createLink(controller: 'product', action: 'ajaxSuppliers')}";
             var locationsUrl = "${createLink(controller: 'product', action: 'ajaxLocations')}";
@@ -22,6 +24,7 @@
             var savePackUrl = "${createLink(controller: 'product', action: 'ajaxSavePack')}";
             var saveLocationUrl = "${createLink(controller: 'product', action: 'ajaxSaveLocation')}";
             var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+            var categorySearchUrl = "${createLink(controller: 'product', action: 'ajaxSearchCategories')}";
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
             $(document).ready(function () {
@@ -110,6 +113,14 @@
                 });
 
                 $(".mask-money").maskMoney({ allowZero: true });
+                $('.mask-money:read-only').maskMoney('destroy');
+                $('#openPrice').change(function() { // This is the checkbox
+                    if (this.checked){
+                        $('.mask-money.open-price').maskMoney({ allowZero: true });
+                    } else {
+                        $('.mask-money.open-price').maskMoney('destroy');
+                    }
+                });
 
                 $('#collapsePromotions').on('show.bs.collapse', function () {
                     getPromotions(${product?.id});
@@ -181,17 +192,20 @@
             // Expand or collapse the category and show all children categories.
             function expandCollapseCategory(categoryId, level, selectedCategoryId) {
                 event.preventDefault();
+
                 var plusMinusButton = $("#plusMinus-" +categoryId);
                 var expanded = plusMinusButton.attr("aria-expanded");
                 if (expanded === "true") {
                     plusMinusButton.text("+");
                     plusMinusButton.attr("aria-expanded", "false");
+
                     $("#categoryContainer-" +categoryId).html("");
                 } else {
                     var params = {};
                     params["categoryId"] = categoryId;
                     params["level"] = level;
                     params["selectedCategoryId"] = selectedCategoryId;
+
                     $.ajax({
                         url: getChildCategoriesUrl,
                         method: "GET",
@@ -199,6 +213,7 @@
                         success: function(resp) {
                             plusMinusButton.text("-");
                             plusMinusButton.attr("aria-expanded", "true");
+
                             $("#categoryContainer-" +categoryId).html(resp);
                         }
                     });
@@ -271,17 +286,31 @@
                 var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
                 var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
+                if (sku === "") {
+                    $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">SKU cannot be empty.</div>`)
+                    return
+                }
+
                 var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
+                var barcodeValues = []; // To store the barcode values for validation
+                var error = false;
 
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
+                    var barcode = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
 
-                    params["barcodez[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
-                    params["barcodez[" +loopIndex +"].barcode"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val();
-                    params["barcodez[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
-                    params["barcodez[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                    if(barcodeValues.includes(barcode)){
+                        $("#addVariantContent").prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
+                        error = true
+                    } else {
+                        params["barcodez[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
+                        params["barcodez[" +loopIndex +"].barcode"] = barcode;
+                        params["barcodez[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
+                        params["barcodez[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                        barcodeValues.push(barcode)
+                    }
                 });
 
                 // Need to add all of the pack data for this variant to the save call otherwise we lose the packs from the screen when re-rendering the variant row.
@@ -311,23 +340,23 @@
 
                 locationContainers.each(function(loopIndex) {
                     var locationIndex = $(this).attr("id").substring(17);
-                    var locationSelector = "#variants\\[" +index +"\\]\\.locations\\[" +locationIndex +"\\]";
+                    var locationSelector = "#variants\\[" +index +"\\]\\.locationz\\[" +locationIndex +"\\]";
 
-                    params["locations[" +loopIndex +"].index"] = loopIndex;
-                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
-                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
-                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
-                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
-                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
-                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
-                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
-                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
-                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
-                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
-                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
-                $.ajax({
+                if(!error){
+                    $.ajax({
                     url: saveVariantUrl,
                     method: "POST",
                     data: params,
@@ -343,10 +372,60 @@
                         variantContainer.html(resp);
 
                         skuChanged(index, sku);
+                        $('#addVariantModal').modal("hide");
                     }
+                });}
+
+
+
+            }
+
+            function saveTempLocations(index) {
+                var id = $("#addVariantId").val();
+                var sku = $("#addVariantSku").val();
+                var retailPrice = $("#addVariantRetailPrice").val();
+                var costPrice = $("#addVariantCostPrice").val();
+                var shelfLifeDays = $("#addVariantShelfLifeDays").val();
+                var shelfCapacity = $("#addVariantShelfCapacity").val();
+                var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
+                var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
+
+                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
+                var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
+
+                locationContainers.each(function(loopIndex) {
+                    var locationIndex = $(this).attr("id").substring(17);
+                    var locationSelector = "#variants\\[" +index +"\\]\\.locationz\\[" +locationIndex +"\\]";
+
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
-                $('#addVariantModal').modal("hide");
+                $.ajax({
+                    url: addTempLocationUrl,
+                    method: "POST",
+                    data: params,
+                    success: function(resp) {
+                        var locationContainer = $("#locationsContainer > #location-" +index);
+
+                        if (locationContainer.length === 0) {
+                            $("#locationsContainer").append("<div id=\"location-" +index +"\"></div>");
+
+                            locationContainer = $("#locationsContainer > #location-" +index);
+                        }
+                        locationContainer.html(resp);
+                        skuChanged(index, sku);
+                    }
+                });
             }
 
             // If we change the SKU we may need to update the SKU in the price changes section too.
@@ -478,12 +557,13 @@
             }
 
             // The locations button was clicked, we display the locations modal for this variant.
-            function showLocationsModal(variantIndex) {
+            function showLocationsModal(variantIndex, sku) {
                 $("#locationsContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#locationsModal').modal({ show: true });
 
                 var params = {};
                 params["index"] = variantIndex;
+                params["sku"] = sku;
 
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["productVariantId"] = variantId;
@@ -492,20 +572,19 @@
 
                 locationContainers.each(function(loopIndex) {
                     var locationIndex = $(this).attr("id").substring(17);
-                    var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locations\\[" +locationIndex +"\\]";
+                    var locationSelector = "#variants\\[" +variantIndex +"\\]\\.locationz\\[" +locationIndex +"\\]";
 
-                    params["locations[" +loopIndex +"].index"] = loopIndex;
-                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
-                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
-                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
-                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
-                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
-                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
-                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
-                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
-                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
-                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
-                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
                 $.ajax({
@@ -584,6 +663,11 @@
                 }
             }
 
+            function removePack(variantIndex, packIndex) {
+                // remove the pack using the query selector no need for Ajax call here
+                $("#addPackContainer-" + variantIndex + "-" + packIndex).remove();
+            }
+
             // The "Ok" button was clicked on the suppliers modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function savePacks(variantIndex) {
                 var filterValues = {};
@@ -636,7 +720,6 @@
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
-
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["productVariantId"] = variantId;
@@ -652,63 +735,52 @@
                     }
                     var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
                     var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
+                    var errorString = "";
 
                     if (locationsType === "SIMPLE") {
                         if ($(locationSelector + "\\.location").val() === '') {
-                            confirm("Location can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                            errorString += "Location can not be empty.\n"
                         }
                     } else if (locationsType === "ADVANCED") {
-                        if ($(locationSelector + "\\.aisle").val() === '') {
-                            confirm("Aisle can not be empty.")
-                            mandatoryLocationFields = false
-                            return
-                        }
+                        var aisle = $(locationSelector + "\\.aisle").val();
+                        var bay = $(locationSelector + "\\.bay").val();
+                        var shelf = $(locationSelector + "\\.shelf").val();
+                        var position = $(locationSelector + "\\.position").val();
 
-                        if ($(locationSelector + "\\.bay").val() === '') {
-                            confirm("Bay can not be empty.")
-                            mandatoryLocationFields = false
-                            return
-                        }
-
-                        if ($(locationSelector + "\\.shelf").val() === '') {
-                            confirm("Shelf can not be empty.")
-                            mandatoryLocationFields = false
-                            return
-                        }
-
-                        if ($(locationSelector + "\\.position").val() === '') {
-                            confirm("Position can not be empty.")
-                            mandatoryLocationFields = false
-                            return
+                        if (aisle === '' && bay === '' && shelf === '' && position === '') {
+                            errorString += "Please enter at least one of aisle, bay, shelf or position.\n"
                         }
                     }
 
                     if ($(locationSelector + "\\.shelfCapacity").val() === '') {
-                        confirm("Shelf Capacity can not be empty.")
-                        mandatoryLocationFields = false
-                        return
+                        errorString += "Shelf Capacity can not be empty.\n"
+                    } else if ($(locationSelector + "\\.shelfCapacity").val() < 1) {
+                        errorString += "Shelf Capacity should be between 1 and 999.\n"
                     }
 
                     if ($(locationSelector + "\\.minimumDisplayQuantity").val() === '') {
-                        confirm("Minimum Display Quantity can not be empty.")
+                        errorString += "Minimum Display Quantity can not be empty.\n"
+                    } else if ($(locationSelector + "\\.minimumDisplayQuantity").val() < 1) {
+                        errorString += "Minimum Display Quantity should be between 1 and 999.\n"
+                    }
+
+                    if (errorString !== "") {
+                        confirm(errorString)
                         mandatoryLocationFields = false
                         return
                     }
 
-                    params["locations[" +loopIndex +"].index"] = loopIndex;
-                    params["locations[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val() !== "" ? $(locationSelector +"\\.id").val() : (loopIndex + 1).toString();
-                    params["locations[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
-                    params["locations[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
-                    params["locations[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
-                    params["locations[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
-                    params["locations[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
-                    params["locations[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
-                    params["locations[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
-                    params["locations[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
-                    params["locations[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
-                    params["locations[" +loopIndex +"].productVariantId"] = $(locationSelector +"\\.productVariantId").val();
+                    params["locationz[" +loopIndex +"].index"] = loopIndex;
+                    params["locationz[" +loopIndex +"].id"] = $(locationSelector +"\\.id").val();
+                    params["locationz[" +loopIndex +"].storeId"] = $(locationSelector +"\\.storeId").val();
+                    params["locationz[" +loopIndex +"].sku"] = $(locationSelector +"\\.sku").val();
+                    params["locationz[" +loopIndex +"].location"] = $(locationSelector +"\\.location").val();
+                    params["locationz[" +loopIndex +"].aisle"] = $(locationSelector +"\\.aisle").val();
+                    params["locationz[" +loopIndex +"].bay"] = $(locationSelector +"\\.bay").val();
+                    params["locationz[" +loopIndex +"].shelf"] = $(locationSelector +"\\.shelf").val();
+                    params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
+                    params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
+                    params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
                 });
 
                 if (!mandatoryLocationFields) {
@@ -756,7 +828,7 @@
                 });
             }
 
-            //trigger this when category is selected
+            // Trigger this when category is selected.
             function onCategoryChanged(selectedCategoryId) {
                 //call category map restrictions only when adding new product and restriction tab is not change by manually
                 var getRestrictionsUrl = "${createLink(controller: 'product', action: 'ajaxGetRestrictions')}";
@@ -874,7 +946,8 @@
                                                         editedPrices       : editedPrices,
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled,
-                                                        locationsType      : locationsType]"/>
+                                                        locationsEnabled   : locationsEnabled,
+                                                        locationsType      : locationsType]" />
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

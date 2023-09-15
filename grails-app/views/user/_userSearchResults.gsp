@@ -11,5 +11,5 @@
 </g:each>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxGetUsers" total="${users?.totalCount ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 5}" params="['searchTerm': searchTerm]" />
+    <util:remotePaginate action="ajaxGetUsers" total="${users?.totalCount ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="['searchTerm': searchTerm]" />
 </div>

@@ -23,8 +23,7 @@ class TillControlEvent {
     DateTime dateCreated
 
     static mapping = {
-        datasources (["reporting"])
-
+        datasources (["reporting", "reportingReadOnly"])
         table "tillcontrolevent"
         version false
 

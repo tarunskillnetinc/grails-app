@@ -12,7 +12,7 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 
 class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implements ControllerUnitTest<ReportingController>, DataTest {
     Class<?>[] getDomainClassesToMock() {
-        return [StoreSettings, Supplier] as Class[]
+        return [Store, Supplier] as Class[]
     }
 
     def setup() {
@@ -36,14 +36,14 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
         params['startDate'] = startDate
         params['endDate'] = endDate
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
         Supplier mockSupplier = getMockSupplier(1, 1, 100)
         mockSupplier.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
         mockDomain(Supplier, [mockSupplier])
 
         controller.springSecurityService = Stub(SpringSecurityService) {
@@ -101,7 +101,7 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
             getReportColumns(_) >> null
         }
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
@@ -137,14 +137,14 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
         params['endDate'] = endDate
         params['productListId'] = "1"
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
         Supplier mockSupplier = getMockSupplier(1, 1, 100)
         mockSupplier.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
         mockDomain(Supplier, [mockSupplier])
 
         when:
@@ -331,8 +331,8 @@ class ReportingControllerOrdersSpec extends ReportingControllerSpecBase implemen
         return pack
     }
 
-    private StoreSettings getMockStoreSettings(int id) {
-        StoreSettings storeSettings = new StoreSettings()
+    private Store getMockStoreSettings(int id) {
+        Store storeSettings = new Store()
 
         storeSettings.id = id
         storeSettings.storeId = id

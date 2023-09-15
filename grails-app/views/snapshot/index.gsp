@@ -2,11 +2,13 @@
 <html>
 <head>
     <meta name="layout" content="main" />
-    <title>WonderLane Snapshot Management</title>
+    <title>Snapshot Management</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="snapshotUrls.js"/>
+    <asset:javascript src="snapshotManagement.js"/>
+    <asset:javascript src="date-pickers.js"/>
 
     <script type='text/javascript'>
         $(function() {
@@ -16,33 +18,15 @@
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
 
-            $('#startDate').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
-
-            $('#endDate').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
-
+            initDatePickers(
+                'startDate',
+                'endDate',
+                "${(new Date() - 90).format("dd/MM/yyyy")}",
+                "${new Date().format("dd/MM/yyyy")}"
+            );
             getSnapshots();
         });
     </script>
-
-    <asset:javascript src="snapshotManagement.js"/>
 </head>
 
 <body>
@@ -52,7 +36,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index">ShiftManagement</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index">Shift Viewer</g:link></li>
                         <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
                     </ol>
                 </div>
@@ -83,17 +67,18 @@
                             <div class="form-group row">
                                 <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
                                 <div class="col-4">
-                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
                                 </div>
 
                                 <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
                                 <div class="col-4">
-                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" autocomplete="off" />
+                                    <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-4 offset-6 text-right">
+                                    <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetSnapshotFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getSnapshots();">Filter</button>
                                 </div>
                             </div>

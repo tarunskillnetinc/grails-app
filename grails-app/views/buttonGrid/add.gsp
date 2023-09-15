@@ -4,7 +4,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane Button Grids</title>
+    <title>Button Grids</title>
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -71,7 +71,17 @@
 
             <div class="form-group row margin-top-2rem">
                 <div class="col-8 offset-3">
-                    <g:link elementId="cancel-btn" controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+
+                    <g:if test="${buttonGrid?.id}">
+                        <g:link elementId="cancel-btn" controller="buttonGrid" action="show" id="${buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
+                    </g:if>
+                    <g:else>
+                        <g:link url="${request.getHeader('referer') ?: "/"}" id="cancel-btn" class="btn btn-danger">Cancel</g:link>
+                    </g:else>
+
+                    <g:if test="${buttonGrid != null && buttonGrid.type.toString() == "OTHER"}">
+                        <g:link elementId="delete-button-grid-btn" action="delete" id="${buttonGrid.id}" class="btn btn-wl" onClick="return confirm('You are about to delete this button grid. Are you sure you want to continue?');">Delete</g:link>
+                    </g:if>
 
                     <g:submitButton class="btn btn-success" name="save" value="Save" />
                 </div>

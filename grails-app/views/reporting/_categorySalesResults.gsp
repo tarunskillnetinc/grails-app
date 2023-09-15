@@ -1,24 +1,24 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-        <div class="col-4 font-weight-bold">Description</div>
+        <div id="description" class="col-4 font-weight-bold">Description</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-        <div class="col-1 font-weight-bold">Total Qty</div>
+        <div id="quantity" class="col-1 font-weight-bold">Total Qty</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
-        <div class="col font-weight-bold">Avg Cost Price</div>
+        <div id="avg-cost-price" class="col font-weight-bold">Avg Cost Price</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgRetailPrice" }?.enabled}">
-        <div class="col font-weight-bold">Avg Sales Price</div>
+        <div id="avg-retail-price" class="col font-weight-bold">Avg Sales Price</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "retailPrice" }?.enabled}">
-        <div class="col font-weight-bold">Total Sales</div>
+        <div id="retail-price" class="col font-weight-bold">Total Sales</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vatAmount" }?.enabled}">
-        <div class="col font-weight-bold">VAT Amount</div>
+        <div id="vat-amount" class="col font-weight-bold">VAT Amount</div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgMargin" }?.enabled}">
-        <div class="col font-weight-bold">Avg Margin</div>
+        <div id="avg-margin" class="col font-weight-bold">Avg Margin</div>
     </g:if>
 </div>
 

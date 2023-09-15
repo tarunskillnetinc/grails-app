@@ -43,7 +43,7 @@ class ReceiptController {
             }
         }
 
-        render (template: "receiptViewerResults", model: [receipts: receiptService.getReceipts(startDate, endDate, tillId, transactionId, offset, max), offset: offset, max: max])
+        render (template: "receiptViewerResults", model: [receipts: receiptService.getReceipts(startDate, endDate, tillId, transactionId, offset, max), offset: offset, max: max, startDate: params.startDate, endDate: params.endDate])
     }
 
     def ajaxGetReceipt(int receiptId) {

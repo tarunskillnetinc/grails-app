@@ -23,7 +23,7 @@
     </g:else>
 
     <div id="addLocationsContainer-${variantIndex}">
-        <g:each in="${variant.locations}" var="location" status="i">
+        <g:each in="${variant.locationz}" var="location" status="i">
             <div id="addLocationContainer-${variantIndex}-${i}">
                 <g:render template="addLocation" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, locationIndex: i, location: location, isNewLocation: location?.isNewLocation, locationsType: locationsType]" />
             </div>

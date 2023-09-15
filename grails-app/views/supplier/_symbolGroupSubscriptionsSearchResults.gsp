@@ -28,7 +28,7 @@
 
     <g:each in="${symbolGroupSubscriptions}" var="symbolGroupSubscription" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;">
-            <div id="supplier-affiliation-${i+1}" class="row col-11" onclick="editSymbolGroupSubscription(${symbolGroupSubscription.id});">
+            <div id="supplier-affiliation-${i+1}" class="row col-11" onclick="rerenderAndEditSymbolGroupSubscription(${symbolGroupSubscription.id});">
                 <div id="supplier-affiliation-${i+1}-name" class="col-3 my-auto">${symbolGroupSubscription.symbolGroup.name}</div>
 
                 <div id="supplier-affiliation-${i+1}-status" class="col-2 my-auto"><g:message
