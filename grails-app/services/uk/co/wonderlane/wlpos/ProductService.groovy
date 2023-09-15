@@ -580,18 +580,21 @@ class ProductService extends MySqlDal {
         stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.config.storeNumber)
-                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber)) {
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id)
+                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber) || it.isZeroPrice()) {
                     productEntities.add(productEntity)
                 }
             })
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProducts(productEntities)
 
-            log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+            if (!productEntities.isEmpty()) {
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setProducts(productEntities)
 
-            rabbitService.sendMessage(syncMessage)
+                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+
+                rabbitService.sendMessage(syncMessage)
+            }
         }
     }
 
