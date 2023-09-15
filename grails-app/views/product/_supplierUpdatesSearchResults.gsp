@@ -37,7 +37,7 @@
                 <span class="input-group-text">&pound;</span>
             </div>
 
-            <g:textField name="product-${i}-price" value="${supplierPriceUpdate.retailPrice}" class="form-control mask-money" />
+            <g:textField name="product-${i}-price" value="${supplierPriceUpdate.retailPrice}" class="form-control mask-money" maxLength = "9" />
         </div>
     </div>
 </g:each>
