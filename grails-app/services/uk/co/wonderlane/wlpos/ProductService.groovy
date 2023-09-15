@@ -581,7 +581,7 @@ class ProductService extends MySqlDal {
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
                 uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id)
-                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber) || it.isZeroPrice()) {
+                if (checkProductHasPriceForStore(productEntity, store.id) || it.isZeroPrice()) {
                     productEntities.add(productEntity)
                 }
             })
