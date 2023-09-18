@@ -95,7 +95,12 @@
 
 <div class="modal-footer">
     <g:if test="${enableEdit}">
-        <button type="button" id="saveAddSupplierButton" class="btn btn-info" onclick="generatePin();">Generate PIN</button>
+        <g:if test="${till.serialNumber}">
+            <button type="button" id="generatePinButton" class="btn btn-info" onclick="generatePin();">Generate PIN</button>
+        </g:if>
+        <g:else>
+            <button type="button" id="generatePinButton" class="btn btn-info" onclick="generatePin();" disabled title="No Serial Assigned">Generate PIN</button>
+        </g:else>
     </g:if>
     <button type="button" id="cancelAddTillButton" class="btn btn-wl" onclick="cancelTill();">Cancel</button>
     <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveTill();">Save</button>
