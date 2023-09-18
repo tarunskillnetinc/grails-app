@@ -23,9 +23,7 @@
                 var URL = "${createLink(controller: 'productList', action: 'ajaxGetCentralCounts')}";
                 var searchTerm = $('#centralCountSearchTerm').val();
                 var searchBy = $('#centralCountSearchBy').val();
-
-                alert(searchBy)
-
+                
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
                     "    <span class=\"sr-only\">Loading...</span>\n" +
@@ -67,7 +65,6 @@
             </g:if>
 
             <div class="row mt-4 ml-0 mr-0">
-%{--                --------}%
                 <div class="col-10 mt-4">
                     <div class="col-6">
                         <div class="card bg-light border-wl">
@@ -94,8 +91,6 @@
                                                                                                                      'Store ID',
                                                                                                                      'Description',
                                                                                                                      'Status',
-                                                                                                                     'Start Date',
-                                                                                                                     'End Date',
                                                                                                                      'Current Owner']}" value="everything" valueMessagePrefix="CentralCountSearchBy" class="form-control select-border" style="z-index: 0;" />
                                         </div>
                                     </div>
@@ -111,13 +106,6 @@
                         </div>
                     </div>
                 </div>
-%{--                <div class="input-group offset-2 col-8">--}%
-%{--                    <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />--}%
-
-%{--                    <div class="input-group-append">--}%
-%{--                        <asset:image src="search.png" id="centralCountSearchButton" name="centralCountSearchButton" onclick="search()" class="wl-search-button" />--}%
-%{--                    </div>--}%
-%{--                </div>--}%
 
                 <div class="col-2 px-0 text-right">
                     <g:link elementId="add-new-central-count" controller="productList" action="addCentralCount" class="btn btn-wl">Add New Central Count</g:link>
