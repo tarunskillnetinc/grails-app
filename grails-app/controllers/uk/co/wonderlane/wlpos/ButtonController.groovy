@@ -140,7 +140,18 @@ class ButtonController {
                 if (form.image) {
                     byte[] image = form.image.bytes
 
-                    if (image.length > 0 && form.image.contentType == "image/png") {
+                    // if store override grab image from s3 and save it again
+                    if (image.length <=0 && springSecurityService.principal.storeId != null){
+                        image = imageService.getButtonImage(form.overrideId)
+                        imageService.saveButtonImage(button.id, image)
+
+                        button.imageDisplay = true
+                        if (singularButtonUpdate) {
+                            buttonService.saveButton(button)
+                        } else {
+                            buttonService.saveButtonGrid(button.buttonGrid)
+                        }
+                    } else if (image.length > 0 && form.image.contentType == "image/png") {
                         imageService.saveButtonImage(button.id, image)
 
                         button.imageDisplay = true
