@@ -26,11 +26,11 @@ class ProductListService extends MySqlDal {
     }
 
     def getCentralCounts(String searchTerm = null, String searchBy = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
-        return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+        def productList =  ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("type", ProductListType.SCHEDULED_COUNT)
 
-            if (searchBy == "everything" && searchTerm) {
+            if (searchBy == "Everything" && searchTerm) {
                 or {
                     like("id", "%$searchTerm%")
                     like("storeId", "%$searchTerm%")
@@ -45,11 +45,22 @@ class ProductListService extends MySqlDal {
             } else if (searchBy == "Description" && searchTerm) {
                 like("description", "%$searchTerm%")
             } else if (searchBy == "Status" && searchTerm) {
-                like("status", "%$searchTerm%")
+                def matchingEnums =[]
+                ProductListStatus.values().each {status ->
+                    if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                        matchingEnums.add(status)
+                    }
+                }
+                if (matchingEnums.size() > 0) {
+                    matchingEnums.each {matchingEnum ->
+                        like("status", ProductListStatus.valueOf(matchingEnum.toString()))
+                    }
+                }
             } else if (searchBy == "Current Owner" && searchTerm) {
                 like("ownerUsersName", "%$searchTerm%")
             }
         }
+        return productList
     }
 
     def getOrders(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate) {

@@ -23,7 +23,7 @@
                 var URL = "${createLink(controller: 'productList', action: 'ajaxGetCentralCounts')}";
                 var searchTerm = $('#centralCountSearchTerm').val();
                 var searchBy = $('#centralCountSearchBy').val();
-                
+
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
                     "    <span class=\"sr-only\">Loading...</span>\n" +
@@ -86,7 +86,7 @@
                                         <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" aria-describedby="select-addon2" />
 
                                         <div class="input-group-append">
-                                            <g:select id="centralCountSearchBy" name="centralCountSearchBy" from="${['everything',
+                                            <g:select id="centralCountSearchBy" name="centralCountSearchBy" from="${['Everything',
                                                                                                                      'ID',
                                                                                                                      'Store ID',
                                                                                                                      'Description',
