@@ -255,6 +255,7 @@ class PromotionController {
                     } else {
                         // something is wrong in the new groups
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -274,6 +275,7 @@ class PromotionController {
                     } else {
                         // something is wrong in the new groups
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -290,6 +292,7 @@ class PromotionController {
                         promotion.addToGroups(promoOfferGroup)
                     }  else {
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -307,6 +310,7 @@ class PromotionController {
                     } else {
                         // something is wrong in the new groups
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -353,11 +357,13 @@ class PromotionController {
                             }
                         } else {
                             promotion = failPromotion(promotion, oldType)
+                            promotion.errors.reject('error.Promotion.invalidPromotionError')
                             redirect(controller: "promotion", action: "maintenanceError")
                             return
                         }
                     } else {
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -374,6 +380,7 @@ class PromotionController {
             return
         } else {
             promotion = failPromotion(promotion, oldType)
+            promotion.errors.reject('error.Promotion.invalidPromotionError')
             redirect(controller: "promotion", action: "maintenanceError")
             return
         }
