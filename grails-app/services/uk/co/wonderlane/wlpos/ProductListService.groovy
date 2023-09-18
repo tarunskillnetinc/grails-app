@@ -25,13 +25,29 @@ class ProductListService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    def getCentralCounts(String searchTerm = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
+    def getCentralCounts(String searchTerm = null, String searchBy = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
         return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("type", ProductListType.SCHEDULED_COUNT)
 
-            if (searchTerm) {
+            if (searchBy == "everything" && searchTerm) {
+                or {
+                    like("id", "%$searchTerm%")
+                    like("storeId", "%$searchTerm%")
+                    like("description", "%$searchTerm%")
+                    like("status", "%$searchTerm%")
+                    like("ownerUsersName", "%$searchTerm%")
+                }
+            } else if (searchBy == "ID" && searchTerm) {
+                like("id", "%$searchTerm%")
+            } else if (searchBy == "Store ID" && searchTerm) {
+                like("storeId", "%$searchTerm%")
+            } else if (searchBy == "Description" && searchTerm) {
                 like("description", "%$searchTerm%")
+            } else if (searchBy == "Status" && searchTerm) {
+                like("status", "%$searchTerm%")
+            } else if (searchBy == "Current Owner" && searchTerm) {
+                like("ownerUsersName", "%$searchTerm%")
             }
         }
     }

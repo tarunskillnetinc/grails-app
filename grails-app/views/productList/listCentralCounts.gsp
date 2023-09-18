@@ -14,9 +14,17 @@
                 });
             });
 
+            function resetForm() {
+                document.getElementById('centralCountSearchTerm').value = null;
+                document.getElementById('centralCountSearchBy').value = 'everything';
+            }
+
             function search() {
                 var URL = "${createLink(controller: 'productList', action: 'ajaxGetCentralCounts')}";
                 var searchTerm = $('#centralCountSearchTerm').val();
+                var searchBy = $('#centralCountSearchBy').val();
+
+                alert(searchBy)
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -26,7 +34,7 @@
 
                 $.ajax({
                     url: URL,
-                    data: { searchTerm: searchTerm },
+                    data: { searchTerm: searchTerm, searchBy: searchBy },
                     success: function(resp) {
                         $('#search-results').html(resp);
                     }
@@ -59,13 +67,57 @@
             </g:if>
 
             <div class="row mt-4 ml-0 mr-0">
-                <div class="input-group offset-2 col-8">
-                    <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
+%{--                --------}%
+                <div class="col-10 mt-4">
+                    <div class="col-6">
+                        <div class="card bg-light border-wl">
+                            <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                                <div class="row">
+                                    <div id="filters-header" class="col-10">Filters</div>
+                                    <div class="col-2 text-right">
+                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="input-group-append">
-                        <asset:image src="search.png" id="centralCountSearchButton" name="centralCountSearchButton" onclick="search()" class="wl-search-button" />
+                            <div class="card-body collapse show" id="filterCollapse">
+                                <div class="form-group row">
+                                    <label for="centralCountSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                    <div class="col-10 input-group">
+                                        <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" aria-describedby="select-addon2" />
+
+                                        <div class="input-group-append">
+                                            <g:select id="centralCountSearchBy" name="centralCountSearchBy" from="${['everything',
+                                                                                                                     'ID',
+                                                                                                                     'Store ID',
+                                                                                                                     'Description',
+                                                                                                                     'Status',
+                                                                                                                     'Start Date',
+                                                                                                                     'End Date',
+                                                                                                                     'Current Owner']}" value="everything" valueMessagePrefix="CentralCountSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-8 col-xl-6 offset-sm-4 offset-xl-6 text-right">
+                                        <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
+                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+%{--                <div class="input-group offset-2 col-8">--}%
+%{--                    <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />--}%
+
+%{--                    <div class="input-group-append">--}%
+%{--                        <asset:image src="search.png" id="centralCountSearchButton" name="centralCountSearchButton" onclick="search()" class="wl-search-button" />--}%
+%{--                    </div>--}%
+%{--                </div>--}%
 
                 <div class="col-2 px-0 text-right">
                     <g:link elementId="add-new-central-count" controller="productList" action="addCentralCount" class="btn btn-wl">Add New Central Count</g:link>
