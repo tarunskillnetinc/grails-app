@@ -581,7 +581,11 @@ class ProductService extends MySqlDal {
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
                 uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id)
-                if (checkProductHasPriceForStore(productEntity, store.id) || it.isZeroPrice()) {
+                List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
+                if (!variants.isEmpty()) {
+                    // Only send the update to the store if there are variants to send. This could mean the store has
+                    // old variants that don't get deleted but the alternative is sending incomplete product data.
+                    productEntity.setVariants(variants)
                     productEntities.add(productEntity)
                 }
             })
@@ -639,9 +643,11 @@ class ProductService extends MySqlDal {
         }
     }
 
-    private static boolean checkProductHasPriceForStore(uk.co.wonderlane.wlpos.entities.Product product, Integer storeId) {
-        return product.variants.findAll { it.storeId == null || it.storeId == storeId }
-                .stream().map({ it.getRetailPrice() })
-                .collect(Collectors.toList()).findAll({ it != null && it > BigDecimal.ZERO }).size() > 0
+    private static List<ProductVariant> getFilteredProductVariantsWithPriceForStore(uk.co.wonderlane.wlpos.entities.Product product, Integer storeId) {
+        if (product.isZeroPrice()) {
+            return product.getVariants() // already retrieved using a store id so is fine to return the whole list
+        }
+        return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
+                    && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
     }
 }
