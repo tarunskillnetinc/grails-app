@@ -9,9 +9,10 @@
 </script>
 
 <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
-        <div class="col-4 font-weight-bold">Variant Id</div>
+        <div class="col-2 font-weight-bold">Variant Id</div>
         <div class="col-6 font-weight-bold">Description</div>
         <div class="col-2 font-weight-bold">Quantity</div>
+        <div class="col-2 font-weight-bold"></div>
 </div>
 
 <div id="search-results" style="max-height: 400px; overflow-x: auto; overflow-y: auto;">

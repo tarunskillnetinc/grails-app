@@ -236,7 +236,8 @@
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLinesSingles.quantity" type="text" class="quantity__input" value="${singleQuantity}" >
+                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input" value="${singleQuantity}"
+                                           min="0" max="999999" style="width: 100px">
                                     <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
                                     <span id="packQty">x Singles</span>
                                 </div>
@@ -249,7 +250,7 @@
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
-                                            min="0" max="${pack.maximumOrderQuantity}" style="width: fit-content">
+                                            min="0" max="${pack.maximumOrderQuantity}" style="width: 100px">
                                         <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
