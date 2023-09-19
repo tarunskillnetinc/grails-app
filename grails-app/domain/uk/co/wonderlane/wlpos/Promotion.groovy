@@ -55,6 +55,9 @@ class Promotion {
             if (obj.type == PromotionType.FIXED_PRICE && val <= BigDecimal.ZERO) {
                 return 'error.Promotion.fixedAmountNotSet'
             }
+            if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT && val <= BigDecimal.ZERO) {
+                return 'error.Promotion.fixedAmountNotSet'
+            }
         }
         lossCategoryId nullable: true
         active nullable: false
