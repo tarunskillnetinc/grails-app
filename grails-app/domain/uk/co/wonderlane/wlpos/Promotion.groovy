@@ -51,7 +51,11 @@ class Promotion {
         startDate nullable: false
         endDate nullable: true
         type nullable: false
-        amount nullable: false, range: 0F..9999.99F
+        amount nullable: false, range: 0F..9999.99F, validator: {val, obj ->
+            if (obj.type == PromotionType.FIXED_PRICE && val <= BigDecimal.ZERO) {
+                return 'error.Promotion.fixedAmountNotSet'
+            }
+        }
         lossCategoryId nullable: true
         active nullable: false
         updateDatetime nullable: false
