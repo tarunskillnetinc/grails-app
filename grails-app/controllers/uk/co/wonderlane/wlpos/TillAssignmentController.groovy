@@ -255,7 +255,7 @@ class TillAssignmentController {
         int maximumValue = 99999999
         int pin = random.nextInt((maximumValue - minimumValue) + 1) + minimumValue
 
-        def expiry = DateTime.now(DateTimeZone.UTC)
+        def expiry = DateTime.now(DateTimeZone.UTC).plusHours(1)
 
         tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
 
