@@ -16,7 +16,7 @@
 
             function resetForm() {
                 document.getElementById('centralCountSearchTerm').value = null;
-                document.getElementById('centralCountSearchBy').value = 'everything';
+                document.getElementById('centralCountSearchBy').value = 'Everything';
             }
 
             function search() {
