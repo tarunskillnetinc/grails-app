@@ -549,9 +549,31 @@ a.no-underline:hover {
     margin: 0;
 }
 
+/* Common styles for both classes */
+.wl-checkbox, .wl-checkbox-no-label {
+    height: 1.25rem; /* 20px in rem units */
+    width: 1.25rem; /* 20px in rem units */
+    min-height: 1.25rem; /* 20px in rem units */
+    min-width: 1.25rem; /* 20px in rem units */
+    max-width: 1.25rem; /* 20px in rem units */
+    max-height: 1.25rem; /* 20px in rem units */
+    margin-top: 0.625rem; /* 10px in rem units */
+}
+
+/* Specific style for .wl-checkbox */
 .wl-checkbox {
-    height: 20px;
-    margin-top: 10px;
+    margin-left: 1.875rem; /* 30px in rem units */
+}
+/* Specific style for .wl-checkbox-no-label */
+.wl-checkbox-no-label {
+    margin-left: -0.9rem;
+}
+
+.wl-label {
+    width: fit-content;
+    max-width: fit-content;
+    min-width: fit-content;
+    margin-left: -100px;
 }
 
 .wl-radio {

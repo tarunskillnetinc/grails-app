@@ -12,6 +12,7 @@
         <asset:javascript src="snapshotUrls.js"/>
         <asset:javascript src="shiftManagement.js"/>
         <asset:javascript src="safeCount.js"/>
+        <asset:javascript src="date-pickers.js"/>
 
         <script type="text/javascript">
             $(function() {
@@ -27,30 +28,40 @@
                     "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
 
-                $('#startDate').datepicker({
-                    format: "dd/mm/yyyy",
-                    weekStart: 1,
-                    startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                    endDate: "${new Date().format("dd/MM/yyyy")}",
-                    todayHighlight: true,
-                    autoclose: true,
-                    todayBtn: "linked",
-                    orientation: "bottom auto"
-                });
-
-                $('#endDate').datepicker({
-                    format: "dd/mm/yyyy",
-                    weekStart: 1,
-                    startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                    endDate: "${new Date().format("dd/MM/yyyy")}",
-                    todayHighlight: true,
-                    autoclose: true,
-                    todayBtn: "linked",
-                    orientation: "bottom auto"
-                });
-
+                initDatePickers(
+                    'startDate',
+                    'endDate',
+                    "${(new Date() - 90).format("dd/MM/yyyy")}",
+                    "${new Date().format("dd/MM/yyyy")}"
+                );
                 getShifts();
+
+                function updateSnapshotLink() {
+                    let startDate = document.getElementById('startDate').value;
+                    let endDate = document.getElementById('endDate').value;
+                    let tillId = document.getElementById('tillId').value;
+                    let snapShotLink = document.getElementById('snapShotLink');
+                    let url = "/snapshot/index?shiftStartDate=" + encodeURIComponent(startDate) + "&shiftEndDate=" +
+                        encodeURIComponent(endDate) + "&shiftTillId=" + tillId;
+                    snapShotLink.href = url;
+                }
+
+                $('#startDate').on('change', updateSnapshotLink);
+                $('#endDate').on('change', updateSnapshotLink);
+                document.getElementById('tillId').addEventListener('change', updateSnapshotLink);
+
             });
+
+            function resetShiftFilters() {
+                setDatePickers(
+                    'startDate',
+                    'endDate',
+                    "${(new Date() - 7).format("dd/MM/yyyy")}",
+                    "${new Date().format("dd/MM/yyyy")}"
+                );
+                $("#tillId").val("");
+                getShifts();
+            }
         </script>
     </head>
 
@@ -91,23 +102,25 @@
                                 <div class="form-group row">
                                     <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
                                     <div class="col-4">
-                                        <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
+                                        <g:textField name="startDate" id="startDate" class="form-control bottom-border" value="${startDate}" onkeydown="return false" autocomplete="off" />
                                     </div>
 
                                     <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
                                     <div class="col-4">
-                                        <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
+                                        <g:textField name="endDate" id="endDate" class="form-control bottom-border" value="${endDate}" onkeydown="return false" autocomplete="off" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
                                     <div class="col-2">
-                                        <g:field id="tillId" type="number" min="0" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field id="tillId" type="number" min="0" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" />
                                     </div>
 
                                     <div class="col-4 offset-4 text-right">
-                                        <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetShiftFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
+                                        <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetShiftFilters()">
+                                            Reset Filters
+                                        </button>
                                         <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getShifts();">Filter</button>
                                     </div>
                                 </div>
@@ -121,7 +134,7 @@
                             <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showSafeModal()">Count Safe</button>
                         </div>
                         <div class="col-4">
-                            <g:link controller="snapshot" action="index"  class="w-100">
+                            <g:link elementId="snapShotLink" controller="snapshot" action="index"  class="w-100">
                                 <button id="snapshot-viewer-button" type="button" class="btn btn-wl text-center w-100">Snapshot Viewer</button>
                             </g:link>
                         </div>

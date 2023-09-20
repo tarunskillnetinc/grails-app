@@ -282,7 +282,6 @@ environments:
                 dbCreate: update
                 url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
 
-
     test:
         dataSource:
             pooled: true
@@ -697,11 +696,11 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3306/wlpos"
+            url: "jdbc:mysql://retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
-            username: "wonderlane"
-            password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+            username: "cloudoffice"
+            password: "oqtS8aMSBFw99QTMhMjd"
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -725,11 +724,11 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/reporting"
+                url: "jdbc:mysql://retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "wonderlane"
-                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                username: "cloudoffice"
+                password: "oqtS8aMSBFw99QTMhMjd"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -752,11 +751,11 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/reporting"
+                url: "jdbc:mysql://retailplatform-prod.cluster-ro-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "wonderlane"
-                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                username: "cloudoffice"
+                password: "oqtS8aMSBFw99QTMhMjd"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -779,11 +778,11 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/transactions"
+                url: "jdbc:mysql://retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "wonderlane"
-                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                username: "cloudoffice"
+                password: "oqtS8aMSBFw99QTMhMjd"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -804,27 +803,38 @@ environments:
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
-            host: localhost
-            port: 5672
+            host: b-b178f79a-bb11-4c6a-a967-54020dcf8a42.mq.eu-west-1.amazonaws.com
+            port: 5671
             apiProtocol: https
-            apiPort: 15672
-            username: wonderlane
-            password: 0TS51aZARfjTC3VjOYP6
-            useSsl: false
+            apiPort: 443
+            username: cloudoffice
+            password: Y3mzLq2vROAwiPaExC6O
+            useSsl: true
 
         mysql:
             wlpos:
-                host: localhost
+                host: retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com
                 port: 3306
-                username: wonderlane
-                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
+                username: cloudoffice
+                password: oqtS8aMSBFw99QTMhMjd
                 database: wlpos
             transactions:
-                host: localhost
+                host: retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com
                 port: 3306
-                username: wonderlane
-                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
+                username: cloudoffice
+                password: oqtS8aMSBFw99QTMhMjd
                 database: transactions
+
+        wlpos:
+            customerDisplayImageBucket: "retail-platform-customer-display-images-prod"
+            receiptImageBucket: "retail-platform-receipt-images-prod"
+            buttonImageBucket: "retail-platform-button-images-prod"
+            brandAssetsBucket: "retail-platform-brand-assets-prod"
+
+        server:
+            port: 5000
+        grails:
+            serverURL: "https://trust-retail.com"
 
 wlpos:
     imageDirectory: "/opt/BackOffice/Images/"

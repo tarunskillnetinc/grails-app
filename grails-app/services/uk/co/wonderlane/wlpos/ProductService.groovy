@@ -580,18 +580,25 @@ class ProductService extends MySqlDal {
         stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.config.storeNumber)
-                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber)) {
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id)
+                List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
+                if (!variants.isEmpty()) {
+                    // Only send the update to the store if there are variants to send. This could mean the store has
+                    // old variants that don't get deleted but the alternative is sending incomplete product data.
+                    productEntity.setVariants(variants)
                     productEntities.add(productEntity)
                 }
             })
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProducts(productEntities)
 
-            log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+            if (!productEntities.isEmpty()) {
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setProducts(productEntities)
 
-            rabbitService.sendMessage(syncMessage)
+                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+
+                rabbitService.sendMessage(syncMessage)
+            }
         }
     }
 
@@ -636,9 +643,11 @@ class ProductService extends MySqlDal {
         }
     }
 
-    private static boolean checkProductHasPriceForStore(uk.co.wonderlane.wlpos.entities.Product product, Integer storeId) {
-        return product.variants.findAll { it.storeId == null || it.storeId == storeId }
-                .stream().map({ it.getRetailPrice() })
-                .collect(Collectors.toList()).findAll({ it != null && it > BigDecimal.ZERO }).size() > 0
+    private static List<ProductVariant> getFilteredProductVariantsWithPriceForStore(uk.co.wonderlane.wlpos.entities.Product product, Integer storeId) {
+        if (product.isZeroPrice()) {
+            return product.getVariants() // already retrieved using a store id so is fine to return the whole list
+        }
+        return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
+                    && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
     }
 }

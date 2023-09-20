@@ -1,3 +1,13 @@
+<script type="application/javascript">
+    $(document).ready(function() {
+        // Assuming your page buttons have a specific class (e.g., "page-button")
+        $('.step').on('click', function() {
+            // Scroll to the top of the page with a smooth animation
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+        });
+    });
+</script>
+
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <div id="storeId" class="col-2 font-weight-bold">Store ID</div>
     <div id="tillId" class="col-2 font-weight-bold">Till ID</div>
@@ -33,6 +43,8 @@
 <g:if test="${receipts?.totalCount > 0}">
     <div class="my-3 text-right">
         <div>Displaying ${offset ? offset + 1 : 1} - ${((offset ?: 0) + (receipts?.size() ?: 0))} of ${receipts?.totalCount} result${receipts?.totalCount > 1 ? 's' : ''}</div>
-        <div class="mt-3"><g:wlPagination totalResults="${receipts?.totalCount}" offset="${offset}" max="${max}" searchFunction="getReceipts" /></div>
+        <div class="mt-3">
+            <util:remotePaginate action="ajaxGetReceipts" total="${receipts?.totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate]" />
+        </div>
     </div>
 </g:if>

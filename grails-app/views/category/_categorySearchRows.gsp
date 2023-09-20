@@ -1,6 +1,6 @@
 <g:each in="${topLevelCategories}" var="category" status="i">
     <g:if test="${matchedCategories == null || matchedCategories?.contains(category.id)}">
-        <div id="category-result-${i+1}" class="row col-10 offset-1 px-0 pt-2 pb-2 wl-striped${row++%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: category.id)}';">
+        <div id="category-result-${i+1}" class="row ml-0 mr-0 px-0 pt-2 pb-2 wl-striped${row++%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: category.id)}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
                 <div id="category-result-${i+1}-description" class="col-6">
                     <g:if test="${level > 0}">

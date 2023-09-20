@@ -8,6 +8,7 @@
     <asset:javascript src="bootstrap-datepicker.min.js" />
     <asset:javascript src="snapshotUrls.js"/>
     <asset:javascript src="snapshotManagement.js"/>
+    <asset:javascript src="date-pickers.js"/>
 
     <script type='text/javascript'>
         $(function() {
@@ -17,28 +18,12 @@
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
 
-            $('#startDate').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
-
-            $('#endDate').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                startDate: "${(new Date() - 90).format("dd/MM/yyyy")}",
-                endDate: "${new Date().format("dd/MM/yyyy")}",
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
-
+            initDatePickers(
+                'startDate',
+                'endDate',
+                "${(new Date() - 90).format("dd/MM/yyyy")}",
+                "${new Date().format("dd/MM/yyyy")}"
+            );
             getSnapshots();
         });
     </script>
@@ -51,7 +36,8 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index">Shift Viewer</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index"
+                        params="[startDate: shiftStartDate, endDate: shiftEndDate, tillId: shiftTillId]">Shift Viewer</g:link></li>
                         <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
                     </ol>
                 </div>

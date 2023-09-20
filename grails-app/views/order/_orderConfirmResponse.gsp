@@ -4,7 +4,7 @@
 
 <g:if test="${orderResponse}">
     <div class="modal-body" style="max-height: 500px;word-break: break-all; word-wrap: break-word; margin-left: 15px">
-            <div class="row"><h3><a href="${orderResponse}" target="_blank">Click Here To Find More About Order</a></h3></div>
+            <div class="row"><h3>Order submitted, please visit the Nisa website to finish placing the order: <a href="${orderResponse}" target="_blank">${orderResponse}</a></h3></div>
     </div>
 </g:if>
 

@@ -81,6 +81,10 @@ class ButtonController {
         def button
         def existingButton = true
 
+        if (form.overrideId == form.id) {
+            form.id = 0
+        }
+
         if (form.id > 0) {
             button = Button.get(form.id)
         } else {
@@ -136,15 +140,12 @@ class ButtonController {
                 if (form.image) {
                     byte[] image = form.image.bytes
 
-                    if (image.length > 0 && form.image.contentType == "image/png") {
-                        imageService.saveButtonImage(button.id, image)
-
-                        button.imageDisplay = true
-                        if (singularButtonUpdate) {
-                            buttonService.saveButton(button)
-                        } else {
-                            buttonService.saveButtonGrid(button.buttonGrid)
-                        }
+                    // if store override grab image from s3 and save it again
+                    if (image.length <=0 && springSecurityService.principal.storeId != null){
+                        image = imageService.getButtonImage(form.overrideId)
+                        saveButton(button, image, singularButtonUpdate)
+                    } else if (image.length > 0 && form.image.contentType == "image/png") {
+                       saveButton(button, image, singularButtonUpdate)
                     }
                 }
             }
@@ -326,5 +327,16 @@ class ButtonController {
 
     def getStoreId() {
         return springSecurityService.principal.storeId
+    }
+
+    def saveButton(Button button, byte[] image, boolean singularButtonUpdate){
+        imageService.saveButtonImage(button.id, image)
+
+        button.imageDisplay = true
+        if (singularButtonUpdate) {
+            buttonService.saveButton(button)
+        } else {
+            buttonService.saveButtonGrid(button.buttonGrid)
+        }
     }
 }

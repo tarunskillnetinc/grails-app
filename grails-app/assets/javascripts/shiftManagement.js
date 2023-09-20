@@ -2,9 +2,9 @@ function getShifts() {
     $("#search-results").hide();
     $("#loading-indicator").show();
 
-    const startDate = $("#startDate").val();
-    const endDate = $("#endDate").val();
-    const tillId = $("#tillId").val();
+    startDate = $("#startDate").val();
+    endDate = $("#endDate").val();
+    tillId = $("#tillId").val();
 
     $.ajax({
         url: ShiftUrls.getShiftsUrl(),
@@ -21,21 +21,9 @@ function getShifts() {
             $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
                 .html('No shifts found.');
             $("#search-results").html(result);
-        }
+        },
     });
 
-}
-
-function resetShiftFilters(startDate, endDate) {
-    $("#startDate").val(startDate);
-    $("#startDate").datepicker('setDate', startDate);
-
-    $("#endDate").val(endDate);
-    $("#endDate").datepicker('setDate', endDate);
-
-    $("#tillId").val("");
-
-    getShifts();
 }
 
 function showCashModal(shiftId, isReconciled) {

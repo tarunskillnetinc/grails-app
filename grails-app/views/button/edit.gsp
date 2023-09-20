@@ -9,7 +9,10 @@
     <script type="text/javascript">
         $(function() {
             if ("${button?.imageDisplay}" === "false") {
-                $("input[id*=displayTextInput]").attr("disabled", true)
+                const displayTextCheck = $("input[id*=textDisplayInput]");
+                displayTextCheck.attr("checked", true);
+                displayTextCheck.attr("value", true)
+                displayTextCheck.attr("disabled", true)
             }
 
             $("#image").on("change", function() {

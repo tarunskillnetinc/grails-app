@@ -125,6 +125,10 @@
                 } else if (checkedBoxes.length > 0 && !acceptRrps) {
                     $("#confirmModalHeader").html("Save Prices");
 
+                    if (!validPrice()) {
+                        return;
+                    }
+
                     if(checkedBoxes.length === totalProductListCount){
                         $("#confirmModalContent").html("This will update all prices in the list");
                     } else {
@@ -166,6 +170,20 @@
 
             function confirmModalNoButtonClicked() {
                 $('#confirmModal').modal("hide");
+            }
+
+            function validPrice() {
+                const checkedBoxes = $("#search-results input:checked");
+
+                for (let i = 0; i < checkedBoxes.length; i++) {
+                    const price = $("[id^=product-" + $(checkedBoxes[i]).attr("id").substring(8) + "-price]").val();
+                    if (price < 0.01) {
+                        alert("Retail price cannot be saved as 0.00");
+                        return false;
+                    }
+                }
+
+                return true;
             }
 
             function confirmRrps(acceptRrps) {
@@ -292,7 +310,7 @@
 
                                     <div class="form-group row">
                                         <div class="col-12 text-right">
-                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset</button>
+                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset Filters</button>
                                             <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="search()">Search</button>
                                         </div>
                                     </div>
