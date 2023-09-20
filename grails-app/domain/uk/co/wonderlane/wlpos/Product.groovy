@@ -159,6 +159,12 @@ class Product {
                 .filter({variant -> variant.id == variantId }).stream().findAny().present
     }
 
+    List<ProductVariant> getCurrentVariants() {
+        def allVariants = variants?.findAll { it.storeId == null || it.storeId == springSecurityService.principal.storeId}
+        return allVariants?.sort{a, b -> b.effectiveDate <=> a.effectiveDate ?: b.id <=> a.id}
+                ?.unique { a, b -> a.sku <=> b.sku }
+    }
+
     private Set<DateTime> getEffectiveDates() {
         def now = DateTime.now(DateTimeZone.UTC)
         def effectiveDates = new HashSet<DateTime>()
