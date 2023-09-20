@@ -1,3 +1,4 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonGridType" %>
 <!doctype html>
 
 <html>
@@ -58,7 +59,12 @@
             <div class="form-group row margin-top-2rem">
                 <label for="rows" class="col-3 col-form-label">Number of rows</label>
                 <div class="col-2">
-                    <g:field type="number" min="1" max="4" maxlength="1" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
+                    <g:if test="${buttonGrid?.id && buttonGrid?.type?.name() != 'SALES'}">
+                        <g:field type="number" min="1" max="4" maxlength="1" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
+                    </g:if>
+                    <g:if test="${buttonGrid?.id && buttonGrid?.type?.name() == 'SALES'}">
+                        <h6 class="form-control bottom-border">${buttonGrid?.rows ?: 4}</h6>
+                    </g:if>
                 </div>
             </div>
 
