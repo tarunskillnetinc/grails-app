@@ -91,16 +91,17 @@
                 $("#subPageId").val($(this).val());
             })
 
+            $("input[id*=percentageInput]").on("input", function() {
+                formatValue()
+                $("#quantity").val($(this).val());
+            })
+
             $("select[id*=processInput]").on("change", function() {
                 $("#process").val($(this).val());
 
                 if ($(this).val() === "SIMPLE_DISCOUNT") {
                     $("#percentageEntryHolder").show()
                     setQuantity()
-                    $("input[id*=percentageInput]").on("input", function() {
-                        formatValue()
-                        $("#quantity").val($(this).val());
-                    })
                 } else {
                     $("#percentageEntryHolder").hide()
                     $("#quantity").val(null);
@@ -135,6 +136,9 @@
             var maxValue = 100
 
             if (element != null) {
+
+                element.value = element.value.replace(/[.]/g, "");
+
                 if (element.value > maxValue) {
                     element.value = maxValue
                 }
