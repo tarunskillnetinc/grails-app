@@ -26,7 +26,7 @@ class ProductListService extends MySqlDal {
     }
 
     def getCentralCounts(String searchTerm = null, String searchBy = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
-        def productList =  ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+        return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("type", ProductListType.SCHEDULED_COUNT)
 
@@ -64,7 +64,6 @@ class ProductListService extends MySqlDal {
                 like("ownerUsersName", "%$searchTerm%")
             }
         }
-        return productList
     }
 
     def getOrders(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate) {
