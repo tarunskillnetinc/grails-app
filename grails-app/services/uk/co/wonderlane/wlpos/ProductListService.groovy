@@ -32,16 +32,20 @@ class ProductListService extends MySqlDal {
 
             if (searchBy == "Everything" && searchTerm) {
                 or {
-                    like("id", "%$searchTerm%")
-                    like("storeId", "%$searchTerm%")
                     like("description", "%$searchTerm%")
-                    like("status", "%$searchTerm%")
+                    def matchingEnums =[]
+                    ProductListStatus.values().each {status ->
+                        if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                            matchingEnums.add(status)
+                        }
+                    }
+                    if (matchingEnums.size() > 0) {
+                        matchingEnums.each {matchingEnum ->
+                            eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
+                        }
+                    }
                     like("ownerUsersName", "%$searchTerm%")
                 }
-            } else if (searchBy == "ID" && searchTerm) {
-                like("id", "%$searchTerm%")
-            } else if (searchBy == "Store ID" && searchTerm) {
-                like("storeId", "%$searchTerm%")
             } else if (searchBy == "Description" && searchTerm) {
                 like("description", "%$searchTerm%")
             } else if (searchBy == "Status" && searchTerm) {

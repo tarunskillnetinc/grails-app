@@ -87,8 +87,6 @@
 
                                         <div class="input-group-append">
                                             <g:select id="centralCountSearchBy" name="centralCountSearchBy" from="${['Everything',
-                                                                                                                     'ID',
-                                                                                                                     'Store ID',
                                                                                                                      'Description',
                                                                                                                      'Status',
                                                                                                                      'Current Owner']}" value="everything" valueMessagePrefix="CentralCountSearchBy" class="form-control select-border" style="z-index: 0;" />
