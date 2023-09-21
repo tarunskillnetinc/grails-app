@@ -52,6 +52,9 @@ class Promotion {
         endDate nullable: true
         type nullable: false
         amount nullable: false, range: 0F..9999.99F, validator: {val, obj ->
+            if (obj.type == PromotionType.FIXED_PRICE && val <= BigDecimal.ZERO) {
+                return 'error.Promotion.fixedAmountNotSet'
+            }
             if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT && val <= BigDecimal.ZERO) {
                 return 'error.Promotion.fixedAmountNotSet'
             }
