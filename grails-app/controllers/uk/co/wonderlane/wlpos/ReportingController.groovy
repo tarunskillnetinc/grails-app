@@ -86,7 +86,6 @@ class ReportingController {
         // Populating a dummy sale object for any of the sales which are not in this category (because they have summed values for everything in that category).
         salesGrouped.each { salesGroup ->
             Sale groupedSale = new Sale(
-                    quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
                     costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount.setScale(2) : BigDecimal.ZERO.setScale(2) },
@@ -95,7 +94,13 @@ class ReportingController {
                     productUnitSize: ""
             )
 
-            groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+            salesGroup.value.each {
+                if (it.quantity < 0) {
+                    groupedSale.refundQuantity += (it.quantity * -1)
+                } else {
+                    groupedSale.quantity += it.quantity
+                }
+            }
 
             // Also add a dummy category object so we know which category this is in the view.
             groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key))
@@ -188,19 +193,29 @@ class ReportingController {
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
-                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity }
-                    groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+                    int initQuantity = groupedProductSale.value[0].quantity
+                    groupedProductSale.value[0].quantity = 0
+                    groupedProductSale.value[0].refundQuantity = 0
+
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
+
+                    groupedProductSale.value.each {
+                        if (it.quantity < 0) {
+                            groupedProductSale.value[0].refundQuantity += (it.quantity * -1)
+                        } else {
+                            groupedProductSale.value[0].quantity += it.quantity
+                        }
+                    }
+                    initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity += (initQuantity * -1)) : (groupedProductSale.value[0].quantity += initQuantity)
 
                     finalSales.add(groupedProductSale.value[0])
                 }
             } else {
                 if (!params.descriptionFilter || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.descriptionFilter?.toLowerCase())) {
                     Sale groupedSale = new Sale(
-                            quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
                             costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
                             retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
                             vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
@@ -208,7 +223,14 @@ class ReportingController {
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
                             productUnitSize: ""
                     )
-                    groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+
+                    salesGroup.value.each {
+                        if (it.quantity < 0) {
+                            groupedSale.refundQuantity += (it.quantity * -1)
+                        } else {
+                            groupedSale.quantity += it.quantity
+                        }
+                    }
 
                     // Also add a dummy category object so we know which category this is in the view.
                     groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key))
@@ -375,7 +397,6 @@ class ReportingController {
             }
 
             Sale groupedSale = new Sale(
-                    quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
                     costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
                     retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
                     vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
@@ -383,7 +404,14 @@ class ReportingController {
                     productDescription: salesGroup.value[0].salesCategories.find { it.categoryLevel == currentCategoryLevel }?.categoryDescription,
                     productUnitSize: ""
             )
-            groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+
+            salesGroup.value.each {
+                if (it.quantity < 0) {
+                    groupedSale.refundQuantity += (it.quantity * -1)
+                } else {
+                    groupedSale.quantity += it.quantity
+                }
+            }
 
             // Also add a dummy category object so we know which category this is in the view.
             groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key, categoryLevel: currentCategoryLevel))
@@ -437,12 +465,23 @@ class ReportingController {
         def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
         filteredGroupedProductSales?.each { groupedProductSale ->
-            groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity > 0 ? it.quantity : 0 }
-            groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+            int initQuantity = groupedProductSale.value[0].quantity
+            groupedProductSale.value[0].quantity = 0
+            groupedProductSale.value[0].refundQuantity = 0
+
             groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
             groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
             groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
             groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
+
+            groupedProductSale.value.each {
+                if (it.quantity < 0) {
+                    groupedProductSale.value[0].refundQuantity += (it.quantity * -1)
+                } else {
+                    groupedProductSale.value[0].quantity += it.quantity
+                }
+            }
+            initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity += (initQuantity * -1)) : (groupedProductSale.value[0].quantity += initQuantity)
 
             finalSales.add(groupedProductSale.value[0])
         }
