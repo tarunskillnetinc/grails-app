@@ -96,7 +96,7 @@ class ReportingController {
 
             salesGroup.value.each {
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity += (it.quantity * -1)
+                    groupedSale.refundQuantity -= it.quantity
                 } else {
                     groupedSale.quantity += it.quantity
                 }
@@ -204,12 +204,12 @@ class ReportingController {
 
                     groupedProductSale.value.each {
                         if (it.quantity < 0) {
-                            groupedProductSale.value[0].refundQuantity += (it.quantity * -1)
+                            groupedProductSale.value[0].refundQuantity -= it.quantity
                         } else {
                             groupedProductSale.value[0].quantity += it.quantity
                         }
                     }
-                    initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity += (initQuantity * -1)) : (groupedProductSale.value[0].quantity += initQuantity)
+                    initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity -= initQuantity) : (groupedProductSale.value[0].quantity += initQuantity)
 
                     finalSales.add(groupedProductSale.value[0])
                 }
@@ -226,7 +226,7 @@ class ReportingController {
 
                     salesGroup.value.each {
                         if (it.quantity < 0) {
-                            groupedSale.refundQuantity += (it.quantity * -1)
+                            groupedSale.refundQuantity -= it.quantity
                         } else {
                             groupedSale.quantity += it.quantity
                         }
@@ -407,7 +407,7 @@ class ReportingController {
 
             salesGroup.value.each {
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity += (it.quantity * -1)
+                    groupedSale.refundQuantity -= it.quantity
                 } else {
                     groupedSale.quantity += it.quantity
                 }
@@ -476,12 +476,12 @@ class ReportingController {
 
             groupedProductSale.value.each {
                 if (it.quantity < 0) {
-                    groupedProductSale.value[0].refundQuantity += (it.quantity * -1)
+                    groupedProductSale.value[0].refundQuantity -= it.quantity
                 } else {
                     groupedProductSale.value[0].quantity += it.quantity
                 }
             }
-            initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity += (initQuantity * -1)) : (groupedProductSale.value[0].quantity += initQuantity)
+            initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity -= initQuantity) : (groupedProductSale.value[0].quantity += initQuantity)
 
             finalSales.add(groupedProductSale.value[0])
         }
