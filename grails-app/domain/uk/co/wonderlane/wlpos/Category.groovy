@@ -8,6 +8,8 @@ class Category {
     String shortDescription
     String retailerCategoryCode
     Restrictions restrictions
+    Integer varianceQuantity
+    BigDecimal varianceValue
 
     Collection<Category> childCategories
 
@@ -23,8 +25,10 @@ class Category {
         shortDescription column: "shortDescription"
         retailerCategoryCode column: "retailerCategoryCode"
         restrictions column: "restrictionsId"
-        parentCategory column: "parentId"
+        varianceValue column: "varianceValue"
+        varianceQuantity column: "varianceQuantity"
 
+        parentCategory column: "parentId"
         childCategories sort: 'description', order: 'asc'
     }
 
@@ -57,6 +61,8 @@ class Category {
             }
         }
         parentCategory nullable: true
+        varianceQuantity nullable: true, min: 1, max: 1000
+        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999999.99
     }
 
     public uk.co.wonderlane.wlpos.entities.Category getCategory() {
@@ -69,6 +75,8 @@ class Category {
         category.setShortDescription(shortDescription)
         category.setRetailerCategoryCode(retailerCategoryCode)
         category.setRestrictions(restrictions.getRestrictions())
+        category.setVarianceQuantity(varianceQuantity)
+        category.setVarianceValue(varianceValue)
 
         return category
     }

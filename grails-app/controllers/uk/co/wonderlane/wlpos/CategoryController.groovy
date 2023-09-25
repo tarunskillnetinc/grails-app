@@ -6,6 +6,8 @@ import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
+import java.math.RoundingMode
+
 class CategoryController extends BaseController {
 
     def springSecurityService
@@ -50,9 +52,9 @@ class CategoryController extends BaseController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxGetRestrictions(int selectedCategoryId) {
+    def ajaxGetInheritance(int selectedCategoryId) {
         def parentCategory = categoryService.getCategory(selectedCategoryId)
-        render(template:"restrictions", model: [category: parentCategory])
+        render(template:"categoryInheritance", model: [category: parentCategory])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -66,6 +68,8 @@ class CategoryController extends BaseController {
         blankCategory.setRestrictions(new Restrictions())
 
         // default values for new category:
+        blankCategory.varianceQuantity = 10
+        blankCategory.varianceValue = new BigDecimal(100).setScale(2, RoundingMode.HALF_UP)
         blankCategory.restrictions.refundAllowed = true
         blankCategory.restrictions.markdownAllowed = true
         blankCategory.restrictions.discountAllowed = true
@@ -208,6 +212,8 @@ class CategoryController extends BaseController {
         syncMessageCategory.description = category.description
         syncMessageCategory.shortDescription = category.shortDescription
         syncMessageCategory.retailerCategoryCode = category.retailerCategoryCode
+        syncMessageCategory.varianceQuantity = category.varianceQuantity
+        syncMessageCategory.varianceValue = category.varianceValue
 
         if (category.parentCategory != null) {
             syncMessageCategory.parentId = category.parentCategory.id

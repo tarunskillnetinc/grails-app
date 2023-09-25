@@ -169,8 +169,6 @@ class StoreConfigCommand implements Validateable {
     PrintReceiptOption printReceiptOption
     Integer quantityPromptThreshold
     BigDecimal valuePromptThreshold
-    Integer varianceQuantity
-    BigDecimal varianceValue
     Boolean pickListForceZeroCount
     String primaryColour
     String secondaryColour
@@ -199,8 +197,6 @@ class StoreConfigCommand implements Validateable {
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
-        varianceQuantity nullable: true, min: 1, max: 999
-        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         primaryColour nullable: true
         secondaryColour nullable: true
