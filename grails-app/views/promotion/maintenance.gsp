@@ -573,6 +573,12 @@
                     $('#' + promoType + '-endDate').addClass("is-invalid");
                 }
 
+                if ($('#' + promoType + '-retailerPromoId').val() < 0) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>Please enter a promotion id greater than 0</li>");
+                    $('#' + promoType + '-retailerPromoId').addClass("is-invalid");
+                }
+
                 if ($('#' + promoType + '-amount').length !== 0) {
                     if ($('#' + promoType + '-amount').val() !== "") {
                         if (parseFloat($('#' + promoType + '-amount').val()) > parseFloat($('#' + promoType + '-amount').prop("max"))) {
