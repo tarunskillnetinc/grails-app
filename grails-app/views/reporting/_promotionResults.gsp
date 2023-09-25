@@ -51,34 +51,34 @@
                 <div id="item-code-${i + 1}" class="col my-auto text-truncate">${promotionSaleProduct.itemCode}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div id="description-${i + 1}" class="col-2 my-auto">${promotionSaleProduct.description}</div>
+                <div id="description-${i + 1}" class="col-2 my-auto text-truncate">${promotionSaleProduct.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "costPrice" }?.enabled}">
-                <div id="cost-price-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.costPrice}" type="currency" /></div>
+                <div id="cost-price-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.costPrice}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fullPrice" }?.enabled}">
-                <div id="full-price-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.fullPrice}" type="currency" /></div>
+                <div id="full-price-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.fullPrice}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fullPriceProfit" }?.enabled}">
-                <div id="full-price-profit-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.fullPriceProfit}" type="currency" /></div>
+                <div id="full-price-profit-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.fullPriceProfit}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fullPriceMargin" }?.enabled}">
-                <div id="full-price-margin-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.fullPriceMargin / 100}" type="percent" minFractionDigits="2" /></div>
+                <div id="full-price-margin-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.fullPriceMargin / 100}" type="percent" minFractionDigits="2" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discount" }?.enabled}">
-                <div id="discount-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.discount}" type="currency" /></div>
+                <div id="discount-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.discount}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discountedPrice" }?.enabled}">
-                <div id="discounted-price-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.discountedPrice}" type="currency" /></div>
+                <div id="discounted-price-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.discountedPrice}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discountedProfit" }?.enabled}">
-                <div id="discounted-profit-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.discountedProfit}" type="currency" /></div>
+                <div id="discounted-profit-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.discountedProfit}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "discountedMargin" }?.enabled}">
-                <div id="discounted-margin-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.discountedMargin / 100}" type="percent" minFractionDigits="2" /></div>
+                <div id="discounted-margin-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.discountedMargin / 100}" type="percent" minFractionDigits="2" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "vat" }?.enabled}">
-                <div id="vat-${i + 1}" class="col my-auto"><g:formatNumber number="${promotionSaleProduct.vat}" type="currency" /></div>
+                <div id="vat-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSaleProduct.vat}" type="currency" /></div>
             </g:if>
         </div>
     </g:each>
