@@ -119,7 +119,7 @@ class PromotionService {
                 } else if (searchTerm.isNumber()) {
                     sqlRestriction "cast( retailerPromotionId AS char( 256 )) like '%${searchTerm}%'";
                 } else {
-                    // This block is only hit when the user selects to search by promotion ID but then enters a non-numeric entry in the search box.
+                    // This block is only hit when the user selects to search by promotion reference but then enters a non-numeric entry in the search box.
                     like("description", "%$searchTerm%")
                 }
             }

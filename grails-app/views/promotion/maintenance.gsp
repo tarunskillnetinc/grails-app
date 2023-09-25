@@ -575,7 +575,7 @@
 
                 if ($('#' + promoType + '-retailerPromoId').val() < 0) {
                     error = true;
-                    errorString = errorString.concat("\n<li>Please enter a promotion id greater than 0</li>");
+                    errorString = errorString.concat("\n<li>Please enter a promotion reference greater than 0</li>");
                     $('#' + promoType + '-retailerPromoId').addClass("is-invalid");
                 }
 
