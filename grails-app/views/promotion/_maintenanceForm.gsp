@@ -1,3 +1,11 @@
+<script>
+    function acceptNumeric(e) {
+        if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
+            return;
+        }
+        e.preventDefault();
+    }
+</script>
 <div class="row mt-2">
     <div class="col-12">
         <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
@@ -79,7 +87,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="bogof-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="bogof-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -221,7 +229,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="xfory-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="xfory-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -418,7 +426,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="percentage-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="percentage-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -567,7 +575,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -724,7 +732,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
