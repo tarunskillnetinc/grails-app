@@ -45,7 +45,7 @@
             $('#endDate').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
-                startDate: "${(new Date() - 7).format("dd/MM/yyyy")}",
+                startDate: "${new Date().format("dd/MM/yyyy")}",
                 endDate: "${new Date().format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
@@ -58,6 +58,12 @@
             $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#descriptionFilter').val("");
+
+            //Reset the Date Pickers back to On Page Load State.
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 7).format("dd/MM/yyyy")}");
+            $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setStartDate', "${(new Date()).format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('storeFilter').value = '';
         }

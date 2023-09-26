@@ -91,8 +91,21 @@
                 $("#subPageId").val($(this).val());
             })
 
+            $("input[id*=percentageInput]").on("input", function() {
+                formatValue()
+                $("#quantity").val($(this).val());
+            })
+
             $("select[id*=processInput]").on("change", function() {
                 $("#process").val($(this).val());
+
+                if ($(this).val() === "SIMPLE_DISCOUNT") {
+                    $("#percentageEntryHolder").show()
+                    setQuantity()
+                } else {
+                    $("#percentageEntryHolder").hide()
+                    $("#quantity").val(null);
+                }
             })
 
             $("input[id*=amountInput]").on("change", function() {
@@ -117,6 +130,28 @@
                 $(".button-example").css("color", this.value);
             })
         })
+
+        function formatValue() {
+            var element = document.getElementById("percentageInput")
+            var maxValue = 100
+
+            if (element != null) {
+
+                element.value = element.value.replace(/[.]/g, "");
+
+                if (element.value > maxValue) {
+                    element.value = maxValue
+                }
+                if (element.value <= 0) {
+                    element.value = 1
+                }
+            }
+        }
+
+        function setQuantity() {
+            var element = document.getElementById("percentageInput")
+            $("#quantity").val(element != null ? element.value : 1)
+        }
 
         function saveOverride(btnId, storeId) {
             $("input[id*=btnId]").val(-1);
@@ -335,6 +370,13 @@
                                 <label for="process" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Action</label>
                                 <div class="col-8 col-sm-5 col-lg-3">
                                     <g:select name="processInput" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
+                                </div>
+                            </div>
+
+                            <div class="form-group row" style="display: ${button?.process?.name() == 'SIMPLE_DISCOUNT' ? 'show' : 'none'}" id="percentageEntryHolder">
+                                <label for="percentageInput" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Percentage Discount</label>
+                                <div class="col-8 col-sm-6 col-lg-4">
+                                    <g:field name="percentageInput" type="number" min="1" max="100" step="1" required="true" value="${button?.quantity != null ? button?.quantity : 1}" class="form-control bottom-border"/>
                                 </div>
                             </div>
 

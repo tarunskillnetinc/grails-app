@@ -471,7 +471,6 @@ class ProductController extends BaseController {
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
             product.discreetMessage = editedProduct.discreetMessage
             product.status = editedProduct.status
-            product.retailerProductId = editedProduct.retailerProductId
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -522,7 +521,7 @@ class ProductController extends BaseController {
                     priceChanges.addAll(it.priceChanges)
                 }
 
-                savePriceUpdates(product.variants?.findAll { it.storeId == null }, priceChanges, effectiveDate)
+                savePriceUpdates(product.currentVariants, priceChanges, effectiveDate)
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
 
