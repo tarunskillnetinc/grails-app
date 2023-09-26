@@ -254,22 +254,6 @@
                     <div id="collapseInventoryManagement" class="collapse" aria-labelledby="inventoryManagement" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="col-12">
-                                <div class="form-group row">
-                                    <label for="config.varianceQuantity" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Quantity Threshold</label>
-                                    <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0" max="9999" maxlength="3" name="config.varianceQuantity" value="${storeSettings?.config?.varianceQuantity}" class="form-control bottom-border" />
-                                    </div>
-                                    <small id="varianceQuantityHelp" class="form-text text-muted">Adjustments of this quantity will trigger a variance report.</small>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label for="config.varianceValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Value Threshold</label>
-                                    <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="config.varianceValue" value="${storeSettings?.config?.varianceValue}" class="form-control bottom-border" />
-                                    </div>
-                                    <small id="varianceValueHelp" class="form-text text-muted">Adjustments of this value will trigger a variance report.</small>
-                                </div>
-
                                 <div class="form-group form-check row">
                                     <div class="col-12 col-lg-8 offset-lg-5">
                                         <g:checkBox name="config.pickListForceZeroCount" value="${storeSettings?.config?.pickListForceZeroCount}" class="form-check-input" />
