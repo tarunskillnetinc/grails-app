@@ -67,7 +67,7 @@ class Promotion {
         promotion.setDescription(description)
         promotion.setReceiptDescription(receiptDescription)
         promotion.setStartDate(new DateTime(startDate))
-        promotion.setEndDate(new DateTime(endDate))
+        promotion.setEndDate(endDate != null ? new DateTime(endDate) : null)
         promotion.setType(type)
         promotion.setAmount(amount)
         promotion.setLossCategoryId(lossCategoryId)
