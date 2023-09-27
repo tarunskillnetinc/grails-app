@@ -176,3 +176,14 @@ jacocoTestCoverageVerification {
 grails {
     pathingJar = true
 }
+
+sourceSets {
+    elasticbeanstalk
+}
+
+tasks.withType(Jar) {
+    from(sourceSets.elasticbeanstalk.output) {
+        include '*'
+        into '.platform/nginx/conf.d/'
+    }
+}
