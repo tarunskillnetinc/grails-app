@@ -4,9 +4,9 @@
 
 <g:each in="${reasonCodes}" var="code" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable">
-        <div id="desc-${i + 1}" class="col-6 my-auto">${code.description}</div>
-        <div class="col-6 my-auto text-right">
-            <button id="edit-${i + 1}" class="btn btn-wl mx-2">Edit</button>
+        <div id="desc-${i + 1}" class="col-8 my-auto text-truncate">${code.description}</div>
+        <div class="col-4 my-auto text-right">
+            <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick='ajaxEdit("${code.id}");'>Edit</button>
             <button id="delete-${i + 1}" class="btn btn-danger mx-2">Delete</button>
         </div>
     </div>

@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.util.Pair
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 
@@ -27,14 +28,40 @@ class ReasonCodeController {
             type = ReasonCodeType.PAID_OUT
         }
 
-        List<ReasonCode> total = reasonCodeService.getAllReasonCodesOfType(retailerId, type)
-        List<ReasonCode> page = total.drop(offset).take(max)
+        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max)
         render(template: "reasonCodeSearchResults", model: [
-                reasonCodes: page,
+                reasonCodes: searchResults.getbValue(),
                 max: max,
                 offset: offset,
                 type: type.name(),
-                totalResults: total.size()
+                totalResults: searchResults.getaValue()
         ])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxAddReasonCode() {
+        render(template: "addEditReasonCode", model: [
+                retailerId: springSecurityService.principal.retailerId,
+                editing: false,
+                reasonCode: null
+        ])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxEditReasonCode() {
+        render(template: "addEditReasonCode", model: [
+                retailerId: springSecurityService.principal.retailerId,
+                editing: true,
+                reasonCode: ReasonCode.get(params.id.toString().toInteger())
+        ])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveReasonCode() {
+
+    }
+
+    def sendSyncMessage() {
+
     }
 }
