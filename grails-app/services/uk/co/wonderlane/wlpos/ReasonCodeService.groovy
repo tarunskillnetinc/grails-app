@@ -7,15 +7,11 @@ import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 @Transactional
 class ReasonCodeService {
 
-    def saveReasonCode(ReasonCode rc) {
+    void saveReasonCode(ReasonCode rc) {
         rc.save()
     }
 
-    def deleteReasonCode(ReasonCode rc) {
-        rc.delete()
-    }
-
-    def getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max) {
+    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max) {
         int count = ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false)
         if (count == 0) {
             return new Pair<Integer, List<ReasonCode>>(0, new ArrayList<ReasonCode>())
@@ -24,8 +20,7 @@ class ReasonCodeService {
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 
-    def isDescAvailable(int retailerId, String desc) {
-        List<ReasonCode> result = ReasonCode.findAllByRetailerIdAndDescription(retailerId, desc)
-        return result == null || result.size() == 0
+    boolean isDescriptionDuplicate(int retailerId, String description) {
+        return ReasonCode.countByRetailerIdAndDescription(retailerId, description) > 0
     }
 }

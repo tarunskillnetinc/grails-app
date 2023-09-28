@@ -7,20 +7,38 @@
     </g:else>
 </div>
 
+<script>
+    $(document).ready(function() {
+        if (${renderErrors ?: false}) {
+            const errorContainer = $('#error-container');
+            const errors = JSON.parse("${errors}".replaceAll('&quot;', '"'));
+            let errorListHtml = "";
+
+            if (errors) {
+                for (let i = 0; i < errors.length; ++i) {
+                    errorListHtml += "<li>" + errors[i] + "</li>\n";
+                }
+                errorContainer.html(errorListHtml);
+            }
+        }
+    });
+</script>
+
 <div class="modal-body">
-    <g:hasErrors bean="${reasonCode}">
+    <g:if test="${renderErrors}">
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${reasonCode}" as="list" />
+                <ul id="error-container">
+                </ul>
             </div>
         </section>
-    </g:hasErrors>
+    </g:if>
 
-    <g:form name="edit-code-form">
+    <form id="edit-code-form" name="edit-code-form">
         <div class="row form-group mb-4">
             <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right" >Description:</label>
             <div class="input-group col-4">
-                <g:textField id="description" name="description" value="${reasonCode?.description}" class="form-control bottom-border" />
+                <g:textField name="description" value="${reasonCode?.description}" class="form-control bottom-border" />
             </div>
         </div>
 
@@ -71,10 +89,10 @@
         <g:else>
             <g:hiddenField name="retailerId" value="${sec.loggedInUserInfo(field: 'retailerId')}"/>
         </g:else>
-    </g:form>
+    </form>
 </div>
 
 <div class="modal-footer">
     <button type="button" id="cancel-edit-btn" class="btn btn-wl" onclick="closeModal();">Cancel</button>
-    <button type="button" id="save-code-btn" class="btn btn-success" onclick="console.log('saving')">Save</button>
+    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave();">Save</button>
 </div>

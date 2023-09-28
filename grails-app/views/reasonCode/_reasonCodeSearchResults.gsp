@@ -7,7 +7,7 @@
         <div id="desc-${i + 1}" class="col-8 my-auto text-truncate">${code.description}</div>
         <div class="col-4 my-auto text-right">
             <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick='ajaxEdit("${code.id}");'>Edit</button>
-            <button id="delete-${i + 1}" class="btn btn-danger mx-2">Delete</button>
+            <button id="delete-${i + 1}" class="btn btn-danger mx-2" onclick='ajaxDelete("${code.id}")'>Delete</button>
         </div>
     </div>
 </g:each>

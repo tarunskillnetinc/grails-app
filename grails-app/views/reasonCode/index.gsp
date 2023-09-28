@@ -13,6 +13,7 @@
         const editUrl = "${createLink(controller: 'reasonCode', action: 'ajaxEditReasonCode')}";
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
+        const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
 
         let modalContents;
         let modal;
@@ -56,32 +57,6 @@
             });
         }
 
-        function setupModal() {
-            modalContents.html(
-                `<div class=\"modal-body\">
-                    <div class=\"d-flex justify-content-center\">
-                        <div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">
-                            <span class=\"sr-only\">Loading...</span>
-                        </div>
-                    </div>
-                </div>`);
-            modal.modal({show: true, backdrop: 'static', keyboard: false});
-        }
-
-        function closeModal() {
-            modal.modal('hide');
-        }
-
-        function clearErrorMsg() {
-            errorMsg.text('');
-            errorMsg.hide();
-        }
-
-        function showErrorMsg(msg) {
-            errorMsg.text(msg);
-            errorMsg.show();
-        }
-
         function ajaxEdit(id) {
             clearErrorMsg();
             setupModal();
@@ -116,19 +91,83 @@
         }
 
         function ajaxSave() {
+            const data = $('#edit-code-form').serialize()
             clearErrorMsg();
             setupModal();
+            hideSaveBtns();
             $.ajax({
-                url: addUrl,
-                method: "GET",
+                url: saveUrl,
+                method: "POST",
+                data: data,
                 success: function (resp) {
-
+                    if (resp === "OK") {
+                        closeModal();
+                        ajaxSearch();
+                    } else {
+                        showSaveBtns();
+                        modalContents.html(resp);
+                    }
                 },
                 error: function () {
                     closeModal();
                     showErrorMsg('error occurred trying to save reason code details.');
                 }
             });
+        }
+
+        function ajaxDelete(id) {
+            clearErrorMsg();
+            $.ajax({
+                url: deleteUrl,
+                method: "DELETE",
+                data: {id: id},
+                success: function (resp) {
+                    if (resp === "OK") {
+                        ajaxSearch();
+                    } else {
+                        showErrorMsg('error occurred trying to save reason code details.');
+                    }
+                },
+                error: function () {
+                    showErrorMsg('error occurred trying to save reason code details.');
+                }
+            });
+        }
+
+        function setupModal() {
+            modalContents.html(
+                `<div class=\"modal-body\">
+                    <div class=\"d-flex justify-content-center\">
+                        <div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">
+                            <span class=\"sr-only\">Loading...</span>
+                        </div>
+                    </div>
+                </div>`);
+            modal.modal({show: true, backdrop: 'static', keyboard: false});
+        }
+
+        function closeModal() {
+            modal.modal('hide');
+        }
+
+        function clearErrorMsg() {
+            errorMsg.text('');
+            errorMsg.hide();
+        }
+
+        function showErrorMsg(msg) {
+            errorMsg.text(msg);
+            errorMsg.show();
+        }
+
+        function hideSaveBtns() {
+            $("#cancel-edit-btn").hide()
+            $("#save-code-btn").hide()
+        }
+
+        function showSaveBtns() {
+            $("#cancel-edit-btn").show()
+            $("#save-code-btn").show()
         }
     </script>
 </head>
@@ -215,8 +254,5 @@
             </div>
         </section>
 </section>
-
-
-
 </body>
 </html>

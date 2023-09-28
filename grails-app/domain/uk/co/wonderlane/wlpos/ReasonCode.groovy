@@ -35,7 +35,7 @@ class ReasonCode {
     static constraints = {
         type nullable: false
         code maxSize: 20, nullable: true, blank: true
-        description maxSize: 100, nullable: false
+        description maxSize: 100, nullable: false, blank: false
         retailerId nullable: true, blank: true
         secret maxSize: 20, nullable: true, blank: true
     }
