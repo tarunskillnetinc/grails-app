@@ -115,23 +115,25 @@
             });
         }
 
-        function ajaxDelete(id) {
+        function ajaxDelete(id, desc) {
             clearErrorMsg();
-            $.ajax({
-                url: deleteUrl,
-                method: "DELETE",
-                data: {id: id},
-                success: function (resp) {
-                    if (resp === "OK") {
-                        ajaxSearch();
-                    } else {
+            if (confirm('This will delete reason code "' + desc + '"')) {
+                $.ajax({
+                    url: deleteUrl,
+                    method: "DELETE",
+                    data: {id: id},
+                    success: function (resp) {
+                        if (resp === "OK") {
+                            ajaxSearch();
+                        } else {
+                            showErrorMsg('error occurred trying to save reason code details.');
+                        }
+                    },
+                    error: function () {
                         showErrorMsg('error occurred trying to save reason code details.');
                     }
-                },
-                error: function () {
-                    showErrorMsg('error occurred trying to save reason code details.');
-                }
-            });
+                });
+            }
         }
 
         function setupModal() {
