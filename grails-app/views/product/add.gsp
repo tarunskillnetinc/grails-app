@@ -190,7 +190,7 @@
             }
 
             // Expand or collapse the category and show all children categories.
-            function expandCollapseCategory(categoryId, level, selectedCategoryId) {
+            function expandCollapseCategory(categoryId, level, selectedCategoryId, triggerOnCategoryChange) {
                 event.preventDefault();
 
                 var plusMinusButton = $("#plusMinus-" +categoryId);
@@ -205,6 +205,7 @@
                     params["categoryId"] = categoryId;
                     params["level"] = level;
                     params["selectedCategoryId"] = selectedCategoryId;
+                    params["triggerOnCategoryChange"] = triggerOnCategoryChange;
 
                     $.ajax({
                         url: getChildCategoriesUrl,
@@ -279,6 +280,10 @@
             function saveVariant(index) {
                 var id = $("#addVariantId").val();
                 var sku = $("#addVariantSku").val();
+                if (sku < 0) {
+                    alert("SKU cannot be a negative number.")
+                    return
+                }
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -288,7 +293,7 @@
 
                 if (sku === "") {
                     $("#addVariantForm").prepend(`<div class="alert alert-danger alert-wl" role="alert">SKU cannot be empty.</div>`)
-                    return
+                    return;
                 }
 
                 var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
@@ -383,6 +388,10 @@
             function saveTempLocations(index) {
                 var id = $("#addVariantId").val();
                 var sku = $("#addVariantSku").val();
+                if (sku < 0) {
+                    // We already show an alert in saveVariant(index), so just return here
+                    return;
+                }
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -865,6 +874,13 @@
                 });
             }
 
+            $(function() {
+                ['#itemCode', '#description', '#receiptDescription', '#unitSize'].forEach((textField) => {
+                    $(textField).on('input', function () {
+                        $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
+                    })
+                })
+            })
         </script>
     </head>
 

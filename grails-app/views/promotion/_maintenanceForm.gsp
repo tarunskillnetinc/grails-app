@@ -78,7 +78,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
                         <g:field type="number" name="bogof-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -220,7 +220,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
                         <g:field type="number" name="xfory-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -417,7 +417,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
                         <g:field type="number" name="percentage-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -566,7 +566,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
                         <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
@@ -723,7 +723,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
+                        <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
                         <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">

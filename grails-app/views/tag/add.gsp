@@ -60,7 +60,7 @@
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                    <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" />
+                    <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" maxlength="50"/>
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">

@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import groovy.time.Duration
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -256,6 +257,7 @@ class PromotionController {
                     } else {
                         // something is wrong in the new groups
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -275,6 +277,7 @@ class PromotionController {
                     } else {
                         // something is wrong in the new groups
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -291,6 +294,7 @@ class PromotionController {
                         promotion.addToGroups(promoOfferGroup)
                     }  else {
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -308,6 +312,7 @@ class PromotionController {
                     } else {
                         // something is wrong in the new groups
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -354,11 +359,13 @@ class PromotionController {
                             }
                         } else {
                             promotion = failPromotion(promotion, oldType)
+                            promotion.errors.reject('error.Promotion.invalidPromotionError')
                             redirect(controller: "promotion", action: "maintenanceError")
                             return
                         }
                     } else {
                         promotion = failPromotion(promotion, oldType)
+                        promotion.errors.reject('error.Promotion.invalidPromotionError')
                         redirect(controller: "promotion", action: "maintenanceError")
                         return
                     }
@@ -367,12 +374,15 @@ class PromotionController {
         }
 
         if (promotion.validate()) {
+            // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
+            promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
             promotionService.savePromotion(promotion)
 
             redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
             return
         } else {
             promotion = failPromotion(promotion, oldType)
+            promotion.errors.reject('error.Promotion.invalidPromotionError')
             redirect(controller: "promotion", action: "maintenanceError")
             return
         }
