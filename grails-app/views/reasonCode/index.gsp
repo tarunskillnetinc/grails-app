@@ -126,7 +126,7 @@
                         if (resp === "OK") {
                             ajaxSearch();
                         } else {
-                            showErrorMsg('error occurred trying to save reason code details.');
+                            showErrorMsg(resp);
                         }
                     },
                     error: function () {

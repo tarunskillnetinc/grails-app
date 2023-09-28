@@ -114,9 +114,15 @@ class ReasonCodeController {
             rc = ReasonCode.get(params.id.toString().toInteger())
         }
         if (rc == null) {
-            render "ERROR"
+            render "Error occurred trying to delete reason code."
             return
         }
+
+        if (reasonCodeService.isLastOfType(springSecurityService.principal.retailerId, rc.type)) {
+            render "Cannot delete, there must be at least one reason code per type."
+            return
+        }
+
         rc.deleted = true
         reasonCodeService.saveReasonCode(rc)
         render "OK"
