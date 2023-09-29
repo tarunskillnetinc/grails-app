@@ -20,9 +20,6 @@
         let errorMsg;
 
         $(document).ready(function() {
-            $('.step').on('click', function() {
-                $('html, body').animate({ scrollTop: 0 }, 'fast');
-            });
             modalContents = $('#edit-code-content');
             modal = $('#edit-code-modal');
             errorMsg = $('#error-message');
