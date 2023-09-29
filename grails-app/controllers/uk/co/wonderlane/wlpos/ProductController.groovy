@@ -471,6 +471,7 @@ class ProductController extends BaseController {
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
             product.discreetMessage = editedProduct.discreetMessage
             product.status = editedProduct.status
+            product.retailerProductId = editedProduct.retailerProductId
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
