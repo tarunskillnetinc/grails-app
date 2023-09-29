@@ -52,6 +52,27 @@
 
             });
 
+            $(document).ready(function () {
+                intListener("tillId");
+            });
+
+            function intListener(elementId) {
+                var element = document.getElementById(elementId)
+                var maxLength = 10
+                var maxValue = 2147483647
+
+                if (element != null) {
+                    element.addEventListener("input", function () {
+                        if (element.value.length > maxLength) {
+                            element.value = element.value.slice(0, maxLength)
+                        }
+                        if (element.value > maxValue) {
+                            element.value = maxValue
+                        }
+                    });
+                }
+            }
+
             function resetShiftFilters() {
                 setDatePickers(
                     'startDate',
@@ -61,6 +82,13 @@
                 );
                 $("#tillId").val("");
                 getShifts();
+            }
+
+            function acceptNumeric(e) {
+                if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
+                    return;
+                }
+                e.preventDefault();
             }
         </script>
     </head>
@@ -114,7 +142,7 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
                                     <div class="col-2">
-                                        <g:field id="tillId" type="number" min="0" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" />
+                                        <g:field id="tillId" type="number" min="0" max = "2147483647" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" onkeydown="acceptNumeric(event);"/>
                                     </div>
 
                                     <div class="col-4 offset-4 text-right">
