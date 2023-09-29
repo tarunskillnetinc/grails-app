@@ -21,6 +21,10 @@ class Tag {
         tagProducts cascade: "all,delete-orphan"
     }
 
+    static constraints = {
+        maxSellQuantity nullable: true, max: 999
+    }
+
     public uk.co.wonderlane.wlpos.entities.Tag getTag() {
         uk.co.wonderlane.wlpos.entities.Tag tag = new uk.co.wonderlane.wlpos.entities.Tag()
         tag.setId(id)

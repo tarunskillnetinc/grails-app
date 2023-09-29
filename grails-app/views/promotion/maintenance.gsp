@@ -702,7 +702,8 @@
                                                          categoriesOffer: categoriesOffer,
                                                          tagsRequired: tagsRequired,
                                                          tagsOffer: tagsOffer,
-                                                         productItemType: productItemType]" />
+                                                         productItemType: productItemType,
+                                                         editing: editing]" />
         </section>
 
         <g:render template="productSearch"/>
