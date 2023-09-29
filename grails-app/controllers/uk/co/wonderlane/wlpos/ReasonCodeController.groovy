@@ -33,7 +33,7 @@ class ReasonCodeController {
             type = ReasonCodeType.PAID_OUT
         }
 
-        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max)
+        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max, params.order ?: "ASC")
         render(template: "reasonCodeSearchResults", model: [
                 reasonCodes: searchResults.getbValue(),
                 max: max,
