@@ -9,11 +9,11 @@
 </script>
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div id="storeId" class="col-2 font-weight-bold">Store ID</div>
-    <div id="tillId" class="col-2 font-weight-bold">Till ID</div>
-    <div id="transactionNumber" class="col-2 font-weight-bold">Transaction Number</div>
-    <div id="transactionAmount" class="col-3 font-weight-bold">Transaction Amount</div>
-    <div id="dateGenerated" class="col-3 font-weight-bold">Date Generated</div>
+    <div class="col-2 font-weight-bold"><a id="storeId" href="#" onclick="getReceipts('storeId', ${sort == 'storeId' ? order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}, ${offset}, ${max})">Store ID</a></div>
+    <div class="col-2 font-weight-bold"><a id="tillId" href="#" onclick="getReceipts('tillId', ${sort == 'tillId' ? order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}, ${offset}, ${max})">Till ID</a></div>
+    <div class="col-2 font-weight-bold"><a id="transactionId" href="#" onclick="getReceipts('transactionId', ${sort == 'transactionId' ? order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}, ${offset}, ${max})">Transaction Number</a></div>
+    <div class="col-3 font-weight-bold"><a id="transactionAmount" href="#" onclick="getReceipts('transactionAmount', ${sort == 'transactionAmount' ? order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}, ${offset}, ${max})">Transaction Amount</a></div>
+    <div class="col-3 font-weight-bold"><a id="dateGenerated" href="#" onclick="getReceipts('dateGenerated', ${sort == 'dateGenerated' ? order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}, ${offset}, ${max})">Transaction Date</a></div>
 </div>
 
 <div class="d-flex justify-content-center">
@@ -35,16 +35,16 @@
             <div id="transaction-amount-${i + 1}" class="col-3 my-auto">
                 <g:formatNumber number="${receipt.receiptLines?.find{ it.type.name() == 'TOTAL' }?.total ?: BigDecimal.ZERO}" type="currency" />
             </div>
-            <div id="date-generated-${i + 1}" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy" date="${receipt.dateGenerated.toDate()}" /></div>
+            <div id="date-generated-${i + 1}" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${receipt.dateGenerated.toDate()}" /></div>
         </div>
     </g:each>
 </div>
 
-<g:if test="${receipts?.totalCount > 0}">
+<g:if test="${totalCount > 0}">
     <div class="my-3 text-right">
-        <div>Displaying ${offset ? offset + 1 : 1} - ${((offset ?: 0) + (receipts?.size() ?: 0))} of ${receipts?.totalCount} result${receipts?.totalCount > 1 ? 's' : ''}</div>
+        <div>Displaying ${offset ? offset + 1 : 1} - ${((offset ?: 0) + (receipts?.size() ?: 0))} of ${totalCount} result${totalCount > 1 ? 's' : ''}</div>
         <div class="mt-3">
-            <util:remotePaginate action="ajaxGetReceipts" total="${receipts?.totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate]" />
+            <util:remotePaginate action="ajaxGetReceipts" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate]" />
         </div>
     </div>
 </g:if>
