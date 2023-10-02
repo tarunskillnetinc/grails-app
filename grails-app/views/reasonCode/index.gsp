@@ -66,7 +66,7 @@
                 },
                 error: function () {
                     closeModal();
-                    showErrorMsg('error retrieving reason code details.');
+                    showErrorMsg('Error retrieving reason code details.');
                 }
             });
         }
@@ -82,7 +82,7 @@
                 },
                 error: function () {
                     closeModal();
-                    showErrorMsg('error retrieving reason code details.');
+                    showErrorMsg('Error retrieving reason code details.');
                 }
             });
         }
@@ -107,7 +107,7 @@
                 },
                 error: function () {
                     closeModal();
-                    showErrorMsg('error occurred trying to save reason code details.');
+                    showErrorMsg('Error occurred trying to save reason code details.');
                 }
             });
         }
@@ -127,7 +127,7 @@
                         }
                     },
                     error: function () {
-                        showErrorMsg('error occurred trying to save reason code details.');
+                        showErrorMsg('Error occurred trying to save reason code details.');
                     }
                 });
             }
