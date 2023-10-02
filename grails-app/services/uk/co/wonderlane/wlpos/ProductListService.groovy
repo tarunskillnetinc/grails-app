@@ -25,13 +25,43 @@ class ProductListService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    def getCentralCounts(String searchTerm = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
+    def getCentralCounts(String searchTerm = null, String searchBy = null, int offset = 0, int max = 50, String sort = "startDate", String order = "DESC") {
         return ProductList.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq("retailerId", springSecurityService.principal.retailerId)
             eq("type", ProductListType.SCHEDULED_COUNT)
 
-            if (searchTerm) {
+            if (searchBy == "Everything" && searchTerm) {
+                or {
+                    like("description", "%$searchTerm%")
+                    def matchingEnums =[]
+                    ProductListStatus.values().each {status ->
+                        if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                            matchingEnums.add(status)
+                        }
+                    }
+                    if (matchingEnums.size() > 0) {
+                        matchingEnums.each {matchingEnum ->
+                            eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
+                        }
+                    }
+                    like("ownerUsersName", "%$searchTerm%")
+                }
+            } else if (searchBy == "Description" && searchTerm) {
                 like("description", "%$searchTerm%")
+            } else if (searchBy == "Status" && searchTerm) {
+                def matchingEnums =[]
+                ProductListStatus.values().each {status ->
+                    if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                        matchingEnums.add(status)
+                    }
+                }
+                if (matchingEnums.size() > 0) {
+                    matchingEnums.each {matchingEnum ->
+                        like("status", ProductListStatus.valueOf(matchingEnum.toString()))
+                    }
+                }
+            } else if (searchBy == "Current Owner" && searchTerm) {
+                like("ownerUsersName", "%$searchTerm%")
             }
         }
     }

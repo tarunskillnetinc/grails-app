@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <div id="categoryRestrictions">
-        <g:render template="restrictions" model="[category: category]"></g:render>
+    <div id="categoryInheritance">
+        <g:render template="categoryInheritance" model="[category: category]"></g:render>
     </div>
 </g:form>

@@ -354,6 +354,9 @@ a .button-grid-button.blank:hover {
 .button-grid-text-container {
     width: 100%;
     height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .button-grid-button-image {

@@ -106,8 +106,13 @@ class ButtonGridController {
 
     def delete(int id) {
         def buttonGrid = buttonService.getButtonGrid(id)
+        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_GRID)
+        syncMessage.setDelete(true)
+        syncMessage.setButtonGrid(buttonGrid.getButtonGrid())
+
         try {
             buttonService.deleteButtonGrid(buttonGrid)
+            rabbitService.sendMessage(syncMessage)
             redirect(uri: "/")
         } catch (Exception ex) {
             flash.error = "Error deleting button grid"

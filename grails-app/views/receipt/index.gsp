@@ -98,6 +98,13 @@
                 document.getElementById('tillId').value = null;
                 document.getElementById('transactionId').value = null;
             }
+
+            function acceptNumeric(e) {
+                if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
+                    return;
+                }
+                e.preventDefault();
+            }
         </script>
     </head>
 
@@ -150,17 +157,17 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="tillId" step="1" min="0" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field type="number" name="tillId" step="1" min="0" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);"/>
                                     </div>
 
                                     <label for="transactionId" class="col-2 col-form-label-sm text-right">Transaction Number</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="transactionId" step="1" min="0" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field type="number" name="transactionId" step="1" min="0" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);"/>
                                     </div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-4 offset-8 text-right">
+                                    <div class="col-8 offset-4 text-right">
                                         <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
                                         <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getReceipts();">Search</button>
                                     </div>
