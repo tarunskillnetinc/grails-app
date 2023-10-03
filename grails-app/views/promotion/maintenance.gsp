@@ -9,6 +9,7 @@
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="moment-with-locales.min.js"/>
         <asset:javascript src="money-mask.js" />
+        <asset:javascript src="co-utils.js"/>
         <script type='text/javascript'>
             $(function() {
                 $('.input-group.date.startDate').datepicker({
@@ -101,10 +102,6 @@
                     $('.promo-amount').removeClass("is-invalid");
                 });
 
-                $('#fixedAmount-amount').on('keyup', function () {
-                    promotionAmountChanged($("#fixedAmount-amount"), 'fixedAmount')
-                });
-
                 applyListeners();
             });
 
@@ -114,24 +111,9 @@
                 intListener("percentage-retailerPromoId");
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
-                intListener("percentage-amount", 5, 100)
-                // intListener("fixedAmount-amount", 7, 9999.99)
-                intListener("fixedPrice-amount", 7, 9999.99)
-            }
-
-            function intListener(elementId, maxLength = 9, maxValue = 999999999) {
-                var element = document.getElementById(elementId)
-
-                if (element != null) {
-                    element.addEventListener("input", function () {
-                        if (element.value.length > maxLength) {
-                            element.value = element.value.slice(0, maxLength)
-                        }
-                        if (element.value > maxValue) {
-                            element.value = maxValue
-                        }
-                    });
-                }
+                currencyListener("percentage-amount", 0, 100)
+                currencyListener("fixedAmount-amount", 0, 9999.99)
+                currencyListener("fixedPrice-amount", 0, 9999.99)
             }
 
             function productSelected(id, sku, description) {
@@ -642,21 +624,26 @@
             }
 
             function promotionAmountChanged(DOM, domType) {
-                var isValid = false;
                 var unmaskedNumber = parseFloat($(DOM).maskMoney('unmasked')[0]);
 
                 if (String(domType).valueOf() === "percentage") {
-                    isValid = unmaskedNumber >= 0 && unmaskedNumber <= 100;
+                    if (unmaskedNumber < 0) {
+                        $(DOM).val(0)
+                    } else if (unmaskedNumber > 100) {
+                        $(DOM).val(100)
+                    }
                 } else if (String(domType).valueOf() === "fixedAmount") {
-                    isValid = unmaskedNumber >= 0.0 && unmaskedNumber <= 9999.99;
+                    if (unmaskedNumber < 0) {
+                        $(DOM).val(0)
+                    } else if (unmaskedNumber > 9999.99) {
+                        $(DOM).val(9999.99)
+                    }
                 } else if (String(domType).valueOf() === "fixedPrice") {
-                    isValid = unmaskedNumber >= 0 && unmaskedNumber <= 9999.99;
-                }
-
-                if (isValid === true) {
-                    $(DOM).removeClass("is-invalid");
-                } else {
-                    $(DOM).addClass("is-invalid");
+                    if (unmaskedNumber < 0) {
+                        $(DOM).val(0)
+                    } else if (unmaskedNumber > 9999.99) {
+                        $(DOM).val(9999.99)
+                    }
                 }
             }
 
