@@ -101,10 +101,9 @@
                     $('.promo-amount').removeClass("is-invalid");
                 });
 
-                // $("#fixedAmount-amount").oninput(function () {
-                //     alert("onChange ya dick'ed")
-                //     promotionAmountChanged($("#fixedAmount-amount"), 'fixedAmount')
-                // });
+                $('#fixedAmount-amount').on('keyup', function () {
+                    promotionAmountChanged($("#fixedAmount-amount"), 'fixedAmount')
+                });
 
                 applyListeners();
             });
@@ -643,14 +642,15 @@
             }
 
             function promotionAmountChanged(DOM, domType) {
-                alert("Knobhead is called")
                 var isValid = false;
+                var unmaskedNumber = parseFloat($(DOM).maskMoney('unmasked')[0]);
+
                 if (String(domType).valueOf() === "percentage") {
-                    isValid = parseFloat($(DOM).val()) >= 0 && parseFloat($(DOM).val()) <= 100;
+                    isValid = unmaskedNumber >= 0 && unmaskedNumber <= 100;
                 } else if (String(domType).valueOf() === "fixedAmount") {
-                    isValid = parseFloat($(DOM).val()) >= 0 && parseFloat($(DOM).val()) <= 9999.99;
+                    isValid = unmaskedNumber >= 0.0 && unmaskedNumber <= 9999.99;
                 } else if (String(domType).valueOf() === "fixedPrice") {
-                    isValid = parseFloat($(DOM).val()) >= 0 && parseFloat($(DOM).val()) <= 9999.99;
+                    isValid = unmaskedNumber >= 0 && unmaskedNumber <= 9999.99;
                 }
 
                 if (isValid === true) {

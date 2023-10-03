@@ -577,7 +577,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-amount" class="col-3 col-form-label text-right pr-4">Discount Amount</label>
-                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" onInput="alert(`Fucking suck yer wang`)" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
