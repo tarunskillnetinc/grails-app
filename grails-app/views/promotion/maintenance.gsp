@@ -8,6 +8,7 @@
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="moment-with-locales.min.js"/>
+        <asset:javascript src="money-mask.js" />
         <script type='text/javascript'>
             $(function() {
                 $('.input-group.date.startDate').datepicker({
@@ -28,6 +29,7 @@
                     todayBtn: "linked",
                     orientation: "bottom auto"
                 });
+                $(".mask-money").maskMoney({ allowZero: true });
             });
 
             $(document).on("keypress", "input", function (e) {
@@ -93,9 +95,17 @@
                     $('.promo-active').prop("checked", this.checked);
                 });
 
+                $(".mask-money").maskMoney({ allowZero: true });
+
                 $('.promo-amount').on("change", function() {
                     $('.promo-amount').removeClass("is-invalid");
                 });
+
+                // $("#fixedAmount-amount").oninput(function () {
+                //     alert("onChange ya dick'ed")
+                //     promotionAmountChanged($("#fixedAmount-amount"), 'fixedAmount')
+                // });
+
                 applyListeners();
             });
 
@@ -106,7 +116,7 @@
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
                 intListener("percentage-amount", 5, 100)
-                intListener("fixedAmount-amount", 7, 9999.99)
+                // intListener("fixedAmount-amount", 7, 9999.99)
                 intListener("fixedPrice-amount", 7, 9999.99)
             }
 
@@ -630,6 +640,24 @@
                 }
                 $('#' + promoType + '-noItemChange').val('false');
 
+            }
+
+            function promotionAmountChanged(DOM, domType) {
+                alert("Knobhead is called")
+                var isValid = false;
+                if (String(domType).valueOf() === "percentage") {
+                    isValid = parseFloat($(DOM).val()) >= 0 && parseFloat($(DOM).val()) <= 100;
+                } else if (String(domType).valueOf() === "fixedAmount") {
+                    isValid = parseFloat($(DOM).val()) >= 0 && parseFloat($(DOM).val()) <= 9999.99;
+                } else if (String(domType).valueOf() === "fixedPrice") {
+                    isValid = parseFloat($(DOM).val()) >= 0 && parseFloat($(DOM).val()) <= 9999.99;
+                }
+
+                if (isValid === true) {
+                    $(DOM).removeClass("is-invalid");
+                } else {
+                    $(DOM).addClass("is-invalid");
+                }
             }
 
             function quantityValueChange(DOM, domType) {
