@@ -53,7 +53,7 @@
                 getReceipts();
             });
 
-            function getReceipts(offset, max) {
+            function getReceipts(sort, order, offset, max) {
                 $("#search-results").hide();
                 $("#loading-indicator").show();
 
@@ -65,7 +65,7 @@
                 $.ajax({
                     url: getReceiptsUrl,
                     method: "GET",
-                    data: { startDate: startDate, endDate: endDate, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
+                    data: { startDate: startDate, endDate: endDate, sort: sort, order: order, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
                     success: function(resp) {
                         $("#results-container").html(resp);
                     }
