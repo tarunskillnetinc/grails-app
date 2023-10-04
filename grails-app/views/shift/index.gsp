@@ -13,6 +13,7 @@
         <asset:javascript src="shiftManagement.js"/>
         <asset:javascript src="safeCount.js"/>
         <asset:javascript src="date-pickers.js"/>
+        <asset:javascript src="co-utils.js"/>
 
         <script type="text/javascript">
             $(function() {
@@ -53,25 +54,8 @@
             });
 
             $(document).ready(function () {
-                intListener("tillId");
+                intListener("tillId", 10, 2147483647);
             });
-
-            function intListener(elementId) {
-                var element = document.getElementById(elementId)
-                var maxLength = 10
-                var maxValue = 2147483647
-
-                if (element != null) {
-                    element.addEventListener("input", function () {
-                        if (element.value.length > maxLength) {
-                            element.value = element.value.slice(0, maxLength)
-                        }
-                        if (element.value > maxValue) {
-                            element.value = maxValue
-                        }
-                    });
-                }
-            }
 
             function resetShiftFilters() {
                 setDatePickers(

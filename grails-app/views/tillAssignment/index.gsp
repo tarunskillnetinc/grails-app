@@ -6,6 +6,8 @@
 
     <title>Till Assignment</title>
 
+    <asset:javascript src="co-utils.js"/>
+
     <script type="text/javascript">
 
         var getTillsUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSearchForTills')}"
@@ -212,25 +214,8 @@
         }
 
         function applyListeners() {
-            intListener("tillIdFilter");
-            intListener("tillId");
-        }
-
-        function intListener(elementId) {
-            var element = document.getElementById(elementId)
-            var maxLength = 10
-            var maxValue = 2147483647
-
-            if (element != null) {
-                element.addEventListener("input", function () {
-                    if (element.value.length > maxLength) {
-                        element.value = element.value.slice(0, maxLength)
-                    }
-                    if (element.value > maxValue) {
-                        element.value = maxValue
-                    }
-                });
-            }
+            intListener("tillIdFilter", 10, 2147483647);
+            intListener("tillId", 10, 2147483647);
         }
 
         function showBtns() {
