@@ -1,11 +1,5 @@
-<script>
-    function acceptNumeric(e) {
-        if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
-            return;
-        }
-        e.preventDefault();
-    }
-</script>
+<asset:javascript src="validators/input-validator.js" />
+
 <div class="row mt-2">
     <div class="col-12">
         <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
