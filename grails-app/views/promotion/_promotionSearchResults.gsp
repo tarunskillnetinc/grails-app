@@ -9,7 +9,7 @@
 </script>
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'retailerPromotionId', sortOrder: ${sortColumn == 'retailerPromotionId' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Promotion ID</a></div>
+    <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'retailerPromotionId', sortOrder: ${sortColumn == 'retailerPromotionId' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Promotion Reference</a></div>
     <div class="col-3 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'description', sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'updateDatetime', sortOrder: ${sortColumn == 'updateDatetime' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Last Updated</a></div>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'startDate', sortOrder: ${sortColumn == 'startDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Start Date</a></div>

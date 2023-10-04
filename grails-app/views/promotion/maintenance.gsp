@@ -573,6 +573,12 @@
                     $('#' + promoType + '-endDate').addClass("is-invalid");
                 }
 
+                if ($('#' + promoType + '-retailerPromoId').val() < 0) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>Please enter a promotion reference greater than 0</li>");
+                    $('#' + promoType + '-retailerPromoId').addClass("is-invalid");
+                }
+
                 if ($('#' + promoType + '-amount').length !== 0) {
                     if ($('#' + promoType + '-amount').val() !== "") {
                         if (parseFloat($('#' + promoType + '-amount').val()) > parseFloat($('#' + promoType + '-amount').prop("max"))) {
@@ -696,7 +702,8 @@
                                                          categoriesOffer: categoriesOffer,
                                                          tagsRequired: tagsRequired,
                                                          tagsOffer: tagsOffer,
-                                                         productItemType: productItemType]" />
+                                                         productItemType: productItemType,
+                                                         editing: editing]" />
         </section>
 
         <g:render template="productSearch"/>

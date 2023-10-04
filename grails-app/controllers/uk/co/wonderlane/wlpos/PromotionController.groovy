@@ -105,7 +105,8 @@ class PromotionController {
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
-                                            productItemType: productItemType])
+                                            productItemType: productItemType,
+                                            editing: true])
     }
 
     def maintenanceError() {
@@ -167,7 +168,8 @@ class PromotionController {
                                             categoriesRequired: categoriesRequired,
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer])
+                                            tagsOffer: tagsOffer,
+                                            editing: false])
     }
 
     def setupBasePromotion(Promotion promotion, String type) {

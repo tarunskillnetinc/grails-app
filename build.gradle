@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.12.8-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.13-SNAPSHOT'
 
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
@@ -175,4 +175,15 @@ jacocoTestCoverageVerification {
 
 grails {
     pathingJar = true
+}
+
+sourceSets {
+    elasticbeanstalk
+}
+
+tasks.withType(Jar) {
+    from(sourceSets.elasticbeanstalk.output) {
+        include '*'
+        into '.platform/nginx/conf.d/'
+    }
 }
