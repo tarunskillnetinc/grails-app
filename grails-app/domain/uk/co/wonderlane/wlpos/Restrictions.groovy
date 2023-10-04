@@ -3,8 +3,8 @@ package uk.co.wonderlane.wlpos
 class Restrictions {
 
     int id
-    BigDecimal minOpenPrice
-    BigDecimal maxOpenPrice
+    BigDecimal minOpenPrice = 0.01
+    BigDecimal maxOpenPrice = 99999.99
     Boolean buyerIdRequired
     Boolean buyerIdForced
     Integer buyerAgeRestriction
