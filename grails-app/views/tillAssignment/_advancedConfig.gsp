@@ -1,24 +1,10 @@
 <script type="application/javascript">
+
+    <asset:javascript src="co-utils.js"/>
+
     $(function() {
-        intListener("baudRate");
+        intListener("baudRate", 10, 2147483647);
     });
-
-    function intListener(elementId) {
-        var element = document.getElementById(elementId)
-        var maxLength = 10
-        var maxValue = 2147483647
-
-        if (element != null) {
-            element.addEventListener("input", function () {
-                if (element.value.length > maxLength) {
-                    element.value = element.value.slice(0, maxLength)
-                }
-                if (element.value > maxValue) {
-                    element.value = maxValue
-                }
-            });
-        }
-    }
 </script>
 
 <div class="modal-header">

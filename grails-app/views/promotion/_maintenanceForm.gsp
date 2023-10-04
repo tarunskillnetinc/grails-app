@@ -430,7 +430,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-amount" class="col-3 col-form-label text-right pr-4">Percentage</label>
-                        <g:field type="number" step="0.01" min="0" max="100.00" name="percentage-amount" class="col-5 form-control bottom-border" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField name="percentage-amount" class="col-5 form-control bottom-border mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -579,7 +579,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-amount" class="col-3 col-form-label text-right pr-4">Discount Amount</label>
-                        <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -736,7 +736,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-amount" class="col-3 col-form-label text-right pr-4">Fixed Amount</label>
-                        <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
