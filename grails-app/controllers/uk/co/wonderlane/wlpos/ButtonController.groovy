@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import io.micronaut.http.MediaType
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException
 import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -136,17 +137,15 @@ class ButtonController {
                 } else {
                     buttonService.saveButtonGrid(button.buttonGrid)
                 }
-            } else {
-                if (form.image) {
-                    byte[] image = form.image.bytes
+            } else if (form.image) {
+                byte[] image = form.image.bytes
 
-                    // if store override grab image from s3 and save it again
-                    if (image.length <=0 && springSecurityService.principal.storeId != null){
-                        image = imageService.getButtonImage(form.overrideId)
-                        saveButton(button, image, singularButtonUpdate)
-                    } else if (image.length > 0 && form.image.contentType == "image/png") {
-                       saveButton(button, image, singularButtonUpdate)
-                    }
+                // if store override grab image from s3 and save it again
+                if (image.length <= 0 && springSecurityService.principal.storeId != null) {
+                    image = imageService.getButtonImage(form.overrideId)
+                    saveButton(button, image, singularButtonUpdate)
+                } else if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                    saveButton(button, image, singularButtonUpdate)
                 }
             }
 
@@ -210,13 +209,16 @@ class ButtonController {
     private void renderError(Button button, SaveButtonFormCommand form) {
         def productVariant = null
         def buttonImage = null
+        def uploadedImage = false
+        if (form.image != null && !form.image.empty && form.image.contentType == MediaType.IMAGE_PNG) {
+            buttonImage = form.image.bytes
+            uploadedImage = true
+        } else if (button.imageDisplay) {
+            buttonImage = imageService.getButtonImage(button.id)
+        }
 
         if (button.type == ButtonType.PRODUCT && button.sku) {
             productVariant = productService.getProductVariant(button.sku)
-        }
-
-        if (button.imageDisplay) {
-            buttonImage = imageService.getButtonImage(button.id)
         }
 
         render (view: "edit", model: [
@@ -228,7 +230,8 @@ class ButtonController {
                 productSku: productVariant?.sku,
                 productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
-                form: form
+                form: form,
+                previousImage: uploadedImage
         ])
     }
 

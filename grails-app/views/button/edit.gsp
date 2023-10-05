@@ -15,6 +15,18 @@
                 displayTextCheck.attr("disabled", true)
             }
 
+            if ('${previousImage}' === 'true') {
+                const image = $('.button-image').first()
+                fetch(image.attr('src'))
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'previous.png', blob)
+                        let container = new DataTransfer()
+                        container.items.add(file)
+                        document.querySelector('#image').files = container.files
+                    })
+            }
+
             $("#image").on("change", function() {
                 if (this.files[0].size < 1048576 /* 1MB */) { // max size should match number value in SaveButtonFormCommand.groovy
                     if (this.files[0].type === "image/png") {
