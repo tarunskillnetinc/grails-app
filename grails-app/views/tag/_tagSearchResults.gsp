@@ -17,7 +17,7 @@
         <div id="tag-${i+1}-id" class="col-2">${tag.id}</div>
         <div id="tag-${i+1}-description" class="col-6">${tag.description}</div>
         <div id="tag-${i+1}-prod-count" class="col-2">${tag.tagProducts?.size()}</div>
-        <div id="tag-${i+1}-description" class="col-2">${tag.maxSellQuantity}</div>
+        <div id="tag-${i+1}-max-sell-quantity" class="col-2">${tag.maxSellQuantity}</div>
     </div>
 </g:each>
 
