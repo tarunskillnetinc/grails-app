@@ -10,6 +10,7 @@
     <asset:javascript src="category-select.js" />
     <asset:javascript src="money-mask.js" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
+    <asset:javascript src="co-utils.js"/>
 
     <script type="text/javascript">
         let getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
@@ -18,6 +19,9 @@
         $(document).ready(function () {
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
+            intListener("restrictions.buyerAgeRestriction", 3, 999, true)
+            intListener("restrictions.buyerChallengeAge", 3, 999, true)
+            intListener("restrictions.sellerAgeRestriction", 3, 999, true)
         });
 
         function onCategoryChanged(selectedCategoryId) {
