@@ -15,3 +15,10 @@ function preventOverflowValue(obj) {
         obj.value = Math.pow(2, 31) -1;
     }
 }
+
+function acceptNumeric(e) {
+    if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
+        return;
+    }
+    e.preventDefault();
+}

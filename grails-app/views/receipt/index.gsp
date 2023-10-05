@@ -8,6 +8,7 @@
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
+        <asset:javascript src="validators/input-validator.js" />
 
         <script type='text/javascript'>
             var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
@@ -97,13 +98,6 @@
 
                 document.getElementById('tillId').value = null;
                 document.getElementById('transactionId').value = null;
-            }
-
-            function acceptNumeric(e) {
-                if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
-                    return;
-                }
-                e.preventDefault();
             }
         </script>
     </head>

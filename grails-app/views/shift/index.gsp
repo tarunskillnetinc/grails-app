@@ -14,6 +14,8 @@
         <asset:javascript src="safeCount.js"/>
         <asset:javascript src="date-pickers.js"/>
         <asset:javascript src="co-utils.js"/>
+        <asset:javascript src="validators/input-validator.js" />
+
 
         <script type="text/javascript">
             $(function() {
@@ -66,13 +68,6 @@
                 );
                 $("#tillId").val("");
                 getShifts();
-            }
-
-            function acceptNumeric(e) {
-                if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
-                    return;
-                }
-                e.preventDefault();
             }
         </script>
     </head>

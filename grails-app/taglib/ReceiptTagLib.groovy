@@ -102,7 +102,9 @@ class ReceiptTagLib {
 
                 break
             case ReceiptLineType.TENDER_ITEM:
-                out << """<div><span class="qty">&nbsp;&nbsp;&nbsp;</span></span><span class="desc">${receiptLine.text}</span><span class="total">${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}</span></div>"""
+                out << """<div><span class="qty">&nbsp;&nbsp;&nbsp;</span></span>"""
+                out << """<span class="desc">${receiptLine.text.substring(0, Math.min(BASKET_ITEM_LENGTH - currencyFormatter.format(receiptLine.getTotal()).length(), receiptLine.getText().length()))}</span>"""
+                out << """<span class="total">${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}</span></div>"""
 
                 break
             case ReceiptLineType.TENDER_HEADING:
