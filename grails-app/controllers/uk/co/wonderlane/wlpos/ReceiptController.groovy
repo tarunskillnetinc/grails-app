@@ -52,7 +52,7 @@ class ReceiptController {
         render (template: "receipt", model: [receipt: receipt,
                                              containsModifiers: receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
                                              firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
-                                             maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length(),
-                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length()])
+                                             maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
+                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
     }
 }
