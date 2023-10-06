@@ -12,12 +12,10 @@
 
 <g:each in="${productPrices}" var="productPrice" status="i">
     <div id="product-price-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
-        <div class="col-2 my-auto">
-            <div class="row form-group form-check mb-0">
-                <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="col-1 form-check-input wl-checkbox-no-label" style="margin-top: 8px;" />
-                <label id="product-price-${i+1}-item-code" for="product-${productPrice.key}" class="col-10 col-form-label pl-2 text-truncate text-left">${productPrice.value[0].itemCode}</label>
-            </div>
+        <div class="col-1 my-auto">
+            <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="col-12 wl-checkbox my-auto" style="margin-top: 8px;" />
         </div>
+        <label id="product-price-${i+1}-item-code" for="product-${productPrice.key}" class="col-2 col-form-label my-auto text-truncate text-left">${productPrice.value[0].itemCode}</label>
         <div id="product-price-${i+1}-description" class="col-4 my-auto">${productPrice.value[0].productDescription}</div>
         <div id="product-price-${i+1}-cost-price" class="col-1 my-auto"><g:formatNumber number="${productPrice.value[0].costPrice ?: BigDecimal.ZERO}" type="currency" /></div>
 

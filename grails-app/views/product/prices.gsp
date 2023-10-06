@@ -19,6 +19,22 @@
                         searchButtonClicked2();
                     }
                 });
+
+                $('#checkAllCheckbox').change(function() {
+                    if (this.checked) {
+                        var uncheckedBoxes = $("#search-results input:not(:checked)");
+
+                        uncheckedBoxes.each(function(i, checkbox) {
+                            $(checkbox).prop("checked", true);
+                        });
+                    } else {
+                        var checkedBoxes = $("#search-results input:checked");
+
+                        checkedBoxes.each(function(i, checkbox) {
+                            $(checkbox).prop("checked", false);
+                        });
+                    }
+                });
             });
 
             function searchButtonClicked2() {
@@ -44,6 +60,8 @@
                     "    <span class=\"sr-only\">Loading...</span>\n" +
                     "  </div>\n" +
                     "</div>");
+
+                $('#checkAllCheckbox').prop("checked", false);
 
                 $.ajax({
                     url: URL,
@@ -100,6 +118,7 @@
                             $(checkbox).prop("checked", false);
                         });
 
+                        $('#checkAllCheckbox').prop("checked", false);
                         saveButton.prop("disabled", false);
                     }
                 });
@@ -201,6 +220,9 @@
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+                <div class="col-1 font-weight-bold my-auto">
+                    <g:checkBox name="checkAllCheckbox" class="col-12 wl-checkbox my-auto" />
+                </div>
                 <div class="col-2 font-weight-bold">Item Code</div>
                 <div class="col-4 font-weight-bold">Description</div>
                 <div class="col-1 font-weight-bold">Cost Price</div>
