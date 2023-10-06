@@ -14,39 +14,39 @@
         <g:each in="${shift.reconciliationTotals}" var="reconciliationTotal">
             <div class="row ml-0 mr-0 pt-2 pb-2">
                 <div class="col-2 my-auto text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
-                <div class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
-                <div class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
-                <div class="col-3 my-auto text-right"><g:formatNumber number="${reconciliationTotal.variance}" type="currency" /></div>
+                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
+                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
+                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.variance}" type="currency" /></div>
             </div>
         </g:each>
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
             <div class="col-5 my-auto text-right">Total</div>
-            <div class="col-3 my-auto text-right" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${shift.reconciliationTotals.sum { it.value }}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${shift.reconciliationTotals.sum { it.value }}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
             <div class="col-5 my-auto text-right">Debit / credit card</div>
-            <div class="col-3 my-auto text-right"><g:formatNumber number="${shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
             <div class="col-5 my-auto text-right">Coupons</div>
-            <div class="col-3 my-auto text-right"><g:formatNumber number="${BigDecimal.ZERO}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${BigDecimal.ZERO}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
             <div class="col-5 my-auto text-right">Other</div>
-            <div class="col-3 my-auto text-right"><g:formatNumber number="${BigDecimal.ZERO}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${BigDecimal.ZERO}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
         <div class="row ml-0 mr-0 pt-4 pb-2">
             <div class="col-5 my-auto font-weight-bold text-right">Shift Total</div>
-            <div class="col-3 my-auto text-right" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${(shift.reconciliationTotals.sum { it.value } ?: 0) + (shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0)}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${(shift.reconciliationTotals.sum { it.value } ?: 0) + (shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0)}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
@@ -56,7 +56,7 @@
 
                 <g:if test="${shift.reconciliationTotals.sum { it.variance } ?: 0 != 0}">
                     <div class="row ml-0 mr-0 pt-5 pb-2">
-                        <p class="mx-auto">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
+                        <p class="mx-auto text-truncate">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
                     </div>
                     <div class="row ml-0 mr-0 pt-2 pb-2">
                         <p class="mx-auto">Please select a reason:</p>

@@ -9,7 +9,7 @@ import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 class StoreNumberValidatorServiceSpec extends Specification implements ServiceUnitTest<StoreNumberValidatorService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        return [StoreSettings] as Class[]
+        return [Store] as Class[]
     }
 
     //--------------------------------------------- Calling get store Action -----------------------------------------//
@@ -17,7 +17,7 @@ class StoreNumberValidatorServiceSpec extends Specification implements ServiceUn
     def 'Should retrieve store settings'() {
         given:
 
-        StoreSettings testStoreSettings = new StoreSettings(retailerId: 9,
+        Store testStoreSettings = new Store(retailerId: 9,
                 storeId: 100,
                 printReceiptOption: PrintReceiptOption.NO_PRINT,
                 type: "test",

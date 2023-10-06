@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -17,6 +18,7 @@ class ReportingController {
 
     def reportingService
     def productListService
+    def storeService
     def springSecurityService
 
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = ["description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin"]
@@ -32,6 +34,8 @@ class ReportingController {
     private static final DELIVERIES_REPORT_SORT_COLUMNS = ["deliveryId", "storeId", "status", "deliveryDate", "supplierName", "numberOfItems", "totalCost"]
     private static final DELIVERY_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
+    private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
+    private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
     private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "timestamp"]
 
     def index() {
@@ -42,8 +46,8 @@ class ReportingController {
     def salesDepartment() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES_DEPARTMENT,
          userColumns: reportingService.getReportColumns(ReportType.SALES_DEPARTMENT),
@@ -138,8 +142,8 @@ class ReportingController {
         int categoryId = getIntegerParam(params.categoryId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES_CATEGORY,
          categoryId : categoryId,
@@ -187,7 +191,7 @@ class ReportingController {
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
-                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity > 0 ? it.quantity : 0 }
+                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity }
                     groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
@@ -254,9 +258,9 @@ class ReportingController {
         int productId = getIntegerParam(params.productId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES_PRODUCT,
          productId  : productId,
@@ -307,8 +311,8 @@ class ReportingController {
     def categorySales() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.CATEGORY_SALES,
          startDate  : startDate,
@@ -325,7 +329,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         Integer storeId
         if (springSecurityService.principal.storeId) {
@@ -401,8 +405,8 @@ class ReportingController {
     def sales() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.SALES,
          startDate  : startDate,
@@ -417,7 +421,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         Integer storeId
         if (springSecurityService.principal.storeId) {
@@ -480,9 +484,9 @@ class ReportingController {
     def promotionsGrouped() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType    : ReportType.PROMOTIONS_GROUPED,
          userColumns   : reportingService.getReportColumns(ReportType.PROMOTIONS_GROUPED),
@@ -497,7 +501,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Validate the promotion type filter if passed in.
         if (!params.promotionTypeFilter?.isAllWhitespace()) {
@@ -568,8 +572,8 @@ class ReportingController {
         int promotionId = getIntegerParam(params.promotionId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.PROMOTIONS,
          promotionId: promotionId,
@@ -586,7 +590,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         Integer storeId
         if (springSecurityService.principal.storeId) {
@@ -613,8 +617,8 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType     : ReportType.PROMOTION,
          promotionSaleId: promotionSaleId,
@@ -722,7 +726,7 @@ class ReportingController {
     def tillControlEvent() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
 
         TillControlEventType type = null
 
@@ -767,8 +771,8 @@ class ReportingController {
     def orders() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
@@ -804,7 +808,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
 
@@ -828,8 +832,8 @@ class ReportingController {
         int productListId = getIntegerParam(params.productListId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
@@ -861,7 +865,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def orders = productListService.getOrder(productListId, storeId, supplierId, startDate, endDate.plusDays(1))
 
@@ -903,11 +907,11 @@ class ReportingController {
     def deliveries() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).minusDays(6).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
         Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
 
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
 
@@ -944,7 +948,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def deliveries = productListService.getDeliveries(storeId, supplierId, startDate, endDate.plusDays(1))
         def totalDeliveries = []
@@ -1007,12 +1011,12 @@ class ReportingController {
         int productListId = getIntegerParam(params.productListId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
         Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
         String descriptionFilter = params.descriptionFilter
 
-        def delivery = ProductList.findById(productListId)
+        def delivery = productListService.getProductList(productListId)
 
         [reportType : ReportType.DELIVERY,
          delivery : delivery,
@@ -1041,7 +1045,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         def delivery = productListService.getProductList(productListId)
 
@@ -1202,9 +1206,9 @@ class ReportingController {
     def paypointSales() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
 
-        def stores = StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         [reportType : ReportType.PAYPOINT_SALES,
          startDate  : startDate,
@@ -1218,7 +1222,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         String description = params.descriptionFilter ? ("%" + params.descriptionFilter + "%") : null
 
@@ -1258,6 +1262,191 @@ class ReportingController {
                             userColumns : reportingService.getReportColumns(ReportType.PAYPOINT_SALES),
                             sortParams  : sortParams]
             )
+        }
+    }
+
+    def productLists() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeId ? Integer.parseInt(params.storeId) : null
+        }
+
+        ProductListType type = params.type ? ProductListType.valueOf(params.type) : null
+
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+        [reportType : ReportType.PRODUCT_LISTS,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.PRODUCT_LISTS),
+         stores     : stores,
+         types      : ProductListType.values(),
+         storeId    : storeId,
+         type       : type]
+    }
+
+    // The top level of the main product lists report.
+    def ajaxProductLists(SortParams sortParams) {
+        // If no sort is set (first time load) then default to reverse order.
+        if (sortParams.sortColumn == "id") {
+            sortParams.sortOrder = "desc"
+        }
+
+        sortParams.validateParams(PRODUCT_LISTS_REPORT_SORT_COLUMNS)
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
+        ProductListType type = params.typeFilter ? ProductListType.valueOf(params.typeFilter) : null
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def productLists = productListService.getProductLists(storeId, type, startDate, endDate.plusDays(1))
+        def totalProductLists = []
+
+        if (productLists) {
+            switch (sortParams.sortColumn) {
+                case "productListId":
+                    productLists = productLists.sort { it.id }
+                    break
+                case "storeId":
+                    productLists = productLists.sort { it.storeId }
+                    break
+                case "status":
+                    productLists = productLists.sort { it.status }
+                    break
+                case "startDate":
+                    productLists = productLists.sort { a, b ->
+                        a.dateStarted <=> b.dateStarted
+                    }
+                    break
+                case "numberOfItems":
+                    productLists = productLists.sort { it.productListItems.size() }
+                    break
+            }
+
+            totalProductLists.addAll(productLists)
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                totalProductLists = totalProductLists.reverse()
+            }
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "productlists-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getProductListsCsv(totalProductLists)
+        } else {
+            def finalProductLists = sortParams.offset < totalProductLists.size() ? totalProductLists.subList(sortParams.offset, (sortParams.offset + sortParams.max < totalProductLists.size() ? sortParams.offset + sortParams.max : totalProductLists.size())) : []
+
+            render(template: "productListsResults", model: [productLists : finalProductLists,
+                                                            userColumns : reportingService.getReportColumns(ReportType.PRODUCT_LISTS),
+                                                            storeId : storeId,
+                                                            startDate : startDate,
+                                                            endDate : endDate,
+                                                            sortParams : sortParams,
+                                                            type : type,
+                                                            totalResults : totalProductLists.size()])
+        }
+    }
+
+    // The bottom level of the main product list report.
+    def productList() {
+        int productListId = getIntegerParam(params.productListId)
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeId ? Integer.parseInt(params.storeId) : null
+        }
+
+        ProductListType type = params.type ? ProductListType.valueOf(params.type) : null
+
+        def productList = productListService.getProductList(productListId)
+
+        [reportType : ReportType.PRODUCT_LIST,
+         productList : productList,
+         productListId : productListId,
+         startDate : startDate,
+         endDate : endDate,
+         storeId : storeId,
+         type : type,
+         userColumns : reportingService.getReportColumns(ReportType.PRODUCT_LIST)]
+    }
+
+    // The mid level of the main delivery report.
+    def ajaxProductList(SortParams sortParams) {
+        sortParams.validateParams(PRODUCT_LIST_REPORT_SORT_COLUMNS)
+
+        Integer productListId = getIntegerParam(params.productListId)
+        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null // Not used but needed to be passed back in to the view for the breadcrumb.
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        def productList = productListService.getProductList(productListId)
+
+        def items = []
+
+        items.addAll(productList?.productListItems)
+
+        int totalResults = items.size()
+
+        if (productList) {
+            switch (sortParams.sortColumn) {
+                case "sku":
+                    items = items.sort { it.productVariant.sku }
+                    break
+                case "description":
+                    items = items.sort { it.productVariant.product.description }
+                    break
+                case "itemQuantity":
+                    items = items.sort { it.quantity }
+                    break
+                case "totalCost":
+                    items = items.sort { it.totalCost }
+                    break
+            }
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                items = items.reverse()
+            }
+        }
+
+        items = sortParams.offset < items.size() ? items.subList(sortParams.offset, (sortParams.offset + sortParams.max < items.size() ? sortParams.offset + sortParams.max : items.size())) : []
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "productlist-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getProductListCsv(items)
+        } else {
+            render(template: "productListResults", model: [items : items,
+                                                           userColumns : reportingService.getReportColumns(ReportType.PRODUCT_LIST),
+                                                           startDate : startDate,
+                                                           endDate : endDate,
+                                                           storeId : storeId,
+                                                           productListId : productListId,
+                                                           sortParams : sortParams,
+                                                           totalResults : totalResults])
         }
     }
 
@@ -1575,6 +1764,46 @@ class ReportingController {
         stringBuilder.append("Product SKU,Product Description,Items Delivered,Total Cost\n")
 
         delivery?.each { item ->
+            stringBuilder.append(item?.productVariant?.sku)
+            stringBuilder.append(",")
+            stringBuilder.append(item?.productVariant?.product?.description)
+            stringBuilder.append(",")
+            stringBuilder.append(item.quantity ?: item.fillQuantity)
+            stringBuilder.append(",")
+            stringBuilder.append(item.totalCost)
+            stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getProductListsCsv(List<ProductList> productLists) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("ID,Store,Type,Status,Start Date,Number of Items\n")
+
+        productLists?.each { productList ->
+            stringBuilder.append(productList?.id)
+            stringBuilder.append(",")
+            stringBuilder.append(productList?.store?.config?.storeNumber)
+            stringBuilder.append(",")
+            stringBuilder.append(g.message(code: "ProductListType.${productList?.type}"))
+            stringBuilder.append(",")
+            stringBuilder.append(g.message(code: "ProductListStatus.${productList?.status}"))
+            stringBuilder.append(",")
+            stringBuilder.append(productList?.dateStarted?.toString("dd/MM/yyyy HH:mm"))
+            stringBuilder.append(",")
+            stringBuilder.append(productList?.productListItems?.size())
+            stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
+    }
+
+    private String getProductListCsv(List<ProductListItem> productListItems) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Product SKU,Product Description,Number of Items,Total Cost\n")
+
+        productListItems?.each { item ->
             stringBuilder.append(item?.productVariant?.sku)
             stringBuilder.append(",")
             stringBuilder.append(item?.productVariant?.product?.description)

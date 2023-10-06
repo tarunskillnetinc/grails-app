@@ -134,6 +134,34 @@ class OrderService extends MySqlDal  {
         }
     }
 
+    def deleteProductListItem(int productListId, int productItemId) {
+        Connection connection
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = getProductListById(productListId)
+
+            def foundItem = productList.getProductListItems().find(item -> item.id == productItemId)
+            if (foundItem) {
+                deletePackLinesId(connection, foundItem.getId())
+                deleteProductListItemId(connection, foundItem.getId())
+            }
+
+            connection.commit()
+        }catch(Exception ex){
+            log.error("Order exception found when deleting product item, request is rollback , Exception " + ex.getMessage())
+            if (connection != null){
+                connection.rollback()
+            }
+            throw ex
+        }finally{
+            if (connection != null){
+                connection.close()
+            }
+        }
+    }
+
     /** =================================== Start product list creation methods =========================================================== **/
 
     private createNewProductList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, User user){
@@ -247,7 +275,7 @@ class OrderService extends MySqlDal  {
 
                     mapProductListItem(rs, productListItemHashMap.get(itemKey));
 
-                    if (productListItemGroupId > 0) {
+                    if (productListItemGroupId > 0 && productListItemGroupMap.get(productListItemGroupId) != null) {
                         productListItemGroupMap.get(productListItemGroupId).setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
                     } else {
                         productList.setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
@@ -352,7 +380,7 @@ class OrderService extends MySqlDal  {
 
                     mapProductListItem(rs, productListItemHashMap.get(itemKey));
 
-                    if (productListItemGroupId > 0) {
+                    if (productListItemGroupId > 0 && productListItemGroupMap.get(productListItemGroupId) != null) {
                         productListItemGroupMap.get(productListItemGroupId).setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
                     } else {
                         productList.setProductListItems(new ArrayList<>(productListItemHashMap.get(itemKey).values()));
@@ -479,7 +507,7 @@ class OrderService extends MySqlDal  {
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
                 int stockInQuantity = productVariant.getQuantityInStock()
-                populateListItemInsertStatement(stmt, deliveryListId, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity().intValue() : 0,listItem.getFillQuantity())
+                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity().intValue() : 0,listItem.getFillQuantity())
                 if (stmt.execute()) {
                     ResultSet rs = stmt.getResultSet();
                     if (rs.next()) {
@@ -537,8 +565,8 @@ class OrderService extends MySqlDal  {
         CallableStatement cstmt
         int productListItemId = -1
         try {
-            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?) }")
-            populateListItemInsertStatement(cstmt, packLineRequestCommand.getProductListId(), packLineRequestCommand.getProductItemId(), packLineRequestCommand.getProductVariantId(),quantityInStock,
+            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?) }")
+            populateListItemInsertStatement(cstmt, packLineRequestCommand.getProductListId(), packLineRequestCommand.getProductItemId(), -1, packLineRequestCommand.getProductVariantId(),quantityInStock,
                     packLineRequestCommand.getQuantity(),packLineRequestCommand.getFillQuantity())
             if (cstmt.execute()) {
                 ResultSet rs = cstmt.getResultSet();
@@ -783,23 +811,24 @@ class OrderService extends MySqlDal  {
         return productVariant;
     }
 
-    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productVariantId, Integer productQuantityInStore, int quantity, int fillQuantity) {
+    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productListItemGroupId, int productVariantId, Integer productQuantityInStore, int quantity, int fillQuantity) {
         cstmt.setInt(1, productListId)
         cstmt.setInt(2, productItemList)
-        cstmt.setInt(3, productVariantId)
+        cstmt.setInt(3, productListItemGroupId)
+        cstmt.setInt(4, productVariantId)
         if (productQuantityInStore != null) {
-            cstmt.setInt(4, productQuantityInStore);
+            cstmt.setInt(5, productQuantityInStore);
         } else {
-            cstmt.setNull(4, Types.INTEGER);
+            cstmt.setNull(5, Types.INTEGER);
         }
 
         if (quantity != null) {
-            cstmt.setInt(5, quantity);
+            cstmt.setInt(6, quantity);
         } else {
-            cstmt.setNull(5, Types.INTEGER)
+            cstmt.setNull(6, Types.INTEGER)
         }
 
-        cstmt.setInt(6, fillQuantity)
+        cstmt.setInt(7, fillQuantity)
 
     }
 

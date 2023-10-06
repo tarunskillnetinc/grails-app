@@ -27,7 +27,7 @@
             <label for="defaultSupplier" class="col-10 col-form-label text-right">Default Supplier</label>
 
             <div class="col-2 px-0">
-                <g:select name="defaultSupplier" from="${suppliers}"
+                <g:select name="defaultSupplier" from="${defaultSuppliers}"
                           noSelection="['': '']" value="${defaultSupplier}"
                           optionValue="name" optionKey="id"
                           class="form-control select-border"/>
@@ -47,7 +47,7 @@
     <div id="addPacksContainer-${variantIndex}">
         <g:each in="${variant.packs}" var="pack" status="i">
             <div id="addPackContainer-${variantIndex}-${i}">
-                <g:render template="addPack" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, suppliers: suppliers]" />
+                <g:render template="addPack" model="[variantIndex: variantIndex, productVariantId: variant.productVariantId, packIndex: i, pack: pack, isNewPack: pack?.isNewPack, existingPackIds: existingPackIds, suppliers: suppliers]" />
             </div>
         </g:each>
     </div>

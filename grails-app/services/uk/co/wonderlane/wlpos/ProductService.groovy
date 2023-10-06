@@ -9,7 +9,6 @@ import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
-import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -17,7 +16,6 @@ import uk.co.wonderlane.wlpos.reporting.ReportType
 import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.SQLException
 import java.sql.Types
 import java.util.stream.Collectors
 
@@ -120,6 +118,28 @@ class ProductService extends MySqlDal {
         }
     }
 
+    def saveLocations(Product product) {
+        product?.variants?.each { variant ->
+            variant.locationz?.each { location ->
+                if (location.hasProperty('delete') && location.delete) {
+                    Location deletedLocation = new Location()
+                    deletedLocation.sku = location.sku
+                    deletedLocation.storeId = location.storeId
+                    deletedLocation.aisle = location.aisle
+                    deletedLocation.bay = location.bay
+                    deletedLocation.shelf = location.shelf
+                    deletedLocation.position = location.position
+                    deletedLocation.location = location.location
+                    deletedLocation.shelfCapacity = location.shelfCapacity
+                    deletedLocation.minimumDisplayQuantity = location.minimumDisplayQuantity
+                    deletedLocation.save()
+                } else if (location instanceof Location) {
+                    location.save()
+                }
+            }
+        }
+    }
+
     def saveProductVariant(ProductVariant productVariant) {
         productVariant.save()
     }
@@ -127,9 +147,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-
-        productPrices.unique { [it.sku, it.effectiveDate, it.price] }
-
+        
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price) {
                 session.saveOrUpdate(productPrice)
@@ -455,6 +473,7 @@ class ProductService extends MySqlDal {
                     def result = [:]
                     result.productId = rs.getInt("id")
                     result.sku = rs.getLong("sku")
+                    result.itemCode = rs.getString("itemCode")
                     result.productDescription = rs.getString("productDescription")
                     result.price = rs.getBigDecimal("price")
                     result.priceBandDescription = rs.getString("priceBandDescription")
@@ -547,38 +566,37 @@ class ProductService extends MySqlDal {
         reportColumns.save()
     }
 
-    def sendProductPriceUpdate(def prices, List<StoreSettings> stores) {
+    def sendProductPriceUpdate(def prices, List<Store> stores) {
         if (isSingleStageSel()) {
             sendProductPriceUpdateToRabbitMq(prices, stores)
         }
     }
 
-    def sendProductUpdate(List<Product> products, List<StoreSettings> stores) {
+    def sendProductUpdate(List<Product> products, List<Store> stores) {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
-        stores?.each { StoreSettings store ->
+
+        stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.storeId)
-                if (checkProductHasPriceForStore(productEntity, store.storeId)) {
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.config.storeNumber)
+                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber)) {
                     productEntities.add(productEntity)
                 }
             })
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
             syncMessage.setInsert(true)
             syncMessage.setProducts(productEntities)
 
-            log.println("Syncing ${productEntities.size()} product updates to store ${store.storeId}")
+            log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
 
-            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendMessage(syncMessage)
         }
     }
 
     def isSingleStageSel() {
-        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.twoStageSel) {
+        if (springSecurityService.principal.retailer && springSecurityService.principal.retailer.config.twoStageSel) {
             return false
         }
         return true
@@ -586,15 +604,15 @@ class ProductService extends MySqlDal {
 
     def syncProductUpdatesToAllStoresForRetailer(List<Integer> productIds) {
         if (isSingleStageSel()) {
-            syncProductListUpdatesToStores(productIds, StoreSettings.findAllByRetailerId(springSecurityService.principal.retailerId))
+            syncProductListUpdatesToStores(productIds, Store.findAllByRetailerId(springSecurityService.principal.retailerId))
         }
     }
 
     def syncProductUpdatesToSingleStore(List<Integer> productIds, Integer storeId) {
-        syncProductListUpdatesToStores(productIds.unique(), [StoreSettings.findById(storeId)])
+        syncProductListUpdatesToStores(productIds.unique(), [Store.findById(storeId)])
     }
 
-    private void syncProductListUpdatesToStores(List<Integer> productIds, List<StoreSettings> stores) {
+    private void syncProductListUpdatesToStores(List<Integer> productIds, List<Store> stores) {
         def productIdsAsInt = productIds.findAll { it != null && it > 0 }.stream().map({ it.intValue() }).collect(Collectors.toSet())
         productIdsAsInt.removeAll(Collections.singleton(null))
         if (productIdsAsInt && productIdsAsInt?.size() > 0) {
@@ -602,21 +620,19 @@ class ProductService extends MySqlDal {
         }
     }
 
-    private void sendProductPriceUpdateToRabbitMq(def prices, List<StoreSettings> stores) {
+    private void sendProductPriceUpdateToRabbitMq(def prices, List<Store> stores) {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
-        stores?.each { StoreSettings store ->
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.storeId, store.id, 0)
+        stores?.each { Store store ->
+            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRICE_CHANGE, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
             syncMessage.setInsert(true)
-            syncMessage.setStoreId(store.storeId)
+            syncMessage.setStoreId(store.config.storeNumber)
             syncMessage.setProductPrices(prices)
 
-            log.println("Syncing ${prices.size()} price updates to store ${store.storeId}")
+            log.println("Syncing ${prices.size()} price updates to store ${store.config.storeNumber}")
 
-            // TODO Just declaring the exchange doesn't help us, we also need to declare all of the till queues and bind them to the exchange, otherwise the message we're about to send goes nowhere.
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
+            rabbitService.sendMessage(syncMessage)
         }
     }
 

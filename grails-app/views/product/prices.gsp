@@ -3,11 +3,16 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Product Maintenance</title>
+        <title>Product Maintenance</title>
 
         <asset:javascript src="money-mask.js" />
+        <asset:javascript src="category-select.js" />
+        <asset:stylesheet href="radio.css" />
 
         <script type="text/javascript">
+            var getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
+            var categorySearchUrl = "${createLink(controller: 'product', action: 'ajaxSearchCategories')}";
+
             $(document).ready(function () {
                 $('#searchTerm').on('keyup', function(event) {
                     if (event.key === 'Enter') {
@@ -21,11 +26,17 @@
                 search();
             }
 
+            function resetButtonClicked() {
+                $('#tag').prop("selectedIndex", 0);
+                $('input[name="category.id"]:checked').prop("checked", false);
+                $('#searchTerm').val("");
+            }
+
             function search() {
                 var URL = "${createLink(controller: 'product', action: 'pricesSearch')}";
 
                 var searchTerm = $('#searchTerm').val();
-                var category = $('#category').val();
+                var category = $('input[name="category.id"]:checked').val();
                 var tag = $('#tag').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
@@ -52,23 +63,23 @@
 
                 var data = { };
 
-                var checkedBoxes = $("input:checked");
+                var checkedBoxes = $("#search-results input:checked");
 
                 checkedBoxes.each(function(i, checkbox) {
-                    var prices = $("[id^=price-" +$(checkbox).attr("id").substring(8) +"-]");
+                    var prices = $("[name^=price-" + $(checkbox).attr("name").substring(8) + "-]");
 
-                    prices.each(function(index, price) {
-                        var id = $(price).attr("id");
-                        var sku = id.substring(6, id.lastIndexOf("-"));
-                        var priceBandId = id.substring(id.lastIndexOf("-") + 1);
+                    prices.each(function (index, price) {
+                        var name = $(price).attr("name");
+                        var sku = name.substring(6, name.lastIndexOf("-"));
+                        var priceBandId = name.substring(name.lastIndexOf("-") + 1);
                         var oldPrice = $("[id^=oldPrice-" + sku + "-" + priceBandId + "]").val();
                         var productId = $("[id^=productId-" + sku + "-" + priceBandId + "]").val();
 
-                        data["priceChanges[" +((i * 3) + index) +"].sku"] = sku;
-                        data["priceChanges[" +((i * 3) + index) +"].priceBandId"] = priceBandId;
-                        data["priceChanges[" +((i * 3) + index) +"].price"] = $(price).val();
-                        data["priceChanges[" +((i * 3) + index) +"].oldPrice"] = oldPrice;
-                        data["priceChanges[" +((i * 3) + index) +"].productId"] = productId;
+                        data["priceChanges[" + ((i * 3) + index) + "].sku"] = sku;
+                        data["priceChanges[" + ((i * 3) + index) + "].priceBandId"] = priceBandId;
+                        data["priceChanges[" + ((i * 3) + index) + "].price"] = $(price).val();
+                        data["priceChanges[" + ((i * 3) + index) + "].oldPrice"] = oldPrice;
+                        data["priceChanges[" + ((i * 3) + index) + "].productId"] = productId;
                     });
                 });
 
@@ -79,6 +90,10 @@
                     method: "POST",
                     data: data,
                     success: function(resp) {
+
+                        $('#confirm-modal-success').attr("hidden", resp !== "OK" );
+                        $('#confirm-modal-empty').attr("hidden", resp !== "EMPTY" );
+
                         $('#confirmModal').modal({ show: true });
 
                         checkedBoxes.each(function(i, checkbox) {
@@ -130,7 +145,7 @@
             </div>
 
             <div class="row mt-4">
-                <div class="col-5">
+                <div class="col-6">
                     <div class="card bg-light border-wl">
                         <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             <div class="row">
@@ -142,39 +157,45 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body collapse" id="filterCollapse">
-%{--                            <g:form name="filtersForm" id="filtersForm">--}%
-                                <div class="form-group row">
-                                    <label for="searchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
-                                    <div class="col-10">
-                                        <g:textField name="searchTerm" class="form-control bottom-border" value="${searchTerm}" autocomplete="off" />
+                        <div class="card-body collapse pb-0" id="filterCollapse">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row">
+                                        <label for="category" class="col-4 col-form-label text-right">Category</label>
+                                        <div class="col-8">
+                                            <g:render template="categorySelect" model="[categories: categories, productCategoryList: null, selectedCategoryId: null, level: 1]" />
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
-                                    <label for="category" class="col-2 col-form-label-sm text-right">Category</label>
-                                    <div class="col-4">
-                                        <g:categorySelect name="category" categories="${categories}" />
-%{--                                        <g:select name="category" from="${categories}" noSelection="['':'']" value="${category}" optionValue="description" optionKey="id" class="form-control select-border" />--}%
+                                <div class="col-6">
+                                    <div class="form-group row">
+                                        <label for="searchTerm" class="col-4 col-form-label text-right">Description</label>
+                                        <div class="col-8">
+                                            <g:textField name="searchTerm" class="form-control bottom-border" value="${searchTerm}" autocomplete="off" />
+                                        </div>
                                     </div>
 
-                                    <label for="tag" class="col-2 col-form-label-sm text-right">Tag</label>
-                                    <div class="col-4">
-                                        <g:select name="tag" from="${tags}" noSelection="['':'']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                    <div class="form-group row">
+                                        <label for="tag" class="col-4 col-form-label text-right">Tag</label>
+                                        <div class="col-8">
+                                            <g:select name="tag" from="${tags}" noSelection="['':'All tags']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group row">
-                                    <div class="col-4 offset-8 text-right">
-                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
+                                    <div class="form-group row">
+                                        <div class="col-12 text-right">
+                                            <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetButtonClicked()">Reset Filters</button>
+                                            <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked2()">Search</button>
+                                        </div>
                                     </div>
                                 </div>
-%{--                            </g:form>--}%
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-2 offset-5 text-right">
+                <div class="col-2 offset-4 text-right">
                     <button id="save-changes-button" class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
                 </div>
             </div>
@@ -198,11 +219,18 @@
             <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="confirm-modal-title">Success</h2>
+                        <div id="confirm-modal-success">
+                            <div class="modal-header">
+                                <h2 id="confirm-modal-title-success">Success</h2>
+                            </div>
+                            <div id="confirm-modal-message-success" class="modal-body">Price changes saved successfully.</div>
                         </div>
-
-                        <div id="confirm-modal-message" class="modal-body">Price changes saved successfully.</div>
+                        <div id="confirm-modal-empty">
+                            <div class="modal-header">
+                                <h2 id="confirm-modal-title-empty">Save failed</h2>
+                            </div>
+                            <div id="confirm-modal-message-empty" class="modal-body">Nothing was selected to be saved.</div>
+                        </div>
 
                         <div class="modal-footer">
                             <button type="button" id="closeConfirmModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>

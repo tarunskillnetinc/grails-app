@@ -1,0 +1,62 @@
+image: gradle:jdk11-alpine
+
+cache:
+    paths:
+        - gradle
+
+stages:
+    - default
+    - develop
+    - release
+    - tags
+
+## before_script configuration added to resolve 'Author Identity Unknown' error for git commands
+before_script:
+    - GIT_USER_EMAIL=$(git log -1 --pretty=format:"%ae")
+    - GIT_USER_NAME=$(git log -1 --pretty=format:"%an")
+    - git config user.email "$GIT_USER_EMAIL"
+    - git config user.name "$GIT_USER_NAME"
+
+default_build:
+    stage: default
+    except:
+        - /^develop$/
+        - /^release.*$/
+        - /^[0-9.]+$/
+    script:
+        - apk update
+        - apk upgrade
+        - apk add zip curl bash
+        - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+
+build_develop_branch:
+    stage: develop
+    script:
+        - apk update
+        - apk upgrade
+        - apk add zip curl bash
+        - bash doGrailsBuild.sh prestage $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+        - export BUILD_VERSION=$(grep 'version[a-zA-Z0-9,-]*' build.gradle | head -1 | cut -d " " -f 2 | sed 's/^.//;s/.$//')
+        - git add build.gradle
+        - git commit -m "Tagging build $BUILD_VERSION for release"
+        - git tag -am "Tagging for release $BUILD_VERSION" $BUILD_VERSION
+        - git push origin $BUILD_VERSION
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "develop"'
+
+build_release_branches:
+    stage: release
+    script:    
+        - apk update
+        - apk upgrade
+        - apk add zip curl bash
+        - bash doGrailsBuild.sh stage $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+    rules:
+        - if: '$CI_COMMIT_BRANCH =~ /^release/'
+    
+tags_no_build:
+    stage: tags
+    script:        
+        - echo "Do nothing currently... Production release?"
+    rules:
+        - if: '$CI_COMMIT_TAG =~ /^[0-9.]+$/'

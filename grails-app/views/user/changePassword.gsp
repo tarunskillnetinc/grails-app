@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane User Management</title>
+        <title>User Management</title>
 
     </head>
 
@@ -29,13 +29,13 @@
                 </div>
 
                 <div class="col-3 text-right">
-                    <g:link controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
+                    <g:link controller="user" elementId="cancel-password-button" action="index" role="button" class="btn btn-wl">Cancel</g:link>
 
                     <g:if test="${!isUserReadOnly}">
-                        <button class="btn btn-success" name="delete"  onclick="$('#change-user-password-form').submit();">Save</button>
+                        <button class="btn btn-success" id="save-password-button" name="save" onclick="$('#change-user-password-form').submit();">Save</button>
                     </g:if>
                     <g:else>
-                        <button class="btn btn-success" name="delete" disabled onclick="$('#change-user-password-form').submit();">Save</button>
+                        <button class="btn btn-success" id="save-password-button" name="save" disabled onclick="$('#change-user-password-form').submit();">Save</button>
                     </g:else>
 
                 </div>

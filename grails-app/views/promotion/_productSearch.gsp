@@ -44,7 +44,7 @@
 
                 <div class="row mt-3">
                     <span class="col-12 text-right">
-                        <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <button id="product-cancel" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                     </span>
                 </div>
             </div>

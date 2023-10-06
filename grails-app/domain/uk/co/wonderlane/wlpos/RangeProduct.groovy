@@ -19,4 +19,22 @@ class RangeProduct implements Serializable {
         productId nullable: false
         range nullable: false
     }
+
+    @Override
+    boolean equals(that) {
+        if (this.is(that)) return true
+        if (getClass() != that.class) return false
+
+        RangeProduct rangeProduct = (RangeProduct)that
+        if (range?.id != rangeProduct.range?.id || productId != rangeProduct.productId) {
+            return false
+        }
+
+        return true
+    }
+
+    @Override
+    int hashCode() {
+        return (range?.id?.hashCode() ?: 123) + productId.hashCode()
+    }
 }

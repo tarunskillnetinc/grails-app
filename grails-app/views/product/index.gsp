@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Product Maintenance</title>
+        <title>Product Maintenance</title>
 
         <asset:javascript src="jquery-ui.js" />
         <asset:stylesheet src="jquery-ui.css" />
@@ -239,11 +239,12 @@
             <div class="row header-wl mt-3">
                 <input type="file" name="file" accept=".csv,.CSV"
                        id="csvFileUploadInput" style="display:none" oninput="uploadProductsCSVFile()" oncancel="resetFileUploadInput()">
-                <div class="col-6 offset-2">
+
+                <div class="col-6 offset-3">
                     <h2 id="page-title" class="mx-auto my-auto">Product Search</h2>
                 </div>
 
-                <div class="col-4 text-right d-inline-flex flex-row justify-content-end">
+                <div class="col-3 text-right d-inline-flex flex-row justify-content-end">
                     <g:link elementId="add-new-product-btn" controller="product" action="add" class="btn btn-wl p-2">Add New Product</g:link>
                     <button class="btn btn-wl p-2 ml-2" onclick="selectProductsCSVFile()" id="uploadProductsBtn">Upload Products</button>
                 </div>
@@ -276,7 +277,7 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4 offset-8 text-right">
+                                <div class="col-sm-8 col-xl-6 offset-sm-4 offset-xl-6 text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
                                 </div>

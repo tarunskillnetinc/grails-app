@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="layout" content="main" />
-    <title>WonderLane Store Settings</title>
+    <title>Store Settings</title>
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
 </head>
@@ -27,7 +27,7 @@
             </div>
 
             <div class="col-2 text-right">
-                <g:link elementId="cancel-btn" controller="storeSettings" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+                <g:link elementId="cancel-btn" controller="store" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
                 <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
             </div>
         </div>
@@ -37,6 +37,14 @@
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
                 <g:renderErrors bean="${storeSettings}" as="list" />
+            </div>
+        </section>
+    </g:hasErrors>
+
+    <g:hasErrors bean="${configErrors}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${configErrors}" as="list" />
             </div>
         </section>
     </g:hasErrors>
@@ -55,7 +63,8 @@
         <g:form name="save-button" action="save">
             <g:hiddenField name="id" value="${storeSettings?.id}" />
             <g:hiddenField name="retailerId" value="${storeSettings?.retailerId}" />
-            <g:hiddenField name="storeId" value="${storeSettings?.storeId}" />
+            <g:hiddenField name="config.storeNumber" value="${storeSettings?.config?.storeNumber}" />
+            <g:hiddenField name="config.storeType" value="${storeSettings?.config?.storeType}" />
 
             <div id="accordion">
                 <!-- Contact information. -->
@@ -75,65 +84,65 @@
                         <div class="card-body py-5">
                             <div class="col-12">
                                 <div class="form-group row">
-                                    <label for="storeName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Name</label>
+                                    <label for="config.storeName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Name</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="storeName" maxlength="45" value="${storeSettings?.storeName}" class="form-control bottom-border" />
+                                        <g:textField name="config.storeName" maxlength="45" value="${storeSettings?.config?.storeName}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressBuildingNumberOrName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Building Name / Number</label>
+                                    <label for="config.addressBuildingNumberOrName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Building Name / Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressBuildingNumberOrName" maxlength="45" value="${storeSettings?.addressBuildingNumberOrName}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressBuildingNumberOrName" maxlength="45" value="${storeSettings?.config?.addressBuildingNumberOrName}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressLine1" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 1</label>
+                                    <label for="config.addressLine1" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 1</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressLine1" maxlength="45" value="${storeSettings?.addressLine1}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressLine1" maxlength="45" value="${storeSettings?.config?.addressLine1}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressLine2" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 2</label>
+                                    <label for="config.addressLine2" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 2</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressLine2" maxlength="45" value="${storeSettings?.addressLine2}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressLine2" maxlength="45" value="${storeSettings?.config?.addressLine2}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
+                                    <label for="config.addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressTown" maxlength="45" value="${storeSettings?.addressTown}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressTown" maxlength="45" value="${storeSettings?.config?.addressTown}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressCounty" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">County</label>
+                                    <label for="config.addressCounty" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">County</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressCounty" maxlength="45" value="${storeSettings?.addressCounty}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressCounty" maxlength="45" value="${storeSettings?.config?.addressCounty}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressCountry" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Country</label>
+                                    <label for="config.addressCountry" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Country</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressCountry" maxlength="45" value="${storeSettings?.addressCountry}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressCountry" maxlength="45" value="${storeSettings?.config?.addressCountry}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="addressPostCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Post Code</label>
+                                    <label for="config.addressPostCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Post Code</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressPostCode" maxlength="45" value="${storeSettings?.addressPostCode}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressPostCode" maxlength="45" value="${storeSettings?.config?.addressPostCode}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="phoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Phone Number</label>
+                                    <label for="config.phoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Phone Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="phoneNumber" maxlength="45" value="${storeSettings?.phoneNumber}" class="form-control bottom-border" />
+                                        <g:textField name="config.phoneNumber" maxlength="45" value="${storeSettings?.config?.phoneNumber}" class="form-control bottom-border" />
                                     </div>
                                 </div>
                             </div>
@@ -158,45 +167,45 @@
                         <div class="card-body py-5">
                             <div class="col-12">
                                 <div class="form-group row">
-                                    <label for="receiptMessage1" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt Line 1</label>
+                                    <label for="config.receiptMessage1" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt Line 1</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="receiptMessage1" maxlength="100" value="${storeSettings?.receiptMessage1}" class="form-control bottom-border" />
+                                        <g:textField name="config.receiptMessage1" maxlength="100" value="${storeSettings?.config?.receiptMessage1}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="receiptMessage2" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt Line 2</label>
+                                    <label for="config.receiptMessage2" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt Line 2</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="receiptMessage2" maxlength="100" value="${storeSettings?.receiptMessage2}" class="form-control bottom-border" />
+                                        <g:textField name="config.receiptMessage2" maxlength="100" value="${storeSettings?.config?.receiptMessage2}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="vatRegistrationNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">VAT Reg. Number</label>
+                                    <label for="config.vatRegistrationNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">VAT Reg. Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="vatRegistrationNumber" maxlength="45" value="${storeSettings?.vatRegistrationNumber}" class="form-control bottom-border" />
+                                        <g:textField name="config.vatRegistrationNumber" maxlength="45" value="${storeSettings?.config?.vatRegistrationNumber}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="printReceiptOption" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt Print Option</label>
+                                    <label for="config.printReceiptOption" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Receipt Print Option</label>
                                     <div class="col-7 col-lg-2">
-                                        <g:select name="printReceiptOption" from="${availablePrintReceiptOptions}" value="${storeSettings?.printReceiptOption}" valueMessagePrefix="PrintReceiptOption" class="form-control select-border" />
+                                        <g:select name="config.printReceiptOption" from="${availablePrintReceiptOptions}" value="${storeSettings?.config?.printReceiptOption}" valueMessagePrefix="PrintReceiptOption" class="form-control select-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="quantityPromptThreshold" class="col-4 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Quantity Prompt Threshold</label>
+                                    <label for="config.quantityPromptThreshold" class="col-4 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Quantity Prompt Threshold</label>
                                     <div class="col-8 col-lg-2">
-                                        <g:field type="number" min="0" max="9999" maxlength="3" name="quantityPromptThreshold" value="${storeSettings?.quantityPromptThreshold}" class="form-control bottom-border" />
+                                        <g:field type="number" min="0" max="9999" maxlength="3" name="config.quantityPromptThreshold" value="${storeSettings?.config?.quantityPromptThreshold}" class="form-control bottom-border" />
                                     </div>
                                     <small id="quantityPromptHelp" class="form-text text-muted">Selling this quantity of any item will trigger a confirmation prompt.</small>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="valuePromptThreshold" class="col-4 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Price Change Value Prompt Threshold</label>
+                                    <label for="config.valuePromptThreshold" class="col-4 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Price Change Value Prompt Threshold</label>
                                     <div class="col-8 col-lg-2">
-                                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="valuePromptThreshold" value="${storeSettings?.valuePromptThreshold}" class="form-control bottom-border" />
+                                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="config.valuePromptThreshold" value="${storeSettings?.config?.valuePromptThreshold}" class="form-control bottom-border" />
                                     </div>
                                     <small id="valuePromptHelp" class="form-text text-muted">Changing the price of any item by this value will trigger a confirmation prompt.</small>
                                 </div>
@@ -246,32 +255,32 @@
                         <div class="card-body py-5">
                             <div class="col-12">
                                 <div class="form-group row">
-                                    <label for="varianceQuantity" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Quantity Threshold</label>
+                                    <label for="config.varianceQuantity" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Quantity Threshold</label>
                                     <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0" max="9999" maxlength="3" name="varianceQuantity" value="${storeSettings?.varianceQuantity}" class="form-control bottom-border" />
+                                        <g:field type="number" min="0" max="9999" maxlength="3" name="config.varianceQuantity" value="${storeSettings?.config?.varianceQuantity}" class="form-control bottom-border" />
                                     </div>
                                     <small id="varianceQuantityHelp" class="form-text text-muted">Adjustments of this quantity will trigger a variance report.</small>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="varianceValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Value Threshold</label>
+                                    <label for="config.varianceValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Value Threshold</label>
                                     <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="varianceValue" value="${storeSettings?.varianceValue}" class="form-control bottom-border" />
+                                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="config.varianceValue" value="${storeSettings?.config?.varianceValue}" class="form-control bottom-border" />
                                     </div>
                                     <small id="varianceValueHelp" class="form-text text-muted">Adjustments of this value will trigger a variance report.</small>
                                 </div>
 
                                 <div class="form-group form-check row">
                                     <div class="col-12 col-lg-8 offset-lg-5">
-                                        <g:checkBox name="pickListForceZeroCount" value="${storeSettings?.pickListForceZeroCount}" class="form-check-input" />
-                                        <label class="form-check-label" for="pickListForceZeroCount">Force users to count items in a pick list which have zero quantity in stock.</label>
+                                        <g:checkBox name="config.pickListForceZeroCount" value="${storeSettings?.config?.pickListForceZeroCount}" class="form-check-input" />
+                                        <label class="form-check-label" for="config.pickListForceZeroCount">Force users to count items in a pick list which have zero quantity in stock.</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="countIncrement" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Count increments</label>
+                                    <label for="config.countIncrement" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Count increments</label>
                                     <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0.01" max="1" step="0.01" name="countIncrement" value="${storeSettings?.countIncrement}" class="form-control bottom-border"/>
+                                        <g:field type="number" min="0.01" max="1" step="0.01" name="config.countIncrement" value="${storeSettings?.config?.countIncrement}" class="form-control bottom-border"/>
                                     </div>
                                 </div>
                             </div>
@@ -310,7 +319,7 @@
                                             <g:select name="parentStoreId" from="${availableParentStores}"
                                                       noSelection="['': 'None']"
                                                       value="${storeSettings?.parentStoreId}"
-                                                      optionValue="storeName" optionKey="id"
+                                                      optionValue="config.storeName" optionKey="id"
                                                       class="form-control select-border"/>
                                         </div>
                                     </div>
@@ -347,15 +356,15 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="primaryColour" id="primaryColour" maxlength="6"
-                                                         value="${storeSettings?.primaryColour}"
+                                            <g:textField name="config.primaryColour" id="primaryColour" maxlength="6"
+                                                         value="${storeSettings?.config?.primaryColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'primaryColourPicker')"/>
                                         </div>
 
                                         <div>
-                                            <input type="color" id="primaryColourPicker" name="primaryColourPicker"
-                                                   value="#${storeSettings?.primaryColour}"
+                                            <input type="color" id="config.primaryColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.primaryColour}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'primaryColour');">
                                         </div>
                                     </div>
@@ -365,15 +374,15 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="secondaryColour" maxlength="6"
-                                                         value="${storeSettings?.secondaryColour}"
+                                            <g:textField name="config.secondaryColour" maxlength="6"
+                                                         value="${storeSettings?.config?.secondaryColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"/>
                                         </div>
 
                                         <div>
-                                            <input type="color" id="secondaryColourPicker" name="primaryColourPicker"
-                                                   value="#${storeSettings?.secondaryColour}"
+                                            <input type="color" id="config.secondaryColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.secondaryColour}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'secondaryColour');">
                                         </div>
                                     </div>
@@ -383,15 +392,15 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="accentColour" maxlength="6"
-                                                         value="${storeSettings?.accentColour}"
+                                            <g:textField name="config.accentColour" maxlength="6"
+                                                         value="${storeSettings?.config?.accentColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"/>
                                         </div>
 
                                         <div>
-                                            <input type="color" id="accentColourPicker" name="primaryColourPicker"
-                                                   value="#${storeSettings?.accentColour}"
+                                            <input type="color" id="config.accentColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.accentColour}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentColour');">
                                         </div>
                                     </div>
@@ -401,15 +410,15 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="primaryTextColour" maxlength="6"
-                                                         value="${storeSettings?.primaryTextColour}"
+                                            <g:textField name="config.primaryTextColour" maxlength="6"
+                                                         value="${storeSettings?.config?.primaryTextColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"/>
                                         </div>
 
                                         <div>
-                                            <input type="color" id="primaryTextColourPicker" name="primaryColourPicker"
-                                                   value="#${storeSettings?.primaryTextColour}"
+                                            <input type="color" id="config.primaryTextColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.primaryTextColour}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'primaryTextColour');">
                                         </div>
                                     </div>
@@ -419,16 +428,16 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="secondaryTextColour" maxlength="6"
-                                                         value="${storeSettings?.secondaryTextColour}"
+                                            <g:textField name="config.secondaryTextColour" maxlength="6"
+                                                         value="${storeSettings?.config?.secondaryTextColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"/>
                                         </div>
 
                                         <div>
-                                            <input type="color" id="secondaryTextColourPicker"
-                                                   name="primaryColourPicker"
-                                                   value="#${storeSettings?.secondaryTextColour}"
+                                            <input type="color" id="config.secondaryTextColourPicker"
+                                                   name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.secondaryTextColour}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'secondaryTextColour');">
                                         </div>
                                     </div>
@@ -438,15 +447,15 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="accentTextColour" maxlength="6"
-                                                         value="${storeSettings?.accentTextColour}"
+                                            <g:textField name="config.accentTextColour" maxlength="6"
+                                                         value="${storeSettings?.config?.accentTextColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"/>
                                         </div>
 
                                         <div>
-                                            <input type="color" id="accentTextColourPicker" name="primaryColourPicker"
-                                                   value="#${storeSettings?.accentTextColour}"
+                                            <input type="color" id="config.accentTextColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.accentTextColour}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentTextColour');">
                                         </div>
                                     </div>

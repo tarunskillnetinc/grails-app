@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <asset:javascript src="reporting.js" />
 
@@ -58,7 +58,7 @@
                             <div class="form-group row">
                                 <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
                                 <div class="col-3">
-                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                    <g:select name="storeFilter" from="${stores}" optionValue="${{it.config.storeNumber}}"
                                               optionKey="id"
                                               noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
                                               class="form-control select-border"
@@ -139,7 +139,7 @@
                                 <label class="form-check-label" for="columnsVat">VAT</label>
                             </div>
 
-                            <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
+                            <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
                 </div>

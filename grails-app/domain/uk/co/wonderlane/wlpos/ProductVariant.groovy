@@ -7,11 +7,10 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
 
-import uk.co.wonderlane.wlpos.ProductStock
-
 class ProductVariant implements Serializable {
 
     def springSecurityService
+    def productService
 
     static belongsTo = [product: Product]
 
@@ -34,8 +33,9 @@ class ProductVariant implements Serializable {
 //    Collection<Tag> tags = new ArrayList<>()
 
     Collection<Barcode> barcodez = new ArrayList<>()
+    Collection<Location> locationz = new ArrayList<>()
 
-    static transients = ['delete', 'barcodez']
+    static transients = ['delete', 'barcodez', 'locationz']
 
     static hasMany = [packs: Pack]
 
@@ -68,8 +68,8 @@ class ProductVariant implements Serializable {
         storeId nullable: true
         sku nullable: false, validator: {val, obj ->
             if (val > 0) {
-                def existingVariant = ProductVariant.findBySku(val)
-                return (existingVariant != null && obj.productId != existingVariant.productId) ? ["error.ProductVariant.duplicateSku"] : true
+                def existingVariants = obj.productService.getProductVariants([val]).find {obj.product.id != it.product.id}.collect()
+                return existingVariants.isEmpty() ? true : ['productVariant.sku.validator.error']
             } else {
                 return true
             }
@@ -86,6 +86,7 @@ class ProductVariant implements Serializable {
         minimumDisplayQuantity nullable: true
         delete bindable: true
         barcodez bindable: true
+        locationz bindable: true
     }
 
     List<ProductPrice> getPrices() {
@@ -163,6 +164,10 @@ class ProductVariant implements Serializable {
         return Barcode.findAllBySkuAndRetailerId(sku, springSecurityService.principal.retailerId)
     }
 
+    public List<Location> getLocations() {
+        return Location.findAllBySkuAndStoreId(sku, springSecurityService.principal.storeId)
+    }
+
     public DateTime getSessionEffectiveDate() {
         def sessionEffectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")
 
@@ -182,6 +187,8 @@ class ProductVariant implements Serializable {
         productVariant.setColour(colour)
         productVariant.setMinimumStockLevel(minimumStockLevel)
         productVariant.setEffectiveDate(effectiveDate)
+        productVariant.setMinimumDisplayQuantity(minimumDisplayQuantity)
+        productVariant.setShelfCapacity(shelfCapacity)
 
         getBarcodes()?.each {
             productVariant.getBarcodes().add(it.barcode)
@@ -199,6 +206,10 @@ class ProductVariant implements Serializable {
 
         // TODO Set tags
 //        productVariant.getTags().add(it.getTag())
+
+        getLocations()?.each {
+            productVariant.getLocations().add(it.getCommonLocation())
+        }
 
         return productVariant
     }

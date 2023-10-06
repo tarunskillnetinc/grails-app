@@ -10,7 +10,7 @@ import uk.co.wonderlane.wlpos.reporting.SortParams
 
 class ReportingControllerSalesSpec extends ReportingControllerSpecBase implements ControllerUnitTest<ReportingController>, DataTest {
     Class<?>[] getDomainClassesToMock() {
-        return [StoreSettings, PromotionSale, Sale, SaleCategory] as Class[]
+        return [Store, PromotionSale, Sale, SaleCategory] as Class[]
     }
 
     def setup() {

@@ -1,7 +1,7 @@
 package uk.co.wonderlane.wlpos.reporting
 
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.StoreSettings
+import uk.co.wonderlane.wlpos.Store
 
 class PayPointSale {
 
@@ -22,8 +22,7 @@ class PayPointSale {
     static transients = ['visibleStoreId']
 
     static mapping = {
-        datasources (["reporting"])
-
+        datasources (["reporting", "reportingReadOnly"])
         table "paypointsale"
         version false
 
@@ -44,6 +43,6 @@ class PayPointSale {
     }
 
     Integer getVisibleStoreId() {
-        return StoreSettings.findById(storeId).storeId
+        return Store.findById(storeId).storeId
     }
 }

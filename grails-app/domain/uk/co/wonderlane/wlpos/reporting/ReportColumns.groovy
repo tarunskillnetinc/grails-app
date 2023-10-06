@@ -9,8 +9,7 @@ class ReportColumns {
     static hasMany = [ columns: ReportColumn ]
 
     static mapping = {
-        datasources (["reporting"])
-
+        datasources (["reporting", "reportingReadOnly"])
         table "reportcolumns"
         version false
 

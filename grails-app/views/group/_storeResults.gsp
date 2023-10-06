@@ -19,7 +19,7 @@
 
 <g:each in="${group.stores?.sort{ it.storeId }}" var="store" status="i">
     <div class="row offset-3 col-6 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="removeStoreFromGroup(${store.id}, ${group.id});">
-        <div class="col-4">${store.storeId}</div>
-        <div class="col-8">${store.storeName}</div>
+        <div class="col-4">${store.config.storeNumber}</div>
+        <div class="col-8">${store.config.storeName}</div>
     </div>
 </g:each>

@@ -49,7 +49,7 @@ class Promotion {
         description nullable: false, size: 1..200
         receiptDescription nullable: false, size: 1..50
         startDate nullable: false
-        endDate nullable: false
+        endDate nullable: true
         type nullable: false
         amount nullable: false, range: 0F..9999.99F
         lossCategoryId nullable: true
@@ -67,7 +67,7 @@ class Promotion {
         promotion.setDescription(description)
         promotion.setReceiptDescription(receiptDescription)
         promotion.setStartDate(new DateTime(startDate))
-        promotion.setEndDate(new DateTime(endDate))
+        promotion.setEndDate(endDate != null ? new DateTime(endDate) : null)
         promotion.setType(type)
         promotion.setAmount(amount)
         promotion.setLossCategoryId(lossCategoryId)

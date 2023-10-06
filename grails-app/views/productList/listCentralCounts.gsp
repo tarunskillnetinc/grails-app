@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Central Count Management</title>
+        <title>Central Count Management</title>
 
         <script type="text/javascript">
             $(document).ready(function () {
@@ -16,7 +16,7 @@
 
             function search() {
                 var URL = "${createLink(controller: 'productList', action: 'ajaxGetCentralCounts')}";
-                var searchTerm = $('#centralCountSearchTermSearchTerm').val();
+                var searchTerm = $('#centralCountSearchTerm').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +

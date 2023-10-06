@@ -2,9 +2,9 @@ function getSnapshots() {
     $("#search-results").hide();
     $("#loading-indicator").show();
 
-    var startDate = $("#startDate").val();
-    var endDate = $("#endDate").val();
-    var tillId = $("#tillId").val();
+    const startDate = $("#startDate").val();
+    const endDate = $("#endDate").val();
+    const tillId = $("#tillId").val();
 
     $.ajax({
         url: SnapshotUrls.getSnapshotsUrl(),
@@ -12,8 +12,28 @@ function getSnapshots() {
         data: { startDate: startDate, endDate: endDate, tillId: tillId },
         success: function(resp) {
             $("#results-container").html(resp);
+        },
+        error: function() {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            const result = document.createElement('div');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
+                .html('No snapshots found.');
+            $("#search-results").html(result);
         }
     });
+}
+
+function resetSnapshotFilters(startDate, endDate) {
+    setDatePickers(
+        'startDate',
+        'endDate',
+        startDate,
+        endDate
+    );
+    $("#tillId").val("");
+    getSnapshots();
 }
 
 function showSnapshotModal(snapshotId) {

@@ -60,7 +60,8 @@ class MonitoringController {
                                                           grailsApplication.config.getProperty('wlpos.stockProcessorQueue'),
                                                           grailsApplication.config.getProperty('wlpos.nisaServiceQueue'),
                                                           grailsApplication.config.getProperty('wlpos.receiptServiceQueue'),
-                                                          grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue'))
+                                                          grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue'),
+                                                          grailsApplication.config.getProperty('wlpos.snappyServiceQueue'))
 
         render (template: "transactionServiceStatus", model: [transactionProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.transactionProcessorQueue') },
                                                               dataSyncServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.dataSyncServiceQueue') },
@@ -70,7 +71,8 @@ class MonitoringController {
                                                               stockProcessorQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.stockProcessorQueue') },
                                                               nisaServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.nisaServiceQueue') },
                                                               receiptServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.receiptServiceQueue') },
-                                                              rawTransactionWriterQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue') }])
+                                                              rawTransactionWriterQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.rawTransactionWriterQueue') },
+                                                              snappyServiceQueue: rabbitQueues.find { it.name == grailsApplication.config.getProperty('wlpos.snappyServiceQueue') }])
     }
 
     def ajaxPurgeQueue(int storeId, int tillId) {
@@ -109,12 +111,12 @@ class MonitoringController {
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.FORCE_DATA_SYNC, springSecurityService.principal.retailerId, Integer.parseInt(params.storeId), null, Integer.parseInt(params.tillId))
         syncMessage.setInsert(false)
 
-        if (!rabbitService.isOpen()) {
+        try {
+            rabbitService.sendMessage(syncMessage)
+        } catch (Exception e) {
             render status: 500, text: "Unable to open connection to RabbitMQ."
             return
         }
-
-        rabbitService.sendQueueMessage(String.format("R%d_S%d_T%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber(), syncMessage.getTillId()), gsonProvider.gson.toJson(syncMessage))
 
         render status: 200, text: "Sync should begin shortly for Till " + params.tillId + " in Store " + params.storeId + "."
     }

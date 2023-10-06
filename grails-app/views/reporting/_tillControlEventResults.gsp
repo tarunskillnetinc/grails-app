@@ -1,18 +1,18 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'type', sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
+        <div class="col font-weight-bold"><a id="type" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'type', sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "usersName" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'usersName', sortOrder: ${sortParams?.sortColumn == 'usersName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">User</a></div>
+        <div class="col font-weight-bold"><a id="users-name" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'usersName', sortOrder: ${sortParams?.sortColumn == 'usersName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">User</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reason', sortOrder: ${sortParams?.sortColumn == 'reason' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Reason</a></div>
+        <div class="col font-weight-bold"><a id="reason" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reason', sortOrder: ${sortParams?.sortColumn == 'reason' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Reason</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'dateCreated', sortOrder: ${sortParams?.sortColumn == 'dateCreated' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Date</a></div>
+        <div class="col font-weight-bold"><a id="date-created" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'dateCreated', sortOrder: ${sortParams?.sortColumn == 'dateCreated' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Date</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'amount', sortOrder: ${sortParams?.sortColumn == 'amount' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Amount</a></div>
+        <div class="col font-weight-bold"><a id="amount" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'amount', sortOrder: ${sortParams?.sortColumn == 'amount' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Amount</a></div>
     </g:if>
 </div>
 
@@ -44,6 +44,8 @@
                     <g:elseif test="${tillControlEvent.type.name() == 'LINE_VOID'}"><g:message code="LineVoidReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:elseif test="${tillControlEvent.type.name() == 'PAID_OUT'}"><g:message code="PaidOutReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:else>${tillControlEvent.reason}</g:else>
+
+                    <g:if test="${tillControlEvent.reasonOther}">&nbsp;-&nbsp;${tillControlEvent.reasonOther}</g:if>
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">

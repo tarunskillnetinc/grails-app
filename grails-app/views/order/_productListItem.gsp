@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -19,7 +19,7 @@
             text-align: center;
         }
 
-        #counterButton {
+        .counterButton {
             width: 60px;
             height: 40px;
             font-size: 20px;
@@ -38,6 +38,10 @@
             background-image: url("");
         }
 
+        input[type="number"]::-webkit-inner-spin-button{
+            display: none;
+        }
+
     </style>
 
     <script type='text/javascript'>
@@ -50,11 +54,13 @@
                 width: 400,
                 draggable: false,
                 resizable: false,
-                buttons: {
-                    Ok: function() {
-                        $( this ).dialog( "close" );
+                buttons: [{
+                    id: "ok-button",
+                    text: "Ok",
+                    click: function () {
+                        $(this).dialog("close");
                     }
-                }
+                }]
             });
 
             $("#dialog-pack-save-error").dialog({
@@ -73,12 +79,37 @@
 
         });
 
+        document.addEventListener("DOMContentLoaded", function() {
+            let numbers = document.querySelectorAll('.quantity__input');
+            numbers.forEach(function(input) {
+                input.addEventListener("input", function(event) {
+                    let inputValue = parseInt(input.value);
+                    if (isNaN(inputValue)) {
+                        // Reset to the minimum value if the input is not a valid number
+                        input.value = input.min;
+                    } else if (inputValue < input.min) {
+                        // If the input value is less than the minimum, set it to the minimum value
+                        input.value = input.min;
+                    } else if (inputValue > input.max) {
+                        // If the input value is greater than the maximum, set it to the maximum value
+                        input.value = input.max;
+                    } else {
+                        // Set the value to the parsed int value
+                        input.value = inputValue;
+                    }
+                });
+            });
+        });
+
         function increment(id) {
             var packLineSelector = "#packLines\\[" + id + "\\]\\.";
             var value = parseInt($(packLineSelector + "quantity").val());
             value = isNaN(value) ? 0 : value;
             value++;
-            $(packLineSelector + "quantity").val(value)
+            $(packLineSelector + "quantity").val(value);
+            if (value > $(packLineSelector + "quantity")[0].max) {
+                $(packLineSelector + "quantity").val($(packLineSelector + "quantity")[0].max);
+            }
         }
 
         function decrement(id) {
@@ -136,7 +167,6 @@
                 $('#dialog-confirm').dialog('open');
             }
         }
-
     </script>
 
 </head>
@@ -164,12 +194,12 @@
             </div>
 
             <div class="col-2 text-right">
-                <button class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
+                <button id="cancel" class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
                 <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
-                    <button class="btn btn-success" name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" name="save" onclick="save()">Save</button>
                 </g:if>
                 <g:else>
-                    <button class="btn btn-success" disabled name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" disabled name="save" onclick="save()">Save</button>
                 </g:else>
 
             </div>
@@ -202,24 +232,25 @@
                             <!--This is for non symbol group orders, quantities are calculated in server and passed into view-->
                             <g:if test="${isNoSymbolOrders}">
                                 <div class="quantity-${packSingles}" id="${packSingles}" style="width: 100%; margin-bottom: 30px" >
-                                    <button id="counterButton" onclick="decrement(${packSingles})">-</button>
+                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles})">-</button>
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="text" class="quantity__input" value="${singleQuantity}" >
-                                    <button id="counterButton" onclick="increment(${packSingles})" >+</button>
+                                    <input name="packLines[${packSingles}].quantity" id="packLinesSingles.quantity" type="text" class="quantity__input" value="${singleQuantity}" >
+                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
                                     <span id="packQty">x Singles</span>
                                 </div>
                             </g:if>
                             <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
                                 <g:each in="${packs}" var="pack" status="i">
                                     <div class="quantity-${pack.id}" id="${pack.id}" style="width: 100%; margin-bottom: 30px" >
-                                        <button id="counterButton" onclick="decrement(${pack.id})">-</button>
+                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id})">-</button>
                                         <g:hiddenField name="packLines[${pack.id}].id" id="packLines[${pack.id}].id" value="${pack?.id ?: 0}" />
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
-                                        <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="text" class="quantity__input" value="${pack?.getQuantity(packLinesList)}" >
-                                        <button id="counterButton" onclick="increment(${pack.id})" >+</button>
+                                        <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
+                                            min="0" max="${pack.maximumOrderQuantity}" style="width: fit-content">
+                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
                                 </g:each>

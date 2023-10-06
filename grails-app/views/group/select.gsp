@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane User Group</title>
+    <title>User Group</title>
 
     <script type="text/javascript">
         function selectGroup(groupId) {

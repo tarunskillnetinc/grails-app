@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.gorm.transactions.ReadOnly
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -22,19 +23,21 @@ class ReportingService {
     def springSecurityService
 
     // For sales report grouped by department, no pagination on here as the results are grouped into categories.
+    @ReadOnly('reportingReadOnly')
     def getSales(DateTime startDate, DateTime endDate, Integer storeId) {
-        def salesCriteria = Sale.createCriteria()
+        def salesCriteria = Sale.withTransaction { Sale.createCriteria() }
 
         return salesCriteria.list() {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             if (storeId != null) {
                 eq("storeId", storeId)
             }
-            between ("dateCreated", startDate, endDate)
+            between("dateCreated", startDate, endDate)
         }
     }
 
     // For sales report grouped by category, no pagination on here as the results can still be grouped into categories.
+    @ReadOnly('reportingReadOnly')
     def getSalesForCategory(int categoryId, DateTime startDate, DateTime endDate, Integer storeId) {
         String searchQuery = """SELECT s
                                 FROM Sale s
@@ -55,9 +58,10 @@ class ReportingService {
             queryParams.storeId = storeId
         }
 
-        return Sale.executeQuery(searchQuery, queryParams)
+        return Sale.withTransaction { Sale.executeQuery(searchQuery, queryParams) }
     }
 
+    @ReadOnly('reportingReadOnly')
     def getSales(Integer storeId, DateTime startDate, DateTime endDate) {
         String searchQuery = """SELECT s
                                 FROM Sale s
@@ -76,10 +80,11 @@ class ReportingService {
             queryParams.storeId = storeId
         }
 
-        return Sale.executeQuery(searchQuery, queryParams)
+        return Sale.withTransaction { Sale.executeQuery(searchQuery, queryParams) }
     }
 
     // For sales report product level. Paginated and filtered.
+    @ReadOnly('reportingReadOnly')
     def getSalesForProduct(int productId, DateTime startDate, DateTime endDate, int maxResults, int startIndex,
                            String sortColumn, String sortOrder, String descriptionFilter, Integer storeId) {
         String sort
@@ -110,15 +115,16 @@ class ReportingService {
                           AND CONCAT(s.productItemCode, s.productDescription) LIKE :descriptionFilter
                           ORDER BY ${sort}"""
 
-        def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate, max: maxResults, offset: startIndex]
+        def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%" + descriptionFilter + "%", startDate: startDate, endDate: endDate, max: maxResults, offset: startIndex]
 
         if (storeId != null) {
             queryParams.storeId = storeId
         }
 
-        return Sale.executeQuery(searchQuery, queryParams)
+        return Sale.withTransaction { Sale.executeQuery(searchQuery, queryParams) }
     }
 
+    @ReadOnly('reportingReadOnly')
     def countSalesForProduct(int productId, DateTime startDate, DateTime endDate, String descriptionFilter, Integer storeId) {
         String searchQuery = """SELECT COUNT(s)
                                 FROM Sale s
@@ -133,70 +139,73 @@ class ReportingService {
                           AND s.dateCreated < :endDate
                           AND CONCAT(s.productItemCode, s.productDescription) LIKE :descriptionFilter"""
 
-        def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%"+descriptionFilter+"%", startDate: startDate, endDate: endDate]
+        def queryParams = [productId: productId, retailerId: springSecurityService.principal.retailerId, descriptionFilter: "%" + descriptionFilter + "%", startDate: startDate, endDate: endDate]
 
         if (storeId != null) {
             queryParams.storeId = storeId
         }
 
-        return Sale.executeQuery(searchQuery, queryParams)[0]
+        return Sale.withTransaction { Sale.executeQuery(searchQuery, queryParams)[0] }
     }
 
     // For promotions grouped report. No pagination here as we're going to group them, but the filtering can be done in the database.
+    @ReadOnly('reportingReadOnly')
     def getPromotionSales(DateTime startDate, DateTime endDate, String descriptionFilter, PromotionType promotionTypeFilter, Integer storeId) {
-        def promotionsCriteria = PromotionSale.createCriteria()
+        def promotionsCriteria = PromotionSale.withTransaction { PromotionSale.createCriteria() }
 
         return promotionsCriteria.list() {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             if (storeId != null) {
                 eq("storeId", storeId)
             }
             if (descriptionFilter) {
-                like ("description", "%"+descriptionFilter+"%")
+                like("description", "%" + descriptionFilter + "%")
             }
             if (promotionTypeFilter) {
-                eq ("type", promotionTypeFilter)
+                eq("type", promotionTypeFilter)
             }
-            between ("dateCreated", startDate, endDate)
+            between("dateCreated", startDate, endDate)
         }
     }
 
     // For promotions report at promotion level. Filtered and paginated.
+    @ReadOnly('reportingReadOnly')
     def getPromotionSales(DateTime startDate, DateTime endDate, int promotionId, int maxResults, int startIndex, String sortColumn, String sortOrder, Integer storeId) {
-        def promotionsCriteria = PromotionSale.createCriteria()
+        def promotionsCriteria = PromotionSale.withTransaction { PromotionSale.createCriteria() }
 
         def results = promotionsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             if (storeId != null) {
                 eq("storeId", storeId)
             }
-            between ("dateCreated", startDate, endDate)
-            eq ("promotionId", promotionId)
+            between("dateCreated", startDate, endDate)
+            eq("promotionId", promotionId)
         }
 
         // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
-        int totalCount = results.totalCount
+        int totalCount = PromotionSale.withTransaction { results.totalCount }
         return results
     }
 
     // For promotion report product level. Filtered and paginated.
+    @ReadOnly('reportingReadOnly')
     def getPromotionSaleProducts(int promotionSaleId, String productFilter, int maxResults, int startIndex, String sortColumn, String sortOrder, Integer storeId) {
-        def promotionProductsCriteria = PromotionSaleProduct.createCriteria()
+        def promotionProductsCriteria = PromotionSale.withTransaction { PromotionSaleProduct.createCriteria() }
 
         def results = promotionProductsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
             promotion {
-                eq ("retailerId", springSecurityService.principal.retailerId)
+                eq("retailerId", springSecurityService.principal.retailerId)
                 if (storeId != null) {
                     eq("storeId", storeId)
                 }
-                eq ("id", promotionSaleId)
+                eq("id", promotionSaleId)
             }
             if (productFilter) {
                 or {
-                    like("itemCode", "%"+productFilter+"%")
-                    like("description", "%"+productFilter+"%")
+                    like("itemCode", "%" + productFilter + "%")
+                    like("description", "%" + productFilter + "%")
                 }
             }
         }
@@ -204,60 +213,65 @@ class ReportingService {
         // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
-        int totalCount = results.totalCount
+        int totalCount = PromotionSale.withTransaction { results.totalCount }
         return results
     }
 
+    @ReadOnly('reportingReadOnly')
     def getPromotionSale(int promotionSaleId) {
-        def promotionSaleCriteria = PromotionSale.createCriteria()
+        def promotionSaleCriteria = PromotionSale.withTransaction { PromotionSale.createCriteria() }
 
         return promotionSaleCriteria.get() {
-            eq ("id", promotionSaleId)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("id", promotionSaleId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             if (springSecurityService.principal.storeId != null) {
                 eq("storeId", springSecurityService.principal.storeId)
             }
         }
     }
 
+    @ReadOnly('reportingReadOnly')
     def getTillControlEvents(DateTime startDate, DateTime endDate) {
-        def tillControlEventsCriteria = TillControlEvent.createCriteria()
+        def tillControlEventsCriteria = TillControlEvent.withTransaction { TillControlEvent.createCriteria() }
 
         return tillControlEventsCriteria.list() {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             if (springSecurityService.principal.storeId != null) {
-                eq ("storeId", springSecurityService.principal.storeId)
+                eq("storeId", springSecurityService.principal.storeId)
             }
-            between ("dateCreated", startDate, endDate)
+            between("dateCreated", startDate, endDate)
         }
     }
 
+    @ReadOnly('reportingReadOnly')
     def getTillControlEvents(DateTime startDate, DateTime endDate, TillControlEventType type, int maxResults, int startIndex, String sortColumn, String sortOrder) {
-        def tillControlEventsCriteria = TillControlEvent.createCriteria()
+        def tillControlEventsCriteria = TillControlEvent.withTransaction { TillControlEvent.createCriteria() }
 
         def results = tillControlEventsCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
-            eq ("type", type)
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("type", type)
+            eq("retailerId", springSecurityService.principal.retailerId)
 
-            if (springSecurityService.principal.storeId != null) { // TODO OR storeId is passed in as a filter (to be added).
+            if (springSecurityService.principal.storeId != null) {
+                // TODO OR storeId is passed in as a filter (to be added).
                 eq("storeId", springSecurityService.principal.storeId)
             }
 
-            between ("dateCreated", startDate, endDate)
+            between("dateCreated", startDate, endDate)
         }
 
         // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
-        int totalCount = results.totalCount
+        int totalCount = TillControlEvent.withTransaction { results.totalCount }
         return results
     }
 
+    @ReadOnly('reportingReadOnly')
     def getPayPointSales(DateTime startDate, DateTime endDate, Integer storeId, String status, String description, int maxResults, int startIndex, String sortColumn, String sortOrder) {
-        def payPointCriteria = PayPointSale.createCriteria()
+        def payPointCriteria = PayPointSale.withTransaction { PayPointSale.createCriteria() }
 
         def results = payPointCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq("retailerId", springSecurityService.principal.retailerId)
             between("transactionDate", startDate, endDate)
 
             if (storeId != null) {
@@ -276,10 +290,11 @@ class ReportingService {
         // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
-        int totalCount = results.totalCount
+        int totalCount = PayPointSale.withTransaction { results.totalCount }
         return results
     }
 
+    @ReadOnly('reportingReadOnly')
     def getTenderMovements(DateTime startDate, DateTime endDate, TenderMovementType tenderMovementType, TenderType tenderType, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def tenderMovementCriteria = TenderMovement.createCriteria()
 
@@ -322,8 +337,9 @@ class ReportingService {
         }
     }
 
+    @ReadOnly('reportingReadOnly')
     def getReportColumns(ReportType reportType) {
-        return ReportColumns.findByUserIdAndReportType(springSecurityService.principal.id, reportType)
+        return ReportColumns.withTransaction { ReportColumns.findByUserIdAndReportType(springSecurityService.principal.id, reportType) }
     }
 
     def saveReportColumns(ReportColumns reportColumns) {

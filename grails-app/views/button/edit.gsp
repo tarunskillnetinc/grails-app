@@ -3,17 +3,24 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane Button Grids</title>
+    <title>Button Grids</title>
 
     <asset:javascript src="button.js" />
     <script type="text/javascript">
         $(function() {
+            if ($("#image")[0].files.length <= 0 ) {
+                    var displayTextCheck = $("input[id*=textDisplayInput]");
+                    displayTextCheck.prop("checked", true);
+                    displayTextCheck.prop("value", true);
+                    displayTextCheck.attr("disabled", true);
+            }
+            
             if ("${button?.imageDisplay}" === "false") {
                 $("input[id*=displayTextInput]").attr("disabled", true)
             }
 
             $("#image").on("change", function() {
-                if (this.files[0].size < 26214400) {
+                if (this.files[0].size < 1048576 /* 1MB */) { // max size should match number value in SaveButtonFormCommand.groovy
                     if (this.files[0].type === "image/png") {
                         const fileData = this.files[0];
                         if (FileReader && fileData) {
@@ -84,8 +91,21 @@
                 $("#subPageId").val($(this).val());
             })
 
+            $("input[id*=percentageInput]").on("input", function() {
+                formatValue()
+                $("#quantity").val($(this).val());
+            })
+
             $("select[id*=processInput]").on("change", function() {
                 $("#process").val($(this).val());
+
+                if ($(this).val() === "SIMPLE_DISCOUNT") {
+                    $("#percentageEntryHolder").show()
+                    setQuantity()
+                } else {
+                    $("#percentageEntryHolder").hide()
+                    $("#quantity").val(null);
+                }
             })
 
             $("input[id*=amountInput]").on("change", function() {
@@ -111,6 +131,35 @@
             })
         })
 
+        function formatValue() {
+            var element = document.getElementById("percentageInput")
+            var maxValue = 100
+
+            if (element != null) {
+
+                element.value = element.value.replace(/[.]/g, "");
+
+                if (element.value > maxValue) {
+                    element.value = maxValue
+                }
+                if (element.value <= 0) {
+                    element.value = 1
+                }
+            }
+        }
+
+        function setQuantity() {
+            var element = document.getElementById("percentageInput")
+            $("#quantity").val(element != null ? element.value : 1)
+        }
+
+        function saveOverride(btnId, storeId) {
+            $("input[id*=btnId]").val(-1);
+            $("input[id*=btnStoreId]").val(storeId);
+            $("input[id*=overrideId]").val(btnId);
+            document.querySelector('#submission-form').submit();
+        }
+
         function onTypeChange(newType) {
             var type = $("#type");
 
@@ -129,6 +178,16 @@
                 $("input[id*=processInput]").val("");
                 $("input[id*=amountInput]").val("");
                 $("input[id*=tenderTypeInput]").val("");
+
+                if (newType === "BLANK") {
+                    $("input[id*=descriptionInput]").val("Blank");
+                    $("input[id*=bgColourInput]").val("#FFFFFF");
+                    $("input[id*=textColourInput]").val("#000000");
+                    $("input[id*=buttonSku]").val("");
+                    $("input[id*=imageDisplayInput]").val(false);
+                    $(".button-example").css("backgroundColor", $("#bgColourInput").val());
+                    $(".button-example").css("color", $("#textColourInput").val());
+                }
 
                 type.val(newType);
             } else if (newType === "${button?.type}") {
@@ -181,13 +240,14 @@
         <h2 class="mx-auto">Edit Button</h2>
     </div>
 
-    <g:hasErrors bean="${button}">
+    <g:hasErrors beans="[button, form]">
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${button}" as="list" />
+                <g:renderErrors beans="[button, form]" as="list" />
             </div>
         </section>
     </g:hasErrors>
+
 
     <section id="addProduct-section" class="container-fluid mt-4">
         <div id="accordion">
@@ -313,6 +373,13 @@
                                 </div>
                             </div>
 
+                            <div class="form-group row" style="display: ${button?.process?.name() == 'SIMPLE_DISCOUNT' ? 'show' : 'none'}" id="percentageEntryHolder">
+                                <label for="percentageInput" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Percentage Discount</label>
+                                <div class="col-8 col-sm-6 col-lg-4">
+                                    <g:field name="percentageInput" type="number" min="1" max="100" step="1" required="true" value="${button?.quantity != null ? button?.quantity : 1}" class="form-control bottom-border"/>
+                                </div>
+                            </div>
+
                             <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
                             <g:render template="saveCancelButtons" model="${[button: button]}" />
                         </div>
@@ -334,7 +401,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseTenderButton" class="collapse show" aria-labelledby="tenderButton" data-parent="#accordion">
+                    <div id="collapseTenderButton" class="collapse ${button?.type?.name() == 'TENDER' ? 'show' : ''}" aria-labelledby="tenderButton" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="form-group row">
                                 <label for="description" class="col-4 col-sm-2 offset-sm-2 col-form-label">Description</label>
@@ -364,12 +431,49 @@
                     </div>
                 </div>
             </g:if>
+
+            <!-- Blank button. -->
+            <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                <div class="card-header pointer" id="blankButton" data-toggle="collapse" data-target="#collapseBlankButton" aria-expanded="true" aria-controls="collapseBlankButton" onclick="onTypeChange('BLANK')">
+                    <div class="row">
+                        <div class="col-10 font-weight-bold">Blank Button</div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseBlankButton" class="collapse ${button?.type?.name() == 'BLANK' ? 'show' : ''}" aria-labelledby="blankButton" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <div class="form-group row margin-top-2rem">
+                            <div class="col-12 d-flex justify-content-center">
+                                <div class="button-example">
+                                    <img src="" hidden class="justify-content-center button-image"/>
+                                    <p class="button-example-text"}>Blank</p>
+                                </div>
+                            </div>
+                        </div>
+                        <g:render template="saveCancelButtons" model="${[button: button]}" />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-12">
-            <g:form name="submission-form" action="save" novalidate="novalidate" enctype="multipart/form-data">
-                <g:hiddenField name="id" value="${button?.id}" />
-                <g:hiddenField name="buttonGrid.id" value="${button?.buttonGrid?.id}" />
+            <g:uploadForm
+                    name="submission-form"
+                    action="save"
+                    params="[
+                            id: button?.id,
+                            buttonGridId: button?.buttonGrid?.id,
+                            row: button?.row,
+                            column: button?.column
+                    ]"
+            >
+                <g:hiddenField id="btnId" name="id" value="${button?.id}" />
+                <g:hiddenField name="buttonGridId" value="${button?.buttonGrid?.id}" />
                 <g:hiddenField name="retailerId" value="${button?.buttonGrid?.retailerId}" />
                 <g:hiddenField name="storeId" value="${button?.buttonGrid?.storeId}" />
                 <g:hiddenField name="row" value="${button?.row}" />
@@ -386,10 +490,12 @@
                 <g:hiddenField name="textColour" value="${button?.textColour}" />
                 <g:hiddenField name="imageDisplay" value="${button?.imageDisplay}" />
                 <g:hiddenField name="textDisplay" value="${button?.textDisplay}" />
+                <g:hiddenField id="btnStoreId" name="storeId" value="${button?.storeId}" />
+                <g:hiddenField id="overrideId" name="overrideId" value="${button?.overrideId}" />
                 <g:hiddenField name="removeImage" value=""/>
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
-            </g:form>
+            </g:uploadForm>
         </div>
     </section>
 

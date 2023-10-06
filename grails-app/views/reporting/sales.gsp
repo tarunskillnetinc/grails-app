@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -45,7 +45,7 @@
             $('#endDate').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
-                startDate: "${(new Date() - 7).format("dd/MM/yyyy")}",
+                startDate: "${new Date().format("dd/MM/yyyy")}",
                 endDate: "${new Date().format("dd/MM/yyyy")}",
                 todayHighlight: true,
                 autoclose: true,
@@ -58,6 +58,12 @@
             $('#startDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#endDate').val("${new Date().format("dd/MM/yyyy")}");
             $('#descriptionFilter').val("");
+
+            //Reset the Date Pickers back to On Page Load State.
+            $('#startDate').datepicker('setStartDate', "${(new Date() - 7).format("dd/MM/yyyy")}");
+            $('#startDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setStartDate', "${(new Date()).format("dd/MM/yyyy")}");
+            $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
 
             document.getElementById('storeFilter').value = '';
         }
@@ -108,7 +114,7 @@
                             <div class="form-group row">
                                 <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
                                 <div class="col-3">
-                                    <g:select name="storeFilter" from="${stores}" optionValue="storeId"
+                                    <g:select name="storeFilter" from="${stores}" optionValue="${{it.config.storeNumber}}"
                                               optionKey="id"
                                               noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
                                               class="form-control select-border"

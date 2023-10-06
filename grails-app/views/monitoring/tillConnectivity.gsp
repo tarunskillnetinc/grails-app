@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <script type='text/javascript'>
         var getQueuesUrl = "${createLink(controller: 'monitoring', action: 'ajaxGetQueues')}";
@@ -127,8 +127,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Monitoring</li>
-                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Till Connectivity</li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Till Connectivity</li>
                     </ol>
                 </div>
             </div>
@@ -194,7 +193,7 @@
                                 </div>
 
                                 <div class="col-6 text-right">
-                                    <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Clear</button>
+                                    <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getQueues();">Filter</button>
                                 </div>
                             </div>

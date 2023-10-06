@@ -10,7 +10,7 @@ grails:
             events: false
 info:
     app:
-        name: 'WonderLane EPOS Back Office'
+        name: 'Trust Retail Cloud Office'
         version: '@info.app.version@'
         grailsVersion: '@info.app.grailsVersion@'
 spring:
@@ -30,9 +30,10 @@ spring:
                 - '**/*.gson'
                 - 'logback.groovy'
                 - '*.properties'
+
 management:
     endpoints:
-        enabled-by-default: false
+        enabled-by-default: true
 
 ---
 grails:
@@ -73,6 +74,9 @@ grails:
             maxsize: 1000
     controllers:
         defaultScope: singleton
+        upload:
+            maxFileSize: 2000000
+            maxRequestSize: 2000000
     converters:
         encoding: UTF-8
     views:
@@ -111,11 +115,13 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://192.168.2.108:3306/wlpos"
+            url: "jdbc:mysql://localhost:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "root"
             password: "Pa**W0rd01"
+            #username: "wonderlane"
+            #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
             #type: "com.zaxxer.hikari.HikariDataSource"
             properties:
                 jmxEnabled: true
@@ -140,12 +146,41 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://192.168.2.108:3306/reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
                 password: "Pa**W0rd01"
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 #type: "com.zaxxer.hikari.HikariDataSource"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://localhost:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "root"
+                password: "Pa**W0rd01"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -168,11 +203,13 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://192.168.2.108:3306/transactions"
+                url: "jdbc:mysql://localhost:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
                 password: "Pa**W0rd01"
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 #type: "com.zaxxer.hikari.HikariDataSource"
                 properties:
                     jmxEnabled: true
@@ -194,31 +231,43 @@ environments:
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
-            host: 192.168.2.108
+            host: localhost
             port: 5672
+            apiProtocol: http
             apiPort: 15672
             username: rabbituser
             password: Pa**W0rd01
+            useSsl: false
 
         mysql:
             wlpos:
-                host: 192.168.2.108
+                host: localhost
                 port: 3306
                 username: root
                 password: Pa**W0rd01
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: wlpos
             transactions:
-                host: 192.168.2.108
+                host: localhost
                 port: 3306
                 username: root
                 password: Pa**W0rd01
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: transactions
         wlpos:
-            imageDirectory: "C:\\WLPOS Files\\Images"
-            receiptImageDirectory: "C:\\WLPOS Files\\Receipts"
+            customerDisplayImageDirectory: "C:\\WLPOS Files\\Customer Display Images"
+            receiptImageDirectory: "C:\\WLPOS Files\\Receipt Images"
             buttonImageDirectory: "C:\\WLPOS Files\\Button Images"
+            brandAssetsDirectory: "C:\\WLPOS Files\\Retailer Images"
 
-    test:
+            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            receiptImageBucket: "retail-platform-receipt-images-test"
+            buttonImageBucket: "retail-platform-button-images-test"
+            brandAssetsBucket: "retail-platform-brand-assets-test"
+
+    nottest:
         dataSource:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
@@ -229,7 +278,153 @@ environments:
             reporting:
                 dbCreate: update
                 url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            reportingReadOnly:
+                dbCreate: update
+                url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
 
+    test:
+        dataSource:
+            pooled: true
+            dbCreate: "validate"
+            url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/wlpos"
+            driverClassName: "com.mysql.cj.jdbc.Driver"
+            dialect: org.hibernate.dialect.MySQLInnoDBDialect
+            username: "cloudoffice"
+            password: "CdtfudWdnGVS87IKs7dV"
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 10 * 60000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: "SELECT 1"
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+        dataSources:
+            reporting:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "CdtfudWdnGVS87IKs7dV"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retailplatform.cluster-ro-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "CdtfudWdnGVS87IKs7dV"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            transactions:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/transactions"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "CdtfudWdnGVS87IKs7dV"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+        rabbitmq:
+            host: b-8a4cc67f-a559-41ea-98d3-d3949bc49275.mq.eu-west-1.amazonaws.com
+            port: 5671
+            apiProtocol: https
+            apiPort: 443
+            username: retailplatform
+            password: twP0KDKRsXJt6eQ7F8vy
+            useSsl: true
+
+        mysql:
+            wlpos:
+                host: retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: wlpos
+            transactions:
+                host: retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: transactions
+
+        wlpos:
+            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            receiptImageBucket: "retail-platform-receipt-images-test"
+            buttonImageBucket: "retail-platform-button-images-test"
+            brandAssetsBucket: "retail-platform-brand-assets-test"
+
+        server:
+            port: 5000
+        grails:
+            serverURL: "https://trustretail-test.com"
 
     prestage:
         dataSource:
@@ -286,6 +481,34 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://127.0.0.1:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
@@ -316,9 +539,11 @@ environments:
         rabbitmq:
             host: 127.0.0.1
             port: 5672
+            apiProtocol: http
             apiPort: 15672
             username: wonderlane
             password: 0TS51aZARfjTC3VjOYP6
+            useSsl: false
 
         mysql:
             wlpos:
@@ -389,6 +614,34 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://127.0.0.1:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "wonderlane"
+                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
@@ -419,9 +672,11 @@ environments:
         rabbitmq:
             host: 127.0.0.1
             port: 5672
+            apiProtocol: http
             apiPort: 15672
             username: wonderlane
             password: 0TS51aZARfjTC3VjOYP6
+            useSsl: false
 
         mysql:
             wlpos:
@@ -441,11 +696,11 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3306/wlpos"
+            url: "jdbc:mysql://retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
-            username: "wonderlane"
-            password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+            username: "cloudoffice"
+            password: "oqtS8aMSBFw99QTMhMjd"
             properties:
                 jmxEnabled: true
                 initialSize: 5
@@ -469,11 +724,11 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/reporting"
+                url: "jdbc:mysql://retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "wonderlane"
-                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                username: "cloudoffice"
+                password: "oqtS8aMSBFw99QTMhMjd"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -492,14 +747,42 @@ environments:
                     testOnReturn: false
                     jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retailplatform-prod.cluster-ro-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "oqtS8aMSBFw99QTMhMjd"
+                properties:
+                    jmxEnabled: true
+                    initialSize: 5
+                    maxActive: 50
+                    minIdle: 5
+                    maxIdle: 25
+                    maxWait: 10000
+                    maxAge: 10 * 60000
+                    timeBetweenEvictionRunsMillis: 5000
+                    minEvictableIdleTimeMillis: 60000
+                    validationQuery: "SELECT 1"
+                    validationQueryTimeout: 3
+                    validationInterval: 15000
+                    testOnBorrow: true
+                    testWhileIdle: true
+                    testOnReturn: false
+                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
+                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/transactions"
+                url: "jdbc:mysql://retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
-                username: "wonderlane"
-                password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                username: "cloudoffice"
+                password: "oqtS8aMSBFw99QTMhMjd"
                 properties:
                     jmxEnabled: true
                     initialSize: 5
@@ -520,25 +803,38 @@ environments:
                     defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
 
         rabbitmq:
-            host: localhost
-            port: 5672
-            apiPort: 15672
-            username: wonderlane
-            password: 0TS51aZARfjTC3VjOYP6
+            host: b-b178f79a-bb11-4c6a-a967-54020dcf8a42.mq.eu-west-1.amazonaws.com
+            port: 5671
+            apiProtocol: https
+            apiPort: 443
+            username: cloudoffice
+            password: Y3mzLq2vROAwiPaExC6O
+            useSsl: true
 
         mysql:
             wlpos:
-                host: localhost
+                host: retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com
                 port: 3306
-                username: wonderlane
-                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
+                username: cloudoffice
+                password: oqtS8aMSBFw99QTMhMjd
                 database: wlpos
             transactions:
-                host: localhost
+                host: retailplatform-prod.cluster-cxx1ro6csby3.eu-west-1.rds.amazonaws.com
                 port: 3306
-                username: wonderlane
-                password: RkmqjzNlLEi6OYNrcd8WJlIdIk3klD
+                username: cloudoffice
+                password: oqtS8aMSBFw99QTMhMjd
                 database: transactions
+
+        wlpos:
+            customerDisplayImageBucket: "retail-platform-customer-display-images-prod"
+            receiptImageBucket: "retail-platform-receipt-images-prod"
+            buttonImageBucket: "retail-platform-button-images-prod"
+            brandAssetsBucket: "retail-platform-brand-assets-prod"
+
+        server:
+            port: 5000
+        grails:
+            serverURL: "https://trust-retail.com"
 
 wlpos:
     imageDirectory: "/opt/BackOffice/Images/"
@@ -554,3 +850,4 @@ wlpos:
     nisaServiceQueue: "NisaService"
     receiptServiceQueue: "ReceiptService"
     rawTransactionWriterQueue: "RawTransactionWriter"
+    snappyServiceQueue: "SnappyService"

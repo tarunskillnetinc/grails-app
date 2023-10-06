@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -102,6 +102,37 @@
                         $.ajax({
                             url: deleteProductUrl,
                             data: {productListId: productListId},
+                            method: "GET",
+                            statusCode: {
+                                500: function (response) {
+                                    $('#dialog-order-delete-error').dialog('open');
+                                },
+                                200: function (response) {
+                                    window.location.href = "${createLink(controller: 'order', action: 'productList')}";
+                                }
+                            }
+                        });
+                    },
+                    No: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#dialog-order-item-remove").dialog({
+                autoOpen: false,
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                    Yes: function () {
+                        var deleteProductUrl = "${createLink(controller: 'order', action: 'deleteOrderItem')}";
+                        var productListId = $('#productListId').val();
+                        var productItemId = $('#productItemId').val();
+                        $.ajax({
+                            url: deleteProductUrl,
+                            data: {productListId: productListId,  productItemId: productItemId},
                             method: "GET",
                             statusCode: {
                                 500: function (response) {
@@ -231,6 +262,18 @@
             $('#dialog-order-list-delete').dialog('open');
         }
 
+        document.addEventListener("DOMContentLoaded", function() {
+            buttons = document.querySelectorAll(".itemDeleteButton");
+            buttons.forEach(function(button) {
+               button.addEventListener("click", function(event) {
+                   let productItemId = this.getAttribute('data-productItemId');
+                   document.getElementById('productItemId').value = productItemId;
+                   $('#dialog-order-item-remove').dialog('open');
+                   event.stopPropagation()
+               }) ;
+            });
+        });
+
         function cancelSupplierView(){
             window.location.href = '${createLink(controller: 'reporting', action:'orders')}';
         }
@@ -268,7 +311,7 @@
             </div>
 
             <div class="col-2 text-right">
-                    <button class="btn btn-wl" onclick="AddProduct();">Add Product</button>
+                    <button id="add-product-button" class="btn btn-wl" onclick="AddProduct();">Add Product</button>
             </div>
 
         </div>
@@ -323,7 +366,12 @@
     </div>
 
     <div id="dialog-order-list-delete" title="Confirm deletion" style="display:none;">
+        <g:hiddenField name="productItemId" id="productItemId"/>
         <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Do you want to delete this order? </p>
+    </div>
+
+    <div id="dialog-order-item-remove" title="Confirm deletion" style="display:none;">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Do you want to remove this product from the order? </p>
     </div>
 
     <div id="dialog-order-delete-error" title="Delete error" style="display:none;">

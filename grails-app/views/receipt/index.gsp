@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Receipt Viewer</title>
+        <title>Receipt Viewer</title>
 
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
@@ -53,7 +53,7 @@
                 getReceipts();
             });
 
-            function getReceipts(offset, max) {
+            function getReceipts(sort, order, offset, max) {
                 $("#search-results").hide();
                 $("#loading-indicator").show();
 
@@ -65,7 +65,7 @@
                 $.ajax({
                     url: getReceiptsUrl,
                     method: "GET",
-                    data: { startDate: startDate, endDate: endDate, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
+                    data: { startDate: startDate, endDate: endDate, sort: sort, order: order, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
                     success: function(resp) {
                         $("#results-container").html(resp);
                     }
@@ -150,12 +150,12 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field type="number" name="tillId" step="1" min="0" class="form-control bottom-border" autocomplete="off" />
                                     </div>
 
                                     <label for="transactionId" class="col-2 col-form-label-sm text-right">Transaction Number</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="transactionId" step="1" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field type="number" name="transactionId" step="1" min="0" class="form-control bottom-border" autocomplete="off" />
                                     </div>
                                 </div>
 

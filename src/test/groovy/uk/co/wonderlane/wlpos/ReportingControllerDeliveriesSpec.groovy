@@ -15,7 +15,7 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase implements ControllerUnitTest<ReportingController>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        return [StoreSettings, Supplier, ProductList, ProductListItem] as Class[]
+        return [Store, Supplier, ProductList, ProductListItem] as Class[]
     }
 
     def setup() {
@@ -39,14 +39,14 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         params['startDate'] = startDate
         params['endDate'] = endDate
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
         Supplier mockSupplier = getMockSupplier(1, 1, 100)
         mockSupplier.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
         mockDomain(Supplier, [mockSupplier])
 
         when:
@@ -90,7 +90,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
             getDeliveries(_, _, _, _) >> new TestPagedResultList(getMockDeliveryList())
         }
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
@@ -127,7 +127,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         params['endDate'] = endDate
         params['productListId'] = "1"
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
@@ -137,7 +137,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         ProductList productList = getMockDelivery(1, 1, 1)
         productList.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
         mockDomain(Supplier, [mockSupplier])
         mockDomain(ProductList, [productList])
 
@@ -182,7 +182,7 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
             getProductList(_) >> getMockDeliveryObject()
         }
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
@@ -242,14 +242,14 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
             getProductListItem(_) >> getMockDeliveryObject().getProductListItems().get(0)
         }
 
-        StoreSettings mockStoreSettings = getMockStoreSettings(1, 1, 100)
+        Store mockStoreSettings = getMockStoreSettings(1, 1, 100)
         mockStoreSettings.springSecurityService = controller.springSecurityService
         mockStoreSettings.save(flush: true, failOnError: true)
 
         Supplier mockSupplier = getMockSupplier(1, 1, 100)
         mockSupplier.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
         mockDomain(Supplier, [mockSupplier])
 
         when:
@@ -484,8 +484,8 @@ class ReportingControllerDeliveriesSpec extends ReportingControllerSpecBase impl
         return productPrice
     }
 
-    private StoreSettings getMockStoreSettings(int id) {
-        StoreSettings storeSettings = new StoreSettings()
+    private Store getMockStoreSettings(int id) {
+        Store storeSettings = new Store()
 
         storeSettings.id = id
         storeSettings.storeId = id

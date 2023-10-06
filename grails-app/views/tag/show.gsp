@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>WonderLane Tag Management</title>
+        <title>Tag Management</title>
     </head>
 
     <body>
@@ -43,7 +43,12 @@
 
             <div class="form-group row col-12 col-lg-6 mt-4">
                 <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                <g:textField name="description" class="col-8 form-control bottom-border" value="${tag.description}" disabled="disabled" />
+                <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" disabled="disabled" />
+            </div>
+
+            <div class="form-group row col-12 col-lg-6 mt-4">
+                <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
+                <g:textField name="maxSellQuantity" class="col-2 form-control bottom-border" value="${tag?.maxSellQuantity}" disabled="disabled" />
             </div>
 
             <div class="header-wl mt-5">
@@ -51,7 +56,7 @@
             </div>
 
             <div class="row col-8 offset-2 mt-5 pb-2 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">Product ID</div>
+                <div class="col-2 font-weight-bold">Item Code</div>
                 <div class="col-4 font-weight-bold">SKU</div>
                 <div class="col-6 font-weight-bold">Description</div>
             </div>
@@ -63,7 +68,7 @@
 
                 <g:each in="${tag.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
                     <div id="tag-product-${i+1}" class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2}">
-                        <div id="tag-product-${i+1}-id" class="col-2">${tagProduct.productVariantId}</div>
+                        <div id="tag-product-${i+1}-id" class="col-2">${tagProduct.itemCode}</div>
                         <div id="tag-product-${i+1}-sku" class="col-4">${tagProduct.sku}</div>
                         <div id="tag-product-${i+1}-description" class="col-6">${tagProduct.productDescription}</div>
                     </div>

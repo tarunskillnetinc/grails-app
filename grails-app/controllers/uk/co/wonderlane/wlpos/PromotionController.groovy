@@ -50,7 +50,7 @@ class PromotionController {
         promo.groups.each {
             if (it.type == PromotionGroupType.REQUIRED) {
                 if (it.sku != null) {
-                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
+                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
                 } else if (it.categoryId != null) {
                     categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
@@ -58,7 +58,7 @@ class PromotionController {
                 }
             } else {
                 if (it.sku != null) {
-                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
+                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
                 } else if (it.categoryId != null) {
                     categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
@@ -69,22 +69,22 @@ class PromotionController {
 
         tagsRequired?.each { tagRequired ->
             tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
-                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+                def productVariant = productService.getProductVariant(tagProduct.sku)
 
-                if (product) {
-                    tagProduct.productId = product.id
-                    tagProduct.productDescription = product.description
+                if (productVariant?.product) {
+                    tagProduct.productId = productVariant.product.id
+                    tagProduct.productDescription = productVariant.product.description
                 }
             }
         }
 
         tagsOffer?.each { tagOffer ->
             tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
-                def product = Product.findByRetailerIdAndItemCode(springSecurityService.principal.retailerId, tagProduct.sku)
+                def productVariant = productService.getProductVariant(tagProduct.sku)
 
-                if (product) {
-                    tagProduct.productId = product.id
-                    tagProduct.productDescription = product.description
+                if (productVariant?.product) {
+                    tagProduct.productId = productVariant.product.id
+                    tagProduct.productDescription = productVariant.product.description
                 }
             }
         }
@@ -104,7 +104,8 @@ class PromotionController {
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
-                                            productItemType: productItemType])
+                                            productItemType: productItemType,
+                                            editing: true])
     }
 
     def maintenanceError() {
@@ -166,7 +167,8 @@ class PromotionController {
                                             categoriesRequired: categoriesRequired,
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer])
+                                            tagsOffer: tagsOffer,
+                                            editing: false])
     }
 
     def setupBasePromotion(Promotion promotion, String type) {
@@ -212,7 +214,6 @@ class PromotionController {
         }
 
         flash.promotion = promotion
-        flash.badPromoMessage = "error.Promotion.badPromoValidation"
 
         return promotion
     }
@@ -500,6 +501,7 @@ class PromotionController {
                 }
             }
         }
+
         tillPromo.getPromotionOfferGroups().addAll(tagGroups)
         tagGroups.clear()
 
@@ -525,13 +527,7 @@ class PromotionController {
 
         syncMessage.setPromotion(tillPromo)
 
-        if (springSecurityService.principal.storeId) {
-            rabbitService.declareExchange(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()))
-            rabbitService.sendExchangeMessage(String.format("R%d_S%d", syncMessage.getRetailerId(), syncMessage.getStoreNumber()), gsonProvider.gson.toJson(syncMessage))
-        } else {
-            rabbitService.declareExchange(String.format("R%d", syncMessage.getRetailerId()))
-            rabbitService.sendExchangeMessage(String.format("R%d", syncMessage.getRetailerId()), gsonProvider.gson.toJson(syncMessage))
-        }
+        rabbitService.sendMessage(syncMessage)
 
         flash.message = "Promotion saved successfully"
         redirect(action: "index", params: params)

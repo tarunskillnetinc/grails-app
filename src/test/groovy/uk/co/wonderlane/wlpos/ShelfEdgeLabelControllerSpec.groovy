@@ -137,9 +137,9 @@ class ShelfEdgeLabelControllerSpec extends Specification implements ControllerUn
 
         LabelTemplate mockLabelTemplate = getLabelTemplate()
 
-        StoreSettings mockStoreSettings = getStoreSetting("Store dummy Name")
+        Store mockStoreSettings = getStoreSetting("Store dummy Name")
         mockStoreSettings.springSecurityService = controller.springSecurityService
-        mockDomain(StoreSettings, [mockStoreSettings])
+        mockDomain(Store, [mockStoreSettings])
         mockStoreSettings.save(flush: true, failOnError: true)
 
         controller.productListService = Stub(ProductListService){
@@ -189,10 +189,10 @@ class ShelfEdgeLabelControllerSpec extends Specification implements ControllerUn
 
         LabelTemplate mockLabelTemplate = passingLabelTemplate
 
-        StoreSettings mockStoreSettings = getStoreSetting("Store dummy Name")
+        Store mockStoreSettings = getStoreSetting("Store dummy Name")
         if (mockStoreSettings != null){
             mockStoreSettings.springSecurityService = controller.springSecurityService
-            mockDomain(StoreSettings, [mockStoreSettings])
+            mockDomain(Store, [mockStoreSettings])
             mockStoreSettings.save(flush: true, failOnError: true)
         }
 
@@ -448,8 +448,8 @@ class ShelfEdgeLabelControllerSpec extends Specification implements ControllerUn
         return labelTemplate
     }
 
-    StoreSettings getStoreSetting(String storeName){
-        StoreSettings storeSettings = new StoreSettings()
+    Store getStoreSetting(String storeName){
+        Store storeSettings = new Store()
         storeSettings.setId(234)
         storeSettings.setRetailerId(9)
         storeSettings.setPrintReceiptOption(PrintReceiptOption.ALWAYS_PRINT)

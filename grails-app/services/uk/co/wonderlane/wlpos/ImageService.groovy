@@ -7,7 +7,51 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 @Transactional
-class ImageService {
+class ImageService implements IImageService {
+
+    def springSecurityService
+
+    private final String customerDisplayFileLocation
+    private final String receiptImagesFileLocation
+    private final String buttonImagesFileLocation
+
+    ImageService(String customerDisplayFileLocation, String receiptImagesFileLocation, String buttonImagesFileLocation) {
+        this.customerDisplayFileLocation = customerDisplayFileLocation
+        this.receiptImagesFileLocation = receiptImagesFileLocation
+        this.buttonImagesFileLocation = buttonImagesFileLocation
+    }
+
+    @Override
+    def getButtonImage(int buttonId) throws Exception {
+        def filePath = Path.of(buttonImagesFileLocation, File.separator, String.valueOf(springSecurityService.principal.retailerId), File.separator, buttonId + ".png")
+
+        return getImageFromFile(filePath.toString())
+    }
+
+    @Override
+    def saveButtonImage(int buttonId, byte[] imageBytes) throws Exception {
+        def directory = Path.of(buttonImagesFileLocation, File.separator, String.valueOf(springSecurityService.principal.retailerId))
+        def fileName = buttonId + ".png"
+
+        saveImageToFile(directory.toString(), fileName, imageBytes)
+    }
+
+    @Override
+    def deleteButtonImage(int buttonId) throws Exception {
+        def filePath = Path.of(buttonImagesFileLocation, File.separator, String.valueOf(springSecurityService.principal.retailerId), File.separator, buttonId + ".png")
+
+        deleteFile(filePath.toString())
+    }
+
+    @Override
+    def getCustomerDisplayImages() throws Exception {
+        return null
+    }
+
+    @Override
+    def getReceiptImage() throws Exception {
+        return null
+    }
 
     def getCfdImagesFromFile(int storeId, String directory) {
         if (directory != null) {
@@ -80,6 +124,7 @@ class ImageService {
     def getImageFromFile(String filename) {
         if (filename != null && !filename.isEmpty()) {
             File file = new File(filename)
+
             if (file.exists()) {
                 return file.getBytes()
             } else {
@@ -92,7 +137,7 @@ class ImageService {
 
     def saveImageToFile(String directory, String filename, byte[] image) {
         if (directory != null && !directory.isEmpty() && filename != null && !filename.isEmpty()) {
-            File file = new File(directory + filename)
+            File file = new File(directory + File.separator + filename)
             if (file.exists()) {
                 Files.delete(file.toPath())
             }
@@ -111,9 +156,10 @@ class ImageService {
         }
     }
 
-    def deleteFile(String directory, String filename) {
-        if (directory != null && !directory.isEmpty() && filename != null && !filename.isEmpty()) {
-            File file = new File(directory + filename)
+    def deleteFile(String filePath) {
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath)
+
             if (file.exists()) {
                 Files.delete(file.toPath())
             }

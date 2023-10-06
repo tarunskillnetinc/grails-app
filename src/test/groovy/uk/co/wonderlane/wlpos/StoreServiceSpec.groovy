@@ -6,10 +6,10 @@ import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
-class StoreSettingsServiceSpec extends Specification implements ServiceUnitTest<StoreSettingsService>, DataTest{
+class StoreServiceSpec extends Specification implements ServiceUnitTest<StoreService>, DataTest{
 
     Class<?>[] getDomainClassesToMock(){
-        return [StoreSettings, PriceBand, Range] as Class[]
+        return [Store, PriceBand, Range] as Class[]
     }
 
     //------------------- Calling Save Store Settings Action ---------------------------------------------//
@@ -39,7 +39,7 @@ class StoreSettingsServiceSpec extends Specification implements ServiceUnitTest<
         Range rangeOriginal = new Range(retailerId: 9, description: "Dummy description")
         rangeOriginal.setId(rangeId)
 
-        StoreSettings storeSettings1 = new StoreSettings()
+        Store storeSettings1 = new Store()
         storeSettings1.setType(StoreType.STORE.getValue())
         if (storeId){
             storeSettings1.setId(storeId)
@@ -55,7 +55,7 @@ class StoreSettingsServiceSpec extends Specification implements ServiceUnitTest<
         when: 'The save store settings action is executed'
         service.saveStoreSettings(storeSettings1)
 
-        StoreSettings insertStoreSetting = principalStoreId ? StoreSettings.findById(principalStoreId) : StoreSettings.findByRetailerId(principalRetailerId)
+        Store insertStoreSetting = principalStoreId ? Store.findById(principalStoreId) : Store.findByRetailerId(principalRetailerId)
 
         then: 'successfully save store settings'
         assert insertStoreSetting != null

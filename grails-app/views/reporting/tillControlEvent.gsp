@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>WonderLane</title>
+    <title>Trust Retail</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -152,7 +152,7 @@
                                 <label class="form-check-label" for="columnsAmount">Amount</label>
                             </div>
 
-                            <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
+                            <button id="columns-submit-button" type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
                 </div>

@@ -9,10 +9,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
-class StoreSettingsControllerSpec extends Specification implements ControllerUnitTest<StoreSettingsController>, DataTest{
+class StoreControllerSpec extends Specification implements ControllerUnitTest<StoreController>, DataTest{
 
     Class<?>[] getDomainClassesToMock(){
-        return [StoreSettings, PriceBand, Range] as Class[]
+        return [Store, PriceBand, Range] as Class[]
     }
 
     //------------------Calling Index Action -------------//
@@ -56,7 +56,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         Range rangeOriginal = new Range(retailerId: 9, description: "Dummy description")
         rangeOriginal.setId(1)
 
-        StoreSettings storeSettings1 = new StoreSettings()
+        Store storeSettings1 = new Store()
         storeSettings1.setType(type)
         if (storeId){
             storeSettings1.setId(storeId)
@@ -73,7 +73,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         priceBandOriginal.save(flush: true, failOnError: true)
         rangeOriginal.save(flush: true, failOnError: true)
 
-        mockDomain(StoreSettings, [storeSettings1, priceBandOriginal, rangeOriginal])
+        mockDomain(Store, [storeSettings1, priceBandOriginal, rangeOriginal])
 
         when: 'The index action is executed'
         HashMap model = controller.index()
@@ -136,7 +136,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         Range rangeOriginal = new Range(retailerId: 9, description: "Dummy description")
         rangeOriginal.setId(1)
 
-        StoreSettings storeSettings1 = new StoreSettings()
+        Store storeSettings1 = new Store()
         storeSettings1.setType(StoreType.STORE.getValue())
         storeSettings1.setId(storeIdInDb)
         storeSettings1.setStoreId(storeId)
@@ -147,7 +147,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         storeSettings1.setCountIncrement(new BigDecimal(0.01))
         storeSettings1.springSecurityService = controller.springSecurityService
 
-        mockDomain(StoreSettings, [storeSettings1, priceBandOriginal, rangeOriginal])
+        mockDomain(Store, [storeSettings1, priceBandOriginal, rangeOriginal])
 
         storeSettings1.save(flush: true, failOnError: true)
         priceBandOriginal.save(flush: true, failOnError: true)
@@ -202,7 +202,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         SimpleGrantedAuthority simpleGrantedAuthority1 = new SimpleGrantedAuthority("ROLE_HEAD_OFFICE")
         Collection authorities = Arrays.asList(simpleGrantedAuthority1)
 
-        controller.storeSettingsService = Stub(StoreSettingsService){}
+        controller.storeService = Stub(StoreService){}
 
         controller.springSecurityService = Stub(SpringSecurityService) {
 
@@ -230,7 +230,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         Range rangeOriginal = new Range(retailerId: 9, description: "Dummy description")
         rangeOriginal.setId(originalRangeId)
 
-        StoreSettings storeSettings1 = new StoreSettings()
+        Store storeSettings1 = new Store()
         storeSettings1.setType(StoreType.STORE.getValue())
         storeSettings1.setId(storeIdInDb)
         storeSettings1.setStoreId(storeId)
@@ -241,7 +241,7 @@ class StoreSettingsControllerSpec extends Specification implements ControllerUni
         storeSettings1.setCountIncrement(new BigDecimal(0.01))
         storeSettings1.springSecurityService = controller.springSecurityService
 
-        mockDomain(StoreSettings, [storeSettings1, priceBandOriginal, rangeOriginal])
+        mockDomain(Store, [storeSettings1, priceBandOriginal, rangeOriginal])
 
         storeSettings1.save(flush: true, failOnError: true)
         priceBandOriginal.save(flush: true, failOnError: true)

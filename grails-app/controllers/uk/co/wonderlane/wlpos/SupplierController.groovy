@@ -47,7 +47,7 @@ class SupplierController {
     def ajaxGetSymbolGroupSubscriptions() {
         def symbolGroupSubscriptions = supplierService.getSymbolGroupSubscriptions()
         def symbolGroups = supplierService.getSymbolGroups()
-        if (!springSecurityService.principal.retailer.snappyShopperEnabled) {
+        if (!springSecurityService.principal.retailer.config.snappyShopperEnabled) {
             symbolGroupSubscriptions.removeAll { it.symbolGroup.id == 4 }
             symbolGroups.removeAll {it.symbolGroup.id == 4 }
         }
@@ -94,7 +94,7 @@ class SupplierController {
     def ajaxAddSymbolGroupSubscription() {
         def symbolGroups = supplierService.getSymbolGroups()
 
-        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.snappyShopperEnabled) {
+        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.config.snappyShopperEnabled) {
             symbolGroups.removeAll {it.id == 4 }
         }
 
@@ -110,7 +110,7 @@ class SupplierController {
 
         def symbolGroups = supplierService.getSymbolGroups()
 
-        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.snappyShopperEnabled) {
+        if (!springSecurityService.principal.storeId || !springSecurityService.principal.retailer.config.snappyShopperEnabled) {
             symbolGroups.removeAll { it.id == 4 }
         }
 
@@ -126,6 +126,7 @@ class SupplierController {
             case 4: // Snappy
                 SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.SYNC, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
+                rabbitService.setVirtualHost("/")
                 rabbitService.sendQueueMessage("SnappyService", gsonProvider.gson.toJson(snappyServiceMessage))
                 break;
         }
@@ -149,7 +150,7 @@ class SupplierController {
                                                                            symbolGroups           : symbolGroups])
                 break;
             case 4: // Snappy
-                if (springSecurityService.principal.retailer.snappyShopperEnabled) {
+                if (springSecurityService.principal.retailer.config.snappyShopperEnabled) {
                     render(template: "addSymbolGroupSubscriptionSnappy", model: [symbolGroupSubscription: symbolGroupSubscription,
                                                                                  symbolGroups           : symbolGroups])
                 }
@@ -176,10 +177,6 @@ class SupplierController {
         if (symbolGroupSubscription.validate()) {
             // Make sure the RabbitMQ connection is available, otherwise reject the save.
             try {
-                if (!rabbitService.isOpen()) {
-                    throw new Exception("Rabbit MQ not available")
-                }
-
                 supplierService.saveSymbolGroupSubscription(symbolGroupSubscription)
 
                 // TODO Not always REGISTRATION
@@ -188,11 +185,15 @@ class SupplierController {
                         SymbolGroupMessage symbolGroupMessage = new SymbolGroupMessage(SymbolGroupMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
                         // TODO Considering using routing key to reach Nisa?
+                        rabbitService.setVirtualHost("/")
+                        rabbitService.init()
                         rabbitService.sendExchangeMessage("SymbolGroups", gsonProvider.gson.toJson(symbolGroupMessage))
                         break;
                     case 4: // Snappy
                         SnappyServiceMessage snappyServiceMessage = new SnappyServiceMessage(SnappyMessageType.REGISTRATION, springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
+                        rabbitService.setVirtualHost("/")
+                        rabbitService.init()
                         rabbitService.sendQueueMessage("SnappyService", gsonProvider.gson.toJson(snappyServiceMessage))
                         break;
                 }
