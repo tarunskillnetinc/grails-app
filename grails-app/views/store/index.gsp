@@ -348,7 +348,7 @@
 
                                         <div>
                                             <input type="color" id="config.primaryColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.primaryColour}"
+                                                   value="#${storeSettings?.config?.primaryColour ? storeSettings?.config?.primaryColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'primaryColour');">
                                         </div>
                                     </div>
@@ -358,7 +358,7 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.secondaryColour" maxlength="6"
+                                            <g:textField name="config.secondaryColour" id="secondaryColour" maxlength="6"
                                                          value="${storeSettings?.config?.secondaryColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"/>
@@ -366,7 +366,7 @@
 
                                         <div>
                                             <input type="color" id="config.secondaryColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.secondaryColour}"
+                                                   value="#${storeSettings?.config?.secondaryColour ? storeSettings?.config?.secondaryColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'secondaryColour');">
                                         </div>
                                     </div>
@@ -376,7 +376,7 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.accentColour" maxlength="6"
+                                            <g:textField name="config.accentColour" id="accentColour" maxlength="6"
                                                          value="${storeSettings?.config?.accentColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"/>
@@ -384,7 +384,7 @@
 
                                         <div>
                                             <input type="color" id="config.accentColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.accentColour}"
+                                                   value="#${storeSettings?.config?.accentColour ? storeSettings?.config?.accentColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentColour');">
                                         </div>
                                     </div>
@@ -394,7 +394,7 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.primaryTextColour" maxlength="6"
+                                            <g:textField name="config.primaryTextColour" id="primaryTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.primaryTextColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"/>
@@ -402,7 +402,7 @@
 
                                         <div>
                                             <input type="color" id="config.primaryTextColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.primaryTextColour}"
+                                                   value="#${storeSettings?.config?.primaryTextColour ? storeSettings?.config?.primaryTextColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'primaryTextColour');">
                                         </div>
                                     </div>
@@ -412,7 +412,7 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.secondaryTextColour" maxlength="6"
+                                            <g:textField name="config.secondaryTextColour" id="secondaryTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.secondaryTextColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"/>
@@ -421,7 +421,7 @@
                                         <div>
                                             <input type="color" id="config.secondaryTextColourPicker"
                                                    name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.secondaryTextColour}"
+                                                   value="#${storeSettings?.config?.secondaryTextColour ? storeSettings?.config?.secondaryTextColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'secondaryTextColour');">
                                         </div>
                                     </div>
@@ -431,7 +431,7 @@
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.accentTextColour" maxlength="6"
+                                            <g:textField name="config.accentTextColour" id="accentTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.accentTextColour}"
                                                          class="form-control bottom-border"
                                                          onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"/>
@@ -439,7 +439,7 @@
 
                                         <div>
                                             <input type="color" id="config.accentTextColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.accentTextColour}"
+                                                   value="#${storeSettings?.config?.accentTextColour ? storeSettings?.config?.accentTextColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentTextColour');">
                                         </div>
                                     </div>
