@@ -22,14 +22,12 @@
                 $('#checkAllCheckbox').change(function() {
                     if (this.checked) {
                         var uncheckedBoxes = $("input.selections:not(checked)");
-                        // var uncheckedBoxes = $("#search-results input:not(:checked)");
 
                         uncheckedBoxes.each(function(i, checkbox) {
                             $(checkbox).prop("checked", true);
                         });
                     } else {
                         var checkedBoxes = $("input.selections:checked");
-                        // var checkedBoxes = $("#search-results input:checked");
 
                         checkedBoxes.each(function(i, checkbox) {
                             $(checkbox).prop("checked", false);
