@@ -19,6 +19,10 @@
         <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Unable to remove an amount greater than the contents of the safe.</div>
     </g:if>
 
+    <g:if test="${zeroError}">
+        <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Cash Total Value must be greater than zero.</div>
+    </g:if>
+
     <g:form name="bankingCashInForm">
         <div class="row form-group mb-4">
             <g:render template="/shift/textField" model="[name: 'cashTotal', label: 'Cash Total', value: 0.00, labelCols: '5']" />

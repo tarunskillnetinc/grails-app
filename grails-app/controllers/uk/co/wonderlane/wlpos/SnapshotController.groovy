@@ -108,8 +108,13 @@ class SnapshotController {
     def ajaxSaveBankingCashIn(Boolean banking, String value) {
         //Fetch the safe total
         Snapshot snapshot = snapshotService.getSafeSnapshot()
-        BigDecimal convertedValue = value as BigDecimal
 
+        if (value == "0.00" || value == "" || value.isEmpty()) {
+            render(template: "bankingCashInModal", model: [banking: banking, zeroError: true])
+            return
+        }
+
+        BigDecimal convertedValue = value as BigDecimal
 
         ReconciliationTotal cashTotal = snapshot.totals.find {it.tenderType == TenderType.CASH} ?: null
         if (cashTotal == null) {
