@@ -58,7 +58,7 @@ class ReceiptController {
 
         def (results, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
 
-        render (template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate])
+        render (template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, totalReceiptLineType: ReceiptLineType.TOTAL])
     }
 
     def ajaxGetReceipt(int receiptId) {
