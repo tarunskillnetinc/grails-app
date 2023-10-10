@@ -73,7 +73,7 @@ class UserController {
 
             redirect (action: "index")
         } else {
-            render (view: "add", model: [user: saveUserCommand, roleValues: getEligibleUserRoles])
+            render (view: "add", model: [user: saveUserCommand, roleValues: getEligibleUserRoles()])
         }
     }
 

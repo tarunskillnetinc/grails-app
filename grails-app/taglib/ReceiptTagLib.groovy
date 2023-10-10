@@ -9,11 +9,13 @@ import java.text.NumberFormat
 
 class ReceiptTagLib {
 
+    def brandAssetsService
+
     def BASKET_ITEM_LENGTH = 23
     def RECEIPT_BARCODE_WIDTH = 450
     def RECEIPT_BARCODE_HEIGHT = 75
 
-    def currencyFormatter = NumberFormat.getCurrencyInstance()
+    def currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
     def receiptLine = { attrs, body ->
         def receiptLine = attrs.receiptLine
@@ -21,7 +23,15 @@ class ReceiptTagLib {
         switch (receiptLine.type) {
             case ReceiptLineType.IMAGE:
 //            case ReceiptLineType.IMAGE_FROM_FILE:
-                out << """<div style="text-align: center;">${asset.image(src: "receipt_logo.png", class: "logo")}</div>"""
+                def brandLogo = brandAssetsService.getBrandLogo()
+
+                if (brandLogo) {
+                    def brandLogoBase64 = new String(Base64.getEncoder().encode(brandLogo))
+
+                    out << """<div style="text-align: center;"><img id="brand-logo" src="data:image/png;base64,${brandLogoBase64}" style="width: 100%;" /></div>"""
+                } else {
+                    out << """<div style="text-align: center;">${asset.image(src: "receipt_logo.png", class: "logo")}</div>"""
+                }
 
                 break
 //            case ReceiptLineType.PP_IMAGE:
