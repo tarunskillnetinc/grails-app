@@ -4,7 +4,9 @@ import grails.util.Pair
 import org.springframework.context.MessageSource
 import org.springframework.security.access.annotation.Secured
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
+import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import static groovy.json.JsonOutput.toJson
 
@@ -104,6 +106,7 @@ class ReasonCodeController {
             return
         }
         reasonCodeService.saveReasonCode(rc)
+        sendSyncMessage(rc, false)
         render "OK"
     }
 
@@ -125,11 +128,22 @@ class ReasonCodeController {
 
         rc.deleted = true
         reasonCodeService.saveReasonCode(rc)
+        sendSyncMessage(rc, true)
         render "OK"
     }
 
-    def sendSyncMessage() {
-
+    def sendSyncMessage(ReasonCode rc, boolean deleted) {
+        SyncMessage msg = new SyncMessage(
+                SyncMessageType.REASON_CODE,
+                springSecurityService.principal.retailerId,
+                springSecurityService.principal.storeNumber,
+                springSecurityService.principal.storeId,
+                null
+        )
+        msg.setDelete(deleted)
+        msg.setInsert(!deleted)
+        msg.setReasonCode(rc.getReasonCode())
+        rabbitService.sendMessage(msg)
     }
 
     def customBindParams(rc, params) {
