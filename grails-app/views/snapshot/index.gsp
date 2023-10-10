@@ -9,6 +9,7 @@
     <asset:javascript src="snapshotUrls.js"/>
     <asset:javascript src="snapshotManagement.js"/>
     <asset:javascript src="date-pickers.js"/>
+    <asset:javascript src="money-mask.js"/>
 
     <script type='text/javascript'>
         $(function() {
@@ -26,6 +27,42 @@
             );
             getSnapshots();
         });
+
+        function showModal(banking) {
+            $('#bankingCashInModal').modal({show: true});
+            $.ajax({
+                url: "${createLink(controller: 'snapshot', action: 'ajaxBankingCashIn')}",
+                data: { banking: banking },
+                success: function(resp) {
+                    $("#bankingCashInContent").html(resp);
+                    $(".mask-money").maskMoney({allowZero: false});
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
+        }
+
+        function cancelModal() {
+            $('#bankingCashInModal').modal('hide')
+        }
+
+        function saveModal(banking) {
+            var value = $("#cashTotal").val();
+
+            $.ajax({
+                method: "POST",
+                url: "${createLink(controller: 'snapshot', action: 'ajaxSaveBankingCashIn')}",
+                data: { banking: banking, value: value },
+                success: function(resp) {
+                    if (resp === "OK") {
+                        window.location.href = "/snapshot/index";
+                    } else {
+                        $("#bankingCashInContent").html(resp);
+                        $(".mask-money").maskMoney({allowZero: false});
+                        $(".mask-money").maskMoney('mask');
+                    }
+                }
+            });
+        }
     </script>
 </head>
 
@@ -86,10 +123,29 @@
                     </div>
                 </div>
             </div>
+            <div class="offset-2 col-5">
+                <div class="row">
+                    <div class="offset-4 col-4">
+                        <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal(true)">Banking</button>
+                    </div>
+                    <div class="col-4">
+                        <button id="snapshot-viewer-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal(false)">Cash Incoming</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="results-container" class="align-content-center">
             <g:render template="snapshotViewerResults" />
+        </div>
+    </section>
+
+    <section id="banking-cash-in-modal" class="container-fluid">
+        <div class="modal fade" id="bankingCashInModal" tabindex="-1" role="dialog" aria-labelledby="bankingCashInModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div id="bankingCashInContent" class="modal-content"></div>
+            </div>
         </div>
     </section>
 
