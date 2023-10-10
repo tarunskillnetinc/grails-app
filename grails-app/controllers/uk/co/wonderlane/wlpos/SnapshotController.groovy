@@ -117,7 +117,58 @@ class SnapshotController {
         render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
     }
 
-    def ajaxStartCashLift() {
+    def ajaxBankingCashIn(Boolean banking) {
+        render(template: "bankingCashInModal", model: [banking: banking])
+    }
+
+    def ajaxSaveBankingCashIn(Boolean banking, String value) {
+        //Fetch the safe total
+        Snapshot snapshot = snapshotService.getSafeSnapshot()
+
+        if (value == "0.00" || value == "" || value.isEmpty()) {
+            render(template: "bankingCashInModal", model: [banking: banking, zeroError: true])
+            return
+        }
+
+        BigDecimal convertedValue = value as BigDecimal
+
+        ReconciliationTotal cashTotal = snapshot.totals.find {it.tenderType == TenderType.CASH} ?: null
+        if (cashTotal == null) {
+            cashTotal = new ReconciliationTotal(TenderType.CASH)
+            snapshot.totals.add(cashTotal)
+        }
+
+        if (banking) {
+            //Reduce from safe total
+            def snapshotCashTotal = snapshot.expectedTotals.findAll { it.tenderType == TenderType.CASH}
+            snapshot.expectedTotals.findAll { it.tenderType == TenderType.CASH}?.value?.add(snapshotCashTotal.first().value -= convertedValue)
+
+            //Check that we've not withdrawn more than the contents of the safe
+            if (snapshot.expectedTotals.findAll { it.tenderType == TenderType.CASH}?.first()?.value < BigDecimal.ZERO) {
+                render(template: "bankingCashInModal", model: [banking: banking, bankError: true])
+                return
+            }
+
+        } else {
+            //Add to safe total
+            def snapshotCashTotal = snapshot.expectedTotals.findAll { it.tenderType == TenderType.CASH}
+            snapshot.expectedTotals.findAll { it.tenderType == TenderType.CASH}?.value?.add(snapshotCashTotal.first().value += convertedValue)
+        }
+
+        //Set Total Cash Value to ensure we've properly reported the change
+        cashTotal.value = snapshot.expectedTotals.findAll{it.tenderType == TenderType.CASH}?.first()?.value
+
+
+        //Save Safe Total and add who performed the action
+        snapshot.countDate = DateTime.now()
+        snapshot.countedByUserId = springSecurityService.principal.id
+        snapshot.countedByUsersName = springSecurityService.principal.usersName
+        snapshotService.saveSafeSnapshot(snapshot)
+        render "OK"
+    }
+}
+
+def ajaxStartCashLift() {
         def safeLocations = locationService.getStoreSafeLocations()
 
         render(template: "cashLiftModal", model: [safeLocations: safeLocations])

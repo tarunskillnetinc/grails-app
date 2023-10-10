@@ -33,7 +33,7 @@
             <div id="till-id-${i + 1}" class="col-2 my-auto">${receipt.tillId}</div>
             <div id="transaction-id-${i + 1}" class="col-2 my-auto">${receipt.transactionId}</div>
             <div id="transaction-amount-${i + 1}" class="col-3 my-auto">
-                <g:formatNumber number="${receipt.receiptLines?.find{ it.type.name() == 'TOTAL' }?.total ?: BigDecimal.ZERO}" type="currency" />
+                <g:formatNumber number="${receipt.receiptLines?.find{ it.type == totalReceiptLineType }?.total ?: BigDecimal.ZERO}" type="currency" />
             </div>
             <div id="date-generated-${i + 1}" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${receipt.dateGenerated.toDate()}" /></div>
         </div>
