@@ -30,7 +30,7 @@ class TillConfiguration {
         version false
 
         id column: "id"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId", sqlType: "smallint"
         tillId column: "tillId"
         serialNumber column: "serialNumber"
