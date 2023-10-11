@@ -1,26 +1,29 @@
 var SnapshotUrls = SnapshotUrls || (function () {
-    var _safeSelectionUrl;
-    var _getSafeUrl;
-    var _getSnapshotsUrl;
-    var _getSnapshotUrl;
-    var _saveSafeCountUrl;
-    var _saveSnapshotUrl;
-    var _startCashLiftUrl;
-    var _saveCashLiftUrl;
+    let _getSafeUrl;
+    let _getSnapshotsUrl;
+    let _getSnapshotUrl;
+    let _saveSafeCountUrl;
+    let _saveSnapshotUrl;
+    let _cashLiftUrl;
+    let _saveCashLiftUrl;
+    let _bankingUrl;
+    let _saveBankingUrl;
+    let _cashInboundUrl;
+    let _saveCashInboundUrl;
 
     return {
-        init : function (safeSelectionUrl, getSafeUrl, getSnapshotsUrl, getSnapshotUrl, saveSafeCountUrl, saveSnapshotUrl, startCashLiftUrl, saveCashLiftUrl) {
-            _safeSelectionUrl = safeSelectionUrl;
+        init : function (getSafeUrl, getSnapshotsUrl, getSnapshotUrl, saveSafeCountUrl, saveSnapshotUrl, cashLiftUrl, saveCashLiftUrl, bankingUrl, saveBankingUrl, cashInboundUrl, saveCashInboundUrl) {
             _getSafeUrl = getSafeUrl;
             _getSnapshotsUrl = getSnapshotsUrl;
             _getSnapshotUrl = getSnapshotUrl;
             _saveSafeCountUrl = saveSafeCountUrl;
             _saveSnapshotUrl = saveSnapshotUrl;
-            _startCashLiftUrl = startCashLiftUrl;
+            _cashLiftUrl = cashLiftUrl;
             _saveCashLiftUrl = saveCashLiftUrl;
-        },
-        safeSelectionUrl : function () {
-            return _safeSelectionUrl;
+            _bankingUrl = bankingUrl;
+            _saveBankingUrl = saveBankingUrl;
+            _cashInboundUrl = cashInboundUrl;
+            _saveCashInboundUrl = saveCashInboundUrl;
         },
         getSafeUrl : function () {
             return _getSafeUrl;
@@ -37,11 +40,23 @@ var SnapshotUrls = SnapshotUrls || (function () {
         saveSnapshotUrl : function () {
             return _saveSnapshotUrl;
         },
-        startCashLiftUrl : function () {
-            return _startCashLiftUrl;
+        cashLiftUrl : function () {
+            return _cashLiftUrl;
         },
         saveCashLiftUrl : function () {
             return _saveCashLiftUrl;
+        },
+        bankingUrl : function() {
+            return _bankingUrl;
+        },
+        saveBankingUrl : function() {
+            return _saveBankingUrl;
+        },
+        cashInboundUrl : function() {
+            return _cashInboundUrl;
+        },
+        saveCashInboundUrl : function() {
+            return _saveCashInboundUrl;
         }
     }
 } ());

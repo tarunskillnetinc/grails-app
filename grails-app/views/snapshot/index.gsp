@@ -13,14 +13,18 @@
 
     <script type='text/javascript'>
         $(function() {
-            SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxSelectSafe')}",
-                "${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
+            SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
-                "${createLink(controller: 'snapshot', action: 'ajaxStartCashLift')}",
-                "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}");
+                "${createLink(controller: 'snapshot', action: 'ajaxCashLift')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxBanking')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveBanking')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxCashInbound')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveCashInbound')}",
+            );
 
             initDatePickers(
                 'startDate',
@@ -30,42 +34,6 @@
             );
             getSnapshots();
         });
-
-        function showModal(banking) {
-            $('#bankingCashInModal').modal({show: true});
-            $.ajax({
-                url: "${createLink(controller: 'snapshot', action: 'ajaxBankingCashIn')}",
-                data: { banking: banking },
-                success: function(resp) {
-                    $("#bankingCashInContent").html(resp);
-                    $(".mask-money").maskMoney({allowZero: false});
-                    $(".mask-money").maskMoney('mask');
-                }
-            });
-        }
-
-        function cancelModal() {
-            $('#bankingCashInModal').modal('hide')
-        }
-
-        function saveModal(banking) {
-            var value = $("#cashTotal").val();
-
-            $.ajax({
-                method: "POST",
-                url: "${createLink(controller: 'snapshot', action: 'ajaxSaveBankingCashIn')}",
-                data: { banking: banking, value: value },
-                success: function(resp) {
-                    if (resp === "OK") {
-                        window.location.href = "/snapshot/index";
-                    } else {
-                        $("#bankingCashInContent").html(resp);
-                        $(".mask-money").maskMoney({allowZero: false});
-                        $(".mask-money").maskMoney('mask');
-                    }
-                }
-            });
-        }
     </script>
 </head>
 
@@ -88,6 +56,9 @@
         <div class="header-wl mt-3">
             <h2 id="page-title" class="mx-auto">Snapshot Viewer</h2>
         </div>
+
+        <section id="alert-container" class="container-fluid">
+        </section>
 
         <div class="row mt-4">
             <div class="col-5">
@@ -128,12 +99,17 @@
             </div>
             <div class="offset-2 col-5">
                 <div class="row">
-                    <div class="offset-4 col-4">
-                        <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal(true)">Banking</button>
+                    <div class="${safeLocations?.collect()?.size() < 2 ? 'offset-4 ': ''}col-4">
+                        <button id="banking-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('BANKING')">Banking</button>
                     </div>
                     <div class="col-4">
-                        <button id="snapshot-viewer-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal(false)">Cash Incoming</button>
+                        <button id="cash-inbound-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('CASH_INBOUND')">Cash Inbound</button>
                     </div>
+                    <g:if test="${safeLocations?.collect()?.size() > 1}">
+                        <div class="col-4">
+                            <button id="cash-lift-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('CASH_LIFT')">Cash Lift</button>
+                        </div>
+                    </g:if>
                 </div>
             </div>
         </div>
@@ -143,44 +119,11 @@
         </div>
     </section>
 
-    <section id="banking-cash-in-modal" class="container-fluid">
-        <div class="modal fade" id="bankingCashInModal" tabindex="-1" role="dialog" aria-labelledby="bankingCashInModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div id="bankingCashInContent" class="modal-content"></div>
-            </div>
-        </div>
-    </section>
-
     <section id="snapshot-modal" class="container-fluid">
-        <!-- Snapshot modal -->
+        <!-- modal -->
         <div class="modal fade" id="snapshotModal" tabindex="-1" role="dialog" aria-labelledby="snapshotModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Snapshot Management</h2>
-                    </div>
-
-                    <div id="snapshotModalContent"></div>
-
-                    <div class="modal-footer">
-                        <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="cashLift-modal" class="container-fluid">
-        <div class="modal fade" id="cashLiftModal" tabindex="-1" role="dialog" aria-labelledby="cashLiftModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Cash Lift</h2>
-                    </div>
-
-                    <div id="cashLiftModalContent"></div>
-                </div>
+                <div id="modal-content" class="modal-content"></div>
             </div>
         </div>
     </section>

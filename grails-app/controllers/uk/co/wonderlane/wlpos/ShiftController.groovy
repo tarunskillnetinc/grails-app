@@ -7,6 +7,8 @@ import org.joda.time.format.DateTimeFormat
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.LocationType
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.Location
@@ -153,6 +155,17 @@ class ShiftController {
 
         def safeLocations = locationService.getStoreSafeLocations()
 
+        if (safeLocations.collect().isEmpty()) {
+            Location location = new Location()
+            location.safeId = 1
+            location.retailerId = shift.retailerId
+            location.storeId = shift.storeId
+            location.type = LocationType.SAFE
+            location.description = "Safe 1"
+            location.save()
+            safeLocations = locationService.getStoreSafeLocations()
+        }
+
         render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
     }
 
@@ -207,25 +220,13 @@ class ShiftController {
         def tillLocation = locationService.getTillLocation(shift.tillId)
         def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
 
-        for (ReconciliationTotal total : shift.reconciliationTotals) {
-            if (total.value > BigDecimal.ZERO) { // don't want any 0 value tender movements clogging things up
-                TenderMovement tenderMovement = new TenderMovement()
-                tenderMovement.retailerId = springSecurityService.principal.retailerId
-                tenderMovement.storeId = springSecurityService.principal.storeId
-                tenderMovement.tenderType = total.tenderType
-                tenderMovement.amount = total.value
-                tenderMovement.fromLocation = tillLocation as Location
-                tenderMovement.toLocation = safeLocation as Location
-                tenderMovement.type = "CASH_UP"
-                tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
-                tenderMovement.userId = springSecurityService.principal.id
-                tenderMovement.userName = springSecurityService.principal.usersName
-
-                if (reportingService.saveTenderMovement(tenderMovement)) {
-                    System.out.println("Success tender movement save")
-                } else {
-                    System.out.println("Error tender movement save")
-                }
+        shift.reconciliationTotals.each {
+            if (it.value > BigDecimal.ZERO) {
+                reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
+                        it.tenderType,
+                        tillLocation as Location,
+                        safeLocation as Location,
+                        it.value))
             }
         }
 

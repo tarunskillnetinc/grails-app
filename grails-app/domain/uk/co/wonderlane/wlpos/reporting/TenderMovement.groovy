@@ -1,7 +1,7 @@
 package uk.co.wonderlane.wlpos.reporting
 
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.StoreSettings
+import uk.co.wonderlane.wlpos.Store
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
@@ -20,6 +20,8 @@ class TenderMovement {
     Integer userId
     String userName
     DateTime timestamp
+
+    static transients = ['store']
 
     static mapping = {
         datasources(["reporting"])
@@ -58,7 +60,7 @@ class TenderMovement {
         timestamp nullable: true
     }
 
-    StoreSettings getStore() {
-        return StoreSettings.get(storeId)
+    Store getStore() {
+        return Store.findById(storeId)
     }
 }

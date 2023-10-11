@@ -110,11 +110,14 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="storeId" class="col-2 col-form-label-sm text-right">Store</label>
+                                <label for="storeFilter" class="col-2 col-form-label-sm text-right">Store</label>
                                 <div class="col-4">
-                                    <g:select name="storeId" from="${stores}"
-                                              noSelection="['':'All Stores']" value="${storeId}"
-                                              optionValue="storeId" optionKey="id" class="form-control select-border" />
+                                    <g:select name="storeFilter" from="${stores}" optionValue="${{it.config.storeNumber}}"
+                                              optionKey="id"
+                                              noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
+                                              value="${storeId}"
+                                              class="form-control select-border"
+                                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"/>
                                 </div>
 
                                 <div class="col-6 text-right">

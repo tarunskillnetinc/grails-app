@@ -1,6 +1,6 @@
 function showSafeSelectionModal() {
-    $("#cashModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#cashModal').modal({ show: true });
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#shiftModal').modal({ show: true });
 
     $("#saveShiftButton").hide();
     $("#saveShiftButton").prop("onclick", null).off("click");
@@ -12,8 +12,7 @@ function showSafeSelectionModal() {
         method: "POST",
         data: {} ,
         success: function(resp) {
-            $("#cashModalHeader").html("<h2>Safe Management</h2>")
-            $("#cashModalContent").html(resp);
+            $("#modal-content").html(resp);
 
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
@@ -21,25 +20,16 @@ function showSafeSelectionModal() {
     });
 }
 
-function showSafeModal(locationId) {
-    $("#cashModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#cashModal').modal({ show: true });
-
-    $("#saveShiftButton").prop("onclick", null).off("click");
-    $("#saveShiftButton").click(function () {
-        submitSafeCount();
-    });
-
-    $("#saveShiftButton").show();
-    $("#cancelShiftButton").text("Cancel");
+function showSafeModal(id) {
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#shiftModal').modal({ show: true });
 
     $.ajax({
         url: SnapshotUrls.getSafeUrl(),
         method: "POST",
-        data: { locationId: locationId } ,
+        data: { id: id } ,
         success: function(resp) {
-            $("#cashModalHeader").html("<h2>Safe Management</h2>")
-            $("#cashModalContent").html(resp);
+            $("#modal-content").html(resp);
 
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
@@ -74,12 +64,7 @@ function submitSafeCount() {
         method: "POST",
         data: formValues,
         success: function(resp) {
-            $("#cashModalContent").html(resp);
-
-            $("#saveShiftButton").prop("onclick", null).off("click");
-            $("#saveShiftButton").click(function() {
-                submitSafe();
-            });
+            $("#modal-content").html(resp);
         }
     });
 }
@@ -92,12 +77,7 @@ function submitSafe() {
         method: "POST",
         data: formValues,
         success: function(resp) {
-            $("#cashModalContent").html(resp);
-
-            $("#saveShiftButton").prop("onclick", null).off("click");
-            $("#saveShiftButton").hide();
-
-            $("#cancelShiftButton").text("Close");
+            $("#modal-content").html(resp);
         }
     });
 }

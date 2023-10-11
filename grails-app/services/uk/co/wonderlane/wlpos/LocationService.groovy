@@ -36,6 +36,16 @@ class LocationService {
         }
     }
 
+    def generateDefaultSafeLocation() {
+        Location location = new Location()
+        location.safeId = 1
+        location.retailerId = springSecurityService.principal.retailerId
+        location.storeId = springSecurityService.principal.storeId
+        location.type = LocationType.SAFE
+        location.description = "Safe 1"
+        location.save()
+    }
+
     def saveLocation(Location location) {
 
     }

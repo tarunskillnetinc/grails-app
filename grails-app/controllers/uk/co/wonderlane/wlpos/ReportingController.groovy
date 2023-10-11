@@ -36,7 +36,7 @@ class ReportingController {
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
-    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "timestamp"]
+    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount"]
 
     def index() {
 
@@ -1455,9 +1455,16 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def stores = springSecurityService.principal.storeId ? [StoreSettings.get(springSecurityService.principal.storeId)] : StoreSettings.findAllByRetailerIdAndStoreIdIsNotNull(springSecurityService.principal.retailerId)
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
 
-        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: TenderMovementType.values(), stores: stores, startDate: startDate, endDate: endDate, storeId: springSecurityService.principal.storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: TenderMovementType.values(), stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
     }
 
     def ajaxTenderMovements(SortParams sortParams) {
@@ -1469,7 +1476,7 @@ class ReportingController {
 
         TenderMovementType tenderMovementType = params.tenderMovementType ? TenderMovementType.valueOf(params.tenderMovementType) : null
         TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
-        Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
+        Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
 
         def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
