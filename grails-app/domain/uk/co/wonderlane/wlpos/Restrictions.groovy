@@ -48,11 +48,7 @@ class Restrictions {
                 return ["restrictions.buyerAgeRestriction.nullable"]
             }
         }
-        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true, validator: { val, obj ->
-            if (obj.buyerIdRequired && val == null) {
-                return ["restrictions.buyerChallengeAge.nullable"]
-            }
-        }
+        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
         buyerIdRequired nullable: true
         buyerIdForced nullable: true
         sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true, validator: { val, obj ->
