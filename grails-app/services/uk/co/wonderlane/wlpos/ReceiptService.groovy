@@ -8,34 +8,65 @@ class ReceiptService {
 
     def springSecurityService
 
-    def getReceipts(DateTime fromDate, DateTime toDate, Integer tillId, Integer transactionId, int offset, int max) {
+    def getReceipts(DateTime fromDate, DateTime toDate, Integer tillId, Integer transactionId, String sort, String order, int offset, int max) {
         def receiptsCriteria = Receipt.createCriteria()
 
-        def results = receiptsCriteria.list([offset: offset, max: max, sort: "dateGenerated", order: "DESC"]) {
-            eq("retailerId", springSecurityService.principal.retailerId)
+        def results
+        def totalCount = 0
 
-            if (springSecurityService.principal.storeNumber != null) {
-                eq("storeId", springSecurityService.principal.storeNumber)
+        if (sort.equals("transactionAmount")) {
+            results = receiptsCriteria.list {
+                eq("retailerId", springSecurityService.principal.retailerId)
+
+                if (springSecurityService.principal.storeNumber != null) {
+                    eq("storeId", springSecurityService.principal.storeNumber)
+                }
+
+                gte("dateGenerated", fromDate)
+                lt("dateGenerated", toDate)
+
+                if (tillId) {
+                    eq("tillId", tillId)
+                }
+
+                if (transactionId) {
+                    eq("transactionId", transactionId)
+                }
             }
 
-            gte("dateGenerated", fromDate)
-            lt("dateGenerated", toDate)
+            results = results.sort { it?.receiptLines?.find{ it.type.name() == 'TOTAL' }?.total ?: BigDecimal.ZERO }
 
-            if (tillId) {
-                eq("tillId", tillId)
+            if (order == "desc") {
+                results = results.reverse()
             }
 
-            if (transactionId) {
-                eq("transactionId", transactionId)
+            totalCount = results.size()
+
+            results = offset < results.size() ? results.subList(offset, (offset + max < results.size() ? offset + max : results.size())) : []
+        } else {
+            results = receiptsCriteria.list([offset: offset, max: max, sort: sort, order: order]) {
+                eq("retailerId", springSecurityService.principal.retailerId)
+
+                if (springSecurityService.principal.storeNumber != null) {
+                    eq("storeId", springSecurityService.principal.storeNumber)
+                }
+
+                gte("dateGenerated", fromDate)
+                lt("dateGenerated", toDate)
+
+                if (tillId) {
+                    eq("tillId", tillId)
+                }
+
+                if (transactionId) {
+                    eq("transactionId", transactionId)
+                }
             }
+            
+            totalCount = results.totalCount
         }
 
-        // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
-        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
-        // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
-        int totalCount = results.totalCount
-
-        return results
+        return [results, totalCount]
     }
 
     def getReceipt(int receiptId) {
