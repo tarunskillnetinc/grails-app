@@ -232,7 +232,8 @@
         </div>
 
         <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-            <div class="col-8 font-weight-bold">Description</div>
+            <div class="col-4 font-weight-bold">Description</div>
+            <div class="col-4 font-weight-bold">Secret</div>
             <div class="col-4 font-weight-bold"></div>
         </div>
 

@@ -70,28 +70,42 @@ class ReasonCodeController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveReasonCode() {
         ReasonCode rc = null
-        boolean newEntry = true
-        String originalDesc = ""
         Locale locale = RCU.getLocale(request)
         ArrayList<String> errors = new ArrayList<>()
+
+        boolean newEntry = true
+        boolean updatedDesc = false
+        boolean updatedSecret = false
 
         if (!paramIsNullOrEmpty(params, "id", ["", "0"])) {
             rc = ReasonCode.get(params.id.toString().toInteger())
             newEntry = false
-            originalDesc = rc.getDescription()
+            updatedDesc = rc.getDescription() != params.description
+            updatedSecret = rc.getSecret() != params.secret
         }
-        rc = rc ?: new ReasonCode()
+
+        rc = rc != null ? rc : new ReasonCode()
         customBindParams(rc, params)
+        rc.discard()
 
         if (rc.description == null || rc.description == "") {
             errors.add(messageSource.getMessage('reasonCode.description.nullable.error', null, locale))
-        } else if (newEntry || originalDesc != rc.description) {
+        } else if (newEntry || updatedDesc) {
             // new reason code or the description has been changed on an existing one
             if (rc.description.size() >= 100) {
                 errors.add(messageSource.getMessage('reasonCode.description.maxSize.exceeded', null, locale))
             }
             if (reasonCodeService.isDescriptionDuplicate(springSecurityService.principal.retailerId, rc.description)) {
                 errors.add(messageSource.getMessage('reasonCode.description.duplicate.error', null, locale))
+            }
+        }
+
+        if ((newEntry || updatedSecret) && rc.secret != null) {
+            if (rc.secret.length() >= 20) {
+                errors.add(messageSource.getMessage('reasonCode.secret.maxSize.exceeded', null, locale))
+            }
+            if (reasonCodeService.isDuplicateSecret(springSecurityService.principal.retailerId, rc.secret)) {
+                errors.add(messageSource.getMessage('reasonCode.secret.duplicate.error', null, locale))
             }
         }
 
@@ -148,14 +162,18 @@ class ReasonCodeController {
 
     def customBindParams(rc, params) {
         rc.type = !paramIsNullOrEmpty(params, "type", [""]) ? ReasonCodeType.valueOf(params.type) : ReasonCodeType.PAID_OUT
-        rc.code = params.code
+        rc.code = isNullOrEmpty(params.code) ? null : params.code
         rc.description = params.description
         rc.retailerId = params.description != null ? params.retailerId.toString().toInteger() : null
-        rc.secret = params.secret
+        rc.secret = isNullOrEmpty(params.secret) ? null : params.secret
         rc.deleted = params.deleted != null ? params.deleted == "true" : false
         rc.preferredReasonCode = params.preferredReasonCode != null ? params.preferredReasonCode == "true" : false
         rc.additionalFunctionality = params.additionalFunctionality != null ? params.additionalFunctionality == "on" : false
         rc.promptForText = params.promptForText != null ? params.promptForText == "on" : false
+    }
+
+    def isNullOrEmpty(str) {
+        return str == null || str.trim().length() == 0
     }
 
     def paramIsNullOrEmpty(params, key, empties) {

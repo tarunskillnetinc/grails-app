@@ -56,6 +56,13 @@
             </div>
         </div>
 
+        <div class="row form-group mb-4">
+            <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Secret:</label>
+            <div class="input-group col-4">
+                <g:textField name="secret" value="${reasonCode?.secret}" class="form-control bottom-border" />
+            </div>
+        </div>
+
         <g:if test="${!editing}">
             <div class="row form-group mb-4">
                 <label for="type" class="col-3 offset-1 col-form-label-mandatory text-right" >Type:</label>
@@ -78,7 +85,6 @@
         <g:hiddenField name="code" value="${reasonCode?.code}"/>
         <g:hiddenField name="deleted" value="${reasonCode?.deleted}"/>
         <g:hiddenField name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}"/>
-        <g:hiddenField name="secret" value="${reasonCode?.secret}"/>
 
         <g:if test="${reasonCode?.retailerId}">
             <g:hiddenField name="retailerId" value="${reasonCode?.retailerId}"/>
