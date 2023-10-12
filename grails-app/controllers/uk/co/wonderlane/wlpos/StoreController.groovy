@@ -176,6 +176,7 @@ class StoreConfigCommand implements Validateable {
     String primaryTextColour
     String secondaryTextColour
     String accentTextColour
+    String backgroundColour
     int stockLevelThreshold
     BigDecimal countIncrement
 
@@ -204,6 +205,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true
         secondaryTextColour nullable: true
         accentTextColour nullable: true
+        backgroundColour nullable: true
         stockLevelThreshold nullable: false
 //        selMarginLeft nullable: true
 //        selMarginTop nullable: true
@@ -213,6 +215,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        backgroundColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         countIncrement nullable: false, min: new BigDecimal(0.01).round(new MathContext(1, RoundingMode.HALF_EVEN)), max: BigDecimal.ONE
     }
 
