@@ -7,14 +7,20 @@ import org.joda.time.format.DateTimeFormat
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.LocationType
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.reporting.Location
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 class ShiftController {
 
     def springSecurityService
     def shiftService
     def snapshotService
+    def reportingService
+    def locationService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -147,7 +153,20 @@ class ShiftController {
 
         shiftService.saveShift(shift)
 
-        render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: TenderReconciliationVarianceReason.values()])
+        def safeLocations = locationService.getStoreSafeLocations()
+
+        if (safeLocations.collect().isEmpty()) {
+            Location location = new Location()
+            location.safeId = 1
+            location.retailerId = shift.retailerId
+            location.storeId = shift.storeId
+            location.type = LocationType.SAFE
+            location.description = "Safe 1"
+            location.save()
+            safeLocations = locationService.getStoreSafeLocations()
+        }
+
+        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
     }
 
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
@@ -172,7 +191,7 @@ class ShiftController {
 
         shiftService.saveShift(shift)
 
-        Snapshot latestSnapshot = snapshotService.getSafeSnapshot()
+        Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
         ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
 
         if (cashTotal != null) {
@@ -198,7 +217,20 @@ class ShiftController {
 
         snapshotService.saveSnapshot(latestSnapshot)
 
-        render(template: "cashUpSummaryModal", model: [shift: shift])
+        def tillLocation = locationService.getTillLocation(shift.tillId)
+        def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+
+        shift.reconciliationTotals.each {
+            if (it.value > BigDecimal.ZERO) {
+                reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
+                        it.tenderType,
+                        tillLocation as Location,
+                        safeLocation as Location,
+                        it.value))
+            }
+        }
+
+        render(template: "cashUpSummaryModal", model: [ shift: shift ])
     }
 }
 
@@ -227,6 +259,7 @@ class CashUpCommand {
 class SaveShiftCommand {
 
     int shiftId
+    Integer safeLocationId
     TenderReconciliationVarianceReason tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
 }
