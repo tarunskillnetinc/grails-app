@@ -443,6 +443,24 @@
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentTextColour');">
                                         </div>
                                     </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Background Colour</label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="config.backgroundColour" id="backgroundColour" maxlength="6"
+                                                         value="${storeSettings?.config?.backgroundColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'backgroundColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="config.backgroundColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.backgroundColour ? storeSettings?.config?.backgroundColour : "000000"}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'backgroundColour');">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
