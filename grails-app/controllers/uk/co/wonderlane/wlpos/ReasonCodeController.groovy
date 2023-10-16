@@ -82,6 +82,7 @@ class ReasonCodeController {
         }
         rc = rc ?: new ReasonCode()
         customBindParams(rc, params)
+        rc.discard()
 
         if (rc.description == null || rc.description == "") {
             errors.add(messageSource.getMessage('reasonCode.description.nullable.error', null, locale))
@@ -156,6 +157,10 @@ class ReasonCodeController {
         rc.preferredReasonCode = params.preferredReasonCode != null ? params.preferredReasonCode == "true" : false
         rc.additionalFunctionality = params.additionalFunctionality != null ? params.additionalFunctionality == "on" : false
         rc.promptForText = params.promptForText != null ? params.promptForText == "on" : false
+
+        if (rc.type == ReasonCodeType.PRODUCT_LIST) {
+            rc.additionalFunctionality = params.adjust != null && params.adjust == "IN"
+        }
     }
 
     def paramIsNullOrEmpty(params, key, empties) {

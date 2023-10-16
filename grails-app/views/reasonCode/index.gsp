@@ -88,7 +88,7 @@
             });
         }
 
-        function ajaxSave() {
+        function ajaxSave(editing) {
             const data = $('#edit-code-form').serialize()
             clearErrorMsg();
             setupModal();
@@ -104,7 +104,9 @@
                     } else {
                         showSaveBtns();
                         modalContents.html(resp);
-                        updateAdditionalFuncSection();
+                        if (!editing || editing === 'false') {
+                            updateAdditionalFuncSection();
+                        }
                     }
                 },
                 error: function () {
@@ -169,43 +171,6 @@
         function showSaveBtns() {
             $("#cancel-edit-btn").show()
             $("#save-code-btn").show()
-        }
-
-        const agePromptHtml = `<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Prompt for Age:</label>
-            <div class="input-group col-4 align-content-start">
-                <g:checkBox name="additionalFunctionality" class="col-1 form-check-input wl-checkbox" />
-            </div>`
-
-        const returnStockHtml = `<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Return to Stock:</label>
-            <div class="input-group col-4 align-content-start">
-                <g:checkBox name="additionalFunctionality" class="col-1 form-check-input wl-checkbox" />
-            </div>`
-
-        const adjustInOutHtml = `<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Additional Functionality:</label>
-            <div class="input-group col-4 align-content-start">
-                <g:checkBox name="additionalFunctionality" class="col-1 form-check-input wl-checkbox" />
-            </div>`
-
-        function updateAdditionalFuncSection() {
-            const container = $('#additional-func-section');
-            switch ($('#type').val()) {
-                case "PAID_OUT":
-                    container.html(agePromptHtml);
-                    container.show();
-                    break;
-                case "REFUND":
-                    container.html(returnStockHtml);
-                    container.show();
-                    break;
-                case "PRODUCT_LIST":
-                    container.html(adjustInOutHtml);
-                    container.show();
-                    break;
-                default:
-                    container.html('<input type="hidden" name="additionalFunctionality" value="false"/>');
-                    container.hide();
-                    break;
-            }
         }
     </script>
 </head>

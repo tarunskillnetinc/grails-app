@@ -22,6 +22,45 @@
             }
         }
     });
+
+    function updateAdditionalFuncSection() {
+        const container = $('#additional-func-section');
+        switch ($('#type').val()) {
+            case "PAID_OUT":
+                container.html(`<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Prompt for Age:</label>
+                        <div class="input-group col-4 align-content-start">
+                            <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
+                        </div>`
+                );
+                container.show();
+                break;
+            case "REFUND":
+                container.html(`<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Return to Stock:</label>
+                        <div class="input-group col-4 align-content-start">
+                            <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox"/>
+                        </div>`
+                );
+                container.show();
+                break;
+            case "PRODUCT_LIST":
+                container.html(`<label class="col-3 offset-1 col-form-label text-right">Adjust In/Out:</label>
+                        <div class="input-group col-2 align-content-center">
+                            <label for="adjust-in">Adjust in: </label>&#160;&#160;
+                            <input type="radio" id="adjust-in" name="adjust" value="IN" <g:if test="${reasonCode?.additionalFunctionality}">checked</g:if>>
+                        </div>
+                        <div class="input-group col-2 align-content-center">
+                            <label for="adjust-out">Adjust out: </label>&#160;&#160;
+                            <input type="radio" id="adjust-out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
+                        </div>`
+                );
+                container.show();
+                break;
+            default:
+                container.html('<input type="hidden" name="additionalFunctionality" value="false"/>');
+                container.hide();
+                break;
+        }
+    }
 </script>
 
 <div class="modal-body">
@@ -41,6 +80,13 @@
             <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right" >Description:</label>
             <div class="input-group col-4">
                 <g:textField name="description" value="${reasonCode?.description}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Prompt for Text:</label>
+            <div class="input-group col-4">
+                <g:checkBox name="promptForText" value="${reasonCode?.promptForText}" class="col-1 form-check-input wl-checkbox" />
             </div>
         </div>
 
@@ -66,20 +112,18 @@
             </g:elseif>
             <g:elseif test="${type == "PRODUCT_LIST"}">
                 <div class="row form-group mb-4" id="additional-func-section">
-                    <label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Additional Functionality:</label>
-                    <div class="input-group col-4 align-content-start">
-                        <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
+                    <label class="col-3 offset-1 col-form-label text-right">Adjust In/Out:</label>
+                    <div class="input-group col-2 align-content-center">
+                        <label for="in">Adjust in: </label>&#160;&#160;
+                        <input type="radio" id="in" name="adjust" value="IN" <g:if test="${reasonCode?.additionalFunctionality}">checked</g:if>>
+                    </div>
+                    <div class="input-group col-2 align-content-center">
+                        <label for="out">Adjust out: </label>&#160;&#160;
+                        <input type="radio" id="out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
                     </div>
                 </div>
             </g:elseif>
         </g:else>
-
-        <div class="row form-group mb-4">
-            <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Prompt for Text:</label>
-            <div class="input-group col-4">
-                <g:checkBox name="promptForText" value="${reasonCode?.promptForText}" class="col-1 form-check-input wl-checkbox" />
-            </div>
-        </div>
 
         <g:if test="${!editing}">
             <div class="row form-group mb-4">
@@ -119,5 +163,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancel-edit-btn" class="btn btn-wl" onclick="closeModal();">Cancel</button>
-    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave();">Save</button>
+    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave('${editing}');">Save</button>
 </div>
