@@ -63,6 +63,7 @@
                 data: {id: id},
                 success: function (resp) {
                     modalContents.html(resp);
+                    updateAdditionalFuncSection();
                 },
                 error: function () {
                     closeModal();
