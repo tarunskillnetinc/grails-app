@@ -158,8 +158,18 @@ class ReasonCodeController {
         rc.additionalFunctionality = params.additionalFunctionality != null ? params.additionalFunctionality == "on" : false
         rc.promptForText = params.promptForText != null ? params.promptForText == "on" : false
 
-        if (rc.type == ReasonCodeType.PRODUCT_LIST) {
-            rc.additionalFunctionality = params.adjust != null && params.adjust == "IN"
+        switch (rc.type) {
+            case ReasonCodeType.PAID_OUT:
+                rc.additionalFunctionality = params.promptAge != null && params.promptAge == "on"
+                break
+            case ReasonCodeType.REFUND:
+                rc.additionalFunctionality = params.returnStock != null && params.returnStock == "on"
+                break
+            case ReasonCodeType.PRODUCT_LIST:
+                rc.additionalFunctionality = params.adjust != null && params.adjust == "IN"
+                break
+            default:
+                rc.additionalFunctionality = false
         }
     }
 

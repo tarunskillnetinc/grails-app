@@ -24,40 +24,33 @@
     });
 
     function updateAdditionalFuncSection() {
-        const container = $('#additional-func-section');
+        const promptId = $('#prompt-age-section');
+        const returnStock = $('#return-stock-section');
+        const adjustInOut = $('#adjust-in-out-section');
+
         switch ($('#type').val()) {
             case "PAID_OUT":
-                container.html(`<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Prompt for Age:</label>
-                        <div class="input-group col-4 align-content-start">
-                            <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
-                        </div>`
-                );
-                container.show();
+                promptId.show();
+
+                returnStock.hide();
+                adjustInOut.hide();
                 break;
             case "REFUND":
-                container.html(`<label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Return to Stock:</label>
-                        <div class="input-group col-4 align-content-start">
-                            <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox"/>
-                        </div>`
-                );
-                container.show();
+                returnStock.show();
+
+                promptId.hide();
+                adjustInOut.hide();
                 break;
             case "PRODUCT_LIST":
-                container.html(`<label class="col-3 offset-1 col-form-label text-right">Adjust In/Out:</label>
-                        <div class="input-group col-2 align-content-center">
-                            <label for="adjust-in">Adjust in: </label>&#160;&#160;
-                            <input type="radio" id="adjust-in" name="adjust" value="IN" <g:if test="${reasonCode?.additionalFunctionality}">checked</g:if>>
-                        </div>
-                        <div class="input-group col-2 align-content-center">
-                            <label for="adjust-out">Adjust out: </label>&#160;&#160;
-                            <input type="radio" id="adjust-out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
-                        </div>`
-                );
-                container.show();
+                adjustInOut.show();
+
+                promptId.hide();
+                returnStock.hide();
                 break;
             default:
-                container.html('<input type="hidden" name="additionalFunctionality" value="false"/>');
-                container.hide();
+                promptId.hide();
+                returnStock.hide();
+                adjustInOut.hide();
                 break;
         }
     }
@@ -90,40 +83,31 @@
             </div>
         </div>
 
-        <g:if test="${!editing}">
-            <div class="row form-group mb-4" id="additional-func-section"></div>
-        </g:if>
-        <g:else>
-            <g:if test="${type == "PAID_OUT"}">
-                <div class="row form-group mb-4" id="additional-func-section">
-                    <label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Prompt for Age:</label>
-                    <div class="input-group col-4 align-content-start">
-                        <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
-                    </div>
-                </div>
-            </g:if>
-            <g:elseif test="${type == "REFUND"}">
-                <div class="row form-group mb-4" id="additional-func-section">
-                    <label for="additionalFunctionality" class="col-3 offset-1 col-form-label text-right">Return to Stock:</label>
-                    <div class="input-group col-4 align-content-start">
-                        <g:checkBox name="additionalFunctionality" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
-                    </div>
-                </div>
-            </g:elseif>
-            <g:elseif test="${type == "PRODUCT_LIST"}">
-                <div class="row form-group mb-4" id="additional-func-section">
-                    <label class="col-3 offset-1 col-form-label text-right">Adjust In/Out:</label>
-                    <div class="input-group col-2 align-content-center">
-                        <label for="in">Adjust in: </label>&#160;&#160;
-                        <input type="radio" id="in" name="adjust" value="IN" <g:if test="${reasonCode?.additionalFunctionality}">checked</g:if>>
-                    </div>
-                    <div class="input-group col-2 align-content-center">
-                        <label for="out">Adjust out: </label>&#160;&#160;
-                        <input type="radio" id="out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
-                    </div>
-                </div>
-            </g:elseif>
-        </g:else>
+        <div class="row form-group mb-4" id="prompt-age-section">
+            <label for="promptAge" class="col-3 offset-1 col-form-label text-right">Prompt for Age:</label>
+            <div class="input-group col-4 align-content-start">
+                <g:checkBox name="promptAge" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4" id="return-stock-section">
+            <label for="returnStock" class="col-3 offset-1 col-form-label text-right">Return to Stock:</label>
+            <div class="input-group col-4 align-content-start">
+                <g:checkBox name="returnStock" value="${reasonCode?.additionalFunctionality}" class="col-1 form-check-input wl-checkbox" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4" id="adjust-in-out-section">
+            <label class="col-3 offset-1 col-form-label text-right">Adjust In/Out:</label>
+            <div class="input-group col-2 align-content-center">
+                <label for="in">Adjust in: </label>&#160;&#160;
+                <input type="radio" id="in" name="adjust" value="IN" <g:if test="${reasonCode?.additionalFunctionality}">checked</g:if>>
+            </div>
+            <div class="input-group col-2 align-content-center">
+                <label for="out">Adjust out: </label>&#160;&#160;
+                <input type="radio" id="out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
+            </div>
+        </div>
 
         <g:if test="${!editing}">
             <div class="row form-group mb-4">
