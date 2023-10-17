@@ -31,6 +31,14 @@
             <div class="alert alert-danger text-center alert-wl mx-0" role="alert">Please ensure a unique positive integer Till ID is provided when adding a till.</div>
         </g:else>
     </g:elseif>
+    <g:elseif test="${saveSerialNumberError}">
+        <g:if test="${enableEdit}">
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">This Serial Number already exists.<br> Please select a unique Serial Number when editing a till.</div>
+        </g:if>
+        <g:else>
+            <div class="alert alert-danger text-center alert-wl mx-0" role="alert">This Serial Number already exists.<br>Please select a unique Serial Number when adding a till.</div>
+        </g:else>
+    </g:elseif>
 
     <g:hasErrors bean="${till}">
         <section id="errors-container" class="container-fluid">
