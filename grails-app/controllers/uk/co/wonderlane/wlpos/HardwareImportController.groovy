@@ -66,7 +66,7 @@ class HardwareImportController {
                             } else if (serialsInStock.contains(row.serialNumber?.trim()) || serialsInStock.contains(row.serialNumber)) {
                                 row.validRow = false
                                 row.errorRow = "Invalid - Serial number already exists"
-                            } else if(!validRegexSerial(row.getSerialNumber())) {
+                            } else if (!validRegexSerial(row.getSerialNumber())) {
                                 row.validRow = false
                                 row.errorRow = "Invalid - Serial number cannot contain special characters or spaces"
                             } else {
@@ -151,9 +151,8 @@ class HardwareImportController {
         return null
     }
 
-    private boolean validRegexSerial(String s) {
-        def pattern = "^(?!\\s)(?!.*\\s\$)[a-z,A-D,0-9,-,\\\\,\\/]+"
-        return s ==~ pattern
+    private static boolean validRegexSerial(String s) {
+        return s ==~ /[a-zA-Z0-9\-\\/]+/
     }
 }
 
