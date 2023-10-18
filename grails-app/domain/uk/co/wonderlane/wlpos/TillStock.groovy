@@ -24,7 +24,7 @@ class TillStock {
         model column: "model"
         retailerId column: "retailerId", sqlType: "tinyint"
         tillId column: "tillId", sqlType: "int"
-        storeId column: "storeId", sqlType: "int"
+        storeId column: "storeId", sqlType: "smallint"
         dateUpdated column: "dateUpdated"
     }
 
