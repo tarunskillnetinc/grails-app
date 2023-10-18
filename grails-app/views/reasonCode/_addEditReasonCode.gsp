@@ -108,6 +108,13 @@
                 <input type="radio" id="out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
             </div>
         </div>
+        
+        <div class="row form-group mb-4">
+            <label for="preferredReasonCode" class="col-3 offset-1 col-form-label text-right">Preferred Reason Code:</label>
+            <div class="input-group col-4">
+                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" />
+            </div>
+        </div>
 
         <g:if test="${!editing}">
             <div class="row form-group mb-4">
@@ -130,7 +137,6 @@
         <g:hiddenField name="id" value="${reasonCode?.id}"/>
         <g:hiddenField name="code" value="${reasonCode?.code}"/>
         <g:hiddenField name="deleted" value="${reasonCode?.deleted}"/>
-        <g:hiddenField name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}"/>
         <g:hiddenField name="secret" value="${reasonCode?.secret}"/>
 
         <g:if test="${reasonCode?.retailerId}">
