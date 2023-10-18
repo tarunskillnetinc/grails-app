@@ -154,7 +154,7 @@ class ReasonCodeController {
         rc.retailerId = params.description != null ? params.retailerId.toString().toInteger() : null
         rc.secret = params.secret
         rc.deleted = params.deleted != null ? params.deleted == "true" : false
-        rc.preferredReasonCode = params.preferredReasonCode != null ? params.preferredReasonCode == "true" : false
+        rc.preferredReasonCode = params.preferredReasonCode != null ? params.preferredReasonCode == "on" : false
         rc.additionalFunctionality = params.additionalFunctionality != null ? params.additionalFunctionality == "on" : false
         rc.promptForText = params.promptForText != null ? params.promptForText == "on" : false
 
