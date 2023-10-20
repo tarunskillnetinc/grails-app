@@ -167,9 +167,23 @@ class ReasonCodeController {
         rc.retailerId = params.description != null ? params.retailerId.toString().toInteger() : null
         rc.secret = isNullOrEmpty(params.secret) ? null : params.secret
         rc.deleted = params.deleted != null ? params.deleted == "true" : false
-        rc.preferredReasonCode = params.preferredReasonCode != null ? params.preferredReasonCode == "true" : false
+        rc.preferredReasonCode = params.preferredReasonCode != null ? params.preferredReasonCode == "on" : false
         rc.additionalFunctionality = params.additionalFunctionality != null ? params.additionalFunctionality == "on" : false
         rc.promptForText = params.promptForText != null ? params.promptForText == "on" : false
+
+        switch (rc.type) {
+            case ReasonCodeType.PAID_OUT:
+                rc.additionalFunctionality = params.promptAge != null && params.promptAge == "on"
+                break
+            case ReasonCodeType.REFUND:
+                rc.additionalFunctionality = params.returnStock != null && params.returnStock == "on"
+                break
+            case ReasonCodeType.PRODUCT_LIST:
+                rc.additionalFunctionality = params.adjust != null && params.adjust == "IN"
+                break
+            default:
+                rc.additionalFunctionality = false
+        }
     }
 
     def isNullOrEmpty(str) {

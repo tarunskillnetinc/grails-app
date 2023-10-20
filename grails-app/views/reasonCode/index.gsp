@@ -63,6 +63,7 @@
                 data: {id: id},
                 success: function (resp) {
                     modalContents.html(resp);
+                    updateAdditionalFuncSection();
                 },
                 error: function () {
                     closeModal();
@@ -79,6 +80,7 @@
                 method: "GET",
                 success: function (resp) {
                     modalContents.html(resp);
+                    updateAdditionalFuncSection();
                 },
                 error: function () {
                     closeModal();
@@ -87,7 +89,7 @@
             });
         }
 
-        function ajaxSave() {
+        function ajaxSave(editing) {
             const data = $('#edit-code-form').serialize()
             clearErrorMsg();
             setupModal();
@@ -103,6 +105,9 @@
                     } else {
                         showSaveBtns();
                         modalContents.html(resp);
+                        if (!editing || editing === 'false') {
+                            updateAdditionalFuncSection();
+                        }
                     }
                 },
                 error: function () {
