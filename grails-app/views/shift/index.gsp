@@ -52,6 +52,7 @@
                 $('#startDate').on('change', updateSnapshotLink);
                 $('#endDate').on('change', updateSnapshotLink);
                 document.getElementById('tillId').addEventListener('change', updateSnapshotLink);
+                updateSnapshotLink()
 
             });
 
