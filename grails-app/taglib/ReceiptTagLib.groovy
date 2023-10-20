@@ -2,7 +2,6 @@ import com.google.zxing.common.BitMatrix
 import com.google.zxing.oned.Code128Writer
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
-import org.apache.commons.lang3.StringUtils
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
 import java.math.RoundingMode
@@ -114,7 +113,7 @@ class ReceiptTagLib {
                 break
             case ReceiptLineType.TENDER_ITEM:
                 out << """<div><span class="qty">&nbsp;&nbsp;&nbsp;</span></span>"""
-                out << """<span class="desc">${receiptLine.text.substring(0, Math.min(BASKET_ITEM_LENGTH - currencyFormatter.format(receiptLine.getTotal() ? receiptLine.getTotal() : 0).length(), receiptLine.getText().length()))}</span>"""
+                out << """<span class="desc">${receiptLine.text.substring(0, Math.min(BASKET_ITEM_LENGTH - (receiptLine.total ? currencyFormatter.format(receiptLine.total).length() : 0), receiptLine.getText().length()))}</span>"""
                 out << """<span class="total">${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}</span></div>"""
                 break
             case ReceiptLineType.TENDER_HEADING:
