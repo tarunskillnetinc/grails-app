@@ -61,7 +61,7 @@
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                    <g:field name="maxSellQuantity" type="number" min="0" max="999" value="${tag?.maxSellQuantity}" class="col-2 form-control bottom-border" onkeypress="return preventNegativeInteger(event);" />
+                    <g:field name="maxSellQuantity" type="number" min="0" max="999" value="${tag?.maxSellQuantity}" class="col-2 form-control bottom-border" onkeypress="return preventNegativeInteger(event);" onpaste="return false;" />
                 </div>
 
                 <div class="header-wl mt-5">
