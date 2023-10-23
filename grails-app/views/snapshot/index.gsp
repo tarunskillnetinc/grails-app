@@ -57,7 +57,7 @@
             <h2 id="page-title" class="mx-auto">Snapshot Viewer</h2>
         </div>
 
-        <section id="alert-container" class="container-fluid">
+        <section id="alert-container">
         </section>
 
         <div class="row mt-4">
@@ -88,7 +88,7 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4 offset-6 text-right">
+                                <div class="col-12 text-right">
                                     <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetSnapshotFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getSnapshots();">Filter</button>
                                 </div>
