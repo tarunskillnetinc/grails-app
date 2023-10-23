@@ -37,6 +37,7 @@
                     $("#categoryRestrictions").html(resp);
                     $(".mask-money").maskMoney({ allowZero: true });
                     $(".mask-money").maskMoney('mask');
+                    setFieldActivity()
                 }
             });
         }
@@ -62,6 +63,10 @@
         }
 
         $(function() {
+            setFieldActivity();
+        })
+
+        function setFieldActivity() {
             $('#description').on('input', function () {
                 $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
             })
@@ -84,7 +89,7 @@
                 $("#restrictions\\.sellerAgeRestriction").val("");
                 $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
             });
-        })
+        }
     </script>
 </head>
 
