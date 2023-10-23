@@ -54,6 +54,16 @@
                 break;
         }
     }
+
+    function togglePreferredReasonCode() {
+        const checkbox = $('#preferredReasonCode');
+        const disabled = $('#secret').val();
+
+        if (disabled && checkbox.prop('checked')) {
+            checkbox.prop('checked', false);
+        }
+        checkbox.prop("disabled", disabled);
+    }
 </script>
 
 <div class="modal-body">
@@ -112,14 +122,14 @@
         <div class="row form-group mb-4">
             <label for="preferredReasonCode" class="col-3 offset-1 col-form-label text-right">Preferred Reason Code:</label>
             <div class="input-group col-4">
-                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" />
+                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" disabled="${reasonCode != null && reasonCode.secret != null && reasonCode.secret.trim().length() > 1}"/>
             </div>
         </div>
 
         <div class="row form-group mb-4">
             <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Secret:</label>
             <div class="input-group col-4">
-                <g:textField name="secret" value="${reasonCode?.secret}" class="form-control bottom-border" />
+                <g:textField name="secret" value="${reasonCode?.secret}" class="form-control bottom-border" oninput="togglePreferredReasonCode();"/>
             </div>
         </div>
 
