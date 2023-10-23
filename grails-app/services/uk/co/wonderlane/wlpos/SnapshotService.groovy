@@ -8,6 +8,8 @@ import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.LocationType
+import uk.co.wonderlane.wlpos.reporting.Location
 
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -19,6 +21,7 @@ class SnapshotService extends MySqlDal {
 
     def springSecurityService
     def gsonProvider
+    def locationService
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
@@ -85,13 +88,18 @@ class SnapshotService extends MySqlDal {
         return null
     }
 
-    def getSafeSnapshot() {
+    def getSnapshotForLocation(Integer locationId) {
         Connection conn = getConnection()
-        CallableStatement getSnapshotStatement = conn.prepareCall("{ call getLatestSnapshot(?, ?) }")
+        CallableStatement getSnapshotStatement = conn.prepareCall("{ call getLatestSnapshotForLocation(?, ?, ?) }")
 
         try {
             getSnapshotStatement.setInt(1, springSecurityService.principal.retailerId)
             getSnapshotStatement.setInt(2, springSecurityService.principal.storeId)
+            if (locationId) {
+                getSnapshotStatement.setInt(3, locationId)
+            } else {
+                getSnapshotStatement.setInt(3, getDefaultSafeLocation(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).id)
+            }
 
             ResultSet rs = getSnapshotStatement.executeQuery()
 
@@ -109,7 +117,7 @@ class SnapshotService extends MySqlDal {
             conn.close()
         }
 
-        Snapshot latest = new Snapshot(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        Snapshot latest = new Snapshot(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, locationId)
         int latestId = saveSnapshot(latest)
         latest.setId(latestId)
         return latest
@@ -125,7 +133,7 @@ class SnapshotService extends MySqlDal {
             saveSnapshotStatement.setString(2, gsonProvider.gson.toJson(snapshot, Snapshot.class))
             saveSnapshotStatement.execute()
 
-            Snapshot newSafe = new Snapshot(snapshot.retailerId, snapshot.storeId)
+            Snapshot newSafe = new Snapshot(snapshot.retailerId, snapshot.storeId, snapshot.locationId)
             for (ReconciliationTotal total : snapshot.totals) {
                 TenderTotal newTotal = new TenderTotal(total.tenderType)
                 newTotal.value = total.value
@@ -170,5 +178,4 @@ class SnapshotService extends MySqlDal {
 
         return 0
     }
-
 }

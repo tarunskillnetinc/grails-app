@@ -9,8 +9,10 @@ import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.LocationType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.reporting.Location
 
 class ShiftControllerSpec extends Specification implements ControllerUnitTest<ShiftController> {
 
@@ -212,6 +214,8 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             getShift(cashUpCommand.getShiftId()) >> _shift
         }
 
+        controller.locationService = Stub(LocationService) {}
+
         when:
         def mockView = '<div class="cashUpSummaryModal"> </div>'
         views['/shift/_cashUpSummaryModal.gsp'] = mockView
@@ -288,10 +292,12 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         given:
 
         SaveShiftCommand saveShiftCommand = getSaveShiftCommand(
-                1, TenderReconciliationVarianceReason.TILL_OVERS_UNDERS, "TILL_OVERS_UNDERS")
+                1, TenderReconciliationVarianceReason.TILL_OVERS_UNDERS, "TILL_OVERS_UNDERS", 1)
 
         Shift _shift = getNewShiftObject(1)
-        Snapshot _latestSafeSnapshot = getSafeSnapshot(1, 1, 1)
+        Location _safeLocation = getLocation(1, 1, 1, null, 1)
+        Location _tillLocation = getLocation(2, 1, 1, _shift.tillId, null)
+        Snapshot _latestSafeSnapshot = getSafeSnapshot(1, 1, 1, _safeLocation.id)
 
         controller.shiftService = Stub(ShiftService) {
             _shift.setReconciledDate(reconciledDate)
@@ -301,6 +307,11 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             _shift.setTenderTotals(List.of(getTenderTotal(TenderType.CASH, 10)))
 
             getShift(saveShiftCommand.getShiftId()) >> _shift
+        }
+
+        controller.locationService = Stub(LocationService) {
+            getTillLocation(_shift.tillId) >> _tillLocation
+            getLocation(_latestSafeSnapshot.locationId) >> _safeLocation
         }
 
         controller.snapshotService = Stub(SnapshotService) {
@@ -315,13 +326,17 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             }
 
             _latestSafeSnapshot.setExpectedTotals(tenderTotals)
-            getSafeSnapshot() >> _latestSafeSnapshot
+            getSnapshotForLocation(1) >> _latestSafeSnapshot
         }
+
+        controller.reportingService = Stub(ReportingService) {}
 
         controller.springSecurityService = Stub(SpringSecurityService) {
             getPrincipal() >> new HashMap() {
                 {
                     put("id", 1)
+                    put("retailerId", 1)
+                    put("storeId", 1)
                     put("usersName", "TEST_USER")
                 }
             }
@@ -345,8 +360,6 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         }
 
         _latestSafeSnapshot
-
-
         if (snapshotCashTotal != null && snapshotVoucherTotal != null) {
             _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH }.getValue() == BigDecimal.valueOf(1500)
             _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER }.getValue() == BigDecimal.valueOf(600)
@@ -434,23 +447,38 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         return cashUpCommand
     }
 
-    private SaveShiftCommand getSaveShiftCommand(int shiftId, TenderReconciliationVarianceReason reason, String reasonText) {
+    private SaveShiftCommand getSaveShiftCommand(int shiftId, TenderReconciliationVarianceReason reason, String reasonText, int safeLocationId) {
         SaveShiftCommand saveShiftCommand = new SaveShiftCommand()
 
         saveShiftCommand.setShiftId(shiftId)
         saveShiftCommand.setTenderReconciliationVarianceReason(reason)
         saveShiftCommand.setTenderReconciliationVarianceReasonText(reasonText)
+        saveShiftCommand.setSafeLocationId(safeLocationId)
 
         return saveShiftCommand
     }
 
-    private Snapshot getSafeSnapshot(int id, int retailerId, int storeId) {
+    private Snapshot getSafeSnapshot(int id, int retailerId, int storeId, int locationId) {
         Snapshot snapshot = new Snapshot()
 
         snapshot.setId(id)
         snapshot.setRetailerId(retailerId)
         snapshot.setStoreId(storeId)
+        snapshot.setLocationId(locationId)
 
         return snapshot
+    }
+
+    private Location getLocation(int id, int retailerId, int storeId, Integer tillId, Integer safeId) {
+        Location location = new Location()
+
+        location.setId(id)
+        location.setRetailerId(retailerId)
+        location.setStoreId(storeId)
+        location.setTillId(tillId)
+        location.setSafeId(safeId)
+        location.setType(safeId != null ? LocationType.SAFE : LocationType.TILL)
+
+        return location
     }
 }

@@ -3,13 +3,18 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.ReadOnly
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
+import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.reporting.PayPointSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
 import uk.co.wonderlane.wlpos.reporting.ReportType
 import uk.co.wonderlane.wlpos.reporting.Sale
+import uk.co.wonderlane.wlpos.reporting.SaleCategory
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 import uk.co.wonderlane.wlpos.reporting.TillControlEvent
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 
@@ -288,6 +293,64 @@ class ReportingService {
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
         int totalCount = PayPointSale.withTransaction { results.totalCount }
         return results
+    }
+
+    @ReadOnly('reportingReadOnly')
+    def getTenderMovements(DateTime startDate, DateTime endDate, TenderMovementType tenderMovementType, TenderType tenderType, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def tenderMovementCriteria = TenderMovement.withTransaction { TenderMovement.createCriteria() }
+
+        def results = tenderMovementCriteria.list([sort: sortColumn, order: sortOrder, offset: startIndex, max: maxResults]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+
+            if (springSecurityService.principal.storeId != null) {
+                eq ("storeId", springSecurityService.principal.storeId)
+            } else if (storeId) {
+                eq ("storeId", storeId)
+            }
+
+            if (tenderType) {
+                eq("tenderType", tenderType)
+            }
+
+            if (tenderMovementType) {
+                eq("type", tenderMovementType)
+            }
+
+            between ("timestamp", startDate, endDate)
+        }
+
+        // Criteria.list() with max and offset returns a totalCount, but for some reason I am having to read that value otherwise an error is thrown when trying to use it back in the controller.
+        // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
+        // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
+        int totalCount = TenderMovement.withTransaction { results.totalCount }
+        return results
+    }
+
+    def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation, BigDecimal amount) {
+        TenderMovement tenderMovement = new TenderMovement()
+        tenderMovement.retailerId = springSecurityService.principal.retailerId
+        tenderMovement.storeId = springSecurityService.principal.storeId
+        tenderMovement.userId = springSecurityService.principal.id
+        tenderMovement.userName = springSecurityService.principal.usersName
+        tenderMovement.type = movementType
+        tenderMovement.tenderType = tenderType
+        tenderMovement.fromLocation = fromLocation
+        tenderMovement.toLocation = toLocation
+        tenderMovement.amount = amount
+        tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+        return tenderMovement
+    }
+
+    def saveTenderMovement(TenderMovement tenderMovement) {
+        if (tenderMovement.validate()) {
+            tenderMovement.save()
+            return true
+        } else {
+            tenderMovement.errors.each {
+                System.out.println(it.toString())
+            }
+            return false
+        }
     }
 
     @ReadOnly('reportingReadOnly')
