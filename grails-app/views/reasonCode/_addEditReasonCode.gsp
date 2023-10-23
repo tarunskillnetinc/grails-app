@@ -159,5 +159,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancel-edit-btn" class="btn btn-wl" onclick="closeModal();">Cancel</button>
-    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave('${editing}');">Save</button>
+    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave();">Save</button>
 </div>

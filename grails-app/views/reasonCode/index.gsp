@@ -89,7 +89,7 @@
             });
         }
 
-        function ajaxSave(editing) {
+        function ajaxSave() {
             const data = $('#edit-code-form').serialize()
             clearErrorMsg();
             setupModal();
@@ -105,9 +105,7 @@
                     } else {
                         showSaveBtns();
                         modalContents.html(resp);
-                        if (!editing || editing === 'false') {
-                            updateAdditionalFuncSection();
-                        }
+                        updateAdditionalFuncSection();
                     }
                 },
                 error: function () {
