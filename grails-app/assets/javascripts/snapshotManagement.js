@@ -64,7 +64,7 @@ function showModal(type, id) {
         success: function(resp) {
             $("#modal-content").html(resp);
 
-            $(".mask-money").maskMoney({allowZero: false});
+            $(".mask-money").maskMoney({allowZero: true});
             $(".mask-money").maskMoney('mask');
         }
     });
