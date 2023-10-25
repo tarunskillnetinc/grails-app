@@ -139,7 +139,7 @@ class ShiftController {
             cashTotal.value = cashUpCommand.cashTotal
         }
 
-        cashTotal.variance = (cashTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll { it.tenderType == TenderType.CASH }?.sum { it.value } ?: BigDecimal.ZERO)
+        cashTotal.variance = (cashTotal.value ?: BigDecimal.ZERO) - (shift.cashInDrawer ?: BigDecimal.ZERO)
 
         ReconciliationTotal vouchersTotal = shift.reconciliationTotals?.find { it.tenderType == TenderType.VOUCHER }
 
