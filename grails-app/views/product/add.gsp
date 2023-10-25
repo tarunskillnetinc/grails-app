@@ -29,6 +29,10 @@
             var getPromotionsUrl = "${createLink(controller: 'promotion', action: 'ajaxGetPromotionsForProduct')}";
 
             $(document).ready(function () {
+                setFieldActivity()
+            });
+
+            function setFieldActivity() {
                 $('#effectiveDate').datepicker({
                     format: "dd/mm/yyyy",
                     weekStart: 1,
@@ -157,7 +161,7 @@
                     }
                     $('.add-product-receiptDesc').removeClass("is-invalid");
                 });
-            });
+            }
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
             function itemCodeChanged(itemCode) {
@@ -852,6 +856,7 @@
                     },
                     success: function (resp) {
                         $("#restrictionsContainer").html(resp);
+                        setFieldActivity();
                     }
                 });
             }

@@ -8,6 +8,7 @@
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
+        <asset:javascript src="validators/input-validator.js" />
 
         <script type='text/javascript'>
             var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
@@ -53,7 +54,7 @@
                 getReceipts();
             });
 
-            function getReceipts(offset, max) {
+            function getReceipts(sort, order, offset, max) {
                 $("#search-results").hide();
                 $("#loading-indicator").show();
 
@@ -65,7 +66,7 @@
                 $.ajax({
                     url: getReceiptsUrl,
                     method: "GET",
-                    data: { startDate: startDate, endDate: endDate, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
+                    data: { startDate: startDate, endDate: endDate, sort: sort, order: order, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
                     success: function(resp) {
                         $("#results-container").html(resp);
                     }
@@ -97,13 +98,6 @@
 
                 document.getElementById('tillId').value = null;
                 document.getElementById('transactionId').value = null;
-            }
-
-            function acceptNumeric(e) {
-                if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
-                    return;
-                }
-                e.preventDefault();
             }
         </script>
     </head>

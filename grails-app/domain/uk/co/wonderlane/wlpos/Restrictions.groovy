@@ -3,8 +3,8 @@ package uk.co.wonderlane.wlpos
 class Restrictions {
 
     int id
-    BigDecimal minOpenPrice
-    BigDecimal maxOpenPrice
+    BigDecimal minOpenPrice = 0.01
+    BigDecimal maxOpenPrice = 99999.99
     Boolean buyerIdRequired
     Boolean buyerIdForced
     Integer buyerAgeRestriction
@@ -48,11 +48,7 @@ class Restrictions {
                 return ["restrictions.buyerAgeRestriction.nullable"]
             }
         }
-        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true, validator: { val, obj ->
-            if (obj.buyerIdRequired && val == null) {
-                return ["restrictions.buyerChallengeAge.nullable"]
-            }
-        }
+        buyerChallengeAge min: 1, max: 50, blank: true, nullable: true
         buyerIdRequired nullable: true
         buyerIdForced nullable: true
         sellerAgeRestriction min: 16, max: 21, blank: true, nullable:true, validator: { val, obj ->
@@ -95,6 +91,6 @@ class Restrictions {
     }
 
     public BigDecimal getDefaultMaxOpenPrice() {
-        return 9999.99 as BigDecimal
+        return 99999.99 as BigDecimal
     }
 }

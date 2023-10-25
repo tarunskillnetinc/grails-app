@@ -27,6 +27,19 @@ class ReceiptController {
         Integer tillId = null
         Integer transactionId = null
 
+        String sort = params.sort
+        String order = params.order
+
+        def availableColumns = [ "storeId", "tillId", "dateGenerated", "transactionId", "transactionAmount" ]
+
+        if (!availableColumns.contains(sort)) {
+            sort = "dateGenerated"
+        }
+
+        if ("asc" != order && "desc" != order) {
+            order = "desc"
+        }
+
         if (params.tillId) {
             try {
                 tillId = Integer.parseInt(params.tillId)
@@ -43,7 +56,9 @@ class ReceiptController {
             }
         }
 
-        render (template: "receiptViewerResults", model: [receipts: receiptService.getReceipts(startDate, endDate, tillId, transactionId, offset, max), offset: offset, max: max, startDate: params.startDate, endDate: params.endDate])
+        def (results, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
+
+        render (template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, totalReceiptLineType: ReceiptLineType.TOTAL])
     }
 
     def ajaxGetReceipt(int receiptId) {
@@ -52,7 +67,7 @@ class ReceiptController {
         render (template: "receipt", model: [receipt: receipt,
                                              containsModifiers: receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
                                              firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
-                                             maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length(),
-                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length()])
+                                             maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
+                                             maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
     }
 }

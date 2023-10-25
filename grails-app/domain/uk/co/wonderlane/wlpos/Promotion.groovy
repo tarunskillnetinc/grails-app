@@ -58,6 +58,9 @@ class Promotion {
             if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT && val <= BigDecimal.ZERO) {
                 return 'error.Promotion.fixedAmountNotSet'
             }
+            if (obj.type == PromotionType.PERCENTAGE_DISCOUNT && val <= BigDecimal.ZERO) {
+                return 'error.Promotion.percentageDiscountNotSet'
+            }
         }
         lossCategoryId nullable: true
         active nullable: false
@@ -74,7 +77,7 @@ class Promotion {
         promotion.setDescription(description)
         promotion.setReceiptDescription(receiptDescription)
         promotion.setStartDate(new DateTime(startDate))
-        promotion.setEndDate(new DateTime(endDate))
+        promotion.setEndDate(endDate != null ? new DateTime(endDate) : null)
         promotion.setType(type)
         promotion.setAmount(amount)
         promotion.setLossCategoryId(lossCategoryId)

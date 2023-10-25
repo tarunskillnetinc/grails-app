@@ -1,24 +1,26 @@
+<asset:javascript src="validators/input-validator.js" />
+
 <div class="row mt-2">
     <div class="col-12">
         <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
             <li class="nav-item">
-                <a id="bogof-tab" data-toggle="tab" href="#bogof" aria-selected="true" role="tab" aria-controls="bogof" class="nav-link ${promoType.equals('bogof') ? 'active' : ''}">BOGOF</a>
+                <a id="bogof-tab" data-toggle="tab" href="#bogof" aria-selected="true" role="tab" aria-controls="bogof" class="nav-link ${editing ? (promoType.equals('bogof') ? 'active' : 'disabled') : (promoType.equals('bogof') ? 'active' : '')}">BOGOF</a>
             </li>
 
             <li class="nav-item">
-                <a id="xfory-tab" data-toggle="tab" href="#xfory" role="tab" aria-controls="xfory" class="nav-link ${promoType.equals('x_for_y') ? 'active' : ''}">X for Y</a>
+                <a id="xfory-tab" data-toggle="tab" href="#xfory" role="tab" aria-controls="xfory" class="nav-link ${editing ? (promoType.equals('x_for_y') ? 'active' : 'disabled') : (promoType.equals('x_for_y') ? 'active' : '')}">X for Y</a>
             </li>
 
             <li class="nav-item">
-                <a id="percentage-tab" data-toggle="tab" href="#percentage" role="tab" aria-controls="percentage" class="nav-link ${promoType.equals('percentage_discount') ? 'active' : ''}">Percentage</a>
+                <a id="percentage-tab" data-toggle="tab" href="#percentage" role="tab" aria-controls="percentage" class="nav-link ${editing ? (promoType.equals('percentage_discount') ? 'active' : 'disabled') : (promoType.equals('percentage_discount') ? 'active' : '')}">Percentage</a>
             </li>
 
             <li class="nav-item">
-                <a id="fixedAmount-tab" data-toggle="tab" href="#fixedAmount" role="tab" aria-controls="fiexdAmount" class="nav-link ${promoType.equals('fixed_amount_discount') ? 'active' : ''}" >Fixed Amount</a>
+                <a id="fixedAmount-tab" data-toggle="tab" href="#fixedAmount" role="tab" aria-controls="fiexdAmount" class="nav-link ${editing ? (promoType.equals('fixed_amount_discount') ? 'active' : 'disabled') : (promoType.equals('fixed_amount_discount') ? 'active' : '')}" >Fixed Amount</a>
             </li>
 
             <li class="nav-item">
-                <a id="fixedPrice-tab" data-toggle="tab" href="#fixedPrice" role="tab" aria-controls="fiexdPrice" class="nav-link ${promoType.equals('fixed_price') ? 'active' : ''}" >Fixed Price</a>
+                <a id="fixedPrice-tab" data-toggle="tab" href="#fixedPrice" role="tab" aria-controls="fiexdPrice" class="nav-link ${editing ? (promoType.equals('fixed_price') ? 'active' : 'disabled') : (promoType.equals('fixed_price') ? 'active' : '')}" >Fixed Price</a>
             </li>
         </ul>
     </div>
@@ -78,8 +80,8 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="bogof-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <label for="bogof-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
+                        <g:field type="number" name="bogof-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -220,8 +222,8 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="xfory-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <label for="xfory-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
+                        <g:field type="number" name="xfory-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -417,8 +419,8 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="percentage-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <label for="percentage-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
+                        <g:field type="number" name="percentage-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -428,7 +430,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-amount" class="col-3 col-form-label text-right pr-4">Percentage</label>
-                        <g:field type="number" step="0.01" min="0" max="100.00" name="percentage-amount" class="col-5 form-control bottom-border" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField name="percentage-amount" class="col-5 form-control bottom-border mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -566,8 +568,8 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <label for="fixedAmount-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
+                        <g:field type="number" name="fixedAmount-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -577,7 +579,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-amount" class="col-3 col-form-label text-right pr-4">Discount Amount</label>
-                        <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -723,8 +725,8 @@
                 </div>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
-                        <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion ID</label>
-                        <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}"/>
+                        <label for="fixedPrice-retailerPromoId" class="col-3 col-form-label text-right pr-4">Promotion Reference</label>
+                        <g:field type="number" name="fixedPrice-retailerPromoId" min="0" max="999999999" class="col-5 form-control bottom-border promo-id" required="true" value="${promotion?.retailerPromotionId}" onkeydown="acceptNumeric(event);"/>
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-active" class="col-3 col-form-label text-right pr-4">Active</label>
@@ -734,7 +736,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-amount" class="col-3 col-form-label text-right pr-4">Fixed Amount</label>
-                        <g:field type="number" step="0.01" min="0" max="9999.99" name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
+                        <g:textField name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
                     </div>
                 </div>
                 <div class="row">

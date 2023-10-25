@@ -27,7 +27,7 @@ class PayPointSale {
         version false
 
         id column : "id"
-        retailerId column: "retailerId"
+        retailerId column: "retailerId", sqlType: "tinyint"
         storeId column: "storeId"
         wlTransactionId column: "wlTransactionId"
         ppTransactionId column: "ppTransactionId"

@@ -56,9 +56,9 @@
     <div class="col-12 col-lg-8 col-xl-6 offset-lg-2 offset-xl-3 mt-4 px-0 text-right" style="padding-right: 5px !important;">
         <g:if test="${storeId}">
         </g:if>
-        <g:else>
+        <g:elseif test="${buttonGrid.type.name() == 'OTHER'}">
             <g:link elementId="edit-button-grid-btn" action="edit" id="${buttonGrid.id}" class="btn btn-wl">Edit Button Grid</g:link>
-        </g:else>
+        </g:elseif>
         <button name="sync-button-grid-btn" onclick="fullSync(${buttonGrid.id})" id="${buttonGrid.id}" class="btn btn-success">Sync Button Grid</button>
     </div>
 
@@ -85,16 +85,6 @@
                             </g:link>
                         </g:else>
                     </g:if>
-                    <g:elseif test="${button.type.name() == 'TENDER' && button.tenderType.name() == 'CASH' && !button.description}"><!-- Exact cash button -->
-                        <div id="button-${c+1}-${r+1}" class=" col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
-                            <div class="button-grid-button blank">Exact</div>
-                        </div>
-                    </g:elseif>
-                    <g:elseif test="${button.buttonGrid?.type?.name() == 'TENDER' && button.type.name() == 'PROCESS'}"><!-- Tender back button -->
-                        <div id="button-${c+1}-${r+1}" class="col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container" style="color: #000000;">
-                            <div class="button-grid-button blank">${button.description}</div>
-                        </div>
-                    </g:elseif>
                     <g:else><!-- All other assigned buttons -->
                         <g:link controller="button" action="edit" id="${button.id}" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
                             <div id="button-${c+1}-${r+1}" class="button-grid-button" style="background: ${button.bgColour}; color: ${button.textColour}; border: 2px ${button.type.name() == 'BLANK' ? 'dashed' : 'solid'} black;">

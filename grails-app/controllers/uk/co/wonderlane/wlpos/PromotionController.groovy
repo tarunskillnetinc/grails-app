@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import groovy.time.Duration
+import org.apache.commons.lang3.RegExUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -105,7 +106,8 @@ class PromotionController {
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
-                                            productItemType: productItemType])
+                                            productItemType: productItemType,
+                                            editing: true])
     }
 
     def maintenanceError() {
@@ -167,7 +169,8 @@ class PromotionController {
                                             categoriesRequired: categoriesRequired,
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer])
+                                            tagsOffer: tagsOffer,
+                                            editing: false])
     }
 
     def setupBasePromotion(Promotion promotion, String type) {
@@ -184,23 +187,25 @@ class PromotionController {
             case "bogof":
                 promotion.amount = new BigDecimal(0).setScale(2, RoundingMode.HALF_UP)
                 promotion.type = PromotionType.BOGOF
-                break;
+                break
             case "xfory":
                 promotion.amount = new BigDecimal(0).setScale(2, RoundingMode.HALF_UP)
                 promotion.type = PromotionType.X_FOR_Y
-                break;
+                break
             case "percentage":
                 promotion.amount = new BigDecimal(params."percentage-amount").setScale(2, RoundingMode.HALF_UP)
                 promotion.type = PromotionType.PERCENTAGE_DISCOUNT
-                break;
+                break
             case "fixedAmount":
-                promotion.amount = new BigDecimal(params."fixedAmount-amount").setScale(2, RoundingMode.HALF_UP)
+                String amount = RegExUtils.removeAll(params."fixedAmount-amount", "[,]")
+                promotion.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP)
                 promotion.type = PromotionType.FIXED_AMOUNT_DISCOUNT
-                break;
+                break
             case "fixedPrice":
-                promotion.amount = new BigDecimal(params."fixedPrice-amount").setScale(2, RoundingMode.HALF_UP)
+                String amount = RegExUtils.removeAll(params."fixedPrice-amount", "[,]")
+                promotion.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP)
                 promotion.type = PromotionType.FIXED_PRICE
-                break;
+                break
         }
 
 

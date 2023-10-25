@@ -15,6 +15,36 @@
                 displayTextCheck.attr("disabled", true)
             }
 
+            const tenderTypeInput = document.getElementById("tenderTypeInput");
+            const exactInput = $("input[id*=exactInput]")
+            const amountInput = $("input[id*=amountInput]")
+
+            if (tenderTypeInput != null) {
+                if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
+                    if (amountInput.val() === "0.00") {
+                        exactInput.prop("checked", true)
+                        amountInput.attr("disabled", true)
+                    }
+                    document.getElementById("exactLabel").style.display = 'block'
+                    exactInput.show();
+                } else {
+                    document.getElementById("exactLabel").style.display = 'none'
+                    exactInput.hide();
+                }
+            }
+
+            if ('${previousImage}' === 'true') {
+                const image = $('.button-image').first()
+                fetch(image.attr('src'))
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'previous.png', blob)
+                        let container = new DataTransfer()
+                        container.items.add(file)
+                        document.querySelector('#image').files = container.files
+                    })
+            }
+
             $("#image").on("change", function() {
                 if (this.files[0].size < 1048576 /* 1MB */) { // max size should match number value in SaveButtonFormCommand.groovy
                     if (this.files[0].type === "image/png") {
@@ -74,6 +104,18 @@
                 }
             })
 
+            exactInput.on("change", function() {
+                if (this.checked) {
+                    amountInput.attr("disabled", true)
+                    amountInput.prop("value", "0.00")
+                    $("#amount").val("0.00");
+                } else {
+                    amountInput.attr("disabled", false)
+                    amountInput.prop("value", false)
+                    $("#amount").val("");
+                }
+            })
+
             $("input[id*=descriptionInput]").on("change", function() {
                 $("input[id*=descriptionInput]").val(this.value);
                 $("#description").val($(this).val());
@@ -87,8 +129,21 @@
                 $("#subPageId").val($(this).val());
             })
 
+            $("input[id*=percentageInput]").on("input", function() {
+                formatValue()
+                $("#quantity").val($(this).val());
+            })
+
             $("select[id*=processInput]").on("change", function() {
                 $("#process").val($(this).val());
+
+                if ($(this).val() === "SIMPLE_DISCOUNT") {
+                    $("#percentageEntryHolder").show()
+                    setQuantity()
+                } else {
+                    $("#percentageEntryHolder").hide()
+                    $("#quantity").val(null);
+                }
             })
 
             $("input[id*=amountInput]").on("change", function() {
@@ -97,6 +152,7 @@
 
             $("select[id*=tenderTypeInput]").on("change", function() {
                 $("#tenderType").val($(this).val());
+                showHideExact(tenderTypeInput, amountInput, exactInput)
             })
 
             $(".button-example").css("backgroundColor", $("#bgColour").val());
@@ -113,6 +169,44 @@
                 $(".button-example").css("color", this.value);
             })
         })
+
+        function showHideExact(tenderTypeInput, amountInput, exactInput) {
+            if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
+                document.getElementById("exactLabel").style.display = 'block'
+                exactInput.show();
+            } else {
+                document.getElementById("exactLabel").style.display = 'none'
+                exactInput.hide();
+
+                if (exactInput.is(":checked")) {
+                    amountInput.attr("disabled", false)
+                    amountInput.prop("value", false)
+                    exactInput.prop("checked", false)
+                    $("#amount").val("");
+                }
+            }
+        }
+        function formatValue() {
+            var element = document.getElementById("percentageInput")
+            var maxValue = 100
+
+            if (element != null) {
+
+                element.value = element.value.replace(/[.]/g, "");
+
+                if (element.value > maxValue) {
+                    element.value = maxValue
+                }
+                if (element.value <= 0) {
+                    element.value = 1
+                }
+            }
+        }
+
+        function setQuantity() {
+            var element = document.getElementById("percentageInput")
+            $("#quantity").val(element != null ? element.value : 1)
+        }
 
         function saveOverride(btnId, storeId) {
             $("input[id*=btnId]").val(-1);
@@ -304,41 +398,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Action/process button. -->
-                <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
-                    <div class="card-header pointer" id="actionButton" data-toggle="collapse" data-target="#collapseActionButton" aria-expanded="true" aria-controls="collapseActionButton" onclick="onTypeChange('PROCESS')">
-                        <div class="row">
-                            <div class="col-10 font-weight-bold">Action Button</div>
-                            <div class="col-2 text-right">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="collapseActionButton" class="collapse ${button?.type?.name() == 'PROCESS' ? 'show' : ''}" aria-labelledby="actionButton" data-parent="#accordion">
-                        <div class="card-body py-5">
-                            <div class="form-group row">
-                                <label for="description" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
-                                <div class="col-8 col-sm-6 col-lg-4">
-                                    <g:textField name="descriptionInput" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="process" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Action</label>
-                                <div class="col-8 col-sm-5 col-lg-3">
-                                    <g:select name="processInput" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
-                                </div>
-                            </div>
-
-                            <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
-                            <g:render template="saveCancelButtons" model="${[button: button]}" />
-                        </div>
-                    </div>
-                </div>
             </g:if>
 
             <g:if test="${button.buttonGrid?.type?.name() == 'TENDER'}">
@@ -367,9 +426,13 @@
                             <div class="form-group row">
                                 <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
                                 <div class="col-4 col-sm-2">
-                                    <g:field name="amountInput" type="number" min="0" max="9999" step=".01" value="${button.amount}" class="form-control bottom-border" />
+                                    <g:field name="amountInput" type="number" min="0.01" max="9999" step=".01" value="${button.amount}" class="form-control bottom-border" />
                                 </div>
-                                <div class="col-4 col-sm-4" style="margin-top: 7px;"><small class="text-muted">Leave blank for manual entry.</small></div>
+                                <div class="col-4 col-sm-2" style="margin-top: 7px;"><small class="text-muted">Leave blank for manual entry.</small></div>
+                                <label id="exactLabel" for="amount" class="col-form-label">Exact</label>
+                                <div id="buttonTextCheck" class="col-8 col-lg-1 align-content-center">
+                                    <g:checkBox name="exactInput" class="wl-checkbox"/>
+                                </div>
                             </div>
 
                             <div class="form-group row">
@@ -385,6 +448,48 @@
                     </div>
                 </div>
             </g:if>
+
+        <!-- Action/process button. -->
+            <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                <div class="card-header pointer" id="actionButton" data-toggle="collapse" data-target="#collapseActionButton" aria-expanded="true" aria-controls="collapseActionButton" onclick="onTypeChange('PROCESS')">
+                    <div class="row">
+                        <div class="col-10 font-weight-bold">Action Button</div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseActionButton" class="collapse ${button?.type?.name() == 'PROCESS' ? 'show' : ''}" aria-labelledby="actionButton" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <div class="form-group row">
+                            <label for="description" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
+                            <div class="col-8 col-sm-6 col-lg-4">
+                                <g:textField name="descriptionInput" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="process" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Action</label>
+                            <div class="col-8 col-sm-5 col-lg-3">
+                                <g:select name="processInput" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row" style="display: ${button?.process?.name() == 'SIMPLE_DISCOUNT' ? 'show' : 'none'}" id="percentageEntryHolder">
+                            <label for="percentageInput" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Percentage Discount</label>
+                            <div class="col-8 col-sm-6 col-lg-4">
+                                <g:field name="percentageInput" type="number" min="1" max="100" step="1" required="true" value="${button?.quantity != null ? button?.quantity : 1}" class="form-control bottom-border"/>
+                            </div>
+                        </div>
+
+                        <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
+                        <g:render template="saveCancelButtons" model="${[button: button]}" />
+                    </div>
+                </div>
+            </div>
 
             <!-- Blank button. -->
             <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">

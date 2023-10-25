@@ -10,7 +10,7 @@
                         <g:textField name="categorySearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />
 
                         <div class="input-group-append">
-                            <g:select name="categorySearchBy" from="${['description', 'categoryCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />
+                            <g:select name="categorySearchBy" from="${['description', 'categoryCode']}" value="everything" valueMessagePrefix="CategorySearchBy" class="form-control select-border" style="z-index: 0;" />
                             <asset:image src="search.png" id="categorySearchButton" name="categorySearchButton" onclick="categorySearchButtonClicked()" class="wl-search-button" />
                         </div>
                     </div>

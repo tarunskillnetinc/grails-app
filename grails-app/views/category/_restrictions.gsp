@@ -6,7 +6,7 @@
     </div>
     <div class="form-group row col-12 col-sm-5">
         <label for="restrictions.maxOpenPrice" class="col-3 col-form-label text-right pr-4">Maximum Open Price</label>
-        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.maxOpenPrice ?: '9999.99'}" />
+        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.maxOpenPrice ?: '99999.99'}" />
     </div>
 </div>
 <div class="row">
@@ -19,24 +19,24 @@
     <div class="form-group row col-12 col-sm-5 form-check">
         <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
             <label for="restrictions.buyerIdForced" class="col-form-label text-right wl-label">Customer ID Forced</label>
-            <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.buyerIdForced}" />
+            <g:checkBox name="restrictions.buyerIdForced" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.buyerIdForced}" disabled="${!category?.restrictions?.buyerIdRequired}" />
         </div>
     </div>
 </div>
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1">
         <label for="restrictions.buyerAgeRestriction" class="col-3 col-form-label text-right pr-4">Customer Age Restriction</label>
-        <g:field name="restrictions.buyerAgeRestriction" type="number" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.buyerAgeRestriction}"/>
+        <g:textField name="restrictions.buyerAgeRestriction" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.buyerAgeRestriction}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
     </div>
     <div class="form-group row col-12 col-sm-5">
         <label for="restrictions.buyerChallengeAge" class="col-3 col-form-label text-right pr-4">Customer Challenge Age</label>
-        <g:field name="restrictions.buyerChallengeAge" type="number" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.buyerChallengeAge}"/>
+        <g:textField name="restrictions.buyerChallengeAge" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.buyerChallengeAge}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
     </div>
 </div>
 <div class="row">
     <div class="form-group row col-12 col-sm-6 offset-sm-1">
-            <label for="restrictions.sellerAgeRestriction" class="col-3 col-form-label text-right pr-4">Operator Age Restriction</label>
-            <g:field name="restrictions.sellerAgeRestriction" type="number" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.sellerAgeRestriction}"/>
+        <label for="restrictions.sellerAgeRestriction" class="col-3 col-form-label text-right pr-4">Operator Age Restriction</label>
+        <g:textField name="restrictions.sellerAgeRestriction" class="col-5 form-control bottom-border" required="true" value="${category?.restrictions?.sellerAgeRestriction}" readonly="${!category?.restrictions?.buyerIdRequired}"/>
     </div>
     <div class="form-group row col-12 col-sm-5 form-check">
             <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">

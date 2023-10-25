@@ -8,6 +8,8 @@
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="moment-with-locales.min.js"/>
+        <asset:javascript src="money-mask.js" />
+        <asset:javascript src="co-utils.js"/>
         <script type='text/javascript'>
             $(function() {
                 $('.input-group.date.startDate').datepicker({
@@ -28,6 +30,7 @@
                     todayBtn: "linked",
                     orientation: "bottom auto"
                 });
+                $(".mask-money").maskMoney({ allowZero: true });
             });
 
             $(document).on("keypress", "input", function (e) {
@@ -93,9 +96,12 @@
                     $('.promo-active').prop("checked", this.checked);
                 });
 
+                $(".mask-money").maskMoney({ allowZero: true });
+
                 $('.promo-amount').on("change", function() {
                     $('.promo-amount').removeClass("is-invalid");
                 });
+
                 applyListeners();
             });
 
@@ -105,24 +111,9 @@
                 intListener("percentage-retailerPromoId");
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
-                intListener("percentage-amount", 5, 100)
-                intListener("fixedAmount-amount", 7, 9999.99)
-                intListener("fixedPrice-amount", 7, 9999.99)
-            }
-
-            function intListener(elementId, maxLength = 9, maxValue = 999999999) {
-                var element = document.getElementById(elementId)
-
-                if (element != null) {
-                    element.addEventListener("input", function () {
-                        if (element.value.length > maxLength) {
-                            element.value = element.value.slice(0, maxLength)
-                        }
-                        if (element.value > maxValue) {
-                            element.value = maxValue
-                        }
-                    });
-                }
+                currencyListener("percentage-amount", 0.01, 100)
+                currencyListener("fixedAmount-amount", 0.01, 9999.99)
+                currencyListener("fixedPrice-amount", 0.01, 9999.99)
             }
 
             function productSelected(id, sku, description) {
@@ -573,6 +564,12 @@
                     $('#' + promoType + '-endDate').addClass("is-invalid");
                 }
 
+                if ($('#' + promoType + '-retailerPromoId').val() < 0) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>Please enter a promotion reference greater than 0</li>");
+                    $('#' + promoType + '-retailerPromoId').addClass("is-invalid");
+                }
+
                 if ($('#' + promoType + '-amount').length !== 0) {
                     if ($('#' + promoType + '-amount').val() !== "") {
                         if (parseFloat($('#' + promoType + '-amount').val()) > parseFloat($('#' + promoType + '-amount').prop("max"))) {
@@ -624,6 +621,30 @@
                 }
                 $('#' + promoType + '-noItemChange').val('false');
 
+            }
+
+            function promotionAmountChanged(DOM, domType) {
+                var unmaskedNumber = parseFloat($(DOM).maskMoney('unmasked')[0]);
+
+                if (String(domType).valueOf() === "percentage") {
+                    if (unmaskedNumber < 0) {
+                        $(DOM).val(0)
+                    } else if (unmaskedNumber > 100) {
+                        $(DOM).val(100)
+                    }
+                } else if (String(domType).valueOf() === "fixedAmount") {
+                    if (unmaskedNumber < 0) {
+                        $(DOM).val(0)
+                    } else if (unmaskedNumber > 9999.99) {
+                        $(DOM).val(9999.99)
+                    }
+                } else if (String(domType).valueOf() === "fixedPrice") {
+                    if (unmaskedNumber < 0) {
+                        $(DOM).val(0)
+                    } else if (unmaskedNumber > 9999.99) {
+                        $(DOM).val(9999.99)
+                    }
+                }
             }
 
             function quantityValueChange(DOM, domType) {
@@ -696,7 +717,8 @@
                                                          categoriesOffer: categoriesOffer,
                                                          tagsRequired: tagsRequired,
                                                          tagsOffer: tagsOffer,
-                                                         productItemType: productItemType]" />
+                                                         productItemType: productItemType,
+                                                         editing: editing]" />
         </section>
 
         <g:render template="productSearch"/>

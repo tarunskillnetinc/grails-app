@@ -23,7 +23,7 @@ class UserController {
     }
 
     def add() {
-        [roleValues: Role.values()]
+        [roleValues: getEligibleUserRoles()]
     }
 
     def userEdit() {
@@ -73,7 +73,7 @@ class UserController {
 
             redirect (action: "index")
         } else {
-            render (view: "add", model: [user: saveUserCommand, roleValues: Role.values()])
+            render (view: "add", model: [user: saveUserCommand, roleValues: getEligibleUserRoles()])
         }
     }
 
@@ -247,7 +247,16 @@ class UserController {
         } else {
             return new ArrayList()
         }
+    }
 
+    private List getEligibleUserRoles() {
+        User loggedInUser = User.get(springSecurityService.principal.id)
+
+        if (loggedInUser != null) {
+            return Role.values().findAll({it -> it.rank <= loggedInUser?.getRole()?.getRank()})
+        } else {
+            return new ArrayList()
+        }
     }
 
     //Method to return logged in type (Store user / HO)

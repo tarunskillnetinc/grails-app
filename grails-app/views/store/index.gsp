@@ -233,6 +233,27 @@
                                         </sec:ifNotGranted>
                                     </div>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label for="config.website" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Website</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="config.website" maxlength="40" value="${storeSettings?.config?.website}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="config.companyNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Company Number</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="config.companyNumber" maxlength="10" value="${storeSettings?.config?.companyNumber}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="config.returnsMessage" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Returns Message</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="config.returnsMessage" maxlength="200" value="${storeSettings?.config?.returnsMessage}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

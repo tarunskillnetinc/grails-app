@@ -132,6 +132,8 @@ class TillAssignmentController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxSaveTill() {
         def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
+        def tillConfigurations = TillConfiguration.getAll();
+
         if (!params.containsKey("storeId")) {
             if (configuration != null) {
                 addTillStockToList(configuration.serialNumber, serialNumbers)
@@ -139,6 +141,11 @@ class TillAssignmentController {
             } else {
                 render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
             }
+            return
+        }
+
+        if (!(tillConfigurations.stream().noneMatch(tillConfiguration -> tillConfiguration.getSerialNumber() == params.get("serialNumber").toString()))) {
+            render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, enableEdit: editingTill, saveSerialNumberError: true])
             return
         }
 
@@ -255,7 +262,7 @@ class TillAssignmentController {
         int maximumValue = 99999999
         int pin = random.nextInt((maximumValue - minimumValue) + 1) + minimumValue
 
-        def expiry = DateTime.now(DateTimeZone.UTC)
+        def expiry = DateTime.now(DateTimeZone.UTC).plusHours(1)
 
         tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
 

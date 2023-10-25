@@ -13,6 +13,9 @@
         <asset:javascript src="shiftManagement.js"/>
         <asset:javascript src="safeCount.js"/>
         <asset:javascript src="date-pickers.js"/>
+        <asset:javascript src="co-utils.js"/>
+        <asset:javascript src="validators/input-validator.js" />
+
 
         <script type="text/javascript">
             $(function() {
@@ -49,7 +52,12 @@
                 $('#startDate').on('change', updateSnapshotLink);
                 $('#endDate').on('change', updateSnapshotLink);
                 document.getElementById('tillId').addEventListener('change', updateSnapshotLink);
+                updateSnapshotLink()
 
+            });
+
+            $(document).ready(function () {
+                intListener("tillId", 10, 2147483647);
             });
 
             function resetShiftFilters() {
@@ -114,7 +122,7 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
                                     <div class="col-2">
-                                        <g:field id="tillId" type="number" min="0" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" />
+                                        <g:field id="tillId" type="number" min="0" max = "2147483647" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" onkeydown="acceptNumeric(event);"/>
                                     </div>
 
                                     <div class="col-4 offset-4 text-right">

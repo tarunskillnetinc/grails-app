@@ -1728,7 +1728,7 @@ class ReportingController {
         productListList?.each {
             stringBuilder.append(it.getOrderId())
             stringBuilder.append(",")
-            stringBuilder.append(it.store?.storeId)
+            stringBuilder.append(it.store?.id)
             stringBuilder.append(",")
             stringBuilder.append(it.status)
             stringBuilder.append(",")

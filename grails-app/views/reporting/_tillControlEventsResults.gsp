@@ -21,7 +21,7 @@
     <g:each in="${tillControlEvents}" var="tillControlEvent" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" style="cursor: pointer;" onclick="document.location.href='${createLink(action:'tillControlEvent', params: [type: tillControlEvent.key, startDate: startDate.toString("dd/MM/yyyy"), endDate: endDate.toString("dd/MM/yyyy")])}';">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
-                <div id="type-${i + 1}" class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.key}" /></div>
+                <div id="type-${i + 1}" class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.key}" default="${tillControlEvent.key}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
                 <div id="quantity-${i + 1}" class="col my-auto">${tillControlEvent.value.size()}</div>

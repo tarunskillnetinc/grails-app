@@ -65,6 +65,10 @@ class ProductListController {
             productList.retailerId = springSecurityService.principal.retailerId
             productList.store = storeSettings
 
+            if (productList.startDate == productList.endDate) {
+                productList.endDate = productList.endDate.plusDays(1)
+            }
+
             if (cmd.productVariantId) {
                 cmd.productVariantId.each {
                     def productVariant = productService.getProductVariant(it)

@@ -112,6 +112,8 @@ class CategoryController extends BaseController {
             } else {
                 category.parentCategory = null
             }
+        } else {
+            category.parentCategory = null
         }
 
         if (category.hasErrors()) {
