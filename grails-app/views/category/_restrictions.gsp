@@ -6,7 +6,7 @@
     </div>
     <div class="form-group row col-12 col-sm-5">
         <label for="restrictions.maxOpenPrice" class="col-3 col-form-label text-right pr-4">Maximum Open Price</label>
-        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.maxOpenPrice ?: '9999.99'}" />
+        <g:textField name="restrictions.maxOpenPrice" class="col-5 form-control mask-money bottom-border" value="${category?.restrictions?.maxOpenPrice ?: '99999.99'}" />
     </div>
 </div>
 <div class="row">
