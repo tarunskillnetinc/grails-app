@@ -133,6 +133,12 @@ class SnapshotController {
         if (bankingCommand.cashTotal == BigDecimal.ZERO && bankingCommand.vouchersTotal == BigDecimal.ZERO) {
             render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "At least one tender total must be non-zero."])
             return
+        } else if (bankingCommand.cashTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
+            render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash totals cannot exceed more than 10 million."])
+            return
+        } else if (bankingCommand.vouchersTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
+            render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Voucher totals cannot exceed more than 10 million."])
+            return
         }
         
         Snapshot fromSnapshot = snapshotService.getSnapshotForLocation(bankingCommand.fromLocation)
@@ -186,7 +192,10 @@ class SnapshotController {
 
     def ajaxSaveCashInbound(CashInboundCommand cashInboundCommand) {
         if (cashInboundCommand.cashTotal == BigDecimal.ZERO) {
-            render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash total must be non-zero."])
+            render(template: "cashInboundModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash total must be non-zero."])
+            return
+        } else if (cashInboundCommand.cashTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
+            render(template: "cashInboundModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash total cannot exceed more than 10 million."])
             return
         }
 
@@ -233,6 +242,12 @@ class SnapshotController {
 
         if (cashLiftCommand.cashTotal == BigDecimal.ZERO && cashLiftCommand.vouchersTotal == BigDecimal.ZERO) {
             render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "At least one tender total must be non-zero."])
+            return
+        } else if (cashLiftCommand.cashTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
+            render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash totals cannot exceed more than 10 million."])
+            return
+        } else if (cashLiftCommand.vouchersTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
+            render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Voucher totals cannot exceed more than 10 million."])
             return
         }
 

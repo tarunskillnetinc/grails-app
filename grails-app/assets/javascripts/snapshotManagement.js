@@ -100,7 +100,7 @@ function saveModal(type) {
                 $('#alert-container').html("<div class=\"alert alert-success alert-wl mx-0\" role=\"alert\">" + successMessage + "</div>")
             } else {
                 $("#modal-content").html(resp);
-                $(".mask-money").maskMoney({allowZero: false});
+                $(".mask-money").maskMoney({allowZero: true});
                 $(".mask-money").maskMoney('mask');
             }
         }
