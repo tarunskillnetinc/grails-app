@@ -43,7 +43,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text">&pound;</span>
                     </div>
-                    <g:textField name="restrictions.maxOpenPrice" value="${restrictions?.maxOpenPrice ?: '9999.99'}" class="form-control mask-money open-price"  readonly="${!productOpenPrice}" />
+                    <g:textField name="restrictions.maxOpenPrice" value="${restrictions?.maxOpenPrice ?: '99999.99'}" class="form-control mask-money open-price"  readonly="${!productOpenPrice}" />
                 </div>
             </div>
         </div>

@@ -91,6 +91,6 @@ class Restrictions {
     }
 
     public BigDecimal getDefaultMaxOpenPrice() {
-        return 9999.99 as BigDecimal
+        return 99999.99 as BigDecimal
     }
 }
