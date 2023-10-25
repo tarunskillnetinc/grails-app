@@ -54,6 +54,16 @@
                 break;
         }
     }
+
+    function togglePreferredReasonCode() {
+        const checkbox = $('#preferredReasonCode');
+        const disabled = $('#secret').val();
+
+        if (disabled && checkbox.prop('checked')) {
+            checkbox.prop('checked', false);
+        }
+        checkbox.prop("disabled", disabled);
+    }
 </script>
 
 <div class="modal-body">
@@ -108,11 +118,18 @@
                 <input type="radio" id="out" name="adjust" value="OUT" <g:if test="${!reasonCode?.additionalFunctionality}">checked</g:if>>
             </div>
         </div>
-        
+
         <div class="row form-group mb-4">
             <label for="preferredReasonCode" class="col-3 offset-1 col-form-label text-right">Preferred Reason Code:</label>
             <div class="input-group col-4">
-                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" />
+                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" disabled="${reasonCode != null && reasonCode.secret != null && reasonCode.secret.trim().length() > 1}"/>
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Secret:</label>
+            <div class="input-group col-4">
+                <g:textField name="secret" value="${reasonCode?.secret}" class="form-control bottom-border" oninput="togglePreferredReasonCode();"/>
             </div>
         </div>
 
@@ -137,7 +154,6 @@
         <g:hiddenField name="id" value="${reasonCode?.id}"/>
         <g:hiddenField name="code" value="${reasonCode?.code}"/>
         <g:hiddenField name="deleted" value="${reasonCode?.deleted}"/>
-        <g:hiddenField name="secret" value="${reasonCode?.secret}"/>
 
         <g:if test="${reasonCode?.retailerId}">
             <g:hiddenField name="retailerId" value="${reasonCode?.retailerId}"/>
@@ -153,5 +169,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancel-edit-btn" class="btn btn-wl" onclick="closeModal();">Cancel</button>
-    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave('${editing}');">Save</button>
+    <button type="button" id="save-code-btn" class="btn btn-success" onclick="ajaxSave();">Save</button>
 </div>
