@@ -172,6 +172,10 @@
                                 <g:checkBox name="columns" id="columnsReason" class="form-check-input" value="reason" checked="${!userColumns || userColumns?.columns?.find { it.column == 'reason' }?.enabled}" />
                                 <label class="form-check-label" for="columnsReason">Reason</label>
                             </div>
+                            <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsUser" class="form-check-input" value="userName" checked="${!userColumns || userColumns?.columns?.find { it.column == 'userName' }?.enabled}" />
+                                <label class="form-check-label" for="columnsUser">User</label>
+                            </div>
                             <button type="button" class="btn btn-wl" onclick="saveReportColumns();">Apply</button>
                         </g:form>
                     </div>
