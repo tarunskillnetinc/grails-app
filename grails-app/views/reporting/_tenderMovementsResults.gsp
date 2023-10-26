@@ -21,6 +21,9 @@
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reason', sortOrder: ${sortParams?.sortColumn == 'reason' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Reason</a></div>
     </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "userName" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'userName', sortOrder: ${sortParams?.sortColumn == 'userName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">User</a></div>
+    </g:if>
 </div>
 
 <div class="d-flex justify-content-center">
@@ -67,6 +70,9 @@
 
                     <g:if test="${tenderMovement.reasonOther}">&nbsp;-&nbsp;${tenderMovement.reasonOther}</g:if>
                 </div>
+            </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "userName" }?.enabled}">
+                <div class="col my-auto">${tenderMovement.userName}</div>
             </g:if>
         </div>
     </g:each>

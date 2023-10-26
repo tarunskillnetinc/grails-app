@@ -36,7 +36,7 @@ class ReportingController {
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
-    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount"]
+    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "userName"]
 
     def index() {
 
