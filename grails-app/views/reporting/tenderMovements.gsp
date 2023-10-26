@@ -130,11 +130,11 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-10 position-fixed z-index-1">
+            <div class="col-2 offset-5">
                 <div class="card bg-light border-wl">
-                    <div class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
+                    <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                         <div class="row">
-                            <div class="col-10">Columns</div>
+                            <div id="columns-text" class="col-10">Columns</div>
                             <div class="col-2 text-right">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
