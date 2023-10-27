@@ -66,7 +66,6 @@
                 document.getElementById('supplier').value = "${null}";
                 document.getElementById('storeFilter').value = null;
             }
-
         </script>
     </head>
     <body>
@@ -124,7 +123,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-4 offset-8 text-right">
+                                    <div class="col-12 text-right">
                                         <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
                                         <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Search</button>
                                     </div>

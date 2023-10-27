@@ -138,9 +138,9 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-2 text-right" style="margin-top: 8px;">
+            <div class="col-5 text-right" style="margin-top: 8px;">
                 <button id="export-to-pp-csv" class="btn btn-wl" onclick="exportToPPCsv();">Export weekly PP Report</button>
-                <button id="export-to-csv" class="btn btn-wl mt-2" onclick="exportToCsv();">Export filtered CSV</button>
+                <button id="export-to-csv" class="btn btn-wl" onclick="exportToCsv();">Export filtered CSV</button>
             </div>
 
             <div class="col-2">

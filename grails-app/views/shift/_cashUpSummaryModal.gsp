@@ -1,3 +1,7 @@
+<div id="modal-header" class="modal-header">
+    <h2>Cash Management</h2>
+</div>
+
 <div class="row mt-3 mb-2">
     <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
         <div class="row">
@@ -77,6 +81,15 @@
                     <g:hiddenField name="tenderReconciliationVarianceReason" value="null" />
                     <g:hiddenField name="tenderReconciliationVarianceReasonText" value="null" />
                 </g:else>
+
+                <g:if test="${safeLocations?.collect()?.size() > 1}">
+                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
+                        <g:select name="safeLocationId" from="${safeLocations}" optionKey="id" optionValue="description" class="form-control select-border col-3"/>
+                    </div>
+                </g:if>
+                <g:elseif test="${safeLocations?.collect()?.size() == 1}">
+                    <g:hiddenField name="safeLocationId" value="${safeLocations?.collect()[0].id}"/>
+                </g:elseif>
             </g:form>
         </g:if>
         <g:else>
@@ -112,4 +125,11 @@
     <div class="col-4 pl-0" style="-ms-flex: 0 0 37%; flex: 0 0 37%; max-width: 37%;">
         <g:render template="shiftReport" model="[shift: shift]" />
     </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">${shift.reconciledDate == null ? "Cancel" : "Close"}</button>
+    <g:if test="${shift.reconciledDate == null}">
+        <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitShift()" >Save</button>
+    </g:if>
 </div>

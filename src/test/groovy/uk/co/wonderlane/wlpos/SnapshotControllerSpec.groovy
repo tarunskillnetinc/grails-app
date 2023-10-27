@@ -85,10 +85,11 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         }
 
         controller.snapshotService = Stub(SnapshotService){
-            getSafeSnapshot() >> snapshotMock
+            getSnapshotForLocation(1) >> snapshotMock
         }
 
         views['/snapshot/_snapshotModal.gsp'] = "test"
+        controller.params.locationId = "1"
 
         when: 'The ajaxGetSafe action is executed'
         controller.ajaxGetSafe()
@@ -173,9 +174,10 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         saveSafeCommand.onePences = BigDecimal.ONE
 
         Snapshot snapshotMock =  getDummySnapshot(isCashRequired, isVoucherRequired)
+        saveSafeCommand.snapshotId = snapshotMock.id
 
         controller.snapshotService = Stub(SnapshotService){
-            getSafeSnapshot() >> snapshotMock
+            getSnapshot(snapshotMock.id) >> snapshotMock
             saveSnapshot(_) >> null
         }
 
@@ -321,6 +323,7 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         snapshot.setId(1)
         snapshot.setRetailerId(9)
         snapshot.setStoreId(234)
+        snapshot.setLocationId(1)
         snapshot.getTotals().addAll(getReconciliationTotal(isCashRequired, isVoucherRequired))
         snapshot.getExpectedTotals().addAll(getExpectedTotal(isCashRequired, isVoucherRequired))
         return snapshot

@@ -9,6 +9,7 @@
     <asset:javascript src="snapshotUrls.js"/>
     <asset:javascript src="snapshotManagement.js"/>
     <asset:javascript src="date-pickers.js"/>
+    <asset:javascript src="money-mask.js"/>
 
     <script type='text/javascript'>
         $(function() {
@@ -16,7 +17,14 @@
                 "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
                 "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
-                "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxCashLift')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxBanking')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveBanking')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxCashInbound')}",
+                "${createLink(controller: 'snapshot', action: 'ajaxSaveCashInbound')}",
+            );
 
             initDatePickers(
                 'startDate',
@@ -49,6 +57,9 @@
             <h2 id="page-title" class="mx-auto">Snapshot Viewer</h2>
         </div>
 
+        <section id="alert-container">
+        </section>
+
         <div class="row mt-4">
             <div class="col-5">
                 <div class="card bg-light border-wl">
@@ -77,13 +88,28 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4 offset-6 text-right">
+                                <div class="col-12 text-right">
                                     <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetSnapshotFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getSnapshots();">Filter</button>
                                 </div>
                             </div>
                         </g:form>
                     </div>
+                </div>
+            </div>
+            <div class="offset-2 col-5">
+                <div class="row">
+                    <div class="${safeLocations?.collect()?.size() < 2 ? 'offset-4 ': ''}col-4">
+                        <button id="banking-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('BANKING')">Banking</button>
+                    </div>
+                    <div class="col-4">
+                        <button id="cash-inbound-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('CASH_INBOUND')">Cash Inbound</button>
+                    </div>
+                    <g:if test="${safeLocations?.collect()?.size() > 1}">
+                        <div class="col-4">
+                            <button id="cash-lift-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('CASH_LIFT')">Cash Lift</button>
+                        </div>
+                    </g:if>
                 </div>
             </div>
         </div>
@@ -94,20 +120,10 @@
     </section>
 
     <section id="snapshot-modal" class="container-fluid">
-        <!-- Snapshot modal -->
+        <!-- modal -->
         <div class="modal fade" id="snapshotModal" tabindex="-1" role="dialog" aria-labelledby="snapshotModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Snapshot Management</h2>
-                    </div>
-
-                    <div id="snapshotModalContent"></div>
-
-                    <div class="modal-footer">
-                        <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
+                <div id="modal-content" class="modal-content"></div>
             </div>
         </div>
     </section>

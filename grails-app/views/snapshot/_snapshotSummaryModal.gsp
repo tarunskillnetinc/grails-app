@@ -1,3 +1,7 @@
+<div class="modal-header">
+    <h2>Snapshot Management</h2>
+</div>
+
 <div class="row mt-3 mb-2">
     <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
         <div class="row">
@@ -81,4 +85,11 @@
     <div class="col-4 pl-0" style="-ms-flex: 0 0 37%; flex: 0 0 37%; max-width: 37%;">
         <g:render template="safeReport" model="[snapshot: snapshot]" />
     </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal">${snapshot?.countDate == null ? 'Cancel' : 'Close'}</button>
+    <g:if test="${snapshot?.countDate == null}">
+        <button type="button" id="saveSnapshotButton" class="btn btn-success" onclick="submitSafe()">Save</button>
+    </g:if>
 </div>

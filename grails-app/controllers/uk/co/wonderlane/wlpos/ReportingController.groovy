@@ -6,6 +6,8 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
+import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
@@ -34,6 +36,7 @@ class ReportingController {
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
+    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "userName"]
 
     def index() {
 
@@ -59,7 +62,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         Integer storeId
         if (springSecurityService.principal.storeId) {
@@ -158,7 +161,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         Integer storeId
         if (springSecurityService.principal.storeId) {
@@ -275,7 +278,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         Integer storeId
         if (springSecurityService.principal.storeId) {
@@ -656,7 +659,7 @@ class ReportingController {
     def tillControlEvents() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         [reportType: ReportType.TILL_CONTROL_EVENTS, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENTS), startDate: startDate, endDate: endDate]
     }
@@ -666,7 +669,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all till control events in the date range.
         def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate.plusDays(1))
@@ -749,7 +752,7 @@ class ReportingController {
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
         // Find all till control events in the date range.
         def tillControlEvents = reportingService.getTillControlEvents(startDate, endDate.plusDays(1), type, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
@@ -1120,7 +1123,7 @@ class ReportingController {
         int productListItemId = getIntegerParam(params.productListItemId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
         Integer storeId = params.storeId ? getIntegerParam(params.storeId) : null
         String descriptionFilter = params.descriptionFilter
@@ -1445,6 +1448,39 @@ class ReportingController {
                                                            sortParams : sortParams,
                                                            totalResults : totalResults])
         }
+    }
+
+    def tenderMovements() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: TenderMovementType.values(), stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
+    }
+
+    def ajaxTenderMovements(SortParams sortParams) {
+        sortParams.validateParams(TENDER_MOVEMENT_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        TenderMovementType tenderMovementType = params.tenderMovementType ? TenderMovementType.valueOf(params.tenderMovementType) : null
+        TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
+        Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
+
+        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+        render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, tenderMovementType: tenderMovementType, tenderType: tenderType, storeId: storeId, totalResults: tenderMovements.totalCount])
     }
 
     def ajaxSaveReportColumns() {
