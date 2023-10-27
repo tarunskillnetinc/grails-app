@@ -19,23 +19,45 @@
                         searchButtonClicked2();
                     }
                 });
-
-                $('#checkAllCheckbox').change(function() {
-                    if (this.checked) {
-                        var uncheckedBoxes = $("#search-results input:not(:checked)");
-
-                        uncheckedBoxes.each(function(i, checkbox) {
-                            $(checkbox).prop("checked", true);
-                        });
-                    } else {
-                        var checkedBoxes = $("#search-results input:checked");
-
-                        checkedBoxes.each(function(i, checkbox) {
-                            $(checkbox).prop("checked", false);
-                        });
-                    }
-                });
             });
+
+            function selectAll() {
+                const uncheckedBoxes = $("input.selections:not(checked)");
+                uncheckedBoxes.each(function(i, checkbox) {
+                    const element = $(checkbox);
+                    element.prop("checked", true);
+                    toggleRowInputs(getIndexFromCheckBoxId(element.attr('id')));
+                });
+            }
+
+            function deselectAll() {
+                const checkedBoxes = $("input.selections:checked");
+                checkedBoxes.each(function(i, checkbox) {
+                    const element = $(checkbox);
+                    element.prop("checked", false);
+                    toggleRowInputs(getIndexFromCheckBoxId(element.attr('id')));
+                });
+            }
+
+            function getIndexFromCheckBoxId(id) {
+                // id should be "product-price-i-check-box" where i is numeric
+                const splits = id.split('-');
+                if (splits.length < 3) {
+                    return 0;
+                }
+                return splits[2];
+            }
+
+            function toggleRowInputs(i) {
+                const idPrefix = "product-price-" + i;
+                const selectedBox = $("#" + idPrefix + "-check-box");
+                const disabled = !selectedBox.is(':checked');
+
+                // disable / enable all price inputs on this row
+                $('[id^=' + idPrefix + "-band-" + ']').each((_, input) => {
+                    $(input).prop("disabled", disabled);
+                });
+            }
 
             function searchButtonClicked2() {
                 $('#offset').val(0);
@@ -214,20 +236,20 @@
                     </div>
                 </div>
 
-                <div class="col-2 offset-4 text-right">
+                <div class="col-4 offset-2 text-right">
+                    <button id="select-all-button" class="btn btn-wl" onclick="selectAll();">Select All</button>
+                    <button id="deselect-all-button" class="btn btn-wl" onclick="deselectAll();">Deselect All</button>
                     <button id="save-changes-button" class="btn btn-wl" onclick="savePriceChanges();">Save Changes</button>
                 </div>
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-1 font-weight-bold my-auto">
-                    <g:checkBox name="checkAllCheckbox" class="col-12 wl-checkbox my-auto" />
-                </div>
-                <div class="col-2 font-weight-bold">Item Code</div>
-                <div class="col-4 font-weight-bold">Description</div>
-                <div class="col-1 font-weight-bold">Cost Price</div>
+                <div class="col-1 font-weight-bold text-center my-auto">Selected</div>
+                <div class="col-2 font-weight-bold my-auto">Item Code</div>
+                <div class="col-4 font-weight-bold my-auto">Description</div>
+                <div class="col-1 font-weight-bold my-auto">Cost Price</div>
                 <g:each in="${priceBands}" var="priceBand">
-                    <div class="col font-weight-bold">${priceBand.description}</div>
+                    <div class="col font-weight-bold my-auto">${priceBand.description}</div>
                 </g:each>
             </div>
 

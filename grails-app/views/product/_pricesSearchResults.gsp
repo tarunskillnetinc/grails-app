@@ -12,8 +12,8 @@
 
 <g:each in="${productPrices}" var="productPrice" status="i">
     <div id="product-price-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
-        <div class="col-1 my-auto">
-            <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="col-12 wl-checkbox my-auto" style="margin-top: 8px;" />
+        <div class="col-1 form-group form-check mb-0 text-center">
+            <g:checkBox id="product-price-${i+1}-check-box" name="product-${productPrice.key}" class="selections col form-check-input wl-checkbox-no-label" oninput="toggleRowInputs(${i+1});"/>
         </div>
         <label id="product-price-${i+1}-item-code" for="product-${productPrice.key}" class="col-2 col-form-label my-auto text-truncate text-left">${productPrice.value[0].itemCode}</label>
         <div id="product-price-${i+1}-description" class="col-4 my-auto">${productPrice.value[0].productDescription}</div>
@@ -26,7 +26,7 @@
                         <span class="input-group-text">&pound;</span>
                     </div>
 
-                    <g:textField id="product-price-${i+1}-band-${b+1}-price"  name="price-${productPrice.key}-${priceBand.id}" value="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" class="form-control mask-money" onkeyup="priceChanged(${productPrice.key}, ${priceBand.id}, ${productPrice.value[0].costPrice ?: BigDecimal.ZERO}, this.value);" />
+                    <g:textField id="product-price-${i+1}-band-${b+1}-price"  name="price-${productPrice.key}-${priceBand.id}" value="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" class="form-control mask-money" onkeyup="priceChanged(${productPrice.key}, ${priceBand.id}, ${productPrice.value[0].costPrice ?: BigDecimal.ZERO}, this.value);" disabled="true"/>
                     <g:hiddenField name="oldPrice-${productPrice.key}-${priceBand.id}" value="${productPrice.value.find { it.priceBandDescription == priceBand.description }?.price}" />
                     <g:hiddenField name="productId-${productPrice.key}-${priceBand.id}" value="${productPrice.value[0].productId}" />
 
