@@ -377,8 +377,11 @@ class PromotionController {
         }
 
         if (promotion.validate()) {
-            // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
-            promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
+            def type = params.promotionType
+            if (!params."${type}-doesNotExpire") {
+                // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
+                promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
+            }
             promotionService.savePromotion(promotion)
 
             redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
