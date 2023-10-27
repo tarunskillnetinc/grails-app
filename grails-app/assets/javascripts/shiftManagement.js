@@ -27,32 +27,15 @@ function getShifts() {
 }
 
 function showCashModal(shiftId, isReconciled) {
-    $("#cashModalContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#cashModal').modal({ show: true });
-
-    if (isReconciled) {
-        $("#saveShiftButton").prop("onclick", null).off("click");
-        $("#saveShiftButton").hide();
-
-        $("#cancelShiftButton").prop("onclick", null).off("click");
-        $("#cancelShiftButton").text("Close");
-    } else {
-        $("#saveShiftButton").prop("onclick", null).off("click");
-        $("#saveShiftButton").click(function () {
-            submitCash(shiftId);
-        });
-
-        $("#saveShiftButton").show();
-        $("#cancelShiftButton").text("Cancel");
-    }
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#shiftModal').modal({ show: true });
 
     $.ajax({
         url: ShiftUrls.getCashDetailsUrl(),
         method: "POST",
         data: { shiftId: shiftId },
         success: function(resp) {
-            $("#cashModalHeader").html("<h2>Cash Management</h2>")
-            $("#cashModalContent").html(resp);
+            $("#modal-content").html(resp);
 
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
@@ -155,7 +138,7 @@ function submitCash(shiftId) {
         method: "POST",
         data: formValues,
         success: function(resp) {
-            $("#cashModalContent").html(resp);
+            $("#modal-content").html(resp);
 
             $("#saveShiftButton").prop("onclick", null).off("click");
             $("#saveShiftButton").click(function() {
@@ -255,16 +238,7 @@ function submitShift() {
         method: "POST",
         data: formValues,
         success: function(resp) {
-            $("#cashModalContent").html(resp);
-
-            $("#saveShiftButton").prop("onclick", null).off("click");
-            $("#saveShiftButton").hide();
-
-            $("#cancelShiftButton").text("Close");
-            $("#cancelShiftButton").prop("onclick", null).off("click");
-            $("#cancelShiftButton").click(function() {
-                getShifts();
-            });
+            $("#modal-content").html(resp);
         }
     });
 }

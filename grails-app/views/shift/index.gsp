@@ -26,10 +26,17 @@
                     "${createLink(controller: 'shift', action: 'ajaxSaveShift')}");
 
                 SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}");
+                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxCashLift')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxBanking')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxSaveBanking')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxCashInbound')}",
+                    "${createLink(controller: 'snapshot', action: 'ajaxSaveCashInbound')}",
+                );
 
                 initDatePickers(
                     'startDate',
@@ -139,7 +146,7 @@
                 <div class="offset-2 col-5">
                     <div class="row">
                         <div class="offset-4 col-4">
-                            <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showSafeModal()">Count Safe</button>
+                            <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showSafeModal(0)">Count Safe</button>
                         </div>
                         <div class="col-4">
                             <g:link elementId="snapShotLink" controller="snapshot" action="index"  class="w-100">
@@ -157,19 +164,9 @@
 
         <section id="shift-modal" class="container-fluid">
             <!-- Cash modal -->
-            <div class="modal fade" id="cashModal" tabindex="-1" role="dialog" aria-labelledby="cashModalLabel" aria-hidden="true">
+            <div class="modal fade" id="shiftModal" tabindex="-1" role="dialog" aria-labelledby="cashModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content">
-                        <div id="cashModalHeader" class="modal-header">
-                            <h2>Cash Management</h2>
-                        </div>
-
-                        <div id="cashModalContent"></div>
-
-                        <div class="modal-footer">
-                            <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="button" id="saveShiftButton" class="btn btn-success">Save</button>
-                        </div>
+                    <div id="modal-content" class="modal-content">
                     </div>
                 </div>
             </div>
