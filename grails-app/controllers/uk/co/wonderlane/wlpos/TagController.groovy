@@ -185,7 +185,7 @@ class SaveTagCommand {
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
-        maxSellQuantity nullable: true, max: 999
+        maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
     }
 }
