@@ -52,7 +52,7 @@
             <div class="form-group row margin-top-2rem">
                 <label for="description" class="col-3 col-form-label">Description</label>
                 <div class="col-7">
-                    <g:textField name="description" maxlength="45" value="${buttonGrid?.description}" class="form-control bottom-border" />
+                    <g:textField name="description" maxlength="45" value="${buttonGrid?.description}" class="form-control bottom-border" disabled="${buttonGrid != null && buttonGrid?.type?.name() != "OTHER"}" />
                 </div>
             </div>
 
