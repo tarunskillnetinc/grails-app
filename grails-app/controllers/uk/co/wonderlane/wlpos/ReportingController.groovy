@@ -383,6 +383,17 @@ class ReportingController {
             int totalResults = finalSales.size()
             finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
+            // Sort into the required order.
+            if (sortParams.sortColumn == "description") {
+                finalSales.sort { it.salesCategories?.first()?.categoryDescription }
+            } else {
+                finalSales.sort { it."${sortParams.sortColumn}" }
+            }
+
+            if (sortParams.sortOrder == "desc") {
+                finalSales = finalSales.reverse()
+            }
+
             render(template: "categorySalesResults", model: [sales       : finalSales,
                                                              userColumns : reportingService.getReportColumns(ReportType.CATEGORY_SALES),
                                                              sortParams  : sortParams,
