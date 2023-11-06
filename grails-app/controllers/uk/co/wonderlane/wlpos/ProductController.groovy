@@ -1112,7 +1112,7 @@ class ProductController extends BaseController {
 
                     def priceBand = priceBands.find { it.id == priceChange.priceBandId }
 
-                    if (priceBand && priceChange.sku && priceChange.price) {
+                    if (priceBand && priceChange.sku && priceChange.price >= 0) {
                         def fromValue = currentPrice ? currentPrice.price : null
 
                         ProductPrice productPrice
