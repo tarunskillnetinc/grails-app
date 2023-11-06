@@ -31,5 +31,5 @@
 </g:each>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="tagSearch" total="${totalResults ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: searchTerm]" />
+    <util:remotePaginate action="tagSearch" total="${totalResults ?: 0}" update="tag-search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: searchTerm]" />
 </div>
