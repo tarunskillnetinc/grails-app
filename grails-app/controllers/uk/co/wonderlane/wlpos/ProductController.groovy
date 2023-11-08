@@ -939,7 +939,7 @@ class ProductController extends BaseController {
     }
 
     private void updateLocation(def locationToBeUpdated, def editedLocation, def editedVariant) {
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        def locationsType = springSecurityService.principal.retailer.config.locationsType
         locationToBeUpdated.storeId = springSecurityService.principal.storeId
         locationToBeUpdated.sku = editedVariant.sku
 
