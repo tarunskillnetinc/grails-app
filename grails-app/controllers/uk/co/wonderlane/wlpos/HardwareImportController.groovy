@@ -152,7 +152,7 @@ class HardwareImportController {
     }
 
     private static boolean validRegexSerial(String s) {
-        return s ==~ /[a-zA-Z0-9\-\\/]+/
+        return s ==~ /[a-zA-Z0-9\-\\/\\]+/
     }
 }
 

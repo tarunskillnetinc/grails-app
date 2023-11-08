@@ -412,7 +412,27 @@ class ProductController extends BaseController {
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
+                def numOfProductsWithItemCode = Product.countByRetailerIdAndItemCodeNotEqual(springSecurityService.principal.retailerId, paramsMap["itemCode"])
+                def duplicateItemCode = numOfProductsWithItemCode > 0
+                if (duplicateItemCode) {
+                    // CORE-2916 - the new Product(map) loads in the product variants from the itemCode, even if it already exists and this is a new product
+                    // so we need to manually correct this by creating a new product object without the item code.
+                    paramsMap["itemCode"] = ""
+                    paramsMap["variants[0].sku"] = null
+                    paramsMap["variants[0].retailPrice"] = null
+                    paramsMap["variants[0].costPrice"] = null
+                    paramsMap["variants[0].shelfLifeDays"] = null
+                    paramsMap["variants[0].shelfCapacity"] = null
+                    paramsMap["variants[0].minimumDisplayQuantity"] = null
+                    paramsMap["variants[0].effectiveDate"] = null
+                    paramsMap["variants[0].defaultSupplierId"] = null
+                    paramsMap["variants[0]"] = null
+                    paramsMap.remove("variants[0]")
+                }
                 product = new Product(paramsMap)
+                if (duplicateItemCode) {
+                    product.errors.rejectValue("itemCode", "product.itemCode.validator.error")
+                }
             } else {
                 product = new Product()
                 copyProduct(editedProduct, product)

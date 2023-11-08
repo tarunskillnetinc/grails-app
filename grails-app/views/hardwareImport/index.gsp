@@ -42,9 +42,18 @@
             let url = "${createLink(controller: 'hardwareImport', action: 'ajaxCSVHardwareUpload')}";
 
             const file = $('#csvFileUploadInput').get(0).files[0]
-            if (!file || file.type !== 'text/csv') {
+
+            if (!file) {
+                handleUploadError(uploadButton, "No file selected. Please choose a file.");
+                return;
+            }
+
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            if (fileExtension !== 'csv') {
                 handleUploadError(uploadButton, "Incorrect file format. Please upload a valid .csv file.");
-                return
+                return;
             }
 
             let jForm = new FormData();
