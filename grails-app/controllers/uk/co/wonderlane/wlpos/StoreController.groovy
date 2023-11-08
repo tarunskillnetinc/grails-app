@@ -57,19 +57,19 @@ class StoreController {
         def oldProductRange = store?.range?.id
 
         // Note, this saving is deliberately being done completely outside of Hibernate and GORM because they don't handle JSON columns well (at all).
-
         if (storeCommand.validate() & storeCommand.config.validate()) { // Deliberately a single & so that both validates get called even if the first one fails.
             StoreConfig storeConfig = new StoreConfig()
 
             bindData(storeConfig, storeCommand.config)
 
             storeService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
+            store.config = storeConfig
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).getStore())
+                syncMessage.setStoreSettings(store.getStore())
 
                 rabbitService.sendMessage(syncMessage)
             }
