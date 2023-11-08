@@ -17,6 +17,7 @@ import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 @Transactional
@@ -592,7 +593,10 @@ class ProductService extends MySqlDal {
                 if (!variants.isEmpty()) {
                     // Only send the update to the store if there are variants to send. This could mean the store has
                     // old variants that don't get deleted but the alternative is sending incomplete product data.
-                    productEntity.setVariants(variants)
+                    Map<Long, ProductVariant> variantsBySku = variants.groupBy { it.getSku() }.collectEntries { key, value ->
+                        [(key): value.max { it.getId() }]
+                    }
+                    productEntity.setVariants(variantsBySku.values())
                     productEntities.add(productEntity)
                 }
             })

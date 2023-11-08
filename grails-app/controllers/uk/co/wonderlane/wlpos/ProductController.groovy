@@ -412,7 +412,7 @@ class ProductController extends BaseController {
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
-                def numOfProductsWithItemCode = Product.countByRetailerIdAndItemCodeNotEqual(springSecurityService.principal.retailerId, paramsMap["itemCode"])
+                def numOfProductsWithItemCode = Product.countByRetailerIdAndItemCode(springSecurityService.principal.retailerId, paramsMap["itemCode"])
                 def duplicateItemCode = numOfProductsWithItemCode > 0
                 if (duplicateItemCode) {
                     // CORE-2916 - the new Product(map) loads in the product variants from the itemCode, even if it already exists and this is a new product
