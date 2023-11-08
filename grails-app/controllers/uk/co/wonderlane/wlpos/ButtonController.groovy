@@ -333,9 +333,11 @@ class ButtonController {
     }
 
     def saveButton(Button button, byte[] image, boolean singularButtonUpdate){
-        imageService.saveButtonImage(button.id, image)
+        if (image != null) {
+            imageService.saveButtonImage(button.id, image)
+            button.imageDisplay = true
+        }
 
-        button.imageDisplay = true
         if (singularButtonUpdate) {
             buttonService.saveButton(button)
         } else {
