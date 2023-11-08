@@ -100,10 +100,12 @@ class CategoryController extends BaseController {
             def parentCategorySearch = categoryService.getCategory(parentId.get())
             // Make sure we're not saving the same ID otherwise we'll spin forever
             if (parentCategorySearch != null) {
-                if (parentCategorySearch.id != category.id) {
-                    category.parentCategory = parentCategorySearch
+                if (parentCategorySearch.id == category.id) {
+                    category.errors.reject('category.parentCategory.notUnique')
+                } else if (parentIsSubCategory(category.id, parentId.get())) {
+                    category.errors.reject('category.parentCategory.subcategory.error')
                 } else {
-                    category.errors.reject('category.parentCategory.notUnique', [category.parentCategory] as Object[], 'Categories cannot be their own parent, please select a new category or none.')
+                    category.parentCategory = parentCategorySearch
                 }
             } else {
                 category.parentCategory = null
@@ -238,5 +240,16 @@ class CategoryController extends BaseController {
         } catch (Exception ignored) {
             return Optional.empty()
         }
+    }
+
+    private boolean parentIsSubCategory(int categoryId, int selectedParentId) {
+        Category parent = categoryService.getCategory(selectedParentId)
+        while (parent != null) {
+            if (parent.id == categoryId) {
+                return true
+            }
+            parent = parent.parentCategory
+        }
+        return false
     }
 }
