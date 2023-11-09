@@ -596,7 +596,8 @@ class ProductService extends MySqlDal {
                     Map<Long, ProductVariant> variantsBySku = variants.groupBy { it.getSku() }.collectEntries { key, value ->
                         [(key): value.max { it.getId() }]
                     }
-                    productEntity.setVariants(variantsBySku.values())
+                    List<ProductVariant> variantList = new ArrayList<>(variantsBySku.values());
+                    productEntity.setVariants(variantList)
                     productEntities.add(productEntity)
                 }
             })
