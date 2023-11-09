@@ -24,7 +24,10 @@ class ProductPrice {
     static constraints = {
         sku nullable: false
         effectiveDate nullable: false
-        price min: 0.00 as BigDecimal, max: 99999.99 as BigDecimal, nullable: false, scale: 2
+        price nullable: false ,  scale: 2, validator: {
+            if (BigDecimal.ZERO == it) return ['productPrice.price.zero']
+            if (it >= 99999.99) return ['productPrice.price.max']
+        }
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductPrice getProductPrice() {
