@@ -206,10 +206,10 @@ class ReportingController {
                     groupedProductSale.value[0].margin = groupedProductSale.value.sum { initQuantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
 
                     groupedProductSale.value.each {
-                        if (it.quantity < 0) {
-                            groupedProductSale.value[0].refundQuantity -= it.quantity
+                        if (initQuantity < 0) {
+                            groupedProductSale.value[0].refundQuantity -= initQuantity
                         } else {
-                            groupedProductSale.value[0].quantity += it.quantity
+                            groupedProductSale.value[0].quantity += initQuantity
                         }
                     }
                     initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity -= initQuantity) : (groupedProductSale.value[0].quantity += initQuantity)
