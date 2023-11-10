@@ -197,13 +197,14 @@ class ReportingController {
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
                     int initQuantity = groupedProductSale.value[0].quantity
-                    groupedProductSale.value[0].quantity = 0
-                    groupedProductSale.value[0].refundQuantity = 0
 
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
+
+                    groupedProductSale.value[0].quantity = 0
+                    groupedProductSale.value[0].refundQuantity = 0
 
                     groupedProductSale.value.each {
                         if (it.quantity < 0) {
