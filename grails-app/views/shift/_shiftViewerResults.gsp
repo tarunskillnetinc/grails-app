@@ -45,7 +45,7 @@
             <div id="shift-date-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
             <div id="status-${i + 1}" class="col-2 my-auto">${shift.reconciledDate != null ? "Reconciled" : "Unreconciled"}</div>
             <div id="total-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${(shift.sales.sum { it.value } ?: BigDecimal.ZERO) - (shift.refunds.sum { it.value } ?: BigDecimal.ZERO)}" type="currency" /></div>
-            <div id="variance-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${shift.reconciliationTotals.find { it.tenderType.name() == 'CASH' }?.variance ?: BigDecimal.ZERO}" type="currency" /></div>
+            <div id="variance-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${(shift.reconciliationTotals.find { it.tenderType.name() == 'CASH' }?.variance ?: BigDecimal.ZERO) + (shift.reconciliationTotals.find { it.tenderType.name() == 'VOUCHER' }?.variance ?: BigDecimal.ZERO)}" type="currency" /></div>
         </div>
     </g:each>
 </div>
