@@ -246,10 +246,10 @@
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                 <div class="col-1 font-weight-bold text-center my-auto">Selected</div>
                 <div class="col-2 font-weight-bold my-auto">Item Code</div>
-                <div class="col-4 font-weight-bold my-auto">Description</div>
+                <div class="col-2 font-weight-bold my-auto">Description</div>
                 <div class="col-1 font-weight-bold my-auto">Cost Price</div>
                 <g:each in="${priceBands}" var="priceBand">
-                    <div class="col font-weight-bold my-auto">${priceBand.description}</div>
+                    <div class="col-2 font-weight-bold my-auto">${priceBand.description}</div>
                 </g:each>
             </div>
 
