@@ -103,7 +103,7 @@ class ButtonController {
 
         boolean isHeadOffice = springSecurityService.principal.storeId == null
 
-        if (springSecurityService.principal.storeId != null) {
+        if (!isHeadOffice) {
             button.storeId = springSecurityService.principal.storeId
         }
 
@@ -137,14 +137,16 @@ class ButtonController {
                 } else {
                     buttonService.saveButtonGrid(button.buttonGrid)
                 }
-            } else if (form.image) {
+            } else if (form.image.bytes.length != 0) {
                 byte[] image = form.image.bytes
-
-                // if store override grab image from s3 and save it again
-                if (image.length <= 0 && springSecurityService.principal.storeId != null) {
-                    image = imageService.getButtonImage(form.overrideId)
+                if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                    button.imageDisplay = true
                     saveButton(button, image, singularButtonUpdate)
-                } else if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                }
+            } else if (!existingButton && !isHeadOffice) {
+                // if store override grab image from s3 and save it again
+                if (button.imageDisplay) {
+                    byte[] image = imageService.getButtonImage(form.overrideId)
                     saveButton(button, image, singularButtonUpdate)
                 }
             }
