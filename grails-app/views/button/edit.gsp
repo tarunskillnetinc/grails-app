@@ -170,6 +170,21 @@
             })
         })
 
+        function formatDecimal(input) {
+            // Get the entered value
+            let enteredValue = input.value;
+
+            // Remove non-numeric characters and leading zeros
+            let numericValue = enteredValue.replace(/[^0-9.]/g, '').replace(/^0+/g, '');
+
+            // Convert to a floating-point number
+            let floatValue = parseFloat(numericValue);
+
+            // Format with two decimal places
+            // Update the input value with the formatted result
+            input.value = floatValue.toFixed(2);
+        }
+
         function showHideExact(tenderTypeInput, amountInput, exactInput) {
             if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
                 document.getElementById("exactLabel").style.display = 'block'
@@ -426,7 +441,7 @@
                             <div class="form-group row">
                                 <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
                                 <div class="col-4 col-sm-2">
-                                    <g:field name="amountInput" type="number" min="0.01" max="9999" step=".01" value="${button.amount}" placeholder="${button.amount ?: 0.00}" class="form-control bottom-border" />
+                                    <g:field name="amountInput" type="number" min="0.01" max="9999" step=".01" value="${button.amount}" placeholder="${button.amount ?: 0.00}" class="form-control bottom-border" oninput="formatDecimal(this)" />
                                 </div>
                                 <div class="col-4 col-sm-2" style="margin-top: 7px;"><small class="text-muted">Leave blank for manual entry.</small></div>
                                 <label id="exactLabel" for="amount" class="col-form-label">Exact</label>
