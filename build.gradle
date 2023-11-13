@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.13.2-SNAPSHOT"
+version "1.13.3-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -179,11 +179,4 @@ grails {
 
 sourceSets {
     elasticbeanstalk
-}
-
-tasks.withType(Jar) {
-    from(sourceSets.elasticbeanstalk.output) {
-        include '*'
-        into '.platform/nginx/conf.d/'
-    }
 }
