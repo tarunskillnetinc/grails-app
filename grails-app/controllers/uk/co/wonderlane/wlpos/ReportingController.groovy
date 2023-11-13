@@ -860,7 +860,26 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
+        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1)).toList()
+
+        // Sort into the required order.
+        if (orders) {
+            switch (sortParams.sortColumn) {
+                case "supplierName":
+                    orders = orders.sort { it.supplierReference }
+                    break
+                case "numberOfItems":
+                    orders = orders.sort { it.totalQuantity }
+                    break
+                case "value":
+                    orders = orders.sort { it.totalValue }
+                    break
+            }
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                orders = orders?.reverse()
+            }
+        }
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "Orders-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
@@ -873,7 +892,7 @@ class ReportingController {
                                                       startDate   : startDate,
                                                       endDate     : endDate,
                                                       sortParams  : sortParams,
-                                                      totalResults: orders.totalCount])
+                                                      totalResults: orders.size()])
         }
     }
 
