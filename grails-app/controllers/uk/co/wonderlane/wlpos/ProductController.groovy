@@ -522,7 +522,11 @@ class ProductController extends BaseController {
                     priceChanges.addAll(it.priceChanges)
                 }
 
-                savePriceUpdates(product.currentVariants, priceChanges, effectiveDate)
+                savePriceUpdates(product.currentVariants, product,  priceChanges, effectiveDate)
+                if (product.hasErrors()) {
+                    return product
+                }
+
                 saveRangeUpdates(product, editedProduct.rangeId)
             }
 
@@ -1091,7 +1095,7 @@ class ProductController extends BaseController {
         builder.compare(null, "minimumDisplayQuantity", oldLocation.minimumDisplayQuantity, location.minimumDisplayQuantity, productHistoryType)
     }
 
-    private void savePriceUpdates(def variants, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
+    private void savePriceUpdates(def variants, Product product, List<PriceChangeCommand> priceChanges, DateTime effectiveDate) {
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId)
         def now = DateTime.now(DateTimeZone.UTC)
 
@@ -1136,7 +1140,7 @@ class ProductController extends BaseController {
         productService.syncProductUpdatesToAllStoresForRetailer(productIds)
 
         if (changedProductPrices.size() > 0) {
-            productService.saveProductPrices(changedProductPrices, productHistories)
+            productService.saveProductPrices(product, changedProductPrices, productHistories)
 
             def priceChangesGroupedByPriceBand = changedProductPrices.groupBy { it.priceBand }
             priceChangesGroupedByPriceBand?.each {
