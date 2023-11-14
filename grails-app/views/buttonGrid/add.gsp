@@ -89,7 +89,7 @@
                         <g:link elementId="delete-button-grid-btn" action="delete" id="${buttonGrid.id}" class="btn btn-wl" onClick="return confirm('You are about to delete this button grid. Are you sure you want to continue?');">Delete</g:link>
                     </g:if>
 
-                    <g:submitButton class="btn btn-success" name="save" value="Save" />
+                    <g:submitButton class="btn btn-success" name="save" value="Save" onclick="${buttonGrid?.id ? "return confirm('Confirm changes. Any decrease in grid dimensions may result in deleted buttons.');" : "" }" />
                 </div>
             </div>
         </g:form>
