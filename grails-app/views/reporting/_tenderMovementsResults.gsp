@@ -3,8 +3,8 @@
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'timestamp', sortOrder: ${sortParams?.sortColumn == 'timestamp' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Timestamp</a></div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "store" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'store', sortOrder: ${sortParams?.sortColumn == 'store' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Store</a></div>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'storeId', sortOrder: ${sortParams?.sortColumn == 'storeId' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Store</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fromLocation" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'fromLocation', sortOrder: ${sortParams?.sortColumn == 'fromLocation' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">From Location</a></div>
@@ -42,8 +42,8 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
                 <div class="col my-auto"><g:formatDate date="${tenderMovement.timestamp.toDate()}" format="dd/MM/yy HH:mm:ss" /></div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "store" }?.enabled}">
-                <div class="col my-auto">${tenderMovement.store?.config?.getStoreNumber()}</div>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
+                <div class="col my-auto">${tenderMovement.store?.config?.storeNumber}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fromLocation" }?.enabled}">
                 <g:if test="${tenderMovement.type == TenderMovementType.CASH_INBOUND}"><div class="col my-auto">Bank</div></g:if>
