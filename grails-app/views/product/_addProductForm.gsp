@@ -35,19 +35,19 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="itemCode" class="col-3 col-form-label text-right pr-4">Item Code (PLU)</label>
-                                <g:field type="text" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
+                                <g:field maxSize="50" type="text" name="itemCode" class="col-5 form-control bottom-border" value="${product?.itemCode}" onblur="itemCodeChanged(this.value);" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
-                                <g:textField name="description" class="col-9 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
+                                <g:textField maxLength="100" name="description" class="col-9 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
-                                <g:textField name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
+                                <g:textField maxLength="50" name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
-                                <g:textField name="unitSize" class="col-3 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
+                                <g:textField maxLength="50" name="unitSize" class="col-3 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
                             </div>
                         </div>
 
@@ -141,7 +141,7 @@
                             </div>
                             <div class="row mt-1 form-group">
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
-                                <g:textField name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
+                                <g:textField maxLength="50" name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
                             </div>
                             <div class="row mt-1 form-group">
                                 <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
