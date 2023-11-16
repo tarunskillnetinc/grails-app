@@ -1,13 +1,19 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
 <!doctype html>
 <html>
 <head>
     <meta name="layout" content="main" />
 
     <title>Button Grids</title>
-
+    <asset:javascript src="money-mask.js" />
     <asset:javascript src="button.js" />
+
     <script type="text/javascript">
-        $(function() {
+        $(function($) {
+            
+            $(".mask-money").maskMoney({ allowZero: true });
+            $(".mask-money").maskMoney('mask');
+
             if ("${button?.imageDisplay}" === "false") {
                 const displayTextCheck = $("input[id*=textDisplayInput]");
                 displayTextCheck.attr("checked", true);
@@ -168,6 +174,7 @@
                 $("#textColour").val(this.value);
                 $(".button-example").css("color", this.value);
             })
+
         })
 
         function formatDecimal(input) {
@@ -441,9 +448,9 @@
                             <div class="form-group row">
                                 <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
                                 <div class="col-4 col-sm-2">
-                                    <g:field name="amountInput" type="number" min="0.01" max="9999" step=".01" value="${button.amount}" placeholder="${button.amount ?: 0.00}" class="form-control bottom-border" oninput="formatDecimal(this)" />
+                                    <g:textField name="amountInput" max="9999" value="${button.amount}" placeholder="${button.amount ?: 0.00}" class="form-control bottom-border mask-money" />
                                 </div>
-                                <div class="col-4 col-sm-2" style="margin-top: 7px;"><small class="text-muted">Leave blank for manual entry.</small></div>
+                                <div class="col-4 col-sm-2" style="margin-top: 7px;"><small class="text-muted">Leave as 0.00 for manual entry.</small></div>
                                 <label id="exactLabel" for="amount" class="col-form-label">Exact</label>
                                 <div id="buttonTextCheck" class="col-8 col-lg-1 align-content-center">
                                     <g:checkBox name="exactInput" class="wl-checkbox"/>
