@@ -106,7 +106,6 @@ class ButtonController {
                 form.overrideId = parent.id
                 button.storeId = springSecurityService.principal.storeId
                 form.storeId = springSecurityService.principal.storeId
-
             }
         }
 
