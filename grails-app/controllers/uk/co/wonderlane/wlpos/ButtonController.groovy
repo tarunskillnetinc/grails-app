@@ -92,6 +92,21 @@ class ButtonController {
             button = new Button()
             button.buttonGrid = ButtonGrid.get(form.buttonGridId)
             existingButton = false
+
+            if (springSecurityService.principal.storeId != null && (form.overrideId == null || form.overrideId == 0)) {
+                // CORE-2813 - editing an unassigned button at store level:
+                // need to create a blank at head office level so that we have something to override
+                def parent = createBlankToOverride(form.buttonGridId, form.row, form.column)
+                if (parent == null) {
+                    form.errors.reject('button.error.noParent')
+                    renderError(button, form)
+                    return
+                }
+                button.overrideId = parent.id
+                form.overrideId = parent.id
+                button.storeId = springSecurityService.principal.storeId
+                form.storeId = springSecurityService.principal.storeId
+            }
         }
 
         bindData(button, form)
@@ -143,7 +158,9 @@ class ButtonController {
                 // if store override grab image from s3 and save it again
                 if (image.length <= 0 && springSecurityService.principal.storeId != null) {
                     image = imageService.getButtonImage(form.overrideId)
-                    saveButton(button, image, singularButtonUpdate)
+                    if (image != null) {
+                        saveButton(button, image, singularButtonUpdate)
+                    }
                 } else if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
                     saveButton(button, image, singularButtonUpdate)
                 }
@@ -340,6 +357,32 @@ class ButtonController {
             buttonService.saveButton(button)
         } else {
             buttonService.saveButtonGrid(button.buttonGrid)
+        }
+    }
+
+    private Button createBlankToOverride(int gridId, int row, int column) {
+        try {
+            Button blank = new Button()
+            blank.setBlankFields()
+            blank.type = ButtonType.BLANK
+            blank.row = row
+            blank.column = column
+            blank.storeId = null
+            blank.overrideId = null
+
+            def now = new Date()
+            blank.createdDatetime = now
+            blank.createdUserId = springSecurityService.principal.id
+            blank.updateDatetime = now
+            blank.updatedUserId = springSecurityService.principal.id
+
+            def grid = ButtonGrid.get(gridId)
+            blank.buttonGrid = grid
+            grid.addToButtons(blank)
+            buttonService.saveButtonGrid(grid)
+            return blank
+        } catch (Exception ignored) {
+            return null
         }
     }
 }
