@@ -27,10 +27,6 @@
 
             if (tenderTypeInput != null) {
                 if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
-                    if (amountInput.val() === "0.00") {
-                        exactInput.prop("checked", true)
-                        amountInput.attr("disabled", true)
-                    }
                     document.getElementById("exactLabel").style.display = 'block'
                     exactInput.show();
                 } else {
