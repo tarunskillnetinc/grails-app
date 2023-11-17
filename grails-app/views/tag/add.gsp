@@ -4,7 +4,14 @@
         <meta name="layout" content="main" />
 
         <title>Tag Management</title>
+        <asset:javascript src="co-utils.js"/>
         <asset:javascript src="validators/input-validator.js" />
+
+        <script>
+            $(function() {
+                intListener("maxSellQuantity", 10, 999);
+            });
+        </script>
     </head>
 
     <body>
