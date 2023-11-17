@@ -25,11 +25,11 @@ class ReceiptService {
                 gte("dateGenerated", fromDate)
                 lt("dateGenerated", toDate)
 
-                if (tillId) {
+                if (tillId != null) {
                     eq("tillId", tillId)
                 }
 
-                if (transactionId) {
+                if (transactionId != null) {
                     eq("transactionId", transactionId)
                 }
             }
@@ -54,11 +54,11 @@ class ReceiptService {
                 gte("dateGenerated", fromDate)
                 lt("dateGenerated", toDate)
 
-                if (tillId) {
+                if (tillId != null) {
                     eq("tillId", tillId)
                 }
 
-                if (transactionId) {
+                if (transactionId != null) {
                     eq("transactionId", transactionId)
                 }
             }
