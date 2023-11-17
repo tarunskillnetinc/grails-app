@@ -24,6 +24,7 @@
             const tenderTypeInput = document.getElementById("tenderTypeInput");
             const exactInput = $("input[id*=exactInput]")
             const amountInput = $("input[id*=amountInput]")
+            let previousValue = "0.00"
 
             if (tenderTypeInput != null) {
                 if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
@@ -108,12 +109,13 @@
 
             exactInput.on("change", function() {
                 if (this.checked) {
+                    previousValue = amountInput.prop("value")
                     amountInput.attr("disabled", true)
                     amountInput.prop("value", "0.00")
                     $("#amount").val("0.00");
                 } else {
                     amountInput.attr("disabled", false)
-                    amountInput.prop("value", false)
+                    amountInput.prop("value", previousValue)
                     $("#amount").val("");
                 }
             })
