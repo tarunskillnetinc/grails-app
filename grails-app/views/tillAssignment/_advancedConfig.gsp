@@ -1,7 +1,4 @@
 <script type="application/javascript">
-
-    <asset:javascript src="co-utils.js"/>
-
     $(function() {
         intListener("baudRate", 10, 2147483647);
     });
@@ -35,7 +32,7 @@
             <label class="col-3 offset-1 col-form-label text-right">Baud Rate</label>
 
             <div class="input-group col-4">
-                <g:field type="number" min="0" max="2147483647" name="baudRate" value="${config?.baudRate}" class="form-control bottom-border" />
+                <g:field type="number" min="0" max="2147483647" name="baudRate" value="${config?.baudRate}" class="form-control bottom-border" onkeydown="acceptNumeric(event)"/>
             </div>
         </div>
 
