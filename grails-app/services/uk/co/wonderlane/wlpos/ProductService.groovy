@@ -593,11 +593,7 @@ class ProductService extends MySqlDal {
                 if (!variants.isEmpty()) {
                     // Only send the update to the store if there are variants to send. This could mean the store has
                     // old variants that don't get deleted but the alternative is sending incomplete product data.
-                    Map<Long, ProductVariant> variantsBySku = variants.groupBy { it.getSku() }.collectEntries { key, value ->
-                        [(key): value.max { it.getId() }]
-                    }
-                    List<ProductVariant> variantList = new ArrayList<>(variantsBySku.values());
-                    productEntity.setVariants(variantList)
+                    productEntity.setVariants(variants)
                     productEntities.add(productEntity)
                 }
             })
