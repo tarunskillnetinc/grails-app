@@ -23,6 +23,7 @@
 
             const tenderTypeInput = document.getElementById("tenderTypeInput");
             const exactInput = $("input[id*=exactInput]")
+            const manualInput = $("input[id*=manualInput]")
             const amountInput = $("input[id*=amountInput]")
             let previousValue = "0.00"
 
@@ -30,9 +31,13 @@
                 if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
                     document.getElementById("exactLabel").style.display = 'block'
                     exactInput.show();
+                    document.getElementById("manualLabel").style.display = 'block'
+                    manualInput.show();
                 } else {
                     document.getElementById("exactLabel").style.display = 'none'
                     exactInput.hide();
+                    document.getElementById("manualLabel").style.display = 'none'
+                    manualInput.hide();
                 }
             }
 
@@ -113,10 +118,25 @@
                     amountInput.attr("disabled", true)
                     amountInput.prop("value", "0.00")
                     $("#amount").val("0.00");
+                    manualInput.prop("checked", false)
                 } else {
                     amountInput.attr("disabled", false)
                     amountInput.prop("value", previousValue)
                     $("#amount").val("");
+                }
+            })
+
+            manualInput.on("change", function() {
+                if (this.checked) {
+                    previousValue = amountInput.prop("value")
+                    amountInput.attr("disabled", true)
+                    amountInput.prop("value", "")
+                    $("#amount").val("");
+                    exactInput.prop("checked", false)
+                } else {
+                    amountInput.attr("disabled", false)
+                    amountInput.prop("value", previousValue)
+                    $("#amount").val("0.00");
                 }
             })
 
@@ -448,10 +468,13 @@
                                 <div class="col-4 col-sm-2">
                                     <g:textField name="amountInput" max="9999" value="${button.amount}" placeholder="${button.amount ?: 0.00}" class="form-control bottom-border mask-money" />
                                 </div>
-                                <div class="col-4 col-sm-2" style="margin-top: 7px;"><small class="text-muted">Leave as 0.00 for manual entry.</small></div>
                                 <label id="exactLabel" for="amount" class="col-form-label">Exact</label>
                                 <div id="buttonTextCheck" class="col-8 col-lg-1 align-content-center">
                                     <g:checkBox name="exactInput" class="wl-checkbox"/>
+                                </div>
+                                <label id="manualLabel" for="amount" class="col-form-label">Manual Entry</label>
+                                <div id="buttonTextCheckManual" class="col-8 col-lg-1 align-content-center">
+                                    <g:checkBox name="manualInput" class="wl-checkbox"/>
                                 </div>
                             </div>
 
