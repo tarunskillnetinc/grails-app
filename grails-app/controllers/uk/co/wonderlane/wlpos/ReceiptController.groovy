@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import io.micronaut.http.HttpStatus
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -24,6 +25,7 @@ class ReceiptController {
         int max = params.max ? Integer.parseInt(params.max) : 50
         DateTime startDate = DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay()
         DateTime endDate = DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1)
+        String inputErrors = ""
         Integer tillId = null
         Integer transactionId = null
 
@@ -43,22 +45,37 @@ class ReceiptController {
         if (params.tillId) {
             try {
                 tillId = Integer.parseInt(params.tillId)
-            } catch (Exception e) {
-                // Non-numeric input added, do nothing.
+            } catch (NumberFormatException e) {
+                //Treat the entered Till ID as zero if parsing failed - This can occur if the entered value is beyond the range of an Integer (2147483647) or is non-numeric.
+                //The zero value will cause this function to report an error in the input data.
+                tillId = 0
             }
         }
 
         if (params.transactionId) {
             try {
                 transactionId = Integer.parseInt(params.transactionId)
-            } catch (Exception e) {
-                // Non-numeric input added, do nothing.
+            } catch (NumberFormatException e) {
+                //Treat the entered Till ID as zero if parsing failed - This can occur if the entered value is beyond the range of an Integer (2147483647) or is non-numeric.
+                //The zero value will cause this function to report an error in the input data.
+                transactionId = 0
             }
         }
 
-        def (results, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
+        if ( tillId == 0 ) {
+            inputErrors += "<li>Till ID filter must be between 1 and 99999999.</li>"
+        }
 
-        render (template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, totalReceiptLineType: ReceiptLineType.TOTAL])
+        if ( transactionId == 0) {
+            inputErrors += "<li>Transaction Number filter must be between 1 and 999999999.</li>"
+        }
+
+        if (inputErrors.length() != 0) {
+            render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
+        } else {
+            def (results, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
+            render(template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, totalReceiptLineType: ReceiptLineType.TOTAL])
+        }
     }
 
     def ajaxGetReceipt(int receiptId) {
