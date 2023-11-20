@@ -25,6 +25,7 @@
 
             if (tenderTypeInput != null) {
                 if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
+                    alert(amountInput.val())
                     if (amountInput.val() === "0.00") {
                         exactInput.prop("checked", true)
                         amountInput.attr("disabled", true)
@@ -184,6 +185,7 @@
             $("select[id*=tenderTypeInput]").on("change", function() {
                 $("#tenderType").val($(this).val());
                 showHideExact(tenderTypeInput, amountInput, exactInput)
+                showHideManual(tenderTypeInput, amountInput, manualInput)
             })
 
             $(".button-example").css("backgroundColor", $("#bgColour").val());
@@ -230,6 +232,24 @@
                     amountInput.prop("value", false)
                     exactInput.prop("checked", false)
                     $("#amount").val("");
+                }
+            }
+        }
+
+
+        function showHideManual(tenderTypeInput, amountInput, manualInput) {
+            if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
+                document.getElementById("manualLabel").style.display = 'block'
+                manualInput.show();
+            } else {
+                document.getElementById("manualLabel").style.display = 'none'
+                manualInput.hide();
+
+                if (manualInput.is(":checked")) {
+                    amountInput.attr("disabled", false)
+                    amountInput.prop("value", false)
+                    manualInput.prop("checked", false)
+                    $("#amount").val("0.00");
                 }
             }
         }
