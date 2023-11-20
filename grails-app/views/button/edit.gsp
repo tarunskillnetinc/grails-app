@@ -10,10 +10,6 @@
 
     <script type="text/javascript">
         $(function($) {
-            
-            $(".mask-money").maskMoney({ allowZero: true });
-            $(".mask-money").maskMoney('mask');
-
             if ("${button?.imageDisplay}" === "false") {
                 const displayTextCheck = $("input[id*=textDisplayInput]");
                 displayTextCheck.attr("checked", true);
@@ -29,6 +25,13 @@
 
             if (tenderTypeInput != null) {
                 if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
+                    if (amountInput.val() === "0.00") {
+                        exactInput.prop("checked", true)
+                        amountInput.attr("disabled", true)
+                    } else if (amountInput.val() === "") {
+                        manualInput.prop("checked", true)
+                        amountInput.attr("disabled", true)
+                    }
                     document.getElementById("exactLabel").style.display = 'block'
                     exactInput.show();
                     document.getElementById("manualLabel").style.display = 'block'
@@ -123,6 +126,8 @@
                     amountInput.attr("disabled", false)
                     amountInput.prop("value", previousValue)
                     $("#amount").val("");
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
                 }
             })
 
@@ -137,6 +142,8 @@
                     amountInput.attr("disabled", false)
                     amountInput.prop("value", previousValue)
                     $("#amount").val("0.00");
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
                 }
             })
 
