@@ -154,7 +154,7 @@
                 $('#endDate').on("change", function () {
                     $('#endDate').val(this.value);
                     $('#endDate').removeClass('is-invalid');
-                    <%-- End date has been updated, so ensure the start date doesn't allow a date before this --%>
+                    <%-- End date has been updated, so ensure the start date doesn't allow a date after this --%>
                     $('#startDate').datepicker('setEndDate', this.value);
                 });
             })
