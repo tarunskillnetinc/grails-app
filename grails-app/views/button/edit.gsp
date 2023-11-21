@@ -13,37 +13,18 @@
             if ("${button?.imageDisplay}" === "false") {
                 const displayTextCheck = $("input[id*=textDisplayInput]");
                 displayTextCheck.attr("checked", true);
-                displayTextCheck.attr("value", true)
-                displayTextCheck.attr("disabled", true)
+                displayTextCheck.attr("value", true);
+                displayTextCheck.attr("disabled", true);
             }
 
-            const tenderTypeInput = document.getElementById("tenderTypeInput");
-            const exactInput = $("input[id*=exactInput]")
-            const manualInput = $("input[id*=manualInput]")
-            const amountInput = $("input[id*=amountInput]")
-            let previousValue = "0.00"
+            const tenderTypeInput = $("#tenderTypeInput");
 
-            if (tenderTypeInput != null) {
-                if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
-                    alert(amountInput.val())
-                    if (amountInput.val() === "0.00") {
-                        exactInput.prop("checked", true)
-                        amountInput.attr("disabled", true)
-                    } else if (amountInput.val() === "") {
-                        manualInput.prop("checked", true)
-                        amountInput.attr("disabled", true)
-                    }
-                    document.getElementById("exactLabel").style.display = 'block'
-                    exactInput.show();
-                    document.getElementById("manualLabel").style.display = 'block'
-                    manualInput.show();
-                } else {
-                    document.getElementById("exactLabel").style.display = 'none'
-                    exactInput.hide();
-                    document.getElementById("manualLabel").style.display = 'none'
-                    manualInput.hide();
-                }
-            }
+            const exactInputDiv = $("#exactEntryDiv");
+            const manualInputDiv = $("#manualEntryDiv");
+
+            const exactInput = $("input[id*=exactInput]");
+            const manualInput = $("input[id*=manualInput]");
+            const amountInput = $("input[id*=amountInput]");
 
             if ('${previousImage}' === 'true') {
                 const image = $('.button-image').first()
@@ -56,6 +37,9 @@
                         document.querySelector('#image').files = container.files
                     })
             }
+
+            $(".mask-money").maskMoney({ allowZero: true, allowEmpty: true });
+            $(".mask-money").maskMoney('mask');
 
             $("#image").on("change", function() {
                 if (this.files[0].size < 1048576 /* 1MB */) { // max size should match number value in SaveButtonFormCommand.groovy
@@ -102,7 +86,7 @@
                 $("#removeImage").val(true);
                 $("div[id*=imageRemoveBtn]").attr("disabled", true);
                 $("#textDisplay").val(true);
-            })
+            });
 
             $("input[id*=textDisplayInput]").on("change", function () {
                 $("#textDisplay").val(this.checked);
@@ -114,57 +98,25 @@
                     $(".button-example-text").attr("hidden", true)
                     $("div[id*=imageRemoveBtn]").attr("disabled", true);
                 }
-            })
-
-            exactInput.on("change", function() {
-                if (this.checked) {
-                    previousValue = amountInput.prop("value")
-                    amountInput.attr("disabled", true)
-                    amountInput.prop("value", "0.00")
-                    $("#amount").val("0.00");
-                    manualInput.prop("checked", false)
-                } else {
-                    amountInput.attr("disabled", false)
-                    amountInput.prop("value", previousValue)
-                    $("#amount").val("");
-                    $(".mask-money").maskMoney({ allowZero: true });
-                    $(".mask-money").maskMoney('mask');
-                }
-            })
-
-            manualInput.on("change", function() {
-                if (this.checked) {
-                    previousValue = amountInput.prop("value")
-                    amountInput.attr("disabled", true)
-                    amountInput.prop("value", "")
-                    $("#amount").val("");
-                    exactInput.prop("checked", false)
-                } else {
-                    amountInput.attr("disabled", false)
-                    amountInput.prop("value", previousValue)
-                    $("#amount").val("0.00");
-                    $(".mask-money").maskMoney({ allowZero: true });
-                    $(".mask-money").maskMoney('mask');
-                }
-            })
+            });
 
             $("input[id*=descriptionInput]").on("change", function() {
                 $("input[id*=descriptionInput]").val(this.value);
                 $("#description").val($(this).val());
-            })
+            });
 
             $("input[id*=quantityInput]").on("change", function() {
                 $("#quantity").val($(this).val());
-            })
+            });
 
             $("select[id*=subPageIdInput]").on("change", function() {
                 $("#subPageId").val($(this).val());
-            })
+            });
 
             $("input[id*=percentageInput]").on("input", function() {
                 formatValue()
                 $("#quantity").val($(this).val());
-            })
+            });
 
             $("select[id*=processInput]").on("change", function() {
                 $("#process").val($(this).val());
@@ -176,17 +128,91 @@
                     $("#percentageEntryHolder").hide()
                     $("#quantity").val(null);
                 }
-            })
+            });
+
+            tenderTypeInput.on("change", function() {
+                $("#tenderType").val($(this).val());
+
+                exactInput.prop("checked", false);
+                manualInput.prop("checked", false);
+                $("#exact").val("false");
+                $("#manual").val("false");
+
+                if (tenderTypeInput.val() === "") {
+                    amountInput.val("");
+                    $("#amount").val("");
+                    amountInput.attr("disabled", true);
+
+                    exactInputDiv.hide();
+                    manualInputDiv.hide();
+                } else if (tenderTypeInput.val() === "CASH") {
+                    amountInput.val("0.00");
+                    $("#amount").val("0.00");
+                    amountInput.attr("disabled", false);
+
+                    exactInputDiv.show();
+                    manualInputDiv.show();
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                } else {
+                    amountInput.val("0.00");
+                    $("#amount").val("0.00");
+                    amountInput.attr("disabled", false);
+
+                    exactInputDiv.hide();
+                    manualInputDiv.show();
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
+
+            exactInput.on("change", function() {
+                if (this.checked) {
+                    manualInput.prop("checked", false);
+
+                    amountInput.attr("disabled", true);
+                    amountInput.prop("value", "");
+
+                    $("#amount").val("");
+                    $("#exact").val("true");
+                    $("#manual").val("false");
+                } else {
+                    amountInput.attr("disabled", false);
+
+                    $("#amount").val("");
+                    $("#exact").val("false");
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
+
+            manualInput.on("change", function() {
+                if (this.checked) {
+                    exactInput.prop("checked", false);
+
+                    amountInput.attr("disabled", true);
+                    amountInput.prop("value", "");
+
+                    $("#amount").val("");
+                    $("#exact").val("false");
+                    $("#manual").val("true");
+                } else {
+                    amountInput.attr("disabled", false);
+
+                    $("#amount").val("");
+                    $("#manual").val("false");
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
 
             $("input[id*=amountInput]").on("change", function() {
                 $("#amount").val($(this).val());
-            })
-
-            $("select[id*=tenderTypeInput]").on("change", function() {
-                $("#tenderType").val($(this).val());
-                showHideExact(tenderTypeInput, amountInput, exactInput)
-                showHideManual(tenderTypeInput, amountInput, manualInput)
-            })
+            });
 
             $(".button-example").css("backgroundColor", $("#bgColour").val());
             $(".button-example").css("color", $("#textColour").val());
@@ -195,14 +221,14 @@
                 $("input[id*=bgColourInput]").val(this.value);
                 $("#bgColour").val(this.value);
                 $(".button-example").css("backgroundColor", this.value);
-            })
+            });
+
             $("input[id*=textColourInput]").on('change', function () {
                 $("input[id*=textColourInput]").val(this.value);
                 $("#textColour").val(this.value);
                 $(".button-example").css("color", this.value);
-            })
-
-        })
+            });
+        });
 
         function formatDecimal(input) {
             // Get the entered value
@@ -219,13 +245,13 @@
             input.value = floatValue.toFixed(2);
         }
 
-        function showHideExact(tenderTypeInput, amountInput, exactInput) {
-            if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
-                document.getElementById("exactLabel").style.display = 'block'
-                exactInput.show();
+        function showHideExact(tenderTypeInputValue, amountInput, exactInputDiv, exactInput) {
+            amountInput.val("");
+
+            if (tenderTypeInputValue === "CASH") {
+                exactInputDiv.show();
             } else {
-                document.getElementById("exactLabel").style.display = 'none'
-                exactInput.hide();
+                exactInputDiv.hide();
 
                 if (exactInput.is(":checked")) {
                     amountInput.attr("disabled", false)
@@ -236,23 +262,21 @@
             }
         }
 
-
-        function showHideManual(tenderTypeInput, amountInput, manualInput) {
-            if (tenderTypeInput.options[tenderTypeInput.selectedIndex].text === "Cash") {
-                document.getElementById("manualLabel").style.display = 'block'
-                manualInput.show();
+        function showHideManual(tenderTypeInputValue, amountInput, manualInputDiv, manualInput) {
+            if (tenderTypeInputValue === "CASH") {
+                manualInputDiv.show();
             } else {
-                document.getElementById("manualLabel").style.display = 'none'
-                manualInput.hide();
+                manualInputDiv.hide();
 
                 if (manualInput.is(":checked")) {
                     amountInput.attr("disabled", false)
                     amountInput.prop("value", false)
                     manualInput.prop("checked", false)
-                    $("#amount").val("0.00");
+                    $("#amount").val("");
                 }
             }
         }
+
         function formatValue() {
             var element = document.getElementById("percentageInput")
             var maxValue = 100
@@ -491,28 +515,34 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
-                                <div class="col-4 col-sm-2">
-                                    <g:textField name="amountInput" max="9999" value="${button.amount}" placeholder="${button.amount ?: 0.00}" class="form-control bottom-border mask-money" />
-                                </div>
-                                <label id="exactLabel" for="amount" class="col-form-label">Exact</label>
-                                <div id="buttonTextCheck" class="col-8 col-lg-1 align-content-center">
-                                    <g:checkBox name="exactInput" class="wl-checkbox"/>
-                                </div>
-                                <label id="manualLabel" for="amount" class="col-form-label">Manual Entry</label>
-                                <div id="buttonTextCheckManual" class="col-8 col-lg-1 align-content-center">
-                                    <g:checkBox name="manualInput" class="wl-checkbox"/>
+                                <label for="tenderType" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
+                                <div class="col-6 col-sm-2">
+                                    <g:select name="tenderTypeInput" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'Please select']" class="form-control select-border" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="tenderType" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
-                                <div class="col-6 col-sm-4">
-                                    <g:select name="tenderTypeInput" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'']" class="form-control select-border" />
+                                <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
+                                <div class="col-4 col-sm-2">
+                                    <g:textField name="amountInput" max="9999" value="${button.amount ?: form?.amount}" class="form-control bottom-border mask-money" disabled="${!button.tenderType || form?.manual || form?.exact || (!form && button.amount == BigDecimal.ZERO) || (!form && button.amount == null)}" />
+                                </div>
+
+                                <div class="form-group col-4 col-sm-2 offset-sm-1 form-check">
+                                    <div id="manualEntryDiv" class="col-3 col-form-label text-right pr-4 pt-0 pb-0" style="display: ${displayManualOption ? 'block' : 'none'};">
+                                        <label id="manualLabel" for="manualInput" class="col-form-label text-right wl-label">Manual Entry</label>
+                                        <g:checkBox name="manualInput" class="col-1 form-check-input wl-checkbox" checked="${form?.manual || (!form && button.tenderType && button.amount == BigDecimal.ZERO)}" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-4 col-sm-2 form-check">
+                                    <div id="exactEntryDiv" class="col-3 col-form-label text-right pr-4 pt-0 pb-0" style="display: ${displayExactOption ? 'block' : 'none'};">
+                                        <label id="exactLabel" for="exactInput" class="col-form-label text-right wl-label">Exact</label>
+                                        <g:checkBox name="exactInput" class="col-1 form-check-input wl-checkbox" checked="${form?.exact || (!form && button.tenderType && button.amount == null)}" />
+                                    </div>
                                 </div>
                             </div>
 
-                            <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
+                            <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]" />
                             <g:render template="saveCancelButtons" model="${[button: button]}" />
                         </div>
                     </div>
@@ -622,6 +652,8 @@
                 <g:hiddenField id="btnStoreId" name="storeId" value="${button?.storeId}" />
                 <g:hiddenField id="overrideId" name="overrideId" value="${button?.overrideId}" />
                 <g:hiddenField name="removeImage" value=""/>
+                <g:hiddenField name="exact" value="${form?.exact}" />
+                <g:hiddenField name="manual" value="${form?.manual}" />
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
             </g:uploadForm>
