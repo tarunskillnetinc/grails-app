@@ -530,14 +530,14 @@
                                 <div class="form-group col-4 col-sm-2 offset-sm-1 form-check">
                                     <div id="manualEntryDiv" class="col-3 col-form-label text-right pr-4 pt-0 pb-0" style="display: ${displayManualOption ? 'block' : 'none'};">
                                         <label id="manualLabel" for="manualInput" class="col-form-label text-right wl-label">Manual Entry</label>
-                                        <g:checkBox name="manualInput" class="col-1 form-check-input wl-checkbox" checked="${form?.manual || (!form && button.tenderType && button.amount == BigDecimal.ZERO)}" />
+                                        <g:checkBox name="manualInput" class="col-1 form-check-input wl-checkbox" checked="${form?.manual || (!form && button.tenderType && button.amount == null)}" />
                                     </div>
                                 </div>
 
                                 <div class="form-group col-4 col-sm-2 form-check">
                                     <div id="exactEntryDiv" class="col-3 col-form-label text-right pr-4 pt-0 pb-0" style="display: ${displayExactOption ? 'block' : 'none'};">
                                         <label id="exactLabel" for="exactInput" class="col-form-label text-right wl-label">Exact</label>
-                                        <g:checkBox name="exactInput" class="col-1 form-check-input wl-checkbox" checked="${form?.exact || (!form && button.tenderType && button.amount == null)}" />
+                                        <g:checkBox name="exactInput" class="col-1 form-check-input wl-checkbox" checked="${form?.exact || (!form && button.tenderType && button.amount == BigDecimal.ZERO)}" />
                                     </div>
                                 </div>
                             </div>
@@ -652,8 +652,8 @@
                 <g:hiddenField id="btnStoreId" name="storeId" value="${button?.storeId}" />
                 <g:hiddenField id="overrideId" name="overrideId" value="${button?.overrideId}" />
                 <g:hiddenField name="removeImage" value=""/>
-                <g:hiddenField name="exact" value="${form?.exact || (!form && button.amount == null)}" />
-                <g:hiddenField name="manual" value="${form?.manual || (!form && button.amount == BigDecimal.ZERO)}" />
+                <g:hiddenField name="exact" value="${form?.exact || (!form && button.amount == BigDecimal.ZERO)}" />
+                <g:hiddenField name="manual" value="${form?.manual || (!form && button.amount == null)}" />
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
             </g:uploadForm>

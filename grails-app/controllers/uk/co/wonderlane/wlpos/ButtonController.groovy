@@ -102,7 +102,7 @@ class ButtonController {
 
         bindData(button, form)
 
-        if (form.manual) {
+        if (form.exact) {
             button.amount = BigDecimal.ZERO
         }
 
