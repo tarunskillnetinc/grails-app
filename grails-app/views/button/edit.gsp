@@ -652,8 +652,8 @@
                 <g:hiddenField id="btnStoreId" name="storeId" value="${button?.storeId}" />
                 <g:hiddenField id="overrideId" name="overrideId" value="${button?.overrideId}" />
                 <g:hiddenField name="removeImage" value=""/>
-                <g:hiddenField name="exact" value="${form?.exact}" />
-                <g:hiddenField name="manual" value="${form?.manual}" />
+                <g:hiddenField name="exact" value="${form?.exact || (!form && button.amount == null)}" />
+                <g:hiddenField name="manual" value="${form?.manual || (!form && button.amount == BigDecimal.ZERO)}" />
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
             </g:uploadForm>
