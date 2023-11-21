@@ -38,7 +38,9 @@ class ButtonController {
          availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
          productSku: productVariant?.sku,
          productDescription: productVariant?.product?.description,
-         storeId: getStoreId()]
+         storeId: getStoreId(),
+         displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+         displayManualOption: button.tenderType != null]
     }
 
     private Button getButton(String idS, String buttonGridIdS, String rowS, String columnS) {
@@ -79,6 +81,10 @@ class ButtonController {
             return
         }
 
+        if (!form.exact && !form.manual && (form.amount == null || (form.amount != null && form.amount.compareTo(BigDecimal.ZERO) <= 0))) {
+            form.errors.reject(form.tenderType == TenderType.CASH ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
+        }
+
         def button
         def existingButton = true
 
@@ -95,6 +101,10 @@ class ButtonController {
         }
 
         bindData(button, form)
+
+        if (form.manual) {
+            button.amount = BigDecimal.ZERO
+        }
 
         if (form.hasErrors()) {
             renderError(button, form)
@@ -200,7 +210,9 @@ class ButtonController {
                         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
                         productSku: productVariant?.sku,
                         productDescription: productVariant?.product?.description,
-                        storeId: getStoreId()
+                        storeId: getStoreId(),
+                        displayExactOption: button?.tenderType != null && button?.tenderType == TenderType.CASH,
+                        displayManualOption: button?.tenderType != null
                 ])
             }
         } else {
@@ -233,7 +245,9 @@ class ButtonController {
                 productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
                 form: form,
-                previousImage: uploadedImage
+                previousImage: uploadedImage,
+                displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+                displayManualOption: button.tenderType != null
         ])
     }
 
