@@ -168,6 +168,7 @@ class ButtonController {
                     button.imageDisplay = true
                     if (image != null) {
                         saveButton(button, image, singularButtonUpdate)
+                    }
                 }
             } else if (!existingButton && !isHeadOffice) {
                 // if store override grab image from s3 and save it again
