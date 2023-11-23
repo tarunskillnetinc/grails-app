@@ -69,6 +69,10 @@
                     data: { startDate: startDate, endDate: endDate, sort: sort, order: order, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
                     success: function(resp) {
                         $("#results-container").html(resp);
+                        $("#errors-container").html('');
+                    }, error: function(xhr, exception) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert"><ul>' +xhr.responseText+ '</ul></div>');
+                        $("#loading-indicator").hide();
                     }
                 });
             }
@@ -99,6 +103,12 @@
                 document.getElementById('tillId').value = null;
                 document.getElementById('transactionId').value = null;
             }
+
+            function limitInputLength(input, maxLength) {
+                if (input.value.length > maxLength) {
+                    input.value = input.value.slice(0, maxLength);
+                }
+            }
         </script>
     </head>
 
@@ -116,11 +126,16 @@
             </nav>
         </section>
 
-        <section id="shifts-container" class="container-fluid">
+        <section id="header-container" class="container-fluid">
             <div class="header-wl mt-3">
                 <h2 id="page-title" class="mx-auto">Receipt Viewer</h2>
             </div>
+        </section>
 
+        <section id="errors-container" class="container-fluid">
+        </section>
+
+        <section id="shifts-container" class="container-fluid">
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
@@ -151,12 +166,12 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="tillId" step="1" min="0" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);"/>
+                                        <g:field type="number" name="tillId" step="1" min="1" max="999999999" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);" oninput="limitInputLength(this,9);"/>
                                     </div>
 
                                     <label for="transactionId" class="col-2 col-form-label-sm text-right">Transaction Number</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="transactionId" step="1" min="0" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);"/>
+                                        <g:field type="number" name="transactionId" step="1" min="1" max="999999999" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);" oninput="limitInputLength(this,9);"/>
                                     </div>
                                 </div>
 
