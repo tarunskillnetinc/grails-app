@@ -36,7 +36,7 @@ class ReportingController {
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
-    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "userName"]
+    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "storeId", "fromLocation", "toLocation", "amount", "type", "reason", "userName"]
 
     def index() {
 
@@ -862,7 +862,28 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
+        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1)).toList()
+
+        // Sort into the required order.
+        if (orders) {
+            switch (sortParams.sortColumn) {
+                case "supplierName":
+                    orders = orders.sort { it.supplierReference }
+                    break
+                case "numberOfItems":
+                    orders = orders.sort { it.totalQuantity }
+                    break
+                case "value":
+                    orders = orders.sort { it.totalValue }
+                    break
+                default:
+                    orders = orders.sort { it."${sortParams.sortColumn}" }
+            }
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                orders = orders?.reverse()
+            }
+        }
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "Orders-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
@@ -875,7 +896,7 @@ class ReportingController {
                                                       startDate   : startDate,
                                                       endDate     : endDate,
                                                       sortParams  : sortParams,
-                                                      totalResults: orders.totalCount])
+                                                      totalResults: orders.size()])
         }
     }
 
@@ -1530,9 +1551,24 @@ class ReportingController {
         TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
         Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
 
-        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder).toList()
 
-        render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, tenderMovementType: tenderMovementType, tenderType: tenderType, storeId: storeId, totalResults: tenderMovements.totalCount])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "TenderMovements-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getTenderMovementsCsv(tenderMovements)
+        } else {
+            render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements,
+                                                                userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS),
+                                                                sortParams: sortParams,
+                                                                startDate: startDate,
+                                                                endDate: endDate,
+                                                                tenderMovementType: tenderMovementType,
+                                                                tenderType: tenderType,
+                                                                storeId: storeId,
+                                                                totalResults: tenderMovements.size()])
+        }
     }
 
     def ajaxSaveReportColumns() {
@@ -1931,6 +1967,32 @@ class ReportingController {
             stringBuilder.append(it.amount != null ? "£" + it.amount : "N/A")
             stringBuilder.append("\n")
         }
+        return stringBuilder.toString()
+    }
+
+    private String getTenderMovementsCsv(List<TenderMovement> tenderMovementList) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Timestamp,Store,From Location,To Location,Amount,Type,Reason,User\n")
+
+        tenderMovementList?.each { item ->
+            stringBuilder.append(item?.timestamp)
+            stringBuilder.append(",")
+            stringBuilder.append(item?.storeId)
+            stringBuilder.append(",")
+            stringBuilder.append(item.fromLocation?.description)
+            stringBuilder.append(",")
+            stringBuilder.append(item.toLocation?.description)
+            stringBuilder.append(",")
+            stringBuilder.append(item.amount)
+            stringBuilder.append(",")
+            stringBuilder.append(item.type)
+            stringBuilder.append(",")
+            stringBuilder.append(item.reason)
+            stringBuilder.append(",")
+            stringBuilder.append(item.userName)
+            stringBuilder.append("\n")
+        }
+
         return stringBuilder.toString()
     }
 

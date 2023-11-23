@@ -70,20 +70,11 @@
                         def button = buttonGrid.buttons.find { it.row == row && it.column == column }
                     %>
                     <g:if test="${!button}"><!-- Unassigned buttons -->
-                        <g:if test="${storeId}">
-                            <div class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                                <div id="button-${c+1}-${r+1}" class="button-grid-button blank">
-                                    Unassigned Button
-                                </div>
+                        <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
+                            <div id="button-${c+1}-${r+1}" class="button-grid-button blank">
+                                Unassigned Button
                             </div>
-                        </g:if>
-                        <g:else>
-                            <g:link controller="button" action="edit" id="0" params="[buttonGridId: buttonGrid.id, row: row, column: column]" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
-                                <div id="button-${c+1}-${r+1}" class="button-grid-button blank">
-                                    Unassigned Button
-                                </div>
-                            </g:link>
-                        </g:else>
+                        </g:link>
                     </g:if>
                     <g:else><!-- All other assigned buttons -->
                         <g:link controller="button" action="edit" id="${button.id}" class="no-underline col-6 col-sm-${(12 / buttonGrid.columns)} button-grid-container">
