@@ -526,7 +526,7 @@
                 var errorString = "";
 
                 if ($('#' + promoType + '-description').val() !== "")  {
-                    if ($('#' + promoType + '-description').length > 200) {
+                    if ($('#' + promoType + '-description').val().length > 200) {
                         error = true;
                         errorString = errorString.concat("\n<li>Description cannot be longer than 200 characters</li>");
                         $('#' + promoType + '-description').addClass("is-invalid");
@@ -539,7 +539,7 @@
                 }
 
                 if ($('#' + promoType + '-receiptDescription').val() !== "")  {
-                    if ($('#' + promoType + '-receiptDescription').length > 50) {
+                    if ($('#' + promoType + '-receiptDescription').val().length > 50) {
                         error = true;
                         errorString = errorString.concat("\n<li>Receipt Description cannot be longer than 50 characters</li>");
                         $('#' + promoType + '-receiptDescription').addClass("is-invalid");
