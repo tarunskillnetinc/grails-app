@@ -69,7 +69,9 @@ class StoreController {
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).getStore())
+                syncMessage.setStoreSettings(
+                        storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).refresh().getStore()
+                )
 
                 rabbitService.sendMessage(syncMessage)
             }
