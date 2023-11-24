@@ -39,7 +39,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="bogof-description" maxLength="50" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="bogof-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
@@ -181,7 +181,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="xfory-description" maxLength="50" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="xfory-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
@@ -378,7 +378,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="percentage-description" maxLength="50" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="percentage-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
@@ -527,7 +527,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="fixedAmount-description" maxLength="50" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="fixedAmount-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
@@ -684,7 +684,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-description" class="col-3 col-form-label text-right pr-4">Description</label>
-                        <g:textField name="fixedPrice-description" maxLength="50" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
+                        <g:textField name="fixedPrice-description" maxLength="200" class="col-5 form-control bottom-border promo-desc" required="true" value="${promotion?.description}"/>
                     </div>
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
