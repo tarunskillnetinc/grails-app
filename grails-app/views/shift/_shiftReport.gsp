@@ -1,3 +1,4 @@
+<%@ page import="java.math.RoundingMode" %>
 <div class="shift-report mr-4 px-3 py-5">
     <div class="row mb-3">
         <h2 class="mx-auto">Shift Report</h2>
@@ -289,7 +290,12 @@
         </div>
 
         <div class="col-6 text-right">
-            <g:formatNumber number="${(shift.sales.sum{ it.value } ?: 0) / (shift.customerCount ?: 1)}" type="currency" />
+            <g:formatNumber
+                    number="${BigDecimal.valueOf(shift.sales.sum { it.value } ?: 0).setScale(2, RoundingMode.HALF_UP)
+                            .divide(
+                                    BigDecimal.valueOf(shift.customerCount ?: 1), RoundingMode.HALF_UP
+                            ).setScale(2, RoundingMode.HALF_UP)}"
+                    type="currency"/>
         </div>
     </div>
 </div>

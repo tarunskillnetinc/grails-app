@@ -169,8 +169,6 @@ class StoreConfigCommand implements Validateable {
     PrintReceiptOption printReceiptOption
     Integer quantityPromptThreshold
     BigDecimal valuePromptThreshold
-    Integer varianceQuantity
-    BigDecimal varianceValue
     Boolean pickListForceZeroCount
     String primaryColour
     String secondaryColour
@@ -178,6 +176,7 @@ class StoreConfigCommand implements Validateable {
     String primaryTextColour
     String secondaryTextColour
     String accentTextColour
+    String backgroundColour
     int stockLevelThreshold
     BigDecimal countIncrement
     String website
@@ -202,8 +201,6 @@ class StoreConfigCommand implements Validateable {
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
-        varianceQuantity nullable: true, min: 1, max: 999
-        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         primaryColour nullable: true
         secondaryColour nullable: true
@@ -211,6 +208,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true
         secondaryTextColour nullable: true
         accentTextColour nullable: true
+        backgroundColour nullable: true
         stockLevelThreshold nullable: false
 //        selMarginLeft nullable: true
 //        selMarginTop nullable: true
@@ -220,6 +218,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        backgroundColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         countIncrement nullable: false, min: new BigDecimal(0.01).round(new MathContext(1, RoundingMode.HALF_EVEN)), max: BigDecimal.ONE
         website nullable: true, maxsize: 40
         companyNumber nullable: true, maxSize: 10

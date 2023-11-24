@@ -28,9 +28,8 @@
     function attemptSave() {
         const amount = $("input[id*=amountInput]");
         if (amount.val() !== "" && amount.val() < 0.01 && !$("input[id*=exactInput]").is(":checked")) {
-            alert("Amount cannot be 0")
-        } else {
-            document.querySelector('#submission-form').submit()
+            amount.val("");
         }
+        document.querySelector('#submission-form').submit()
     }
 </script>
