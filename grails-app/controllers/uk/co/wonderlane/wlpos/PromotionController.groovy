@@ -416,8 +416,8 @@ class PromotionController {
     }
 
     def tagSearch() {
-        def tags = Tag.findAllByDescriptionLikeAndHidden("%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-        def totalResults = Tag.countByDescriptionLikeAndHidden("%" + params.searchTerm + "%", false)
+        def tags = Tag.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+        def totalResults = Tag.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
 
         render(template: "/promotion/tagSearchResults", model: [tags: tags, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }
