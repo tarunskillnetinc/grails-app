@@ -38,7 +38,9 @@ class ButtonController {
          availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
          productSku: productVariant?.sku,
          productDescription: productVariant?.product?.description,
-         storeId: getStoreId()]
+         storeId: getStoreId(),
+         displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+         displayManualOption: button.tenderType != null]
     }
 
     private Button getButton(String idS, String buttonGridIdS, String rowS, String columnS) {
@@ -79,6 +81,10 @@ class ButtonController {
             return
         }
 
+        if (!form.exact && !form.manual && (form.amount == null || (form.amount != null && form.amount.compareTo(BigDecimal.ZERO) <= 0))) {
+            form.errors.reject(form.tenderType == TenderType.CASH ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
+        }
+
         def button
         def existingButton = true
 
@@ -111,6 +117,10 @@ class ButtonController {
 
         bindData(button, form)
 
+        if (form.exact) {
+            button.amount = BigDecimal.ZERO
+        }
+
         if (form.hasErrors()) {
             renderError(button, form)
             return
@@ -118,7 +128,7 @@ class ButtonController {
 
         boolean isHeadOffice = springSecurityService.principal.storeId == null
 
-        if (springSecurityService.principal.storeId != null) {
+        if (!isHeadOffice) {
             button.storeId = springSecurityService.principal.storeId
         }
 
@@ -152,16 +162,18 @@ class ButtonController {
                 } else {
                     buttonService.saveButtonGrid(button.buttonGrid)
                 }
-            } else if (form.image) {
+            } else if (form.image.bytes.length != 0) {
                 byte[] image = form.image.bytes
-
-                // if store override grab image from s3 and save it again
-                if (image.length <= 0 && springSecurityService.principal.storeId != null) {
-                    image = imageService.getButtonImage(form.overrideId)
+                if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                    button.imageDisplay = true
                     if (image != null) {
                         saveButton(button, image, singularButtonUpdate)
                     }
-                } else if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                }
+            } else if (!existingButton && !isHeadOffice) {
+                // if store override grab image from s3 and save it again
+                if (button.imageDisplay) {
+                    byte[] image = imageService.getButtonImage(form.overrideId)
                     saveButton(button, image, singularButtonUpdate)
                 }
             }
@@ -215,7 +227,9 @@ class ButtonController {
                         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
                         productSku: productVariant?.sku,
                         productDescription: productVariant?.product?.description,
-                        storeId: getStoreId()
+                        storeId: getStoreId(),
+                        displayExactOption: button?.tenderType != null && button?.tenderType == TenderType.CASH,
+                        displayManualOption: button?.tenderType != null
                 ])
             }
         } else {
@@ -248,7 +262,9 @@ class ButtonController {
                 productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
                 form: form,
-                previousImage: uploadedImage
+                previousImage: uploadedImage,
+                displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+                displayManualOption: button.tenderType != null
         ])
     }
 
@@ -350,9 +366,11 @@ class ButtonController {
     }
 
     def saveButton(Button button, byte[] image, boolean singularButtonUpdate){
-        imageService.saveButtonImage(button.id, image)
+        if (image != null) {
+            imageService.saveButtonImage(button.id, image)
+            button.imageDisplay = true
+        }
 
-        button.imageDisplay = true
         if (singularButtonUpdate) {
             buttonService.saveButton(button)
         } else {

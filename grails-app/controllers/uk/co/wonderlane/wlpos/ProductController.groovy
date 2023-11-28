@@ -399,6 +399,7 @@ class ProductController extends BaseController {
 
         boolean newProduct
         boolean changeAffectsSel = false
+        boolean duplicateItemCode = false
 
         if (isRequest ? paramsMap.id && Integer.parseInt(paramsMap.id) > 0 : editedProduct.id && editedProduct.id > 0) {
             newProduct = false
@@ -412,6 +413,24 @@ class ProductController extends BaseController {
         if (newProduct) {
             changeAffectsSel = true
             if (isRequest) {
+                if (paramsMap["itemCode"] != null || paramsMap["itemCode"].toString().trim().length() > 0) {
+                    duplicateItemCode = Product.countByRetailerIdAndItemCode(springSecurityService.principal.retailerId, paramsMap["itemCode"]) > 0
+                    if (duplicateItemCode) {
+                        // CORE-2916 - the new Product(map) loads in the product variants from the itemCode, even if it already exists and this is a new product
+                        // so we need to manually correct this by creating a new product object without the item code.
+                        paramsMap["itemCode"] = ""
+                        paramsMap["variants[0].sku"] = null
+                        paramsMap["variants[0].retailPrice"] = null
+                        paramsMap["variants[0].costPrice"] = null
+                        paramsMap["variants[0].shelfLifeDays"] = null
+                        paramsMap["variants[0].shelfCapacity"] = null
+                        paramsMap["variants[0].minimumDisplayQuantity"] = null
+                        paramsMap["variants[0].effectiveDate"] = null
+                        paramsMap["variants[0].defaultSupplierId"] = null
+                        paramsMap["variants[0]"] = null
+                        paramsMap.remove("variants[0]")
+                    }
+                }
                 product = new Product(paramsMap)
             } else {
                 product = new Product()
@@ -427,6 +446,11 @@ class ProductController extends BaseController {
             product.variants?.each { variant ->
                 variant.storeId = springSecurityService.principal.storeId
                 variant.effectiveDate = effectiveDate
+
+                // Check whether the SKU is used elsewhere
+                if (!isValidSku(variant.sku)) {
+                    product.errors.reject('product.productVariants.notUnique', [variant.sku] as Object[], 'SKU {0} already exists on another product.')
+                }
 
                 variant.barcodez?.each { barcode ->
                     barcode.retailerId = springSecurityService.principal.retailerId
@@ -490,7 +514,20 @@ class ProductController extends BaseController {
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
         }
 
-        if (!product.hasErrors() && product.validate()) {
+        // check for errors added manually from barcode and category checks or validate can remove them
+        //  before they are handled
+        if (product.hasErrors()) {
+            return product
+        }
+
+        product.validate()
+        if (duplicateItemCode) {
+            product.errors.rejectValue("itemCode", "product.itemCode.validator.error")
+        } else if (product.itemCode == null || product.itemCode.trim().isEmpty()) {
+            product.errors.rejectValue("itemCode", "product.itemCode.nullable.error")
+        }
+
+        if (!product.hasErrors()) {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
@@ -923,7 +960,7 @@ class ProductController extends BaseController {
     }
 
     private void updateLocation(def locationToBeUpdated, def editedLocation, def editedVariant) {
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
+        def locationsType = springSecurityService.principal.retailer.config.locationsType
         locationToBeUpdated.storeId = springSecurityService.principal.storeId
         locationToBeUpdated.sku = editedVariant.sku
 
