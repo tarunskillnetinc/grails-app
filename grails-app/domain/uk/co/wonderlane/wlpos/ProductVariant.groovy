@@ -109,11 +109,19 @@ class ProductVariant implements Serializable {
     }
 
     BigDecimal getCurrentPrice() {
+        getCurrentPrice(null)
+    }
+
+    BigDecimal getCurrentPrice(PriceBand priceBand) {
         if (retailPrice != null) {
             return retailPrice
         } else {
-            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.priceBand, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc", max: 1])
-
+            def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(
+                    sku,
+                    priceBand != null ? priceBand : springSecurityService.principal.priceBand,
+                    getSessionEffectiveDate(),
+                    [sort: "effectiveDate", order: "desc", max: 1]
+            )
             return productPrice?.price ?: BigDecimal.ZERO.setScale(2)
         }
     }
@@ -175,13 +183,17 @@ class ProductVariant implements Serializable {
     }
 
     public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant() {
+        getProductVariant(null)
+    }
+
+    public uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(PriceBand priceBand) {
         uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
 
         productVariant.setId(id)
         productVariant.setProductId(product.id)
         productVariant.setStoreId(storeId)
         productVariant.setSku(sku)
-        productVariant.setRetailPrice(getCurrentPrice())
+        productVariant.setRetailPrice(getCurrentPrice(priceBand))
         productVariant.setCostPrice(getCostPrice())
         productVariant.setSize(size)
         productVariant.setColour(colour)
