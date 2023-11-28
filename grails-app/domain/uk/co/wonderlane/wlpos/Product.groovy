@@ -198,7 +198,6 @@ class Product {
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId, PriceBand priceBand) {
         uk.co.wonderlane.wlpos.entities.Product product = new uk.co.wonderlane.wlpos.entities.Product()
-//        ProductVariant productVariant = variants.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= DateTime.now(DateTimeZone.UTC) }
 
         product.setId(id)
         product.setRetailerId(retailerId)
