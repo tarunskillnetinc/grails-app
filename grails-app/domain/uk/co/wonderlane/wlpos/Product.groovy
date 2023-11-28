@@ -196,9 +196,8 @@ class Product {
         return results
     }
 
-    public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId) {
+    public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId, PriceBand priceBand) {
         uk.co.wonderlane.wlpos.entities.Product product = new uk.co.wonderlane.wlpos.entities.Product()
-//        ProductVariant productVariant = variants.sort { it.effectiveDate }.reverse().find { it.storeId == storeId && it.effectiveDate <= DateTime.now(DateTimeZone.UTC) }
 
         product.setId(id)
         product.setRetailerId(retailerId)
@@ -218,7 +217,7 @@ class Product {
         product.setStatus(status)
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
-                product.getVariants().add(it.getProductVariant())
+                product.getVariants().add(it.getProductVariant(priceBand))
             }
         }
         saleMessages.each {
