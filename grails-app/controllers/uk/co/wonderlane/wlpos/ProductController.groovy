@@ -447,6 +447,11 @@ class ProductController extends BaseController {
                 variant.storeId = springSecurityService.principal.storeId
                 variant.effectiveDate = effectiveDate
 
+                // Check whether the SKU is used elsewhere
+                if (!isValidSku(variant.sku)) {
+                    product.errors.reject('product.productVariants.notUnique', [variant.sku] as Object[], 'SKU {0} already exists on another product.')
+                }
+
                 variant.barcodez?.each { barcode ->
                     barcode.retailerId = springSecurityService.principal.retailerId
                     barcode.sku = variant.sku
@@ -507,6 +512,12 @@ class ProductController extends BaseController {
 
             // Variants.
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
+        }
+
+        // check for errors added manually from barcode and category checks or validate can remove them
+        //  before they are handled
+        if (product.hasErrors()) {
+            return product
         }
 
         product.validate()

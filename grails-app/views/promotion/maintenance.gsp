@@ -664,8 +664,6 @@
                     }
                 }
                 $('#fixedAmount-noItemChange').val('false');
-
-                $(DOM).parent().find(String(domType).valueOf() === "quantity" ? ".promo-value" : ".promo-quantity").val("");
             }
 
         </script>
