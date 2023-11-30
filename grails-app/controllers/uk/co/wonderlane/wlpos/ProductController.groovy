@@ -818,12 +818,13 @@ class ProductController extends BaseController {
             return
         }
 
-        if (newVariant){
+        if (newVariant) {
             editedVariant.packs?.each { editedPac ->
                 Pack newPack = new Pack()
                 updatePack(newPack, editedPac, now)
                 existingVariant.addToPacks(newPack)
             }
+
             return
         }
 

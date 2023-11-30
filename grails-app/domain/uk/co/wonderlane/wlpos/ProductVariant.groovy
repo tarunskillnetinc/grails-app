@@ -127,42 +127,20 @@ class ProductVariant implements Serializable {
     }
 
     public List<Barcode> getBarcodes() {
-
-        //Load all barcodes based on sku
+        // Load all barcodes based on sku.
         def barcodesOnSku = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
 
-
-        //Declare list to populate displaying barcodes
+        // Declare list to populate displaying barcodes.
         def barcodesToShow = new ArrayList<Barcode>()
 
-        //Group by barcodes based on barcode value
-        def barcodesMap = barcodesOnSku?.groupBy {it.barcode}
+        // Group by barcodes based on barcode value.
+        def barcodesMap = barcodesOnSku?.groupBy {it.barcode }
 
-        //Then loop over map of barcode to find out all active barcode
-        for (Map.Entry<String, List<Barcode>> barcodeList : barcodesMap.entrySet()){
-
-            int deletedBarcode = 0
-            int activeBarcodes = 0
-
-            //For barcode belonging to particular sku check occurrence of active and deleted
-            barcodeList.getValue()?.forEach({ barcode ->
-                if (barcode.recordStatus == ('D' as char)) {
-                    deletedBarcode ++
-                } else {
-                    activeBarcodes ++
-                }
-            })
-
-            //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we pick latest active barcode and add it to show item list
-            if (activeBarcodes > deletedBarcode){
-                int limit = activeBarcodes - deletedBarcode
-                //Sort all active barcodes into descending order and pick top most item list
-                def activeBarcodeList = barcodeList.getValue()?.findAll{it.getRecordStatus() == ('C' as char)}?.sort{it.effectiveDate}?.reverse()?.subList(0, limit)
-                if (activeBarcodeList != null && activeBarcodeList.size() > 0){
-                    barcodesToShow.addAll(activeBarcodeList)
-                }
+        // They're already sorted in effective date, so if the first is valid then display it, if not then it's deleted and shouldn't be displayed.
+        barcodesMap?.each {
+            if (it.value?.first()?.recordStatus == ('C' as char)) {
+                barcodesToShow.add(it.value?.first())
             }
-
         }
 
         return barcodesToShow
