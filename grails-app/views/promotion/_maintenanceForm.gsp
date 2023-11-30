@@ -105,7 +105,6 @@
                         <g:hiddenField name="bogof-count-required" value="${productsRequired.isEmpty() && categoriesRequired.isEmpty() && tagsRequired.isEmpty() ? productsOffer.size() + categoriesOffer.size() + tagsOffer.size() : productsRequired.size() + categoriesRequired.size() + tagsRequired.size()}"/>
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="bogof-product1" class="offset-1 promotion-product-container mt-3">
-%{--                                <g:hiddenField name="bogof-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>--}%
                                 <g:hiddenField name="bogof-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 Quantity 1 x ${String.valueOf(productsRequired.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}
                                 <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
