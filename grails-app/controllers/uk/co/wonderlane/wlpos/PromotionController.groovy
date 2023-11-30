@@ -352,8 +352,8 @@ class PromotionController {
                             }
                         }
 
-                        promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", sku: params."fixedPrice-product-required-${count}-sku", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
                         if (params.containsKey(param.toString())){
+                            promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", sku: params."fixedPrice-product-required-${count}-sku", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
                             count++
                         }
                     }
