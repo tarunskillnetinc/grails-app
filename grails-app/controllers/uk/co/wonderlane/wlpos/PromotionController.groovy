@@ -327,7 +327,7 @@ class PromotionController {
                 if (newPromotion || oldType != promotion.type || !params.boolean('fixedPrice-noItemChange')) {
                     def promoOfferGroups = new ArrayList<PromotionGroup>()
 
-                    def count = 1
+                    def count = 0
                     for (int i = 0; i < itemNo; i++) {
 
                         def param
@@ -337,12 +337,25 @@ class PromotionController {
                             param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
                         }
 
-                        while(!params.containsKey(param.toString())) {
+                        while (!params.containsKey(param.toString())) {
                             count++
-                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
+                            if (params."fixedPrice-promotionItemsType" == "product") {
+                                param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-sku/$
+                            } else {
+                                param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
+                            }
+                            if (count > 999999) {
+                                promotion = failPromotion(promotion, oldType)
+                                promotion.errors.reject('error.Promotion.invalidPromotionError')
+                                redirect(controller: "promotion", action: "maintenanceError")
+                                return
+                            }
                         }
-                        promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", sku: params."fixedPrice-product-required-${count}-sku", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
-                        count++
+
+                        if (params.containsKey(param.toString())){
+                            promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", sku: params."fixedPrice-product-required-${count}-sku", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
+                            count++
+                        }
                     }
 
                     if (!promoOfferGroups.isEmpty()) {
