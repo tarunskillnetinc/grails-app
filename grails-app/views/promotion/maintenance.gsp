@@ -181,7 +181,7 @@
                             "                                <label id=\"fixedAmount-product-required-1-value-label\" for=\"fixedAmount-product-required-1-value\" class=\"\">Value</label>\n" +
                             "                                <input type=\"number\" id=\"fixedAmount-product-required-1-value\" name=\"fixedAmount-product-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
                             "                                <label id=\"fixedAmount-product-required-1-quantity-label\" for=\"fixedAmount-product-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-quantity\" name=\"fixedAmount-product-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-quantity\" name=\"fixedAmount-product-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityChange(this, 'fixedAmount');\"/>\n" +
                             "                                <label for=\"fixedAmount-product-required-1-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -306,7 +306,7 @@
                             "                                <label id=\"fixedAmount-category-required-1-value-label\" for=\"fixedAmount-category-required-1-value\" class=\"\">Value</label>\n" +
                             "                                <input type=\"number\" id=\"fixedAmount-category-required-1-value\" name=\"fixedAmount-category-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
                             "                                <label id=\"fixedAmount-category-required-1-quantity-label\" for=\"fixedAmount-category-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-quantity\" name=\"fixedAmount-category-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-quantity\" name=\"fixedAmount-category-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityChange(this, 'fixedAmount');\"/>\n" +
                             "                                <label for=\"fixedAmount-category-required-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -430,7 +430,7 @@
                             "                                <label id=\"fixedAmount-tag-required-1-value-label\" for=\"fixedAmount-tag-required-1-value\" class=\"\">Value</label>\n" +
                             "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-value\" name=\"fixedAmount-tag-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
                             "                                <label id=\"fixedAmount-tag-required-1-quantity-label\" for=\"fixedAmount-tag-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-quantity\" name=\"fixedAmount-tag-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-quantity\" name=\"fixedAmount-tag-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityChange(this, 'fixedAmount');\"/>\n" +
                             "                                <label for=\"fixedAmount-tag-required-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
