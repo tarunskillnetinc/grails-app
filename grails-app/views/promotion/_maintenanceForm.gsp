@@ -644,7 +644,7 @@
                                 </div>
                                 <div class="card-body collapse" id="fixedAmountTagCollapse">
                                     <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.tagProducts : tagsRequired.first().tag.tagProducts}" var="tagProduct" status="i">
-                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: tagProduct.productId)}';">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: tagProduct?.productId)}';">
                                             <div class="col-12">${tagProduct.sku} - ${tagProduct.productDescription}</div>
                                         </div>
                                     </g:each>
