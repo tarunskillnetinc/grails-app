@@ -118,7 +118,12 @@ class Product {
     }
 
     BigDecimal getCostPrice() {
-        def sortedVariants = variants.sort { a,b ->
+        def now = DateTime.now(DateTimeZone.UTC)
+
+        // Only variants which have effective dates before now.
+        def activeVariants = variants.findAll { it.effectiveDate < now }
+
+        def sortedVariants = activeVariants.sort { a,b ->
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 
@@ -130,7 +135,12 @@ class Product {
             return retailPrice
         }
 
-        def sortedVariants = variants.sort { a,b ->
+        def now = DateTime.now(DateTimeZone.UTC)
+
+        // Only variants which have effective dates before now.
+        def activeVariants = variants.findAll { it.effectiveDate < now }
+
+        def sortedVariants = activeVariants.sort { a,b ->
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 

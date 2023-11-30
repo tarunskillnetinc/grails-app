@@ -68,7 +68,7 @@ class ProductVariant implements Serializable {
         storeId nullable: true
         sku nullable: false, min: 1L, validator: {val, obj ->
             if (val > 0) {
-                def existingVariants = obj.productService.getProductVariants([val]).find {obj.product.id != it.product.id}.collect()
+                def existingVariants = obj.productService.getProductVariants([val]).find { obj.product.id != it.product.id }.collect()
                 return existingVariants.isEmpty() ? true : ['productVariant.sku.validator.error']
             } else {
                 return false
