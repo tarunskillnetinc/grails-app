@@ -105,7 +105,7 @@
                         <g:hiddenField name="bogof-count-required" value="${productsRequired.isEmpty() && categoriesRequired.isEmpty() && tagsRequired.isEmpty() ? productsOffer.size() + categoriesOffer.size() + tagsOffer.size() : productsRequired.size() + categoriesRequired.size() + tagsRequired.size()}"/>
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="bogof-product1" class="offset-1 promotion-product-container mt-3">
-                                <g:hiddenField name="bogof-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
+%{--                                <g:hiddenField name="bogof-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>--}%
                                 <g:hiddenField name="bogof-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 Quantity 1 x ${String.valueOf(productsRequired.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}
                                 <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
@@ -758,7 +758,7 @@
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <g:each in="${productsRequired.isEmpty() ? productsOffer : productsRequired}" var="product" status="i">
                                 <div id="fixedPrice-product${i}" class="offset-1 promotion-product-container form-inline mt-3">
-                                    <g:hiddenField name="fixedPrice-product-required-${i}-productId" value="${product.product.id}" class="promo-itemId"/>
+                                    <g:hiddenField name="fixedPrice-product-required-${i}-sku" value="${product.sku}" class="promo-itemId"/>
                                     <label for="fixedPrice-product-required-${i}-quantity" class="">Quantity</label>
                                     <g:field type="number" name="fixedPrice-product-required-${i}-quantity" value="${product.quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'fixedPrice');"/>
                                     <label for="fixedPrice-product-required-${i}-quantity" class="mr-3"> x ${String.valueOf(product.product.itemCode)} - ${product.product.description}</label>

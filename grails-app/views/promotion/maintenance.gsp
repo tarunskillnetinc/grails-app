@@ -209,7 +209,7 @@
                                 $('#fixedPrice-duplicateAlert').fadeOut();
                             }, 3000);
                         } else {
-                            var nextValidIndex = 1;
+                            var nextValidIndex = 0;
 
                             while (true) {
                                 if ($('#fixedPrice-product' + nextValidIndex).length) {
