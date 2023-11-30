@@ -348,7 +348,7 @@ class PromotionController {
                                 promotion = failPromotion(promotion, oldType)
                                 promotion.errors.reject('error.Promotion.invalidPromotionError')
                                 redirect(controller: "promotion", action: "maintenanceError")
-                                break
+                                return
                             }
                         }
 
