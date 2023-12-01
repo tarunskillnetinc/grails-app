@@ -144,7 +144,7 @@ class Product {
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 
-        retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
+        retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId || it.storeId == null }?.currentPrice
 
         return retailPrice ?: BigDecimal.ZERO.setScale(2)
     }
