@@ -144,6 +144,35 @@ class PromotionController {
             promo = new Promotion()
         }
 
+        tagsRequired?.each { tagRequired ->
+            tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
+                def productVariant = productService.getProductVariant(tagProduct.sku)
+
+                if (productVariant?.product) {
+                    tagProduct.productId = productVariant.product.id
+                    tagProduct.productDescription = productVariant.product.description
+                }
+            }
+        }
+
+        tagsOffer?.each { tagOffer ->
+            tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
+                def productVariant = productService.getProductVariant(tagProduct.sku)
+
+                if (productVariant?.product) {
+                    tagProduct.productId = productVariant.product.id
+                    tagProduct.productDescription = productVariant.product.description
+                }
+            }
+        }
+
+        def productItemType = "product"
+        if (categoriesRequired?.size() > 0 || categoriesOffer?.size() > 0) {
+            productItemType = "category"
+        } else if (tagsRequired?.size() > 0 || tagsOffer?.size() > 0) {
+            productItemType = "tag"
+        }
+
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
                                             productsRequired: productsRequired,
@@ -151,7 +180,8 @@ class PromotionController {
                                             categoriesRequired: categoriesRequired,
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer])
+                                            tagsOffer: tagsOffer,
+                                            productItemType: productItemType])
     }
 
     def add() {
