@@ -646,7 +646,8 @@ class ProductController extends BaseController {
         editedProduct.variants?.each { editedVariant ->
             def existingVariant = product.variants?.find { existingVariant -> existingVariant.id == editedVariant.id }
 
-            if (editedVariant.id != 0 && existingVariant && !effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())) {
+            // If the variant we're editing is the current one for our store and the effective date is today, we update it. Otherwise we need a new variant.
+            if (editedVariant.id != 0 && existingVariant && editedVariant.storeId == springSecurityService.principal.storeId && !effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay())) {
                 // Variant we saved is one which already exists, check for changes.
                 if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
                     // Variant has changed
