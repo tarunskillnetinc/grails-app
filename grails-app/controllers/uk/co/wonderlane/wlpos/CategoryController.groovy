@@ -220,6 +220,10 @@ class CategoryController extends BaseController {
         if (category.restrictions != null) {
             syncMessageCategory.restrictions = new uk.co.wonderlane.wlpos.entities.Restrictions()
             syncMessageCategory.restrictions.id = category.restrictions.id
+            syncMessageCategory.restrictions.buyerIdRequired = category.restrictions.buyerIdRequired
+            syncMessageCategory.restrictions.buyerIdForced = category.restrictions.buyerIdForced
+            syncMessageCategory.restrictions.sellerAgeRestriction = category.restrictions.sellerAgeRestriction
+            syncMessageCategory.restrictions.buyerAgeRestriction = category.restrictions.buyerAgeRestriction
         }
         categoryList.add(syncMessageCategory)
 
