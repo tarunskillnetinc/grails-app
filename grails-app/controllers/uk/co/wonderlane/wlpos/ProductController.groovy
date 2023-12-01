@@ -88,7 +88,13 @@ class ProductController extends BaseController {
 
     private void setEffectiveDate() {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy").withZone(DateTimeZone.UTC)
+
+        setEffectiveDate(formatter)
+    }
+
+    private void setEffectiveDate(DateTimeFormatter formatter) {
         def effectiveDateSelected
+
         if (params.get("effectiveDate")) {
             effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
             session.effectiveDate = [effectiveDateSelected.toString(formatter), effectiveDateSelected]

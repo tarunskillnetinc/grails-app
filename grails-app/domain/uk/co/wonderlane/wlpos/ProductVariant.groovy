@@ -119,7 +119,7 @@ class ProductVariant implements Serializable {
             def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(
                     sku,
                     priceBand != null ? priceBand : springSecurityService.principal.priceBand,
-                    getSessionEffectiveDate(),
+                    effectiveDate,
                     [sort: "effectiveDate", order: "desc", max: 1]
             )
             return productPrice?.price ?: BigDecimal.ZERO.setScale(2)
