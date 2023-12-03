@@ -595,7 +595,7 @@
                     $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
                     $('#' + promoType + '-productsOfferSection').addClass("is-invalid");
                 } else {
-                    if ($('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0) {
+                    if((promoType === 'fixedAmount' &&  checkFieldsFixedAmountHasError(promoType, 1)) || (promoType !== 'fixedAmount' && $('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0)){
                         error = true;
                         errorString = errorString.concat("\n<li>An error is present in the items section</li>");
                         $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
@@ -609,6 +609,29 @@
                     $('#maintenance-errors').html("<ul>" + errorString + "\n</ul>");
                     $('#maintenance-errors').prop("hidden", false);
                 }
+            }
+
+            function checkFieldsFixedAmountHasError(promoType, index) {
+
+                var productId = $('#' + promoType + '-product1').length;
+                var categoryId = $('#' + promoType + '-category1').length;
+                var itemType ;
+
+                if(productId > 0){
+                    itemType = 'product';
+                } else if(categoryId > 0){
+                    itemType = 'category';
+                } else {
+                    itemType = 'tag';
+                }
+
+                var valueField = $('#' + promoType + "-" + itemType + '-required-' + index + '-value').val();
+                var quantityField = $('#' + promoType + "-" + itemType + '-required-' + index + '-quantity').val();
+
+                if ((valueField == null || valueField.trim() === '') && (quantityField == null || quantityField.trim() === '')) {
+                    return true;
+                }
+                return false;
             }
 
             function quantityChange(DOM, promoType) {
@@ -651,14 +674,14 @@
                 if (String(domType).valueOf() === "quantity") {
                     if (parseInt($(DOM).val()) > 0 && parseInt($(DOM).val() < 99)) {
                         $(DOM).removeClass("is-invalid");
-                        $('#fixedPrice-productsRequiredSection').removeClass("is-invalid");
+                        $('#fixedAmount-productsRequiredSection').removeClass("is-invalid");
                     } else {
                         $(DOM).addClass("is-invalid");
                     }
                 } else {
                     if (parseFloat($(DOM).val()) > 0 && parseFloat($(DOM).val()) < 9999.99) {
                         $(DOM).removeClass("is-invalid");
-                        $('#fixedPrice-productsRequiredSection').removeClass("is-invalid");
+                        $('#fixedAmount-productsRequiredSection').removeClass("is-invalid");
                     } else {
                         $(DOM).addClass("is-invalid");
                     }
