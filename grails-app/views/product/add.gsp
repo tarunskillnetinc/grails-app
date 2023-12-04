@@ -381,7 +381,6 @@
 
                         variantContainer.html(resp);
 
-                        skuChanged(index, sku);
                         $('#addVariantModal').modal("hide");
                     }
                 });}
