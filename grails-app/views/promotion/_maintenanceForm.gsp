@@ -602,9 +602,9 @@
                                 <g:hiddenField name="fixedAmount-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
                                 <g:hiddenField name="fixedAmount-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 <label for="fixedAmount-product-required-1-value" class="">Value</label>
-                                <g:field type="number" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().value : productsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                <g:field type="number" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().value : productsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value', 'fixedAmount');"/>
                                 <label for="fixedAmount-product-required-1-quantity" class=""> or Quantity</label>
-                                <g:field type="number" name="fixedAmount-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityChange(this, 'fixedAmount');;"/>
+                                <g:field type="number" name="fixedAmount-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityChange(this, 'fixedAmount');"/>
                                 <label for="fixedAmount-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired?.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired?.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
                                 <a href="#" onclick="return deleteThis(this, 'fixedAmount', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>
@@ -613,7 +613,7 @@
                             <div id="fixedAmount-category1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="fixedAmount-category-required-1-categoryId" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().category.id : categoriesRequired.first().category.id}"/>
                                 <label for="fixedAmount-category-required-1-value" class="">Value</label>
-                                <g:field type="number" name="fixedAmount-category-required-1-value" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().value : categoriesRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                <g:field type="number" name="fixedAmount-category-required-1-value" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().value : categoriesRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value', 'fixedAmount');"/>
                                 <label for="fixedAmount-category-required-1-quantity" class=""> or Quantity</label>
                                 <g:field type="number" name="fixedAmount-category-required-1-quantity" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().quantity : categoriesRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityChange(this, 'fixedAmount');"/>
                                 <label for="fixedAmount-category-required-1-quantity" class="mr-3"> x ${categoriesRequired?.isEmpty() ? categoriesOffer.first().category.description : categoriesRequired.first().category.description}${categoriesRequired.isEmpty() ? (categoriesOffer.first().category.retailerCategoryCode != null ? " - " + categoriesOffer.first().category.retailerCategoryCode : "") : (categoriesRequired.first().category.retailerCategoryCode != null ? " - " + categoriesRequired.first().category.retailerCategoryCode : "")}</label>
@@ -632,7 +632,7 @@
                                             </svg>
 
                                             <label for="fixedAmount-tag-required-1-value" class="">Value</label>
-                                            <g:field type="number" name="fixedAmount-tag-required-1-value" value="${tagsRequired?.isEmpty() ? tagsOffer.first().value : tagsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 col-2 promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                            <g:field type="number" name="fixedAmount-tag-required-1-value" value="${tagsRequired?.isEmpty() ? tagsOffer.first().value : tagsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 col-2 promo-value" onChange="quantityValueChange(this, 'value', 'fixedAmount');"/>
                                             <label for="fixedAmount-tag-required-1-quantity" class=""> or Quantity</label>
                                             <g:field type="number" name="fixedAmount-tag-required-1-quantity" value="${tagsRequired?.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 col-2 promo-quantity" onChange="quantityChange(this, 'fixedAmount');"/>
                                             <span class="mr-3"> x ${tagsRequired?.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
