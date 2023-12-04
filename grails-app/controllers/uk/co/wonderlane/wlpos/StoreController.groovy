@@ -109,7 +109,7 @@ class StoreController {
         def allParentStores = storeService.getStoresByType(retailerId, StoreType.STORE)
         allParentStores.removeAll { it.config.storeNumber == storeNumber }
 
-        [availablePriceBands, availableProductRanges, availableParentStores]
+        [availablePriceBands, availableProductRanges, allParentStores]
     }
 
     private void setViewOptions(String storeType) {
