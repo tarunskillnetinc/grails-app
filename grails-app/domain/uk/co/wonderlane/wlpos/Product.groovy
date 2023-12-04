@@ -144,7 +144,12 @@ class Product {
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 
-        retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId || it.storeId == null }?.currentPrice
+        retailPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.currentPrice
+
+        // If logged in as a store and there wasn't an override for your store then go and find the HO level variant and take the price from there.
+        if (!retailPrice && springSecurityService.principal.storeId != null) {
+            retailPrice = sortedVariants?.find { it.storeId == null }?.currentPrice
+        }
 
         return retailPrice ?: BigDecimal.ZERO.setScale(2)
     }
