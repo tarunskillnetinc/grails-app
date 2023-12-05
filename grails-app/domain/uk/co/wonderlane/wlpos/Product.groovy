@@ -42,10 +42,11 @@ class Product {
     Collection<ProductVariant> variants = new ArrayList<>()
 
     BigDecimal retailPrice
+    BigDecimal costPrice
 
     static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
 
-    static transients = ['retailPrice']
+    static transients = ['retailPrice', 'costPrice']
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public Product() { }
@@ -118,6 +119,10 @@ class Product {
     }
 
     BigDecimal getCostPrice() {
+        if (costPrice) {
+            return costPrice
+        }
+
         def now = DateTime.now(DateTimeZone.UTC)
 
         // Only variants which have effective dates before now.
@@ -127,7 +132,14 @@ class Product {
             a.storeId <=> b.storeId ?: b.effectiveDate <=> a.effectiveDate
         }
 
-        return sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.costPrice ?: BigDecimal.ZERO.setScale(2)
+        costPrice = sortedVariants?.find { it.storeId == springSecurityService.principal.storeId }?.costPrice
+
+        // If logged in as a store and there wasn't an override for your store then go and find the HO level variant and take the cost price from there.
+        if (!costPrice && springSecurityService.principal.storeId != null) {
+            costPrice = sortedVariants?.find { it.storeId == null }?.costPrice
+        }
+
+        return costPrice ?: BigDecimal.ZERO.setScale(2)
     }
 
     BigDecimal getRetailPrice() {
@@ -175,40 +187,48 @@ class Product {
     }
 
     List<ProductVariant> getCurrentVariants() {
-        def allVariants = variants?.findAll { it.storeId == null || it.storeId == springSecurityService.principal.storeId}
-        return allVariants?.sort{a, b -> b.effectiveDate <=> a.effectiveDate ?: b.id <=> a.id}
-                ?.unique { a, b -> a.sku <=> b.sku }
+        def allVariants = variants?.findAll { it.storeId == null || it.storeId == springSecurityService.principal.storeId }
+
+        return allVariants?.sort{a, b -> b.effectiveDate <=> a.effectiveDate ?: b.id <=> a.id }?.unique { a, b -> a.sku <=> b.sku }
     }
-
-    private Set<DateTime> getEffectiveDates() {
-        def now = DateTime.now(DateTimeZone.UTC)
-        def effectiveDates = new HashSet<DateTime>()
-
-        variants.forEach(
-                {variant ->
-                    variant.getAllBarcodes().stream().filter({barcode -> barcode.effectiveDate > now}).forEach(
-                            {barcode ->
-                                effectiveDates.add(barcode.effectiveDate)
-                            })
-                    if (variant.effectiveDate > now) {
-                        effectiveDates.add(variant.effectiveDate)
-                    }
-                    variant.getAllPrices().stream().filter({ price -> price.effectiveDate > now}).forEach(
-                            {
-                                price -> effectiveDates.add(price.effectiveDate)
-                            }
-                    )
-                })
-        return effectiveDates.sort()
-    }
-
+    
     List<String> getEffectiveDatesForFutureChanges() {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+        def now = DateTime.now(DateTimeZone.UTC)
 
-        def results = getEffectiveDates().stream().map({date -> date.toString(formatter)}).collect(Collectors.toList())
-        results.add(0, messageSource.getMessage('product.effective.date.current', null, "Current", LocaleContextHolder.getLocale()))
+        def futureEffectiveDates = [ messageSource.getMessage('product.effective.date.current', null, "Current", LocaleContextHolder.getLocale()) ]
 
-        return results
+        boolean containsStoreLevelVariants = springSecurityService.principal.storeId && variants?.collect { it.storeId }?.contains(springSecurityService.principal.storeId)
+
+        variants.each { ProductVariant pv ->
+            if (pv.effectiveDate > now) {
+                // For the purpose of this check, if there are any store level variants, then we only want to include those dates at this stage.
+                if (containsStoreLevelVariants) {
+                    if (pv.storeId == springSecurityService.principal.storeId) {
+                        futureEffectiveDates.add(pv.effectiveDate.toString("dd MMMM yyyy"))
+                    }
+                } else {
+                    if (pv.storeId == null) {
+                        futureEffectiveDates.add(pv.effectiveDate.toString("dd MMMM yyyy"))
+                    }
+                }
+            }
+
+            pv.getAllBarcodes()?.each { Barcode b ->
+                if (b.effectiveDate > now) {
+                    futureEffectiveDates.add(b.effectiveDate.toString("dd MMMM yyyy"))
+                }
+            }
+
+            pv.getAllPrices()?.each { ProductPrice pp ->
+                if (pp.effectiveDate > now) {
+                    futureEffectiveDates.add(pp.effectiveDate.toString("dd MMMM yyyy"))
+                }
+            }
+
+            // TODO Packs? Weren't currently handled so I haven't changed the functionality.
+        }
+
+        return futureEffectiveDates
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId, PriceBand priceBand) {

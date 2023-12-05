@@ -7,6 +7,7 @@
 
     <g:form name="addVariantForm">
         <g:hiddenField name="addVariantId" value="${variant?.id ?: ''}" />
+        <g:hiddenField name="addVariantStoreId" value="${variant?.storeId}" />
 
         <div class="row form-group mb-4">
             <label for="addVariantSku" class="col-3 offset-1 col-form-label text-right">SKU</label>

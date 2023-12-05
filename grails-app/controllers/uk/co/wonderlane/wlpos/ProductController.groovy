@@ -1585,6 +1585,7 @@ class AddVariantCommand {
 
     int index
     Integer id
+    Integer storeId
     Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -1768,7 +1769,7 @@ class RestrictionsCommand implements Validateable {
 
 class ProductVariantCommand {
     int id
-    int storeId
+    Integer storeId
     Integer defaultSupplierId
     long sku
     BigDecimal retailPrice
