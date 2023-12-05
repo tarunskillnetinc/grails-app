@@ -634,17 +634,16 @@
                 var valueField = $('#' + promoType + "-" + itemType + '-required-' + index + '-value').val();
                 var quantityField = $('#' + promoType + "-" + itemType + '-required-' + index + '-quantity').val();
 
-                if ((valueField == null || valueField.trim() === '') && (quantityField == null || quantityField.trim() === '')) {
+                if (((valueField == null || valueField.trim() === '') && (quantityField == null || quantityField.trim() === ''))
+                        || ((valueField !== null && valueField.trim() !== '') && (quantityField !== null && quantityField.trim() !== ''))) {
                     return true;
-                } else if ((valueField !== null && valueField.trim() !== '') && (quantityField !== null && quantityField.trim() !== '')){
-                    return true
                 }
                 return false;
             }
 
             function quantityChange(DOM, promoType) {
                 if(promoType === 'fixedAmount'){
-                    validateFixedAmountFields(promoType, 1, 1, 99);
+                    validatePromotionFields(promoType, 1, 0, 99);
                 } else{
                     if(parseInt($(DOM).val()) > 0 && parseInt($(DOM).val()) < 99) {
                         $(DOM).removeClass("is-invalid");
@@ -685,15 +684,15 @@
             function quantityValueChange(DOM, domType, promoType) {
                 if(promoType === 'fixedAmount'){
                     if (String(domType).valueOf() === "quantity") {
-                        validateFixedAmountFields(promoType, 1, 1, 99);
+                        validatePromotionFields(promoType, 1, 0, 99);
                     } else {
-                        validateFixedAmountFields(promoType, 1, 1, 9999.99);
+                        validatePromotionFields(promoType, 1, 0, 9999.99);
                     }
                     $('#fixedAmount-noItemChange').val('false');
                 }
             }
 
-            function validateFixedAmountFields(promoType, index, validateLowerLimit, validateUpperLimit) {
+            function validatePromotionFields(promoType, index, validateLowerLimit, validateUpperLimit) {
                 if(promoType === 'fixedAmount'){
                     var productId = $('#' + promoType + '-product1').length;
                     var categoryId = $('#' + promoType + '-category1').length;
@@ -713,12 +712,9 @@
                     var value = valueField.val();
                     var quantity = quantityField.val();
 
-                    if (((value == null || value.trim() === '') && (quantity == null || quantity.trim() === '')) || (!(value >= validateLowerLimit && value < validateUpperLimit) && !(quantity >= validateLowerLimit && quantity < validateUpperLimit))) {
-                        //validation if both field are null and enters value are not within range
-                        valueField.addClass("is-invalid");
-                        quantityField.addClass("is-invalid");
-                    } else if((value != null && value.trim() !== '') && (quantity != null && quantity.trim() !== '')){
-                        //validation if both field are entered -> Either quantity or value is allowed
+                    if ((((value == null || value.trim() === '') && (quantity == null || quantity.trim() === '')) || (!(value >= validateLowerLimit && value < validateUpperLimit) && !(quantity >= validateLowerLimit && quantity < validateUpperLimit)))
+                            || ((value != null && value.trim() !== '') && (quantity != null && quantity.trim() !== ''))) {
+                        //validation if both field are null and enters value are not within range or validation if both field are entered -> Either quantity or value is allowed
                         valueField.addClass("is-invalid");
                         quantityField.addClass("is-invalid");
                     } else if(!(value == null || value.trim() === '')  && !(value >= validateLowerLimit && value < validateUpperLimit)){
