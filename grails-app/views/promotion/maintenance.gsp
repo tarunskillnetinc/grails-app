@@ -595,7 +595,12 @@
                     $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
                     $('#' + promoType + '-productsOfferSection').addClass("is-invalid");
                 } else {
-                    if((promoType === 'fixedAmount' &&  checkFieldsFixedAmountHasError(promoType, 1)) || (promoType !== 'fixedAmount' && $('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0)){
+                    if(promoType === 'fixedAmount' &&   checkFixedAmountFieldHaveErrors(promoType, 1)){
+                        error = true;
+                        errorString = errorString.concat("\n<li>Please enter either a value or a quantity</li>");
+                        $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
+                        $('#' + promoType + '-productsOfferSection').addClass("is-invalid");
+                    } else if((promoType !== 'fixedAmount' && $('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0)){
                         error = true;
                         errorString = errorString.concat("\n<li>An error is present in the items section</li>");
                         $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
@@ -611,7 +616,8 @@
                 }
             }
 
-            function checkFieldsFixedAmountHasError(promoType, index) {
+
+            function checkFixedAmountFieldHaveErrors(promoType, index) {
 
                 var productId = $('#' + promoType + '-product1').length;
                 var categoryId = $('#' + promoType + '-category1').length;
@@ -630,6 +636,8 @@
 
                 if ((valueField == null || valueField.trim() === '') && (quantityField == null || quantityField.trim() === '')) {
                     return true;
+                } else if ((valueField !== null && valueField.trim() !== '') && (quantityField !== null && quantityField.trim() !== '')){
+                    return true
                 }
                 return false;
             }
@@ -706,9 +714,15 @@
                     var quantity = quantityField.val();
 
                     if (((value == null || value.trim() === '') && (quantity == null || quantity.trim() === '')) || (!(value >= validateLowerLimit && value < validateUpperLimit) && !(quantity >= validateLowerLimit && quantity < validateUpperLimit))) {
+                        //validation if both field are null and enters value are not within range
+                        valueField.addClass("is-invalid");
+                        quantityField.addClass("is-invalid");
+                    } else if((value != null && value.trim() !== '') && (quantity != null && quantity.trim() !== '')){
+                        //validation if both field are entered -> Either quantity or value is allowed
                         valueField.addClass("is-invalid");
                         quantityField.addClass("is-invalid");
                     } else if(!(value == null || value.trim() === '')  && !(value >= validateLowerLimit && value < validateUpperLimit)){
+                        //Check value field has any invalid number
                         valueField.addClass("is-invalid");
                         if(quantity == null || quantity.trim() === ''){
                             quantityField.addClass("is-invalid");
@@ -716,6 +730,7 @@
                             quantityField.removeClass("is-invalid");
                         }
                     } else if(!(quantity == null || quantity.trim() === '') && !(quantity >= validateLowerLimit && quantity < validateUpperLimit)){
+                        //Check quantity field has any invalid number
                         quantityField.addClass("is-invalid");
                         if(value == null || value.trim() === ''){
                             valueField.addClass("is-invalid");
