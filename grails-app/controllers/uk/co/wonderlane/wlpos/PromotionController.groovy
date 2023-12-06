@@ -124,7 +124,7 @@ class PromotionController {
             promo.groups.each {
                 if (it.type == PromotionGroupType.REQUIRED) {
                     if (it.sku != null) {
-                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
+                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
                     } else if (it.categoryId != null) {
                         categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                     } else {
@@ -132,7 +132,7 @@ class PromotionController {
                     }
                 } else {
                     if (it.sku != null) {
-                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue])
+                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
                     } else if (it.categoryId != null) {
                         categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                     } else {
