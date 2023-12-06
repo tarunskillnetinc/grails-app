@@ -116,12 +116,15 @@ class ProductVariant implements Serializable {
         if (retailPrice != null) {
             return retailPrice
         } else {
+            def now = DateTime.now(DateTimeZone.UTC)
+
             def productPrice = ProductPrice.findBySkuAndPriceBandAndEffectiveDateLessThanEquals(
                     sku,
                     priceBand != null ? priceBand : springSecurityService.principal.priceBand,
-                    effectiveDate,
+                    effectiveDate < now ? now : effectiveDate, // If the variant effective date is in the past we might still have a more recent price entry so use the current time.
                     [sort: "effectiveDate", order: "desc", max: 1]
             )
+
             return productPrice?.price ?: BigDecimal.ZERO.setScale(2)
         }
     }
