@@ -120,28 +120,29 @@ class PromotionController {
 
         def promo = flash.promotion
 
-        if (promo != null) {
-            promo.groups.each {
-                if (it.type == PromotionGroupType.REQUIRED) {
-                    if (it.sku != null) {
-                        productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
-                    } else if (it.categoryId != null) {
-                        categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
-                    } else {
-                        tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
-                    }
+        if (!promo) {
+            redirect (action: "add")
+            return
+        }
+
+        promo?.groups?.each {
+            if (it.type == PromotionGroupType.REQUIRED) {
+                if (it.sku != null) {
+                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
+                } else if (it.categoryId != null) {
+                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
                 } else {
-                    if (it.sku != null) {
-                        productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
-                    } else if (it.categoryId != null) {
-                        categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
-                    } else {
-                        tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
-                    }
+                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
+                }
+            } else {
+                if (it.sku != null) {
+                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
+                } else if (it.categoryId != null) {
+                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
+                } else {
+                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
                 }
             }
-        } else {
-            promo = new Promotion()
         }
 
         tagsRequired?.each { tagRequired ->
