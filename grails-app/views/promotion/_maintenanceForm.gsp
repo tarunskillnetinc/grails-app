@@ -156,14 +156,9 @@
                     </div>
                 </div>
             </div>
-            <div id="bogof-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="bogof-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="bogof-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -299,7 +294,7 @@
                     </div>
                 </div>
 
-                <div id="xfory-productsOfferSection" class="promotion-products-container col-10 offset-1">
+                <div id="xfory-productsOfferSection" class="promotion-products-container col-10 offset-1" style="min-height: 108px;">
                     <h3 class="mt-1 ml-3">Customer Receives Free</h3>
                     <div id="xfory-productsOfferContainer" class="row my-2">
                         <g:if test="${!productsOffer?.isEmpty() || !productsRequired.isEmpty()}">
@@ -353,14 +348,9 @@
                     </div>
                 </div>
             </div>
-            <div id="xfory-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="xfory-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="xfory-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -429,7 +419,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-amount" class="col-3 col-form-label text-right pr-4">Percentage</label>
-                        <g:textField name="percentage-amount" class="col-5 form-control bottom-border mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
+                        <g:textField name="percentage-amount" class="col-5 form-control bottom-border mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -502,14 +492,9 @@
                     </div>
                 </div>
             </div>
-            <div id="percentage-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="percentage-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="percentage-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -578,7 +563,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-amount" class="col-3 col-form-label text-right pr-4">Discount Amount</label>
-                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
+                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -659,14 +644,9 @@
                     </div>
                 </div>
             </div>
-            <div id="fixedAmount-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -735,7 +715,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-amount" class="col-3 col-form-label text-right pr-4">Fixed Amount</label>
-                        <g:textField name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
+                        <g:textField name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -815,14 +795,9 @@
                     </div>
                 </div>
             </div>
-            <div id="fixedPrice-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>

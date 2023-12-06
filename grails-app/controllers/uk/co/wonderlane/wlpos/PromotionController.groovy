@@ -359,7 +359,6 @@ class PromotionController {
 
                     def count = 0
                     for (int i = 0; i < itemNo; i++) {
-
                         def param
                         if (params."fixedPrice-promotionItemsType" == "product") {
                             param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-sku/$
@@ -391,7 +390,7 @@ class PromotionController {
                     if (!promoOfferGroups.isEmpty()) {
                         def validationError = false
                         promoOfferGroups.each {
-                            if(!it.validate()) {
+                            if (!it.validate()) {
                                 validationError = true
                             }
                         }
@@ -416,6 +415,7 @@ class PromotionController {
                         return
                     }
                 }
+
                 break
         }
 

@@ -191,7 +191,7 @@ class Product {
 
         return allVariants?.sort{a, b -> b.effectiveDate <=> a.effectiveDate ?: b.id <=> a.id }?.unique { a, b -> a.sku <=> b.sku }
     }
-    
+
     List<String> getEffectiveDatesForFutureChanges() {
         def now = DateTime.now(DateTimeZone.UTC)
 

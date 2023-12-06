@@ -111,9 +111,6 @@
                 intListener("percentage-retailerPromoId");
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
-                currencyListener("percentage-amount", 0.01, 100)
-                currencyListener("fixedAmount-amount", 0.01, 9999.99)
-                currencyListener("fixedPrice-amount", 0.01, 9999.99)
             }
 
             function productSelected(id, sku, description) {
