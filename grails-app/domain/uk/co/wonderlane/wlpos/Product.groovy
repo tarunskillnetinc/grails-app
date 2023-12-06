@@ -228,7 +228,7 @@ class Product {
             // TODO Packs? Weren't currently handled so I haven't changed the functionality.
         }
 
-        return futureEffectiveDates
+        return futureEffectiveDates.unique()
     }
 
     public uk.co.wonderlane.wlpos.entities.Product getProduct(Integer storeId, PriceBand priceBand) {
