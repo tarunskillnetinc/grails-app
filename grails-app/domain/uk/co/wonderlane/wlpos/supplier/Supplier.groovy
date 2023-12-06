@@ -45,6 +45,7 @@ class Supplier {
     static constraints = {
         storeId nullable: true
         reference nullable: true, maxSize: 40
+        name nullable: false, maxSize: 50
         contactName nullable: true, maxSize: 50
         phoneNumber nullable: true, maxSize: 30
         email nullable: true, maxSize: 50
