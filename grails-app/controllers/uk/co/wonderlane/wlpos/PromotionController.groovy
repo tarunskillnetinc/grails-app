@@ -224,7 +224,8 @@ class PromotionController {
                 promotion.type = PromotionType.X_FOR_Y
                 break
             case "percentage":
-                promotion.amount = new BigDecimal(params."percentage-amount").setScale(2, RoundingMode.HALF_UP)
+                String amount = RegExUtils.removeAll(params."percentage-amount", "[,]")
+                promotion.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP)
                 promotion.type = PromotionType.PERCENTAGE_DISCOUNT
                 break
             case "fixedAmount":
