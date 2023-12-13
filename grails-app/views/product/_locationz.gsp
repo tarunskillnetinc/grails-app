@@ -26,7 +26,7 @@
         </g:if>
         <g:elseif test="${locationsType == "ADVANCED"}">
             <g:textField name="variants[${variantIndex}].locationz[${locationIndex}].locationDescription"  class="col-4 form-control bottom-border location-number" value="${location.locationDescription}" autocomplete="off" maxLength="40"/>
-            <g:textField name="variants[${variantIndex}].locationz[${locationIndex}].locationNumber"  class="col-4 form-control bottom-border location-number" value="${location.locationNumber}" autocomplete="off" maxLength="8"/>
+            <g:textField name="variants[${variantIndex}].locationz[${locationIndex}].locationNumber"  class="col-4 form-control bottom-border location-number" value="${location.locationNumber}" autocomplete="off" maxLength="8" />
             <g:select name="variants[${variantIndex}].locationz[${locationIndex}].locationHierarchy" class="col-2 form-control select-border hierarchy-dropdown ml-3" from="${locationHierarchy}" value="${location.locationHierarchy}" />
         </g:elseif>
     </div>

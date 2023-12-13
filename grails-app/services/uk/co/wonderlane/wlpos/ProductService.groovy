@@ -174,6 +174,15 @@ class ProductService extends MySqlDal {
                    break
                }
                for (LocationCommand location : pv.locationz){
+                   //Validate entered value for location number is numeric or not -> Only numeric allowed
+                   if (location.getLocationNumber() != null && !location.getLocationNumber().isEmpty() && !location.getLocationNumber().matches("-?\\d+(\\.\\d+)?")){
+                       product.errors.reject('product.location.number.validation.error', [location.getLocationNumber(), String.valueOf(pv.sku)] as Object[],
+                               'product.location.number.validation.error.default')
+                       isValid = false
+                       break
+                   }
+
+                   //Validate if there is any duplicate hierarchy
                    if (selectedHierarchy.contains(location.locationHierarchy)) {
                        product.errors.reject('product.location.hierarchy.unique.error', [String.valueOf(pv.sku)] as Object[],
                                'product.location.hierarchy.unique.default.error')
