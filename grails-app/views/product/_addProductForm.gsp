@@ -1,5 +1,6 @@
 <%@ page import="java.math.RoundingMode" %>
 
+
 <g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
@@ -373,6 +374,7 @@
                                 <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                     <div id="variant-${i}">
                                         <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations,
+                                                                                     locationsEnabled: locationsEnabled, storeId: storeId, locationHierarchy  : variant.getLocationsHierarchy()]" />
                                     </div>
                                 </g:if>
                             </g:each>
