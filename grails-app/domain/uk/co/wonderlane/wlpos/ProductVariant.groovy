@@ -237,4 +237,16 @@ class ProductVariant implements Serializable {
 
         return result
     }
+
+    List getLocationsHierarchy() {
+        List locationHierarchy = new ArrayList();
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+        def locations = locationz ? locationz : locations
+        if (locationsType == "ADVANCED"){
+            for (int i=1; i <= locations.size() ; i++){
+                locationHierarchy.add(i)
+            }
+        }
+        return locationHierarchy;
+    }
 }

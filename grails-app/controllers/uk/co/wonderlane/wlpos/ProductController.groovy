@@ -67,6 +67,7 @@ class ProductController extends BaseController {
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
 
         render(view: "add", model: [product            : product,
@@ -82,7 +83,7 @@ class ProductController extends BaseController {
                                     navlink            : "details",
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
-                                    locationsType      : springSecurityService.principal.retailer.config.locationsType.name()])
+                                    locationsType      : locationsType])
     }
 
     private void setEffectiveDate() {
@@ -490,7 +491,7 @@ class ProductController extends BaseController {
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
         }
 
-        if (!product.hasErrors() && product.validate()) {
+        if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct) ) {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
@@ -591,6 +592,7 @@ class ProductController extends BaseController {
             }
 
             product.discard()
+            def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
 
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
@@ -603,7 +605,8 @@ class ProductController extends BaseController {
                                         priceBands         : priceBands,
                                         editedPrices       : editedPrices,
                                         vatValues          : vatValues,
-                                        locationsType      : springSecurityService.principal.retailer.config.locationsType.name()])
+                                        locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
+                                        locationsEnabled   : locationsEnabled])
         }
     }
 
@@ -841,11 +844,13 @@ class ProductController extends BaseController {
             def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == editedLocation.id }
 
             if (existingLocation && existingLocation.id > 0 && locationChanged(editedLocation, existingLocation)) {
-                compareLocationFields(builder, existingLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
-                updateLocation(existingLocation, editedLocation, editedVariant)
+                Location newLocation = productService.deepCopyExistingLocation(existingLocation)
+                compareLocationFields(builder, newLocation, editedLocation, ProductHistoryType.LOCATION_EDIT)
+                productService.updateLocation(newLocation, editedLocation, editedVariant.sku)
+                existingVariant.locationz.add(newLocation)
             } else if (!existingLocation) {
                 Location newLocation = new Location()
-                updateLocation(newLocation, editedLocation, editedVariant)
+                productService.updateLocation(newLocation, editedLocation, editedVariant.sku)
                 existingVariant.locationz.add(newLocation)
                 compareLocationFields(builder, new Location(), newLocation, ProductHistoryType.LOCATION_ADD)
             }
@@ -901,7 +906,10 @@ class ProductController extends BaseController {
                 newLocation.position != existingLocation.position ||
                 newLocation.location != existingLocation.location ||
                 newLocation.shelfCapacity != existingLocation.shelfCapacity ||
-                newLocation.minimumDisplayQuantity != existingLocation.minimumDisplayQuantity
+                newLocation.minimumDisplayQuantity != existingLocation.minimumDisplayQuantity ||
+                newLocation.locationHierarchy != existingLocation.locationHierarchy ||
+                newLocation.locationDescription != existingLocation.locationDescription ||
+                newLocation.locationNumber != existingLocation.locationNumber
     }
 
     private void updatePack(def packToBeUpdated, def editedPack, def now) {
@@ -920,25 +928,6 @@ class ProductController extends BaseController {
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
         }
-    }
-
-    private void updateLocation(def locationToBeUpdated, def editedLocation, def editedVariant) {
-        def locationsType = Retailer.findById(springSecurityService.principal.retailerId).locationsType
-        locationToBeUpdated.storeId = springSecurityService.principal.storeId
-        locationToBeUpdated.sku = editedVariant.sku
-
-        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.ADVANCED) {
-            locationToBeUpdated.aisle = editedLocation.aisle
-            locationToBeUpdated.bay = editedLocation.bay
-            locationToBeUpdated.shelf = editedLocation.shelf
-            locationToBeUpdated.position = editedLocation.position
-        }
-
-        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.SIMPLE) {
-            locationToBeUpdated.location = editedLocation.location
-        }
-        locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
-        locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }
 
     private void doComparison(ProductHistoryBuilder builder, Product product, ProductCommand editedProduct) {
@@ -1313,15 +1302,23 @@ class ProductController extends BaseController {
     }
 
     def ajaxSaveLocation(LocationsCommand cmd) {
+        List locationHierarchy = new ArrayList();
+        String locationType = cmd.getLocationsType()
+        int numberOfAvailableHierarchy = 1
         cmd.getLocationz()?.forEach({ location ->
+            if (locationType == "ADVANCED"){
+                locationHierarchy.add(numberOfAvailableHierarchy)
+                numberOfAvailableHierarchy++
+            }
+
             if (!location.validate()) {
                 if (!cmd.hasErrors)
                     cmd.hasErrors = Boolean.TRUE
                 location.isNewLocation = Boolean.TRUE
             }
         })
-
-        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name()])
+        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name(),
+                                                                     locationHierarchy: locationHierarchy])
     }
 
     //This will render category mapped restrictions for new products
@@ -1647,6 +1644,7 @@ class LocationsCommand {
     int productVariantId
     List<AddLocationCommand> locationz
     Boolean hasErrors = Boolean.FALSE
+    String locationsType
 }
 
 class AddLocationCommand implements Validateable {
@@ -1664,6 +1662,9 @@ class AddLocationCommand implements Validateable {
     int minimumDisplayQuantity
     boolean isNewLocation = false
     int productVariantId
+    Integer locationHierarchy
+    String locationDescription
+    String locationNumber
 }
 
 class LocationCommand {
@@ -1677,6 +1678,9 @@ class LocationCommand {
     String location
     int shelfCapacity
     int minimumDisplayQuantity
+    Integer locationHierarchy
+    String locationDescription
+    String locationNumber
 }
 
 class SupplierCommand {

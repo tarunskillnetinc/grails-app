@@ -9,6 +9,7 @@ import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -120,6 +121,7 @@ class ProductService extends MySqlDal {
 
     def saveLocations(Product product) {
         product?.variants?.each { variant ->
+            def variantLocations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, variant.sku)
             variant.locationz?.each { location ->
                 if (location.hasProperty('delete') && location.delete) {
                     Location deletedLocation = new Location()
@@ -132,13 +134,69 @@ class ProductService extends MySqlDal {
                     deletedLocation.location = location.location
                     deletedLocation.shelfCapacity = location.shelfCapacity
                     deletedLocation.minimumDisplayQuantity = location.minimumDisplayQuantity
+                    deletedLocation.locationHierarchy = location.locationHierarchy
                     deletedLocation.save()
                 } else if (location instanceof Location) {
-                    location.save()
+                    def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == location.id }
+                    if (existingLocation && existingLocation.id > 0) {
+                        updateLocation(existingLocation, location, location.sku)
+                    } else{
+                        location.save()
+                    }
                 }
             }
         }
     }
+
+   boolean isLocationValid(Product product, ProductCommand editedProduct){
+       def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+       List selectedHierarchy = new ArrayList()
+       def isValid = true
+
+       for (ProductVariant pv : product?.variants){
+           for (Location location : pv.locationz){
+               if (!location.validate()) {
+                   product.errors.reject('product.location.validation.error', [String.valueOf(pv.sku)] as Object[],
+                           'product.location.validation.error.default')
+                   isValid = false
+                   break
+               }
+           }
+       }
+
+       if (locationsType == "ADVANCED"){
+           for (ProductVariantCommand pv : editedProduct?.variants){
+               if (pv.locationz.size() > 5) {
+                   //variant should not contain more than 5 locations
+                   product.errors.reject('product.location.count.exceed.error', [String.valueOf(pv.sku)] as Object[],
+                           'product.location.count.exceed.default.error')
+                   isValid = false
+                   break
+               }
+               for (LocationCommand location : pv.locationz){
+                   if (selectedHierarchy.contains(location.locationHierarchy)) {
+                       product.errors.reject('product.location.hierarchy.unique.error', [String.valueOf(pv.sku)] as Object[],
+                               'product.location.hierarchy.unique.default.error')
+                       isValid = false
+                       break
+                   }
+                   selectedHierarchy.add(location.locationHierarchy)
+               }
+           }
+       }
+
+       // If there is an error loop over to add previously db saved entries into response product
+       if (!isValid){
+           product.variants.forEach {
+               variant -> {
+                   variant.locationz =
+                           editedProduct?.variants?.find(it -> it.id = variant.id)?.locationz ?: variant.locations
+               }
+           }
+       }
+       return isValid;
+    }
+
 
     def saveProductVariant(ProductVariant productVariant) {
         productVariant.save()
@@ -663,5 +721,45 @@ class ProductService extends MySqlDal {
         }
         return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
                     && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
+    }
+
+    public Location deepCopyExistingLocation(Location existingLocation){
+        Location newLocation = new Location()
+        newLocation.id = existingLocation.id
+        newLocation.storeId = existingLocation.storeId
+        newLocation.sku = existingLocation.sku
+        newLocation.aisle = existingLocation.aisle
+        newLocation.bay = existingLocation.bay
+        newLocation.shelf = existingLocation.shelf
+        newLocation.position = existingLocation.position
+        newLocation.location = existingLocation.location
+        newLocation.shelfCapacity = existingLocation.shelfCapacity
+        newLocation.minimumDisplayQuantity = existingLocation.minimumDisplayQuantity
+        newLocation.locationHierarchy = existingLocation.locationHierarchy
+        newLocation.locationDescription = existingLocation.locationDescription
+        newLocation.locationNumber = existingLocation.locationNumber
+        return newLocation
+    }
+
+    private void updateLocation(def locationToBeUpdated, def editedLocation, def sku) {
+        def locationsType = springSecurityService.principal.retailer.config.locationsType
+        locationToBeUpdated.storeId = springSecurityService.principal.storeId
+        locationToBeUpdated.sku = sku
+
+        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.ADVANCED) {
+            locationToBeUpdated.aisle = editedLocation.aisle
+            locationToBeUpdated.bay = editedLocation.bay
+            locationToBeUpdated.shelf = editedLocation.shelf
+            locationToBeUpdated.position = editedLocation.position
+            locationToBeUpdated.locationHierarchy = editedLocation.locationHierarchy
+            locationToBeUpdated.locationDescription = editedLocation.locationDescription
+            locationToBeUpdated.locationNumber = editedLocation.locationNumber
+        }
+
+        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.SIMPLE) {
+            locationToBeUpdated.location = editedLocation.location
+        }
+        locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
+        locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }
 }
