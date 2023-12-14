@@ -415,7 +415,7 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/wlpos"
+            url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "cloudoffice"
@@ -443,7 +443,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/reporting"
+                url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -470,7 +470,7 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-ro-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/reporting"
+                url: "jdbc:mysql://retail-platform.cluster-ro-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -497,7 +497,7 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/transactions"
+                url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -532,13 +532,13 @@ environments:
 
         mysql:
             wlpos:
-                host: retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
                 port: 3306
                 username: cloudoffice
                 password: G8blr10SYQ6lc8KCXxdh
                 database: wlpos
             transactions:
-                host: retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
                 port: 3306
                 username: cloudoffice
                 password: G8blr10SYQ6lc8KCXxdh
