@@ -772,7 +772,7 @@
                 // For 'SIMPLE' location type, mandatory fields are location description, shelf capacity and minimum display quantity
                 // For 'ADVANCED' location type, mandatory fields are aisle, bay, shelf, position, shelf capacity and minimum display quantity
                 var mandatoryLocationFields = true;
-                var currentHierarchy = 0;
+                var currentMaxHierarchy = 0;
 
                 var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
                 addLocationContainers.each(function(loopIndex) {
@@ -794,9 +794,13 @@
                         var position = $(locationSelector + "\\.position").val();
                         var locationHierarchy = $(locationSelector + "\\.locationHierarchy").val();
                         if(locationHierarchy === ''){
-                            locationHierarchy =  parseInt(currentHierarchy) + 1;
+                            locationHierarchy =  parseInt(currentMaxHierarchy) + 1;
+                            currentMaxHierarchy = currentMaxHierarchy + 1
+                        } else {
+                            locationHierarchy =  parseInt(locationHierarchy)
+                            currentMaxHierarchy = Math.max(locationHierarchy, currentMaxHierarchy);
                         }
-                        currentHierarchy = locationHierarchy;
+
 
                         if (aisle === '' && bay === '' && shelf === '' && position === '') {
                             errorString += "Please enter at least one of aisle, bay, shelf or position.\n"
