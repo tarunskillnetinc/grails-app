@@ -1,5 +1,6 @@
 <div class="row mx-5 pt-2 pb-2 wl-striped${index % 2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="addVariant(${index});">
     <g:hiddenField name="variants[${index}].id" value="${variant?.id ?: ''}" />
+    <g:hiddenField name="variants[${index}].storeId" value="${variant?.storeId ?: ''}" />
     <g:hiddenField name="variants[${index}].sku" value="${variant?.sku ?: 0}" />
     <g:hiddenField name="variants[${index}].retailPrice" value="${variant?.retailPrice}" />
     <g:hiddenField name="variants[${index}].costPrice" value="${variant?.costPrice}" />

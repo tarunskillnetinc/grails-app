@@ -595,7 +595,7 @@ class ProductService extends MySqlDal {
         stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id)
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id, store.priceBand)
                 List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
                 if (!variants.isEmpty()) {
                     // Only send the update to the store if there are variants to send. This could mean the store has

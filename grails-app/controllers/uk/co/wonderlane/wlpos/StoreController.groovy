@@ -69,12 +69,20 @@ class StoreController {
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(store.getStore())
+                syncMessage.setStoreSettings(
+                        storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).refresh().getStore()
+                )
 
                 rabbitService.sendMessage(syncMessage)
             }
 
             if (oldPriceBand != storeCommand.priceBand.id || oldProductRange != storeCommand.range.id) {
+                // If we've edited the store we're logged in as, refresh our login session so that spring security knows about our new range/price band.
+                if (springSecurityService.principal.storeNumber == store.config.storeNumber) {
+                    springSecurityService.principal.priceBand = storeCommand.priceBand
+                    springSecurityService.principal.range = storeCommand.range
+                }
+
                 flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
             } else {
                 flash.message = ["Store settings saved successfully."]
@@ -101,7 +109,7 @@ class StoreController {
         def allParentStores = storeService.getStoresByType(retailerId, StoreType.STORE)
         allParentStores.removeAll { it.config.storeNumber == storeNumber }
 
-        [availablePriceBands, availableProductRanges, availableParentStores]
+        [availablePriceBands, availableProductRanges, allParentStores]
     }
 
     private void setViewOptions(String storeType) {

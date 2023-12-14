@@ -238,6 +238,7 @@
 
                     params["operationMode"] = ${uk.co.wonderlane.wlpos.OperationMode.EDIT.value};
                     params["id"] = $(selector + "id").val();
+                    params["storeId"] = $(selector + "storeId").val();
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
@@ -284,6 +285,7 @@
             // Handle the "Ok" of the add/edit variant modal which puts the values into the form ready for submission as part of the whole page.
             function saveVariant(index) {
                 var id = $("#addVariantId").val();
+                var storeId = $("#addVariantStoreId").val();
                 var sku = $("#addVariantSku").val();
                 if (sku < 0) {
                     alert("SKU cannot be a negative number.")
@@ -301,7 +303,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodeValues = []; // To store the barcode values for validation

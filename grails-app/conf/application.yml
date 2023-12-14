@@ -267,26 +267,11 @@ environments:
             buttonImageBucket: "retail-platform-button-images-test"
             brandAssetsBucket: "retail-platform-brand-assets-test"
 
-    nottest:
-        dataSource:
-            dbCreate: update
-            url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-        dataSources:
-            transactions:
-                dbCreate: update
-                url: jdbc:h2:mem:txnTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-            reporting:
-                dbCreate: update
-                url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-            reportingReadOnly:
-                dbCreate: update
-                url: jdbc:h2:mem:reportingTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-
     test:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/wlpos"
+            url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "cloudoffice"
@@ -314,7 +299,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
+                url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -341,7 +326,7 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-ro-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
+                url: "jdbc:mysql://retail-platform.cluster-ro-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -368,7 +353,7 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/transactions"
+                url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -403,13 +388,13 @@ environments:
 
         mysql:
             wlpos:
-                host: retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: wlpos
             transactions:
-                host: retailplatform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
                 port: 3306
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV

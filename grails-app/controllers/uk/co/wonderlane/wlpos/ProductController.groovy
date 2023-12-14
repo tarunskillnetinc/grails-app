@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import com.opencsv.bean.CsvBindByName
 import com.opencsv.bean.CsvToBeanBuilder
 import grails.converters.JSON
+import grails.databinding.BindingFormat
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.apache.commons.lang3.StringUtils
@@ -87,7 +88,13 @@ class ProductController extends BaseController {
 
     private void setEffectiveDate() {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd MMMM yyyy").withZone(DateTimeZone.UTC)
+
+        setEffectiveDate(formatter)
+    }
+
+    private void setEffectiveDate(DateTimeFormatter formatter) {
         def effectiveDateSelected
+
         if (params.get("effectiveDate")) {
             effectiveDateSelected = params.get("effectiveDate") == "Current" ? DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay() : DateTime.parse(params.get("effectiveDate"), formatter).withTimeAtStartOfDay()
             session.effectiveDate = [effectiveDateSelected.toString(formatter), effectiveDateSelected]
@@ -599,6 +606,9 @@ class ProductController extends BaseController {
         def topLevelCategories = categoryService.getTopLevelCategories()
         def vatValues = VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)
 
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+        editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+
         Product product = saveProduct(editedProduct, params, true)
 
         if (!product.hasErrors()) {
@@ -651,38 +661,39 @@ class ProductController extends BaseController {
         editedProduct.variants?.each { editedVariant ->
             def existingVariant = product.variants?.find { existingVariant -> existingVariant.id == editedVariant.id }
 
-            if (editedVariant.id != 0 && existingVariant) {
+            // If the variant we're editing is the current one for our store and the effective date is today or the same as the one we're editing, we update it. Otherwise we need a new variant.
+            if (editedVariant.id != 0 && existingVariant &&
+                    editedVariant.storeId == springSecurityService.principal.storeId &&
+                    (!effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()) || effectiveDate == editedVariant.effectiveDate)) {
+
                 // Variant we saved is one which already exists, check for changes.
                 if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
                     // Variant has changed
-                    ProductVariant newVariant = new ProductVariant()
-                    newVariant.storeId = springSecurityService.principal.storeId
-                    newVariant.sku = editedVariant.sku
-                    newVariant.retailPrice = editedVariant.retailPrice
+                    existingVariant.storeId = springSecurityService.principal.storeId
+                    existingVariant.sku = editedVariant.sku
+                    existingVariant.retailPrice = editedVariant.retailPrice
                     changeAffectsSel = checkChangeAffectsSel(changeAffectsSel, existingVariant.costPrice, editedVariant.costPrice)
-                    newVariant.costPrice = editedVariant.costPrice
-                    newVariant.size = editedVariant.size
-                    newVariant.colour = editedVariant.colour
-                    newVariant.minimumStockLevel = editedVariant.minimumStockLevel
-                    newVariant.effectiveDate = effectiveDate
-                    newVariant.shelfLifeDays = editedVariant.shelfLifeDays
-                    newVariant.shelfCapacity = editedVariant.shelfCapacity
-                    newVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
-                    newVariant.defaultSupplierId = editedVariant.defaultSupplierId
-                    if (newVariant.getShelfCapacity() != null
-                            && !(newVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
+                    existingVariant.costPrice = editedVariant.costPrice
+                    existingVariant.size = editedVariant.size
+                    existingVariant.colour = editedVariant.colour
+                    existingVariant.minimumStockLevel = editedVariant.minimumStockLevel
+                    existingVariant.effectiveDate = effectiveDate
+                    existingVariant.shelfLifeDays = editedVariant.shelfLifeDays
+                    existingVariant.shelfCapacity = editedVariant.shelfCapacity
+                    existingVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
+                    existingVariant.defaultSupplierId = editedVariant.defaultSupplierId
+                    if (existingVariant.getShelfCapacity() != null
+                            && !(existingVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
                     }
 
-                    if (newVariant.getMinimumDisplayQuantity() != null
-                            && !(newVariant.getMinimumDisplayQuantity() >= 1 && newVariant.getMinimumDisplayQuantity() <= 999)) {
+                    if (existingVariant.getMinimumDisplayQuantity() != null && !(existingVariant.getMinimumDisplayQuantity() >= 1 && existingVariant.getMinimumDisplayQuantity() <= 999)) {
                         product.errors.reject('productVariant.minimumDisplayQuantity.size.error', 'Minimum Display Quantity must be between 1 to 999.')
                     }
 
-                    checkProductVariantForPackChanges(product, newVariant, editedVariant, now, true)
-                    checkProductVariantForLocationChanges(product, newVariant, editedVariant)
-                    checkProductVariantForBarcodeChanges(product, newVariant, editedVariant, effectiveDate)
-                    productVariantList.add(newVariant)
+                    checkProductVariantForPackChanges(product, existingVariant, editedVariant, now, false)
+                    checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
+                    checkProductVariantForBarcodeChanges(product, existingVariant, editedVariant, effectiveDate)
                 } else {
                     checkProductVariantForPackChanges(product, existingVariant, editedVariant, now, false)
                     checkProductVariantForLocationChanges(product, existingVariant, editedVariant)
@@ -733,12 +744,6 @@ class ProductController extends BaseController {
                             product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
                         }
                 })
-
-                // Check whether the SKU is used elsewhere
-                if (!isValidSku(newVariant.sku)) {
-                    product.errors.reject('product.productVariants.notUnique', [newVariant.sku] as Object[], 'SKU already exists on another product.')
-                }
-
 
                 productVariantList.add(newVariant);
             }
@@ -832,12 +837,13 @@ class ProductController extends BaseController {
             return
         }
 
-        if (newVariant){
+        if (newVariant) {
             editedVariant.packs?.each { editedPac ->
                 Pack newPack = new Pack()
                 updatePack(newPack, editedPac, now)
                 existingVariant.addToPacks(newPack)
             }
+
             return
         }
 
@@ -904,7 +910,7 @@ class ProductController extends BaseController {
 
         // Don't save histories unless the product is valid otherwise this triggers a product save due to it being dirty
         //  even when restrictions fail.
-        if(product.validate()) {
+        if (product.validate()) {
             productService.saveProductHistories(builder.productHistories)
         }
 
@@ -1027,8 +1033,8 @@ class ProductController extends BaseController {
         })
 
         product?.variants?.stream().filter ({v -> v.effectiveDate == editedProduct.effectiveDate}).each { existingVariants ->
-            def editedVariant = editedProduct?.find {editedVariant -> editedVariant.id == existingVariants.id}
-            if (!editedVariant){
+            def editedVariant = editedProduct?.variants?.find {editedVariant -> editedVariant.id == existingVariants.id}
+            if (!editedVariant) {
                 // Variant deleted
                 doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand(), deletedBarcodes)
             }
@@ -1549,11 +1555,6 @@ class ProductController extends BaseController {
         barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
     }
 
-    def isValidSku(Long sku) {
-        def existingVariant = ProductVariant.findBySku(sku)
-        return existingVariant == null
-    }
-
     def ajaxCSVProductUpload() {
         def file = request.getFile('file')
         def is = file.inputStream
@@ -1596,6 +1597,7 @@ class AddVariantCommand {
 
     int index
     Integer id
+    Integer storeId
     Long sku
     BigDecimal retailPrice
     BigDecimal costPrice
@@ -1779,7 +1781,7 @@ class RestrictionsCommand implements Validateable {
 
 class ProductVariantCommand {
     int id
-    int storeId
+    Integer storeId
     Integer defaultSupplierId
     long sku
     BigDecimal retailPrice
