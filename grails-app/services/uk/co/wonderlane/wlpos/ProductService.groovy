@@ -175,7 +175,7 @@ class ProductService extends MySqlDal {
                }
                for (LocationCommand location : pv.locationz){
                    //Validate entered value for location number is numeric or not -> Only numeric allowed
-                   if (location.getLocationNumber() != null && !location.getLocationNumber().isEmpty() && !location.getLocationNumber().matches("-?\\s*\\d+(\\.\\d+)?")){
+                   if (location.getLocationNumber() != null && !location.getLocationNumber().isEmpty() && !location.getLocationNumber().matches("-?\\d+(\\.\\d+)?(?:\\s*\\d+(\\.\\d+)?)?")){
                        product.errors.reject('product.location.number.validation.error', [location.getLocationNumber(), String.valueOf(pv.sku)] as Object[],
                                'product.location.number.validation.error.default')
                        isValid = false
