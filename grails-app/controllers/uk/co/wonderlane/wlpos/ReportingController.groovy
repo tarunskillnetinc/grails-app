@@ -1627,6 +1627,8 @@ class ReportingController {
 
     private String getSalesByProductCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
+        String pattern = "dd/MM/yy HH:mm:ss"
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern)
         stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
         sales?.each {
             stringBuilder.append(it.productItemCode?.replace("'", "\\'") + " - " + it.productDescription?.replace("'", "\\'") + " - " + it.productUnitSize?.replace("'", "\\'"))
@@ -1645,7 +1647,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.usersName)
             stringBuilder.append(",")
-            stringBuilder.append(it.dateCreated?.format("dd/MM/yy HH:mm:ss"))
+            stringBuilder.append(it.dateCreated ? formatter.print(it.dateCreated) : "N/A")
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
