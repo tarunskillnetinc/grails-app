@@ -77,6 +77,17 @@
                 $("#tillId").val("");
                 getShifts();
             }
+
+            function validateInput(input){
+                // Remove leading minus sign if present
+                input.value = input.value.replace(/^-/, '');
+
+                // Ensure the value is greater than or equal to 0
+                if (parseInt(input.value, 10) < 0 || input.value === '-') {
+                    input.value = 0;
+                }
+            }
+
         </script>
     </head>
 
@@ -129,7 +140,7 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
                                     <div class="col-2">
-                                        <g:field id="tillId" type="number" min="0" max = "2147483647" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" onkeydown="acceptNumeric(event);"/>
+                                        <g:field id="tillId" type="number" min="0" max = "2147483647" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" oninput="validateInput(this)" onkeydown="acceptNumeric(event);"/>
                                     </div>
 
                                     <div class="col-4 offset-4 text-right">
