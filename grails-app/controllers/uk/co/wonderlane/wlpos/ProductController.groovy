@@ -1590,6 +1590,11 @@ class ProductController extends BaseController {
         }
         render([status: errors.isEmpty() ? "SUCCESS" : "FAILED", errors: errors] as JSON)
     }
+
+    def isValidSku(long sku) {
+        def existingVariant = ProductVariant.findBySku(sku)
+        return existingVariant == null
+    }
 }
 
 class AddVariantCommand {
@@ -2003,5 +2008,7 @@ class CSVUploadProduct {
 
         return productCommand
     }
+
+
 
 }
