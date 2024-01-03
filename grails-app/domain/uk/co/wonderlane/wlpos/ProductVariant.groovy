@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.grails.web.util.WebUtils
+import uk.co.wonderlane.wlpos.enums.LocationsType
 
 import java.math.RoundingMode
 import org.joda.time.DateTime
@@ -229,5 +230,17 @@ class ProductVariant implements Serializable {
         result = prime * result + effectiveDate.hashCode()
 
         return result
+    }
+
+    List getLocationsHierarchy() {
+        List locationHierarchy = new ArrayList();
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+        def locations = locationz ? locationz : locations
+        if (locationsType == LocationsType.ADVANCED.name()){
+            for (int i=1; i <= locations.size() ; i++){
+                locationHierarchy.add(i)
+            }
+        }
+        return locationHierarchy;
     }
 }
