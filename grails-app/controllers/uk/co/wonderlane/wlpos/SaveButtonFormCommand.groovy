@@ -7,6 +7,7 @@ import uk.co.wonderlane.wlpos.enums.ProcessType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 class SaveButtonFormCommand implements Validateable {
+
     int buttonGridId
     int id
     ButtonType type
@@ -32,6 +33,8 @@ class SaveButtonFormCommand implements Validateable {
 
     boolean removeImage
     MultipartFile image
+    boolean manual
+    boolean exact
 
     static constraints = {
         // The following constraints are covered by Button.groovy, duplicating them here would duplicate the error message
@@ -56,6 +59,8 @@ class SaveButtonFormCommand implements Validateable {
         btnStoreId nullable: true
         overrideId nullable: true
         removeImage nullable: true
+        manual nullable: true
+        exact nullable: true
 
         // image validator is used instead of maxSize because tested to not be functional
         image nullable: true, validator: { val, obj ->

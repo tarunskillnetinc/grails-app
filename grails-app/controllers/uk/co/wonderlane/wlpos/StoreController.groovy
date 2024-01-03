@@ -69,12 +69,20 @@ class StoreController {
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(store.getStore())
+                syncMessage.setStoreSettings(
+                        storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).refresh().getStore()
+                )
 
                 rabbitService.sendMessage(syncMessage)
             }
 
             if (oldPriceBand != storeCommand.priceBand.id || oldProductRange != storeCommand.range.id) {
+                // If we've edited the store we're logged in as, refresh our login session so that spring security knows about our new range/price band.
+                if (springSecurityService.principal.storeNumber == store.config.storeNumber) {
+                    springSecurityService.principal.priceBand = storeCommand.priceBand
+                    springSecurityService.principal.range = storeCommand.range
+                }
+
                 flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
             } else {
                 flash.message = ["Store settings saved successfully."]
@@ -101,7 +109,7 @@ class StoreController {
         def allParentStores = storeService.getStoresByType(retailerId, StoreType.STORE)
         allParentStores.removeAll { it.config.storeNumber == storeNumber }
 
-        [availablePriceBands, availableProductRanges, availableParentStores]
+        [availablePriceBands, availableProductRanges, allParentStores]
     }
 
     private void setViewOptions(String storeType) {
@@ -169,8 +177,6 @@ class StoreConfigCommand implements Validateable {
     PrintReceiptOption printReceiptOption
     Integer quantityPromptThreshold
     BigDecimal valuePromptThreshold
-    Integer varianceQuantity
-    BigDecimal varianceValue
     Boolean pickListForceZeroCount
     String primaryColour
     String secondaryColour
@@ -178,6 +184,7 @@ class StoreConfigCommand implements Validateable {
     String primaryTextColour
     String secondaryTextColour
     String accentTextColour
+    String backgroundColour
     int stockLevelThreshold
     BigDecimal countIncrement
     String website
@@ -202,8 +209,6 @@ class StoreConfigCommand implements Validateable {
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
-        varianceQuantity nullable: true, min: 1, max: 999
-        varianceValue nullable: true, min: BigDecimal.ONE, max: 9999.99
         pickListForceZeroCount nullable: true
         primaryColour nullable: true
         secondaryColour nullable: true
@@ -211,6 +216,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true
         secondaryTextColour nullable: true
         accentTextColour nullable: true
+        backgroundColour nullable: true
         stockLevelThreshold nullable: false
 //        selMarginLeft nullable: true
 //        selMarginTop nullable: true
@@ -220,6 +226,7 @@ class StoreConfigCommand implements Validateable {
         primaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         secondaryTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         accentTextColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
+        backgroundColour nullable: true, validator: { value, storeConfig -> storeConfig.colorCodeValidator(value) }
         countIncrement nullable: false, min: new BigDecimal(0.01).round(new MathContext(1, RoundingMode.HALF_EVEN)), max: BigDecimal.ONE
         website nullable: true, maxsize: 40
         companyNumber nullable: true, maxSize: 10

@@ -23,17 +23,22 @@ class ReceiptTagLib {
         switch (receiptLine.type) {
             case ReceiptLineType.IMAGE:
 //            case ReceiptLineType.IMAGE_FROM_FILE:
-                def brandLogo = brandAssetsService.getBrandLogo()
+                if (receiptLine.text == "1") { //If we're the Logo receipt line, rather than the ReceiptImage receipt line
+                    def brandLogo = brandAssetsService.getBrandLogo()
 
-                if (brandLogo) {
-                    def brandLogoBase64 = new String(Base64.getEncoder().encode(brandLogo))
+                    if (brandLogo) {
+                        def brandLogoBase64 = new String(Base64.getEncoder().encode(brandLogo))
 
-                    out << """<div style="text-align: center;"><img id="brand-logo" src="data:image/png;base64,${brandLogoBase64}" style="width: 100%;" /></div>"""
+                        out << """<div style="text-align: center;"><img id="brand-logo" src="data:image/png;base64,${brandLogoBase64}" style="width: 100%;" /></div>"""
+                    } else {
+                        out << """<div style="text-align: center;">${asset.image(src: "receipt_logo.png", class: "logo")}</div>"""
+                    }
+
+                    break
                 } else {
-                    out << """<div style="text-align: center;">${asset.image(src: "receipt_logo.png", class: "logo")}</div>"""
+                    //If we're the ReceiptImage receipt Line we do not want to display anything at this time.
+                    break
                 }
-
-                break
 //            case ReceiptLineType.PP_IMAGE:
 //                byte[] imageBytes = hexStringToByteArray(receiptLine.getText())
 //

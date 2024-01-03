@@ -18,6 +18,7 @@ import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 @Transactional
@@ -164,7 +165,7 @@ class ProductService extends MySqlDal {
            }
        }
 
-       if (locationsType == "ADVANCED"){
+       if (locationsType ==  LocationsType.ADVANCED.name()){
            for (ProductVariantCommand pv : editedProduct?.variants){
                if (pv.locationz.size() > 5) {
                    //variant should not contain more than 5 locations
@@ -661,7 +662,7 @@ class ProductService extends MySqlDal {
         stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id)
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id, store.priceBand)
                 List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
                 if (!variants.isEmpty()) {
                     // Only send the update to the store if there are variants to send. This could mean the store has
