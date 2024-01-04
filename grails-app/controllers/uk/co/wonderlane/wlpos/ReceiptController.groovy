@@ -30,7 +30,7 @@ class ReceiptController {
         String sort = params.sort
         String order = params.order
 
-        def availableColumns = [ "storeId", "tillId", "dateGenerated", "transactionId", "transactionAmount" ]
+        def availableColumns = [ "storeId", "tillId", "dateGenerated", "transactionId", "transactionAmount", "paymentMethod" ]
 
         if (!availableColumns.contains(sort)) {
             sort = "dateGenerated"
