@@ -63,7 +63,6 @@ class StoreController {
             bindData(storeConfig, storeCommand.config)
 
             storeService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
-            store.config = storeConfig
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
