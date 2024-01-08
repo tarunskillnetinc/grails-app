@@ -116,15 +116,18 @@ class ProductController extends BaseController {
             ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
         }
 
-        render(view: "add", model: [storeId       : springSecurityService.principal.storeId,
-                                    statusValues  : ProductStatus.values(),
-                                    categoryValues: categoryService.getTopLevelCategories(),
-                                    vatValues     : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
-                                    ranges        : ranges,
-                                    priceBands    : priceBands,
-                                    now           : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
-                                    isNewProduct  : true,
-                                    locationsType : springSecurityService.principal.retailer.config.locationsType.name()])
+        def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
+
+        render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
+                                    statusValues    : ProductStatus.values(),
+                                    categoryValues  : categoryService.getTopLevelCategories(),
+                                    vatValues       : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
+                                    ranges          : ranges,
+                                    priceBands      : priceBands,
+                                    now             : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay(),
+                                    isNewProduct    : true,
+                                    locationsEnabled: locationsEnabled,
+                                    locationsType   : springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     def search() {
