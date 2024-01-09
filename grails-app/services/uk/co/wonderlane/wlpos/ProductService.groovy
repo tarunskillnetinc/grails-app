@@ -756,7 +756,7 @@ class ProductService extends MySqlDal {
         locationToBeUpdated.storeId = springSecurityService.principal.storeId
         locationToBeUpdated.sku = sku
 
-        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.ADVANCED) {
+        if (locationsType == LocationsType.ADVANCED) {
             locationToBeUpdated.aisle = editedLocation.aisle
             locationToBeUpdated.bay = editedLocation.bay
             locationToBeUpdated.shelf = editedLocation.shelf
@@ -764,9 +764,7 @@ class ProductService extends MySqlDal {
             locationToBeUpdated.locationHierarchy = editedLocation.locationHierarchy
             locationToBeUpdated.locationDescription = editedLocation.locationDescription
             locationToBeUpdated.locationNumber = editedLocation.locationNumber
-        }
-
-        if (locationToBeUpdated.id == 0 || locationsType == LocationsType.SIMPLE) {
+        } else if (locationsType == LocationsType.SIMPLE) {
             locationToBeUpdated.location = editedLocation.location
         }
         locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
