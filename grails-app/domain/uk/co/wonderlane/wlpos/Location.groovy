@@ -12,7 +12,7 @@ class Location {
     String location
     int shelfCapacity
     int minimumDisplayQuantity
-    Integer locationHierarchy
+    int locationHierarchy
     String locationDescription
     String locationNumber
 
@@ -52,7 +52,7 @@ class Location {
         location nullable: true
         shelfCapacity nullable: false
         minimumDisplayQuantity nullable: false
-        locationHierarchy nullable: true
+        locationHierarchy nullable: false
         locationDescription size: 0..40, blank: true, nullable: true
         locationNumber size: 0..8, blank: true, nullable: true
     }
