@@ -95,6 +95,10 @@
                                  class="col-5 form-control bottom-border promo-amount" required="false"
                                  value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
+                    <div class="form-group form-check row col-12 col-sm-6">
+                        <label for="bogof-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
+                        <g:checkBox name="bogof-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                    </div>
                 </div>
             </div>
             <div id="bogof-products" class="collapsible-products row mt-3">
@@ -236,6 +240,10 @@
                         <g:field readonly="readonly" name="xfory-supplier"
                                  class="col-5 form-control bottom-border promo-amount" required="false"
                                  value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                    <div class="form-group form-check row col-12 col-sm-6">
+                        <label for="xfory-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
+                        <g:checkBox name="xfory-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
                     </div>
                 </div>
             </div>
@@ -440,6 +448,10 @@
                                  class="col-5 form-control bottom-border promo-amount" required="false"
                                  value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
                     </div>
+                    <div class="form-group form-check row col-12 col-sm-6">
+                        <label for="percentage-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
+                        <g:checkBox name="percentage-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                    </div>
                 </div>
             </div>
             <div id="percentage-products" class="collapsible-products row mt-3">
@@ -588,6 +600,10 @@
                         <g:field readonly="readonly" name="fixedAmount-supplier"
                                  class="col-5 form-control bottom-border promo-amount" required="false"
                                  value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                    <div class="form-group form-check row col-12 col-sm-6">
+                        <label for="fixedAmount-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
+                        <g:checkBox name="fixedAmount-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
                     </div>
                 </div>
             </div>
@@ -745,6 +761,10 @@
                         <g:field readonly="readonly" name="fixedPrice-supplier"
                                  class="col-5 form-control bottom-border promo-amount" required="false"
                                  value="${promotion?.symbolGroupPromotion?.symbolGroup?.name}" type="text"/>
+                    </div>
+                    <div class="form-group form-check row col-12 col-sm-6">
+                        <label for="fixedPrice-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
+                        <g:checkBox name="fixedPrice-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
                     </div>
                 </div>
             </div>
