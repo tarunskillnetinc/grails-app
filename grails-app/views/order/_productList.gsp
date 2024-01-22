@@ -279,7 +279,7 @@
         }
 
         function cancelConfirmResponse(){
-            window.location.href = "${createLink(controller: 'order', action: 'productList')}";
+            window.location.href = "${createLink(controller: 'reporting', action: 'orders')}";
         }
 
     </script>
