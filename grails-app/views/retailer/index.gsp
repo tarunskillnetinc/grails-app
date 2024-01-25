@@ -377,6 +377,15 @@
                                         <div class="btn btn-danger" id="reset-store-term-button"onclick="$('#storeTerm').val('')">Reset</div>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label for="itemCodeTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Item Code</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.itemCodeTerm" id="itemCodeTerm" value="${retailer?.config?.retailerTerminologyConfig?.itemCodeTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-itemCode-term-button"onclick="$('#itemCodeTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
@@ -439,6 +448,51 @@
                                                         <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
+                                                <h5 class="text-center">VAT Rates Visibility Status</h5>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="vatRatesVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    </div>
+                                                    <label for="vatRatesVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+                                                    </div>
+                                                    <label for="vatRatesVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+                                                    </div>
+                                                </div>
+                                                <h5 class="text-center">Style Visibility Status</h5>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="styleVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    </div>
+                                                    <label for="styleVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+                                                    </div>
+                                                    <label for="styleVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+                                                    </div>
+                                                </div>
+                                                <h5 class="text-center">Category Visibility Status</h5>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="categoryVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    </div>
+                                                    <label for="categoryVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+                                                    </div>
+                                                    <label for="categoryVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+                                                    </div>
+                                                </div>
                                                 <h5 class="text-center">Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
                                                     <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
@@ -483,7 +537,7 @@
                                             "bottomHomeButton",
                                             "bottomProductButton",
                                             "bottomFileButton",
-                                            "bottomSettingsButton"
+                                            "bottomSettingsButton",
                                     ]
                                 %>
                                 <g:each in="${itemList}" var="item" status="index">
