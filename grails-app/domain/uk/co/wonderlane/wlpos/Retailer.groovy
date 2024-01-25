@@ -32,7 +32,8 @@ class Retailer implements Serializable {
     }
 
     RetailerConfig getConfig() {
-        return gson.fromJson(config, RetailerConfig.class)
+        RetailerConfig retailerConfig = gson.fromJson(config, RetailerConfig.class)
+        return retailerConfig
     }
 
     void setConfig(RetailerConfig retailerConfig) {

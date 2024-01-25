@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile
 import uk.co.wonderlane.wlpos.entities.RetailerConfig
 import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
+import uk.co.wonderlane.wlpos.entities.RetailerTerminologyLocationsTableConfig
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.Visibility
 
@@ -37,6 +38,7 @@ class RetailerController {
         }
         RetailerConfig retailerConfig = new RetailerConfig()
         RetailerTerminologyConfig terminologyConfig = new RetailerTerminologyConfig()
+        RetailerTerminologyLocationsTableConfig locationsTableConfig = new RetailerTerminologyLocationsTableConfig()
         RetailerFunctionConfig functionConfig = new RetailerFunctionConfig()
 
         if (retailerCommand?.retailerTerminologyConfig == null) {
@@ -61,9 +63,55 @@ class RetailerController {
         if (retailerCommand?.retailerTerminologyConfig?.storeTerm == "" || retailerCommand?.retailerTerminologyConfig?.storeTerm == null) {
             retailerCommand.retailerTerminologyConfig.storeTerm = "Store";
         }
+        if (retailerCommand?.retailerTerminologyConfig?.itemCodeTerm == "" || retailerCommand?.retailerTerminologyConfig?.itemCodeTerm == null) {
+            retailerCommand.retailerTerminologyConfig.itemCodeTerm = "Item Code"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.storeHoldingsTerm == "" || retailerCommand?.retailerTerminologyConfig?.storeHoldingsTerm == null) {
+            retailerCommand.retailerTerminologyConfig.storeHoldingsTerm = "Store Holdings"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.inStockTerm == "" || retailerCommand?.retailerTerminologyConfig?.inStockTerm == null) {
+            retailerCommand.retailerTerminologyConfig.inStockTerm = "In Stock"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.deliveredTerm == "" || retailerCommand?.retailerTerminologyConfig?.deliveredTerm == null) {
+            retailerCommand.retailerTerminologyConfig.deliveredTerm = "Delivered"
+        }
+
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig = new RetailerTerminologyLocationsTableConfigCommand()
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm = "Stock Locations"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm = "Description"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm = "Bay"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm = "Shelf"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm = "Position"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm = "Aisle"
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == null) {
+            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm = "Shelf Capacity"
+        }
 
         if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null){
             retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = RetailerFunctionCommand.Visibility.ENABLED
+        }
+        if (retailerCommand.retailerFunctionConfig.vatRatesVisibility == null) {
+            retailerCommand.retailerFunctionConfig.vatRatesVisibility = RetailerFunctionConfig.Visibility.ENABLED
+        }
+        if (retailerCommand.retailerFunctionConfig.styleVisibility == null) {
+            retailerCommand.retailerFunctionConfig.styleVisibility = RetailerFunctionConfig.Visibility.ENABLED
+        }
+        if (retailerCommand.retailerFunctionConfig.categoryVisibility == null) {
+            retailerCommand.retailerFunctionConfig.categoryVisibility = RetailerFunctionConfig.Visibility.ENABLED
         }
 
         retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
@@ -75,11 +123,13 @@ class RetailerController {
             }
         }
 
+        bindData(locationsTableConfig, retailerCommand.retailerTerminologyConfig.locationsTableConfig)
         bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
         bindData(functionConfig, retailerCommand.retailerFunctionConfig)
         bindData(retailerConfig, retailerCommand)
 
         // Set those objects to the retailer config object
+        terminologyConfig.locationsTableConfig = locationsTableConfig
         retailerConfig.retailerTerminologyConfig = terminologyConfig
         retailerConfig.retailerFunctionConfig = functionConfig
 
@@ -145,10 +195,28 @@ class RetailerTerminologyCommand {
     String quantityOnOrderTerm
     String userTerm
     String storeTerm
+    String itemCodeTerm
+    String storeHoldingsTerm
+    String inStockTerm
+    String deliveredTerm
+    RetailerTerminologyLocationsTableConfigCommand locationsTableConfig
+}
+
+class RetailerTerminologyLocationsTableConfigCommand {
+    String stockLocationsTerm
+    String descriptionTerm
+    String bayTerm
+    String shelfTerm
+    String positionTerm
+    String aisleTerm
+    String shelfCapacityTerm
 }
 
 class RetailerFunctionCommand {
     Visibility shelfEdgeVisibility
+    Visibility vatRatesVisibility
+    Visibility styleVisibility
+    Visibility categoryVisibility
     Map<String, FunctionMenuItemCommand> functionMenuItems
 
 }
