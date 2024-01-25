@@ -386,6 +386,97 @@
                                         <div class="btn btn-danger" id="reset-itemCode-term-button"onclick="$('#itemCodeTerm').val('')">Reset</div>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label for="storeHoldingsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Holdings</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeHoldingsTerm" id="storeHoldingsTerm" value="${retailer?.config?.retailerTerminologyConfig?.storeHoldingsTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-storeHoldings-term-button"onclick="$('#storeHoldingsTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inStockTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">In Stock</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.inStockTerm" id="inStockTerm" value="${retailer?.config?.retailerTerminologyConfig?.inStockTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-inStock-term-button"onclick="$('#inStockTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="deliveredTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Delivered</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.deliveredTerm" id="deliveredTerm" value="${retailer?.config?.retailerTerminologyConfig?.deliveredTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-delivered-term-button"onclick="$('#deliveredTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <!-- Locations Table Terminology -->
+                                <div class="form-group row">
+                                    <label for="stockLocationsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Locations (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stockLocations-term-button"onclick="$('#stockLocationsTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="descriptionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Description (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.descriptionTerm" id="descriptionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-description-term-button"onclick="$('#descriptionTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="bayTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Bay (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.bayTerm" id="bayTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-bay-term-button"onclick="$('#bayTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="shelfTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfTerm" id="shelfTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-shelf-term-button"onclick="$('#shelfTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="positionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Position (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.positionTerm" id="positionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-position-term-button"onclick="$('#positionTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="aisleTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Aisle (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.aisleTerm" id="aisleTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-aisle-term-button"onclick="$('#aisleTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="shelfCapacityTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf Capacity (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfCapacityTerm" id="shelfCapacityTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('')">Reset</div>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
