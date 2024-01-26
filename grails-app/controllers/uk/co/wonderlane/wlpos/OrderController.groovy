@@ -1,11 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+import grails.converters.JSON
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 
 class OrderController {
 
@@ -129,7 +131,7 @@ class OrderController {
         User user = userService.getUser(springSecurityService.principal.id)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
         if ((productList == null) || (productList != null && productList.getSupplierId() == null)){
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
             response.setStatus(200)
         }else {
             response.setStatus(204)
@@ -248,8 +250,30 @@ class OrderController {
         }
     }
 
+    def ajaxSupplierSearch(SupplierSortParams sortParams){
+        def suppliers = [] //declare supplier list
+        if (params.searchTerm != null){
+            def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
+            def returnedSuppliers = suppliersResponse?.suppliers
+            if (returnedSuppliers != null && returnedSuppliers.size() > 0){
+                suppliers = returnedSuppliers
+            }
+        } else {
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
+        }
+        render (template: "supplierListView", model: [suppliers: suppliers])
+    }
+
     def ajaxAddProduct(){
         render(view: "productSearch", model: [])
+    }
+
+    def ajaxShowOrderConfirmWindow(){
+        render(view: "_orderConfirm", model: [])
+    }
+
+    def ajaxShowOrderDeleteWindow(){
+        render(view: "_orderDelete", model: [])
     }
 
 }

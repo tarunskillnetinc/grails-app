@@ -30,8 +30,8 @@
             <div class="col-6" style='word-break: break-all; word-wrap: break-word;'>${productListItem.getProductLongDescription()}</div>
             <div class="col-2">${productListItem.getQuantity()}</div>
             <div class="col-2">
-                <button type="button" id="removeItemButton_${productListItem.getProductVariantId()}" class="btn btn-danger itemDeleteButton"
-                        data-dismiss="modal" data-productItemId="${productListItem?.id}" style="margin-left: -12px; float: left; top: 0; right: 0;">Delete</button>
+                <button type="button" id="removeItemButton_${productListItem.getProductVariantId()}" class="btn btn-danger productItemDeleteButton"
+                        data-dismiss="modal" data-productItemId="${productListItem?.id}" style="margin-left: -12px; float: left; top: 0; right: 0;" onclick="deleteOrderItem()">Delete</button>
             </div>
         </div>
     </g:each>
@@ -45,10 +45,10 @@
 <div class="row col-8 offset-2 mt-5 pb-2 bottom-border" style="width: 100%; ">
 
     <g:if test="${!productList}">
-        <button type="button" id="cancelAddSupplierButton" disabled class="btn btn-danger" onclick="deleteProductList();" data-dismiss="modal" style="margin-left: -12px; float: left; top: 0; right: 0">Delete</button>
+        <button type="button" id="cancelAddSupplierButton" disabled class="btn btn-danger" onclick="deleteOrder();" data-dismiss="modal" style="margin-left: -12px; float: left; top: 0; right: 0">Delete</button>
     </g:if>
     <g:else>
-        <button type="button" id="cancelAddSupplierButton" class="btn btn-danger" onclick="deleteProductList();" data-dismiss="modal" style="margin-left: -12px; float: left; top: 0; right: 0">Delete</button>
+        <button type="button" id="cancelAddSupplierButton" class="btn btn-danger" onclick="deleteOrder();" data-dismiss="modal" style="margin-left: -12px; float: left; top: 0; right: 0">Delete</button>
     </g:else>
     <g:if test="${!productListItems}">
         <button type="button" id="saveSupplierButton" disabled class="btn btn-success" onclick="complete();" style="margin-left: 10px; float: left; top: 0; right: 0">Complete</button>
