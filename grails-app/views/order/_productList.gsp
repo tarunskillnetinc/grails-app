@@ -15,10 +15,8 @@
 
         $( document ).ready(function() {
 
-            var checkProductUrl = "${createLink(controller: 'order', action: 'ajaxCheckActiveProducts')}";
-
             $.ajax({
-                url: checkProductUrl,
+                url: "${createLink(controller: 'order', action: 'ajaxCheckActiveProducts')}",
                 method: "GET",
                 statusCode: {
                     204: function (response) {
@@ -31,37 +29,6 @@
                     }
                 }
             })
-
-            $("#dialog-order-item-remove").dialog({
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    Yes: function () {
-                        var deleteProductUrl = "${createLink(controller: 'order', action: 'deleteOrderItem')}";
-                        var productListId = $('#productListId').val();
-                        var productItemId = $('#data-productItemId').val();
-                        $.ajax({
-                            url: deleteProductUrl,
-                            data: {productListId: productListId,  productItemId: productItemId},
-                            method: "GET",
-                            statusCode: {
-                                500: function (response) {
-                                    $('#dialog-order-delete-error').dialog('open');
-                                },
-                                200: function (response) {
-                                    window.location.href = "${createLink(controller: 'order', action: 'productList')}";
-                                }
-                            }
-                        });
-                    },
-                    No: function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
 
         });
 
@@ -196,6 +163,7 @@
 
         //Order approve functions --> Approve order confirm and cancel order confirm
         function approveConfirm(){
+            $('#orderConfirmModal').modal({show: true});
             $("#orderConfirmContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\">" +
                 "<div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">" +
                 "Loading...</span></div></div></div>");
@@ -207,18 +175,16 @@
                 method: "POST",
                 statusCode: {
                     500: function (response) {
-                        $('#productListModal').modal('show');
-                        $("#productListContent").html(response);
+                        $("#orderConfirmContent").html(response);
                     },
                     200: function (response) {
-                        $('#productListModal').modal('show');
                         var noDisplayDiv = $('<div class="row col-8 offset-2 pt-2 pb-2 text-center emptyProductListItems" id="emptyProductListItems"> \
                                             <div class="col pt-2 pb-2 text-center my-auto wl-striped0">All products processed.</div> \
                                         </div>')
 
                         $( "div" ).remove( ".productListItems" );
                         $('#search-results').append(noDisplayDiv);
-                        $("#productListContent").html(response);
+                        $("#orderConfirmContent").html(response);
                     }
                 }
             });
@@ -251,7 +217,7 @@
                 method: "GET",
                 statusCode: {
                     500: function (response) {
-                        $('#dialog-order-delete-error').dialog('open');
+                        $("#productListContent").html(response);
                     },
                     200: function (response) {
                         window.location.href = "${createLink(controller: 'order', action: 'productList')}";
@@ -259,19 +225,6 @@
                 }
             });
         }
-
-
-        // document.addEventListener("DOMContentLoaded", function() {
-        //     buttons = document.querySelectorAll(".productItemDeleteButton");
-        //     buttons.forEach(function(button) {
-        //        button.addEventListener("click", function(event) {
-        //            let productItemId = this.getAttribute('data-productItemId');
-        //            document.getElementById('productItemId').value = productItemId;
-        //            $('#dialog-order-item-remove').dialog('open');
-        //            event.stopPropagation()
-        //        }) ;
-        //     });
-        // });
 
         function cancelSupplierView(){
             window.location.href = '${createLink(controller: 'reporting', action:'orders')}';
@@ -285,10 +238,6 @@
             $('#productListModal').modal('hide');
         }
 
-        // function deleteOrderItem(){
-        //     $('#productListModal').modal('hide');
-        // }
-
         function cancelOrderConfirm(){
             $('#productListModal').modal('hide');
         }
@@ -298,6 +247,10 @@
         }
 
         function cancelOrderDeleteError(){
+            $('#productListModal').modal('hide');
+        }
+
+        function cancelOrderItemDelete(){
             $('#productListModal').modal('hide');
         }
 
@@ -342,33 +295,31 @@
 
     </section>
 
-    <section id="productSearch-modal" class="container-fluid" style="z-index: 999;">
-        <div class="modal fade" id="productSearchModal" tabindex="-1" role="dialog" aria-labelledby="productSearchModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document" style="margin-top: 120px">
+    <section id="productSearch-modal" class="container-fluid" >
+        <div class="modal fade" id="productSearchModal" tabindex="-1" role="dialog" aria-labelledby="productSearchModalLabel" data-backdrop="false" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document" style="border: 2px black solid; margin-top: 120px">
                 <div id="productSearchContent" class="modal-content" ></div>
             </div>
         </div>
     </section>
 
-    <section id="showPopUp-modal" class="container-fluid" style="z-index: 999;">
-        <div class="modal fade" id="showSupplierModal" tabindex="-1" role="dialog" aria-labelledby="showSupplierModalLabel"
-             aria-hidden="true" >
-            <div class="modal-dialog modal-lg" role="document" style="width: 400px; margin-top: 120px">
+    <section id="showPopUp-modal" class="container-fluid">
+        <div class="modal fade" id="showSupplierModal" tabindex="-1"  role="dialog" aria-labelledby="showSupplierModalLabel" data-backdrop="false" aria-hidden="true" >
+            <div class="modal-dialog modal-lg" role="document"style="border: 2px black solid; width: 300px; margin-top: 120px">
                 <div id="showSupplierContent" class="modal-content" ></div>
             </div>
         </div>
     </section>
 
-    <section id="showSku-modal" class="container-fluid" style="z-index: 999;">
-        <div class="modal fade" id="showSkuModal" tabindex="-1" role="dialog" aria-labelledby="showSkuModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document" style="width: 300px; margin-top: 120px">
+    <section id="showSku-modal" class="container-fluid" >
+        <div class="modal fade" id="showSkuModal" tabindex="-1" role="dialog" aria-labelledby="showSkuModalLabel" data-backdrop="false" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document" style="border: 2px black solid; width: 300px; " >
                 <div id="showSkuContent" class="modal-content" ></div>
             </div>
         </div>
     </section>
 
-    <section id="orderConfirm-modal" class="container-fluid" style="z-index: 999;">
+    <section id="orderConfirm-modal" class="container-fluid" >
         <div class="modal fade" id="orderConfirmModal" tabindex="-1" role="dialog" aria-labelledby="orderConfirmModalLabel" data-backdrop="false" aria-hidden="true" style="margin-top: 120px">
             <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document" >
                 <div id="orderConfirmContent" class="modal-content" ></div>
@@ -376,18 +327,17 @@
         </div>
     </section>
 
-    <section id="addSupplier-modal" class="container-fluid" style="z-index: 999;">
-        <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+    <section id="addSupplier-modal" class="container-fluid" >
+        <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel" data-backdrop="false" aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document">
                 <div id="addSupplierContent" class="modal-content"></div>
             </div>
         </div>
     </section>
 
-    <section id="productList-modal" class="container-fluid" style="z-index: 999;">
-        <div class="modal fade" id="productListModal" tabindex="-1" role="dialog" aria-labelledby="productListModalLabel"
-             aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+    <section id="productList-modal" class="container-fluid" >
+        <div class="modal fade" id="productListModal" tabindex="-1" role="dialog" aria-labelledby="productListModalLabel" data-backdrop="false" aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document">
                 <div id="productListContent" class="modal-content"></div>
             </div>
         </div>

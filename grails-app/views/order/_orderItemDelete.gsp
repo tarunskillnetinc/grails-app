@@ -9,5 +9,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelShowSupplierButton" class="btn btn-danger" onclick="confirmOrderItemDelete(${productItemId})" data-dismiss="modal">Delete</button>
-    <button type="button" id="saveSupplierButton" class="btn btn-secondary" onclick="cancelOrderItemDeleteError();" style="margin-left: 15px; float: left;">Ok</button>
+    <button type="button" id="saveSupplierButton" class="btn btn-secondary" onclick="cancelOrderItemDelete();" style="margin-left: 15px; float: left;">Ok</button>
 </div>

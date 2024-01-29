@@ -248,8 +248,8 @@
 
 
     <section id="productListItem-modal" class="container-fluid">
-        <div class="modal fade" id="productListItemModal" tabindex="-1" role="dialog" aria-labelledby="productListItemModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+        <div class="modal fade" id="productListItemModal" tabindex="-1" role="dialog" aria-labelledby="productListItemModalLabel" data-backdrop="false"  aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document">
                 <div id="productListItemContent" class="modal-content"></div>
             </div>
         </div>

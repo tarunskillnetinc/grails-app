@@ -249,7 +249,8 @@ class OrderController {
         } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Error removing item from order , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render (template: "orderDeleteError")
         }
     }
 
