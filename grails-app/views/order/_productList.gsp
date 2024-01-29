@@ -11,17 +11,6 @@
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
 
-    <style>
-        .ui-dialog-titlebar-close {
-            display: none;
-        }
-
-        .ui-resizable-handle {
-            background-image: none;
-        }
-
-    </style>
-
     <script type='text/javascript'>
 
         $( document ).ready(function() {
@@ -42,82 +31,6 @@
                     }
                 }
             })
-
-            $("#dialog-order-confirm").dialog({
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    Yes: function () {
-                        $('#orderConfirmModal').modal('show');
-                        $("#orderConfirmContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\">" +
-                            "<div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">" +
-                            "Loading...</span></div></div></div>");
-                        var completeProductUrl = "${createLink(controller: 'order', action: 'confirmOrder')}";
-                        var supplierId = $('#supplierId').val();
-                        var productListId = $('#productListId').val();
-                        $.ajax({
-                            url: completeProductUrl,
-                            data: {supplierId: supplierId, productListId: productListId},
-                            method: "POST",
-                            statusCode: {
-                                500: function (response) {
-                                    $('#dialog-order-confirm-error').dialog('open')
-                                    $("#orderConfirmContent").hide();
-                                    $("#orderConfirmModal").hide();
-                                    $('#dialog-order-confirm').dialog("close");
-                                },
-                                200: function (response) {
-
-                                    var noDisplayDiv = $('<div class="row col-8 offset-2 pt-2 pb-2 text-center emptyProductListItems" id="emptyProductListItems"> \
-                                            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">All products processed.</div> \
-                                        </div>')
-
-                                    $( "div" ).remove( ".productListItems" );
-                                    $('#search-results').append(noDisplayDiv);
-                                    $("#orderConfirmContent").html(response);
-                                    $('#dialog-order-confirm').dialog("close");
-                                }
-                            }
-                        });
-                    },
-                    No: function () {
-                        $(this).dialog("close")
-                    }
-                }
-            });
-
-            $("#dialog-order-list-delete").dialog({
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    Yes: function () {
-                        var deleteProductUrl = "${createLink(controller: 'order', action: 'deleteOrder')}";
-                        var productListId = $('#productListId').val();
-                        $.ajax({
-                            url: deleteProductUrl,
-                            data: {productListId: productListId},
-                            method: "GET",
-                            statusCode: {
-                                500: function (response) {
-                                    $('#dialog-order-delete-error').dialog('open');
-                                },
-                                200: function (response) {
-                                    window.location.href = "${createLink(controller: 'order', action: 'productList')}";
-                                }
-                            }
-                        });
-                    },
-                    No: function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
 
             $("#dialog-order-item-remove").dialog({
                 autoOpen: false,
@@ -150,44 +63,18 @@
                 }
             });
 
-            $("#dialog-order-confirm-error").dialog({
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    Ok: function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
-
-            $("#dialog-order-delete-error").dialog({
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    Ok: function () {
-                        $(this).dialog("close");
-                        $('#dialog-order-list-delete').dialog("close");
-                    }
-                }
-            });
         });
 
         function AddProduct() {
             $("#productSearchContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\">" +
                 "<div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">" +
                 "Loading...</span></div></div></div>");
-            $('#productSearchModal').modal({show: true});
             var addProductUrl = "${createLink(controller: 'order', action: 'ajaxAddProduct')}";
             $.ajax({
                 url: addProductUrl,
                 method: "GET",
                 success: function (resp) {
+                    $('#productSearchModal').modal({show: true});
                     $("#productSearchContent").html(resp);
                 }
             });
@@ -204,13 +91,12 @@
                 return;
             }
 
-            $("#product-search-results").hide();
-            $("#product-loading-indicator").show();
-
             $.ajax({
                 url: url,
                 data: { searchTerm: searchTerm, searchBy: searchBy, supplierId: supplierId, productListId: productListId },
                 success: function(resp) {
+                    $("#product-search-results").hide();
+                    $("#product-loading-indicator").show();
                     $('#product-search-results-container').html(resp);
                     $('#productSearchTerm').data('prev',$('#productSearchTerm').val())
                     $('#productSearchBy').data('prev', $('#productSearchBy').val())
@@ -238,8 +124,6 @@
             $("#showSkuContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\">" +
                 "<div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">" +
                 "Loading...</span></div></div></div>");
-            $('#showSkuModal').modal({show: true});
-            $('#productSearchModal').modal('hide');
             var supplierId = $('#supplierId').val();
             var productListId = $('#productListId').val();
             $.ajax({
@@ -248,6 +132,8 @@
                 method: "GET",
                 statusCode: {
                     200: function (response) {
+                        $('#showSkuModal').modal({show: true});
+                        $('#productSearchModal').modal('hide');
                         $("#showSkuContent").html(response);
                     }
                 }
@@ -269,11 +155,11 @@
 
         function complete(){
             $("#productListContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#productListModal').modal({show: true});
             $.ajax({
                 url: "${createLink(controller: 'order', action: 'ajaxShowOrderConfirmWindow')}",
                 method: "GET",
                 success: function (resp) {
+                    $('#productListModal').modal({show: true});
                     $("#productListContent").html(resp);
                 }
             });
@@ -281,64 +167,87 @@
 
         function deleteOrder(){
             $("#productListContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $('#productListModal').modal({show: true});
             $.ajax({
                 url: "${createLink(controller: 'order', action: 'ajaxShowOrderDeleteWindow')}",
                 method: "GET",
                 success: function (resp) {
+                    $('#productListModal').modal({show: true});
                     $("#productListContent").html(resp);
                 }
             });
         }
 
-        //Order approve functions --> Approve order confirm and cancel order confirm
+        function deleteOrderItem(event){
+            var productItemId = event.target.getAttribute('data-productItemId');
+            $("#productListContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $.ajax({
+                url: "${createLink(controller: 'order', action: 'ajaxShowOrderItemDeleteWindow')}",
+                data: {productItemId: productItemId},
+                method: "GET",
+                success: function (resp) {
+                    $('#productListModal').modal({show: true});
+                    $("#productListContent").html(resp);
+                }
+            });
 
+            // Stop the event propagation to prevent the click event from reaching other elements
+            event.stopPropagation();
+        }
+
+        //Order approve functions --> Approve order confirm and cancel order confirm
         function approveConfirm(){
-            $('#orderConfirmModal').modal('show');
             $("#orderConfirmContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\">" +
                 "<div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">" +
                 "Loading...</span></div></div></div>");
-            var completeProductUrl = "${createLink(controller: 'order', action: 'confirmOrder')}";
             var supplierId = $('#supplierId').val();
             var productListId = $('#productListId').val();
             $.ajax({
-                url: completeProductUrl,
+                url: "${createLink(controller: 'order', action: 'confirmOrder')}",
                 data: {supplierId: supplierId, productListId: productListId},
                 method: "POST",
                 statusCode: {
                     500: function (response) {
-                        $('#dialog-order-confirm-error').dialog('open')
-                        $("#orderConfirmContent").hide();
-                        $("#orderConfirmModal").hide();
-                        $('#orderConfirmModal').modal('hide');
+                        $('#productListModal').modal('show');
+                        $("#productListContent").html(response);
                     },
                     200: function (response) {
-
+                        $('#productListModal').modal('show');
                         var noDisplayDiv = $('<div class="row col-8 offset-2 pt-2 pb-2 text-center emptyProductListItems" id="emptyProductListItems"> \
                                             <div class="col pt-2 pb-2 text-center my-auto wl-striped0">All products processed.</div> \
                                         </div>')
 
                         $( "div" ).remove( ".productListItems" );
                         $('#search-results').append(noDisplayDiv);
-                        $("#orderConfirmContent").html(response);
-                        $('#orderConfirmModal').modal('hide');
+                        $("#productListContent").html(response);
                     }
                 }
             });
         }
 
-        function cancelOrderConfirm(){
-            $('#orderConfirmModal').modal('hide');
+        //Order delete functions --> confirm order delete and cancel order delete
+        function confirmOrderDelete(){
+            var productListId = $('#productListId').val();
+            $.ajax({
+                url: "${createLink(controller: 'order', action: 'deleteOrder')}",
+                data: {productListId: productListId},
+                method: "GET",
+                statusCode: {
+                    500: function (response) {
+                        $("#productListContent").html(response);
+                    },
+                    200: function (response) {
+                        window.location.href = "${createLink(controller: 'order', action: 'productList')}";
+                    }
+                }
+            });
         }
 
         //Order delete functions --> confirm order delete and cancel order delete
-
-        function confirmOrderDelete(){
-            var deleteProductUrl = "${createLink(controller: 'order', action: 'deleteOrder')}";
+        function confirmOrderItemDelete(productItemId){
             var productListId = $('#productListId').val();
             $.ajax({
-                url: deleteProductUrl,
-                data: {productListId: productListId},
+                url: "${createLink(controller: 'order', action: 'deleteOrderItem')}",
+                data: {productListId: productListId,  productItemId: productItemId},
                 method: "GET",
                 statusCode: {
                     500: function (response) {
@@ -351,26 +260,18 @@
             });
         }
 
-        function cancelOrderDelete(){
 
-        }
-
-        function deleteOrderItem(){
-            $('#dialog-order-item-remove').dialog('open');
-        }
-
-
-        document.addEventListener("DOMContentLoaded", function() {
-            buttons = document.querySelectorAll(".productItemDeleteButton");
-            buttons.forEach(function(button) {
-               button.addEventListener("click", function(event) {
-                   let productItemId = this.getAttribute('data-productItemId');
-                   document.getElementById('productItemId').value = productItemId;
-                   $('#dialog-order-item-remove').dialog('open');
-                   event.stopPropagation()
-               }) ;
-            });
-        });
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     buttons = document.querySelectorAll(".productItemDeleteButton");
+        //     buttons.forEach(function(button) {
+        //        button.addEventListener("click", function(event) {
+        //            let productItemId = this.getAttribute('data-productItemId');
+        //            document.getElementById('productItemId').value = productItemId;
+        //            $('#dialog-order-item-remove').dialog('open');
+        //            event.stopPropagation()
+        //        }) ;
+        //     });
+        // });
 
         function cancelSupplierView(){
             window.location.href = '${createLink(controller: 'reporting', action:'orders')}';
@@ -378,6 +279,26 @@
 
         function cancelConfirmResponse(){
             window.location.href = "${createLink(controller: 'reporting', action: 'orders')}";
+        }
+
+        function cancelOrderDelete(){
+            $('#productListModal').modal('hide');
+        }
+
+        // function deleteOrderItem(){
+        //     $('#productListModal').modal('hide');
+        // }
+
+        function cancelOrderConfirm(){
+            $('#productListModal').modal('hide');
+        }
+
+        function cancelOrderConfirmError(){
+            $('#productListModal').modal('hide');
+        }
+
+        function cancelOrderDeleteError(){
+            $('#productListModal').modal('hide');
         }
 
     </script>
@@ -401,7 +322,7 @@
         </nav>
     </section>
 
-    <section id="order-list-container" class="container-fluid">
+    <section id="order-list-container" class="container-fluid" style="z-index: 1;">
 
         <div class="row header-wl mt-3" >
             <div class="col-8 offset-2">
@@ -421,7 +342,7 @@
 
     </section>
 
-    <section id="productSearch-modal" class="container-fluid">
+    <section id="productSearch-modal" class="container-fluid" style="z-index: 999;">
         <div class="modal fade" id="productSearchModal" tabindex="-1" role="dialog" aria-labelledby="productSearchModalLabel"
              aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document" style="margin-top: 120px">
@@ -430,7 +351,7 @@
         </div>
     </section>
 
-    <section id="showPopUp-modal" class="container-fluid" >
+    <section id="showPopUp-modal" class="container-fluid" style="z-index: 999;">
         <div class="modal fade" id="showSupplierModal" tabindex="-1" role="dialog" aria-labelledby="showSupplierModalLabel"
              aria-hidden="true" >
             <div class="modal-dialog modal-lg" role="document" style="width: 400px; margin-top: 120px">
@@ -439,7 +360,7 @@
         </div>
     </section>
 
-    <section id="showSku-modal" class="container-fluid" >
+    <section id="showSku-modal" class="container-fluid" style="z-index: 999;">
         <div class="modal fade" id="showSkuModal" tabindex="-1" role="dialog" aria-labelledby="showSkuModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document" style="width: 300px; margin-top: 120px">
                 <div id="showSkuContent" class="modal-content" ></div>
@@ -447,7 +368,7 @@
         </div>
     </section>
 
-    <section id="orderConfirm-modal" class="container-fluid" >
+    <section id="orderConfirm-modal" class="container-fluid" style="z-index: 999;">
         <div class="modal fade" id="orderConfirmModal" tabindex="-1" role="dialog" aria-labelledby="orderConfirmModalLabel" data-backdrop="false" aria-hidden="true" style="margin-top: 120px">
             <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document" >
                 <div id="orderConfirmContent" class="modal-content" ></div>
@@ -455,7 +376,7 @@
         </div>
     </section>
 
-    <section id="addSupplier-modal" class="container-fluid">
+    <section id="addSupplier-modal" class="container-fluid" style="z-index: 999;">
         <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div id="addSupplierContent" class="modal-content"></div>
@@ -463,7 +384,7 @@
         </div>
     </section>
 
-    <section id="productList-modal" class="container-fluid">
+    <section id="productList-modal" class="container-fluid" style="z-index: 999;">
         <div class="modal fade" id="productListModal" tabindex="-1" role="dialog" aria-labelledby="productListModalLabel"
              aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -471,20 +392,6 @@
             </div>
         </div>
     </section>
-
-    <div id="dialog-order-confirm-error" title="Confirm error" style="display:none;">
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error confirming order </p>
-    </div>
-
-    <div id="dialog-order-item-remove" title="Confirm deletion" style="display:none;">
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Do you want to remove this product from the order? </p>
-    </div>
-
-    <div id="dialog-order-delete-error" title="Delete error" style="display:none;">
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error in deleting </p>
-    </div>
-
-
 
 </body>
 </html>

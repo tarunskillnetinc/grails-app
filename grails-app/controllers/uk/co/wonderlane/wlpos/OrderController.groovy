@@ -202,7 +202,8 @@ class OrderController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Order create exception found when saving order list item and pack lines, request is rollback , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render(view: "_packLineSaveError")
         }
     }
 
@@ -219,7 +220,8 @@ class OrderController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render (template: "orderConfirmError")
         }
     }
 
@@ -233,7 +235,8 @@ class OrderController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render (template: "orderDeleteError")
         }
     }
 
@@ -265,15 +268,23 @@ class OrderController {
     }
 
     def ajaxAddProduct(){
-        render(view: "productSearch", model: [])
+        render(view: "productSearch")
     }
 
     def ajaxShowOrderConfirmWindow(){
-        render(view: "_orderConfirm", model: [])
+        render(view: "_orderConfirm")
     }
 
     def ajaxShowOrderDeleteWindow(){
-        render(view: "_orderDelete", model: [])
+        render(view: "_orderDelete")
+    }
+
+    def ajaxShowQuantityWarningWindow(){
+        render(view: "_quantityWarning")
+    }
+
+    def ajaxShowOrderItemDeleteWindow(){
+        render(view: "_orderItemDelete", model: [productItemId : Integer.parseInt(params.productItemId)])
     }
 
 }
