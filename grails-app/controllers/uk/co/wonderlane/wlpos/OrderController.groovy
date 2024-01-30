@@ -203,7 +203,7 @@ class OrderController {
             ex.printStackTrace()
             log.error("Order create exception found when saving order list item and pack lines, request is rollback , Exception " + ex)
             response.setStatus(500)
-            render(view: "_packLineSaveError")
+            render(view: "_packLineSaveError", contentType: "text/html")
         }
     }
 
@@ -221,7 +221,7 @@ class OrderController {
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
             response.setStatus(500)
-            render (template: "orderConfirmError")
+            render (view: "_orderConfirmError", contentType: "text/html")
         }
     }
 
@@ -236,7 +236,7 @@ class OrderController {
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
             response.setStatus(500)
-            render (template: "orderDeleteError")
+            render (view: "_orderDeleteError", contentType: "text/html")
         }
     }
 
@@ -250,7 +250,7 @@ class OrderController {
             ex.printStackTrace()
             log.error("Error removing item from order , Exception " + ex)
             response.setStatus(500)
-            render (template: "orderDeleteError")
+            render (view: "_orderDeleteError", contentType: "text/html")
         }
     }
 

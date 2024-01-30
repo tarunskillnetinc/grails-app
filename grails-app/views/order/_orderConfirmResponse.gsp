@@ -1,4 +1,4 @@
-<div class="modal-header" >
+<div class="modal-header badge-success" >
     <h2>Confirm Order Success</h2>
 </div>
 

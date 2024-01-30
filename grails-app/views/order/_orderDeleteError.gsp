@@ -1,9 +1,9 @@
-<div class="modal-header" >
+<div class="modal-header badge-danger" >
     <h3>Order delete error</h3>
 </div>
 
 <div class="modal-body" style="word-break: break-all; word-wrap: break-word; margin-left: 15px">
-    <div class="row">Error when deleting order list </div>
+    <div class="row">Error when deleting this item </div>
 </div>
 
 

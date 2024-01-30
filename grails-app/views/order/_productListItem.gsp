@@ -116,7 +116,7 @@
                     statusCode: {
                         500: function (response) {
                             $('#productListItemModal').modal({show: true});
-                            $("#productListItemContent").html(response);
+                            $("#productListItemContent").html(response.responseText);
                         },
                         200: function (response) {
                             window.location.href = window.location.href = '${createLink(controller: 'order', action:'productList')}';
@@ -249,7 +249,7 @@
 
     <section id="productListItem-modal" class="container-fluid">
         <div class="modal fade" id="productListItemModal" tabindex="-1" role="dialog" aria-labelledby="productListItemModalLabel" data-backdrop="false"  aria-hidden="true">
-            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid; margin-top: 120px" role="document">
                 <div id="productListItemContent" class="modal-content"></div>
             </div>
         </div>

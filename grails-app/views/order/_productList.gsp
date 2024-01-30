@@ -36,9 +36,8 @@
             $("#productSearchContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\">" +
                 "<div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">" +
                 "Loading...</span></div></div></div>");
-            var addProductUrl = "${createLink(controller: 'order', action: 'ajaxAddProduct')}";
             $.ajax({
-                url: addProductUrl,
+                url: "${createLink(controller: 'order', action: 'ajaxAddProduct')}",
                 method: "GET",
                 success: function (resp) {
                     $('#productSearchModal').modal({show: true});
@@ -48,7 +47,6 @@
         }
 
         function searchProduct() {
-            var url = "${createLink(controller: 'order', action: 'ajaxSearchProducts')}";
             var searchTerm = $('#productSearchTerm').val();
             var searchBy = $('#productSearchBy').val();
             var supplierId = $('#supplierId').val();
@@ -59,7 +57,7 @@
             }
 
             $.ajax({
-                url: url,
+                url: "${createLink(controller: 'order', action: 'ajaxSearchProducts')}",
                 data: { searchTerm: searchTerm, searchBy: searchBy, supplierId: supplierId, productListId: productListId },
                 success: function(resp) {
                     $("#product-search-results").hide();
@@ -175,7 +173,7 @@
                 method: "POST",
                 statusCode: {
                     500: function (response) {
-                        $("#orderConfirmContent").html(response);
+                        $("#orderConfirmContent").html(response.responseText);
                     },
                     200: function (response) {
                         var noDisplayDiv = $('<div class="row col-8 offset-2 pt-2 pb-2 text-center emptyProductListItems" id="emptyProductListItems"> \
@@ -199,7 +197,8 @@
                 method: "GET",
                 statusCode: {
                     500: function (response) {
-                        $("#productListContent").html(response);
+                        $('#orderConfirmModal').modal({show: true});
+                        $("#orderConfirmContent").html(response.responseText);
                     },
                     200: function (response) {
                         window.location.href = "${createLink(controller: 'order', action: 'productList')}";
@@ -217,7 +216,8 @@
                 method: "GET",
                 statusCode: {
                     500: function (response) {
-                        $("#productListContent").html(response);
+                        $('#orderConfirmModal').modal({show: true});
+                        $("#orderConfirmContent").html(response.responseText);
                     },
                     200: function (response) {
                         window.location.href = "${createLink(controller: 'order', action: 'productList')}";
@@ -243,11 +243,11 @@
         }
 
         function cancelOrderConfirmError(){
-            $('#productListModal').modal('hide');
+            $('#orderConfirmModal').modal('hide');
         }
 
         function cancelOrderDeleteError(){
-            $('#productListModal').modal('hide');
+            $('#orderConfirmModal').modal('hide');
         }
 
         function cancelOrderItemDelete(){
@@ -305,7 +305,7 @@
 
     <section id="showPopUp-modal" class="container-fluid">
         <div class="modal fade" id="showSupplierModal" tabindex="-1"  role="dialog" aria-labelledby="showSupplierModalLabel" data-backdrop="false" aria-hidden="true" >
-            <div class="modal-dialog modal-lg" role="document"style="border: 2px black solid; width: 300px; margin-top: 120px">
+            <div class="modal-dialog modal-lg" role="document"style="border: 2px black solid; width: 350px; margin-top: 120px">
                 <div id="showSupplierContent" class="modal-content" ></div>
             </div>
         </div>
@@ -313,7 +313,7 @@
 
     <section id="showSku-modal" class="container-fluid" >
         <div class="modal fade" id="showSkuModal" tabindex="-1" role="dialog" aria-labelledby="showSkuModalLabel" data-backdrop="false" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document" style="border: 2px black solid; width: 300px; " >
+            <div class="modal-dialog modal-lg" role="document" style="border: 2px black solid; width: 300px; margin-top: 120px " >
                 <div id="showSkuContent" class="modal-content" ></div>
             </div>
         </div>
@@ -321,7 +321,7 @@
 
     <section id="orderConfirm-modal" class="container-fluid" >
         <div class="modal fade" id="orderConfirmModal" tabindex="-1" role="dialog" aria-labelledby="orderConfirmModalLabel" data-backdrop="false" aria-hidden="true" style="margin-top: 120px">
-            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document" >
+            <div class="modal-dialog modal-lg" style="border: 2px black solid ; margin-top: 120px" role="document" >
                 <div id="orderConfirmContent" class="modal-content" ></div>
             </div>
         </div>
@@ -329,7 +329,7 @@
 
     <section id="addSupplier-modal" class="container-fluid" >
         <div class="modal fade" id="addSupplierModal" tabindex="-1" role="dialog" aria-labelledby="addSupplierModalLabel" data-backdrop="false" aria-hidden="true">
-            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid ; margin-top: 120px" role="document">
                 <div id="addSupplierContent" class="modal-content"></div>
             </div>
         </div>
@@ -337,7 +337,7 @@
 
     <section id="productList-modal" class="container-fluid" >
         <div class="modal fade" id="productListModal" tabindex="-1" role="dialog" aria-labelledby="productListModalLabel" data-backdrop="false" aria-hidden="true">
-            <div class="modal-dialog modal-lg" style="border: 2px black solid" role="document">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid; margin-top: 120px " role="document">
                 <div id="productListContent" class="modal-content"></div>
             </div>
         </div>

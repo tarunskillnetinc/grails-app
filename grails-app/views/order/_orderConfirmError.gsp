@@ -1,4 +1,4 @@
-<div class="modal-header" >
+<div class="modal-header badge-danger" >
     <h3>Order confirm error</h3>
 </div>
 
