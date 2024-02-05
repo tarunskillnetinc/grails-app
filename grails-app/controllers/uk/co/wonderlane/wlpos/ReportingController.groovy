@@ -1839,7 +1839,7 @@ class ReportingController {
         deliveries?.each { delivery ->
             stringBuilder.append(delivery?.orderId)
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.store?.storeId)
+            stringBuilder.append(delivery?.store?.id)
             stringBuilder.append(",")
             stringBuilder.append(g.message(code: "DeliveryStatus.${delivery?.status}"))
             stringBuilder.append(",")
