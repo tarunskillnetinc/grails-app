@@ -15,7 +15,7 @@ class TillConfiguration {
     boolean pposAdmin
     boolean pposRefund
     boolean pposSmartToken
-    int pin
+    Integer pin
     DateTime pinExpiry
     DateTime dateTimeCreated
     DateTime dateTimeUpdated
