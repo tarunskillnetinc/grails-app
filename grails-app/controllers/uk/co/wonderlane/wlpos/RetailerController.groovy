@@ -101,26 +101,25 @@ class RetailerController {
             retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm = "Shelf Capacity"
         }
 
-        if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null){
-            retailerCommand.retailerFunctionConfig.shelfEdgeVisibility =  Visibility.ENABLED
-
+        if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null) {
+            retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = Visibility.ENABLED
         }
         if (retailerCommand.retailerFunctionConfig.vatRatesVisibility == null) {
             retailerCommand.retailerFunctionConfig.vatRatesVisibility = Visibility.ENABLED
         }
         if (retailerCommand.retailerFunctionConfig.styleVisibility == null) {
-            retailerCommand.retailerFunctionConfig.styleVisibility =  Visibility.ENABLED
+            retailerCommand.retailerFunctionConfig.styleVisibility = Visibility.ENABLED
         }
         if (retailerCommand.retailerFunctionConfig.categoryVisibility == null) {
-            retailerCommand.retailerFunctionConfig.categoryVisibility =  Visibility.ENABLED
+            retailerCommand.retailerFunctionConfig.categoryVisibility = Visibility.ENABLED
         }
 
-        retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
+        retailerCommand.retailerFunctionConfig.functionMenuItems.each { key, value ->
             if (value.name == "") {
                 value.name = camelToReadable(key)
             }
             if (!value.menuItemVisibility) {
-                value.menuItemVisibility =  Visibility.ENABLED
+                value.menuItemVisibility = Visibility.ENABLED
             }
         }
 
@@ -138,7 +137,7 @@ class RetailerController {
 
         flash.message = ["Retailer saved successfully."]
 
-        redirect (action: "index")
+        redirect(action: "index")
     }
 
     @Secured(['ROLE_ENGINEER'])
