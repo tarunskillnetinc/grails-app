@@ -5,6 +5,7 @@
 
     <title>Trust Retail</title>
 
+    <asset:javascript src="validators/input-validator.js"/>
     <script type='text/javascript'>
         var getQueuesUrl = "${createLink(controller: 'monitoring', action: 'ajaxGetQueues')}";
         var purgeQueueUrl = "${createLink(controller: 'monitoring', action: 'ajaxPurgeQueue')}";
@@ -182,7 +183,7 @@
 
                                 <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till ID</label>
                                 <div class="col-4">
-                                    <g:textField name="tillIdFilter" class="form-control bottom-border" value="${tillId}" autocomplete="off" />
+                                    <g:textField name="tillIdFilter" class="form-control bottom-border" value="${tillId}" autocomplete="off" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                                 </div>
                             </div>
 

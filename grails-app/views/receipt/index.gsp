@@ -166,7 +166,7 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="tillId" step="1" min="1" max="999999999" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);" oninput="limitInputLength(this,9);"/>
+                                        <g:field type="number" name="tillId" step="1" min="1" max="999999999" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);" oninput="limitInputLength(this,9); validateInput(this);"/>
                                     </div>
 
                                     <label for="transactionId" class="col-2 col-form-label-sm text-right">Transaction Number</label>
