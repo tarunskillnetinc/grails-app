@@ -198,7 +198,7 @@
             </div>
         </div>
 
-        <div class="alert alert-danger alert-wl" role="alert" id="error-message" style="display: none"></div>
+        <div class="alert alert-danger alert-wl mx-0" role="alert" id="error-message" style="display: none"></div>
 
         <div class="row mt-4">
             <div class="col-6">
