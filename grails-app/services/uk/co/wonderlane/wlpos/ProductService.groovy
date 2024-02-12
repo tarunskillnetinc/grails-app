@@ -217,7 +217,7 @@ class ProductService extends MySqlDal {
         Transaction transaction = session.beginTransaction()
         
         productPrices.eachWithIndex { productPrice, index ->
-            if (productPrice?.price) {
+            if (productPrice?.price != null && productPrice?.price >= 0) {
                 if (!productPrice.validate()){
                     if (productPrice.price.compareTo(BigDecimal.ZERO) <= 0 || productPrice.price.compareTo(BigDecimal.valueOf(99999.99)) >= 0){
                         product.errors.reject('productPrice.price.range.error', ['0', '99999.99', String.valueOf(productPrice.price)] as Object[] ,
