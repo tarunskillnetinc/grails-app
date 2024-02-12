@@ -24,33 +24,38 @@
     });
 
     function updateAdditionalFuncSection() {
-        const promptId = $('#prompt-age-section');
-        const returnStock = $('#return-stock-section');
-        const adjustInOut = $('#adjust-in-out-section');
+        const promptId = $('#prompt-age-section')
+        const returnStock = $('#return-stock-section')
+        const adjustInOut = $('#adjust-in-out-section')
+        const secret = $('#secret-section')
 
         switch ($('#type').val()) {
             case "PAID_OUT":
-                promptId.show();
+                promptId.show()
 
-                returnStock.hide();
-                adjustInOut.hide();
+                returnStock.hide()
+                adjustInOut.hide()
+                secret.hide()
                 break;
             case "REFUND":
-                returnStock.show();
+                returnStock.show()
 
-                promptId.hide();
-                adjustInOut.hide();
+                promptId.hide()
+                adjustInOut.hide()
+                secret.hide()
                 break;
             case "PRODUCT_LIST":
-                adjustInOut.show();
+                adjustInOut.show()
+                secret.show()
 
-                promptId.hide();
-                returnStock.hide();
+                promptId.hide()
+                returnStock.hide()
                 break;
             default:
-                promptId.hide();
-                returnStock.hide();
-                adjustInOut.hide();
+                promptId.hide()
+                returnStock.hide()
+                adjustInOut.hide()
+                secret.hide()
                 break;
         }
     }
@@ -121,14 +126,14 @@
             </div>
         </div>
 
-        <div class="row form-group mb-4">
+        <div class="row form-group mb-4" id="preferred-reason-code-section">
             <label for="preferredReasonCode" class="col-3 offset-1 col-form-label text-right">Preferred Reason Code:</label>
             <div class="input-group col-4">
                 <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" oninput="uncheckSecret();"/>
             </div>
         </div>
 
-        <div class="row form-group mb-4">
+        <div class="row form-group mb-4" id="secret-section">
             <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Secret:</label>
             <div class="input-group col-4">
                 <g:checkBox name="secret" value="${reasonCode?.secret}" class="col-1 form-check-input wl-checkbox" oninput="uncheckPreferredReasonCode();"/>
