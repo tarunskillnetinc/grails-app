@@ -329,7 +329,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.productTerm" id="productTerm" value="${retailer?.config?.retailerTerminologyConfig.productTerm}" />
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-product-term-button" onclick="$('#productTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-product-term-button" onclick="$('#productTerm').val('Product')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -338,7 +338,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.packTerm" id="packTerm" value="${retailer?.config?.retailerTerminologyConfig.packTerm}" />
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-pack-term-button" onclick="$('#packTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-pack-term-button" onclick="$('#packTerm').val('Pack')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -347,7 +347,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityInStockTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('Quantity In Stock')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -356,7 +356,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityOnOrderTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('Quantity On Order')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -365,7 +365,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.userTerm" id="userTerm" value="${retailer?.config?.retailerTerminologyConfig.userTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-user-term-button"onclick="$('#userTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-user-term-button"onclick="$('#userTerm').val('User')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -374,7 +374,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeTerm" id="storeTerm" value="${retailer?.config?.retailerTerminologyConfig.storeTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-store-term-button"onclick="$('#storeTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-store-term-button"onclick="$('#storeTerm').val('Store')">Reset</div>
                                     </div>
                                 </div>
 
