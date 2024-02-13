@@ -155,7 +155,7 @@ class ProductVariant implements Serializable {
     }
 
     public List<Location> getLocations() {
-        return Location.findAllBySkuAndStoreId(sku, springSecurityService.principal.storeId)
+        return Location.findAllBySkuAndStoreIdAndDeleted(sku, springSecurityService.principal.storeId, false)
     }
 
     public DateTime getSessionEffectiveDate() {
