@@ -1,4 +1,4 @@
-<div class="modal-header" >
+<div class="modal-header badge-success" >
     <h2>Confirm Order Success</h2>
 </div>
 
@@ -9,5 +9,5 @@
 </g:if>
 
 <div class="modal-footer">
-    <button type="button" id="cancelShowSupplierButton" class="btn btn-secondary" onclick="cancelConfirmResponse()" data-dismiss="modal">Cancel</button>
+    <button type="button" id="cancelShowSupplierButton" class="btn btn-secondary" onclick="cancelConfirmResponse()" data-dismiss="modal">Ok</button>
 </div>

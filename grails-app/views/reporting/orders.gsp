@@ -46,7 +46,7 @@
                     format: "dd/mm/yyyy",
                     weekStart: 1,
                     startDate: "${new Date().format("dd/MM/yyyy")}",
-                    endDate: "${new Date().format("dd/MM/yyyy")}",
+                    endDate: "${(new Date() + 7).format("dd/MM/yyyy")}",
                     todayHighlight: true,
                     autoclose: true,
                     todayBtn: "linked",
@@ -61,7 +61,7 @@
 
                 document.getElementById("endDate").value = "${endDate ? endDate.toString("dd/MM/yyyy") : new Date().format("dd/MM/yyyy")}";
                 $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
-                $('#endDate').datepicker('setEndDate', "${new Date().format("dd/MM/yyyy")}");
+                $('#endDate').datepicker('setEndDate', "${(new Date() + 7).format("dd/MM/yyyy")}");
 
                 document.getElementById('supplier').value = "${null}";
                 document.getElementById('storeFilter').value = null;
