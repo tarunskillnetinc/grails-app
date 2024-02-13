@@ -8,12 +8,31 @@
 
     <script type="text/javascript">
 
+
         function updateColorIndicator(color, indicatorId) {
             var colorPickerElement = document.getElementById(indicatorId);
             colorPickerElement.value = "#" + color; // Prepend "#" to the color value
         }
 
     </script>
+
+    <style>
+        .tooltip-trigger {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            width: 25px; /* Adjust size as needed */
+            height: 25px; /* Adjust size as needed */
+            border-radius: 50%; /* Makes it round */
+            background-color: lightblue; /* Light blue background color */
+            text-align: center; /* Centers the '?' mark */
+            line-height: 25px; /* Vertically centers the '?' mark */
+        }
+
+        .tooltip-trigger:hover .tooltip-content {
+            display: inline-block;
+        }
+    </style>
 
 </head>
 <body>
@@ -368,8 +387,11 @@
                                 <div class="col-12">
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Primary Colour</label>
-
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management Background Color">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.primaryColour" id="primaryColour" maxlength="6"
                                                          value="${storeSettings?.config?.primaryColour}"
@@ -385,9 +407,14 @@
                                         </div>
                                     </div>
 
+
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Secondary Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management Secondary Background Color">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.secondaryColour" id="secondaryColour" maxlength="6"
@@ -406,7 +433,11 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Accent Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management Accent Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.accentColour" id="accentColour" maxlength="6"
@@ -425,7 +456,11 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Primary Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Text Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.primaryTextColour" id="primaryTextColour" maxlength="6"
@@ -444,7 +479,11 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Secondary Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Secondary Text Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.secondaryTextColour" id="secondaryTextColour" maxlength="6"
@@ -464,7 +503,11 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Accent Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Accent Text Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.accentTextColour" id="accentTextColour" maxlength="6"
@@ -483,7 +526,11 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Background Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Background Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Background Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.backgroundColour" id="backgroundColour" maxlength="6"
