@@ -21,7 +21,7 @@ class ReasonCodeService {
     }
 
     boolean isDescriptionDuplicate(int retailerId, String description) {
-        return ReasonCode.countByRetailerIdAndDescription(retailerId, description) > 0
+        return ReasonCode.countByRetailerIdAndDescriptionAndDeleted(retailerId, description, false) > 0
     }
 
     boolean isLastOfType(int retailerId, ReasonCodeType type) {
