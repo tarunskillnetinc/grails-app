@@ -83,13 +83,11 @@
         </section>
     </g:hasErrors>
 
-    <g:hasErrors bean="${configErrors}">
+    <g:if test="${flash.error}">
         <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${configErrors}" as="list" />
-            </div>
+            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
         </section>
-    </g:hasErrors>
+    </g:if>
 
     <g:if test="${flash.message}">
         <section id="errors-container2" class="container-fluid">
@@ -100,6 +98,8 @@
             </div>
         </section>
     </g:if>
+
+
 
     <section id="addProduct-section" class="container-fluid mt-4">
         <g:uploadForm name="save-button" action="save">
