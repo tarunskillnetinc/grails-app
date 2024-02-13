@@ -9,31 +9,27 @@
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
         $(document).ready(function () {
-            $(document).ready(function() {
-                $('input[name=brandLogo]').change(function() {
-                    console.log("Size");
-                    console.log(this.files[0].size);
-                    if (this.files[0].size < 1048576 /* 1MB */) {
-                        if (this.files[0].type === "image/png") {
-                            const fileData = this.files[0];
-                            if (FileReader && fileData) {
-                                var urlFileReader = new FileReader();
-                                urlFileReader.onload = function () {
-                                    var brandingImage = $(".branding-image");
-                                    brandingImage.attr("src", urlFileReader.result);
-                                    brandingImage.removeAttr("hidden");
-                                }
-                                urlFileReader.readAsDataURL(fileData);
-                            } else {
-                                // fallback?
+            $('input[name=brandLogo]').change(function() {
+                if (this.files[0].size < 1048576 /* 1MB */) {
+                    if (this.files[0].type === "image/png") {
+                        const fileData = this.files[0];
+                        if (FileReader && fileData) {
+                            var urlFileReader = new FileReader();
+                            urlFileReader.onload = function () {
+                                var brandingImage = $(".branding-image");
+                                brandingImage.attr("src", urlFileReader.result);
+                                brandingImage.removeAttr("hidden");
                             }
+                            urlFileReader.readAsDataURL(fileData);
                         } else {
-                            alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                            // fallback?
                         }
                     } else {
-                        alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
                     }
-                });
+                } else {
+                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                }
             });
 
             $.ajax({
