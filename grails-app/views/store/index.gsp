@@ -457,7 +457,7 @@
                                     <div class="form-group row">
                                         <label for="uiSetting"
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour
-                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Text Colour">
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Text Header Colour">
                                                 <span class="tooltip-trigger">?</span>
                                             </span>
                                         </label>
@@ -480,7 +480,7 @@
                                     <div class="form-group row">
                                         <label for="uiSetting"
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour
-                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Secondary Text Colour">
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Message Body Text Colour">
                                                 <span class="tooltip-trigger">?</span>
                                             </span>
                                         </label>
