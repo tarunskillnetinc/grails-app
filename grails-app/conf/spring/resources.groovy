@@ -199,7 +199,15 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
             }
-            test {
+            hades {
+                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+                brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            persephone {
                 imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
