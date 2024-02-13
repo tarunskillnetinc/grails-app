@@ -5,6 +5,16 @@
     <title>Store Settings</title>
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
+
+    <script type="text/javascript">
+
+        function updateColorIndicator(color, indicatorId) {
+            var colorPickerElement = document.getElementById(indicatorId);
+            colorPickerElement.value = "#" + color; // Prepend "#" to the color value
+        }
+
+    </script>
+
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -358,13 +368,14 @@
                                 <div class="col-12">
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Primary Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.primaryColour" id="primaryColour" maxlength="6"
                                                          value="${storeSettings?.config?.primaryColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'primaryColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'primaryColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.primaryColourPicker')"/>
                                         </div>
 
                                         <div>
@@ -376,13 +387,14 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Secondary Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.secondaryColour" id="secondaryColour" maxlength="6"
                                                          value="${storeSettings?.config?.secondaryColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.secondaryColourPicker')"/>
                                         </div>
 
                                         <div>
@@ -394,13 +406,14 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Accent Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.accentColour" id="accentColour" maxlength="6"
                                                          value="${storeSettings?.config?.accentColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.accentColourPicker')"/>
                                         </div>
 
                                         <div>
@@ -412,13 +425,14 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Primary Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.primaryTextColour" id="primaryTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.primaryTextColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.primaryTextColourPicker')"/>
                                         </div>
 
                                         <div>
@@ -430,13 +444,14 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Secondary Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.secondaryTextColour" id="secondaryTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.secondaryTextColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.secondaryTextColourPicker')"/>
                                         </div>
 
                                         <div>
@@ -449,13 +464,14 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Accent Text Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.accentTextColour" id="accentTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.accentTextColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.accentTextColourPicker')"/>
                                         </div>
 
                                         <div>
@@ -467,13 +483,14 @@
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Background Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Inventory Management Background Colour</label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.backgroundColour" id="backgroundColour" maxlength="6"
                                                          value="${storeSettings?.config?.backgroundColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'backgroundColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'backgroundColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.backgroundColourPicker')"/>
                                         </div>
 
                                         <div>
