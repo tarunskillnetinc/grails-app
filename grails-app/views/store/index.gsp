@@ -388,7 +388,7 @@
                                     <div class="form-group row">
                                         <label for="uiSetting"
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour
-                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management Background Color">
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Background Color">
                                                 <span class="tooltip-trigger">?</span>
                                             </span>
                                         </label>
@@ -411,7 +411,7 @@
                                     <div class="form-group row">
                                         <label for="uiSetting"
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour
-                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management Secondary Background Color">
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Secondary Background Color">
                                                 <span class="tooltip-trigger">?</span>
                                             </span>
                                         </label>
@@ -434,7 +434,7 @@
                                     <div class="form-group row">
                                         <label for="uiSetting"
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour
-                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management Accent Colour">
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Accent Colour">
                                                 <span class="tooltip-trigger">?</span>
                                             </span>
                                         </label>
@@ -527,7 +527,7 @@
                                     <div class="form-group row">
                                         <label for="uiSetting"
                                                class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Background Colour
-                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Background Colour">
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Login Background Colour">
                                                 <span class="tooltip-trigger">?</span>
                                             </span>
                                         </label>
