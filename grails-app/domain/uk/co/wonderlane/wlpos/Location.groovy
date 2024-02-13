@@ -15,6 +15,7 @@ class Location {
     int locationHierarchy
     String locationDescription
     String locationNumber
+    boolean deleted
 
     boolean delete
     String locationsType
@@ -40,6 +41,7 @@ class Location {
         locationHierarchy column: "locationHierarchy"
         locationDescription column: "locationDescription"
         locationNumber column: "locationNumber"
+        deleted column: "deleted"
     }
 
     static constraints = {
