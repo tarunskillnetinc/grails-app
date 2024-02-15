@@ -7,16 +7,42 @@
     <script type='text/javascript'>
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
+
         $(document).ready(function () {
+            $('input[name=brandLogo]').change(function() {
+                if (this.files[0].size < 1048576 /* 1MB */) {
+                    if (this.files[0].type === "image/png") {
+                        const fileData = this.files[0];
+                        if (FileReader && fileData) {
+                            var urlFileReader = new FileReader();
+                            urlFileReader.onload = function () {
+                                var brandingImage = $(".branding-image");
+                                brandingImage.attr("src", urlFileReader.result);
+                                brandingImage.removeAttr("hidden");
+                            }
+                            urlFileReader.readAsDataURL(fileData);
+                        } else {
+                            // fallback?
+                        }
+                    } else {
+                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                    }
+                } else {
+                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                }
+            });
+
             $.ajax({
                 url: getBrandLogoUrl,
                 success: function(resp) {
                     if (resp === '') {
-                        $('#brand-logo-container').empty();
-                        $('#reset-brand-logo-button').hide();
+                        var brandingImage = $(".branding-image");
+                        brandingImage.attr("src", "");
+                        brandingImage.attr("hidden", "");
                     } else {
-                        $('#brand-logo-container').html('<img id="brand-logo" src="data:image/png;base64,' + resp + '" style="width: 100%; max-width: 10rem; border: black 1px solid; border-radius: 1rem" />');
-                        $('#reset-brand-logo-button').show();
+                        var brandingImage = $(".branding-image");
+                        brandingImage.attr("src", "data:image/png;base64," + resp);
+                        brandingImage.removeAttr("hidden");
                     }
                     // Iterate over each element with the class "item-label" and update its content
                     $(".item-label").each(function() {
@@ -33,8 +59,9 @@
                 $.ajax({
                     url: resetBrandLogoUrl,
                     success: function (resp) {
-                        $('#brand-logo-container').empty();
-                        $('#reset-brand-logo-button').hide();
+                        var brandingImage = $(".branding-image");
+                        brandingImage.attr("src", "");
+                        brandingImage.attr("hidden", "");
                     }
                 });
             }
@@ -290,16 +317,24 @@
                                 <div class="form-group row">
                                     <label for="brandLogo" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Brand Logo</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="file" class="col-7 form-control-file bottom-border bg-transparent p-0" name="brandLogo" accept=".png,.PNG" id="brandLogo" />
+                                        <input type="file" class="col-7 form-control-file bottom-border bg-transparent p-0" name="brandLogo" accept="image/png" id="brandLogo" hidden />
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
-                                    <div id="brand-logo-container" class="col-7 offset-5"></div>
+                                <div class="form-group row margin-top-1rem">
+                                    <div class="col-12 d-flex justify-content-center">
+                                        <div class="branding-container">
+                                            <img class="justify-content-center branding-image" hidden />
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <div class="form-group row">
-                                    <div class="btn btn-danger col-1 offset-5" id="reset-brand-logo-button" style="display: none;" onclick="resetBrandLogo();">Reset</div>
+                                    <div class="col-12 offset-5">
+                                        <div class="btn btn-dark" id="upload-branding-button" onclick="$('#brandLogo').click();"><g:message code="button.upload.button"/></div>
+                                        <div class="btn btn-danger" id="reset-branding-button" onclick="resetBrandLogo();">Reset</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

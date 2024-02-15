@@ -5,11 +5,14 @@
 
 <div class="modal-body" style="max-height: 500px; overflow-x: auto; overflow-y: auto;">
 
-    <g:each in="${suppliers}" var="supplier" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="selectSupplier(${supplier?.id})">
-            <div id="supplier-name-${i + 1}" class="col-6">${supplier?.name}</div>
-        </div>
-    </g:each>
+    <!-- Search Bar -->
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Search for a supplier" id="supplierSearchInput" onkeyup="ajaxSearchSuppliers()">
+    </div>
+
+    <div id="supplierListView">
+        <g:render template="supplierListView" model="[suppliers: suppliers]" />
+    </div>
 
 </div>
 

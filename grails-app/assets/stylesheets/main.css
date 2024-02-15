@@ -346,6 +346,23 @@ a .button-grid-button.blank:hover {
     display:block;
 }
 
+.branding-container {
+    height:10rem;
+    width:15rem;
+    display: flex;
+    border: 1px solid #000000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.branding-image {
+    width:100%;
+    min-height: 60%;
+    object-fit: scale-down;
+    display:block;
+}
+
 .button-grid-image-container {
     width: 100%;
     height: 150px;

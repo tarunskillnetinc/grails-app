@@ -1,11 +1,13 @@
 package uk.co.wonderlane.wlpos
 
+import grails.converters.JSON
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.supplier.SupplierSortParams
 
 class OrderController {
 
@@ -129,7 +131,7 @@ class OrderController {
         User user = userService.getUser(springSecurityService.principal.id)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
         if ((productList == null) || (productList != null && productList.getSupplierId() == null)){
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
             response.setStatus(200)
         }else {
             response.setStatus(204)
@@ -200,7 +202,8 @@ class OrderController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Order create exception found when saving order list item and pack lines, request is rollback , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render(view: "_packLineSaveError", contentType: "text/html")
         }
     }
 
@@ -217,7 +220,8 @@ class OrderController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render (view: "_orderConfirmError", contentType: "text/html")
         }
     }
 
@@ -231,7 +235,8 @@ class OrderController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render (view: "_orderDeleteError", contentType: "text/html")
         }
     }
 
@@ -244,12 +249,43 @@ class OrderController {
         } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Error removing item from order , Exception " + ex)
-            response.sendError(500)
+            response.setStatus(500)
+            render (view: "_orderDeleteError", contentType: "text/html")
         }
     }
 
+    def ajaxSupplierSearch(SupplierSortParams sortParams){
+        def suppliers = [] //declare supplier list
+        if (params.searchTerm != null){
+            def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
+            def returnedSuppliers = suppliersResponse?.suppliers
+            if (returnedSuppliers != null && returnedSuppliers.size() > 0){
+                suppliers = returnedSuppliers
+            }
+        } else {
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
+        }
+        render (template: "supplierListView", model: [suppliers: suppliers])
+    }
+
     def ajaxAddProduct(){
-        render(view: "productSearch", model: [])
+        render(view: "productSearch")
+    }
+
+    def ajaxShowOrderConfirmWindow(){
+        render(view: "_orderConfirm")
+    }
+
+    def ajaxShowOrderDeleteWindow(){
+        render(view: "_orderDelete")
+    }
+
+    def ajaxShowQuantityWarningWindow(){
+        render(view: "_quantityWarning")
+    }
+
+    def ajaxShowOrderItemDeleteWindow(){
+        render(view: "_orderItemDelete", model: [productItemId : Integer.parseInt(params.productItemId)])
     }
 
 }

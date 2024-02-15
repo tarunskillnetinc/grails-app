@@ -198,10 +198,10 @@ class ReportingController {
                 filteredGroupedProductSales?.each { groupedProductSale ->
                     int initQuantity = groupedProductSale.value[0].quantity
 
-                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
-                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
-                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
-                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.costPrice }.setScale(2)
+                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum {it.retailPrice }.setScale(2)
+                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.vatAmount }.setScale(2)
+                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.margin }.setScale(2)
 
                     groupedProductSale.value[0].quantity = 0
                     groupedProductSale.value[0].refundQuantity = 0
@@ -220,10 +220,10 @@ class ReportingController {
             } else {
                 if (!params.descriptionFilter || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.descriptionFilter?.toLowerCase())) {
                     Sale groupedSale = new Sale(
-                            costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
-                            retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
-                            vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
-                            margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
+                            costPrice: salesGroup.value.sum { it.costPrice }.setScale(2),
+                            retailPrice: salesGroup.value.sum { it.retailPrice }.setScale(2),
+                            vatAmount: salesGroup.value.sum { it.vatAmount }.setScale(2),
+                            margin: salesGroup.value.sum { it.margin }.setScale(2),
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
                             productUnitSize: ""
                     )
@@ -822,7 +822,7 @@ class ReportingController {
     // The top level of the main orders report.
     def orders() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).minusDays(6).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
@@ -904,7 +904,7 @@ class ReportingController {
     def order() {
         int productListId = getIntegerParam(params.productListId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(6)
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
