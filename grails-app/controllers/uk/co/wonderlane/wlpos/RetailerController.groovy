@@ -46,61 +46,60 @@ class RetailerController {
         }
 
         if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
-            retailerCommand.retailerTerminologyConfig.productTerm = "Product"
+            flash.error = "Product Term is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.packTerm == "" || retailerCommand?.retailerTerminologyConfig?.packTerm == null) {
-            retailerCommand.retailerTerminologyConfig.packTerm = "Pack";
+            flash.error = "Pack is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.quantityInStockTerm == "" || retailerCommand?.retailerTerminologyConfig?.quantityInStockTerm == null) {
-            retailerCommand.retailerTerminologyConfig.quantityInStockTerm = "Quantity In Stock";
+            flash.error = "Quantity In Stock is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.quantityOnOrderTerm == "" || retailerCommand?.retailerTerminologyConfig?.quantityOnOrderTerm == null) {
-            retailerCommand.retailerTerminologyConfig.quantityOnOrderTerm = "Quantity On Order";
+            flash.error = "Quantity On Order is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.userTerm == "" || retailerCommand?.retailerTerminologyConfig?.userTerm == null) {
-            retailerCommand.retailerTerminologyConfig.userTerm = "User";
+            flash.error = "User is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.storeTerm == "" || retailerCommand?.retailerTerminologyConfig?.storeTerm == null) {
-            retailerCommand.retailerTerminologyConfig.storeTerm = "Store";
+            flash.error = "Store is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.itemCodeTerm == "" || retailerCommand?.retailerTerminologyConfig?.itemCodeTerm == null) {
-            retailerCommand.retailerTerminologyConfig.itemCodeTerm = "Item Code"
+            flash.error = "ItemCode is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.storeHoldingsTerm == "" || retailerCommand?.retailerTerminologyConfig?.storeHoldingsTerm == null) {
-            retailerCommand.retailerTerminologyConfig.storeHoldingsTerm = "Store Holdings"
+            flash.error = "Store Holdings is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.inStockTerm == "" || retailerCommand?.retailerTerminologyConfig?.inStockTerm == null) {
-            retailerCommand.retailerTerminologyConfig.inStockTerm = "In Stock"
+            flash.error = "In Stock is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.deliveredTerm == "" || retailerCommand?.retailerTerminologyConfig?.deliveredTerm == null) {
-            retailerCommand.retailerTerminologyConfig.deliveredTerm = "Delivered"
+            flash.error = "Delivered is empty. Should not be null."
         }
 
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig == null) {
             retailerCommand?.retailerTerminologyConfig?.locationsTableConfig = new RetailerTerminologyLocationsTableConfigCommand()
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm = "Stock Locations"
+            flash.error = "Stock Locations is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm = "Description"
+            flash.error = "Description is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm = "Bay"
+            flash.error = "Bay is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm = "Shelf"
+            flash.error = "Shelf is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm = "Position"
+            flash.error = "Position is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm = "Aisle"
+            flash.error = "Aisle is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == null) {
-            retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm = "Shelf Capacity"
+            flash.error = "Shelf Capacity is empty. Should not be null."
         }
-
         if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null) {
             retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = Visibility.ENABLED
         }
@@ -113,31 +112,34 @@ class RetailerController {
         if (retailerCommand.retailerFunctionConfig.categoryVisibility == null) {
             retailerCommand.retailerFunctionConfig.categoryVisibility = Visibility.ENABLED
         }
+        if (flash.error) {
+            redirect(action: "index")
+        } else {
+            retailerCommand.retailerFunctionConfig.functionMenuItems.each { key, value ->
+                if (value.name == "") {
+                    value.name = camelToReadable(key)
+                }
+                if (!value.menuItemVisibility) {
+                    value.menuItemVisibility = Visibility.ENABLED
+                }
+            }
 
-        retailerCommand.retailerFunctionConfig.functionMenuItems.each { key, value ->
-            if (value.name == "") {
-                value.name = camelToReadable(key)
-            }
-            if (!value.menuItemVisibility) {
-                value.menuItemVisibility = Visibility.ENABLED
-            }
+            bindData(locationsTableConfig, retailerCommand.retailerTerminologyConfig.locationsTableConfig)
+            bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
+            bindData(functionConfig, retailerCommand.retailerFunctionConfig)
+            bindData(retailerConfig, retailerCommand)
+
+            // Set those objects to the retailer config object
+            terminologyConfig.locationsTableConfig = locationsTableConfig
+            retailerConfig.retailerTerminologyConfig = terminologyConfig
+            retailerConfig.retailerFunctionConfig = functionConfig
+
+            retailerConfigService.saveRetailerConfig(retailerConfig)
+
+            flash.message = ["Retailer saved successfully."]
+
+            redirect(action: "index")
         }
-
-        bindData(locationsTableConfig, retailerCommand.retailerTerminologyConfig.locationsTableConfig)
-        bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
-        bindData(functionConfig, retailerCommand.retailerFunctionConfig)
-        bindData(retailerConfig, retailerCommand)
-
-        // Set those objects to the retailer config object
-        terminologyConfig.locationsTableConfig = locationsTableConfig
-        retailerConfig.retailerTerminologyConfig = terminologyConfig
-        retailerConfig.retailerFunctionConfig = functionConfig
-
-        retailerConfigService.saveRetailerConfig(retailerConfig)
-
-        flash.message = ["Retailer saved successfully."]
-
-        redirect(action: "index")
     }
 
     @Secured(['ROLE_ENGINEER'])
