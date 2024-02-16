@@ -44,50 +44,54 @@ class RetailerController {
         }
 
         if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
-            retailerCommand.retailerTerminologyConfig.productTerm = "Product"
+            flash.error = "Product Term is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.packTerm == "" || retailerCommand?.retailerTerminologyConfig?.packTerm == null) {
-            retailerCommand.retailerTerminologyConfig.packTerm = "Pack";
+            flash.error = "Pack is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.quantityInStockTerm == "" || retailerCommand?.retailerTerminologyConfig?.quantityInStockTerm == null) {
-            retailerCommand.retailerTerminologyConfig.quantityInStockTerm = "Quantity In Stock";
+            flash.error = "Quantity In Stock is empty. Should not be null.";
         }
         if (retailerCommand?.retailerTerminologyConfig?.quantityOnOrderTerm == "" || retailerCommand?.retailerTerminologyConfig?.quantityOnOrderTerm == null) {
-            retailerCommand.retailerTerminologyConfig.quantityOnOrderTerm = "Quantity On Order";
+            flash.error = "Quantity On Order is empty. Should not be null.";
         }
         if (retailerCommand?.retailerTerminologyConfig?.userTerm == "" || retailerCommand?.retailerTerminologyConfig?.userTerm == null) {
-            retailerCommand.retailerTerminologyConfig.userTerm = "User";
+            flash.error = "User is empty. Should not be null.";
         }
         if (retailerCommand?.retailerTerminologyConfig?.storeTerm == "" || retailerCommand?.retailerTerminologyConfig?.storeTerm == null) {
-            retailerCommand.retailerTerminologyConfig.storeTerm = "Store";
+            flash.error = "Store is empty. Should not be null.";
         }
 
-        if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null){
-            retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = RetailerFunctionCommand.Visibility.ENABLED
-        }
-
-        retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
-            if (value.name == "") {
-                value.name = camelToReadable(key)
+        if (flash.error){
+            redirect (action: "index")
+        }else {
+            if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null){
+                retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = RetailerFunctionCommand.Visibility.ENABLED
             }
-            if (!value.menuItemVisibility) {
-                value.menuItemVisibility = RetailerFunctionCommand.Visibility.ENABLED
+
+            retailerCommand.retailerFunctionConfig.functionMenuItems.each {key, value ->
+                if (value.name == "") {
+                    value.name = camelToReadable(key)
+                }
+                if (!value.menuItemVisibility) {
+                    value.menuItemVisibility = RetailerFunctionCommand.Visibility.ENABLED
+                }
             }
+
+            bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
+            bindData(functionConfig, retailerCommand.retailerFunctionConfig)
+            bindData(retailerConfig, retailerCommand)
+
+            // Set those objects to the retailer config object
+            retailerConfig.retailerTerminologyConfig = terminologyConfig
+            retailerConfig.retailerFunctionConfig = functionConfig
+
+            retailerConfigService.saveRetailerConfig(retailerConfig)
+
+            flash.message = ["Retailer saved successfully."]
+
+            redirect (action: "index")
         }
-
-        bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
-        bindData(functionConfig, retailerCommand.retailerFunctionConfig)
-        bindData(retailerConfig, retailerCommand)
-
-        // Set those objects to the retailer config object
-        retailerConfig.retailerTerminologyConfig = terminologyConfig
-        retailerConfig.retailerFunctionConfig = functionConfig
-
-        retailerConfigService.saveRetailerConfig(retailerConfig)
-
-        flash.message = ["Retailer saved successfully."]
-
-        redirect (action: "index")
     }
 
     @Secured(['ROLE_ENGINEER'])
