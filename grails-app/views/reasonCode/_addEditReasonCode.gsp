@@ -87,9 +87,16 @@
 
     <form id="edit-code-form" name="edit-code-form">
         <div class="row form-group mb-4">
-            <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right" >Description:</label>
+            <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right">Description:</label>
             <div class="input-group col-4">
                 <g:textField name="description" value="${reasonCode?.description}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="code" class="col-3 offset-1 col-form-label-mandatory text-right">Code:</label>
+            <div class="input-group col-4">
+                <g:textField name="code" value="${reasonCode?.code}" class="form-control bottom-border" />
             </div>
         </div>
 
@@ -159,7 +166,6 @@
         </g:else>
 
         <g:hiddenField name="id" value="${reasonCode?.id}"/>
-        <g:hiddenField name="code" value="${reasonCode?.code}"/>
         <g:hiddenField name="deleted" value="${reasonCode?.deleted}"/>
 
         <g:if test="${reasonCode?.retailerId}">
