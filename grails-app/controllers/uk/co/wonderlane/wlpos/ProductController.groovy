@@ -883,7 +883,7 @@ class ProductController extends BaseController {
             return
         }
 
-        def variantLocations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, editedVariant.sku)
+        def variantLocations = Location.findAllByStoreIdAndSkuAndDeleted(springSecurityService.principal.storeId, editedVariant.sku, false)
         def builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
 
         editedVariant.locationz?.each { editedLocation ->
@@ -1317,7 +1317,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxLocations(LocationsCommand cmd) {
-        def locations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, params.sku)
+        def locations = Location.findAllByStoreIdAndSkuAndDeleted(springSecurityService.principal.storeId, params.sku, false)
 
         render(template: "locations", model: [locations: locations, variant: cmd, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name()])
     }

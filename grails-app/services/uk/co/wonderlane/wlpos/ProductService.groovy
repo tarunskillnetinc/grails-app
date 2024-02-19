@@ -122,7 +122,7 @@ class ProductService extends MySqlDal {
 
     def saveLocations(Product product) {
         product?.variants?.each { variant ->
-            def variantLocations = Location.findAllByStoreIdAndSku(springSecurityService.principal.storeId, variant.sku)
+            def variantLocations = Location.findAllByStoreIdAndSkuAndDeleted(springSecurityService.principal.storeId, variant.sku, false)
             variant.locationz?.each { location ->
                 if (location.hasProperty('delete') && location.delete) {
                     Location deletedLocation = new Location()

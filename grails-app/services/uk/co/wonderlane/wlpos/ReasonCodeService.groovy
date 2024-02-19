@@ -24,6 +24,10 @@ class ReasonCodeService {
         return ReasonCode.countByRetailerIdAndDescriptionAndDeleted(retailerId, description, false) > 0
     }
 
+    boolean isCodeDuplicate(int retailerId, String code) {
+        return ReasonCode.countByRetailerIdAndCodeAndDeleted(retailerId, code, false) > 0
+    }
+
     boolean isLastOfType(int retailerId, ReasonCodeType type) {
         return ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false) <= 1
     }

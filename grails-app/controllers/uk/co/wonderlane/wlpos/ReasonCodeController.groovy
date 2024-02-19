@@ -75,12 +75,13 @@ class ReasonCodeController {
 
         boolean newEntry = true
         boolean updatedDesc = false
-        boolean updatedSecret = false
+        boolean updatedCode = false
 
         if (!paramIsNullOrEmpty(params, "id", ["", "0"])) {
             rc = ReasonCode.get(params.id.toString().toInteger())
             newEntry = false
             updatedDesc = rc.getDescription() != params.description
+            updatedCode = rc.getCode() != params.code
         }
 
         rc = rc != null ? rc : new ReasonCode()
@@ -96,6 +97,18 @@ class ReasonCodeController {
             }
             if (reasonCodeService.isDescriptionDuplicate(springSecurityService.principal.retailerId, rc.description)) {
                 errors.add(messageSource.getMessage('reasonCode.description.duplicate.error', null, locale))
+            }
+        }
+
+        if (rc.code == null || rc.code == "") {
+            errors.add(messageSource.getMessage('reasonCode.code.nullable.error', null, locale))
+        } else if (newEntry || updatedCode) {
+            if (rc.code.size() > 20) {
+                errors.add(messageSource.getMessage('reasonCode.code.maxSize.exceeded', null, locale))
+            }
+
+            if (reasonCodeService.isCodeDuplicate(springSecurityService.principal.retailerId, rc.code)) {
+                errors.add(messageSource.getMessage('reasonCode.code.duplicate.error', null, locale))
             }
         }
 
