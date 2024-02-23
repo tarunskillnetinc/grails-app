@@ -144,7 +144,6 @@ class ReasonCodeController {
         }
 
         rc.deleted = true
-        rc.secret = null
         reasonCodeService.saveReasonCode(rc)
         sendSyncMessage(rc, true)
         render "OK"
