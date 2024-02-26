@@ -200,11 +200,12 @@
                                     <g:link elementId="category-maintenance-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="category-maintenance-dropdown" controller="loyalty" class="dropdown-item">Segment Search</g:link>
-                                </g:if>
-                            </sec:ifAnyGranted>
+                            <div class="dropdown-submenu">
+                                <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="loyaltyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Loyalty</a>
+                                <div class="dropdown-menu" aria-labelledby="productsDropdown">
+                                    <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment management</g:link>
+                                </div>
+                            </div>
                         </div>
                     </li>
 

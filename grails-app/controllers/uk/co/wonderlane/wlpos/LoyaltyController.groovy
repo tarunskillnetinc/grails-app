@@ -8,6 +8,8 @@ class LoyaltyController {
 
     def index() { }
 
+    def loyaltySegment(){}
+
     def ajaxSearchLoyaltySegment() {
         session.LOYALTY_SEGMENT_SEARCH_TERM = params.searchTerm
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
