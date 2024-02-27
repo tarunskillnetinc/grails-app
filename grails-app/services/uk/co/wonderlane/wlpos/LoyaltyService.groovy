@@ -13,7 +13,7 @@ class LoyaltyService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    def getSegment(String searchTerm, String searchBy, int max, int offset) {
+    def getSegment(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder) {
         def totalCount = Segment.createCriteria().get {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
@@ -28,7 +28,7 @@ class LoyaltyService extends MySqlDal {
             }
         }
 
-        def segments = Segment.createCriteria().list([offset: offset, max: max]) {
+        def segments = Segment.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
                 if (searchBy == 'Description') {

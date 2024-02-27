@@ -14,7 +14,8 @@ class LoyaltyController {
 
     def ajaxSearchLoyaltySegment() {
         try {
-            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 20, params.offset ? Integer.parseInt(params.offset) : 0)
+            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 20,
+                    params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
 
             render(template: "loyaltySegmentSearchResults", model: [segments    : segment?.segments,
                                                                     loyaltySegmentTerm  : params.loyaltySegmentTerm,
