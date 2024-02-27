@@ -1,5 +1,6 @@
 <%@ page import="java.math.RoundingMode" %>
 
+
 <g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
@@ -343,22 +344,37 @@
                     <div class="card-body py-5">
                         <g:hiddenField name="relevantLocation" value="" />
 
-                        <div class="row mx-5 table-wl bottom-border">
-                            <div class="col-5 font-weight-bold">SKU</div>
-                            <div class="col-5 font-weight-bold">Location Description</div>
-                        </div>
+                        <g:if test="${locationsType === 'ADVANCED'}">
+                            <div class="row mx-5 table-wl bottom-border">
+                                <div class="col-2 font-weight-bold" >SKU</div>
+                                <div id="headerLocationsContainer" class="col-8 w-100">
+                                    <div id="locationContainerHeaders" class="row w-100 flex-content">
+                                        <div class="col-4 font-weight-bold">Location Description</div>
+                                        <div class="col-4 font-weight-bold">Location Number</div>
+                                        <div class="col-4 font-weight-bold">Location Hierarchy</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </g:if>
+                        <g:else>
+                            <div class="row mx-5 table-wl bottom-border">
+                                <div class="col-5 font-weight-bold">SKU</div>
+                                <div class="col-5 font-weight-bold">Location Description</div>
+                            </div>
+                        </g:else>
 
                         <div id="locationsContainer">
                             <g:if test="${!product || !product?.variants}">
                                 <div id="location-0">
-                                    <g:render template="locationVariant" model="[index: 0, locationsEnabled: locationsEnabled, storeId: storeId]" />
+                                    <g:render template="locationVariant" model="[index: 0, locationsEnabled: locationsEnabled, storeId: storeId, locationsType: locationsType]" />
                                 </div>
                             </g:if>
 
                             <g:each in="${product?.variants}" var="variant" status="i">
                                 <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDateIndex[1], variant.id, variant.sku)}">
                                     <div id="variant-${i}">
-                                        <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations, locationsEnabled: locationsEnabled, storeId: storeId]" />
+                                        <g:render template="locationVariant" model="[index: i, variant: variant, locations: variant.locationz ? variant.locationz : variant.locations,
+                                                                                     locationsEnabled: locationsEnabled, storeId: storeId, locationHierarchy  : variant.getLocationsHierarchy()]" />
                                     </div>
                                 </g:if>
                             </g:each>

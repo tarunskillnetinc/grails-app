@@ -43,7 +43,7 @@ class PromotionGroup {
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
         requiredQuantity nullable: true, range:1..999999999
-        requiredValue nullable:true, range:1F..9999.99F
+        requiredValue nullable:true, min: 0.02, max:9999.99, scale: 2
     }
 
     public uk.co.wonderlane.wlpos.entities.PromotionGroup getPromotionGroup() {

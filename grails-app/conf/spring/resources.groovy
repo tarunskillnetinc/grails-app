@@ -209,7 +209,23 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
             }
-            test {
+            hades {
+                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+                brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            persephone {
+                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+                brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
+                    springSecurityService = ref('springSecurityService')
+                }
+            }
+            preprod {
                 imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
@@ -222,22 +238,6 @@ beans = {
                     springSecurityService = ref('springSecurityService')
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
-                    springSecurityService = ref('springSecurityService')
-                }
-            }
-            prestage {
-                imageService(ImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageDirectory'), grailsApplication.config.getProperty('wlpos.receiptImageDirectory'), grailsApplication.config.getProperty('wlpos.buttonImageDirectory')) {
-                    springSecurityService = ref('springSecurityService')
-                }
-                brandAssetsService(BrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsDirectory')) {
-                    springSecurityService = ref('springSecurityService')
-                }
-            }
-            stage {
-                imageService(ImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageDirectory'), grailsApplication.config.getProperty('wlpos.receiptImageDirectory'), grailsApplication.config.getProperty('wlpos.buttonImageDirectory')) {
-                    springSecurityService = ref('springSecurityService')
-                }
-                brandAssetsService(BrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsDirectory')) {
                     springSecurityService = ref('springSecurityService')
                 }
             }

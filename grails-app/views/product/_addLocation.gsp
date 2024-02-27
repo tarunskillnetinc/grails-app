@@ -30,6 +30,9 @@
     <g:hiddenField name="addLocation[${locationIndex}].productVariantId" value="${productVariantId}" />
     <g:hiddenField name="addLocation[${locationIndex}].storeId" value="${location?.storeId}" />
     <g:hiddenField name="addLocation[${locationIndex}].sku" value="${location?.sku}" />
+    <g:hiddenField name="addLocation[${locationIndex}].locationHierarchy" value="${location?.locationHierarchy}" />
+    <g:hiddenField name="addLocation[${locationIndex}].locationDescription" value="${location?.locationDescription}" />
+    <g:hiddenField name="addLocation[${locationIndex}].locationNumber" value="${location?.locationNumber}" />
 
     <div class="row mx-4 pt-2 wl-striped${locationIndex % 2}">
         <g:if test="${locationsType == "SIMPLE"}">

@@ -24,45 +24,52 @@
     });
 
     function updateAdditionalFuncSection() {
-        const promptId = $('#prompt-age-section');
-        const returnStock = $('#return-stock-section');
-        const adjustInOut = $('#adjust-in-out-section');
+        const promptId = $('#prompt-age-section')
+        const returnStock = $('#return-stock-section')
+        const adjustInOut = $('#adjust-in-out-section')
+        const secret = $('#secret-section')
 
         switch ($('#type').val()) {
             case "PAID_OUT":
-                promptId.show();
+                promptId.show()
 
-                returnStock.hide();
-                adjustInOut.hide();
+                returnStock.hide()
+                adjustInOut.hide()
+                secret.hide()
                 break;
             case "REFUND":
-                returnStock.show();
+                returnStock.show()
 
-                promptId.hide();
-                adjustInOut.hide();
+                promptId.hide()
+                adjustInOut.hide()
+                secret.hide()
                 break;
             case "PRODUCT_LIST":
-                adjustInOut.show();
+                adjustInOut.show()
+                secret.show()
 
-                promptId.hide();
-                returnStock.hide();
+                promptId.hide()
+                returnStock.hide()
                 break;
             default:
-                promptId.hide();
-                returnStock.hide();
-                adjustInOut.hide();
+                promptId.hide()
+                returnStock.hide()
+                adjustInOut.hide()
+                secret.hide()
                 break;
         }
     }
 
-    function togglePreferredReasonCode() {
-        const checkbox = $('#preferredReasonCode');
-        const disabled = $('#secret').val();
-
-        if (disabled && checkbox.prop('checked')) {
-            checkbox.prop('checked', false);
+    function uncheckPreferredReasonCode() {
+        if ($('#secret').prop('checked')) {
+            $('#preferredReasonCode').prop('checked', false)
         }
-        checkbox.prop("disabled", disabled);
+    }
+
+    function uncheckSecret() {
+        if ($('#preferredReasonCode').prop('checked')) {
+            $('#secret').prop('checked', false)
+        }
     }
 </script>
 
@@ -80,9 +87,16 @@
 
     <form id="edit-code-form" name="edit-code-form">
         <div class="row form-group mb-4">
-            <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right" >Description:</label>
+            <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right">Description:</label>
             <div class="input-group col-4">
                 <g:textField name="description" value="${reasonCode?.description}" class="form-control bottom-border" />
+            </div>
+        </div>
+
+        <div class="row form-group mb-4">
+            <label for="code" class="col-3 offset-1 col-form-label-mandatory text-right">Code:</label>
+            <div class="input-group col-4">
+                <g:textField name="code" value="${reasonCode?.code}" class="form-control bottom-border" />
             </div>
         </div>
 
@@ -119,17 +133,17 @@
             </div>
         </div>
 
-        <div class="row form-group mb-4">
+        <div class="row form-group mb-4" id="preferred-reason-code-section">
             <label for="preferredReasonCode" class="col-3 offset-1 col-form-label text-right">Preferred Reason Code:</label>
             <div class="input-group col-4">
-                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" disabled="${reasonCode != null && reasonCode.secret != null && reasonCode.secret.trim().length() > 1}"/>
+                <g:checkBox name="preferredReasonCode" value="${reasonCode?.preferredReasonCode}" class="col-1 form-check-input wl-checkbox" oninput="uncheckSecret();"/>
             </div>
         </div>
 
-        <div class="row form-group mb-4">
+        <div class="row form-group mb-4" id="secret-section">
             <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Secret:</label>
             <div class="input-group col-4">
-                <g:textField name="secret" value="${reasonCode?.secret}" class="form-control bottom-border" oninput="togglePreferredReasonCode();"/>
+                <g:checkBox name="secret" value="${reasonCode?.secret}" class="col-1 form-check-input wl-checkbox" oninput="uncheckPreferredReasonCode();"/>
             </div>
         </div>
 
@@ -152,7 +166,6 @@
         </g:else>
 
         <g:hiddenField name="id" value="${reasonCode?.id}"/>
-        <g:hiddenField name="code" value="${reasonCode?.code}"/>
         <g:hiddenField name="deleted" value="${reasonCode?.deleted}"/>
 
         <g:if test="${reasonCode?.retailerId}">

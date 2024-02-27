@@ -13,15 +13,17 @@ class LoyaltyController {
     def loyaltySegment(){}
 
     def ajaxSearchLoyaltySegment() {
+        int defaultPagination = 20
+        int defaultOffSet = 0
         try {
-            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 20,
-                    params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : defaultPagination,
+                    params.offset ? Integer.parseInt(params.offset) : defaultOffSet, "id", "asc")
 
             render(template: "loyaltySegmentSearchResults", model: [segments    : segment?.segments,
                                                                     loyaltySegmentTerm  : params.loyaltySegmentTerm,
                                                                     loyaltySegmentSearchBy    : params.loyaltySegmentSearchBy,
-                                                                    max         : params.max ?: 20,
-                                                                    offset      : params.offset,
+                                                                    max         : params.max ?: defaultPagination,
+                                                                    offset      : params.offset ?: defaultOffSet,
                                                                     totalCount  : segment?.totalCount
             ])
         }catch(Exception ex){

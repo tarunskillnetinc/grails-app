@@ -52,7 +52,7 @@
                         <div class="input-group date startDate col-7" id="bogof-startDatepicker">
                             <g:textField name="bogof-startDate" type="text" class="row form-control promo-startDate" required="true"
                                          autoComplete="off"
-                                         value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
+                                         value="${promotion?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}"/>
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -105,7 +105,6 @@
                         <g:hiddenField name="bogof-count-required" value="${productsRequired.isEmpty() && categoriesRequired.isEmpty() && tagsRequired.isEmpty() ? productsOffer.size() + categoriesOffer.size() + tagsOffer.size() : productsRequired.size() + categoriesRequired.size() + tagsRequired.size()}"/>
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <div id="bogof-product1" class="offset-1 promotion-product-container mt-3">
-                                <g:hiddenField name="bogof-product-required-1-productId" value="${productsRequired.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
                                 <g:hiddenField name="bogof-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 Quantity 1 x ${String.valueOf(productsRequired.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}
                                 <a href="#" onclick="return deleteThis(this, 'bogof', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
@@ -157,14 +156,9 @@
                     </div>
                 </div>
             </div>
-            <div id="bogof-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="bogof-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="bogof-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -194,7 +188,7 @@
                         <div class="input-group date startDate col-7" id="xfory-startDatepicker">
                             <g:textField name="xfory-startDate" type="text" class="row form-control promo-startDate" required="true"
                                          autoComplete="off"
-                                         value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}"/>
+                                         value="${promotion?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}"/>
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -207,9 +201,7 @@
                         <div class="input-group date endDate col-7 mb-auto" id="xfory-endDatepicker">
                             <g:textField name="xfory-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
                                          autoComplete="off"
-                                         value="${promotion ?
-                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
-                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                                         value="${promotion?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -300,7 +292,7 @@
                     </div>
                 </div>
 
-                <div id="xfory-productsOfferSection" class="promotion-products-container col-10 offset-1">
+                <div id="xfory-productsOfferSection" class="promotion-products-container col-10 offset-1" style="min-height: 108px;">
                     <h3 class="mt-1 ml-3">Customer Receives Free</h3>
                     <div id="xfory-productsOfferContainer" class="row my-2">
                         <g:if test="${!productsOffer?.isEmpty() || !productsRequired.isEmpty()}">
@@ -354,14 +346,9 @@
                     </div>
                 </div>
             </div>
-            <div id="xfory-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="xfory-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="xfory-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -391,7 +378,7 @@
                         <div class="input-group date startDate col-7" id="percentage-startDatepicker">
                             <g:textField name="percentage-startDate" type="text" class="row form-control promo-startDate" required="true"
                                          autoComplete="off"
-                                         value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
+                                         value="${promotion?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -430,7 +417,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-amount" class="col-3 col-form-label text-right pr-4">Percentage</label>
-                        <g:textField name="percentage-amount" class="col-5 form-control bottom-border mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
+                        <g:textField name="percentage-amount" class="col-5 form-control bottom-border mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -503,14 +490,9 @@
                     </div>
                 </div>
             </div>
-            <div id="percentage-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="percentage-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="percentage-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -540,7 +522,7 @@
                         <div class="input-group date startDate col-7" id="fixedAmount-startDatepicker">
                             <g:textField name="fixedAmount-startDate" class="row form-control promo-startDate" required="true"
                                          autoComplete="off"
-                                         value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
+                                         value="${promotion?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -553,9 +535,7 @@
                         <div class="input-group date endDate col-7 mb-auto" id="fixedAmount-endDatepicker">
                             <g:textField name="fixedAmount-endDate" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
                                          autoComplete="off"
-                                         value="${promotion ?
-                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
-                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                                         value="${promotion?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -579,7 +559,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-amount" class="col-3 col-form-label text-right pr-4">Discount Amount</label>
-                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
+                        <g:textField id="fixedAmount-amount" name="fixedAmount-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -603,9 +583,9 @@
                                 <g:hiddenField name="fixedAmount-product-required-1-productId" value="${productsRequired?.isEmpty() ? productsOffer.first().product.id : productsRequired.first().product.id}"/>
                                 <g:hiddenField name="fixedAmount-product-required-1-sku" value="${productsRequired.isEmpty() ? productsOffer.first().sku : productsRequired.first().sku}"/>
                                 <label for="fixedAmount-product-required-1-value" class="">Value</label>
-                                <g:field type="number" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().requiredValue : productsRequired.first().requiredValue}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                <g:field type="number" name="fixedAmount-product-required-1-value" value="${productsRequired?.isEmpty() ? productsOffer.first().value : productsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value', 'fixedAmount');"/>
                                 <label for="fixedAmount-product-required-1-quantity" class=""> or Quantity</label>
-                                <g:field type="number" name="fixedAmount-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityValueChange(this, 'quantity');;"/>
+                                <g:field type="number" name="fixedAmount-product-required-1-quantity" value="${productsRequired?.isEmpty() ? productsOffer.first().quantity : productsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityChange(this, 'fixedAmount');"/>
                                 <label for="fixedAmount-product-required-1-quantity" class="mr-3"> x ${String.valueOf(productsRequired?.isEmpty() ? productsOffer.first().product.itemCode : productsRequired.first().product.itemCode)} - ${productsRequired?.isEmpty() ? productsOffer.first().product.description : productsRequired.first().product.description}</label>
                                 <a href="#" onclick="return deleteThis(this, 'fixedAmount', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>
@@ -614,9 +594,9 @@
                             <div id="fixedAmount-category1" class="offset-1 promotion-product-container form-inline mt-3">
                                 <g:hiddenField name="fixedAmount-category-required-1-categoryId" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().category.id : categoriesRequired.first().category.id}"/>
                                 <label for="fixedAmount-category-required-1-value" class="">Value</label>
-                                <g:field type="number" name="fixedAmount-category-required-1-value" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().requiredValue : categoriesRequired.first().requiredValue}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value');"/>
+                                <g:field type="number" name="fixedAmount-category-required-1-value" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().value : categoriesRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value" onChange="quantityValueChange(this, 'value', 'fixedAmount');"/>
                                 <label for="fixedAmount-category-required-1-quantity" class=""> or Quantity</label>
-                                <g:field type="number" name="fixedAmount-category-required-1-quantity" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().quantity : categoriesRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityValueChange(this, 'quantity');"/>
+                                <g:field type="number" name="fixedAmount-category-required-1-quantity" value="${categoriesRequired?.isEmpty() ? categoriesOffer.first().quantity : categoriesRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity" onChange="quantityChange(this, 'fixedAmount');"/>
                                 <label for="fixedAmount-category-required-1-quantity" class="mr-3"> x ${categoriesRequired?.isEmpty() ? categoriesOffer.first().category.description : categoriesRequired.first().category.description}${categoriesRequired.isEmpty() ? (categoriesOffer.first().category.retailerCategoryCode != null ? " - " + categoriesOffer.first().category.retailerCategoryCode : "") : (categoriesRequired.first().category.retailerCategoryCode != null ? " - " + categoriesRequired.first().category.retailerCategoryCode : "")}</label>
                                 <a href="#" onclick="return deleteThis(this, 'fixedAmount', 'required');" class="text-dark"><sup>X</sup></a>
                             </div>
@@ -631,12 +611,19 @@
                                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                                             </svg>
-
-                                            <label for="fixedAmount-tag-required-1-value" class="">Value</label>
-                                            <g:field type="number" name="fixedAmount-tag-required-1-value" value="${tagsRequired?.isEmpty() ? tagsOffer.first().requiredValue : tagsRequired.first().requiredValue}" step="0.01" class="py-1 pl-1 mx-1 col-2 promo-value" onChange="quantityValueChange(this, 'value');"/>
-                                            <label for="fixedAmount-tag-required-1-quantity" class=""> or Quantity</label>
-                                            <g:field type="number" name="fixedAmount-tag-required-1-quantity" value="${tagsRequired?.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 col-2 promo-quantity" onChange="quantityValueChange(this, 'quantity');"/>
-                                            <span class="mr-3"> x ${tagsRequired?.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
+                                            <div id="fixedAmount-tag-1" class="form-inline mt-3 row">
+                                                <div class="form-inline col-5">
+                                                    <label for="fixedAmount-tag-required-1-value" class="">Value</label>
+                                                    <g:field type="number" name="fixedAmount-tag-required-1-value" value="${tagsRequired?.isEmpty() ? tagsOffer.first().value : tagsRequired.first().value}" step="0.01" class="py-1 pl-1 mx-1 form-control promo-value w-75" onChange="quantityValueChange(this, 'value', 'fixedAmount');"/>
+                                                </div>
+                                                <div class="form-inline col-4">
+                                                    <label for="fixedAmount-tag-required-1-quantity" class=""> or Quantity</label>
+                                                    <g:field type="number" name="fixedAmount-tag-required-1-quantity" value="${tagsRequired?.isEmpty() ? tagsOffer.first().quantity : tagsRequired.first().quantity}" step="1" class="py-1 pl-1 mx-1 form-control promo-quantity w-50" onChange="quantityChange(this, 'fixedAmount');"/>
+                                                </div>
+                                                <div class="col-3">
+                                                    <span class="mr-1"> x ${tagsRequired?.isEmpty() ? tagsOffer.first().tag.description : tagsRequired.first().tag.description}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-2 text-right">
                                             <a href="#" onclick="return deleteThis(this.parentElement.parentElement.parentElement, 'fixedAmount', 'required');" class="ml-3 text-dark"><sup>X</sup></a>
@@ -645,7 +632,7 @@
                                 </div>
                                 <div class="card-body collapse" id="fixedAmountTagCollapse">
                                     <g:each in="${tagsRequired.isEmpty() ? tagsOffer.first().tag.tagProducts : tagsRequired.first().tag.tagProducts}" var="tagProduct" status="i">
-                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: tagProduct.productId)}';">
+                                        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(controller: 'product', action: 'show', id: tagProduct?.productId)}';">
                                             <div class="col-12">${tagProduct.sku} - ${tagProduct.productDescription}</div>
                                         </div>
                                     </g:each>
@@ -660,14 +647,9 @@
                     </div>
                 </div>
             </div>
-            <div id="fixedAmount-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>
@@ -697,7 +679,7 @@
                         <div class="input-group date startDate col-7" id="fixedPrice-startDatepicker">
                             <g:textField name="fixedPrice-startDate" type="text" class="row form-control promo-startDate" required="true"
                                          autoComplete="off"
-                                         value="${promotion ? promotion.startDate.toString("EEEE dd MMMM yyyy") : new Date().format("EEEE dd MMMM yyyy")}" />
+                                         value="${promotion?.startDate?.toString("EEEE dd MMMM yyyy") ?: new Date().format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -710,9 +692,7 @@
                         <div class="input-group date endDate col-7 mb-auto" id="fixedPrice-endDatepicker">
                             <g:textField name="fixedPrice-endDate" type="text" class="row form-control promo-endDate" required="true" disabled="${promotion ? promotion.endDate ? false : true : false}"
                                          autoComplete="off"
-                                         value="${promotion ?
-                                                    promotion.endDate ? promotion.endDate.toString("EEEE dd MMMM yyyy") : ""
-                                                 : new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
+                                         value="${promotion?.endDate?.toString("EEEE dd MMMM yyyy") ?: new Date().plus(7).format("EEEE dd MMMM yyyy")}" />
                             <span class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar" content="\e109"></i>
                             </span>
@@ -736,7 +716,7 @@
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-amount" class="col-3 col-form-label text-right pr-4">Fixed Amount</label>
-                        <g:textField name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.01}"/>
+                        <g:textField name="fixedPrice-amount" class="col-5 form-control bottom-border promo-amount mask-money" required="true" value="${promotion?.amount != null ? promotion.amount : 0.00}"/>
                     </div>
                 </div>
                 <div class="row">
@@ -758,7 +738,7 @@
                         <g:if test="${!productsRequired?.isEmpty() || !productsOffer.isEmpty()}">
                             <g:each in="${productsRequired.isEmpty() ? productsOffer : productsRequired}" var="product" status="i">
                                 <div id="fixedPrice-product${i}" class="offset-1 promotion-product-container form-inline mt-3">
-                                    <g:hiddenField name="fixedPrice-product-required-${i}-productId" value="${product.product.id}" class="promo-itemId"/>
+                                    <g:hiddenField name="fixedPrice-product-required-${i}-sku" value="${product.sku}" class="promo-itemId"/>
                                     <label for="fixedPrice-product-required-${i}-quantity" class="">Quantity</label>
                                     <g:field type="number" name="fixedPrice-product-required-${i}-quantity" value="${product.quantity}" class="py-1 pl-1 mx-1 form-control" onChange="quantityChange(this, 'fixedPrice');"/>
                                     <label for="fixedPrice-product-required-${i}-quantity" class="mr-3"> x ${String.valueOf(product.product.itemCode)} - ${product.product.description}</label>
@@ -816,14 +796,9 @@
                     </div>
                 </div>
             </div>
-            <div id="fixedPrice-summary" class="row mt-3">
-                <h2 class="col-1 mr-2">Summary</h2>
-                <div class="promotion-products-container col-10 offset-1">
-%{--                    <h5 class="text-center m-3">Incomplete Promotion</h5>--}%
-                </div>
-            </div>
+
             <div class="row my-5">
-                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-danger col-1 offset-1">Cancel</g:link>
+                <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
             </div>
         </g:form>

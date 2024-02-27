@@ -22,3 +22,13 @@ function acceptNumeric(e) {
     }
     e.preventDefault();
 }
+
+function validateInput(input){
+    // Remove leading minus sign if present
+    input.value = input.value.replace(/^-/, '');
+
+    // Ensure the value is greater than or equal to 0
+    if (parseInt(input.value, 10) < 0 || input.value === '-') {
+        input.value = 0;
+    }
+}

@@ -26,8 +26,8 @@
         <div id="product-result-${i+1}-item-code" class="col-2 text-truncate">${product.itemCode}</div>
         <div id="product-result-${i+1}-description" class="col-4">${product.description}</div>
         <div id="product-result-${i+1}-category" class="col-2">${product.category?.description}</div>
-        <div id="product-result-${i+1}-cost-price" class="col-2">£${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.costPrice?: '0.00'}</div>
-        <div id="product-result-${i+1}-retail-price" class="col-2">£${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.costPrice ?: '0.00'}</div>
+        <div id="product-result-${i+1}-cost-price" class="col-2">£${product.costPrice}</div>
+        <div id="product-result-${i+1}-retail-price" class="col-2">£${product.retailPrice}</div>
     </div>
 </g:each>
 
