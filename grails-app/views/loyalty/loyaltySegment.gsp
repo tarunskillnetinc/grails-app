@@ -10,6 +10,14 @@
 
     <script type="application/javascript">
 
+        $(document).ready(function () {
+            $('#loyaltySegmentTerm').on('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    search();
+                }
+            });
+        });
+
         function searchButtonClicked() {
             $('#offset').val(0);
             search();
@@ -17,26 +25,42 @@
 
         function resetForm() {
             document.getElementById('loyaltySegmentTerm').value = null;
-            document.getElementById('loyaltySegmentSearchBy').value = 'Description';
+            document.getElementById('loyaltySegmentSearchBy').value = 'ID';
         }
 
         function search() {
-            var url = "${createLink(controller: 'product', action: 'ajaxSearchLoyaltySegment')}";
+            var url = "${createLink(controller: 'loyalty', action: 'ajaxSearchLoyaltySegment')}";
             var searchTerm = $('#loyaltySegmentTerm').val();
             var searchBy = $('#loyaltySegmentSearchBy').val();
-
-            $("#search-results").hide();
             $("#loading-indicator").show();
+
+            $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
+                "  <div class=\"spinner-border\" role=\"status\">\n" +
+                "    <span class=\"sr-only\">Loading...</span>\n" +
+                "  </div>\n" +
+                "</div>");
 
             $.ajax({
                 url: url,
-                data: { searchTerm: searchTerm, searchBy: searchBy },
-                success: function(resp) {
-                    $('#results-container').html(resp);
-                    $('#loyaltySegmentTerm').data('prev',$('#loyaltySegmentTerm').val())
-                    $('#loyaltySegmentSearchBy').data('prev', $('#loyaltySegmentSearchBy').val())
+                data: { searchTerm: searchTerm, searchBy: searchBy, max:20, offset:0 },
+                statusCode: {
+                    500: function (response) {
+                        $('#search-results').html("<div class=\"d-flex justify-content-center\"><span class=\"text-muted\">No results found.</span></div>");
+                        $('#loyaltySegmentModal').modal({show: true});
+                        $("#loyaltySegmentContent").html(response.responseText);
+                    },
+                    200: function (response) {
+                        $('#results-container').html(response);
+                        $('#loyaltySegmentTerm').data('prev',$('#loyaltySegmentTerm').val())
+                        $('#loyaltySegmentSearchBy').data('prev', $('#loyaltySegmentSearchBy').val())
+                    }
                 }
             });
+        }
+
+        function cancelLoyaltyError(){
+            $('#loyaltySegmentModal').modal('hide');
+            $('#search-results').html("<div class=\"d-flex justify-content-center\"><span class=\"text-muted\">No results found.</span></div>");
         }
 
     </script>
@@ -86,7 +110,7 @@
                             <div class="col-10 input-group">
                                 <g:textField id="loyaltySegmentTerm" name="loyaltySegmentTerm" maxlength="100" value="${session.PRODUCT_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                                 <div class="input-group-append">
-                                    <g:select id="loyaltySegmentSearchBy" name="loyaltySegmentSearchBy" from="${['Description', 'Id']}" value="everything" valueMessagePrefix="loyaltySegmentSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                    <g:select id="loyaltySegmentSearchBy" name="loyaltySegmentSearchBy" from="${['ID', 'Description']}" value="everything" valueMessagePrefix="loyaltySegmentSearchBy" class="form-control select-border" style="z-index: 0;" />
                                 </div>
                             </div>
                         </div>
@@ -98,6 +122,14 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="loyaltySegment-modal" class="container-fluid" >
+        <div class="modal fade" id="loyaltySegmentModal" tabindex="-1" role="dialog" aria-labelledby="loyaltySegmentModalLabel" data-backdrop="false" aria-hidden="true" style="margin-top: 120px">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid ; margin-top: 120px" role="document" >
+                <div id="loyaltySegmentContent" class="modal-content" ></div>
             </div>
         </div>
     </section>
