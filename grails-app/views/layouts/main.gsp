@@ -204,6 +204,7 @@
                                 <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="loyaltyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Loyalty</a>
                                 <div class="dropdown-menu" aria-labelledby="productsDropdown">
                                     <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment management</g:link>
+                                    <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offers</g:link>
                                 </div>
                             </div>
                         </div>

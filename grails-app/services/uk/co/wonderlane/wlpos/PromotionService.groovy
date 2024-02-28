@@ -131,4 +131,12 @@ class PromotionService {
 
         return promotions
     }
+
+    List<Promotion> getPromotionForRetailer(int retailerId) {
+        List<Promotion> promotionList = new ArrayList<>();
+        promotionList = Promotion.withCriteria {
+            eq("retailerId", retailerId)
+        }
+        return promotionList;
+    }
 }

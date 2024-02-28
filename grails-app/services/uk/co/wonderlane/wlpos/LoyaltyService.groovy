@@ -41,4 +41,42 @@ class LoyaltyService extends MySqlDal {
 
         return [totalCount: totalCount, segments: segments]
     }
+
+
+    def getLoyaltyOffers(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder){
+        def totalCount = LoyaltyOffer.createCriteria().get {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            or {
+                if (searchBy == 'Description') {
+                    like("description", "%$searchTerm%")
+                } else if (searchBy == 'ID') {
+                    sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
+                }
+            }
+            projections {
+                countDistinct("id")
+            }
+        }
+
+        def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            or {
+                if (searchBy == 'Description') {
+                    ilike("description", "%$searchTerm%")
+                } else if (searchBy == 'ID') {
+                    sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
+                }
+            }
+        }
+
+        return [totalCount: totalCount, offers: offers]
+    }
+
+    List<Segment> getLoyaltySegmentForRetailer(int retailerId){
+        List<Segment> segmentList = new ArrayList<>();
+        segmentList = Segment.withCriteria {
+            eq ("retailerId", retailerId)
+        }
+        return segmentList;
+    }
 }
