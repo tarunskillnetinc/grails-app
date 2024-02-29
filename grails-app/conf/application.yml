@@ -197,23 +197,7 @@ environments:
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 #type: "com.zaxxer.hikari.HikariDataSource"
                 properties:
-                    jmxEnabled: true
-                    initialSize: 5
-                    maxActive: 50
-                    minIdle: 5
-                    maxIdle: 25
-                    maxWait: 10000
-                    maxAge: 10 * 60000
-                    timeBetweenEvictionRunsMillis: 5000
-                    minEvictableIdleTimeMillis: 60000
-                    validationQuery: "SELECT 1"
-                    validationQueryTimeout: 3
-                    validationInterval: 15000
-                    testOnBorrow: true
-                    testWhileIdle: true
-                    testOnReturn: false
-                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
-                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+                    <<: *databaseDefaultProperties
 
         rabbitmq:
             host: localhost
@@ -315,23 +299,7 @@ environments:
                 username: "cloudoffice"
                 password: "CdtfudWdnGVS87IKs7dV"
                 properties:
-                    jmxEnabled: true
-                    initialSize: 5
-                    maxActive: 50
-                    minIdle: 5
-                    maxIdle: 25
-                    maxWait: 10000
-                    maxAge: 10 * 60000
-                    timeBetweenEvictionRunsMillis: 5000
-                    minEvictableIdleTimeMillis: 60000
-                    validationQuery: "SELECT 1"
-                    validationQueryTimeout: 3
-                    validationInterval: 15000
-                    testOnBorrow: true
-                    testWhileIdle: true
-                    testOnReturn: false
-                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
-                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+                    <<: *databaseDefaultProperties
 
         rabbitmq:
             host: b-8a4cc67f-a559-41ea-98d3-d3949bc49275.mq.eu-west-1.amazonaws.com
@@ -413,6 +381,17 @@ environments:
                 pooled: true
                 dbCreate: "validate"
                 url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/persephone-transactions"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "CdtfudWdnGVS87IKs7dV"
+                properties:
+                    <<: *databaseDefaultProperties
+
+            loyalty:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/persephone-loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
@@ -510,23 +489,7 @@ environments:
                 username: "cloudoffice"
                 password: "G8blr10SYQ6lc8KCXxdh"
                 properties:
-                    jmxEnabled: true
-                    initialSize: 5
-                    maxActive: 50
-                    minIdle: 5
-                    maxIdle: 25
-                    maxWait: 10000
-                    maxAge: 10 * 60000
-                    timeBetweenEvictionRunsMillis: 5000
-                    minEvictableIdleTimeMillis: 60000
-                    validationQuery: "SELECT 1"
-                    validationQueryTimeout: 3
-                    validationInterval: 15000
-                    testOnBorrow: true
-                    testWhileIdle: true
-                    testOnReturn: false
-                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
-                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+                    <<: *databaseDefaultProperties
 
         rabbitmq:
             host: b-9ae3b409-e6dc-4f72-b890-169b68a2639e.mq.eu-west-1.amazonaws.com
@@ -623,23 +586,7 @@ environments:
                 username: "cloudoffice"
                 password: "oqtS8aMSBFw99QTMhMjd"
                 properties:
-                    jmxEnabled: true
-                    initialSize: 5
-                    maxActive: 50
-                    minIdle: 5
-                    maxIdle: 25
-                    maxWait: 10000
-                    maxAge: 10 * 60000
-                    timeBetweenEvictionRunsMillis: 5000
-                    minEvictableIdleTimeMillis: 60000
-                    validationQuery: "SELECT 1"
-                    validationQueryTimeout: 3
-                    validationInterval: 15000
-                    testOnBorrow: true
-                    testWhileIdle: true
-                    testOnReturn: false
-                    jdbcInterceptors: "ConnectionState;StatementCache(max=200)"
-                    defaultTransactionIsolation: java.sql.Connection.TRANSACTION_READ_COMMITTED
+                    <<: *databaseDefaultProperties
 
         rabbitmq:
             host: b-b178f79a-bb11-4c6a-a967-54020dcf8a42.mq.eu-west-1.amazonaws.com
