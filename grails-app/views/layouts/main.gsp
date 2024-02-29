@@ -162,6 +162,18 @@
                         </div>
                     </li>
 
+            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="loyaltyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Loyalty</a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loyaltyDropdown">
+                            <g:link elementId="membership-management-dropdown" controller="loyalty" action="membershipManagement" class="dropdown-item">Membership Management</g:link>
+                        </div>
+                    </li>
+                </g:if>
+            </sec:ifAnyGranted>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 

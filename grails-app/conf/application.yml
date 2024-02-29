@@ -185,6 +185,17 @@ environments:
                 properties:
                     <<: *databaseDefaultProperties
 
+            loyalty:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://localhost:3306/loyalty"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "root"
+                password: "Pa**W0rd01"
+                properties:
+                    <<: *databaseDefaultProperties
+
         rabbitmq:
             host: localhost
             port: 5672
