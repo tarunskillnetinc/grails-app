@@ -80,8 +80,9 @@ class LoyaltyController {
 
         //pass them into view
 
-        render(view: "addLoyaltyOffer", model: [
-                                                promotions : promotions
+        render(view: "/loyalty/addLoyaltyOffer", model: [
+                                                promotions : promotions,
+                                                promotionList : promotionList
         ])
 
     }
