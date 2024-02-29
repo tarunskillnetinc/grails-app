@@ -168,7 +168,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="loyaltyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Loyalty</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loyaltyDropdown">
-                            <g:link elementId="membership-management-dropdown" controller="loyalty" action="membershipManagement" class="dropdown-item">Membership Management</g:link>
+                            <g:link elementId="membership-management-dropdown" controller="loyalty" action="loyaltyMembers" class="dropdown-item">Membership Management</g:link>
                         </div>
                     </li>
                 </g:if>

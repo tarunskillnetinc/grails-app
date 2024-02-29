@@ -4,7 +4,7 @@ class LoyaltyController {
 
     def loyaltyMemberService
 
-    def membershipManagement() { }
+    def loyaltyMembers() { }
 
     /* Called from the membership management page when searching for loyalty members */
     def ajaxSearchMembers() {
