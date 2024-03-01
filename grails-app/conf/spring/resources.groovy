@@ -25,6 +25,7 @@ import uk.co.wonderlane.wlpos.AmazonImageService
 import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 import uk.co.wonderlane.wlpos.GsonProvider
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.LoyaltyService
 
 // Place your Spring DSL code here
 beans = {
@@ -185,6 +186,15 @@ beans = {
                     grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+    }
+
+    loyaltyService(LoyaltyService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.loyalty.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.loyalty.port')),
+                    grailsApplication.config.getProperty('mysql.loyalty.username'),
+                    grailsApplication.config.getProperty('mysql.loyalty.password'),
+                    grailsApplication.config.getProperty('mysql.loyalty.database'))) {
+        springSecurityService = ref('springSecurityService')
     }
 
     gsonProvider(GsonProvider)
