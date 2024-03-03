@@ -74,59 +74,65 @@ class LoyaltyController {
     }
 
     def showLoyaltyOffer(){
+        try {
+            LoyaltyOffer originalLoyaltyOffer = null
+            List<Integer> selectedSegmentIds = new ArrayList<>();
 
-        LoyaltyOffer originalLoyaltyOffer = null
-        List<Integer> selectedSegmentIds = new ArrayList<>();
+            if (params.id && params.id.isNumber()) {
+                int offerId = Integer.parseInt(params.id)
 
-        if (params.id && params.id.isNumber()) {
-            int offerId = Integer.parseInt(params.id)
+                originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(offerId)
 
-            originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(offerId)
+                // Get selected segment IDs
+                selectedSegmentIds = originalLoyaltyOffer?.loyaltyOfferSegments?.findAll{it.offerId = offerId }
+                        ?.collect { it.segmentId }
+            }
 
-            // Get selected segment IDs
-            selectedSegmentIds = originalLoyaltyOffer?.loyaltyOfferSegments?.findAll{it.offerId = offerId }
-                    ?.collect { it.segmentId }
+            //load all promotions for retailer
+            List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
+
+            //load all segments for retailer
+            List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
+
+            // Serialize promotions list into JSON string
+            ObjectMapper objectMapper = new ObjectMapper()
+            objectMapper.registerModule(new JodaModule())
+            String promotionsJson = objectMapper.writeValueAsString(promotions)
+            String segmentsJson = objectMapper.writeValueAsString(segments)
+
+            //Load eligible offer status
+            List eligibleOfferStatus = loyaltyService.getEligibleOfferStatus()
+
+            render(view: "/loyalty/addLoyaltyOffer", model: [
+                    loyaltyOffer : originalLoyaltyOffer,
+                    promotions: promotions,
+                    segments  : segments,
+                    promotionsJson: promotionsJson,
+                    segmentsJson: segmentsJson,
+                    selectedSegmentIds: selectedSegmentIds,
+                    eligibleOfferStatus: eligibleOfferStatus
+            ])
+        }catch(Exception ex){
+            ex.printStackTrace()
+            log.error("Error loading loyalty offer view window, Exception " + ex)
         }
 
-        //load all promotions for retailer
-        List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
-
-        //load all segments for retailer
-        List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
-
-        // Serialize promotions list into JSON string
-        ObjectMapper objectMapper = new ObjectMapper()
-        objectMapper.registerModule(new JodaModule())
-        String promotionsJson = objectMapper.writeValueAsString(promotions)
-        String segmentsJson = objectMapper.writeValueAsString(segments)
-
-        //Load eligible offer status
-        List eligibleOfferStatus = loyaltyService.getEligibleOfferStatus()
-
-        render(view: "/loyalty/addLoyaltyOffer", model: [
-                                                            loyaltyOffer : originalLoyaltyOffer,
-                                                            promotions: promotions,
-                                                            segments  : segments,
-                                                            promotionsJson: promotionsJson,
-                                                            segmentsJson: segmentsJson,
-                                                            selectedSegmentIds: selectedSegmentIds,
-                                                            eligibleOfferStatus: eligibleOfferStatus
-        ])
     }
 
 
     @Transactional
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
-        int offerId = -1
         try {
             if (loyaltyOfferCommand != null){
-                offerId = loyaltyOfferCommand.id
                 LoyaltyOffer originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId())
                 LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(loyaltyOfferCommand)
                 List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(updatedOffer, originalLoyaltyOffer)
                 loyaltyService.loyaltyOfferSave(updatedOffer)
+                loyaltyService.pushLoyaltyOfferIntoRabbitMQ()
             } else {
-
+                log.error("Invalid request found for save loyalty offer")
+                response.setStatus(500)
+                render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: "Loyalty Invalid Request Found"])
             }
         }catch(Exception ex){
             ex.printStackTrace()

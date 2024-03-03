@@ -156,6 +156,10 @@ class LoyaltyService extends MySqlDal {
         }
     }
 
+    def pushLoyaltyOfferIntoRabbitMQ(){
+
+    }
+
     def getEligibleOfferStatus(){
         return Arrays.asList(LoyaltyOfferStatus.values());
     }
