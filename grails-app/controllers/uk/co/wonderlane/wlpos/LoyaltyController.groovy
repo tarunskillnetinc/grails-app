@@ -1,6 +1,10 @@
 package uk.co.wonderlane.wlpos
 
-
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.joda.JodaModule
+import grails.databinding.BindingFormat
+import org.springframework.transaction.annotation.Transactional
+import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.reporting.SortParams
 
 class LoyaltyController {
@@ -9,11 +13,11 @@ class LoyaltyController {
     def promotionService
     def springSecurityService
 
-    def index() { }
+    def index() {}
 
-    def loyaltySegment(){}
+    def loyaltySegment() {}
 
-    def loyaltyOffers(){}
+    def loyaltyOffers() {}
 
     def ajaxSearchLoyaltySegment() {
         int defaultPagination = 20
@@ -22,68 +26,130 @@ class LoyaltyController {
             def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : defaultPagination,
                     params.offset ? Integer.parseInt(params.offset) : defaultOffSet, "id", "asc")
 
-            render(template: "loyaltySegmentSearchResults", model: [segments    : segment?.segments,
-                                                                    loyaltySegmentTerm  : params.loyaltySegmentTerm,
-                                                                    loyaltySegmentSearchBy    : params.loyaltySegmentSearchBy,
-                                                                    max         : params.max ?: defaultPagination,
-                                                                    offset      : params.offset ?: defaultOffSet,
-                                                                    totalCount  : segment?.totalCount
+            render(template: "loyaltySegmentSearchResults", model: [segments              : segment?.segments,
+                                                                    loyaltySegmentTerm    : params.loyaltySegmentTerm,
+                                                                    loyaltySegmentSearchBy: params.loyaltySegmentSearchBy,
+                                                                    max                   : params.max ?: defaultPagination,
+                                                                    offset                : params.offset ?: defaultOffSet,
+                                                                    totalCount            : segment?.totalCount
             ])
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace()
-            log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception "  + ex)
+            log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
             response.setStatus(500)
-            render (view: "_loyaltyGenericError", contentType: "text/html", model: [
-                                                                                    error_header : "Loyalty Segment Search Error",
-                                                                                    error_body   : "Error when loading loyalty segment"
+            render(view: "_loyaltyGenericError", contentType: "text/html", model: [
+                    error_header: "Loyalty Segment Search Error",
+                    error_body  : "Error when loading loyalty segment"
             ])
         }
 
     }
 
 
-    def ajaxSearchLoyaltyOffers(SortParams sortParams){
+    def ajaxSearchLoyaltyOffers(SortParams sortParams) {
         int defaultPagination = 20
         int defaultOffSet = 0
         try {
             def offer = loyaltyService.getLoyaltyOffers(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : defaultPagination,
                     params.offset ? Integer.parseInt(params.offset) : defaultOffSet, sortParams.sortColumn, sortParams.sortOrder)
 
-            render(template: "loyaltyOffersSearchResults", model: [offers    : offer?.offers,
-                                                                   loyaltyOffersTerm  : params.loyaltyOffersTerm,
-                                                                   loyaltyOffersSearchBy    : params.loyaltyOffersSearchBy,
-                                                                   max         : params.max ?: defaultPagination,
-                                                                   offset      : params.offset ?: defaultOffSet,
-                                                                   totalCount  : offer?.totalCount,
-                                                                   sortParams  : sortParams
+            render(template: "loyaltyOffersSearchResults", model: [offers               : offer?.offers,
+                                                                   loyaltyOffersTerm    : params.loyaltyOffersTerm,
+                                                                   loyaltyOffersSearchBy: params.loyaltyOffersSearchBy,
+                                                                   max                  : params.max ?: defaultPagination,
+                                                                   offset               : params.offset ?: defaultOffSet,
+                                                                   totalCount           : offer?.totalCount,
+                                                                   sortParams           : sortParams
             ])
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace()
-            log.error("Error when loading loyalty offers search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception "  + ex)
+            log.error("Error when loading loyalty offers search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
             response.setStatus(500)
-            render (view: "_loyaltyGenericError", contentType: "text/html", model: [
-                    error_header : "Loyalty Offers Search Error",
-                    error_body   : "Error when loading loyalty offers"
+            render(view: "_loyaltyGenericError", contentType: "text/html", model: [
+                    error_header: "Loyalty Offers Search Error",
+                    error_body  : "Error when loading loyalty offers"
             ])
         }
     }
 
-    def addLoyaltyOffer(){
+    def showLoyaltyOffer(){
+
+        LoyaltyOffer originalLoyaltyOffer = null
+        List<Integer> selectedSegmentIds = new ArrayList<>();
+
+        if (params.id && params.id.isNumber()) {
+            int offerId = Integer.parseInt(params.id)
+
+            originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(offerId)
+
+            // Get selected segment IDs
+            selectedSegmentIds = originalLoyaltyOffer?.loyaltyOfferSegments?.findAll{it.offerId = offerId }
+                    ?.collect { it.segmentId }
+        }
+
         //load all promotions for retailer
-        List<Promotion> promotionList = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
-        Map<String, String> promotions = promotionList.collectEntries { promotion -> [promotion.id, promotion.description] }
+        List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
 
         //load all segments for retailer
-        def segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
+        List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
 
+        // Serialize promotions list into JSON string
+        ObjectMapper objectMapper = new ObjectMapper()
+        objectMapper.registerModule(new JodaModule())
+        String promotionsJson = objectMapper.writeValueAsString(promotions)
+        String segmentsJson = objectMapper.writeValueAsString(segments)
 
-
-        //pass them into view
+        //Load eligible offer status
+        List eligibleOfferStatus = loyaltyService.getEligibleOfferStatus()
 
         render(view: "/loyalty/addLoyaltyOffer", model: [
-                                                promotions : promotions,
-                                                promotionList : promotionList
+                                                            loyaltyOffer : originalLoyaltyOffer,
+                                                            promotions: promotions,
+                                                            segments  : segments,
+                                                            promotionsJson: promotionsJson,
+                                                            segmentsJson: segmentsJson,
+                                                            selectedSegmentIds: selectedSegmentIds,
+                                                            eligibleOfferStatus: eligibleOfferStatus
         ])
-
     }
+
+
+    @Transactional
+    def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
+        if (loyaltyOfferCommand != null){
+            LoyaltyOffer originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId())
+            LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(loyaltyOfferCommand)
+            List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(updatedOffer, originalLoyaltyOffer)
+            loyaltyService.loyaltyOfferSave(updatedOffer)
+        } else {
+
+        }
+    }
+
+
+
+
+}
+
+class LoyaltyOfferCommand {
+    int id
+    String offerDescription
+    int retailerOfferId
+    int retailerId
+    LoyaltyOfferStatus status
+    @BindingFormat('dd/MM/yyyy')
+    Date startDate
+    @BindingFormat('dd/MM/yyyy')
+    Date endDate
+    BigDecimal maxBudget
+    int maxRedemptions
+    Collection<LoyaltyOfferSegmentCommand> loyaltyOfferSegments = new ArrayList<>();
+
+}
+
+class LoyaltyOfferSegmentCommand {
+    int id
+    int offerId
+    int segmentId
+    int count = 0
 }

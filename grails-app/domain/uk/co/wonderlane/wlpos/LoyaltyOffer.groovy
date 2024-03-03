@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferType
@@ -10,15 +11,15 @@ class LoyaltyOffer {
     String offerDescription
     int retailerOfferId
     int retailerId
-    LoyaltyOfferType type
-    LoyaltyOfferStatus status
+    LoyaltyOfferType type = LoyaltyOfferType.STANDARD
+    LoyaltyOfferStatus status = LoyaltyOfferStatus.OPEN
     DateTime visibleFromDate
-    DateTime startDate
-    DateTime endDate
+    Date startDate
+    Date endDate
     int maxAllocations
     int currentAllocations
     BigDecimal maxBudget
-    BigDecimal currentBudget
+    BigDecimal currentBudget = BigDecimal.ZERO
     int maxCustomers
     int currentCustomers
     int maxRedemptions
@@ -30,10 +31,22 @@ class LoyaltyOffer {
     String customAttributes
     DateTime dateCreated
     DateTime dateModified
+    @JsonIgnore
+    Collection<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
 
-    static constraints = {}
+    static hasMany = [ loyaltyOfferSegments: LoyaltyOfferSegment ]
+
+    static constraints = {
+        customAttributes nullable: true
+        visibleFromDate nullable: true
+
+        loyaltyOfferSegments minSize: 1, validator: {val, obj ->
+            return true
+        }
+    }
 
     static mapping = {
+        autowire true
         datasources (["loyalty"])
 
         table "offer"
@@ -63,5 +76,7 @@ class LoyaltyOffer {
         customAttributes column: "custom_attributes" , sqlType: "text"
         dateCreated column: "date_created"
         dateModified column: "date_modified"
+//        loyaltyOfferSegments column: 'offer_id'
+        loyaltyOfferSegments cascade: "save-update,delete"
     }
 }

@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.PromotionType
 
 @Transactional
@@ -133,10 +134,9 @@ class PromotionService {
     }
 
     List<Promotion> getPromotionForRetailer(int retailerId) {
-        List<Promotion> promotionList = new ArrayList<>();
-        promotionList = Promotion.withCriteria {
+        return Promotion.withCriteria {
             eq("retailerId", retailerId)
         }
-        return promotionList;
     }
+
 }

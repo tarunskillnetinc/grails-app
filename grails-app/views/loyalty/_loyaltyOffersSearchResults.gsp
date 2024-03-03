@@ -43,18 +43,18 @@
     </g:if>
 
     <g:each in="${offers}" var="offer" status="i">
-        <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;">
+        <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(controller: 'loyalty', action:'showLoyaltyOffer', id: offer.id)}';">
             <div id="id-${i + 1}" class="col-1">${offer.id}</div>
             <div id="description-${i + 1}" class="col-2">${offer.offerDescription}</div>
             <div id="count-${i + 1}" class="col-2">
                 <g:if test="${offer?.startDate}">
-                    <g:formatDate format="dd/MM/yyyy" date="${offer?.startDate?.toDate() ?: new Date()}"/>
+                    <g:formatDate format="dd/MM/yyyy" date="${offer?.startDate ?: new Date()}"/>
                 </g:if>
                 <g:else>&nbsp;</g:else>
             </div>
             <div id="count-${i + 1}" class="col-2">
                 <g:if test="${offer?.endDate}">
-                    <g:formatDate format="dd/MM/yyyy" date="${offer?.endDate?.toDate() ?: new Date()}"/>
+                    <g:formatDate format="dd/MM/yyyy" date="${offer?.endDate ?: new Date()}"/>
                 </g:if>
                 <g:else>&nbsp;</g:else>
             </div>

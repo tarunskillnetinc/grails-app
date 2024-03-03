@@ -161,7 +161,7 @@
             </div>
 
             <div class="col-2 offset-2">
-                <g:link elementId="add-new-product-btn" controller="loyalty" action="addLoyaltyOffer" class="btn btn-wl p-2">Add New Offer</g:link>
+                <g:link elementId="add-new-product-btn" controller="loyalty" action="showLoyaltyOffer" class="btn btn-wl p-2">Add New Offer</g:link>
             </div>
 
         </div>

@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 class Segment {
 
+
     Integer id
     int retailerId
     String description
