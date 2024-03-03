@@ -6,6 +6,7 @@ import grails.databinding.BindingFormat
 import org.springframework.transaction.annotation.Transactional
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.reporting.SortParams
+import groovy.json.JsonOutput
 
 class LoyaltyController {
 
@@ -116,18 +117,26 @@ class LoyaltyController {
 
     @Transactional
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
-        if (loyaltyOfferCommand != null){
-            LoyaltyOffer originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId())
-            LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(loyaltyOfferCommand)
-            List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(updatedOffer, originalLoyaltyOffer)
-            loyaltyService.loyaltyOfferSave(updatedOffer)
-        } else {
+        int offerId = -1
+        try {
+            if (loyaltyOfferCommand != null){
+                offerId = loyaltyOfferCommand.id
+                LoyaltyOffer originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId())
+                LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(loyaltyOfferCommand)
+                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(updatedOffer, originalLoyaltyOffer)
+                loyaltyService.loyaltyOfferSave(updatedOffer)
+            } else {
 
+            }
+        }catch(Exception ex){
+            ex.printStackTrace()
+            log.error("Error when saving loyalty offers, Exception " + ex)
+            response.setStatus(500)
+            flash.error = "Loyalty Save Error"
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: "Loyalty Save Error"])
         }
+
     }
-
-
-
 
 }
 

@@ -288,6 +288,7 @@
             var selectedOption = selectElement.options[selectElement.selectedIndex];
             var selectedPromotion = selectedOption.value;
 
+            //Prepare parameter map
             var params = {
                 offerDescription: offerDescription,
                 startDate: offerStartDate,
@@ -311,11 +312,31 @@
                 data: params,
                 statusCode: {
                     500: function (response) {
-                        $('#productListItemModal').modal({show: true});
-                        $("#productListItemContent").html(response.responseText);
+                        var errorMessage = response.responseJSON.error;
+                        if (errorMessage) {
+                            var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+                            var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
+                            var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+
+                            closeIcon.click(function () {
+                                errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
+                            });
+
+                            errorDiv.append(closeIcon);
+                            errorDiv.append(errorMessageSpan);
+                            $('#errors-container').html(errorDiv);
+
+                            // Adjust icon position to top-right corner
+                            closeIcon.css({
+                                "position": "absolute",
+                                "top": "-10px",
+                                "right": "1px",
+                                "margin": "0.5rem"
+                            });
+                        }
                     },
                     200: function (response) {
-                        window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
+                        //window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
                     }
                 }
             });
@@ -375,13 +396,8 @@
         </section>
     </g:if>
 
-    <g:hasErrors bean="${user}">
-        <section id="errors-container">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${user}" as="list" />
-            </div>
-        </section>
-    </g:hasErrors>
+    <section id="errors-container" class="container-fluid"></section>
+
 
     <g:form name="add-loyalty-offer-form" action="save" novalidate="novalidate" class="mt-4">
         <g:hiddenField name="id" value="${offer?.id ?: 0}" />
