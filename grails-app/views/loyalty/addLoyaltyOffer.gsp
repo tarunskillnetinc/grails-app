@@ -42,7 +42,6 @@
         })
 
         function updateSegmentInputOnLoading() {
-            console.log("hiii " +  ${selectedSegmentIds})
             var selectedSegmentIdList = ${selectedSegmentIds}; // Get the selected segment IDs from the server response
 
                 var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
@@ -53,21 +52,39 @@
                 for (var i = 0; i < ('${selectedSegmentIds}').length; i++) {
                     var segmentId = selectedSegmentIdList[i];
                     var selectedSegment = findSegmentById(segmentId);
-                    console.log("selected segment " + selectedSegment)
+                    // if (selectedSegment) {
+                    //     var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
+                    //     var selectedSegment = document.createElement('div');
+                    //     selectedSegment.className = 'selected-item';
+                    //     selectedSegment.setAttribute('data-id', segmentId);
+                    //     selectedSegment.innerHTML = description + cancelIcon;
+                    //     selectedSegmentsContainer.appendChild(selectedSegment);
+                    //     // selectedDescriptions.push(selectedSegment.description);
+                    // }
+
                     if (selectedSegment) {
                         selectedDescriptions.push(selectedSegment.description);
+
+                        // Create selected segment element
+                        var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
+                        var selectedSegmentDiv = document.createElement('div');
+                        selectedSegmentDiv.className = 'selected-item';
+                        selectedSegmentDiv.id = 'selectedSegment_' + segmentId; // Set the id attribute
+                        selectedSegmentDiv.setAttribute('data-id', segmentId); // Set the data-id attribute
+                        selectedSegmentDiv.innerHTML = selectedSegment.description + cancelIcon;
+                        selectedSegmentsContainer.appendChild(selectedSegmentDiv);
                     }
                 }
 
                 // Display selected segments in offerSelectedSegmentsContainer
-                for (var j = 0; j < selectedDescriptions.length; j++) {
-                    var description = selectedDescriptions[j];
-                    var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
-                    var selectedSegment = document.createElement('div');
-                    selectedSegment.className = 'selected-item';
-                    selectedSegment.innerHTML = description + cancelIcon;
-                    selectedSegmentsContainer.appendChild(selectedSegment);
-                }
+                // for (var j = 0; j < selectedDescriptions.length; j++) {
+                //     var description = selectedDescriptions[j];
+                //     var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
+                //     var selectedSegment = document.createElement('div');
+                //     selectedSegment.className = 'selected-item';
+                //     selectedSegment.innerHTML = description + cancelIcon;
+                //     selectedSegmentsContainer.appendChild(selectedSegment);
+                // }
 
                 // Update hidden input value
                 var selectedSegmentsInput = document.getElementById('offerSelectedSegments');
@@ -207,22 +224,25 @@
             var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
             var selectedSegmentsInput = document.getElementById('offerSelectedSegments');
 
-            // Clear the container before updating
-            selectedSegmentsContainer.innerHTML = '';
-
             // Store selected descriptions
-            var selectedDescriptions = [];
+            var selectedDescriptions = selectedSegmentsInput.value.split(',');
 
             // Add or update selected items
             for (var i = 0; i < selectedOptions.length; i++) {
                 var description = selectedOptions[i].text;
-                var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
-                var selectedSegment = document.createElement('div');
-                selectedSegment.className = 'selected-item';
-                selectedSegment.innerHTML = description + cancelIcon;
-                selectedSegmentsContainer.appendChild(selectedSegment);
 
-                selectedDescriptions.push(description);
+                // Check if description already exists
+                if (!selectedDescriptions.includes(description)) {
+                    var id = selectedOptions[i].value;
+                    var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
+                    var selectedSegment = document.createElement('div');
+                    selectedSegment.className = 'selected-item';
+                    selectedSegment.setAttribute('data-id', id);
+                    selectedSegment.innerHTML = description + cancelIcon;
+                    selectedSegmentsContainer.appendChild(selectedSegment);
+
+                    selectedDescriptions.push(description);
+                }
             }
 
             // Update hidden input value
@@ -276,6 +296,7 @@
 
 
         function saveLoyaltyOffer(){
+            var offerId = $('#offerId').val();
             var offerDescription = $('#offerDescriptionId').val();
             var offerStartDate = $('#offerStartDateId').val();
             var offerEndDate = $('#offerEndDateId').val();
@@ -290,6 +311,7 @@
 
             //Prepare parameter map
             var params = {
+                id: offerId,
                 offerDescription: offerDescription,
                 startDate: offerStartDate,
                 endDate: offerEndDate,
@@ -300,12 +322,16 @@
             };
 
             //Get selected segment items id list
-            var selectElement = document.getElementById('offerSegmentAssignedId');
             loyaltySegmentIndex = 0
-            for (var i = 0; i < selectElement.selectedOptions.length; i++) {
-                params["loyaltyOfferSegments[" + loyaltySegmentIndex + "].segmentId"] = selectElement.selectedOptions[i].value;
+            var selectedSegments = document.querySelectorAll('#offerSelectedSegmentsContainer .selected-item');
+            selectedSegments.forEach(function(segment) {
+                var dataId = segment.getAttribute('data-id');
+                params["loyaltyOfferSegments[" + loyaltySegmentIndex + "].offerId"] = offerId;
+                params["loyaltyOfferSegments[" + loyaltySegmentIndex + "].segmentId"] = dataId;
                 loyaltySegmentIndex++;
-            }
+            });
+
+
             $.ajax({
                 url: "${createLink(controller: 'loyalty', action: 'ajaxSaveLoyaltyOffers')}",
                 method: "POST",
@@ -336,7 +362,7 @@
                         }
                     },
                     200: function (response) {
-                        //window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
+                        window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
                     }
                 }
             });
@@ -400,7 +426,7 @@
 
 
     <g:form name="add-loyalty-offer-form" action="save" novalidate="novalidate" class="mt-4">
-        <g:hiddenField name="id" value="${offer?.id ?: 0}" />
+        <g:hiddenField name="offerId" value="${loyaltyOffer?.id ?: 0}" />
 
         <div class="row mt-5 mb-3">
             <div class="form-group row col-12 col-sm-6 offset-sm-1">

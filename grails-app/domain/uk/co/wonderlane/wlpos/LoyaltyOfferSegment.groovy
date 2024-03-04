@@ -10,7 +10,6 @@ class LoyaltyOfferSegment implements Serializable {
     int count = 0
     boolean delete = false
 
-
     static transients = ['delete']
 
     static constraints = {}
@@ -22,10 +21,9 @@ class LoyaltyOfferSegment implements Serializable {
         table "offer_segment"
         version false
 
-        loyaltyOffer column: "offer_id", insertable: false, updateable: false, cascade: 'save-update,delete'
+        loyaltyOffer column: "offer_id", insertable: false, updateable: false
         id column: "id", sqlType: "int"
         segmentId column: "segment_id"
         count column: "count"
-
     }
 }

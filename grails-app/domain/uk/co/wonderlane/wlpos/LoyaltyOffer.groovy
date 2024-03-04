@@ -12,7 +12,7 @@ class LoyaltyOffer {
     int retailerOfferId
     int retailerId
     LoyaltyOfferType type = LoyaltyOfferType.STANDARD
-    LoyaltyOfferStatus status = LoyaltyOfferStatus.OPEN
+    LoyaltyOfferStatus status
     DateTime visibleFromDate
     Date startDate
     Date endDate
@@ -39,7 +39,6 @@ class LoyaltyOffer {
     static constraints = {
         customAttributes nullable: true
         visibleFromDate nullable: true
-
         loyaltyOfferSegments minSize: 1, validator: {val, obj ->
             return true
         }
@@ -76,7 +75,6 @@ class LoyaltyOffer {
         customAttributes column: "custom_attributes" , sqlType: "text"
         dateCreated column: "date_created"
         dateModified column: "date_modified"
-//        loyaltyOfferSegments column: 'offer_id'
-        loyaltyOfferSegments cascade: "save-update,delete"
+        loyaltyOfferSegments cascade: 'none'
     }
 }

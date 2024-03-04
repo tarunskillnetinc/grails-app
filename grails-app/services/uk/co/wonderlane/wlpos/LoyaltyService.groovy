@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-import org.hibernate.Transaction
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
@@ -88,38 +87,37 @@ class LoyaltyService extends MySqlDal {
 
     }
 
-    protected LoyaltyOffer populateUpdatedOffer(LoyaltyOfferCommand loyaltyOfferCommand) {
-        LoyaltyOffer loyaltyOffer = new LoyaltyOffer();
-        loyaltyOffer.id = loyaltyOfferCommand.id
-        loyaltyOffer.offerDescription = loyaltyOfferCommand.offerDescription
-        loyaltyOffer.retailerOfferId = loyaltyOfferCommand.retailerOfferId
-        loyaltyOffer.retailerId = loyaltyOfferCommand.retailerId
-        loyaltyOffer.status = loyaltyOfferCommand.status
-        loyaltyOffer.startDate = loyaltyOfferCommand.startDate
-        loyaltyOffer.endDate = loyaltyOfferCommand.endDate
-        loyaltyOffer.maxBudget = loyaltyOfferCommand.maxBudget
-        loyaltyOffer.maxRedemptions = loyaltyOfferCommand.maxRedemptions
-        loyaltyOffer.dateModified =  new DateTime()
-        loyaltyOffer.status =  LoyaltyOfferStatus.OPEN
-        loyaltyOfferCommand.loyaltyOfferSegments.each {
-            it ->
-                {
-                    LoyaltyOfferSegment loyaltyOfferSegment = new LoyaltyOfferSegment()
-                    loyaltyOfferSegment.id = it.id
-                    loyaltyOfferSegment.offerId = it.offerId
-                    loyaltyOfferSegment.segmentId = it.segmentId
-                    loyaltyOfferSegment.loyaltyOffer = loyaltyOffer
-                    loyaltyOffer.addToLoyaltyOfferSegments(loyaltyOfferSegment)
-
-                }
-        }
-        return loyaltyOffer
+    protected LoyaltyOffer populateUpdatedOffer(LoyaltyOffer originalLoyaltyOffer, LoyaltyOfferCommand loyaltyOfferCommand) {
+        originalLoyaltyOffer.id = loyaltyOfferCommand.id
+        originalLoyaltyOffer.offerDescription = loyaltyOfferCommand.offerDescription
+        originalLoyaltyOffer.retailerOfferId = loyaltyOfferCommand.retailerOfferId
+        originalLoyaltyOffer.retailerId = springSecurityService.principal.retailerId
+        originalLoyaltyOffer.status = loyaltyOfferCommand.status
+        originalLoyaltyOffer.startDate = loyaltyOfferCommand.startDate
+        originalLoyaltyOffer.endDate = loyaltyOfferCommand.endDate
+        originalLoyaltyOffer.maxBudget = loyaltyOfferCommand.maxBudget
+        originalLoyaltyOffer.maxRedemptions = loyaltyOfferCommand.maxRedemptions
+        originalLoyaltyOffer.dateModified =  new DateTime()
+        originalLoyaltyOffer.status =  loyaltyOfferCommand.status
+//        loyaltyOfferCommand.loyaltyOfferSegments.each {
+//            offerSegment ->
+//                {
+//                    LoyaltyOfferSegment loyaltyOfferSegment = new LoyaltyOfferSegment()
+//                    loyaltyOfferSegment.id = offerSegment.id
+//                    loyaltyOfferSegment.offerId = offerSegment.offerId
+//                    loyaltyOfferSegment.segmentId = offerSegment.segmentId
+//                    loyaltyOfferSegment.loyaltyOffer = originalLoyaltyOffer
+//                    originalLoyaltyOffer.addToLoyaltyOfferSegments(loyaltyOfferSegment)
+//
+//                }
+//        }
+        return originalLoyaltyOffer
     }
 
-    protected List<LoyaltyOfferSegment> updateLoyaltySegments(LoyaltyOffer updatedOffer, LoyaltyOffer originalLoyaltyOffer){
-        List<LoyaltyOfferSegment> LoyaltyOfferSegments = new ArrayList<>()
+    protected List<LoyaltyOfferSegment> updateLoyaltySegments(LoyaltyOfferCommand loyaltyOfferCommand, LoyaltyOffer originalLoyaltyOffer){
+        List<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
         List<LoyaltyOfferSegment> originalOfferSegments = originalLoyaltyOffer.getLoyaltyOfferSegments()
-        List<LoyaltyOfferSegment> updatedOfferSegments = updatedOffer.getLoyaltyOfferSegments()
+        List<LoyaltyOfferSegmentCommand> updatedOfferSegments = loyaltyOfferCommand.getLoyaltyOfferSegments()
 
         //Loop over existing loyalty segments to identify deleted segments
         originalOfferSegments?.each {
@@ -127,8 +125,9 @@ class LoyaltyService extends MySqlDal {
                 def updatedOfferSegment = updatedOfferSegments?.find { updatedOfferSegment -> updatedOfferSegment.id == originalOfferSegment.id }
                 if (!updatedOfferSegment){
                     originalOfferSegment.delete = true
+                    loyaltyOfferSegments.add(originalOfferSegment)
                 }
-                LoyaltyOfferSegments.add(originalOfferSegment)
+
         }
 
         //Loop over updated loyalty segments to identify newly added segments
@@ -136,23 +135,27 @@ class LoyaltyService extends MySqlDal {
             updatedOfferSegment ->
                 def originalOfferSegment = originalOfferSegments?.find { originalOfferSegment -> originalOfferSegment.id == updatedOfferSegment.id }
                 if (!originalOfferSegment){
-                    updatedOfferSegment.delete = false
+                    LoyaltyOfferSegment loyaltyOfferSegment = new LoyaltyOfferSegment()
+                    loyaltyOfferSegment.id = updatedOfferSegment.id
+                    loyaltyOfferSegment.offerId = updatedOfferSegment.offerId
+                    loyaltyOfferSegment.segmentId = updatedOfferSegment.segmentId
+                    loyaltyOfferSegment.loyaltyOffer = originalLoyaltyOffer
+                    loyaltyOfferSegment.delete = false
+                    loyaltyOfferSegments.add(loyaltyOfferSegment)
                 }
-                LoyaltyOfferSegments.add(originalOfferSegment)
+
         }
-
-        return LoyaltyOfferSegments
-
+        return loyaltyOfferSegments
     }
 
     @Transactional(connection="loyalty")
-    def loyaltyOfferSave(LoyaltyOffer updatedOffer){
+    def loyaltyOfferSave(LoyaltyOffer updatedOffer, List<LoyaltyOfferSegment> loyaltyOfferSegmentList){
         try {
-            if (updatedOffer.validate() && !updatedOffer.hasErrors()){
-                updatedOffer.save(flush: true)
-            }
+            updateLoyaltyOffer(updatedOffer)
+            updateLoyaltySegments(loyaltyOfferSegmentList)
         }catch(Exception ex){
-
+            log.error("Error at saving loyalty offer and loyalty offer segments, Exception " + ex)
+            throw ex
         }
     }
 
@@ -162,5 +165,34 @@ class LoyaltyService extends MySqlDal {
 
     def getEligibleOfferStatus(){
         return Arrays.asList(LoyaltyOfferStatus.values());
+    }
+
+    def updateLoyaltyOffer(LoyaltyOffer updatedOffer){
+        try {
+            if (updatedOffer.validate() && !updatedOffer.hasErrors()){
+                updatedOffer.save(flush: true)
+            }
+        }catch(Exception ex){
+            log.error("Error at saving loyalty offer, Exception " + ex)
+            throw ex
+        }
+
+    }
+
+    def updateLoyaltySegments(List<LoyaltyOfferSegment> loyaltyOfferSegmentList){
+        try {
+            for (LoyaltyOfferSegment loyaltyOfferSegment : loyaltyOfferSegmentList){
+                if (loyaltyOfferSegment.validate() && !loyaltyOfferSegment.hasErrors()){
+                    if (loyaltyOfferSegment.delete){
+                        loyaltyOfferSegment.delete(flush: true)
+                    } else {
+                        loyaltyOfferSegment.save(flush: true)
+                    }
+                }
+            }
+        }catch(Exception ex){
+            log.error("Error at saving loyalty segments,  Exception " + ex)
+            throw ex
+        }
     }
 }

@@ -123,7 +123,11 @@
         </div>
     </div>
 
-    <div class="alert alert-danger alert-wl" role="alert" id="error-message" style="display: none"></div>
+    <g:if test="${flash.message}">
+        <section id="success-container">
+            <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+        </section>
+    </g:if>
 
     <section id="filters-section" class="container-fluid">
 

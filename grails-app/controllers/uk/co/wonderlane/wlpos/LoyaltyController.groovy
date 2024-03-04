@@ -116,19 +116,23 @@ class LoyaltyController {
             ex.printStackTrace()
             log.error("Error loading loyalty offer view window, Exception " + ex)
         }
-
     }
-
 
     @Transactional
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
         try {
             if (loyaltyOfferCommand != null){
-                LoyaltyOffer originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId())
-                LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(loyaltyOfferCommand)
-                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(updatedOffer, originalLoyaltyOffer)
-                loyaltyService.loyaltyOfferSave(updatedOffer)
-                loyaltyService.pushLoyaltyOfferIntoRabbitMQ()
+                LoyaltyOffer originalLoyaltyOffer = null
+                originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId()) //Load current loyalty offer value if exists
+                if (originalLoyaltyOffer == null){
+                    originalLoyaltyOffer = new LoyaltyOffer();
+                }
+                LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(originalLoyaltyOffer, loyaltyOfferCommand) //Populate updated loyalty offer values
+                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(loyaltyOfferCommand, originalLoyaltyOffer) //Get updated loyalty segments
+                loyaltyService.loyaltyOfferSave(originalLoyaltyOffer, updatedLoyaltySegments) //Save loyalty offers + loyalty offer segments
+                loyaltyService.pushLoyaltyOfferIntoRabbitMQ() //Push loyalty offer details into rabbitmq
+                flash.message = "Successfully Save Offer"
+                redirect("controller": "loyalty", action:"loyaltyOffers")
             } else {
                 log.error("Invalid request found for save loyalty offer")
                 response.setStatus(500)
