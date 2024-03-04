@@ -10,6 +10,7 @@ class Member {
     String firstName
     String lastName
     String email
+    String mobile_no
     String password
     String resetToken
     Date resetTokenExpiry
@@ -30,15 +31,16 @@ class Member {
     static mapping = {
         datasources(["loyalty"])
 
-        autowire true
         table '`member`'
         version false
 
+        id column: "id"
         retailerId column: "retailer_id"
         cardType column: "card_type"
         firstName column: "first_name"
         lastName column: "last_name"
         email column: "email", unique: true
+        mobile_no column: "mobile_no"
         password colum: "password"
         resetToken colum: "reset_token"
         resetTokenExpiry column: "reset_token_expiry"
@@ -60,6 +62,7 @@ class Member {
     static constraints = {
         firstName nullable: true
         lastName nullable: true
+        mobile_no nullable: true
         password nullable: true
         resetToken nullable: true
         resetTokenExpiry nullable: true

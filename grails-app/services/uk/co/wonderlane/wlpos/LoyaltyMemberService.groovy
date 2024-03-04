@@ -28,4 +28,37 @@ class LoyaltyMemberService {
 
         [totalResults: totalCount, members: members]
     }
+
+    def findByCardNumber(String cardNumber) {
+        Member.findByCardNumber(cardNumber)
+    }
+
+    def updateMemberField(String cardNumber, String fieldToUpdate, String updatedValue) {
+        def member = Member.findByCardNumber(cardNumber)
+
+        if (member) {
+            // Perform validation and update based on the fieldToUpdate parameter
+            switch (fieldToUpdate) {
+                case "firstName":
+                    member.firstName = updatedValue
+                    break
+                case "lastName":
+                    member.lastName = updatedValue
+                    break
+                case "email":
+                    member.email = updatedValue
+                    break
+                case "mobile_no":
+                    member.mobile_no = updatedValue
+                    break
+                default:
+                    throw new IllegalArgumentException("Invalid fieldToUpdate parameter.")
+            }
+
+            // Save the updated member
+            if (member.validate()) {
+                member.save(flush: true)
+            }
+        }
+    }
 }
