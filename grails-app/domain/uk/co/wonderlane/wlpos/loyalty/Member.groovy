@@ -1,0 +1,79 @@
+package uk.co.wonderlane.wlpos.loyalty
+
+import uk.co.wonderlane.wlpos.enums.MemberStatus
+
+class Member {
+
+    int id
+    int retailerId
+    int cardType
+    String firstName
+    String lastName
+    String email
+    String password
+    String resetToken
+    Date resetTokenExpiry
+    String cardNumber
+    String postcode
+    Date dateOfBirth
+    Date lastTransaction
+    int offersAvailable
+    int currentPoints
+    double currentSpend
+    double currentSavings
+    int currentStamps
+    int maxStamps
+    MemberStatus status
+    Date dateCreated
+    Date dateUpdated
+
+    static mapping = {
+        datasources(["loyalty"])
+
+        autowire true
+        table '`member`'
+        version false
+
+        retailerId column: "retailer_id"
+        cardType column: "card_type"
+        firstName column: "first_name"
+        lastName column: "last_name"
+        email column: "email", unique: true
+        password colum: "password"
+        resetToken colum: "reset_token"
+        resetTokenExpiry column: "reset_token_expiry"
+        cardNumber column: "card_no", unique: true
+        postcode column: "postcode"
+        dateOfBirth column: "dob"
+        lastTransaction column: "last_transaction"
+        offersAvailable column: "offers_available"
+        currentPoints column: "current_points"
+        currentSpend column: "current_spend"
+        currentSavings column: "current_savings"
+        currentStamps column: "current_stamps"
+        maxStamps column: "max_stamps"
+        status column: "status", sqlType: "enum", enumType: "string"
+        dateCreated column: "date_created"
+        dateUpdated column: "date_updated"
+    }
+
+    static constraints = {
+        firstName nullable: true
+        lastName nullable: true
+        password nullable: true
+        resetToken nullable: true
+        resetTokenExpiry nullable: true
+        postcode nullable: true
+        dateOfBirth nullable: true
+        lastTransaction nullable: true
+        offersAvailable nullable: true
+        currentPoints nullable: true
+        currentSpend nullable: true
+        currentSavings nullable: true
+        currentStamps nullable: true
+        maxStamps nullable: true
+        status nullable: true
+        dateCreated nullable: true
+        dateUpdated nullable: true
+    }
+}
