@@ -105,7 +105,7 @@
     <section>
         <div id="validation-errors" class="alert alert-danger alert-wl mx-0" role="alert" hidden></div>
 
-        <g:form method="post" action="save" class="mt-5" name="memberDetails">
+        <g:form method="post" action="memberUpdateSave" class="mt-5" name="memberDetails">
             <div class="card-body pt-5">
                 <div class="row">
                     <div class="col-12 col-lg-5 offset-lg-1">
@@ -163,8 +163,8 @@
 
             <div class="tab-content">
                 <div class="row my-5">
-                    <g:link elementId="fixedPrice-cancel" action="loyaltyMembers" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, ar you sure you wish to continue?');">Cancel</g:link>
-                    <button id="save" type="button" name="fixedPrice-save-button" onclick="validateUpdates()" class="btn btn-success col-1 offset-8">Save</button>
+                    <g:link elementId="memberUpdate-cancel" action="loyaltyMembers" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, ar you sure you wish to continue?');">Cancel</g:link>
+                    <button id="memberUpdateSave" type="button" name="memberUpdate-save-button" onclick="validateUpdates()" class="btn btn-success col-1 offset-8">Save</button>
                 </div>
             </div>
         </g:form>

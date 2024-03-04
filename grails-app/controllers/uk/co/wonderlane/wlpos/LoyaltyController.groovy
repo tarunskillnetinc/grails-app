@@ -10,14 +10,14 @@ class LoyaltyController {
 
     def index() {}
     def loyaltyMembers() {}
-    def loyaltySegment(){}
+    def loyaltySegment() {}
 
-    def show(String cardNumber) {
+    def showMemberDetails(String cardNumber) {
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
         render(view: "loyaltyMemberDetails", model: [member: member])
     }
 
-    def save() {
+    def memberUpdateSave() {
         String cardNumber
         String firstName
         String lastName
