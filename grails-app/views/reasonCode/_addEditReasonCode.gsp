@@ -87,7 +87,7 @@
 
     <form id="edit-code-form" name="edit-code-form">
         <div class="row form-group mb-4">
-            <label for="description" class="col-3 offset-1 col-form-label-mandatory text-right">Description:</label>
+            <label for="description" class="col-3 offset-1 col-form-label text-right">Description:</label>
             <div class="input-group col-4">
                 <g:textField name="description" value="${reasonCode?.description}" class="form-control bottom-border" />
             </div>
