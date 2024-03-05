@@ -9,9 +9,8 @@ class LoyaltyOfferSegment implements Serializable {
     int segmentId
     int count = 0
     boolean delete = false
-    boolean isUpdated = false
 
-    static transients = ['delete', 'isUpdated']
+    static transients = ['delete']
 
     static constraints = {}
 
@@ -26,5 +25,14 @@ class LoyaltyOfferSegment implements Serializable {
         id column: "id", sqlType: "int"
         segmentId column: "segment_id"
         count column: "count"
+    }
+
+    public uk.co.wonderlane.wlpos.entities.LoyaltyOfferSegment getLoyaltyOfferSegments(){
+        uk.co.wonderlane.wlpos.entities.LoyaltyOfferSegment loyaltyOfferSegment = new uk.co.wonderlane.wlpos.entities.LoyaltyOfferSegment();
+        loyaltyOfferSegment.setId(id)
+        loyaltyOfferSegment.setOfferId(offerId)
+        loyaltyOfferSegment.setSegmentId(segmentId)
+        loyaltyOfferSegment.setCount(count)
+        return loyaltyOfferSegment
     }
 }

@@ -6,8 +6,9 @@ import org.joda.time.DateTimeZone
 import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
-import org.springframework.validation.Errors
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import javax.xml.bind.ValidationException
 
@@ -16,6 +17,7 @@ class LoyaltyService extends MySqlDal {
 
     def springSecurityService
     def messageSource
+    def rabbitService
 
     protected LoyaltyService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -160,14 +162,23 @@ class LoyaltyService extends MySqlDal {
         try {
             LoyaltyOffer insertedOffer = saveLoyaltyOffer(updatedOffer)
             saveLoyaltySegments(loyaltyOfferSegmentList, insertedOffer)
+            pushLoyaltyOfferIntoRabbitMQ(updatedOffer)
         }catch(Exception ex){
             log.error("Error at saving loyalty offer and loyalty offer segments, Exception " + ex)
             throw ex
         }
     }
 
-    def pushLoyaltyOfferIntoRabbitMQ(){
-
+    def pushLoyaltyOfferIntoRabbitMQ(LoyaltyOffer updatedOffer){
+        try {
+            SyncMessage loyaltyOfferSyncMessage = new SyncMessage(SyncMessageType.LOYALTY_OFFER, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+            loyaltyOfferSyncMessage.setInsert(true)
+            loyaltyOfferSyncMessage.setLoyaltyOffer(updatedOffer.getLoyaltyOffer())
+            rabbitService.sendMessage(loyaltyOfferSyncMessage)
+        }catch(Exception ex){
+            log.error("Error at pushing updated loyalty offer into rabbitMQ, Exception " + ex)
+            throw ex
+        }
     }
 
     def getEligibleOfferStatus(){

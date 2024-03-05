@@ -197,6 +197,7 @@ beans = {
                     grailsApplication.config.getProperty('mysql.loyalty.database'))) {
         springSecurityService = ref('springSecurityService')
         messageSource = ref('messageSource')
+        rabbitService = ref('rabbitService')
     }
 
     gsonProvider(GsonProvider)

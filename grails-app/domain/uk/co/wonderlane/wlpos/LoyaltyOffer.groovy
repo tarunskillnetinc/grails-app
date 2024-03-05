@@ -148,4 +148,36 @@ class LoyaltyOffer {
         dateModified column: "date_modified"
         loyaltyOfferSegments cascade: 'none'
     }
+
+    public uk.co.wonderlane.wlpos.entities.LoyaltyOffer getLoyaltyOffer(){
+        uk.co.wonderlane.wlpos.entities.LoyaltyOffer loyaltyOffer = new uk.co.wonderlane.wlpos.entities.LoyaltyOffer();
+        loyaltyOffer.setId(id)
+        loyaltyOffer.setOfferDescription(offerDescription)
+        loyaltyOffer.setRetailerOfferId(retailerOfferId)
+        loyaltyOffer.setRetailerId(retailerId)
+        loyaltyOffer.setType(type)
+        loyaltyOffer.setStatus(status)
+        loyaltyOffer.setVisibleFromDate(visibleFromDate)
+        loyaltyOffer.setStartDate(startDate)
+        loyaltyOffer.setEndDate(endDate)
+        loyaltyOffer.setMaxAllocations(maxAllocations)
+        loyaltyOffer.setCurrentAllocations(currentAllocations)
+        loyaltyOffer.setMaxBudget(maxBudget)
+        loyaltyOffer.setCurrentBudget(currentBudget)
+        loyaltyOffer.setMaxCustomers(maxCustomers)
+        loyaltyOffer.setCurrentCustomers(currentCustomers)
+        loyaltyOffer.setMaxRedemptions(maxRedemptions)
+        loyaltyOffer.setCurrentRedemptions(currentRedemptions)
+        loyaltyOffer.setRedemptionDefault(redemptionDefault)
+        loyaltyOffer.setAlertThreshold(alertThreshold)
+        loyaltyOffer.setWeighting(weighting)
+        loyaltyOffer.setRequiresActivation(requiresActivation)
+        loyaltyOffer.setCustomAttributes(customAttributes)
+        loyaltyOffer.setDateCreated(dateCreated)
+        loyaltyOffer.setDateModified(dateModified)
+        loyaltyOfferSegments.each {
+            loyaltyOffer.getLoyaltyOfferSegments().add(it.getLoyaltyOfferSegments())
+        }
+        return loyaltyOffer;
+    }
 }

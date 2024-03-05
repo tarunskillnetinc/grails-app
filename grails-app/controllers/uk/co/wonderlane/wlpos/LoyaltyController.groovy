@@ -186,7 +186,6 @@ class LoyaltyController {
         }
     }
 
-    @Transactional
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
         LoyaltyOffer updatedLoyaltyOffer
         List<String> errorList = new ArrayList<>()
@@ -201,8 +200,8 @@ class LoyaltyController {
                 updatedLoyaltyOffer = loyaltyService.populateUpdatedOffer(originalLoyaltyOffer, loyaltyOfferCommand) //Populate updated loyalty offer values
                 List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(originalLoyaltyOfferSegments,
                         originalLoyaltyOffer.getLoyaltyOfferSegments()) //Get updated loyalty segments
-                loyaltyService.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltySegments) //Save loyalty offers + loyalty offer segments
-                loyaltyService.pushLoyaltyOfferIntoRabbitMQ() //Push loyalty offer details into rabbitmq
+                //Save loyalty offers + loyalty offer segments + push saved loyalty offer into rabbitMQ
+                loyaltyService.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltySegments)
                 flash.message = "Successfully Save Offer"
                 redirect("controller": "loyalty", action:"loyaltyOffers")
             } else {
@@ -216,7 +215,7 @@ class LoyaltyController {
             ex.printStackTrace()
             log.error("Error when saving loyalty offers, Exception " + ex)
             response.setStatus(500)
-            if (updatedLoyaltyOffer != null && updatedLoyaltyOffer.errors){
+            if (updatedLoyaltyOffer != null && updatedLoyaltyOffer.errors != null && updatedLoyaltyOffer.errors.allErrors.size() > 0){
                 errorList.clear()
                 errorList.addAll(loyaltyService.extractErrorMessages(updatedLoyaltyOffer.errors))
                 log.error("Error when saving loyalty offers, Exception " + updatedLoyaltyOffer.errors)
