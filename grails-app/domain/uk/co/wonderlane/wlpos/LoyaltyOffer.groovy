@@ -37,9 +37,80 @@ class LoyaltyOffer {
     static hasMany = [ loyaltyOfferSegments: LoyaltyOfferSegment ]
 
     static constraints = {
-        customAttributes nullable: true
+        offerDescription(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.offerDescription.nullable"]
+            } else if (val.length() < 1 || val.length() > 100) {
+                return ["loyaltyOffer.offerDescription.size.invalid"]
+            }
+            return true
+        })
+        retailerOfferId(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.retailerOfferId.nullable"]
+            }
+            return true
+        })
+        retailerId(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.retailerId.nullable"]
+            }
+            return true
+        })
+        type(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.type.nullable"]
+            }
+            return true
+        })
+        status(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.status.nullable"]
+            }
+            return true
+        })
         visibleFromDate nullable: true
-        loyaltyOfferSegments minSize: 1, validator: {val, obj ->
+        startDate(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.startDate.nullable"]
+            }
+            return true
+        })
+        endDate(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.endDate.nullable"]
+            }
+            return true
+        })
+        maxAllocations nullable: true
+        currentAllocations nullable: true
+        maxBudget nullable: true
+        currentBudget nullable: true
+        maxCustomers nullable: true
+        currentCustomers nullable: true
+        maxRedemptions nullable: true
+        currentRedemptions nullable: true
+        redemptionDefault nullable: true
+        alertThreshold nullable: true
+        weighting nullable: true
+        requiresActivation nullable: true
+        customAttributes nullable: true
+        dateCreated(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.dateCreated.nullable"]
+            }
+            return true
+        })
+        dateModified(nullable: false, validator: { val, obj ->
+            if (!val) {
+                return ["loyaltyOffer.dateModified.nullable"]
+            }
+            return true
+        })
+        loyaltyOfferSegments validator: {val, obj ->
+            if (val.size() < 1){
+                return ["loyaltyOffer.loyaltyOfferSegments.minimum"]
+            }
             return true
         }
     }

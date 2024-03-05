@@ -9,8 +9,9 @@ class LoyaltyOfferSegment implements Serializable {
     int segmentId
     int count = 0
     boolean delete = false
+    boolean isUpdated = false
 
-    static transients = ['delete']
+    static transients = ['delete', 'isUpdated']
 
     static constraints = {}
 

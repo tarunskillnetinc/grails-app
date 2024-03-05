@@ -3,7 +3,9 @@ package uk.co.wonderlane.wlpos
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.joda.JodaModule
 import grails.databinding.BindingFormat
+import org.springframework.context.MessageSource
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.reporting.SortParams
 import groovy.json.JsonOutput
@@ -102,8 +104,8 @@ class LoyaltyController {
             log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
             response.setStatus(500)
             render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                    error_header: "Loyalty Segment Search Error",
-                    error_body  : "Error when loading loyalty segment"
+                                                    error_header: "Loyalty Segment Search Error",
+                                                    error_body  : "Error when loading loyalty segment"
             ])
         }
     }
@@ -129,8 +131,8 @@ class LoyaltyController {
             log.error("Error when loading loyalty offers search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
             response.setStatus(500)
             render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                    error_header: "Loyalty Offers Search Error",
-                    error_body  : "Error when loading loyalty offers"
+                                                    error_header: "Loyalty Offers Search Error",
+                                                    error_body  : "Error when loading loyalty offers"
             ])
         }
     }
@@ -177,37 +179,58 @@ class LoyaltyController {
         }catch(Exception ex){
             ex.printStackTrace()
             log.error("Error loading loyalty offer view window, Exception " + ex)
+            render(view: "_loyaltyGenericError", contentType: "text/html", model: [
+                                                    error_header: "Loyalty Offer Window Load Error",
+                                                    error_body  : "Error when loading loyalty Offer Window"
+            ])
         }
     }
 
     @Transactional
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
+        LoyaltyOffer updatedLoyaltyOffer
+        List<String> errorList = new ArrayList<>()
         try {
             if (loyaltyOfferCommand != null){
                 LoyaltyOffer originalLoyaltyOffer = null
                 originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId()) //Load current loyalty offer value if exists
-                if (originalLoyaltyOffer == null){
-                    originalLoyaltyOffer = new LoyaltyOffer();
+                if (originalLoyaltyOffer == null){ //If no current loyalty exists create new one
+                    originalLoyaltyOffer = new LoyaltyOffer()
                 }
-                LoyaltyOffer updatedOffer = loyaltyService.populateUpdatedOffer(originalLoyaltyOffer, loyaltyOfferCommand) //Populate updated loyalty offer values
-                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(loyaltyOfferCommand, originalLoyaltyOffer) //Get updated loyalty segments
-                loyaltyService.loyaltyOfferSave(originalLoyaltyOffer, updatedLoyaltySegments) //Save loyalty offers + loyalty offer segments
+                List<LoyaltyOfferSegment> originalLoyaltyOfferSegments = loyaltyService.getLoyaltyOfferSegmentsById(originalLoyaltyOffer.id) //Load current loyalty offer segments
+                updatedLoyaltyOffer = loyaltyService.populateUpdatedOffer(originalLoyaltyOffer, loyaltyOfferCommand) //Populate updated loyalty offer values
+                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(originalLoyaltyOfferSegments,
+                        originalLoyaltyOffer.getLoyaltyOfferSegments()) //Get updated loyalty segments
+                loyaltyService.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltySegments) //Save loyalty offers + loyalty offer segments
                 loyaltyService.pushLoyaltyOfferIntoRabbitMQ() //Push loyalty offer details into rabbitmq
                 flash.message = "Successfully Save Offer"
                 redirect("controller": "loyalty", action:"loyaltyOffers")
             } else {
+                errorList.add("Loyalty Invalid Request Found")
                 log.error("Invalid request found for save loyalty offer")
                 response.setStatus(500)
-                render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: "Loyalty Invalid Request Found"])
+                render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
             }
         }catch(Exception ex){
+            errorList.add("Loyalty Save Error")
             ex.printStackTrace()
             log.error("Error when saving loyalty offers, Exception " + ex)
             response.setStatus(500)
-            flash.error = "Loyalty Save Error"
-            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: "Loyalty Save Error"])
+            if (updatedLoyaltyOffer != null && updatedLoyaltyOffer.errors){
+                errorList.clear()
+                errorList.addAll(loyaltyService.extractErrorMessages(updatedLoyaltyOffer.errors))
+                log.error("Error when saving loyalty offers, Exception " + updatedLoyaltyOffer.errors)
+            }
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
         }
+    }
 
+
+    def ajaxShowOfferCancelWindow(){
+        render(view: "_loyaltyGenericError", contentType: "text/html", model: [
+                                                error_header: "Cancel Loyalty Offer",
+                                                error_body  : "Are you sure you want to cancel? All unsaved changes will be lost"
+        ])
     }
 
 }

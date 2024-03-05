@@ -12,34 +12,74 @@
         let dropdownToggled = false;
 
         $(function() {
+            // Set start date to today and initialize datepicker
             $('#offerStartDateId').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
-                endDate: new Date().toString(),
                 todayHighlight: true,
                 autoclose: true,
                 todayBtn: "linked",
                 orientation: "bottom auto"
             });
 
+            // Set end date to one week from today and initialize datepicker
             $('#offerEndDateId').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
-                endDate: new Date().toString(),
+                startDate: new Date(), // Set start date to today
                 todayHighlight: true,
                 autoclose: true,
                 todayBtn: "linked",
                 orientation: "bottom auto"
             });
 
+            //This is for multi select
             $('#PromotionAssignedId').attr('multiple', 'multiple');
+
+            //By using the changingDate flag, ensure that the function is only called once per change event
+            var changingDate = false;
+
+            // Add change event listener to offer end date to validate and correct dates
+            $('#offerEndDateId').change(function() {
+                if (!changingDate) {
+                    changingDate = true;
+                    validateAndCorrectDates();
+                    changingDate = false;
+                }
+            });
+
+            // Add change event listener to offer start date to validate and correct dates
+            $('#offerStartDateId').change(function() {
+                if (!changingDate) {
+                    changingDate = true;
+                    validateAndCorrectDates();
+                    changingDate = false;
+                }
+            });
 
         });
 
+        //Adding event listener to load existing multi selected segments  + promotions
         window.addEventListener('load', function() {
             updatePromotionDescriptionOnLoading()
             updateSegmentInputOnLoading()
         })
+
+        function validateAndCorrectDates() {
+            var startDate = $('#offerStartDateId').datepicker('getDate');
+            var endDate = $('#offerEndDateId').datepicker('getDate');
+
+            // Check if end date is before start date
+            if (endDate < startDate) {
+                // Set start date to today
+                $('#offerStartDateId').datepicker('setDate', new Date());
+
+                // Set end date to 1 week from start date
+                var newEndDate = new Date();
+                newEndDate.setDate(newEndDate.getDate() + 7);
+                $('#offerEndDateId').datepicker('setDate', newEndDate);
+            }
+        }
 
         function updateSegmentInputOnLoading() {
             var selectedSegmentIdList = ${selectedSegmentIds}; // Get the selected segment IDs from the server response
@@ -52,19 +92,8 @@
                 for (var i = 0; i < ('${selectedSegmentIds}').length; i++) {
                     var segmentId = selectedSegmentIdList[i];
                     var selectedSegment = findSegmentById(segmentId);
-                    // if (selectedSegment) {
-                    //     var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
-                    //     var selectedSegment = document.createElement('div');
-                    //     selectedSegment.className = 'selected-item';
-                    //     selectedSegment.setAttribute('data-id', segmentId);
-                    //     selectedSegment.innerHTML = description + cancelIcon;
-                    //     selectedSegmentsContainer.appendChild(selectedSegment);
-                    //     // selectedDescriptions.push(selectedSegment.description);
-                    // }
-
                     if (selectedSegment) {
                         selectedDescriptions.push(selectedSegment.description);
-
                         // Create selected segment element
                         var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
                         var selectedSegmentDiv = document.createElement('div');
@@ -75,25 +104,10 @@
                         selectedSegmentsContainer.appendChild(selectedSegmentDiv);
                     }
                 }
-
-                // Display selected segments in offerSelectedSegmentsContainer
-                // for (var j = 0; j < selectedDescriptions.length; j++) {
-                //     var description = selectedDescriptions[j];
-                //     var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
-                //     var selectedSegment = document.createElement('div');
-                //     selectedSegment.className = 'selected-item';
-                //     selectedSegment.innerHTML = description + cancelIcon;
-                //     selectedSegmentsContainer.appendChild(selectedSegment);
-                // }
-
                 // Update hidden input value
                 var selectedSegmentsInput = document.getElementById('offerSelectedSegments');
                 selectedSegmentsInput.value = selectedDescriptions.join(',');
-
-
-
         }
-
 
         function findSegmentById(segmentId) {
             var decodedString = $("<div/>").html('${segmentsJson}').text(); // Decode HTML-encoded string
@@ -105,7 +119,6 @@
             }
             return null;
         }
-
 
         function togglePromotionSelectVisibility() {
             var select = document.getElementById("offerPromotionAssignedId");
@@ -187,38 +200,6 @@
             }
         }
 
-
-
-        // function updateSegmentInput() {
-        //     var selectedOptions = document.getElementById('offerSegmentAssignedId').selectedOptions;
-        //     var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
-        //     var selectedSegmentsInput = document.getElementById('offerSelectedSegments');
-        //
-        //     // Store selected descriptions
-        //     var selectedDescriptions = [];
-        //
-        //     // Add or update selected items
-        //     for (var i = 0; i < selectedOptions.length; i++) {
-        //         var description = selectedOptions[i].text;
-        //         var cancelIcon = '<span class="cancel-icon" data-index="' + i + '" onclick="removeSelectedItem(event)">&#10006;</span>';
-        //         var existingItem = findExistingItem(selectedSegmentsContainer, description);
-        //
-        //         if (existingItem) {
-        //             existingItem.innerHTML = description + cancelIcon;
-        //         } else {
-        //             var selectedSegment = document.createElement('div');
-        //             selectedSegment.className = 'selected-item';
-        //             selectedSegment.innerHTML = description + cancelIcon;
-        //             selectedSegmentsContainer.appendChild(selectedSegment);
-        //         }
-        //
-        //         selectedDescriptions.push(description);
-        //     }
-        //
-        //     // Update hidden input value
-        //     selectedSegmentsInput.value = selectedDescriptions.join(',');
-        // }
-
         function updateSegmentInput() {
             var selectedOptions = document.getElementById('offerSegmentAssignedId').selectedOptions;
             var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
@@ -240,7 +221,6 @@
                     selectedSegment.setAttribute('data-id', id);
                     selectedSegment.innerHTML = description + cancelIcon;
                     selectedSegmentsContainer.appendChild(selectedSegment);
-
                     selectedDescriptions.push(description);
                 }
             }
@@ -259,18 +239,11 @@
             return null;
         }
 
-        // function removeSelectedItem(index) {
-        //     var selectElement = document.getElementById('offerSegmentAssignedId');
-        //     selectElement.remove(index);
-        //     updateSegmentInput();
-        // }
-
         function removeSelectedItem(event) {
             var container = event.target.closest('.selected-item'); // Find the closest parent container with the class 'selected-item'
             if (container) {
                 container.remove(); // Remove the found container
             }
-
             // Update the hidden input value after removing the selected item
             updateHiddenInput();
         }
@@ -296,6 +269,15 @@
 
 
         function saveLoyaltyOffer(){
+
+            if(validateMandatoryFields()){//Validate for mandatory fields
+                return
+            }
+
+            if(validateSelectSegments()){ //Validate for selected segments
+                return
+            }
+
             var offerId = $('#offerId').val();
             var offerDescription = $('#offerDescriptionId').val();
             var offerStartDate = $('#offerStartDateId').val();
@@ -303,12 +285,14 @@
             var offerMaxRedemption = $('#offerMaxRedemptionsId').val();
             var offerMaxBudget = $('#offerMaxBudgetId').val();
             var offerStatus = $('#offerStatusId').val();
+            var selectedPromotion = null
 
             //Get promotion id
             var selectElement = document.getElementById('offerPromotionAssignedId');
             var selectedOption = selectElement.options[selectElement.selectedIndex];
-            var selectedPromotion = selectedOption.value;
-
+            if(selectedOption != null){
+                selectedPromotion = selectedOption.value;
+            }
             //Prepare parameter map
             var params = {
                 id: offerId,
@@ -331,17 +315,22 @@
                 loyaltySegmentIndex++;
             });
 
-
             $.ajax({
                 url: "${createLink(controller: 'loyalty', action: 'ajaxSaveLoyaltyOffers')}",
                 method: "POST",
                 data: params,
                 statusCode: {
                     500: function (response) {
-                        var errorMessage = response.responseJSON.error;
-                        if (errorMessage) {
+                        var errorList = response.responseJSON.error;
+                        if (errorList && errorList.length > 0) {
                             var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
-                            var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
+
+                            errorList.forEach(function(errorMessage) {
+                                var errorMessageSpan = $('<span>' + errorMessage + '</span>');
+                                errorDiv.append(errorMessageSpan);
+                                errorDiv.append($('<br>'));
+                            });
+
                             var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
 
                             closeIcon.click(function () {
@@ -349,7 +338,6 @@
                             });
 
                             errorDiv.append(closeIcon);
-                            errorDiv.append(errorMessageSpan);
                             $('#errors-container').html(errorDiv);
 
                             // Adjust icon position to top-right corner
@@ -362,11 +350,99 @@
                         }
                     },
                     200: function (response) {
-                        window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
+                        var successMessage = "Successfully Save Offer";
+                        var redirectUrl = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
+                        // Append success message as a query parameter
+                        redirectUrl += '?successMessage=' + encodeURIComponent(successMessage);
+                        // Redirect to the loyaltyOffers page with the success message
+                        window.location.href = redirectUrl;
                     }
                 }
             });
 
+        }
+
+        function validateMandatoryFields(){
+            var offerDescription = $('#offerDescriptionId').val();
+            var offerStartDate = $('#offerStartDateId').val();
+            var offerEndDate = $('#offerEndDateId').val();
+            var offerStatus = $('#offerStatusId').val();
+
+            // Perform form validation
+            if (offerDescription.trim() === "" || offerStartDate.trim() === "" || offerEndDate.trim() === "" || offerStatus.trim() === "") {
+                var errorMessage = "All mandatory fields must be present before data can be saved.";
+
+                var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+                var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
+                var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+
+                closeIcon.click(function () {
+                    errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
+                });
+
+                errorDiv.append(closeIcon);
+                errorDiv.append(errorMessageSpan);
+                $('#errors-container').html(errorDiv);
+
+                // Adjust icon position to top-right corner
+                closeIcon.css({
+                    "position": "absolute",
+                    "top": "-10px",
+                    "right": "1px",
+                    "margin": "0.5rem"
+                });
+
+                return true; // Stop further execution of saveLoyaltyOffer() if form validation fails
+            }
+            return false
+        }
+
+        function validateSelectSegments(){
+            // Validate selected segments
+            var selectedSegments = $('#offerSelectedSegmentsContainer .selected-item');
+            if (selectedSegments.length === 0) {
+                var errorMessage = "At least one segment must be selected.";
+
+                var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+                var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
+                var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+
+                closeIcon.click(function () {
+                    errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
+                });
+
+                errorDiv.append(closeIcon);
+                errorDiv.append(errorMessageSpan);
+                $('#errors-container').html(errorDiv);
+
+                // Adjust icon position to top-right corner
+                closeIcon.css({
+                    "position": "absolute",
+                    "top": "-10px",
+                    "right": "1px",
+                    "margin": "0.5rem"
+                });
+
+                return true; // Stop further execution of saveLoyaltyOffer() if segment validation fails
+            }
+            return false;
+        }
+
+        function cancelLoyaltyOffer(){
+            $("#addLoyaltyOffersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $.ajax({
+                url: "${createLink(controller: 'loyalty', action: 'ajaxShowOfferCancelWindow')}",
+                method: "GET",
+                success: function (resp) {
+                    $('#addLoyaltyOffersModal').modal({show: true});
+                    $("#addLoyaltyOffersContent").html(resp);
+                }
+            });
+        }
+
+        function cancelLoyaltyError(){
+            $('#addLoyaltyOffersModal').modal('hide');
+            window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
         }
 
     </script>
@@ -386,119 +462,127 @@
             right: 3px;
             cursor: pointer;
         }
+
+        #errors-container {
+            margin-top: 20px; /* Adjust the value as needed */
+            margin-bottom: 20px; /* Adjust the value as needed */
+        }
+
     </style>
 </head>
 
 <body>
-<section id="breadcrumb-container" class="container-fluid">
-    <nav aria-label="breadcrumb">
-        <div class="row mt-4">
-            <div class="col">
-                <ol class="breadcrumb">
-                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="loyalty" action="loyaltyOffers">Loyalty Offer</g:link></li>
-                    <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Add Loyalty Offer</li>
-                </ol>
+    <section id="breadcrumb-container" class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <div class="row mt-4">
+                <div class="col">
+                    <ol class="breadcrumb">
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="loyalty" action="loyaltyOffers">Loyalty Offer</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Add Loyalty Offer</li>
+                    </ol>
+                </div>
             </div>
-        </div>
-    </nav>
-</section>
+        </nav>
+    </section>
 
-<section id="add-user-section" class="container-fluid">
-    <div class="row header-wl mt-3">
-        <div class="col-8 offset-2">
-            <h2 class="mx-auto my-auto">Add Loyalty Offer</h2>
-        </div>
-
-        <div class="col-2 text-right">
-            <g:link elementId="cancel" controller="user" action="index" role="button" class="btn btn-wl">Cancel</g:link>
-            <button id="save" class="btn btn-success" name="save" onclick="saveLoyaltyOffer();">Save</button>
-        </div>
-    </div>
-
-    <g:if test="${flash.message}">
-        <section id="errors-container">
-            <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-        </section>
-    </g:if>
-
-    <section id="errors-container" class="container-fluid"></section>
-
-
-    <g:form name="add-loyalty-offer-form" action="save" novalidate="novalidate" class="mt-4">
-        <g:hiddenField name="offerId" value="${loyaltyOffer?.id ?: 0}" />
-
-        <div class="row mt-5 mb-3">
-            <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                <label for="offerDescription" class="col-4 col-form-label text-right pr-4">Offer Description</label>
-                <g:textField name="offerDescription" id="offerDescriptionId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" autocomplete="off" />
+    <section id="add-loyalty-offer-section" class="container-fluid">
+        <div class="row header-wl mt-3" id="add-loyalty-offer-header">
+            <div class="col-8 offset-2">
+                <h2 class="mx-auto my-auto">Add Loyalty Offer</h2>
             </div>
-            <div class="form-group row col-12 col-12 col-sm-5">
-                <label for="role" class="col-4 col-form-label text-right pr-4">Status</label>
-                <g:select name="role" id="offerStatusId" class="col-3 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status}" valueMessagePrefix="Role" />
+
+            <div class="col-2 text-right">
+                <button id="cancel" class="btn btn-warning" name="cancel" onclick="cancelLoyaltyOffer();">Cancel</button>
+                <button id="save" class="btn btn-success" name="save" onclick="saveLoyaltyOffer();">Save</button>
             </div>
         </div>
 
-        <div class="row mt-2 mb-3">
-            <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                <label for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
-                <g:textField name="offerStartDate" id="offerStartDateId" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: loyaltyOffer?.startDate)}" readonly="false"/>
-            </div>
-            <div class="form-group row col-12 col-12 col-sm-5">
-                <label for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
-                <g:textField name="offerEndDate" id="offerEndDateId" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: loyaltyOffer?.endDate)}" readonly="false"/>
-            </div>
-        </div>
+        <section id="errors-container" class="container-fluid mb-20"></section>
 
-        <div class="row mt-2 mb-5">
-            <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                <label for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
-                <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
-            </div>
-            <div class="form-group row col-12 col-12 col-sm-5">
-                <label for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
-                <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxBudget}" />
-            </div>
-        </div>
+        <g:form name="add-loyalty-offer-form" id="add-loyalty-offer-form-id" action="save" novalidate="novalidate" class="mt-4">
+            <g:hiddenField name="offerId" value="${loyaltyOffer?.id ?: 0}" />
 
-
-        <div class="row mt-5 mb-3">
-            <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                <label for="offerPromotionAssigned" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
-                <div class="dropdown-content col-5">
-                    <div class="input-group-append">
-                        <asset:image src="search.png" id="offerPromotionSearchButton" name="offerPromotionSearchButton" onclick="searchProduct()" class="wl-search-button" />
-                        <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput" onclick="togglePromotionSelectVisibility()"
-                               oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)">
-                    </div>
-                    <g:select id="offerPromotionAssignedId" name="offerPromotionAssigned" size="6" style="overflow-y: scroll; overflow-x: hidden; display: true;" from="${promotions}" optionValue="description"
-                              value="${loyaltyOffer?.retailerOfferId}"
-                              optionKey="id"
-                              class="form-control select-border"
-                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
-                              onchange="updatePromotionInput(this.options[this.selectedIndex].text)"/>
+            <div class="row mt-5 mb-3">
+                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                    <label for="offerDescription" class="col-4 col-form-label text-right pr-4">Offer Description</label>
+                    <g:textField name="offerDescription" id="offerDescriptionId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" autocomplete="off" />
+                </div>
+                <div class="form-group row col-12 col-12 col-sm-5">
+                    <label for="role" class="col-4 col-form-label text-right pr-4">Status</label>
+                    <g:select name="role" id="offerStatusId" class="col-3 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status}" valueMessagePrefix="Role" />
                 </div>
             </div>
 
-            <div class="form-group row col-12 col-12 col-sm-5">
-                <label for="offerSegmentAssigned" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
-                <div class="dropdown-content col-5">
-                    <div class="input-group-append">
-                        <asset:image src="search.png" id="offerSegmentSearchButton" name="offerSegmentSearchButton" onclick="searchProduct()" class="wl-search-button" />
-                        <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" >
-                    </div>
-                    <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px;; border-top: 0; border-bottom: 1px solid #ccc;"></div>
-                    <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments">
-                    <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple" style="display: true;" from="${segments}" optionValue="description"
-                              value="${selectedSegmentIds}" optionKey="id"
-                              class="form-control select-border"
-                              disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
-                              onchange="updateSegmentInput()"/>
+            <div class="row mt-2 mb-3">
+                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                    <label for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
+                    <g:textField name="offerStartDate" id="offerStartDateId" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: loyaltyOffer?.startDate)}" readonly="false"/>
+                </div>
+                <div class="form-group row col-12 col-12 col-sm-5">
+                    <label for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
+                    <g:textField name="offerEndDate" id="offerEndDateId" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: loyaltyOffer?.endDate)}" readonly="false"/>
                 </div>
             </div>
 
+            <div class="row mt-2 mb-5">
+                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                    <label for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
+                    <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
+                </div>
+                <div class="form-group row col-12 col-12 col-sm-5">
+                    <label for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
+                    <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxBudget}" />
+                </div>
+            </div>
+
+
+            <div class="row mt-5 mb-3">
+                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                    <label for="offerPromotionAssigned" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
+                    <div class="dropdown-content col-5">
+                        <div class="input-group-append">
+                            <asset:image src="search.png" id="offerPromotionSearchButton" name="offerPromotionSearchButton" onclick="searchProduct()" class="wl-search-button" />
+                            <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput" onclick="togglePromotionSelectVisibility()"
+                                   oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)">
+                        </div>
+                        <g:select id="offerPromotionAssignedId" name="offerPromotionAssigned" size="6" style="overflow-y: scroll; overflow-x: hidden; display: true;" from="${promotions}" optionValue="description"
+                                  value="${loyaltyOffer?.retailerOfferId}"
+                                  optionKey="id"
+                                  class="form-control select-border"
+                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
+                                  onchange="updatePromotionInput(this.options[this.selectedIndex].text)"/>
+                    </div>
+                </div>
+
+                <div class="form-group row col-12 col-12 col-sm-5">
+                    <label for="offerSegmentAssigned" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
+                    <div class="dropdown-content col-5">
+                        <div class="input-group-append">
+                            <asset:image src="search.png" id="offerSegmentSearchButton" name="offerSegmentSearchButton" onclick="searchProduct()" class="wl-search-button" />
+                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" >
+                        </div>
+                        <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px;; border-top: 0; border-bottom: 1px solid #ccc;"></div>
+                        <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments">
+                        <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple" style="display: true;" from="${segments}" optionValue="description"
+                                  value="${selectedSegmentIds}" optionKey="id"
+                                  class="form-control select-border"
+                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
+                                  onchange="updateSegmentInput()"/>
+                    </div>
+                </div>
+
+            </div>
+        </g:form>
+    </section>
+
+    <section id="addLoyaltyOffers-modal" class="container-fluid" >
+        <div class="modal fade" id="addLoyaltyOffersModal" tabindex="-1" role="dialog" aria-labelledby="addLoyaltyOffersModalLabel" data-backdrop="false" aria-hidden="true" style="margin-top: 120px">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid ; margin-top: 120px" role="document" >
+                <div id="addLoyaltyOffersContent" class="modal-content" ></div>
+            </div>
         </div>
-    </g:form>
-</section>
+    </section>
+
 </body>
 </html>

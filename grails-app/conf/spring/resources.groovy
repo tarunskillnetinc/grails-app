@@ -26,6 +26,7 @@ import uk.co.wonderlane.wlpos.UserPasswordEncoderListener
 import uk.co.wonderlane.wlpos.GsonProvider
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.LoyaltyService
+import org.grails.spring.context.support.PluginAwareResourceBundleMessageSource
 
 // Place your Spring DSL code here
 beans = {
@@ -195,6 +196,7 @@ beans = {
                     grailsApplication.config.getProperty('mysql.loyalty.password'),
                     grailsApplication.config.getProperty('mysql.loyalty.database'))) {
         springSecurityService = ref('springSecurityService')
+        messageSource = ref('messageSource')
     }
 
     gsonProvider(GsonProvider)
