@@ -510,18 +510,18 @@
                 </div>
                 <div class="form-group row col-12 col-12 col-sm-5">
                     <label for="role" class="col-4 col-form-label text-right pr-4">Status</label>
-                    <g:select name="role" id="offerStatusId" class="col-3 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status}" valueMessagePrefix="Role" />
+                    <g:select name="role" id="offerStatusId" class="col-3 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status ? loyaltyOffer?.status : defaultStatus}" valueMessagePrefix="Role" />
                 </div>
             </div>
 
             <div class="row mt-2 mb-3">
                 <div class="form-group row col-12 col-sm-6 offset-sm-1">
                     <label for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
-                    <g:textField name="offerStartDate" id="offerStartDateId" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: loyaltyOffer?.startDate)}" readonly="false"/>
+                    <g:textField name="offerStartDate" id="offerStartDateId" class="col-5 form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" readonly="false"/>
                 </div>
                 <div class="form-group row col-12 col-12 col-sm-5">
                     <label for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
-                    <g:textField name="offerEndDate" id="offerEndDateId" class="col-5 form-control bottom-border" value="${g.formatDate(format: "dd/MM/yyyy", date: loyaltyOffer?.endDate)}" readonly="false"/>
+                    <g:textField name="offerEndDate" id="offerEndDateId" class="col-5 form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" readonly="false"/>
                 </div>
             </div>
 
@@ -544,13 +544,14 @@
                         <div class="input-group-append">
                             <asset:image src="search.png" id="offerPromotionSearchButton" name="offerPromotionSearchButton" onclick="searchProduct()" class="wl-search-button" />
                             <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput" onclick="togglePromotionSelectVisibility()"
-                                   oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)">
+                                   oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)"
+                                   readonly = "${isUpdate ? true : false}">
                         </div>
                         <g:select id="offerPromotionAssignedId" name="offerPromotionAssigned" size="6" style="overflow-y: scroll; overflow-x: hidden; display: true;" from="${promotions}" optionValue="description"
                                   value="${loyaltyOffer?.retailerOfferId}"
                                   optionKey="id"
                                   class="form-control select-border"
-                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
+                                  disabled="${isUpdate ? true : false}"
                                   onchange="updatePromotionInput(this.options[this.selectedIndex].text)"/>
                     </div>
                 </div>
@@ -560,14 +561,14 @@
                     <div class="dropdown-content col-5">
                         <div class="input-group-append">
                             <asset:image src="search.png" id="offerSegmentSearchButton" name="offerSegmentSearchButton" onclick="searchProduct()" class="wl-search-button" />
-                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" >
+                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" readonly = "${isUpdate ? true : false}">
                         </div>
-                        <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px;; border-top: 0; border-bottom: 1px solid #ccc;"></div>
-                        <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments">
+                        <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px; border-top: 0; border-bottom: 1px solid #ccc;"></div>
+                        <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments" readonly = "${isUpdate ? true : false}">
                         <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple" style="display: true;" from="${segments}" optionValue="description"
                                   value="${selectedSegmentIds}" optionKey="id"
                                   class="form-control select-border"
-                                  disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"
+                                  disabled="${isUpdate ? true : false}"
                                   onchange="updateSegmentInput()"/>
                     </div>
                 </div>

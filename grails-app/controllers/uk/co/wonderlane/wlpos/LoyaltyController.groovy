@@ -3,6 +3,10 @@ package uk.co.wonderlane.wlpos
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.joda.JodaModule
 import grails.databinding.BindingFormat
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.springframework.context.MessageSource
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.Errors
@@ -139,10 +143,14 @@ class LoyaltyController {
 
     def showLoyaltyOffer(){
         try {
+            boolean isUpdate = false
             LoyaltyOffer originalLoyaltyOffer = null
-            List<Integer> selectedSegmentIds = new ArrayList<>();
+            List<Integer> selectedSegmentIds = new ArrayList<>()
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+
 
             if (params.id && params.id.isNumber()) {
+                isUpdate = true
                 int offerId = Integer.parseInt(params.id)
 
                 originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(offerId)
@@ -151,6 +159,9 @@ class LoyaltyController {
                 selectedSegmentIds = originalLoyaltyOffer?.loyaltyOfferSegments?.findAll{it.offerId = offerId }
                         ?.collect { it.segmentId }
             }
+
+            DateTime startDate = originalLoyaltyOffer?.startDate ? DateTime.parse(originalLoyaltyOffer?.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+            DateTime endDate = originalLoyaltyOffer?.endDate ? DateTime.parse(originalLoyaltyOffer?.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).plusDays(7)
 
             //load all promotions for retailer
             List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
@@ -174,7 +185,11 @@ class LoyaltyController {
                     promotionsJson: promotionsJson,
                     segmentsJson: segmentsJson,
                     selectedSegmentIds: selectedSegmentIds,
-                    eligibleOfferStatus: eligibleOfferStatus
+                    eligibleOfferStatus: eligibleOfferStatus,
+                    isUpdate: isUpdate,
+                    defaultStatus : LoyaltyOfferStatus.PENDING,
+                    startDate : startDate,
+                    endDate : endDate
             ])
         }catch(Exception ex){
             ex.printStackTrace()
