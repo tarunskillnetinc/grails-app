@@ -104,7 +104,6 @@ class LoyaltyController {
                                                                     totalCount            : segment?.totalCount
             ])
         } catch (Exception ex) {
-            ex.printStackTrace()
             log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
             response.setStatus(500)
             render(view: "_loyaltyGenericError", contentType: "text/html", model: [
@@ -131,7 +130,6 @@ class LoyaltyController {
                                                                    sortParams           : sortParams
             ])
         } catch (Exception ex) {
-            ex.printStackTrace()
             log.error("Error when loading loyalty offers search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
             response.setStatus(500)
             render(view: "_loyaltyGenericError", contentType: "text/html", model: [
@@ -147,7 +145,6 @@ class LoyaltyController {
             LoyaltyOffer originalLoyaltyOffer = null
             List<Integer> selectedSegmentIds = new ArrayList<>()
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-
 
             if (params.id && params.id.isNumber()) {
                 isUpdate = true
@@ -192,12 +189,9 @@ class LoyaltyController {
                     endDate : endDate
             ])
         }catch(Exception ex){
-            ex.printStackTrace()
             log.error("Error loading loyalty offer view window, Exception " + ex)
-            render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                                                    error_header: "Loyalty Offer Window Load Error",
-                                                    error_body  : "Error when loading loyalty Offer Window"
-            ])
+            flash.error = "Failed to load loyalty offer view"
+            redirect(action: "loyaltyOffers")
         }
     }
 
@@ -227,7 +221,6 @@ class LoyaltyController {
             }
         }catch(Exception ex){
             errorList.add("Loyalty Save Error")
-            ex.printStackTrace()
             log.error("Error when saving loyalty offers, Exception " + ex)
             response.setStatus(500)
             if (updatedLoyaltyOffer != null && updatedLoyaltyOffer.errors != null && updatedLoyaltyOffer.errors.allErrors.size() > 0){

@@ -21,6 +21,17 @@
                     search();
                 }
             });
+
+            // Create the close icon element
+            var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+            closeIcon.css({ // Apply CSS styles to the close icon
+                "position": "absolute",
+                "top": "-10px",
+                "right": "1px",
+                "margin": "0.5rem"
+            });
+            closeIcon.click(function () { $(this).parent().remove()}); // Remove the error message div when the cancel icon is clicked});
+            $('.alert.alert-danger.alert-wl').append(closeIcon); // Append the close icon to the alert container
         });
 
         function searchButtonClicked() {
@@ -97,8 +108,6 @@
                 }
             });
         }
-
-
     </script>
 </head>
 
@@ -127,6 +136,12 @@
     <g:if test="${flash.message}">
         <section id="success-container">
             <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+        </section>
+    </g:if>
+
+    <g:if test="${flash.error}">
+        <section id="failure-container">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
         </section>
     </g:if>
 
