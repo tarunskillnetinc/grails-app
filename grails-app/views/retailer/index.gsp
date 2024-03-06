@@ -205,20 +205,6 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="showProductListItemScreenOnItemScanned" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Show Product List Item Screen on Item Scanned</label>
-                                    <div class="col-7 col-lg-4">
-                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="showProductListItemScreenOnItemScanned" id="showProductListItemScreenOnItemScanned" ${retailer?.config?.showProductListItemScreenOnItemScanned ? 'checked' : ''} />
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label for="generateVarianceReportsForInventoryAdjustments" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Generate Variance Reports for Inventory Adjustments</label>
-                                    <div class="col-7 col-lg-4">
-                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="generateVarianceReportsForInventoryAdjustments" id="generateVarianceReportsForInventoryAdjustments" ${retailer?.config?.generateVarianceReportsForInventoryAdjustments ? 'checked' : ''} />
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
                                     <label for="rabbitMqSslEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ SSL Enabled</label>
                                     <div class="col-7 col-lg-4">
                                         <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="rabbitMqSslEnabled" id="rabbitMqSslEnabled" ${retailer?.config?.rabbitMqSslEnabled ? 'checked' : ''} />
