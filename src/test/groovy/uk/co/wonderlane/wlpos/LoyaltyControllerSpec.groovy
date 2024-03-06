@@ -54,6 +54,30 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
         3  | null       | null       | null
     }
 
+    void "should return error response when loyalty segment search fails"() {
+
+        given:
+        params.searchTerm = searchTerm
+        params.searchBy = categoryId
+        controller.loyaltyService = Stub(LoyaltyService) {
+            getSegment(_, _, _,_,_,_) >> {throw new Exception("Segment loading error")}
+        }
+
+        when: 'loyalty segment action is executed'
+        controller.ajaxSearchLoyaltySegment()
+
+        then: 'loyalty segment search response is incorrect'
+        response.status == HttpStatus.INTERNAL_SERVER_ERROR.value()
+        model.segments == null
+        model.totalCount == null
+
+        where:
+        ID | searchTerm | categoryId | tagId
+        1  | "Test"     | "1"        | "1"
+        2  | "Test"     | "100"      | "100"
+        3  | null       | null       | null
+    }
+
     void "should return loyalty offer search results successfully"() {
 
         given:
@@ -71,6 +95,31 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
         response.status == HttpStatus.OK.value()
         model.offers != null
         model.totalCount != null
+
+        where:
+        ID | searchTerm | categoryId | tagId
+        1  | "Test"     | "1"        | "1"
+        2  | "Test"     | "100"      | "100"
+        3  | null       | null       | null
+    }
+
+    void "should return error response when offer segment search fails"() {
+
+        given:
+        params.searchTerm = searchTerm
+        params.searchBy = categoryId
+        controller.loyaltyService = Stub(LoyaltyService) {
+            getLoyaltyOffers(_, _, _,_,_,_) >> {throw new Exception("Offer loading error")}
+        }
+        SortParams sortParams = new SortParams()
+
+        when: 'loyalty offer action is executed'
+        controller.ajaxSearchLoyaltyOffers(sortParams)
+
+        then: 'loyalty offer search response is incorrect'
+        response.status == HttpStatus.INTERNAL_SERVER_ERROR.value()
+        model.offers == null
+        model.totalCount == null
 
         where:
         ID | searchTerm | categoryId | tagId
