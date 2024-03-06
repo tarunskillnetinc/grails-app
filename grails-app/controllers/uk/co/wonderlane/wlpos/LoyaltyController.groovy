@@ -157,8 +157,8 @@ class LoyaltyController {
                         ?.collect { it.segmentId }
             }
 
-            DateTime startDate = originalLoyaltyOffer?.startDate ? DateTime.parse(originalLoyaltyOffer?.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-            DateTime endDate = originalLoyaltyOffer?.endDate ? DateTime.parse(originalLoyaltyOffer?.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).plusDays(7)
+            DateTime startDate = originalLoyaltyOffer?.startDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.startDate.getTime()))) : DateTime.now(DateTimeZone.UTC)
+            DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : DateTime.now(DateTimeZone.UTC).plusDays(7)
 
             //load all promotions for retailer
             List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
@@ -189,6 +189,7 @@ class LoyaltyController {
                     endDate : endDate
             ])
         }catch(Exception ex){
+            ex.printStackTrace()
             log.error("Error loading loyalty offer view window, Exception " + ex)
             flash.error = "Failed to load loyalty offer view"
             redirect(action: "loyaltyOffers")

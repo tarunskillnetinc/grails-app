@@ -120,15 +120,6 @@
             return null;
         }
 
-        function togglePromotionSelectVisibility() {
-            var select = document.getElementById("offerPromotionAssignedId");
-            if (select.style.display === "none") {
-                select.style.display = "block";
-            } else {
-                select.style.display = "none";
-            }
-        }
-
         function updatePromotionDescriptionOnLoading() {
             var selectedPromotionId = document.getElementById('offerPromotionAssignedId').value;
             if(${promotionsJson != null}){
@@ -150,15 +141,6 @@
             document.getElementById('offerPromotionAssignedInput').value = selectedValue;
         }
 
-
-        function toggleSegmentSelectVisibility() {
-            var select = document.getElementById("offerSegmentAssignedId");
-            if (select.style.display === "none") {
-                select.style.display = "block";
-            } else {
-                select.style.display = "none";
-            }
-        }
 
         function filterDropdown(inputId, selectId, inputElement) {
             // Filter the dropdown options based on the input value
@@ -274,10 +256,6 @@
                 return
             }
 
-            if(validateSelectSegments()){ //Validate for selected segments
-                return
-            }
-
             var offerId = $('#offerId').val();
             var offerDescription = $('#offerDescriptionId').val();
             var offerStartDate = $('#offerStartDateId').val();
@@ -367,65 +345,20 @@
             var offerStartDate = $('#offerStartDateId').val();
             var offerEndDate = $('#offerEndDateId').val();
             var offerStatus = $('#offerStatusId').val();
+            var selectedSegments = $('#offerSelectedSegmentsContainer .selected-item');
 
             // Perform form validation
             if (offerDescription.trim() === "" || offerStartDate.trim() === "" || offerEndDate.trim() === "" || offerStatus.trim() === "") {
                 var errorMessage = "All mandatory fields must be present before data can be saved.";
-
-                var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
-                var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
-                var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
-
-                closeIcon.click(function () {
-                    errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
-                });
-
-                errorDiv.append(closeIcon);
-                errorDiv.append(errorMessageSpan);
-                $('#errors-container').html(errorDiv);
-
-                // Adjust icon position to top-right corner
-                closeIcon.css({
-                    "position": "absolute",
-                    "top": "-10px",
-                    "right": "1px",
-                    "margin": "0.5rem"
-                });
-
+                createErrorAlert(errorMessage)
                 return true; // Stop further execution of saveLoyaltyOffer() if form validation fails
-            }
-            return false
-        }
-
-        function validateSelectSegments(){
-            // Validate selected segments
-            var selectedSegments = $('#offerSelectedSegmentsContainer .selected-item');
-            if (selectedSegments.length === 0) {
+            }else if (selectedSegments.length === 0) {
                 var errorMessage = "At least one segment must be selected.";
-
-                var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
-                var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
-                var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
-
-                closeIcon.click(function () {
-                    errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
-                });
-
-                errorDiv.append(closeIcon);
-                errorDiv.append(errorMessageSpan);
-                $('#errors-container').html(errorDiv);
-
-                // Adjust icon position to top-right corner
-                closeIcon.css({
-                    "position": "absolute",
-                    "top": "-10px",
-                    "right": "1px",
-                    "margin": "0.5rem"
-                });
-
+                createErrorAlert(errorMessage)
                 return true; // Stop further execution of saveLoyaltyOffer() if segment validation fails
             }
-            return false;
+
+            return false
         }
 
         function cancelLoyaltyOffer(){
@@ -443,6 +376,29 @@
         function cancelLoyaltyError(){
             $('#addLoyaltyOffersModal').modal('hide');
             window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
+        }
+
+        function createErrorAlert(errorMessage){
+            var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+            var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
+            var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+
+            closeIcon.click(function () {
+                errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
+            });
+
+            errorDiv.append(closeIcon);
+            errorDiv.append(errorMessageSpan);
+            $('#errors-container').html(errorDiv);
+
+            // Adjust icon position to top-right corner
+            closeIcon.css({
+                "position": "absolute",
+                "top": "-10px",
+                "right": "1px",
+                "margin": "0.5rem"
+            });
+
         }
 
     </script>
@@ -543,9 +499,8 @@
                     <div class="dropdown-content col-5">
                         <div class="input-group-append">
                             <asset:image src="search.png" id="offerPromotionSearchButton" name="offerPromotionSearchButton" onclick="searchProduct()" class="wl-search-button" />
-                            <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput" onclick="togglePromotionSelectVisibility()"
-                                   oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)"
-                                   readonly = "${isUpdate ? true : false}">
+                            <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput"
+                                   oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
                         </div>
                         <g:select id="offerPromotionAssignedId" name="offerPromotionAssigned" size="6" style="overflow-y: scroll; overflow-x: hidden; display: true;" from="${promotions}" optionValue="description"
                                   value="${loyaltyOffer?.retailerOfferId}"
@@ -561,15 +516,12 @@
                     <div class="dropdown-content col-5">
                         <div class="input-group-append">
                             <asset:image src="search.png" id="offerSegmentSearchButton" name="offerSegmentSearchButton" onclick="searchProduct()" class="wl-search-button" />
-                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" readonly = "${isUpdate ? true : false}">
+                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" ${isUpdate ? 'disabled' : ''}>
                         </div>
                         <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px; border-top: 0; border-bottom: 1px solid #ccc;"></div>
                         <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments" readonly = "${isUpdate ? true : false}">
                         <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple" style="display: true;" from="${segments}" optionValue="description"
-                                  value="${selectedSegmentIds}" optionKey="id"
-                                  class="form-control select-border"
-                                  disabled="${isUpdate ? true : false}"
-                                  onchange="updateSegmentInput()"/>
+                                  value="${selectedSegmentIds}" optionKey="id" class="form-control select-border" disabled="${isUpdate ? true : false}" onchange="updateSegmentInput()"/>
                     </div>
                 </div>
 

@@ -58,7 +58,7 @@ class LoyaltyService extends MySqlDal {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
                 if (searchBy == 'Description') {
-                    like("description", "%$searchTerm%")
+                    like("offerDescription", "%$searchTerm%")
                 } else if (searchBy == 'ID') {
                     sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
                 }
@@ -72,7 +72,7 @@ class LoyaltyService extends MySqlDal {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
                 if (searchBy == 'Description') {
-                    ilike("description", "%$searchTerm%")
+                    ilike("offerDescription", "%$searchTerm%")
                 } else if (searchBy == 'ID') {
                     sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
                 }
