@@ -34,6 +34,58 @@
             $('.alert.alert-danger.alert-wl').append(closeIcon); // Append the close icon to the alert container
         });
 
+        window.onload = function() {
+            displaySuccessMessage();
+        };
+
+        function getQueryParams() {
+            var queryParams = {};
+            var queryString = window.location.search.substring(1);
+            var pairs = queryString.split("&");
+            for (var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i].split("=");
+                var key = decodeURIComponent(pair[0]);
+                var value = decodeURIComponent(pair[1]);
+                queryParams[key] = value;
+            }
+            return queryParams;
+        }
+
+        // Function to display the success message
+        function displaySuccessMessage() {
+            var queryParams = getQueryParams();
+            if (queryParams.hasOwnProperty('successMessage')) {
+                var successMessage = decodeURIComponent(queryParams['successMessage']);
+                // Find the success container element
+                var successContainer = document.getElementById('success-container');
+                // Check if the container exists
+                if (successContainer) {
+                    // Create a div to hold the success message and close icon
+                    var successDiv = document.createElement('div');
+                    successDiv.className = 'alert alert-success alert-wl mx-0 position-relative';
+                    successDiv.setAttribute('role', 'alert');
+                    // Set the success message as the inner HTML of the success container
+                    successDiv.innerHTML = '<span id="cancel-icon" class="close" aria-label="Close">&times;</span>' + successMessage;
+
+                    // Append the div to the success container
+                    successContainer.appendChild(successDiv);
+
+                    // Get the close icon
+                    var closeIcon = successDiv.querySelector('#cancel-icon');
+                    // Apply CSS styles to the close icon
+                    closeIcon.style.position = "absolute";
+                    closeIcon.style.top = "-10px";
+                    closeIcon.style.right = "1px";
+                    closeIcon.style.margin = "0.5rem";
+
+                    // Add event listener to close the message when the close icon is clicked
+                    closeIcon.addEventListener('click', function() {
+                        successDiv.style.display = "none";
+                    });
+                }
+            }
+        }
+
         function searchButtonClicked() {
             $('#offset').val(0);
             search();
@@ -133,11 +185,8 @@
         </div>
     </div>
 
-    <g:if test="${flash.message}">
-        <section id="success-container">
-            <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-        </section>
-    </g:if>
+    <section id="success-container"></section>
+
 
     <g:if test="${flash.error}">
         <section id="failure-container">

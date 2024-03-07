@@ -328,7 +328,7 @@
                         }
                     },
                     200: function (response) {
-                        var successMessage = "Successfully Save Offer";
+                        var successMessage = "Loyalty Offer Saved Successfully";
                         var redirectUrl = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
                         // Append success message as a query parameter
                         redirectUrl += '?successMessage=' + encodeURIComponent(successMessage);

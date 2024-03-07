@@ -7,6 +7,7 @@ import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.reporting.PromotionSale
 
 import javax.xml.bind.ValidationException
 
@@ -18,17 +19,6 @@ class LoyaltyService{
     def rabbitService
 
     def getSegment(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder) {
-        def totalCount = Segment.createCriteria().get {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            or {
-                if (searchBy == 'Description') {
-                    like("description", "%$searchTerm%")
-                } else if (searchBy == 'ID') {
-                    sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
-                }
-            }
-        }
-
         def segments = Segment.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
@@ -40,22 +30,13 @@ class LoyaltyService{
             }
         }
 
+        int totalCount = Segment.withTransaction { segments.totalCount }
+
         return [totalCount: totalCount, segments: segments]
     }
 
 
     def getLoyaltyOffers(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder){
-        def totalCount = LoyaltyOffer.createCriteria().get {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            or {
-                if (searchBy == 'Description') {
-                    like("offerDescription", "%$searchTerm%")
-                } else if (searchBy == 'ID') {
-                    sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
-                }
-            }
-        }
-
         def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
@@ -66,6 +47,8 @@ class LoyaltyService{
                 }
             }
         }
+
+        int totalCount = LoyaltyOffer.withTransaction { offers.totalCount }
 
         return [totalCount: totalCount, offers: offers]
     }
