@@ -4,24 +4,18 @@ import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.validation.Errors
-import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
-import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import javax.xml.bind.ValidationException
 
-@Transactional(connection="loyalty")
-class LoyaltyService extends MySqlDal {
+@Transactional("loyalty")
+class LoyaltyService{
 
     def springSecurityService
     def messageSource
     def rabbitService
-
-    protected LoyaltyService(DatabaseCredentials databaseCredentials) {
-        super(databaseCredentials)
-    }
 
     def getSegment(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder) {
         def totalCount = Segment.createCriteria().get {
@@ -32,9 +26,6 @@ class LoyaltyService extends MySqlDal {
                 } else if (searchBy == 'ID') {
                     sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
                 }
-            }
-            projections {
-                countDistinct("id")
             }
         }
 
@@ -63,9 +54,6 @@ class LoyaltyService extends MySqlDal {
                     sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
                 }
             }
-            projections {
-                countDistinct("id")
-            }
         }
 
         def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
@@ -89,9 +77,7 @@ class LoyaltyService extends MySqlDal {
     }
 
     def getLoyaltyOfferById(int id){
-        return LoyaltyOffer.createCriteria().get {
-            eq ("id", id)
-        }
+        return LoyaltyOffer.findById(id)
     }
 
     List<LoyaltyOfferSegment> getLoyaltyOfferSegmentsById(int offerId){
@@ -157,7 +143,11 @@ class LoyaltyService extends MySqlDal {
         return loyaltyOfferSegments
     }
 
-    @Transactional(connection="loyalty")
+    def getEligibleOfferStatus(){
+        return Arrays.asList(LoyaltyOfferStatus.values());
+    }
+
+    @Transactional("loyalty")
     def loyaltyOfferSave(LoyaltyOffer updatedOffer, List<LoyaltyOfferSegment> loyaltyOfferSegmentList){
         try {
             LoyaltyOffer insertedOffer = saveLoyaltyOffer(updatedOffer)
@@ -169,7 +159,7 @@ class LoyaltyService extends MySqlDal {
         }
     }
 
-    def pushLoyaltyOfferIntoRabbitMQ(LoyaltyOffer updatedOffer){
+    private pushLoyaltyOfferIntoRabbitMQ(LoyaltyOffer updatedOffer){
         try {
             SyncMessage loyaltyOfferSyncMessage = new SyncMessage(SyncMessageType.LOYALTY_OFFER, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
             loyaltyOfferSyncMessage.setInsert(true)
@@ -181,11 +171,7 @@ class LoyaltyService extends MySqlDal {
         }
     }
 
-    def getEligibleOfferStatus(){
-        return Arrays.asList(LoyaltyOfferStatus.values());
-    }
-
-    LoyaltyOffer saveLoyaltyOffer(LoyaltyOffer updatedOffer){
+    private LoyaltyOffer saveLoyaltyOffer(LoyaltyOffer updatedOffer){
         try {
             updatedOffer.validate()
             if (updatedOffer.hasErrors()) {
@@ -201,7 +187,7 @@ class LoyaltyService extends MySqlDal {
         }
     }
 
-    def saveLoyaltySegments(List<LoyaltyOfferSegment> loyaltyOfferSegmentList, LoyaltyOffer insertedOffer){
+    private saveLoyaltySegments(List<LoyaltyOfferSegment> loyaltyOfferSegmentList, LoyaltyOffer insertedOffer){
         try {
             for (LoyaltyOfferSegment loyaltyOfferSegment : loyaltyOfferSegmentList){
                 loyaltyOfferSegment.validate()
