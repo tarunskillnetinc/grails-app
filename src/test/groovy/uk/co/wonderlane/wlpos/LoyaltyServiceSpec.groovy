@@ -180,6 +180,15 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
         1  | 1
     }
 
+    def 'Should successfully return loyalty offer status'(){
+
+        when: 'Get loyalty offer status list'
+        def eligibleStatusList = service.getEligibleOfferStatus()
+
+        then: 'successfully return all offer eligible status list'
+        eligibleStatusList != null
+    }
+
     def getFakeSpringSecurityService() {
         return Stub(SpringSecurityService) {
             getPrincipal() >> new HashMap() {
