@@ -192,7 +192,8 @@ class LoyaltyController {
             ex.printStackTrace()
             log.error("Error loading loyalty offer view window, Exception " + ex)
             flash.error = "Failed to load loyalty offer view"
-            redirect(action: "loyaltyOffers")
+            response.setStatus(302)
+            redirect(controller: "loyalty", action: "loyaltyOffers")
         }
     }
 
@@ -213,6 +214,7 @@ class LoyaltyController {
                 //Save loyalty offers + loyalty offer segments + push saved loyalty offer into rabbitMQ
                 loyaltyService.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltySegments)
                 flash.message = "Successfully Save Offer"
+                response.setStatus(302)
                 redirect("controller": "loyalty", action:"loyaltyOffers")
             } else {
                 errorList.add("Loyalty Invalid Request Found")
