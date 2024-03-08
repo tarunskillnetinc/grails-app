@@ -20,14 +20,9 @@ class ReasonCodeService {
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 
-    boolean isDescriptionDuplicate(int retailerId, String description) {
-        return ReasonCode.countByRetailerIdAndDescriptionAndDeleted(retailerId, description, false) > 0
+    ReasonCode findByCode(int retailerId, String code) {
+        return ReasonCode.findByRetailerIdAndCode(retailerId, code)
     }
-
-    boolean isCodeDuplicate(int retailerId, String code) {
-        return ReasonCode.countByRetailerIdAndCodeAndDeleted(retailerId, code, false) > 0
-    }
-
     boolean isLastOfType(int retailerId, ReasonCodeType type) {
         return ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false) <= 1
     }

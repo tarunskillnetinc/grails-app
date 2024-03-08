@@ -77,7 +77,7 @@ class OrderController {
 
                 //Load active packs for selected supplier
                 for (Pack pack : variant?.packs) {
-                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId)) {
+                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId) && pack?.isActive()) {
                         packs.add(pack)
                     }
                 }
@@ -171,7 +171,7 @@ class OrderController {
         if (supplier?.symbolGroup != null){
             for (ProductVariant productVariant : product?.variants){
                 for (Pack pack: productVariant?.packs){
-                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId)){
+                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId) && pack?.isActive()){
                         variants.add(productVariant)
                         break
                     }
