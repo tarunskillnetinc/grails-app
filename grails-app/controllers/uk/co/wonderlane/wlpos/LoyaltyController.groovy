@@ -144,7 +144,7 @@ class LoyaltyController {
             boolean isUpdate = false
             LoyaltyOffer originalLoyaltyOffer = null
             List<Integer> selectedSegmentIds = new ArrayList<>()
-            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
             if (params.id && params.id.isNumber()) {
                 isUpdate = true

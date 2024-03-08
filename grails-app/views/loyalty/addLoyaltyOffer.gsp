@@ -9,7 +9,7 @@
     <asset:javascript src="bootstrap-datepicker.min.js" />
 
     <script type='text/javascript'>
-        let dropdownToggled = false;
+        let isUpdate = false
 
         $(function() {
             // Set start date to today and initialize datepicker
@@ -63,6 +63,7 @@
         window.addEventListener('load', function() {
             updatePromotionDescriptionOnLoading()
             updateSegmentInputOnLoading()
+            isUpdate = ${isUpdate}
         })
 
         function validateAndCorrectDates() {
@@ -84,29 +85,29 @@
         function updateSegmentInputOnLoading() {
             var selectedSegmentIdList = ${selectedSegmentIds}; // Get the selected segment IDs from the server response
 
-                var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
-                selectedSegmentsContainer.innerHTML = ''; // Clear previous content
+            var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
+            selectedSegmentsContainer.innerHTML = ''; // Clear previous content
 
-                // Retrieve selected segment descriptions based on IDs
-                var selectedDescriptions = [];
-                for (var i = 0; i < ('${selectedSegmentIds}').length; i++) {
-                    var segmentId = selectedSegmentIdList[i];
-                    var selectedSegment = findSegmentById(segmentId);
-                    if (selectedSegment) {
-                        selectedDescriptions.push(selectedSegment.description);
-                        // Create selected segment element
-                        var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
-                        var selectedSegmentDiv = document.createElement('div');
-                        selectedSegmentDiv.className = 'selected-item';
-                        selectedSegmentDiv.id = 'selectedSegment_' + segmentId; // Set the id attribute
-                        selectedSegmentDiv.setAttribute('data-id', segmentId); // Set the data-id attribute
-                        selectedSegmentDiv.innerHTML = selectedSegment.description + cancelIcon;
-                        selectedSegmentsContainer.appendChild(selectedSegmentDiv);
-                    }
+            // Retrieve selected segment descriptions based on IDs
+            var selectedDescriptions = [];
+            for (var i = 0; i < ('${selectedSegmentIds}').length; i++) {
+                var segmentId = selectedSegmentIdList[i];
+                var selectedSegment = findSegmentById(segmentId);
+                if (selectedSegment) {
+                    selectedDescriptions.push(selectedSegment.description);
+                    // Create selected segment element
+                    var cancelIcon = '<span class="cancel-icon" onclick="removeSelectedItem(event)">&#10006;</span>';
+                    var selectedSegmentDiv = document.createElement('div');
+                    selectedSegmentDiv.className = 'selected-item';
+                    selectedSegmentDiv.id = 'selectedSegment_' + segmentId; // Set the id attribute
+                    selectedSegmentDiv.setAttribute('data-id', segmentId); // Set the data-id attribute
+                    selectedSegmentDiv.innerHTML = selectedSegment.description + cancelIcon;
+                    selectedSegmentsContainer.appendChild(selectedSegmentDiv);
                 }
-                // Update hidden input value
-                var selectedSegmentsInput = document.getElementById('offerSelectedSegments');
-                selectedSegmentsInput.value = selectedDescriptions.join(',');
+            }
+            // Update hidden input value
+            var selectedSegmentsInput = document.getElementById('offerSelectedSegments');
+            selectedSegmentsInput.value = selectedDescriptions.join(',');
         }
 
         function findSegmentById(segmentId) {
@@ -161,27 +162,6 @@
             }
         }
 
-        function updateCancelIcons() {
-            var selectedOptions = document.getElementById('offerSegmentAssignedId').selectedOptions;
-            var inputField = document.getElementById('offerSegmentAssignedInput');
-            inputField.innerHTML = '';
-            for (var i = 0; i < selectedOptions.length; i++) {
-                var span = document.createElement('span');
-                span.innerHTML = selectedOptions[i].text;
-                var cancelIcon = document.createElement('span');
-                cancelIcon.className = 'cancel-icon';
-                cancelIcon.innerHTML = '&#10006;';
-                cancelIcon.setAttribute('data-index', i);
-                cancelIcon.onclick = function() {
-                    var index = this.getAttribute('data-index');
-                    removeSelectedItem(index);
-                };
-                span.appendChild(cancelIcon);
-                inputField.appendChild(span);
-                inputField.appendChild(document.createTextNode(', '));
-            }
-        }
-
         function updateSegmentInput() {
             var selectedOptions = document.getElementById('offerSegmentAssignedId').selectedOptions;
             var selectedSegmentsContainer = document.getElementById('offerSelectedSegmentsContainer');
@@ -223,7 +203,7 @@
 
         function removeSelectedItem(event) {
             var container = event.target.closest('.selected-item'); // Find the closest parent container with the class 'selected-item'
-            if (container) {
+            if (container && !isUpdate) {
                 container.remove(); // Remove the found container
             }
             // Update the hidden input value after removing the selected item

@@ -7,7 +7,6 @@ import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
-import uk.co.wonderlane.wlpos.reporting.PromotionSale
 
 import javax.xml.bind.ValidationException
 
