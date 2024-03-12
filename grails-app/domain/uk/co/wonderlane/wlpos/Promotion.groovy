@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -18,6 +19,7 @@ class Promotion {
     boolean active
     DateTime updateDatetime
     Integer retailerPromotionId
+    @JsonIgnore
     Collection<PromotionGroup> groups = new ArrayList<>()
     String rpidAsString
 
