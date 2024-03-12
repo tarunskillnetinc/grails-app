@@ -84,11 +84,21 @@ class LoyaltyOffer {
         })
         maxAllocations nullable: true
         currentAllocations nullable: true
-        maxBudget nullable: true
+        maxBudget (nullable: true, validator: { val, obj ->
+            if (val < 1) {
+                return ["loyaltyOffer.maxBudget.minimum"]
+            }
+            return true
+        })
         currentBudget nullable: true
         maxCustomers nullable: true
         currentCustomers nullable: true
-        maxRedemptions nullable: true
+        maxRedemptions (nullable: true, validator: { val, obj ->
+            if (val < 1) {
+                return ["loyaltyOffer.maxRedemptions.minimum"]
+            }
+            return true
+        })
         currentRedemptions nullable: true
         redemptionDefault nullable: true
         alertThreshold nullable: true
