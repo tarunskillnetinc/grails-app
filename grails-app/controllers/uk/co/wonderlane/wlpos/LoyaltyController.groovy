@@ -10,7 +10,63 @@ class LoyaltyController {
 
     def index() {}
     def loyaltyMembers() {}
-    def loyaltySegment(){}   
+    def loyaltySegment() {}
+
+    def showMemberDetails(String cardNumber) {
+        def member = loyaltyMemberService.findByCardNumber(cardNumber)
+        render(view: "loyaltyMemberDetails", model: [member: member])
+    }
+
+    def memberUpdateSave() {
+        String cardNumber
+        String firstName
+        String lastName
+        String email
+        String mobile_no
+        Boolean updated = false
+
+        try {
+            cardNumber = params.cardNumber
+            firstName = params.firstName
+            lastName = params.lastName
+            email = params.email
+            mobile_no = params.mobile_no
+        } catch (Exception e) {
+            e.printStackTrace()
+            response.status = 400
+            return
+        }
+
+        def member = loyaltyMemberService.findByCardNumber(cardNumber)
+
+        if (member) {
+            if (member.firstName != firstName) {
+                updated = true
+                loyaltyMemberService.updateMemberField(cardNumber, "firstName", firstName)
+            }
+
+            if (member.lastName != lastName) {
+                updated = true
+                loyaltyMemberService.updateMemberField(cardNumber, "lastName", lastName)
+            }
+
+            if (member.email != email) {
+                updated = true
+                loyaltyMemberService.updateMemberField(cardNumber, "email", email)
+            }
+
+            if (member.mobile_no != mobile_no) {
+                updated = true
+                loyaltyMemberService.updateMemberField(cardNumber, "mobile_no", mobile_no)
+            }
+        }
+
+        if (updated) {
+            flash.message = "Member updated successfully"
+        }
+
+        redirect(action: "loyaltyMembers")
+    }
 
     /* Called from the membership management page when searching for loyalty members */
     def ajaxSearchMembers() {

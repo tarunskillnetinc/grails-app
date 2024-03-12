@@ -71,13 +71,18 @@
         </nav>
     </section>
 
+    <section id="alerts-container" class="container-fluid">
+        <g:if test="${flash.message}">
+            <div id="alerts-container-message" class="alert alert-success" role="alert">${flash.message}</div>
+        </g:if>
+    </section>
+
     <section id="membership-search" class="container-fluid">
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
                 <h2 id="page-title" class="mx-auto my-auto">Loyalty Members</h2>
             </div>
         </div>
-
 
         <div class="row mt-4">
             <div class="col-5">

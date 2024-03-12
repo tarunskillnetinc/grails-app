@@ -36,7 +36,7 @@
     </g:if>
 
     <g:each in="${members}" var="member" status="i">
-        <div id="member-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;">
+        <div id="member-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'showMemberDetails', params:[cardNumber: member.cardNumber])}';">
             <div id="member-result-${i+1}-card-number" class="col-2 text-truncate">${member.cardNumber}</div>
             <div id="member-result-${i+1}-email" class="col-3">${member.email}</div>
             <div id="member-result-${i+1}-first-name" class="col">${member.firstName}</div>
