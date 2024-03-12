@@ -37,7 +37,7 @@
             offset: ${sortParams?.offset},
             sortColumn: 'supplierName',
             sortOrder: ${sortParams?.sortColumn == 'supplierName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-        });">Supplier Name</a></div>
+        });">Supplier Reference</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
         <div class="col-2 font-weight-bold"><a id="number-of-items" href="#" onclick="getReportData({
