@@ -826,8 +826,7 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).minusDays(6).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
-
-        // If we've logged in as a Store and there isn't a Parameter
+        
         def suppliers = supplierService.getSuppliers()
 
         boolean enableOrderCreate = false
@@ -987,11 +986,6 @@ class ReportingController {
         Integer supplierId = params.supplierId ? getIntegerParam(params.supplierId) : null
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
-
-        // If we've logged in as a Store and there isn't a Parameter.
-        if (springSecurityService.principal.storeId && storeId == null) {
-            storeId = springSecurityService.principal.storeId
-        }
 
         def suppliers = supplierService.getSuppliers()
 
