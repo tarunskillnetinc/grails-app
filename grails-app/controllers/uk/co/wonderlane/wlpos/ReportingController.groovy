@@ -17,6 +17,7 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 class ReportingController {
 
     def reportingService
+    def supplierService
     def productListService
     def storeService
     def springSecurityService
@@ -827,13 +828,7 @@ class ReportingController {
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
         // If we've logged in as a Store and there isn't a Parameter
-        def suppliers
-        if (springSecurityService.principal.storeId) {
-            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, [sort: "name"]) // Find all Store Suppliers
-            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null, [sort:"name"])) // Add all Retailer Suppliers
-        } else {
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
-        }
+        def suppliers = supplierService.getSuppliers()
 
         boolean enableOrderCreate = false
         if (springSecurityService.principal.storeId  != null &&  springSecurityService.principal.storeId > 0){
@@ -998,13 +993,7 @@ class ReportingController {
             storeId = springSecurityService.principal.storeId
         }
 
-        def suppliers
-        if (storeId != null) {
-            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeId, [sort: "name"]) // Find all Store Suppliers
-            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null, [sort:"name"])) // Add all Retailer Suppliers
-        } else {
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
-        }
+        def suppliers = supplierService.getSuppliers()
 
         [reportType : ReportType.DELIVERIES,
          suppliers : suppliers,
