@@ -131,7 +131,8 @@ class OrderController {
         User user = userService.getUser(springSecurityService.principal.id)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
         if ((productList == null) || (productList != null && productList.getSupplierId() == null)){
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
+            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, [sort: "name", order: "ASC"]) // Find all Store Suppliers
+            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null, [sort: "name", order: "ASC"])) // Add all Retailer Suppliers
             response.setStatus(200)
         }else {
             response.setStatus(204)
@@ -263,7 +264,8 @@ class OrderController {
                 suppliers = returnedSuppliers
             }
         } else {
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
+            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, [sort: "name", order: "ASC"]) // Find all Store Suppliers
+            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null, [sort: "name", order: "ASC"])) // Add all Retailer Suppliers
         }
         render (template: "supplierListView", model: [suppliers: suppliers])
     }

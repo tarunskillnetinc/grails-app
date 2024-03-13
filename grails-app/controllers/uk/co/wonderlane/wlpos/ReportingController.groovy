@@ -826,7 +826,14 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        // If we've logged in as a Store and there isn't a Parameter
+        def suppliers
+        if (springSecurityService.principal.storeId) {
+            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, [sort: "name"]) // Find all Store Suppliers
+            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null, [sort:"name"])) // Add all Retailer Suppliers
+        } else {
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        }
 
         boolean enableOrderCreate = false
         if (springSecurityService.principal.storeId  != null &&  springSecurityService.principal.storeId > 0){
@@ -986,7 +993,18 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        // If we've logged in as a Store and there isn't a Parameter.
+        if (springSecurityService.principal.storeId && storeId == null) {
+            storeId = springSecurityService.principal.storeId
+        }
+
+        def suppliers
+        if (storeId != null) {
+            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, storeId, [sort: "name"]) // Find all Store Suppliers
+            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null, [sort:"name"])) // Add all Retailer Suppliers
+        } else {
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        }
 
         [reportType : ReportType.DELIVERIES,
          suppliers : suppliers,

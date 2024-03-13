@@ -1301,7 +1301,14 @@ class ProductController extends BaseController {
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
-        def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+
+        def defaultSuppliers
+        if (springSecurityService.principal.storeId) {
+            defaultSuppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId) // Find all Store Suppliers
+            defaultSuppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null)) // Add all Retailer Suppliers
+        } else {
+            defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        }
 
         def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
@@ -1323,7 +1330,13 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def suppliers
+        if (springSecurityService.principal.storeId) {
+            suppliers = Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, springSecurityService.principal.storeId) // Find all Store Suppliers
+            suppliers.addAll(Supplier.findAllByRetailerIdAndStoreId(springSecurityService.principal.retailerId, null)) // Add all Retailer Suppliers
+        } else {
+            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        }
 
         suppliers.removeAll { it.symbolGroup != null }
 
