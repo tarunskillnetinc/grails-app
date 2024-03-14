@@ -20,14 +20,24 @@ class LoyaltyController {
     def promotionService
     def springSecurityService
     def loyaltyMemberService
+    def memberTransactionService
 
     def index() {}
     def loyaltyMembers() {}
     def loyaltySegment() {}
 
+    def transactions(String cardNumber) {
+        render(view: "transactions", model: [cardNumber: cardNumber])
+    }
+
     def showMemberDetails(String cardNumber) {
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
-        render(view: "loyaltyMemberDetails", model: [member: member])
+        render (view: "loyaltyMemberDetails", model: [member: member])
+    }
+
+    def transactionDetails(String memberId, String transactionId) {
+        def transaction = memberTransactionService.findTransactionByMemberIdAndTransactionId(Integer.parseInt(memberId), Integer.parseInt(transactionId))
+        render (view: "transactionDetails", model: [transaction: transaction])
     }
 
     def memberUpdateSave() {
@@ -81,6 +91,62 @@ class LoyaltyController {
         redirect(action: "loyaltyMembers")
     }
 
+    def ajaxMemberTransactions() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+        String cardNumber
+        String searchBy
+        String searchTerm
+        double minAmount
+        double maxAmount
+        DateTime startWindow
+        DateTime endWindow
+        Integer max
+        Integer offset
+        String sortColumn
+        String sortOrder
+        def transactions
+
+        try {
+            cardNumber = params.cardNumber
+            searchBy = params.searchBy ? params.searchBy : ""
+            searchTerm = params.searchTerm ? params.searchTerm : ""
+            minAmount = params.minAmount ? Double.parseDouble(params.minAmount) : 0
+            maxAmount = params.maxAmount ? Double.parseDouble(params.maxAmount) : 0
+            startWindow = params.startWindow ? DateTime.parse(params.startWindow, dateFormatter) : null
+            endWindow = params.endWindow ? DateTime.parse(params.endWindow, dateFormatter).plusDays(1) : null
+            max = params.max ? Integer.parseInt(params.max) : null
+            offset = params.offset ? Integer.parseInt(params.offset) : null
+            sortColumn = validateSortColumn(params.sortColumn)
+            sortOrder = validateSortOrder(params.sortOrder)
+        } catch (Exception e) {
+            e.printStackTrace()
+            response.status = 400
+            return
+        }
+
+        /* Get the member associated with the card number so can retrieve the transaction records */
+        def member = loyaltyMemberService.findByCardNumber(cardNumber)
+
+        if (member) {
+            transactions = memberTransactionService.findAllTransactionsByMemberId(member.id, searchTerm, searchBy, minAmount, maxAmount,
+                                                                                         startWindow, endWindow, max, offset, sortColumn, sortOrder)
+        }
+
+        render(template: "transactionSearchResults", model: [cardNumber : params.cardNumber,
+                                                             searchTerm : params.searchTerm,
+                                                             searchBy   : params.searchBy,
+                                                             startWindow: params.startWindow,
+                                                             endWindow  : params.endWindow,
+                                                             minAmount  : params.minAmount,
+                                                             maxAmount  : params.maxAmount,
+                                                             offset     : params.offset,
+                                                             max        : params.max,
+                                                             sortColumn : params.sortColumn,
+                                                             sortOrder  : params.sortOrder,
+                                                             transactions: transactions["transactions"],
+                                                             totalResults: transactions["totalResults"]])
+    }
+
     /* Called from the membership management page when searching for loyalty members */
     def ajaxSearchMembers() {
         String searchBy
@@ -120,7 +186,7 @@ class LoyaltyController {
     }
 
     private String validateSortColumn(String sortColumn) {
-        def availableColumns = [ "cardNumber", "email", "firstName", "lastName" ]
+        def availableColumns = [ "cardNumber", "email", "firstName", "lastName", "storeId", "storeName", "transactionId", "transactionTotal", "transactionTimestamp" ]
 
         if (!sortColumn) {
             return null

@@ -18,15 +18,17 @@ class Member {
     String postcode
     Date dateOfBirth
     Date lastTransaction
-    int offersAvailable
-    int currentPoints
-    double currentSpend
-    double currentSavings
-    int currentStamps
-    int maxStamps
+    Integer offersAvailable
+    Integer currentPoints
+    Double currentSpend
+    Double currentSavings
+    Integer currentStamps
+    Integer maxStamps
     MemberStatus status
     Date dateCreated
     Date dateUpdated
+
+    static hasMany = [transactions: MemberTransaction]
 
     static mapping = {
         datasources(["loyalty"])

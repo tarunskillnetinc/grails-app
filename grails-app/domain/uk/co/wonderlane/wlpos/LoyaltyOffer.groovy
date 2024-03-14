@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.loyalty.RedeemedOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferType
 
@@ -16,17 +17,17 @@ class LoyaltyOffer {
     DateTime visibleFromDate
     Date startDate
     Date endDate
-    int maxAllocations
+    Integer maxAllocations
     int currentAllocations
     BigDecimal maxBudget
     BigDecimal currentBudget = BigDecimal.ZERO
-    int maxCustomers
+    Integer maxCustomers
     int currentCustomers
-    int maxRedemptions
+    Integer maxRedemptions
     int currentRedemptions
     int redemptionDefault
-    int alertThreshold
-    int weighting
+    Integer alertThreshold
+    Integer weighting
     int requiresActivation
     String customAttributes
     DateTime dateCreated
@@ -34,7 +35,7 @@ class LoyaltyOffer {
     @JsonIgnore
     Collection<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
 
-    static hasMany = [ loyaltyOfferSegments: LoyaltyOfferSegment ]
+    static hasMany = [loyaltyOfferSegments: LoyaltyOfferSegment, redeemedOffers: RedeemedOffer]
 
     static constraints = {
         offerDescription(nullable: false, validator: { val, obj ->
