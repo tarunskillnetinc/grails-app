@@ -13,7 +13,6 @@
     <div class="col-3 font-weight-bold"><a href="#" onclick="searchButtonClicked({max: '${max}', offset: '${offset}', sortColumn: 'email', sortOrder: ${sortColumn == 'email' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">E-Mail Address</a></div>
     <div class="col font-weight-bold"><a href="#" onclick="searchButtonClicked({max: '${max}', offset: '${offset}', sortColumn: 'firstName', sortOrder: ${sortColumn == 'firstName' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">First Name</a></div>
     <div class="col font-weight-bold"><a href="#" onclick="searchButtonClicked({max: '${max}', offset: '${offset}', sortColumn: 'lastName', sortOrder: ${sortColumn == 'lastName' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Last Name</a></div>
-    <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border"></div>
 </div>
 
 <div class="d-flex justify-content-center">
