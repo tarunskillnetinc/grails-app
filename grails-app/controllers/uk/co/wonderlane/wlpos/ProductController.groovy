@@ -689,7 +689,7 @@ class ProductController extends BaseController {
                     existingVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     existingVariant.defaultSupplierId = editedVariant.defaultSupplierId
                     if (existingVariant.getShelfCapacity() != null
-                            && !(existingVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
+                            && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
                     }
 

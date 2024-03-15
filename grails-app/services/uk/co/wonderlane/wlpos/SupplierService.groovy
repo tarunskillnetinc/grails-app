@@ -275,6 +275,9 @@ class SupplierService extends MySqlDal {
             or {
                 like(defaultSearchColumn, "%$searchTerm%")
             }
+            and {
+                eq("deleted", false)
+            }
         }
         def results = [:]
         results.suppliers = result //Add to supplier
