@@ -34,8 +34,16 @@ class SupplierService extends MySqlDal {
         return suppliers
     }
 
+    def getRetailerSuppliers() {
+        return Supplier.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
+    }
+
+    def getSortedRetailerSuppliers(Map sorting) {
+        return Supplier.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false, sorting)
+    }
+
     def getSupplier(int id) {
-        return Supplier.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
+        return Supplier.findByIdAndRetailerIdAndDeleted(id, springSecurityService.principal.retailerId, false)
     }
 
     def saveSupplier(Supplier supplier) {
@@ -271,6 +279,9 @@ class SupplierService extends MySqlDal {
             }
             or {
                 like(defaultSearchColumn, "%$searchTerm%")
+            }
+            and {
+                eq("deleted", false)
             }
         }
         def results = [:]

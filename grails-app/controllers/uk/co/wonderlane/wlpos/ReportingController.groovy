@@ -826,7 +826,7 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).minusDays(6).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
-        
+
         def suppliers = supplierService.getSuppliers()
 
         boolean enableOrderCreate = false
@@ -909,7 +909,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType   : ReportType.ORDER,
          productListId: productListId,

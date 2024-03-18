@@ -202,7 +202,7 @@ class ProductController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def supplierUpdates() {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSortedRetailerSuppliers([sort: "name"])
         def categories = categoryService.getTopLevelCategories()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description"])
 
@@ -689,7 +689,7 @@ class ProductController extends BaseController {
                     existingVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     existingVariant.defaultSupplierId = editedVariant.defaultSupplierId
                     if (existingVariant.getShelfCapacity() != null
-                            && !(existingVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
+                            && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
                     }
 
@@ -1301,7 +1301,6 @@ class ProductController extends BaseController {
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
-
         def defaultSuppliers = supplierService.getSuppliers()
 
         def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
@@ -1350,7 +1349,7 @@ class ProductController extends BaseController {
             }
         }
         if (cmd.hasErrors) {
-            def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            def defaultSuppliers = supplierService.getSuppliers()
             def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
             // Get IDs of already saved Packs
