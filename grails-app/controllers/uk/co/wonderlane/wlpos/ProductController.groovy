@@ -1301,7 +1301,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
-        def defaultSuppliers = supplierService.getRetailerSuppliers()
+        def defaultSuppliers = supplierService.getSuppliers()
 
         def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
@@ -1323,7 +1323,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
-        def suppliers = supplierService.getRetailerSuppliers()
+        def suppliers = supplierService.getSuppliers()
 
         suppliers.removeAll { it.symbolGroup != null }
 
@@ -1349,7 +1349,7 @@ class ProductController extends BaseController {
             }
         }
         if (cmd.hasErrors) {
-            def defaultSuppliers = supplierService.getRetailerSuppliers()
+            def defaultSuppliers = supplierService.getSuppliers()
             def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
             // Get IDs of already saved Packs

@@ -17,10 +17,10 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 class ReportingController {
 
     def reportingService
+    def supplierService
     def productListService
     def storeService
     def springSecurityService
-    def supplierService
 
     private static final SALES_REPORT_CATEGORY_SORT_COLUMNS = ["description", "quantity", "avgCostPrice", "avgRetailPrice", "retailPrice", "vatAmount", "avgMargin"]
     private static final SALES_REPORT_PRODUCT_SORT_COLUMNS = ["usersName", "category", "description", "quantity", "costPrice", "netTotal", "vatAmount", "profit", "margin", "dateCreated"]
@@ -827,7 +827,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = supplierService.getSortedRetailerSuppliers([sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         boolean enableOrderCreate = false
         if (springSecurityService.principal.storeId  != null &&  springSecurityService.principal.storeId > 0){
@@ -909,7 +909,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = supplierService.getSortedRetailerSuppliers([sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType   : ReportType.ORDER,
          productListId: productListId,
@@ -987,7 +987,7 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = supplierService.getSortedRetailerSuppliers([sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType : ReportType.DELIVERIES,
          suppliers : suppliers,
