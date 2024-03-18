@@ -26,16 +26,12 @@ class SupplierService extends MySqlDal {
     }
 
     def getSuppliers() {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "asc"])
+        def suppliers = Supplier.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false, [sort: "name", order: "asc"])
         if (springSecurityService.principal.storeId) {
             suppliers.removeAll { it.storeId != null && it.storeId != springSecurityService.principal.storeId}
         }
         
         return suppliers
-    }
-
-    def getRetailerSuppliers() {
-        return Supplier.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
     }
 
     def getSortedRetailerSuppliers(Map sorting) {
