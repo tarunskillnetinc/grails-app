@@ -292,6 +292,17 @@
                                         <div class="btn btn-danger" id="reset-rabbitmq-receipts-exchange-button" onclick="$('#rabbitMqReceiptsExchange').val('')">Reset</div>
                                     </div>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label for="rabbitMqUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty URL</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="loyaltyUrl" id="loyaltyUrl" value="${retailer?.config?.loyaltyUrl}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-loyalty-url-button" onclick="$('#loyaltyUrl').val('')">Reset</div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>

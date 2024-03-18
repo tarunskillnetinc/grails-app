@@ -181,6 +181,7 @@ class RetailerCommand implements Validateable {
     String rabbitMqTransactionsExchange
     String rabbitMqDataSyncExchange
     String rabbitMqReceiptsExchange
+    String loyaltyUrl
 
     MultipartFile brandLogo
 
