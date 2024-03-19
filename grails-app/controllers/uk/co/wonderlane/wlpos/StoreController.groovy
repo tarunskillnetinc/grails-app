@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.validation.Validateable
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.entities.loyalty.LoyaltyStoreConfig
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
@@ -59,8 +60,11 @@ class StoreController {
         // Note, this saving is deliberately being done completely outside of Hibernate and GORM because they don't handle JSON columns well (at all).
         if (storeCommand.validate() & storeCommand.config.validate()) { // Deliberately a single & so that both validates get called even if the first one fails.
             StoreConfig storeConfig = new StoreConfig()
+            LoyaltyStoreConfig loyaltyStoreConfig = new LoyaltyStoreConfig()
 
             bindData(storeConfig, storeCommand.config)
+            bindData(loyaltyStoreConfig, storeCommand.config.loyaltyStoreConfig)
+            storeConfig.loyaltyStoreConfig = loyaltyStoreConfig
 
             storeService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
 
@@ -131,12 +135,14 @@ class StoreController {
 
         viewOptions.showUISettings = !isHeadOffice
         viewOptions.showParentStoreSettings = !isHeadOffice && (isHeadOfficeUser || isEngineerUser) && isChildStore
+        viewOptions.showLoyaltySettings = !isHeadOffice
     }
 }
 
 class StoreSettingViewOptions {
     public boolean showUISettings
     public boolean showParentStoreSettings
+    public boolean showLoyaltySettings
 }
 
 class StoreCommand implements Validateable {
@@ -189,6 +195,7 @@ class StoreConfigCommand implements Validateable {
     String website
     String companyNumber
     String returnsMessage
+    LoyaltyStoreConfigCommand loyaltyStoreConfig
 
     static constraints = {
         storeNumber nullable: true
@@ -230,6 +237,7 @@ class StoreConfigCommand implements Validateable {
         website nullable: true, maxsize: 40
         companyNumber nullable: true, maxSize: 10
         returnsMessage nullable: true, maxSize: 200
+        loyaltyStoreConfig nullable: true
     }
 
     def colorCodeValidator(String colorCode) {
@@ -253,4 +261,8 @@ class StoreConfigCommand implements Validateable {
     private boolean isValidHexCode(String s) {
         return s.chars().allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
+}
+
+class LoyaltyStoreConfigCommand {
+    boolean isLoyaltyEnable = false
 }

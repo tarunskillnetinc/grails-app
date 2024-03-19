@@ -551,6 +551,33 @@
                         </div>
                     </div>
                 </g:if>
+
+                <g:if test="${viewOptions.showLoyaltySettings}">
+                    <div class="card bg-light border-wl accordion-card col-lg-10 offset-lg-1 px-0">
+                        <div class="card-header pointer" id="loyaltySettings" data-toggle="collapse" data-target="#collapseloyaltySettings" aria-expanded="true" aria-controls="collapseloyaltySettings">
+                            <div class="row">
+                                <div class="col-10 font-weight-bold">Loyalty Settings</div>
+                                <div class="col-2 text-right">
+                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="collapseloyaltySettings" class="collapse" aria-labelledby="loyaltySettings" data-parent="#accordion">
+                            <div class="card-body py-5">
+                                <div class="col-12">
+                                    <div class="form-group row">
+                                        <label for="loyaltySettings" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Enable</label>
+                                        <div class="col-7 col-lg-4">
+                                            <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="config.loyaltyStoreConfig.isLoyaltyEnable" id="config.loyaltyStoreConfig.isLoyaltyEnable" ${storeSettings?.config?.loyaltyStoreConfig?.isLoyaltyEnable ? 'checked' : ''} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </g:if>
             </div>
         </g:form>
     </section>

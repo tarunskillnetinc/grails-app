@@ -293,16 +293,6 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
-                                    <label for="rabbitMqUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty URL</label>
-                                    <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="loyaltyUrl" id="loyaltyUrl" value="${retailer?.config?.loyaltyUrl}" />
-                                    </div>
-                                    <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-loyalty-url-button" onclick="$('#loyaltyUrl').val('')">Reset</div>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
@@ -727,6 +717,51 @@
                     </div>
                 </div>
             </div>
+
+
+            <div id="accordionLoyalty">
+                <!-- General information. -->
+                <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                    <div class="card-header pointer" id="loyaltyDetails" data-toggle="collapse" data-target="#collapseLoyaltyDetails" aria-expanded="true" aria-controls="collapseLoyaltyDetails">
+                        <div class="row">
+                            <div class="col-10 font-weight-bold">Loyalty Settings</div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="collapseLoyaltyDetails" class="collapse" aria-labelledby="loyaltyDetails" data-parent="#accordion">
+                        <div class="card-body py-5">
+                            <div class="col-12">
+
+                                <div class="form-group row">
+                                    <label for="loyaltyEnableFlag" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Enable</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="loyaltyEnableFlag" name="loyaltyConfig.isLoyaltyEnable"  ${retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? 'checked' : ''} />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="loyaltyUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty URL</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyUrl" id="loyaltyUrl" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyUrl}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-loyalty-url-button" onclick="$('#loyaltyUrl').val('')">Reset</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
         </g:uploadForm>
     </section>
 </body>
