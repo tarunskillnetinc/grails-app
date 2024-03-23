@@ -237,4 +237,5 @@ class FunctionMenuItemCommand {
 class LoyaltyConfigCommand {
     boolean isLoyaltyEnable
     String loyaltyUrl
+    String loyaltyIIN
 }

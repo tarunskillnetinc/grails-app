@@ -754,6 +754,16 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group row">
+                                    <label for="loyaltyIIN" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty IIN</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyIIN" id="loyaltyIIN" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyIIN}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-loyaltyIIN-term-button" onclick="$('#loyaltyIIN').val('')">Reset</div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
