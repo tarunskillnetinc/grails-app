@@ -45,7 +45,6 @@ class ProductController extends BaseController {
         DateTime now = DateTime.now(DateTimeZone.UTC)
 
         def product = productService.getProduct(id)
-//        def displayProduct = product.clone()
 
         if (!product) {
             flash.message = "Product not found"
