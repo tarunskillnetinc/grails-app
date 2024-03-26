@@ -867,12 +867,14 @@ class ProductController extends BaseController {
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
-            // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
-            if (existingPack.id > 0) {
-                def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+            if (existingPack.isActive()) {
+                // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
+                if (existingPack.id > 0) {
+                    def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
 
-                if (!editedPack) {
-                    existingVariant.removeFromPacks(existingPack)
+                    if (!editedPack) {
+                        existingVariant.removeFromPacks(existingPack)
+                    }
                 }
             }
         }
@@ -1707,7 +1709,7 @@ class AddPackCommand implements Validateable {
     // pack is active if the current datetime is after the pack effectiveDate and before the pack effectiveEndDate
     boolean isActive() {
         DateTime now = DateTime.now(DateTimeZone.UTC)
-        return (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
+        return !supplier.deleted && (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
     }
 }
 
@@ -1759,6 +1761,7 @@ class SupplierCommand {
     int id
     String name
     Integer symbolGroupId
+    boolean deleted
 }
 
 class ProductCommand {
