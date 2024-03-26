@@ -106,7 +106,7 @@ class ReasonCodeController {
         }
 
         // Check for Duplicate Reason Code
-        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code)
+        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code, rc.id)
 
         //If the duplicate reason code is deleted, we should re-open it rather than handle it as a duplicate
         if (duplicateReasonCode != null) {

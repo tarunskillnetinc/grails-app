@@ -202,7 +202,7 @@ class ProductController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def supplierUpdates() {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSortedRetailerSuppliers([sort: "name"])
         def categories = categoryService.getTopLevelCategories()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description"])
 
@@ -689,7 +689,7 @@ class ProductController extends BaseController {
                     existingVariant.minimumDisplayQuantity = editedVariant.minimumDisplayQuantity
                     existingVariant.defaultSupplierId = editedVariant.defaultSupplierId
                     if (existingVariant.getShelfCapacity() != null
-                            && !(existingVariant.getShelfCapacity() >= 1 && newVariant.getShelfCapacity() <= 999)) {
+                            && !(existingVariant.getShelfCapacity() >= 1 && existingVariant.getShelfCapacity() <= 999)) {
                         product.errors.reject('productVariant.shelfCapacity.size.error', 'Shelf Capacity must be between 1 to 999.')
                     }
 
@@ -867,12 +867,14 @@ class ProductController extends BaseController {
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
-            // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
-            if (existingPack.id > 0) {
-                def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+            if (existingPack.isActive()) {
+                // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
+                if (existingPack.id > 0) {
+                    def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
 
-                if (!editedPack) {
-                    existingVariant.removeFromPacks(existingPack)
+                    if (!editedPack) {
+                        existingVariant.removeFromPacks(existingPack)
+                    }
                 }
             }
         }
@@ -1301,7 +1303,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxSuppliers(SuppliersCommand cmd) {
-        def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def defaultSuppliers = supplierService.getSuppliers()
 
         def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
@@ -1323,7 +1325,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxAddPack(int variantIndex, int packIndex, int productVariantId) {
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+        def suppliers = supplierService.getSuppliers()
 
         suppliers.removeAll { it.symbolGroup != null }
 
@@ -1349,7 +1351,7 @@ class ProductController extends BaseController {
             }
         }
         if (cmd.hasErrors) {
-            def defaultSuppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId)
+            def defaultSuppliers = supplierService.getSuppliers()
             def suppliers = defaultSuppliers.findAll { it.symbolGroup == null }
 
             // Get IDs of already saved Packs
@@ -1707,7 +1709,7 @@ class AddPackCommand implements Validateable {
     // pack is active if the current datetime is after the pack effectiveDate and before the pack effectiveEndDate
     boolean isActive() {
         DateTime now = DateTime.now(DateTimeZone.UTC)
-        return (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
+        return !supplier.deleted && (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
     }
 }
 
@@ -1759,6 +1761,7 @@ class SupplierCommand {
     int id
     String name
     Integer symbolGroupId
+    boolean deleted
 }
 
 class ProductCommand {

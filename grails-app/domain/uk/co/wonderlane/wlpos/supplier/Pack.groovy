@@ -58,7 +58,7 @@ class Pack {
     // pack is active if the current datetime is after the pack effectiveDate and before the pack effectiveEndDate
     boolean isActive() {
         DateTime now = DateTime.now(DateTimeZone.UTC)
-        return (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
+        return !supplier.deleted && (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
     }
 
     static constraints = {

@@ -131,7 +131,7 @@ class OrderController {
         User user = userService.getUser(springSecurityService.principal.id)
         uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
         if ((productList == null) || (productList != null && productList.getSupplierId() == null)){
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
+            suppliers = supplierService.getSuppliers()
             response.setStatus(200)
         }else {
             response.setStatus(204)
@@ -263,7 +263,7 @@ class OrderController {
                 suppliers = returnedSuppliers
             }
         } else {
-            suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name", order: "ASC"])
+            suppliers = supplierService.getSuppliers()
         }
         render (template: "supplierListView", model: [suppliers: suppliers])
     }
