@@ -1,7 +1,7 @@
 <asset:javascript src="validators/input-validator.js" />
 
 <div id="addPackTextContainer-${variantIndex}-${packIndex}" class="row mx-4 pt-2 pb-2 ${isNewPack ? 'hidden' : ''} wl-striped${packIndex % 2}">
-    <div id="add-pack-${variantIndex+1}-${packIndex+1}-supplier" class="col-3 my-auto">${pack?.supplier?.name}</div>
+    <div id="add-pack-${variantIndex+1}-${packIndex+1}-supplier" class="col-3 my-auto text-truncate">${pack?.supplier?.name}</div>
     <div id="add-pack-${variantIndex+1}-${packIndex+1}-quantity" class="col-2 my-auto">${pack?.quantity}</div>
     <div id="add-pack-${variantIndex+1}-${packIndex+1}-price" class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
     <div id="add-pack-${variantIndex+1}-${packIndex+1}-order-code" class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
