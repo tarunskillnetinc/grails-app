@@ -9767,6 +9767,11 @@ button.bg-dark:focus {
   white-space: nowrap;
 }
 
+.text-truncate-wrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .text-left {
   text-align: left !important;
 }
