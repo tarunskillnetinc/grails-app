@@ -131,18 +131,53 @@
         <script type='text/javascript'>
             var addProductUrl = "${createLink(controller: 'productList', action: 'ajaxAddProduct')}";
 
+            function isBeforeToday(dateString) {
+                <%-- Split the entered dd/MM/yyyy format date into its component parts and generate a new Date object based on it. --%>
+                let parts = dateString.split("/");
+                let date = new Date(parts[2], parts[1] - 1, parts[0]);
+                <%-- Compare the generated date object against today's Date object --%>
+                return date < new Date();
+            }
+
+            $(document).ready(function () {
+                $('#startDate').on("change", function () {
+                    $('#startDate').val(this.value);
+                    $('#startDate').removeClass('is-invalid');
+                    <%-- Ensure that the end date can't be before today, or the selected start date --%>
+                    if (isBeforeToday(this.value)) {
+                        $('#endDate').datepicker('setStartDate', "${new Date().format("dd/MM/yyyy")}");
+                    } else {
+                        $('#endDate').datepicker('setStartDate', this.value);
+                    }
+                });
+
+                $('#endDate').on("change", function () {
+                    $('#endDate').val(this.value);
+                    $('#endDate').removeClass('is-invalid');
+                    <%-- End date has been updated, so ensure the start date doesn't allow a date after this --%>
+                    $('#startDate').datepicker('setEndDate', this.value);
+                });
+            })
+
             $(function() {
-                var $options = {
+                $('#startDate').datepicker({
                     format: "dd/mm/yyyy",
                     weekStart: 1,
                     todayHighlight: true,
                     autoclose: true,
                     todayBtn: "linked",
                     orientation: "bottom auto"
-                };
+                });
 
-                $('#startDate').datepicker($options);
-                $('#endDate').datepicker($options);
+                $('#endDate').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    startDate: "${new Date().format("dd/MM/yyyy")}",
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
             });
         </script>
     </body>

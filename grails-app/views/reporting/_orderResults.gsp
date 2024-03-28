@@ -1,6 +1,6 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-        <div class="col-2 font-weight-bold"><a id="sku" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'sku', sortOrder: ${sortParams?.sortColumn == 'sku' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Product SKU</a></div>
+        <div class="col-2 font-weight-bold" ><a id="sku" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'sku', sortOrder: ${sortParams?.sortColumn == 'sku' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Product SKU</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
         <div class="col-4 font-weight-bold"><a id="description" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'description', sortOrder: ${sortParams?.sortColumn == 'description' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
@@ -30,35 +30,35 @@
     <g:each in="${orders}" var="order" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-                <div id="sku-${i + 1}" class="col-2 my-auto">${order.productListItem?.productVariant?.sku}</div>
+                <div id="sku-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.productListItem?.productVariant?.sku}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div id="description-${i + 1}" class="col-4 my-auto">${order.productListItem?.productVariant?.product?.description}</div>
+                <div id="description-${i + 1}" class="col-4 my-auto" style="overflow: hidden;">${order.productListItem?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderedQuantity" }?.enabled}">
                 <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
                 <g:if test="${order.pack}">
-                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto">${order.pack?.quantity?.multiply(order.quantity)}</div>
+                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.pack?.quantity?.multiply(order.quantity)}</div>
                 </g:if>
                 <g:else>
-                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto">${order.quantity}</div>
+                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.quantity}</div>
                 </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packQuantity" }?.enabled}">
                 <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
                 <g:if test="${order.pack}">
-                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto">${order.pack?.quantity}</div>
+                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.pack?.quantity}</div>
                 </g:if>
                 <g:else>
-                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto">1</div>
+                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">1</div>
                 </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "lineValue" }?.enabled}">
                 <g:if test="${order.pack}">
-                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${order.pack?.price?.multiply(order.quantity)}" type="currency"/></div>
+                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${order.pack?.price?.multiply(order.quantity)}" type="currency" style="overflow: hidden;"/></div>
                 </g:if>
                 <g:else>
-                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${(order?.productListItem?.productVariant?.costPrice?:0).multiply(order?.quantity)}" type="currency"/></div>
+                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${(order?.productListItem?.productVariant?.costPrice?:0).multiply(order?.quantity)}" type="currency" style="overflow: hidden;"/></div>
                 </g:else>
             </g:if>
         </div>

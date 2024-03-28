@@ -18,20 +18,3 @@ function intListener(elementId, maxLength = 9, maxValue = 999999999, textField =
         });
     }
 }
-
-function currencyListener(elementId, minValue = 0, maxValue = 999999999) {
-    var element = $('#' + elementId);
-
-    if (element != null) {
-        element.on("keyup", function () {
-            const unmaskedNumber = parseFloat(element.maskMoney('unmasked')[0]);
-            if (unmaskedNumber < minValue) {
-                element.val(minValue)
-            }
-            if (unmaskedNumber > maxValue) {
-                element.val(maxValue)
-            }
-            element.maskMoney('mask')
-        });
-    }
-}

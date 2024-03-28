@@ -7,16 +7,42 @@
     <script type='text/javascript'>
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
+
         $(document).ready(function () {
+            $('input[name=brandLogo]').change(function() {
+                if (this.files[0].size < 1048576 /* 1MB */) {
+                    if (this.files[0].type === "image/png") {
+                        const fileData = this.files[0];
+                        if (FileReader && fileData) {
+                            var urlFileReader = new FileReader();
+                            urlFileReader.onload = function () {
+                                var brandingImage = $(".branding-image");
+                                brandingImage.attr("src", urlFileReader.result);
+                                brandingImage.removeAttr("hidden");
+                            }
+                            urlFileReader.readAsDataURL(fileData);
+                        } else {
+                            // fallback?
+                        }
+                    } else {
+                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                    }
+                } else {
+                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                }
+            });
+
             $.ajax({
                 url: getBrandLogoUrl,
                 success: function(resp) {
                     if (resp === '') {
-                        $('#brand-logo-container').empty();
-                        $('#reset-brand-logo-button').hide();
+                        var brandingImage = $(".branding-image");
+                        brandingImage.attr("src", "");
+                        brandingImage.attr("hidden", "");
                     } else {
-                        $('#brand-logo-container').html('<img id="brand-logo" src="data:image/png;base64,' + resp + '" style="width: 100%; max-width: 10rem; border: black 1px solid; border-radius: 1rem" />');
-                        $('#reset-brand-logo-button').show();
+                        var brandingImage = $(".branding-image");
+                        brandingImage.attr("src", "data:image/png;base64," + resp);
+                        brandingImage.removeAttr("hidden");
                     }
                     // Iterate over each element with the class "item-label" and update its content
                     $(".item-label").each(function() {
@@ -33,8 +59,9 @@
                 $.ajax({
                     url: resetBrandLogoUrl,
                     success: function (resp) {
-                        $('#brand-logo-container').empty();
-                        $('#reset-brand-logo-button').hide();
+                        var brandingImage = $(".branding-image");
+                        brandingImage.attr("src", "");
+                        brandingImage.attr("hidden", "");
                     }
                 });
             }
@@ -83,13 +110,11 @@
         </section>
     </g:hasErrors>
 
-    <g:hasErrors bean="${configErrors}">
+    <g:if test="${flash.error}">
         <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${configErrors}" as="list" />
-            </div>
+            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
         </section>
-    </g:hasErrors>
+    </g:if>
 
     <g:if test="${flash.message}">
         <section id="errors-container2" class="container-fluid">
@@ -100,6 +125,8 @@
             </div>
         </section>
     </g:if>
+
+
 
     <section id="addProduct-section" class="container-fluid mt-4">
         <g:uploadForm name="save-button" action="save">
@@ -290,16 +317,24 @@
                                 <div class="form-group row">
                                     <label for="brandLogo" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Brand Logo</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="file" class="col-7 form-control-file bottom-border bg-transparent p-0" name="brandLogo" accept=".png,.PNG" id="brandLogo" />
+                                        <input type="file" class="col-7 form-control-file bottom-border bg-transparent p-0" name="brandLogo" accept="image/png" id="brandLogo" hidden />
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
-                                    <div id="brand-logo-container" class="col-7 offset-5"></div>
+                                <div class="form-group row margin-top-1rem">
+                                    <div class="col-12 d-flex justify-content-center">
+                                        <div class="branding-container">
+                                            <img class="justify-content-center branding-image" hidden />
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <div class="form-group row">
-                                    <div class="btn btn-danger col-1 offset-5" id="reset-brand-logo-button" style="display: none;" onclick="resetBrandLogo();">Reset</div>
+                                    <div class="col-12 offset-5">
+                                        <div class="btn btn-dark" id="upload-branding-button" onclick="$('#brandLogo').click();"><g:message code="button.upload.button"/></div>
+                                        <div class="btn btn-danger" id="reset-branding-button" onclick="resetBrandLogo();">Reset</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -329,7 +364,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.productTerm" id="productTerm" value="${retailer?.config?.retailerTerminologyConfig.productTerm}" />
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-product-term-button" onclick="$('#productTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-product-term-button" onclick="$('#productTerm').val('Product')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -338,7 +373,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.packTerm" id="packTerm" value="${retailer?.config?.retailerTerminologyConfig.packTerm}" />
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-pack-term-button" onclick="$('#packTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-pack-term-button" onclick="$('#packTerm').val('Pack')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -347,7 +382,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityInStockTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('Quantity In Stock')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -356,7 +391,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityOnOrderTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('Quantity On Order')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -365,7 +400,7 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.userTerm" id="userTerm" value="${retailer?.config?.retailerTerminologyConfig.userTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-user-term-button"onclick="$('#userTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-user-term-button"onclick="$('#userTerm').val('User')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -374,7 +409,107 @@
                                         <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeTerm" id="storeTerm" value="${retailer?.config?.retailerTerminologyConfig.storeTerm}"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-store-term-button"onclick="$('#storeTerm').val('')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-store-term-button"onclick="$('#storeTerm').val('Store')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="itemCodeTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Item Code</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.itemCodeTerm" id="itemCodeTerm" value="${retailer?.config?.retailerTerminologyConfig?.itemCodeTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-itemCode-term-button"onclick="$('#itemCodeTerm').val('Item Code')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="storeHoldingsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Holdings</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeHoldingsTerm" id="storeHoldingsTerm" value="${retailer?.config?.retailerTerminologyConfig?.storeHoldingsTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-storeHoldings-term-button"onclick="$('#storeHoldingsTerm').val('Store Holdings')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inStockTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">In Stock</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.inStockTerm" id="inStockTerm" value="${retailer?.config?.retailerTerminologyConfig?.inStockTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-inStock-term-button"onclick="$('#inStockTerm').val('In Stock')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="deliveredTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Delivered</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.deliveredTerm" id="deliveredTerm" value="${retailer?.config?.retailerTerminologyConfig?.deliveredTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-delivered-term-button"onclick="$('#deliveredTerm').val('Delivered')">Reset</div>
+                                    </div>
+                                </div>
+                                <!-- Locations Table Terminology -->
+                                <div class="form-group row">
+                                    <label for="stockLocationsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Locations (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stockLocations-term-button"onclick="$('#stockLocationsTerm').val('Stock Locations')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="descriptionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Description (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.descriptionTerm" id="descriptionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-description-term-button"onclick="$('#descriptionTerm').val('Description')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="bayTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Bay (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.bayTerm" id="bayTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-bay-term-button"onclick="$('#bayTerm').val('Bay')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="shelfTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfTerm" id="shelfTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-shelf-term-button"onclick="$('#shelfTerm').val('Shelf')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="positionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Position (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.positionTerm" id="positionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-position-term-button"onclick="$('#positionTerm').val('Position')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="aisleTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Aisle (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.aisleTerm" id="aisleTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-aisle-term-button"onclick="$('#aisleTerm').val('Aisle')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="shelfCapacityTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf Capacity (Locations Table)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfCapacityTerm" id="shelfCapacityTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('Shelf Capacity')">Reset</div>
                                     </div>
                                 </div>
 
@@ -439,6 +574,51 @@
                                                         <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
+                                                <h5 class="text-center">VAT Rates Visibility Status</h5>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="vatRatesVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    </div>
+                                                    <label for="vatRatesVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+                                                    </div>
+                                                    <label for="vatRatesVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+                                                    </div>
+                                                </div>
+                                                <h5 class="text-center">Style Visibility Status</h5>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="styleVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    </div>
+                                                    <label for="styleVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+                                                    </div>
+                                                    <label for="styleVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+                                                    </div>
+                                                </div>
+                                                <h5 class="text-center">Category Visibility Status</h5>
+                                                <div class="form-group row justify-content-center">
+                                                    <label for="categoryVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    </div>
+                                                    <label for="categoryVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+                                                    </div>
+                                                    <label for="categoryVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
+                                                    <div class="col-10 col-lg-1">
+                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+                                                    </div>
+                                                </div>
                                                 <h5 class="text-center">Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
                                                     <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
@@ -483,7 +663,7 @@
                                             "bottomHomeButton",
                                             "bottomProductButton",
                                             "bottomFileButton",
-                                            "bottomSettingsButton"
+                                            "bottomSettingsButton",
                                     ]
                                 %>
                                 <g:each in="${itemList}" var="item" status="index">

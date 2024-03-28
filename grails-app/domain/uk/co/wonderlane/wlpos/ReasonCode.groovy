@@ -13,7 +13,7 @@ class ReasonCode {
     boolean promptForText
     Integer retailerId
     boolean preferredReasonCode
-    String secret
+    boolean secret
 
     static mapping = {
         autowire true
@@ -37,7 +37,6 @@ class ReasonCode {
         code maxSize: 20, nullable: true, blank: true
         description maxSize: 100, nullable: false, blank: false
         retailerId nullable: true, blank: true
-        secret maxSize: 20, nullable: true, blank: true
     }
 
     uk.co.wonderlane.wlpos.entities.ReasonCode getReasonCode() {

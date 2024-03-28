@@ -238,6 +238,7 @@
 
                     params["operationMode"] = ${uk.co.wonderlane.wlpos.OperationMode.EDIT.value};
                     params["id"] = $(selector + "id").val();
+                    params["storeId"] = $(selector + "storeId").val();
                     params["sku"] = $(selector + "sku").val();
                     params["retailPrice"] = $(selector + "retailPrice").val();
                     params["costPrice"] = $(selector + "costPrice").val();
@@ -284,6 +285,7 @@
             // Handle the "Ok" of the add/edit variant modal which puts the values into the form ready for submission as part of the whole page.
             function saveVariant(index) {
                 var id = $("#addVariantId").val();
+                var storeId = $("#addVariantStoreId").val();
                 var sku = $("#addVariantSku").val();
                 if (sku < 0) {
                     alert("SKU cannot be a negative number.")
@@ -301,7 +303,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodeValues = []; // To store the barcode values for validation
@@ -363,6 +365,7 @@
                     params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
                     params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
                     params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
                 });
 
                 if(!error){
@@ -381,7 +384,6 @@
 
                         variantContainer.html(resp);
 
-                        skuChanged(index, sku);
                         $('#addVariantModal').modal("hide");
                     }
                 });}
@@ -422,6 +424,9 @@
                     params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
                     params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
                     params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
+                    params["locationz[" +loopIndex +"].locationDescription"] = $(locationSelector +"\\.locationDescription").val();
+                    params["locationz[" +loopIndex +"].locationNumber"] = $(locationSelector +"\\.locationNumber").val();
                 });
 
                 $.ajax({
@@ -520,8 +525,32 @@
                 if (!confirm("This location will be deleted.\nAre you sure you want to delete this location?")) {
                     return;
                 }
+                var deletedHierarchyValue = 0
+                var locationSelector = $("#addLocationFieldsContainer-"+ variantIndex + "-" + locationIndex)
+                var locationHierarchy = locationSelector.find("[name='addLocation[" + locationIndex + "].locationHierarchy']").val();
+                if (locationHierarchy !== null) {
+                    deletedHierarchyValue = parseInt(locationHierarchy)
+                }
+                deletedHierarchyValue = parseInt(locationHierarchy)
+                var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
+                $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove()
+                if(deletedHierarchyValue >= 1){
+                    addLocationContainers.each(function() {
+                        var valueToBeSetReOrder = 0;
+                        var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
+                        var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
+                        var hierarchySelector = $(locationSelector + "\\.locationHierarchy")
+                        var hierarchyToBeReOrder = hierarchySelector.val()
+                        if(hierarchyToBeReOrder !== null){
+                            valueToBeSetReOrder = parseInt(hierarchyToBeReOrder)
+                        }
 
-                $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove();
+                        if(deletedHierarchyValue < valueToBeSetReOrder ){
+                            hierarchySelector.val(valueToBeSetReOrder -1);
+                        }
+
+                    });
+                }
             }
 
             // The suppliers button was clicked, we display the suppliers modal for this variant.
@@ -599,6 +628,9 @@
                     params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
                     params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
                     params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
+                    params["locationz[" +loopIndex +"].locationDescription"] = $(locationSelector +"\\.locationDescription").val();
+                    params["locationz[" +loopIndex +"].locationNumber"] = $(locationSelector +"\\.locationNumber").val();
                 });
 
                 $.ajax({
@@ -737,10 +769,12 @@
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
                 params["productVariantId"] = variantId;
+                params["locationsType"] = locationsType;
 
                 // For 'SIMPLE' location type, mandatory fields are location description, shelf capacity and minimum display quantity
                 // For 'ADVANCED' location type, mandatory fields are aisle, bay, shelf, position, shelf capacity and minimum display quantity
                 var mandatoryLocationFields = true;
+                var currentMaxHierarchy = 0;
 
                 var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
                 addLocationContainers.each(function(loopIndex) {
@@ -760,6 +794,15 @@
                         var bay = $(locationSelector + "\\.bay").val();
                         var shelf = $(locationSelector + "\\.shelf").val();
                         var position = $(locationSelector + "\\.position").val();
+                        var locationHierarchy = $(locationSelector + "\\.locationHierarchy").val();
+                        if(locationHierarchy === ''){
+                            locationHierarchy =  parseInt(currentMaxHierarchy) + 1;
+                            currentMaxHierarchy = currentMaxHierarchy + 1
+                        } else {
+                            locationHierarchy =  parseInt(locationHierarchy)
+                            currentMaxHierarchy = Math.max(locationHierarchy, currentMaxHierarchy);
+                        }
+
 
                         if (aisle === '' && bay === '' && shelf === '' && position === '') {
                             errorString += "Please enter at least one of aisle, bay, shelf or position.\n"
@@ -795,6 +838,9 @@
                     params["locationz[" +loopIndex +"].position"] = $(locationSelector +"\\.position").val();
                     params["locationz[" +loopIndex +"].shelfCapacity"] = $(locationSelector +"\\.shelfCapacity").val();
                     params["locationz[" +loopIndex +"].minimumDisplayQuantity"] = $(locationSelector +"\\.minimumDisplayQuantity").val();
+                    params["locationz[" +loopIndex +"].locationHierarchy"] = locationHierarchy;
+                    params["locationz[" +loopIndex +"].locationDescription"] = $(locationSelector + "\\.locationDescription").val();
+                    params["locationz[" +loopIndex +"].locationNumber"] = $(locationSelector + "\\.locationNumber").val();
                 });
 
                 if (!mandatoryLocationFields) {
@@ -887,6 +933,8 @@
                     })
                 })
             })
+
+
         </script>
     </head>
 

@@ -198,7 +198,7 @@
             </div>
         </div>
 
-        <div class="alert alert-danger alert-wl" role="alert" id="error-message" style="display: none"></div>
+        <div class="alert alert-danger alert-wl mx-0" role="alert" id="error-message" style="display: none"></div>
 
         <div class="row mt-4">
             <div class="col-6">
@@ -219,13 +219,13 @@
                             <label for="code-type-select" class="col-2 col-form-label-sm text-right">Reason Code Type</label>
                             <div class="col-10 input-group">
                                 <select name="code-type" id="code-type-select" onchange="ajaxSearch()" class="col-6 form-control select-border">
-                                    <option value="PAID_OUT">Paid Out</option>
                                     <option value="CUSTOMER_REFUSAL">Customer Refusal</option>
                                     <option value="LINE_VOID">Line Void</option>
                                     <option value="MARKDOWN">Markdown</option>
+                                    <option value="PAID_OUT">Paid Out</option>
+                                    <option value="PRODUCT_LIST">Product List</option>
                                     <option value="REFUND">Refund</option>
                                     <option value="TENDER_RECONCILIATION_VARIANCE">Tender Reconciliation Variance</option>
-                                    <option value="PRODUCT_LIST">Product List</option>
                                 </select>
                             </div>
                         </div>

@@ -12,10 +12,15 @@ class Location {
     String location
     int shelfCapacity
     int minimumDisplayQuantity
+    int locationHierarchy
+    String locationDescription
+    String locationNumber
+    boolean deleted
 
     boolean delete
+    String locationsType
 
-    static transients = ['delete']
+    static transients = ['delete', 'locationsType']
 
     public Location() {}
 
@@ -33,6 +38,10 @@ class Location {
         location column: "location"
         shelfCapacity column: "shelfCapacity"
         minimumDisplayQuantity column: "minimumDisplayQuantity"
+        locationHierarchy column: "locationHierarchy"
+        locationDescription column: "locationDescription"
+        locationNumber column: "locationNumber"
+        deleted column: "deleted"
     }
 
     static constraints = {
@@ -45,6 +54,9 @@ class Location {
         location nullable: true
         shelfCapacity nullable: false
         minimumDisplayQuantity nullable: false
+        locationHierarchy nullable: false
+        locationDescription size: 0..40, blank: true, nullable: true
+        locationNumber size: 0..8, blank: true, nullable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.Location getCommonLocation() {
@@ -60,6 +72,7 @@ class Location {
         loc.setLocation(location)
         loc.setShelfCapacity(shelfCapacity)
         loc.setMinimumDisplayQuantity(minimumDisplayQuantity)
+        loc.setLocationHierarchy(locationHierarchy)
 
         return loc
     }

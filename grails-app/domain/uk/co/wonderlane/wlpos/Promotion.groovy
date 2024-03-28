@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -19,6 +20,7 @@ class Promotion {
     boolean loyalty
     DateTime updateDatetime
     Integer retailerPromotionId
+    @JsonIgnore
     Collection<PromotionGroup> groups = new ArrayList<>()
     String rpidAsString
 
@@ -53,15 +55,31 @@ class Promotion {
         startDate nullable: false
         endDate nullable: true
         type nullable: false
-        amount nullable: false, range: 0F..9999.99F, validator: {val, obj ->
-            if (obj.type == PromotionType.FIXED_PRICE && val <= BigDecimal.ZERO) {
-                return 'error.Promotion.fixedAmountNotSet'
-            }
-            if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT && val <= BigDecimal.ZERO) {
-                return 'error.Promotion.fixedAmountNotSet'
-            }
-            if (obj.type == PromotionType.PERCENTAGE_DISCOUNT && val <= BigDecimal.ZERO) {
-                return 'error.Promotion.percentageDiscountNotSet'
+        amount nullable: false, validator: {val, obj ->
+            if (obj.type == PromotionType.FIXED_PRICE) {
+                BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'error.Promotion.fixedPriceNotSet'
+                } else if (val > maxValue) {
+                    return 'error.Promotion.fixedPriceExceeded'
+                }
+            } else if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT) {
+                BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'error.Promotion.fixedAmountNotSet'
+                } else if (val > maxValue) {
+                    return 'error.Promotion.fixedAmountExceeded'
+                }
+            } else if (obj.type == PromotionType.PERCENTAGE_DISCOUNT) {
+                BigDecimal maxValue = BigDecimal.valueOf(100.00)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'error.Promotion.percentageDiscountNotSet'
+                } else if (val > maxValue) {
+                    return 'error.Promotion.percentageDiscountExceeded'
+                }
             }
         }
         lossCategoryId nullable: true

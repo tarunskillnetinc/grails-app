@@ -75,13 +75,13 @@ class ReasonCodeController {
 
         boolean newEntry = true
         boolean updatedDesc = false
-        boolean updatedSecret = false
+        boolean updatedCode = false
 
         if (!paramIsNullOrEmpty(params, "id", ["", "0"])) {
             rc = ReasonCode.get(params.id.toString().toInteger())
             newEntry = false
             updatedDesc = rc.getDescription() != params.description
-            updatedSecret = rc.getSecret() != params.secret
+            updatedCode = rc.getCode() != params.code
         }
 
         rc = rc != null ? rc : new ReasonCode()
@@ -95,17 +95,28 @@ class ReasonCodeController {
             if (rc.description.size() >= 100) {
                 errors.add(messageSource.getMessage('reasonCode.description.maxSize.exceeded', null, locale))
             }
-            if (reasonCodeService.isDescriptionDuplicate(springSecurityService.principal.retailerId, rc.description)) {
-                errors.add(messageSource.getMessage('reasonCode.description.duplicate.error', null, locale))
+        }
+
+        if (rc.code == null || rc.code == "") {
+            errors.add(messageSource.getMessage('reasonCode.code.nullable.error', null, locale))
+        } else if (newEntry || updatedCode) {
+            if (rc.code.size() > 20) {
+                errors.add(messageSource.getMessage('reasonCode.code.maxSize.exceeded', null, locale))
             }
         }
 
-        if ((newEntry || updatedSecret) && rc.secret != null) {
-            if (rc.secret.length() >= 20) {
-                errors.add(messageSource.getMessage('reasonCode.secret.maxSize.exceeded', null, locale))
-            }
-            if (reasonCodeService.isDuplicateSecret(springSecurityService.principal.retailerId, rc.secret)) {
-                errors.add(messageSource.getMessage('reasonCode.secret.duplicate.error', null, locale))
+        // Check for Duplicate Reason Code
+        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code, rc.id)
+
+        //If the duplicate reason code is deleted, we should re-open it rather than handle it as a duplicate
+        if (duplicateReasonCode != null) {
+            if (duplicateReasonCode.deleted) {
+                reasonCodeService.saveReasonCode(updateReasonCode(rc, duplicateReasonCode))
+                sendSyncMessage(duplicateReasonCode, false)
+                render "OK"
+                return
+            } else if (duplicateReasonCode.code == rc.code) {
+                errors.add(messageSource.getMessage('reasonCode.code.duplicate.error', null, locale))
             }
         }
 
@@ -141,7 +152,6 @@ class ReasonCodeController {
         }
 
         rc.deleted = true
-        rc.secret = null
         reasonCodeService.saveReasonCode(rc)
         sendSyncMessage(rc, true)
         render "OK"
@@ -193,5 +203,17 @@ class ReasonCodeController {
 
     def paramIsNullOrEmpty(params, key, empties) {
         return params.get(key) == null || empties.contains(params.get(key).toString())
+    }
+
+    ReasonCode updateReasonCode(ReasonCode newEntry, ReasonCode duplicateReasonCode) {
+        duplicateReasonCode.type = newEntry.type
+        duplicateReasonCode.code = newEntry.code
+        duplicateReasonCode.description = newEntry.description
+        duplicateReasonCode.deleted = false
+        duplicateReasonCode.additionalFunctionality = newEntry.additionalFunctionality
+        duplicateReasonCode.promptForText = newEntry.promptForText
+        duplicateReasonCode.preferredReasonCode = newEntry.preferredReasonCode
+        duplicateReasonCode.secret = newEntry.secret
+        return duplicateReasonCode
     }
 }

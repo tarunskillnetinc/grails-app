@@ -7,6 +7,7 @@
 
     <g:form name="addVariantForm">
         <g:hiddenField name="addVariantId" value="${variant?.id ?: ''}" />
+        <g:hiddenField name="addVariantStoreId" value="${variant?.storeId}" />
 
         <div class="row form-group mb-4">
             <label for="addVariantSku" class="col-3 offset-1 col-form-label text-right">SKU</label>
@@ -26,7 +27,7 @@
                     <span class="input-group-text">&pound;</span>
                 </div>
 
-                <g:textField name="addVariantRetailPrice" value="${variant?.retailPrice}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId') || zeroPrice}" />
+                <g:textField name="addVariantRetailPrice" value="${sec.loggedInUserInfo(field: 'storeId') ? variant?.currentPrice : ''}" class="form-control mask-money" disabled="${!sec.loggedInUserInfo(field: 'storeId') || zeroPrice}" />
             </div>
         </div>
 

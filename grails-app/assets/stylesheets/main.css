@@ -224,7 +224,6 @@ span.dropdown-header {
 
 .tabs-wl li a {
     color: #575756;
-    background-color: #FFF9F9 !important;
 }
 
 .tabs-wl li a.active {
@@ -232,6 +231,7 @@ span.dropdown-header {
     border-width: 2px 2px 0 2px;
     border-color: #575756 !important;
     color: #575756 !important;
+    background-color: whitesmoke !important;
 }
 
 .tabs-wl li a:not(.active) {
@@ -340,6 +340,23 @@ a .button-grid-button.blank:hover {
 }
 
 .button-image {
+    width:100%;
+    min-height: 60%;
+    object-fit: scale-down;
+    display:block;
+}
+
+.branding-container {
+    height:10rem;
+    width:15rem;
+    display: flex;
+    border: 1px solid #000000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.branding-image {
     width:100%;
     min-height: 60%;
     object-fit: scale-down;
@@ -486,7 +503,11 @@ a.no-underline:hover {
 }
 
 .form-control.bottom-border:read-only {
-    background: #E9ECEF;
+    background: whitesmoke;
+}
+
+.form-control:disabled {
+    background-color: whitesmoke !important;
 }
 
 .form-check-input:read-only {

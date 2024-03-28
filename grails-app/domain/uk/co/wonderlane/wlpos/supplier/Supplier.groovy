@@ -19,6 +19,7 @@ class Supplier {
     String addressCountry
     String addressPostCode
     SymbolGroup symbolGroup
+    boolean deleted
 
     static mapping = {
         table "supplier"
@@ -40,11 +41,13 @@ class Supplier {
         addressCountry column: "addressCountry"
         addressPostCode column: "addressPostCode"
         symbolGroup column: "symbolGroupId"
+        deleted column: "deleted"
     }
 
     static constraints = {
         storeId nullable: true
         reference nullable: true, maxSize: 40
+        name nullable: false, maxSize: 50
         contactName nullable: true, maxSize: 50
         phoneNumber nullable: true, maxSize: 30
         email nullable: true, maxSize: 50
@@ -57,6 +60,7 @@ class Supplier {
         addressCountry nullable: true, maxSize: 45
         addressPostCode nullable: true, maxSize: 10
         symbolGroup nullable: true
+        deleted nullable: false
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Supplier getSupplier() {

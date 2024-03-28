@@ -115,9 +115,6 @@
                 intListener("percentage-retailerPromoId");
                 intListener("fixedAmount-retailerPromoId");
                 intListener("fixedPrice-retailerPromoId");
-                currencyListener("percentage-amount", 0.01, 100)
-                currencyListener("fixedAmount-amount", 0.01, 9999.99)
-                currencyListener("fixedPrice-amount", 0.01, 9999.99)
             }
 
             function productSelected(id, sku, description) {
@@ -183,9 +180,9 @@
                         $('#fixedAmount-productsRequiredContainer').append("<div id=\"fixedAmount-product1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"fixedAmount-product-required-1-sku\" value=\"" + sku + "\"/>\n" +
                             "                                <label id=\"fixedAmount-product-required-1-value-label\" for=\"fixedAmount-product-required-1-value\" class=\"\">Value</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-value\" name=\"fixedAmount-product-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-value\" name=\"fixedAmount-product-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value', 'fixedAmount');\"/>\n" +
                             "                                <label id=\"fixedAmount-product-required-1-quantity-label\" for=\"fixedAmount-product-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-quantity\" name=\"fixedAmount-product-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-product-required-1-quantity\" name=\"fixedAmount-product-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityChange(this, 'fixedAmount');\"/>\n" +
                             "                                <label for=\"fixedAmount-product-required-1-quantity\" class=\"mr-3\"> x " + sku + " - " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -213,7 +210,7 @@
                                 $('#fixedPrice-duplicateAlert').fadeOut();
                             }, 3000);
                         } else {
-                            var nextValidIndex = 1;
+                            var nextValidIndex = 0;
 
                             while (true) {
                                 if ($('#fixedPrice-product' + nextValidIndex).length) {
@@ -308,9 +305,9 @@
                         $('#fixedAmount-productsRequiredContainer').append("<div id=\"fixedAmount-category1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"fixedAmount-category-required-1-categoryId\" value=\"" + id + "\"/>\n" +
                             "                                <label id=\"fixedAmount-category-required-1-value-label\" for=\"fixedAmount-category-required-1-value\" class=\"\">Value</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-value\" name=\"fixedAmount-category-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-value\" name=\"fixedAmount-category-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value', 'fixedAmount');\"/>\n" +
                             "                                <label id=\"fixedAmount-category-required-1-quantity-label\" for=\"fixedAmount-category-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-quantity\" name=\"fixedAmount-category-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-category-required-1-quantity\" name=\"fixedAmount-category-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityChange(this, 'fixedAmount');\"/>\n" +
                             "                                <label for=\"fixedAmount-category-required-1-quantity\" class=\"mr-3\"> x " + description + (categoryCode != null ? " - " + categoryCode : "") + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -432,9 +429,9 @@
                         $('#fixedAmount-productsRequiredContainer').append("<div id=\"fixedAmount-tag1\" class=\"offset-1 promotion-product-container form-inline mt-3\">\n" +
                             "                                <input type=\"hidden\" name=\"fixedAmount-tag-required-1-tagId\" value=\"" + id + "\"/>\n" +
                             "                                <label id=\"fixedAmount-tag-required-1-value-label\" for=\"fixedAmount-tag-required-1-value\" class=\"\">Value</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-value\" name=\"fixedAmount-tag-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-value\" name=\"fixedAmount-tag-required-1-value\" value=\"\" step=\"0.01\" class=\"py-1 pl-1 mx-1 form-control promo-value\" onChange=\"quantityValueChange(this, 'value', 'fixedAmount');\"/>\n" +
                             "                                <label id=\"fixedAmount-tag-required-1-quantity-label\" for=\"fixedAmount-tag-required-1-quantity\" class=\"\"> or Quantity</label>\n" +
-                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-quantity\" name=\"fixedAmount-tag-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityValueChange(this, 'quantity');\"/>\n" +
+                            "                                <input type=\"number\" id=\"fixedAmount-tag-required-1-quantity\" name=\"fixedAmount-tag-required-1-quantity\" value=\"1\" step=\"1\" class=\"py-1 pl-1 mx-1 form-control promo-quantity\" onChange=\"quantityChange(this, 'fixedAmount');\"/>\n" +
                             "                                <label for=\"fixedAmount-tag-required-1-quantity\" class=\"mr-3\"> x " + description + "</label>\n" +
                             "                                <a href=\"#\" onclick=\"return deleteThis(this, 'fixedAmount', 'required');\" class=\"text-dark\"><sup>X</sup></a>\n" +
                             "                            </div>");
@@ -530,7 +527,7 @@
                 var errorString = "";
 
                 if ($('#' + promoType + '-description').val() !== "")  {
-                    if ($('#' + promoType + '-description').length > 200) {
+                    if ($('#' + promoType + '-description').val().length > 200) {
                         error = true;
                         errorString = errorString.concat("\n<li>Description cannot be longer than 200 characters</li>");
                         $('#' + promoType + '-description').addClass("is-invalid");
@@ -543,7 +540,7 @@
                 }
 
                 if ($('#' + promoType + '-receiptDescription').val() !== "")  {
-                    if ($('#' + promoType + '-receiptDescription').length > 50) {
+                    if ($('#' + promoType + '-receiptDescription').val().length > 50) {
                         error = true;
                         errorString = errorString.concat("\n<li>Receipt Description cannot be longer than 50 characters</li>");
                         $('#' + promoType + '-receiptDescription').addClass("is-invalid");
@@ -599,7 +596,12 @@
                     $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
                     $('#' + promoType + '-productsOfferSection').addClass("is-invalid");
                 } else {
-                    if ($('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0) {
+                    if(promoType === 'fixedAmount' && $('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0){
+                        error = true;
+                        errorString = errorString.concat("\n<li>Please enter either a value or a quantity</li>");
+                        $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
+                        $('#' + promoType + '-productsOfferSection').addClass("is-invalid");
+                    } else if(promoType !== 'fixedAmount' && $('#' + promoType + '-productsRequiredSection').find(".is-invalid").length > 0){
                         error = true;
                         errorString = errorString.concat("\n<li>An error is present in the items section</li>");
                         $('#' + promoType + '-productsRequiredSection').addClass("is-invalid");
@@ -616,12 +618,16 @@
             }
 
             function quantityChange(DOM, promoType) {
-                if(parseInt($(DOM).val()) > 0 && parseInt($(DOM).val()) < 99) {
-                    $(DOM).removeClass("is-invalid");
-                    $('#' + promoType + '-productsRequiredSection').removeClass("is-invalid");
-                    $('#' + promoType + '-productsOfferSection').removeClass("is-invalid");
-                } else {
-                    $(DOM).addClass("is-invalid");
+                if(promoType === 'fixedAmount'){
+                    validatePromotionFields(promoType, 1, 0, 99);
+                } else{
+                    if(parseInt($(DOM).val()) > 0 && parseInt($(DOM).val()) < 99) {
+                        $(DOM).removeClass("is-invalid");
+                        $('#' + promoType + '-productsRequiredSection').removeClass("is-invalid");
+                        $('#' + promoType + '-productsOfferSection').removeClass("is-invalid");
+                    } else {
+                        $(DOM).addClass("is-invalid");
+                    }
                 }
                 $('#' + promoType + '-noItemChange').val('false');
 
@@ -651,25 +657,47 @@
                 }
             }
 
-            function quantityValueChange(DOM, domType) {
-                if (String(domType).valueOf() === "quantity") {
-                    if (parseInt($(DOM).val()) > 0 && parseInt($(DOM).val() < 99)) {
-                        $(DOM).removeClass("is-invalid");
-                        $('#fixedPrice-productsRequiredSection').removeClass("is-invalid");
+            function quantityValueChange(DOM, domType, promoType) {
+                if(promoType === 'fixedAmount'){
+                    if (String(domType).valueOf() === "quantity") {
+                        validatePromotionFields(promoType, 1, 0, 99);
                     } else {
-                        $(DOM).addClass("is-invalid");
+                        validatePromotionFields(promoType, 1, 0, 9999.99);
                     }
-                } else {
-                    if (parseFloat($(DOM).val()) > 0 && parseFloat($(DOM).val()) < 9999.99) {
-                        $(DOM).removeClass("is-invalid");
-                        $('#fixedPrice-productsRequiredSection').removeClass("is-invalid");
-                    } else {
-                        $(DOM).addClass("is-invalid");
-                    }
+                    $('#fixedAmount-noItemChange').val('false');
                 }
-                $('#fixedAmount-noItemChange').val('false');
+            }
 
-                $(DOM).parent().find(String(domType).valueOf() === "quantity" ? ".promo-value" : ".promo-quantity").val("");
+            function validatePromotionFields(promoType, index, validateLowerLimit, validateUpperLimit) {
+                var productId = $('#' + promoType + '-product1').length;
+                var categoryId = $('#' + promoType + '-category1').length;
+                var itemType ;
+
+                if(productId > 0){
+                    itemType = 'product';
+                } else if(categoryId > 0){
+                    itemType = 'category';
+                } else {
+                    itemType = 'tag';
+                }
+
+                var valueField = $('#' + promoType + "-" + itemType + '-required-' + index + '-value');
+                var quantityField = $('#' + promoType + "-" + itemType + '-required-' + index + '-quantity');
+
+                var value = valueField.val();
+                var quantity = quantityField.val();
+
+                if ((((value == null || value.trim() === '') && (quantity == null || quantity.trim() === '')) || (!(value >= validateLowerLimit && value < validateUpperLimit) && !(quantity >= validateLowerLimit && quantity < validateUpperLimit)))
+                        || ((value != null && value.trim() !== '') && (quantity != null && quantity.trim() !== ''))) {
+                    //validation if both field are null and enters value are not within range or validation if both field are entered -> Either quantity or value is allowed
+                    valueField.addClass("is-invalid");
+                    quantityField.addClass("is-invalid");
+                } else {
+                    valueField.removeClass("is-invalid");
+                    quantityField.removeClass("is-invalid");
+                    $('#' + promoType + '-productsRequiredSection').removeClass("is-invalid");
+                    $('#' + promoType + '-productsOfferSection').removeClass("is-invalid");
+                }
             }
 
         </script>

@@ -20,8 +20,8 @@ class ReasonCodeService {
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 
-    boolean isDescriptionDuplicate(int retailerId, String description) {
-        return ReasonCode.countByRetailerIdAndDescription(retailerId, description) > 0
+    ReasonCode findByCode(int retailerId, String code, int id) {
+        return ReasonCode.findByRetailerIdAndCodeAndIdNotEqual(retailerId, code, id)
     }
 
     boolean isLastOfType(int retailerId, ReasonCodeType type) {

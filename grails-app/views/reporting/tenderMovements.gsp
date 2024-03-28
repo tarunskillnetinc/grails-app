@@ -153,7 +153,7 @@
                                 <label class="form-check-label" for="columnsTimestamp">Timestamp</label>
                             </div>
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsStore" class="form-check-input" value="store" checked="${!userColumns || userColumns?.columns?.find { it.column == 'store' }?.enabled}" />
+                                <g:checkBox name="columns" id="columnsStore" class="form-check-input" value="storeId" checked="${!userColumns || userColumns?.columns?.find { it.column == 'storeId' }?.enabled}" />
                                 <label class="form-check-label" for="columnsStore">Store</label>
                             </div>
                             <div class="form-group form-check">

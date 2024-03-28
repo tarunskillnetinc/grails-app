@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.TransactionPaymentMethodType
 
 class Receipt {
 
@@ -13,6 +14,8 @@ class Receipt {
     String barcode
     boolean printed
     DateTime dateGenerated
+    TransactionPaymentMethodType paymentMethod
+    BigDecimal transactionAmount
 
     static hasMany = [ receiptLines: ReceiptLine ]
 
@@ -30,6 +33,8 @@ class Receipt {
         barcode column: "barcode"
         printed column: "printed"
         dateGenerated column: "dateGenerated"
+        paymentMethod column: "paymentMethod"
+        transactionAmount column: "transactionAmount"
     }
 
     static constraints = {
