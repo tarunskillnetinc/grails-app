@@ -212,6 +212,7 @@ class PromotionController {
 
         promotion.updateDatetime = new DateTime()
         promotion.active = params."${type}-active" != null
+        promotion.loyalty = params."${type}-loyalty" != null
         promotion.retailerPromotionId = params."${type}-retailerPromoId" ? Integer.parseInt(params."${type}-retailerPromoId") : null
 
         switch (type) {
@@ -476,6 +477,7 @@ class PromotionController {
         Integer offset
         String sortColumn
         String sortOrder
+        Boolean loyalty
 
         try {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
@@ -488,6 +490,7 @@ class PromotionController {
             offset = params.offset ? Integer.parseInt(params.offset) : null
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
+            loyalty = params.loyalty ? params.loyalty == 'true': false
         } catch (Exception e) {
             e.printStackTrace()
 
@@ -504,7 +507,7 @@ class PromotionController {
         }
 
         def promotions = promotionService.searchPromotions(validDate, updatedSince, type, params.searchTerm, params.searchBy == "description",
-                max, offset, sortColumn, sortOrder, supplierId, params.status)
+                max, offset, sortColumn, sortOrder, supplierId, params.status, loyalty)
 
         int totalCount = promotions.totalCount
 
@@ -535,6 +538,7 @@ class PromotionController {
                                                                       sortColumn  : params.sortColumn,
                                                                       supplier    : params.supplier,
                                                                       status      : params.status,
+                                                                      loyalty     : params.loyalty,
                                                                       totalResults: totalCount])
     }
 
@@ -599,7 +603,7 @@ class PromotionController {
     }
 
     private String validateSortColumn(String sortColumn) {
-        def availableColumns = [ "retailerPromotionId", "description", "updateDatetime", "startDate", "endDate", "active", "type", "amount", "supplierName" ]
+        def availableColumns = [ "retailerPromotionId", "description", "updateDatetime", "startDate", "endDate", "active", "loyalty", "type", "amount", "supplierName" ]
 
         if (!sortColumn) {
             return null

@@ -74,7 +74,7 @@ class PromotionService {
     }
 
     def searchPromotions(DateTime validDate, DateTime updatedSince, PromotionType promotionType, String searchTerm, boolean descriptionSearch,
-                         Integer max, Integer offset, String sortColumn, String sortOrder, Integer supplierId, String status) {
+                         Integer max, Integer offset, String sortColumn, String sortOrder, Integer supplierId, String status, boolean loyaltyOnly) {
 
         max = max ?: 50
         offset = offset ?: 0
@@ -112,6 +112,10 @@ class PromotionService {
 
             if (status != null && !status.isBlank()) {
                 eq("active", status == "ACTIVE")
+            }
+
+            if (loyaltyOnly) {
+                eq("loyalty", true)
             }
 
             if (searchTerm != null && searchTerm != "") {

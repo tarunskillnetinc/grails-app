@@ -584,6 +584,10 @@ a.no-underline:hover {
     margin-top: 0.625rem; /* 10px in rem units */
 }
 
+.loy-checkbox {
+    margin-left: 0rem;
+}
+
 /* Specific style for .wl-checkbox */
 .wl-checkbox {
     margin-left: 1.875rem; /* 30px in rem units */
