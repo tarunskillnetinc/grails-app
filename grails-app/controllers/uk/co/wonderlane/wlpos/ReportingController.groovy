@@ -17,6 +17,7 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 class ReportingController {
 
     def reportingService
+    def supplierService
     def productListService
     def storeService
     def springSecurityService
@@ -826,7 +827,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         boolean enableOrderCreate = false
         if (springSecurityService.principal.storeId  != null &&  springSecurityService.principal.storeId > 0){
@@ -908,7 +909,7 @@ class ReportingController {
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType   : ReportType.ORDER,
          productListId: productListId,
@@ -986,7 +987,7 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType : ReportType.DELIVERIES,
          suppliers : suppliers,

@@ -96,6 +96,10 @@
                     $('.promo-active').prop("checked", this.checked);
                 });
 
+                $('.promo-loyalty').click(function() {
+                    $('.promo-loyalty').prop("checked", this.checked);
+                });
+
                 $(".mask-money").maskMoney({ allowZero: true });
 
                 $('.promo-amount').on("change", function() {

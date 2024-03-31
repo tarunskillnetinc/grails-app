@@ -17,6 +17,7 @@ class Promotion {
     BigDecimal amount
     Integer lossCategoryId
     boolean active
+    boolean loyalty
     DateTime updateDatetime
     Integer retailerPromotionId
     @JsonIgnore
@@ -41,6 +42,7 @@ class Promotion {
         amount column: "amount"
         lossCategoryId column: "lossCategoryId"
         active column: "active"
+        loyalty column: "loyalty"
         updateDatetime column: "updateDatetime", sqlType: "datetime"
         retailerPromotionId column: "retailerPromotionId"
         rpidAsString formula: "cast(retailerPromotionId as CHAR(50))"
@@ -82,6 +84,7 @@ class Promotion {
         }
         lossCategoryId nullable: true
         active nullable: false
+        loyalty nullable: false
         updateDatetime nullable: false
         retailerPromotionId nullable: true, range: 0..999999999
         symbolGroupPromotion nullable: true
@@ -100,6 +103,7 @@ class Promotion {
         promotion.setAmount(amount)
         promotion.setLossCategoryId(lossCategoryId)
         promotion.setActive(active)
+        promotion.setLoyalty(loyalty)
         promotion.setUpdateDatetime(new DateTime(updateDatetime))
         promotion.setRetailerPromotionId(retailerPromotionId)
         groups.each {
