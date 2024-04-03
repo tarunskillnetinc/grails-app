@@ -525,32 +525,8 @@
                 if (!confirm("This location will be deleted.\nAre you sure you want to delete this location?")) {
                     return;
                 }
-                var deletedHierarchyValue = 0
-                var locationSelector = $("#addLocationFieldsContainer-"+ variantIndex + "-" + locationIndex)
-                var locationHierarchy = locationSelector.find("[name='addLocation[" + locationIndex + "].locationHierarchy']").val();
-                if (locationHierarchy !== null) {
-                    deletedHierarchyValue = parseInt(locationHierarchy)
-                }
-                deletedHierarchyValue = parseInt(locationHierarchy)
-                var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
+
                 $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove()
-                if(deletedHierarchyValue >= 1){
-                    addLocationContainers.each(function() {
-                        var valueToBeSetReOrder = 0;
-                        var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
-                        var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
-                        var hierarchySelector = $(locationSelector + "\\.locationHierarchy")
-                        var hierarchyToBeReOrder = hierarchySelector.val()
-                        if(hierarchyToBeReOrder !== null){
-                            valueToBeSetReOrder = parseInt(hierarchyToBeReOrder)
-                        }
-
-                        if(deletedHierarchyValue < valueToBeSetReOrder ){
-                            hierarchySelector.val(valueToBeSetReOrder -1);
-                        }
-
-                    });
-                }
             }
 
             // The suppliers button was clicked, we display the suppliers modal for this variant.
@@ -795,14 +771,9 @@
                         var shelf = $(locationSelector + "\\.shelf").val();
                         var position = $(locationSelector + "\\.position").val();
                         var locationHierarchy = $(locationSelector + "\\.locationHierarchy").val();
-                        if(locationHierarchy === ''){
-                            locationHierarchy =  parseInt(currentMaxHierarchy) + 1;
-                            currentMaxHierarchy = currentMaxHierarchy + 1
-                        } else {
-                            locationHierarchy =  parseInt(locationHierarchy)
-                            currentMaxHierarchy = Math.max(locationHierarchy, currentMaxHierarchy);
+                        if (locationHierarchy === '') {
+                            locationHierarchy = 1
                         }
-
 
                         if (aisle === '' && bay === '' && shelf === '' && position === '') {
                             errorString += "Please enter at least one of aisle, bay, shelf or position.\n"

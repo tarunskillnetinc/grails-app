@@ -1369,23 +1369,14 @@ class ProductController extends BaseController {
     }
 
     def ajaxSaveLocation(LocationsCommand cmd) {
-        List locationHierarchy = new ArrayList();
-        String locationType = cmd.getLocationsType()
-        int numberOfAvailableHierarchy = 1
         cmd.getLocationz()?.forEach({ location ->
-            if (locationType == LocationsType.ADVANCED.name()){
-                locationHierarchy.add(numberOfAvailableHierarchy)
-                numberOfAvailableHierarchy++
-            }
-
             if (!location.validate()) {
                 if (!cmd.hasErrors)
                     cmd.hasErrors = Boolean.TRUE
                 location.isNewLocation = Boolean.TRUE
             }
         })
-        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name(),
-                                                                     locationHierarchy: locationHierarchy])
+        render(status: HttpStatus.OK, template: "locationz", model: [locations: cmd.locationz, variantIndex: cmd.index, locationsType: springSecurityService.principal.retailer.config.locationsType.name()])
     }
 
     //This will render category mapped restrictions for new products
