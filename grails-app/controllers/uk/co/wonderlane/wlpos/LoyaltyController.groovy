@@ -48,18 +48,16 @@ class LoyaltyController {
 
     def memberOfferUpdate() {
         Integer id
-        String cardNumber
         String remainingRedemptions
         String status
         Boolean updated = false
 
         try {
             id = params.offerId ? Integer.parseInt(params.offerId) : null
-            cardNumber = params.cardNumber ? params.cardNumber : null
             remainingRedemptions = params.remainingRedemptions ? params.remainingRedemptions : null
             status = params.status ? params.status : null
         } catch (Exception e) {
-            e.printStackTrace()
+            log.error("Error when attempting to update loyalty member offer, Exception " + ex)
             response.status = 400
             return
         }
@@ -89,7 +87,7 @@ class LoyaltyController {
             email = params.email
             mobile_no = params.mobile_no
         } catch (Exception e) {
-            e.printStackTrace()
+            log.error("Error when attempting to update loyalty member details, Exception " + ex)
             response.status = 400
             return
         }
@@ -147,7 +145,7 @@ class LoyaltyController {
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
         } catch (Exception e) {
-            e.printStackTrace()
+            log.error("Error when retrieving loyalty member offers, Exception " + ex)
             response.status = 400
             return
         }
@@ -193,7 +191,7 @@ class LoyaltyController {
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
         } catch (Exception e) {
-            e.printStackTrace()
+            log.error("Error when retrieving loyalty member transactions, Exception " + ex)
             response.status = 400
             return
         }
@@ -239,7 +237,7 @@ class LoyaltyController {
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
         } catch (Exception e) {
-            e.printStackTrace()
+            log.error("Error when searching for loyalty members, Exception " + ex)
             response.status = 400
             return
         }
@@ -386,7 +384,6 @@ class LoyaltyController {
                     endDate : endDate
             ])
         }catch(Exception ex){
-            ex.printStackTrace()
             log.error("Error loading loyalty offer view window, Exception " + ex)
             flash.error = "Failed to load loyalty offer view"
             response.setStatus(302)
