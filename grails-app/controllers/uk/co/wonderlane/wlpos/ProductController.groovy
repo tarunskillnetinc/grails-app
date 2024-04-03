@@ -1369,15 +1369,8 @@ class ProductController extends BaseController {
     }
 
     def ajaxSaveLocation(LocationsCommand cmd) {
-        List locationHierarchy = new ArrayList();
-        String locationType = cmd.getLocationsType()
-        int numberOfAvailableHierarchy = 1
+        List locationHierarchy = cmd.getLocationsType() == LocationsType.ADVANCED.name() ? (1..3) : []
         cmd.getLocationz()?.forEach({ location ->
-            if (locationType == LocationsType.ADVANCED.name()){
-                locationHierarchy.add(numberOfAvailableHierarchy)
-                numberOfAvailableHierarchy++
-            }
-
             if (!location.validate()) {
                 if (!cmd.hasErrors)
                     cmd.hasErrors = Boolean.TRUE

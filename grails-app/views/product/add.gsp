@@ -795,14 +795,9 @@
                         var shelf = $(locationSelector + "\\.shelf").val();
                         var position = $(locationSelector + "\\.position").val();
                         var locationHierarchy = $(locationSelector + "\\.locationHierarchy").val();
-                        if(locationHierarchy === ''){
-                            locationHierarchy =  parseInt(currentMaxHierarchy) + 1;
-                            currentMaxHierarchy = currentMaxHierarchy + 1
-                        } else {
-                            locationHierarchy =  parseInt(locationHierarchy)
-                            currentMaxHierarchy = Math.max(locationHierarchy, currentMaxHierarchy);
+                        if (locationHierarchy === '') {
+                            locationHierarchy = 1
                         }
-
 
                         if (aisle === '' && bay === '' && shelf === '' && position === '') {
                             errorString += "Please enter at least one of aisle, bay, shelf or position.\n"

@@ -165,28 +165,13 @@ class ProductService extends MySqlDal {
            }
        }
 
-       if (locationsType ==  LocationsType.ADVANCED.name()){
-           for (ProductVariantCommand pv : editedProduct?.variants){
-               if (pv.locationz.size() > 5) {
-                   //variant should not contain more than 5 locations
-                   product.errors.reject('product.location.count.exceed.error', [String.valueOf(pv.sku)] as Object[],
-                           'product.location.count.exceed.default.error')
-                   isValid = false
-                   break
-               }
+       if (locationsType ==  LocationsType.ADVANCED.name()) {
+           for (ProductVariantCommand pv : editedProduct?.variants) {
                for (LocationCommand location : pv.locationz){
                    //Validate entered value for location number is numeric or not -> Only numeric allowed
                    if (location.getLocationNumber() != null && !location.getLocationNumber().isEmpty() && !location.getLocationNumber().matches("-?\\d+(\\.\\d+)?(?:\\s*\\d+(\\.\\d+)?)?")){
                        product.errors.reject('product.location.number.validation.error', [location.getLocationNumber(), String.valueOf(pv.sku)] as Object[],
                                'product.location.number.validation.error.default')
-                       isValid = false
-                       break
-                   }
-
-                   //Validate if there is any duplicate hierarchy
-                   if (selectedHierarchy.contains(location.locationHierarchy)) {
-                       product.errors.reject('product.location.hierarchy.unique.error', [String.valueOf(pv.sku)] as Object[],
-                               'product.location.hierarchy.unique.default.error')
                        isValid = false
                        break
                    }
@@ -215,7 +200,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(Product product, List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-        
+
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (productPrice.validate()) {
