@@ -197,7 +197,6 @@
                                     </div>
                                 </div>
 
-
                                 <div class="form-group row">
                                     <label for="scoEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">SCO Enabled</label>
                                     <div class="col-7 col-lg-4">
@@ -446,6 +445,33 @@
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-delivered-term-button"onclick="$('#deliveredTerm').val('Delivered')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="enterSecretReasonCodeTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secret (Enter Reason Code)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.enterSecretReasonCodeTerm" id="enterSecretReasonCodeTerm" value="${retailer?.config?.retailerTerminologyConfig?.enterSecretReasonCodeTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-enter-secret-reason-code-term-button"onclick="$('#enterSecretReasonCodeTerm').val('Secret')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="accentBarStoreTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store (Accent Bar)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.accentBarStoreTerm" id="accentBarStoreTerm" value="${retailer?.config?.retailerTerminologyConfig?.accentBarStoreTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-accent-bar-store-term-button"onclick="$('#accentBarStoreTerm').val('Store')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="varianceReportItemTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Item (Variance Report)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.varianceReportItemTerm" id="varianceReportItemTerm" value="${retailer?.config?.retailerTerminologyConfig?.varianceReportItemTerm}"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-variance-report-item-term-button"onclick="$('#varianceReportItemTerm').val('Item')">Reset</div>
                                     </div>
                                 </div>
                                 <!-- Locations Table Terminology -->
