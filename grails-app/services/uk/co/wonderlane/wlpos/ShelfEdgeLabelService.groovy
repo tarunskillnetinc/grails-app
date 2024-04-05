@@ -200,10 +200,10 @@ class ShelfEdgeLabelService extends MySqlDal {
 
                     // Loop through and draw the fields on the label.
                     for (LabelTemplateField field : labelTemplate.labelTemplateFields) {
-                        double fieldX = storeSettings.config["selMarginLeft"] + labelTemplate.marginLeft + (col * labelTemplate.labelWidth) + (col * labelTemplate.marginBetweenColumns) + field.x
-                        double fieldY = storeSettings.config["selMarginTop"] + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRows) + field.y
-                        double lineFieldX2 = storeSettings.config["selMarginLeft"] + labelTemplate.marginLeft + (col * labelTemplate.labelWidth) + (col * labelTemplate.marginBetweenColumns) + field.width
-                        double lineFieldY2 = storeSettings.config["selMarginTop"] + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRows) + field.height
+                        double fieldX = storeSettings.config["selMarginLeft"] ?: BigDecimal.ZERO + labelTemplate.marginLeft + (col * labelTemplate.labelWidth) + (col * labelTemplate.marginBetweenColumns) + field.x
+                        double fieldY = storeSettings.config["selMarginTop"] ?: BigDecimal.ZERO + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRows) + field.y
+                        double lineFieldX2 = storeSettings.config["selMarginLeft"] ?: BigDecimal.ZERO + labelTemplate.marginLeft + (col * labelTemplate.labelWidth) + (col * labelTemplate.marginBetweenColumns) + field.width
+                        double lineFieldY2 = storeSettings.config["selMarginTop"] ?: BigDecimal.ZERO + labelTemplate.marginTop + (row * labelTemplate.labelHeight) + (row * labelTemplate.marginBetweenRows) + field.height
 
                         switch (field.type) {
                             case LabelTemplateFieldType.PRODUCT_DESCRIPTION:
