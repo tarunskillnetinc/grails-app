@@ -97,7 +97,7 @@
 
                 <div class="col-3 text-right d-inline-flex flex-row justify-content-end">
                     <g:link elementId="add-new-product-btn" action="transactions" params="[cardNumber: member?.cardNumber]" class="btn btn-wl p-2 ml-2">Member Transactions</g:link>
-                    <g:link elementId="add-new-product-btn" class="btn btn-wl p-2 ml-2">Available Offers</g:link>
+                    <g:link elementId="add-new-product-btn" action="offers" params="[cardNumber: member?.cardNumber]" class="btn btn-wl p-2 ml-2">Available Offers</g:link>
                 </div>
             </div>
         </section>
