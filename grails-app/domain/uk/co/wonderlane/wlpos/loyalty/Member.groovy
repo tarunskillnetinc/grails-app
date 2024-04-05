@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos.loyalty
 import uk.co.wonderlane.wlpos.enums.MemberStatus
 
 class Member {
-
     int id
     int retailerId
     int cardType
@@ -28,7 +27,7 @@ class Member {
     Date dateCreated
     Date dateUpdated
 
-    static hasMany = [transactions: MemberTransaction]
+    static hasMany = [offers: MemberOffer, transactions: MemberTransaction]
 
     static mapping = {
         datasources(["loyalty"])

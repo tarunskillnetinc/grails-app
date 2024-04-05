@@ -1,22 +1,25 @@
 package uk.co.wonderlane.wlpos.loyalty;
 
 import org.joda.time.DateTime;
-import uk.co.wonderlane.wlpos.LoyaltyOffer;
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 
 class MemberOffer {
-
     int id
-    int memberId
-    LoyaltyOffer offer
+    String offerDescription
     DateTime visibleFromDate
     DateTime startDate
     DateTime endDate
+    Double currentSavings
     Integer currentRedemptions
     Integer maxRedemptions
     MemberOfferStatus status
     DateTime dateCreated
     DateTime dateModified
+
+    Integer remainingRedemptions
+
+    Member member
+    static belongsTo = [member: Member]
 
     static mapping = {
         datasources(["loyalty"])
@@ -25,15 +28,18 @@ class MemberOffer {
         version false
 
         id column: "id"
-        memberId column: "member_id"
+        offerDescription column: "offer_description", type: "text"
         visibleFromDate column: "visible_from_date"
         startDate column: "start_date"
         endDate column: "end_date"
+        currentSavings column: "current_savings"
         currentRedemptions column: "current_redemptions"
         maxRedemptions colum: "max_redemptions"
         status column: "status", sqlType: "enum", enumType: "string"
         dateCreated column: "date_created"
         dateModified column: "date_modified"
+
+        remainingRedemptions formula: "(max_redemptions - current_redemptions)"
     }
 
     static constraints = {
