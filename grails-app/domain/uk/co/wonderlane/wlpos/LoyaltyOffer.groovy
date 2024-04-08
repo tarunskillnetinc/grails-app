@@ -16,8 +16,8 @@ class LoyaltyOffer {
     LoyaltyOfferType type = LoyaltyOfferType.STANDARD
     LoyaltyOfferStatus status
     DateTime visibleFromDate
-    DateTime startDate
-    DateTime endDate
+    Date startDate
+    Date endDate
     Integer maxAllocations
     int currentAllocations
     BigDecimal maxBudget
@@ -142,8 +142,8 @@ class LoyaltyOffer {
         type column: "type" , sqlType: "enum", enumType: 'string'
         status column: "status" , sqlType: "enum", enumType: 'string'
         visibleFromDate column: "visible_from_date"
-        startDate column: "start_date"
-        endDate column: "end_date"
+        startDate column: "start_date", sqlType: "datetime"
+        endDate column: "end_date", sqlType: "datetime"
         maxAllocations column: "max_allocations"
         currentAllocations column: "current_allocations"
         maxBudget column: "max_budget"
