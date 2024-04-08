@@ -1,9 +1,10 @@
 package uk.co.wonderlane.wlpos
 
+import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
-import grails.gorm.transactions.Transactional
 
 @Transactional("loyalty")
 class LoyaltyMemberService {
@@ -71,7 +72,7 @@ class LoyaltyMemberService {
     def findAllMemberOffers(String cardNumber, String searchTerm, String searchBy, Boolean activeOffers, Boolean inactiveOffers, Integer max, Integer offset, String sortColumn, String sortOrder) {
         def memberCriteria = Member.createCriteria()
 
-        def member = memberCriteria.list([max: max, offset: offset]) {
+        def member = memberCriteria.get {
             eq ("cardNumber", "$cardNumber")
         }
 
@@ -79,10 +80,9 @@ class LoyaltyMemberService {
         def filteredOffers = []
 
         if (member) {
-            def offers = member.offers
-
             // Count total results before applying pagination
             totalCount = MemberOffer.createCriteria().count {
+                eq("member.id", member.id)
                 if (searchBy == "description") {
                     like ("offerDescription", "%$searchTerm%")
                 } else {
@@ -104,11 +104,9 @@ class LoyaltyMemberService {
                 }
             }
 
-            // Creating another criteria query for filtering offers
-            def offerCriteria = MemberOffer.createCriteria()
-
             // Apply pagination and additional criteria
-            filteredOffers = offerCriteria.list(max: max, offset: offset) {
+            filteredOffers = MemberOffer.createCriteria().list(max: max, offset: offset) {
+                eq("member.id", member.id)
                 if (searchBy == "description") {
                     like ("offerDescription", "%$searchTerm%")
                 } else {
@@ -171,5 +169,46 @@ class LoyaltyMemberService {
         }
 
         return updated
+    }
+
+    def searchForAvailableOffersForMember(String cardNumber) {
+        def member = Member.findByCardNumber(cardNumber)
+
+        def memberOfferList = MemberOffer.createCriteria().list {
+            eq('member.id', member.id)
+        }
+
+        // Get the current date and time
+        def currentDateTime = new DateTime()
+
+        // Filter LoyaltyOffer objects by status and date range
+        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual("ACTIVE", currentDateTime, currentDateTime)
+
+        // Get the offers that are not linked to the member
+        def offersNotLinkedToMember = activeOffers.findAll { offer ->
+            !memberOfferList.find { memberOffer ->
+                memberOffer.offer == offer
+            }
+        }
+
+        // Return a max of 5 offers
+        return offersNotLinkedToMember.take(5)
+    }
+
+    def saveMemberOffer(MemberOffer memberOffer, Integer memberId, Integer offerId) {
+        def result = false
+
+        def member = Member.get(memberId)
+        def offer = LoyaltyOffer.get(offerId)
+
+        memberOffer.member = member
+        memberOffer.offer = offer
+
+        if (memberOffer.validate()) {
+            memberOffer.save(flush: true)
+            result = true
+        }
+
+        return result
     }
 }

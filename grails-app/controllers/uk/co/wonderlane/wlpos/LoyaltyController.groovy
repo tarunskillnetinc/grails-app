@@ -7,7 +7,11 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import uk.co.wonderlane.wlpos.LoyaltyOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
+import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
+import uk.co.wonderlane.wlpos.loyalty.Member
+import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.reporting.SortParams
 import groovy.json.JsonOutput
 
@@ -31,6 +35,17 @@ class LoyaltyController {
         render(view: "memberOffers", model: [cardNumber: cardNumber])
     }
 
+    def addMemberOffer(String cardNumber) {
+        def offers = loyaltyMemberService.searchForAvailableOffersForMember(cardNumber)
+
+        // Create a new list including only id and offer_description
+        def offersList = offers.collect { offer ->
+            [id: offer.id, offerDescription: offer.offerDescription]
+        }
+
+        render(view: "addMemberOffer", model: [cardNumber: cardNumber, offers: offersList])
+    }
+
     def showMemberDetails(String cardNumber) {
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
         render (view: "loyaltyMemberDetails", model: [member: member])
@@ -41,9 +56,62 @@ class LoyaltyController {
         render (view: "memberOfferDetails", model: [cardNumber: cardNumber, offer: offer])
     }
 
-    def transactionDetails(String memberId, String transactionId) {
+    def transactionDetails(String cardNumber, String memberId, String transactionId) {
         def transaction = memberTransactionService.findTransactionByMemberIdAndTransactionId(Integer.parseInt(memberId), Integer.parseInt(transactionId))
-        render (view: "transactionDetails", model: [transaction: transaction])
+        render (view: "transactionDetails", model: [cardNumber: cardNumber, transaction: transaction])
+    }
+
+    def ajaxSelectedOffer(String id, String cardNumber) {
+        def member = loyaltyMemberService.findByCardNumber(cardNumber)
+        def offer = loyaltyService.getLoyaltyOfferById(Integer.parseInt(id))
+
+        render(template: "addMemberOfferSelect", model: [offer: offer, member: member])
+    }
+
+    def ajaxSaveMemberOffer() {
+        Integer memberId
+        Integer offerId
+        String cardNumber
+        String description
+        Integer remainingRedemptions
+        Boolean status
+        DateTime startDate, endDate
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        Boolean updated = false
+
+        try {
+            memberId = params.memberId ? Integer.parseInt(params.memberId) : null
+            offerId = params.offerId ? Integer.parseInt(params.offerId) : null
+            cardNumber = params.cardNumber ? params.cardNumber : null
+            description = params.description ? params.description : ""
+            remainingRedemptions = params.remainingRedemptions ? Integer.parseInt(params.remainingRedemptions) : 0
+            status = params.status != null ? params.status == "on" : false
+            startDate = params.startDate ? formatter.parseDateTime(params.startDate) : null
+            endDate = params.endDate ? formatter.parseDateTime(params.endDate) : null
+        } catch (Exception ex) {
+            log.error("Error when attempting to save a new member offer, Exception " + ex)
+            response.status = 400
+            return
+        }
+
+        def memberOffer = new MemberOffer(
+            offerDescription: description,
+            currentSavings: 0,
+            visibleFromDate: startDate,
+            startDate: startDate,
+            endDate: endDate.plusDays(1).withTimeAtStartOfDay(),
+            maxRedemptions: remainingRedemptions,
+            currentRedemptions: 0,
+            status: status ? MemberOfferStatus.ACTIVE : MemberOfferStatus.CLOSED,
+        )
+
+        updated = loyaltyMemberService.saveMemberOffer(memberOffer, memberId, offerId)
+
+        if (updated) {
+            flash.message = "Member Offer created successfully"
+        }
+
+        offers(cardNumber)
     }
 
     def memberOfferUpdate() {

@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.loyalty.RedeemedOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferType
@@ -15,8 +16,8 @@ class LoyaltyOffer {
     LoyaltyOfferType type = LoyaltyOfferType.STANDARD
     LoyaltyOfferStatus status
     DateTime visibleFromDate
-    Date startDate
-    Date endDate
+    DateTime startDate
+    DateTime endDate
     Integer maxAllocations
     int currentAllocations
     BigDecimal maxBudget
@@ -34,8 +35,9 @@ class LoyaltyOffer {
     DateTime dateModified
     @JsonIgnore
     Collection<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
+    Integer remainingRedemptions
 
-    static hasMany = [loyaltyOfferSegments: LoyaltyOfferSegment, redeemedOffers: RedeemedOffer]
+    static hasMany = [loyaltyOfferSegments: LoyaltyOfferSegment, redeemedOffers: RedeemedOffer, memberOffer: MemberOffer]
 
     static constraints = {
         offerDescription(nullable: false, validator: { val, obj ->
@@ -140,8 +142,8 @@ class LoyaltyOffer {
         type column: "type" , sqlType: "enum", enumType: 'string'
         status column: "status" , sqlType: "enum", enumType: 'string'
         visibleFromDate column: "visible_from_date"
-        startDate column: "start_date", sqlType: "datetime"
-        endDate column: "end_date" , sqlType: "datetime"
+        startDate column: "start_date"
+        endDate column: "end_date"
         maxAllocations column: "max_allocations"
         currentAllocations column: "current_allocations"
         maxBudget column: "max_budget"
@@ -158,6 +160,8 @@ class LoyaltyOffer {
         dateCreated column: "date_created"
         dateModified column: "date_modified"
         loyaltyOfferSegments cascade: 'none'
+
+        remainingRedemptions formula: "(max_redemptions - current_redemptions)"
     }
 
     public uk.co.wonderlane.wlpos.entities.LoyaltyOffer getLoyaltyOffer(){

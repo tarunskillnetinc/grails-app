@@ -27,15 +27,7 @@
             };
 
             function validateUpdates() {
-                let error = false;
-                let errorString = "";
-
-                if (!error) {
-                    $('#memberOfferDetails').submit();
-                } else {
-                    $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
-                    $('#validation-errors').prop("hidden", false);
-                }
+                $('#memberOfferDetails').submit();
             }
         </script>
     </head>
@@ -46,8 +38,9 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Member Offers</g:link></li>
-                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${cardNumber}</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Membership Management</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><g:link action="showMemberDetails" params="[cardNumber: cardNumber]">${cardNumber}</g:link></li>
+                            <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page"><g:link action="offers" params="[cardNumber: cardNumber]">Member Offers</g:link></li>
                             <li id="breadcrumb-5" class="breadcrumb-item active" aria-current="page">${offer?.offerDescription ?: "Offer Details"}</li>
                         </ol>
                     </div>
@@ -55,11 +48,11 @@
             </nav>
         </section>
 
-        <g:if test="${flash.message}">
-            <section id="alerts-container" class="container-fluid">
-                <div id="alerts-container-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
-            </section>
-        </g:if>
+    <g:if test="${flash.message}">
+        <section id="alerts-container" class="container-fluid">
+            <div id="alerts-container-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+        </section>
+    </g:if>
 
         <section id="offer-details" class="container-fluid">
             <div class="row header-wl mt-3">
@@ -88,7 +81,7 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="remainingRedemptions" class="col-5 col-form-label text-right pr-4">Remaining Redemptions</label>
-                                <g:textField name="remainingRedemptions" type="number"  nullable="true" class="col-3 form-control bottom-border numeric-field" value="${offer?.remainingRedemptions}" />
+                                <g:textField name="remainingRedemptions" type="number" nullable="true" class="col-3 form-control bottom-border numeric-field" value="${offer?.remainingRedemptions}" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="savings" class="col-5 col-form-label text-right pr-4">Savings</label>

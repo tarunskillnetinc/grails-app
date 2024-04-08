@@ -42,13 +42,9 @@
                         sortOrder: sortParams ? sortParams.sortOrder : null
                     },
                     success: function(resp) {
-                    console.log("success")
                         $('#results-container').html(resp);
                         $('#memberOfferSearchTerm').data('prev',$('#memberOfferSearchTerm').val());
                         $('#memberOfferSearchBy').data('prev', $('#memberOfferSearchBy').val());
-                    },
-                    error: function (data) {
-                        console.log("failure")
                     }
                 })
             }
@@ -64,8 +60,9 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Member Offers</g:link></li>
-                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${cardNumber}</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Membership Management</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><g:link action="showMemberDetails" params="[cardNumber: cardNumber]">${cardNumber}</g:link></li>
+                            <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">Member Offers</li>
                         </ol>
                     </div>
                 </div>
@@ -84,7 +81,7 @@
                     <h2 id="page-title" class="mx-auto my-auto">Member Offers</h2>
                 </div>
                 <div class="col text-right d-inline-flex flex-row justify-content-end">
-                    <g:link elementId="add-offer-btn" class="btn btn-wl p-2 ml-2">Add Offer</g:link>
+                    <g:link elementId="add-offer-btn" class="btn btn-wl p-2 ml-2" action="addMemberOffer" params="[cardNumber: cardNumber]">Add Offer</g:link>
                 </div>
             </div>
             <div class="row mt-4">
