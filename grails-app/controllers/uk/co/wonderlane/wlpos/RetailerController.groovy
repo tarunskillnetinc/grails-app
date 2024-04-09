@@ -75,14 +75,8 @@ class RetailerController {
         if (retailerCommand?.retailerTerminologyConfig?.deliveredTerm == "" || retailerCommand?.retailerTerminologyConfig?.deliveredTerm == null) {
             flash.error = "Delivered is empty. Should not be null."
         }
-        if (retailerCommand?.retailerTerminologyConfig?.enterSecretReasonCodeTerm == "" || retailerCommand?.retailerTerminologyConfig?.enterSecretReasonCodeTerm == null) {
-            flash.error = "Enter Secret Reason Code is empty. Should not be null."
-        }
         if (retailerCommand?.retailerTerminologyConfig?.accentBarStoreTerm == "" || retailerCommand?.retailerTerminologyConfig?.accentBarStoreTerm == null) {
             flash.error = "Store (Accent Bar) is empty. Should not be null."
-        }
-        if (retailerCommand?.retailerTerminologyConfig?.varianceReportItemTerm == "" || retailerCommand?.retailerTerminologyConfig?.varianceReportItemTerm == null) {
-            flash.error = "Item (Variance Report) is empty. Should not be null."
         }
 
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig == null) {
@@ -210,9 +204,7 @@ class RetailerTerminologyCommand {
     String storeHoldingsTerm
     String inStockTerm
     String deliveredTerm
-    String enterSecretReasonCodeTerm
     String accentBarStoreTerm
-    String varianceReportItemTerm
     RetailerTerminologyLocationsTableConfigCommand locationsTableConfig
 }
 
