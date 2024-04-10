@@ -7,10 +7,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import uk.co.wonderlane.wlpos.LoyaltyOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
-import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.reporting.SortParams
 import groovy.json.JsonOutput
@@ -77,7 +75,6 @@ class LoyaltyController {
         Boolean status
         DateTime startDate, endDate
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
-        Boolean updated = false
 
         try {
             memberId = params.memberId ? Integer.parseInt(params.memberId) : null
@@ -88,8 +85,8 @@ class LoyaltyController {
             status = params.status != null ? params.status == "on" : false
             startDate = params.startDate ? formatter.parseDateTime(params.startDate) : null
             endDate = params.endDate ? formatter.parseDateTime(params.endDate) : null
-        } catch (Exception ex) {
-            log.error("Error when attempting to save a new member offer, Exception " + ex)
+        } catch (Exception e) {
+            log.error("Error when attempting to save a new member offer, Exception " + e)
             response.status = 400
             return
         }
@@ -105,7 +102,7 @@ class LoyaltyController {
             status: status ? MemberOfferStatus.ACTIVE : MemberOfferStatus.CLOSED,
         )
 
-        updated = loyaltyMemberService.saveMemberOffer(memberOffer, memberId, offerId)
+        def updated = loyaltyMemberService.saveMemberOffer(memberOffer, memberId, offerId)
 
         if (updated) {
             flash.message = "Member Offer created successfully"
@@ -125,7 +122,7 @@ class LoyaltyController {
             remainingRedemptions = params.remainingRedemptions ? params.remainingRedemptions : null
             status = params.status ? params.status : null
         } catch (Exception e) {
-            log.error("Error when attempting to update loyalty member offer, Exception " + ex)
+            log.error("Error when attempting to update loyalty member offer, Exception " + e)
             response.status = 400
             return
         }
@@ -155,7 +152,7 @@ class LoyaltyController {
             email = params.email
             mobile_no = params.mobile_no
         } catch (Exception e) {
-            log.error("Error when attempting to update loyalty member details, Exception " + ex)
+            log.error("Error when attempting to update loyalty member details, Exception " + e)
             response.status = 400
             return
         }
@@ -213,7 +210,7 @@ class LoyaltyController {
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
         } catch (Exception e) {
-            log.error("Error when retrieving loyalty member offers, Exception " + ex)
+            log.error("Error when retrieving loyalty member offers, Exception " + e)
             response.status = 400
             return
         }
@@ -244,7 +241,6 @@ class LoyaltyController {
         Integer offset
         String sortColumn
         String sortOrder
-        def transactions
 
         try {
             cardNumber = params.cardNumber
@@ -259,7 +255,7 @@ class LoyaltyController {
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
         } catch (Exception e) {
-            log.error("Error when retrieving loyalty member transactions, Exception " + ex)
+            log.error("Error when retrieving loyalty member transactions, Exception " + e)
             response.status = 400
             return
         }
@@ -267,10 +263,8 @@ class LoyaltyController {
         /* Get the member associated with the card number so can retrieve the transaction records */
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
 
-        if (member) {
-            transactions = memberTransactionService.findAllTransactionsByMemberId(member.id, searchTerm, searchBy, minAmount, maxAmount,
+        def transactions = memberTransactionService.findAllTransactionsByMemberId(member.id, searchTerm, searchBy, minAmount, maxAmount,
                                                                                          startWindow, endWindow, max, offset, sortColumn, sortOrder)
-        }
 
         render(template: "transactionSearchResults", model: [cardNumber : params.cardNumber,
                                                              searchTerm : params.searchTerm,
@@ -305,7 +299,7 @@ class LoyaltyController {
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
         } catch (Exception e) {
-            log.error("Error when searching for loyalty members, Exception " + ex)
+            log.error("Error when searching for loyalty members, Exception " + e)
             response.status = 400
             return
         }

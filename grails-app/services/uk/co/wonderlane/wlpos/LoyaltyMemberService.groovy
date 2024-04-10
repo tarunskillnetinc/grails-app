@@ -32,10 +32,12 @@ class LoyaltyMemberService {
         [totalResults: totalCount, members: members]
     }
 
+    /* Returns a Member by the exact card number if one exists */
     def findByCardNumber(String cardNumber) {
         Member.findByCardNumber(cardNumber)
     }
 
+    /* Updates the selected field with a new value for the Member with the supplied card number */
     def updateMemberField(String cardNumber, String fieldToUpdate, String updatedValue) {
         def member = Member.findByCardNumber(cardNumber)
 
@@ -65,10 +67,12 @@ class LoyaltyMemberService {
         }
     }
 
+    /* Returns a Member Offer from the passed id */
     def getMemberOffer(Integer id) {
         MemberOffer.get(id)
     }
 
+    /* Returns all Member Offers by the exact card number if any exist */
     def findAllMemberOffers(String cardNumber, String searchTerm, String searchBy, Boolean activeOffers, Boolean inactiveOffers, Integer max, Integer offset, String sortColumn, String sortOrder) {
         def memberCriteria = Member.createCriteria()
 
@@ -134,6 +138,7 @@ class LoyaltyMemberService {
         [totalResults: totalCount, offers: filteredOffers]
     }
 
+    /* Updates the selected field with a new value for the Member Offer with the supplied id */
     def updateMemberOfferField(Integer id, String fieldToUpdate, String updatedValue) {
         def updated = false
         def memberOffer = MemberOffer.findById(id)
@@ -171,6 +176,7 @@ class LoyaltyMemberService {
         return updated
     }
 
+    /* Returns all Offers for the current member that are not already associated ot a Member offer for them */
     def searchForAvailableOffersForMember(String cardNumber) {
         def member = Member.findByCardNumber(cardNumber)
 
@@ -195,6 +201,7 @@ class LoyaltyMemberService {
         return offersNotLinkedToMember.take(5)
     }
 
+    /* Creates a new Member Offer in the database */
     def saveMemberOffer(MemberOffer memberOffer, Integer memberId, Integer offerId) {
         def result = false
 
