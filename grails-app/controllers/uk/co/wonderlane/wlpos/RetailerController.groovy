@@ -238,4 +238,5 @@ class LoyaltyConfigCommand {
     boolean isLoyaltyEnable
     String loyaltyUrl
     String loyaltyIIN
+    Double loyaltyPointValue
 }
