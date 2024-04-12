@@ -4,21 +4,11 @@
     <meta name="layout" content="main" />
     <title>Retailer Settings</title>
 
-    <asset:javascript src="money-mask.js" />
-
     <script type='text/javascript'>
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
         $(document).ready(function () {
-
-            var value = $(".mask-money-loyaltyPointValue").val();
-            if (value === null || value === '') {
-                $(".mask-money-loyaltyPointValue").val(null);
-            }
-            $(".mask-money-loyaltyPointValue").maskMoney({ allowZero: false});
-            $(".mask-money-loyaltyPointValue").maskMoney();
-
 
             $('input[name=brandLogo]').change(function() {
                 if (this.files[0].size < 1048576 /* 1MB */) {
@@ -776,9 +766,9 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="loyaltyPointValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Point Value</label>
+                                    <label for="loyaltyConfig.loyaltyPointValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Point Value</label>
                                     <div class="col-7 col-lg-4" style="display: flex; align-items: center;">
-                                        £<g:textField class="col-5 form-control bottom-border mask-money-loyaltyPointValue" name="loyaltyConfig.loyaltyPointValue" id="loyaltyPointValue" type="currency" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyPointValue}"/>
+                                        £<g:field class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyPointValue"  type="number" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyPointValue}"/>
                                     </div>
                                     <div class="form-group row"><div class="btn btn-danger" id="reset-loyaltyPointValue-term-button" onclick="$('#loyaltyPointValue').val('')">Reset</div>
                                     </div>
