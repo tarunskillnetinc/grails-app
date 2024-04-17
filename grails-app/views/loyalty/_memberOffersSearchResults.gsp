@@ -47,8 +47,8 @@
             <div id="offer-result-${i+1}-description" class="col-2 text-truncate">${offer.offerDescription}</div>
             <div id="offer-result-${i+1}-currentRedemptions" class="col-2 text-truncate">${offer.currentRedemptions}</div>
             <div id="offer-result-${i+1}-remainingRedemptions" class="col-2 text-truncate">${offer.maxRedemptions - offer.currentRedemptions}</div>
-            <div id="offer-result-${i+1}-startDate" class="col-2 text-truncate">${offer.startDate.toString("hh:mm:ss dd/MM/yyyy")}</div>
-            <div id="offer-result-${i+1}-endDate" class="col-2 text-truncate">${offer.endDate.toString("hh:mm:ss dd/MM/yyyy")}</div>
+            <div id="offer-result-${i+1}-startDate" class="col-2 text-truncate">${offer.startDate.toString("HH:mm:ss dd/MM/yyyy")}</div>
+            <div id="offer-result-${i+1}-endDate" class="col-2 text-truncate">${offer.endDate.toString("HH:mm:ss dd/MM/yyyy")}</div>
             <div id="offer-result-${i+1}-description" class="col-2 text-truncate">${offer.status}</div>
         </div>
     </g:each>

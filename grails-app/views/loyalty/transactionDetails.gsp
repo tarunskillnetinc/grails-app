@@ -15,8 +15,10 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link action="loyaltyMembers">Transaction Details</g:link></li>
-                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${transaction?.transactionId ?: "Transaction Details"}</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Membership Management</g:link></li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><g:link action="showMemberDetails" params="[cardNumber: cardNumber]">${cardNumber}</g:link></li>
+                            <li id="breadcrumb-4" class="breadcrumb-item" aria-current="page"><g:link action="transactions" params="[cardNumber: cardNumber]">Member Transactions</g:link></li>
+                            <li id="breadcrumb-5" class="breadcrumb-item active" aria-current="page">${transaction?.transactionId ?: "Transaction Details"}</li>
                         </ol>
                     </div>
                 </div>
@@ -52,7 +54,6 @@
                             <label for="transactionDate" class="col-4 col-form-label text-right pr-4">Transaction Date</label>
                             <g:textField name="transactionDate" class="col-5 form-control bottom-border add-product-desc" value="${transaction?.transactionTimestamp ? DateTimeFormat.forPattern('hh:mm:ss dd/MM/yyyy').print(transaction.transactionTimestamp) : ''}" readonly="true" />
                         </div>
-
                     </div>
                     <div class="col-12 col-lg-6">
                         <div class="row form-group mb-3">
