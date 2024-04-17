@@ -6,13 +6,110 @@ import grails.testing.web.controllers.ControllerUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
+import uk.co.wonderlane.wlpos.loyalty.Member
+import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 import uk.co.wonderlane.wlpos.reporting.SortParams
 
 class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<LoyaltyController>, DataTest {
 
     def setup() {}
-
     def cleanup() {}
+
+    def "should return the transactions view when requested"() {
+
+        when: 'Transactions is executed'
+        controller.transactions("")
+
+        then: 'transactions response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return the offers view when requested"() {
+
+        when: 'offers is executed'
+        controller.offers("")
+
+        then: 'offers response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return the add member offer view when requested"() {
+        given:
+        controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
+            searchForAvailableOffersForMember(_) >> [new LoyaltyOffer()]
+        }
+
+        when:
+        controller.addMemberOffer("")
+
+        then: 'add member offer response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return the loyalty member details view when requested"() {
+        given:
+        controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
+            findByCardNumber(_) >> new Member()
+        }
+
+        when:
+        controller.showMemberDetails("")
+
+        then: 'offers details response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return the member offer details view when requested"() {
+        given:
+        controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
+            getMemberOffer(_) >> new Member()
+        }
+
+        when:
+        controller.offerDetails("", 1)
+
+        then: 'offers details response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return the transaction details view when requested"() {
+        given:
+        controller.memberTransactionService = Stub(MemberTransactionService) {
+            findTransactionByMemberIdAndTransactionId(_, _) >> new MemberTransaction()
+        }
+
+        when:
+        controller.transactionDetails("1", "2", "3")
+
+        then: 'offers details response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return the add member offer select template when requested"() {
+        given:
+        controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
+            findByCardNumber(_) >> new Member()
+        }
+
+        controller.loyaltyService = Stub(LoyaltyService) {
+            getLoyaltyOfferById(_) >> new LoyaltyOffer()
+        }
+
+        when:
+        controller.ajaxSelectedOffer("1", "2")
+
+        then: 'ajaxSelectedOffer response is correct'
+        response.status == HttpStatus.OK.value()
+    }
+
+    def "should return loyalty members page successfully"() {
+
+        when: 'loyalty members action is executed'
+        controller.loyaltyMembers()
+
+        then: 'loyalty segment response is correct'
+        response.status == HttpStatus.OK.value()
+    }
 
     void "should return loyalty segment page successfully"() {
 

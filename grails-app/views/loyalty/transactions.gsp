@@ -95,7 +95,7 @@
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                             <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Membership Management</g:link></li>
-                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${cardNumber}</li>
+                            <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><g:link action="showMemberDetails" params="[cardNumber: cardNumber]">${cardNumber}</g:link></li>
                             <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">Member Transactions</li>
                         </ol>
                     </div>

@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.loyalty.RedeemedOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferType
@@ -34,8 +35,9 @@ class LoyaltyOffer {
     DateTime dateModified
     @JsonIgnore
     Collection<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
+    Integer remainingRedemptions
 
-    static hasMany = [loyaltyOfferSegments: LoyaltyOfferSegment, redeemedOffers: RedeemedOffer]
+    static hasMany = [loyaltyOfferSegments: LoyaltyOfferSegment, redeemedOffers: RedeemedOffer, memberOffer: MemberOffer]
 
     static constraints = {
         offerDescription(nullable: false, validator: { val, obj ->
@@ -141,7 +143,7 @@ class LoyaltyOffer {
         status column: "status" , sqlType: "enum", enumType: 'string'
         visibleFromDate column: "visible_from_date"
         startDate column: "start_date", sqlType: "datetime"
-        endDate column: "end_date" , sqlType: "datetime"
+        endDate column: "end_date", sqlType: "datetime"
         maxAllocations column: "max_allocations"
         currentAllocations column: "current_allocations"
         maxBudget column: "max_budget"
@@ -158,6 +160,8 @@ class LoyaltyOffer {
         dateCreated column: "date_created"
         dateModified column: "date_modified"
         loyaltyOfferSegments cascade: 'none'
+
+        remainingRedemptions formula: "(max_redemptions - current_redemptions)"
     }
 
     public uk.co.wonderlane.wlpos.entities.LoyaltyOffer getLoyaltyOffer(){
