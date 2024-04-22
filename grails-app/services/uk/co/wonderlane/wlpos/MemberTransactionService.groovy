@@ -27,15 +27,32 @@ class MemberTransactionService {
                 eq(searchBy, searchTerm.toInteger())
             }
 
-            if (minAmount != 0 && maxAmount != 0) {
-                between("transactionTotal", minAmount, maxAmount)
+            if (minAmount != 0 || maxAmount != 0) {
+                if (minAmount != 0 && maxAmount != 0) {
+                    between("transactionTotal", minAmount, maxAmount)
+                } else if (minAmount != 0) {
+                    ge("transactionTotal", minAmount)
+                } else {
+                    le("transactionTotal", maxAmount)
+                }
             }
 
-            if (startWindow != null && endWindow != null) {
-                between("transactionTimestamp", startWindow, endWindow)
+            if (startWindow != null || endWindow != null) {
+                if (startWindow != null && endWindow != null) {
+                    between("transactionTimestamp", startWindow, endWindow)
+                } else if (startWindow != null) {
+                    ge("transactionTimestamp", startWindow)
+                } else {
+                    le("transactionTimestamp", endWindow)
+                }
             }
 
-            order(sortColumn ?: "storeId", sortOrder ?: "asc")
+            if (sortColumn == "storeName") {
+                createAlias("store", "s", org.hibernate.sql.JoinType.LEFT_OUTER_JOIN)
+                order("s.name", sortOrder ?: "asc")
+            } else {
+                order(sortColumn ?: "storeId", sortOrder ?: "asc")
+            }
         }
 
         def totalCount = transactions.size()
