@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.joda.JodaModule
 import grails.databinding.BindingFormat
 import org.joda.time.DateTime
@@ -426,6 +427,7 @@ class LoyaltyController {
             // Serialize promotions list into JSON string
             ObjectMapper objectMapper = new ObjectMapper()
             objectMapper.registerModule(new JodaModule())
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
             String promotionsJson = objectMapper.writeValueAsString(promotions)
             String segmentsJson = objectMapper.writeValueAsString(segments)
 
