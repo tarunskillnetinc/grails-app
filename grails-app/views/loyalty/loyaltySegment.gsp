@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Loyalty Segment Management</title>
+    <title>Loyalty Segment</title>
 
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
