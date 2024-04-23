@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main" />
 
-    <title>Loyalty Segment</title>
+    <title>Loyalty Segment Management</title>
 
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
@@ -84,7 +84,7 @@
 
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 id="page-title" class="mx-auto">Loyalty Segment Management</h2>
+            <h2 id="page-title" class="mx-auto">Loyalty Segment</h2>
         </div>
     </div>
 
