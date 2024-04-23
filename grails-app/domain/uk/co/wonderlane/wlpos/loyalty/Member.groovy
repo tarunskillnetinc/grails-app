@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos.loyalty
 
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.MemberStatus
 
 class Member {
@@ -24,8 +26,8 @@ class Member {
     Integer currentStamps
     Integer maxStamps
     MemberStatus status
-    Date dateCreated
-    Date dateUpdated
+    DateTime dateCreated
+    DateTime dateUpdated
 
     static hasMany = [offers: MemberOffer, transactions: MemberTransaction]
 
@@ -77,7 +79,9 @@ class Member {
         currentStamps nullable: true
         maxStamps nullable: true
         status nullable: true
-        dateCreated nullable: true
-        dateUpdated nullable: true
+    }
+
+    def beforeUpdate() {
+        dateUpdated = DateTime.now(DateTimeZone.UTC)
     }
 }

@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.loyalty.RedeemedOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
@@ -164,7 +165,7 @@ class LoyaltyOffer {
         remainingRedemptions formula: "(max_redemptions - current_redemptions)"
     }
 
-    public uk.co.wonderlane.wlpos.entities.LoyaltyOffer getLoyaltyOffer(){
+    uk.co.wonderlane.wlpos.entities.LoyaltyOffer getLoyaltyOffer(){
         uk.co.wonderlane.wlpos.entities.LoyaltyOffer loyaltyOffer = new uk.co.wonderlane.wlpos.entities.LoyaltyOffer();
         loyaltyOffer.setId(id)
         loyaltyOffer.setOfferDescription(offerDescription)
@@ -194,5 +195,9 @@ class LoyaltyOffer {
             loyaltyOffer.getLoyaltyOfferSegments().add(it.getLoyaltyOfferSegments())
         }
         return loyaltyOffer;
+    }
+
+    def beforeUpdate() {
+        dateModified = DateTime.now(DateTimeZone.UTC)
     }
 }

@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos.loyalty
 
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.MemberTransactionStatus
 
 class MemberTransaction {
@@ -56,6 +57,10 @@ class MemberTransaction {
         transactionDiscount nullable: true, defaultValue: 0
         transactionPoints nullable: true, defaultValue: 0
         transactionStamps nullable: true, defaultValue: 0
-        dateModified nullable: true, defaultValue: null
+        dateModified nullable: true
+    }
+
+    def beforeUpdate() {
+        dateModified = DateTime.now(DateTimeZone.UTC)
     }
 }
