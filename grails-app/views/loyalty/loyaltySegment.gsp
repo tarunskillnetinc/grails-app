@@ -84,7 +84,7 @@
 
     <div class="row header-wl mt-3">
         <div class="col-8 offset-2">
-            <h2 id="page-title" class="mx-auto">Loyalty Segment</h2>
+            <h2 id="page-title" class="mx-auto">Loyalty Segments</h2>
         </div>
     </div>
 
