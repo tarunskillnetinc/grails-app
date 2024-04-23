@@ -92,7 +92,7 @@
 
     <section id="filters-section" class="container-fluid">
         <div class="row mt-3">
-            <div class="col-8 offset-2">
+            <div class="col-8">
                 <div class="card bg-light border-wl">
                     <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                         <div class="row">

@@ -491,14 +491,6 @@ class LoyaltyController {
         }
     }
 
-
-    def ajaxShowOfferCancelWindow(){
-        render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                                                error_header: "Cancel Loyalty Offer",
-                                                error_body  : "Are you sure you want to cancel? All unsaved changes will be lost"
-        ])
-    }
-
 }
 
 class LoyaltyOfferCommand {

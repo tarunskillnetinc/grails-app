@@ -20,7 +20,7 @@
     <div class="col-1 font-weight-bold"><a id="currentCustomers" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'currentCustomers',
         sortOrder: ${sortParams?.sortColumn == 'currentCustomers' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Assigned Member Count</a></div>
     <div class="col-1 font-weight-bold"><a id="currentRedemptions" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'currentRedemptions',
-        sortOrder: ${sortParams?.sortColumn == 'currentRedemptions' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Number Of redeemed</a></div>
+        sortOrder: ${sortParams?.sortColumn == 'currentRedemptions' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Number Of Times Redeemed</a></div>
     <div class="col-1 font-weight-bold"><a id="maxRedemptions" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'maxRedemptions',
         sortOrder: ${sortParams?.sortColumn == 'maxRedemptions' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Max Redemptions</a></div>
     <div class="col-1 font-weight-bold"><a id="maxBudget" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'maxBudget',
@@ -32,7 +32,7 @@
 <div id="search-results">
     <g:if test="${offers == null}">
         <div class="row ml-0 mr-0 text-center">
-            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search criteria to recall segment data.</div>
+            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search criteria to recall offer data.</div>
         </div>
     </g:if>
 
