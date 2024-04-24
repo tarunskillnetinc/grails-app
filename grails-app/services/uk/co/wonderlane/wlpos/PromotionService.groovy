@@ -138,9 +138,7 @@ class PromotionService {
     }
 
     List<Promotion> getPromotionForRetailer(int retailerId) {
-        return Promotion.withCriteria {
-            eq("retailerId", retailerId)
-        }
+        return Promotion.findAllByRetailerId(retailerId)
     }
 
 }

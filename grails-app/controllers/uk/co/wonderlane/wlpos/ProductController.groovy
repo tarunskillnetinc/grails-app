@@ -70,6 +70,7 @@ class ProductController extends BaseController {
 
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ?: false
 
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
@@ -84,7 +85,8 @@ class ProductController extends BaseController {
                                     navlink            : "details",
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
-                                    locationsType      : locationsType])
+                                    locationsType      : locationsType,
+                                    loyaltyEnable      : loyaltyEnable])
     }
 
     private void setEffectiveDate() {
@@ -1464,7 +1466,8 @@ class ProductController extends BaseController {
                 first.creditPaymentAllowed != second.creditPaymentAllowed ||
                 first.quantityChangeAllowed != second.quantityChangeAllowed ||
                 first.quantityChangeForced != second.quantityChangeForced ||
-                first.receiptPrintForced != second.receiptPrintForced
+                first.receiptPrintForced != second.receiptPrintForced ||
+                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection
     }
 
     private void copyRestrictions(RestrictionsCommand from, Restrictions to) {
@@ -1482,6 +1485,7 @@ class ProductController extends BaseController {
         to.quantityChangeAllowed = from.quantityChangeAllowed
         to.quantityChangeForced = from.quantityChangeForced
         to.receiptPrintForced = from.receiptPrintForced
+        to.allowsLoyaltyPointsCollection = from.allowsLoyaltyPointsCollection
     }
 
     private void copyProduct(ProductCommand from, Product to) {
@@ -1813,6 +1817,7 @@ class RestrictionsCommand implements Validateable {
     Boolean quantityChangeAllowed
     Boolean quantityChangeForced
     Boolean receiptPrintForced
+    Boolean allowsLoyaltyPointsCollection
 
     static constraints = {
         importFrom Restrictions

@@ -9,6 +9,7 @@
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
         $(document).ready(function () {
+
             $('input[name=brandLogo]').change(function() {
                 if (this.files[0].size < 1048576 /* 1MB */) {
                     if (this.files[0].type === "image/png") {
@@ -761,6 +762,15 @@
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-loyaltyIIN-term-button" onclick="$('#loyaltyIIN').val('')">Reset</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="loyaltyConfig.loyaltyPointValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Point Value</label>
+                                    <div class="col-7 col-lg-4" style="display: flex; align-items: center;">
+                                        <g:field class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyPointValue"  type="number" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyPointValue}"/>
+                                    </div>
+                                    <div class="form-group row"><div class="btn btn-danger" id="reset-loyaltyPointValue-term-button" onclick="$('#loyaltyPointValue').val('')">Reset</div>
                                     </div>
                                 </div>
 

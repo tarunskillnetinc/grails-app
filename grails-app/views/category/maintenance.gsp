@@ -17,7 +17,7 @@
         let categorySearchUrl = "${createLink(controller: 'category', action: 'ajaxSearchMaintenanceCategories')}";
 
         $(document).ready(function () {
-            $(".mask-money").maskMoney({ allowZero: true });
+            $(".mask-money").maskMoney({ allowZero: true, allowEmpty: true });
             $(".mask-money").maskMoney('mask');
             intListener("restrictions.buyerAgeRestriction", 3, 999, true)
             intListener("restrictions.buyerChallengeAge", 3, 999, true)
@@ -88,6 +88,8 @@
                 $("#restrictions\\.sellerAgeRestriction").val("");
                 $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
             });
+
+            $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnable});
         }
     </script>
 </head>

@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.joda.JodaModule
 import grails.databinding.BindingFormat
 import org.joda.time.DateTime
@@ -426,6 +427,7 @@ class LoyaltyController {
             // Serialize promotions list into JSON string
             ObjectMapper objectMapper = new ObjectMapper()
             objectMapper.registerModule(new JodaModule())
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
             String promotionsJson = objectMapper.writeValueAsString(promotions)
             String segmentsJson = objectMapper.writeValueAsString(segments)
 
@@ -489,14 +491,6 @@ class LoyaltyController {
             }
             render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
         }
-    }
-
-
-    def ajaxShowOfferCancelWindow(){
-        render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                                                error_header: "Cancel Loyalty Offer",
-                                                error_body  : "Are you sure you want to cancel? All unsaved changes will be lost"
-        ])
     }
 
 }

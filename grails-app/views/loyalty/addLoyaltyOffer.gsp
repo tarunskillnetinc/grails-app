@@ -341,23 +341,6 @@
             return false
         }
 
-        function cancelLoyaltyOffer(){
-            $("#addLoyaltyOffersContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-            $.ajax({
-                url: "${createLink(controller: 'loyalty', action: 'ajaxShowOfferCancelWindow')}",
-                method: "GET",
-                success: function (resp) {
-                    $('#addLoyaltyOffersModal').modal({show: true});
-                    $("#addLoyaltyOffersContent").html(resp);
-                }
-            });
-        }
-
-        function cancelLoyaltyError(){
-            $('#addLoyaltyOffersModal').modal('hide');
-            window.location.href = window.location.href = '${createLink(controller: 'loyalty', action:'loyaltyOffers')}';
-        }
-
         function createErrorAlert(errorMessage){
             var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
             var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
@@ -429,7 +412,7 @@
             </div>
 
             <div class="col-2 text-right">
-                <button id="cancel" class="btn btn-warning" name="cancel" onclick="cancelLoyaltyOffer();">Cancel</button>
+                <g:link id="cancel" class="btn btn-warning" name="cancel" action="loyaltyOffers" onclick="return confirm('Are you sure you want to cancel? All unsaved changes will be lost.');">Cancel</g:link>
                 <button id="save" class="btn btn-success" name="save" onclick="saveLoyaltyOffer();">Save</button>
             </div>
         </div>
