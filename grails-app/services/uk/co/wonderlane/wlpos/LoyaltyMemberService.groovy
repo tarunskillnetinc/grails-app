@@ -74,23 +74,24 @@ class LoyaltyMemberService {
 
     /* Returns all Member Offers by the exact card number if any exist */
     def findAllMemberOffers(String cardNumber, String searchTerm, String searchBy, Boolean activeOffers, Boolean inactiveOffers, Integer max, Integer offset, String sortColumn, String sortOrder) {
-        def memberCriteria = Member.createCriteria()
-
-        def member = memberCriteria.get {
-            eq ("cardNumber", "$cardNumber")
-        }
 
         def totalCount = 0
         def filteredOffers = []
 
+        def member = Member.createCriteria().get {
+            eq("cardNumber", cardNumber)
+        }
+
         if (member) {
             // Count total results before applying pagination
             totalCount = MemberOffer.createCriteria().count {
+
                 eq("member.id", member.id)
+
                 if (searchBy == "description") {
                     like ("offerDescription", "%$searchTerm%")
                 } else {
-                    like ("id", "%$searchTerm%")
+                    eq("offer.id", searchTerm as Integer)
                 }
 
                 if (activeOffers) {
@@ -110,11 +111,12 @@ class LoyaltyMemberService {
 
             // Apply pagination and additional criteria
             filteredOffers = MemberOffer.createCriteria().list(max: max, offset: offset) {
+
                 eq("member.id", member.id)
                 if (searchBy == "description") {
                     like ("offerDescription", "%$searchTerm%")
                 } else {
-                    like ("id", "%$searchTerm%")
+                    eq("offer.id", searchTerm as Integer)
                 }
 
                 if (activeOffers) {
