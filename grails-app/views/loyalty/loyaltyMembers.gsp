@@ -4,13 +4,18 @@
     <meta name="layout" content="main" />
     <title>Loyalty Members</title>
 
-    <asset:javascript src="jquery-ui.js" />
-    <asset:stylesheet src="jquery-ui.css" />
-
     <script type="text/javascript">
 
+        document.addEventListener("keypress", function(event) {
+            // Check if the pressed key is Enter (keycode 13)
+            if (event.key === "Enter") {
+                // Call your JavaScript function here
+                searchButtonClicked();
+            }
+        });
+
         function validateEmail(value) {
-            var input = document.createElement('input');
+            let input = document.createElement('input');
 
             input.type = 'email';
             input.required = true;
@@ -20,39 +25,36 @@
         }
 
         function searchButtonClicked(sortParams) {
-            var url = "${createLink(controller: 'loyalty', action: 'ajaxSearchMembers')}";
-            var searchTerm = $('#memberSearchTerm').val();
+            let url = "${createLink(controller: 'loyalty', action: 'ajaxSearchMembers')}";
+            let searchTerm = $('#memberSearchTerm').val();
 
-            if (searchTerm.length > 0)
-            {
-                $("#search-results").hide();
-                $("#loading-indicator").show();
+            $("#search-results").hide();
+            $("#loading-indicator").show();
 
-                var searchBy;
+            var searchBy;
 
-                if (validateEmail(searchTerm)) {
-                    searchBy = "email";
-                } else {
-                    searchBy = "cardNumber";
-                }
-
-                $.ajax({
-                    url: url,
-                    data: {
-                        searchBy: searchBy,
-                        searchTerm: searchTerm,
-                        max: sortParams ? sortParams["max"] : null,
-                        offset: sortParams ? sortParams.offset : null,
-                        sortColumn: sortParams ? sortParams.sortColumn : null,
-                        sortOrder: sortParams ? sortParams.sortOrder : null
-                    },
-                    success: function(resp) {
-                        $('#results-container').html(resp);
-
-                        $('#memberSearchTerm').data('prev',$('#memberSearchTerm').val())
-                    }
-                });
+            if (validateEmail(searchTerm)) {
+                searchBy = "email";
+            } else {
+                searchBy = "cardNumber";
             }
+
+            $.ajax({
+                url: url,
+                data: {
+                    searchBy: searchBy,
+                    searchTerm: searchTerm,
+                    max: sortParams ? sortParams["max"] : null,
+                    offset: sortParams ? sortParams.offset : null,
+                    sortColumn: sortParams ? sortParams.sortColumn : null,
+                    sortOrder: sortParams ? sortParams.sortOrder : null
+                },
+                success: function(resp) {
+                    $('#results-container').html(resp);
+
+                    $('#memberSearchTerm').data('prev',$('#memberSearchTerm').val())
+                }
+            });
         }
     </script>
 
@@ -99,7 +101,7 @@
                     </div>
 
                     <div class="card-body collapse show" id="filterCollapse">
-                        <label for="memberSearchTerm" class="col-form-label-sm">Either e-mail address or membership number can be used to search for members</label>
+                        <label class="col-form-label-sm">Either e-mail address or membership number can be used to search for members</label>
                         <div class="form-group row">
                             <div class="col-10 input-group">
                                 <g:textField id="memberSearchTerm" name="productSearchTerm" maxlength="100" value="${session.MEMBER_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
