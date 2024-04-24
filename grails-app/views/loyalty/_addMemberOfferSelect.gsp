@@ -101,7 +101,7 @@
                 </div>
                 <div class="tab-content">
                     <div class="row my-3">
-                        <g:link elementId="memberOfferSave-cancel" class="btn btn-wl col-1 offset-1" action="offers" params="[cardNumber: cardNumber]" onClick="return confirm('Any unsaved changes will be lost, are you sure you wish to continue?');">Cancel</g:link>
+                        <g:link elementId="memberOfferSave-cancel" class="btn btn-wl col-1 offset-1" action="offers" params="[cardNumber: member.cardNumber]" onClick="return confirm('Any unsaved changes will be lost, ar you sure you wish to continue?');">Cancel</g:link>
                         <button id="memberOfferSave" type="button" name="memberOfferUpdate-save-button" onclick="saveOffer()" class="btn btn-success col-1 offset-8">Save</button>
                     </div>
                 </div>
