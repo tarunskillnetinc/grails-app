@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos.loyalty;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.co.wonderlane.wlpos.LoyaltyOffer
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 
@@ -47,6 +48,9 @@ class MemberOffer {
     static constraints = {
         currentRedemptions nullable: true, defaultValue: 0
         maxRedemptions nullable: true, defaultValue: 1
-        dateModified nullable: true
+    }
+
+    def beforeUpdate() {
+        dateModified = DateTime.now(DateTimeZone.UTC)
     }
 }

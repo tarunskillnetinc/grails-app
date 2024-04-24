@@ -37,32 +37,34 @@
             }
 
             function validateUpdates() {
-                let error = false;
-                let errorString = "";
+                 if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {        
+                    let error = false;
+                    let errorString = "";
 
-                if ($('#email').val() !== "")  {
-                    let email = $('#email').val();
+                    if ($('#email').val() !== "")  {
+                        let email = $('#email').val();
 
-                    if (!validateEmail(email)) {
-                        error = true;
-                        errorString = errorString.concat("\n<li>Please enter a valid email address</li>");
+                        if (!validateEmail(email)) {
+                            error = true;
+                            errorString = errorString.concat("\n<li>Please enter a valid email address</li>");
+                        }
                     }
-                }
 
-                if ($('#mobile_no').val() !== "")  {
-                    let mobile = $('#mobile_no').val();
+                    if ($('#mobile_no').val() !== "")  {
+                        let mobile = $('#mobile_no').val();
 
-                    if (!validateMobileNumber(mobile)) {
-                        error = true;
-                        errorString = errorString.concat("\n<li>Please enter a valid mobile number</li>");
+                        if (!validateMobileNumber(mobile)) {
+                            error = true;
+                            errorString = errorString.concat("\n<li>Please enter a valid mobile number</li>");
+                        }
                     }
-                }
 
-                if (!error) {
-                    $('#memberDetails').submit();
-                } else {
-                    $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
-                    $('#validation-errors').prop("hidden", false);
+                    if (!error) {
+                        $('#memberDetails').submit();
+                    } else {
+                        $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
+                        $('#validation-errors').prop("hidden", false);
+                    }
                 }
             }
         </script>
@@ -163,7 +165,7 @@
 
                 <div class="tab-content">
                     <div class="row my-5">
-                        <g:link elementId="memberUpdate-cancel" action="loyaltyMembers" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, ar you sure you wish to continue?');">Cancel</g:link>
+                        <g:link elementId="memberUpdate-cancel" action="loyaltyMembers" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, are you sure you wish to continue?');">Cancel</g:link>
                         <button id="memberUpdateSave" type="button" name="memberUpdate-save-button" onclick="validateUpdates()" class="btn btn-success col-1 offset-8">Save</button>
                     </div>
                 </div>

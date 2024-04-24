@@ -27,7 +27,9 @@
             };
 
             function validateUpdates() {
-                $('#memberOfferDetails').submit();
+                 if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
+                    $('#memberOfferDetails').submit();
+                }
             }
         </script>
     </head>
@@ -110,7 +112,7 @@
 
                 <div class="tab-content">
                     <div class="row my-5">
-                        <g:link elementId="memberOfferUpdate-cancel" action="offers" params="[cardNumber: cardNumber]" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, ar you sure you wish to continue?');">Cancel</g:link>
+                        <g:link elementId="memberOfferUpdate-cancel" action="offers" params="[cardNumber: cardNumber]" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, are you sure you wish to continue?');">Cancel</g:link>
                         <button id="memberOfferUpdateSave" type="button" name="memberOfferUpdate-save-button" onclick="validateUpdates()" class="btn btn-success col-1 offset-8">Save</button>
                     </div>
                 </div>
