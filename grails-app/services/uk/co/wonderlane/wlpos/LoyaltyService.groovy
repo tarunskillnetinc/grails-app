@@ -53,9 +53,7 @@ class LoyaltyService{
     }
 
     List<Segment> getLoyaltySegmentForRetailer(int retailerId){
-        return Segment.withCriteria {
-            eq ("retailerId", retailerId)
-        }
+        return Segment.findAllByRetailerId(retailerId)
     }
 
     def getLoyaltyOfferById(int id){

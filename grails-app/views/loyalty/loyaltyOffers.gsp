@@ -170,7 +170,7 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Loyalty Offers</li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Loyalty Offer Management</li>
                 </ol>
             </div>
         </div>
@@ -178,12 +178,6 @@
 </section>
 
 <section id="reasonCodeMaintenance" class="container-fluid">
-
-    <div class="row header-wl mt-3">
-        <div class="col-8 offset-2">
-            <h2 id="page-title" class="mx-auto">Loyalty Offers</h2>
-        </div>
-    </div>
 
     <section id="success-container"></section>
 
@@ -196,8 +190,18 @@
 
     <section id="filters-section" class="container-fluid">
 
+        <div class="row header-wl mt-3">
+            <div class="col-6 offset-3">
+                <h2 id="page-title" class="mx-auto my-auto">Loyalty Offers</h2>
+            </div>
+
+            <div class="col-3 text-right d-inline-flex flex-row justify-content-end">
+                <g:link elementId="add-new-product-btn" controller="loyalty" action="showLoyaltyOffer" class="btn btn-wl p-2">Add New Offer</g:link>
+            </div>
+        </div>
+
         <div class="row mt-4">
-            <div class="col-6 offset-2">
+            <div class="col-8">
                 <div class="card bg-light border-wl">
                     <div id="filters-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                         <div class="row">
@@ -228,11 +232,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-2 offset-2">
-                <g:link elementId="add-new-product-btn" controller="loyalty" action="showLoyaltyOffer" class="btn btn-wl p-2">Add New Offer</g:link>
-            </div>
-
         </div>
     </section>
 

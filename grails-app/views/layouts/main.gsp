@@ -170,7 +170,7 @@
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loyaltyDropdown">
                             <g:link elementId="membership-management-dropdown" controller="loyalty" action="loyaltyMembers" class="dropdown-item">Membership Management</g:link>
                             <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment Management</g:link>
-                            <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offers</g:link>
+                            <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offer Management</g:link>
                         </div>
                     </li>
                 </g:if>
