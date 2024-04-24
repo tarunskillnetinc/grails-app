@@ -97,7 +97,7 @@
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="bogof-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
-                        <g:checkBox name="bogof-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                        <g:checkBox name="bogof-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}"/>
                     </div>
                 </div>
             </div>
@@ -235,7 +235,7 @@
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="xfory-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
-                        <g:checkBox name="xfory-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                        <g:checkBox name="xfory-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" />
                     </div>
                 </div>
             </div>
@@ -437,7 +437,7 @@
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="percentage-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
-                        <g:checkBox name="percentage-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                        <g:checkBox name="percentage-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" />
                     </div>
                 </div>
             </div>
@@ -583,7 +583,7 @@
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="fixedAmount-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
-                        <g:checkBox name="fixedAmount-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                        <g:checkBox name="fixedAmount-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}"/>
                     </div>
                 </div>
             </div>
@@ -744,7 +744,7 @@
                     </div>
                     <div class="form-group form-check row col-12 col-sm-6">
                         <label for="fixedPrice-loyalty" class="col-3 col-form-label text-right pr-4">Loyalty</label>
-                        <g:checkBox name="fixedPrice-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}" disabled="${editing}"/>
+                        <g:checkBox name="fixedPrice-loyalty" class="col-1 form-check-input wl-checkbox promo-loyalty" checked="${promotion ? promotion.loyalty : false}"/>
                     </div>
                 </div>
             </div>
