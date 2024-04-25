@@ -74,10 +74,13 @@ class ProductListController {
                     def productVariant = productService.getProductVariant(it)
 
                     if (productVariant) {
+                        int quantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
+
                         ProductListItem productListItem = new ProductListItem()
                         productListItem.productVariant = productVariant
                         productListItem.fillQuantity = 0
                         productListItem.productList = productList
+                        productListItem.productQuantityInStock = quantityInStock
                         productList.productListItems.add(productListItem)
                     }
                 }
