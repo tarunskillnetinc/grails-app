@@ -91,7 +91,9 @@ class LoyaltyMemberService {
                 if (searchBy == "description") {
                     like ("offerDescription", "%$searchTerm%")
                 } else {
-                    eq("offer.id", searchTerm as Integer)
+                    if (searchTerm.isInteger()) {
+                        eq("offer.id", searchTerm as Integer)
+                    }
                 }
 
                 if (activeOffers) {
@@ -116,7 +118,9 @@ class LoyaltyMemberService {
                 if (searchBy == "description") {
                     like ("offerDescription", "%$searchTerm%")
                 } else {
-                    eq("offer.id", searchTerm as Integer)
+                    if (searchTerm.isInteger()) {
+                        eq("offer.id", searchTerm as Integer)
+                    }
                 }
 
                 if (activeOffers) {
