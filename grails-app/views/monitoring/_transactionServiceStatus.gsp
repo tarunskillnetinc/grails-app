@@ -177,3 +177,57 @@
         </div>
     </div>
 </div>
+
+<h3 id="loyalty-member-service-title" class="text-center mt-5">Loyalty Member Service</h3>
+<p class="text-center">Loyalty Member service is used to update member totals and points.</p>
+
+<div class="card bg-light border-wl col-6 offset-3">
+    <div class="card-body text-center">
+        <div>Loyalty Member Service is <span id="loyalty-member-service-availability" class="badge badge-${loyaltyMemberService?.consumers > 0 ? 'success' : 'danger'}">${loyaltyMemberService?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div id="loyalty-member-messages">Messages waiting to be processed: ${loyaltyMemberService != null ? loyaltyMemberService.messages : 0}.</div>
+        <div id="loyalty-member-activity">Latest activity:
+        <g:if test="${loyaltyMemberService?.idle_since}">
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyMemberService?.idle_since?.toDate() ?: new Date()}" />.
+        </g:if>
+        <g:else>
+            Now.
+        </g:else>
+        </div>
+    </div>
+</div>
+
+<h3 id="loyalty-transaction-service-title" class="text-center mt-5">Loyalty Transaction Service</h3>
+<p class="text-center">Loyalty Transaction service is used to add transactions into the database.</p>
+
+<div class="card bg-light border-wl col-6 offset-3">
+    <div class="card-body text-center">
+        <div>Loyalty Transaction Service is <span id="loyalty-transaction-service-availability" class="badge badge-${loyaltyTransactionService?.consumers > 0 ? 'success' : 'danger'}">${loyaltyTransactionService?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div id="loyalty-transaction-messages">Messages waiting to be processed: ${loyaltyTransactionService != null ? loyaltyTransactionService.messages : 0}.</div>
+        <div id="loyalty-transaction-activity">Latest activity:
+        <g:if test="${loyaltyTransactionService?.idle_since}">
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyTransactionService?.idle_since?.toDate() ?: new Date()}" />.
+        </g:if>
+        <g:else>
+            Now.
+        </g:else>
+        </div>
+    </div>
+</div>
+
+<h3 id="offer-service-title" class="text-center mt-5">Offer Service</h3>
+<p class="text-center">Offer service is used to handle offer data and add it to the database.</p>
+
+<div class="card bg-light border-wl col-6 offset-3">
+    <div class="card-body text-center">
+        <div>Offer Service is <span id="offer-service-availability" class="badge badge-${offerService?.consumers > 0 ? 'success' : 'danger'}">${offerService?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div id="offer-messages">Messages waiting to be processed: ${offerService != null ? offerService.messages : 0}.</div>
+        <div id="offer-activity">Latest activity:
+        <g:if test="${offerService?.idle_since}">
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${offerService?.idle_since?.toDate() ?: new Date()}" />.
+        </g:if>
+        <g:else>
+            Now.
+        </g:else>
+        </div>
+    </div>
+</div>
