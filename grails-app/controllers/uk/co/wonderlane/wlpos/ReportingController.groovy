@@ -327,7 +327,8 @@ class ReportingController {
                                                             sortParams  : sortParams,
                                                             startDate   : startDate,
                                                             endDate     : endDate,
-                                                            totalResults: totalResults])
+                                                            totalResults: totalResults,
+                                                            userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -661,7 +662,7 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getPromotions(promotionSales)
         } else {
-            render(template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
+            render(template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount, userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -816,7 +817,7 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getTillControlEventCsv(tillControlEvents)
         } else {
-            render(template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+            render(template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount, userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 

@@ -49,7 +49,7 @@
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div id="date-created-${i + 1}" class="col my-auto">${tillControlEvent.dateCreated.toString("dd/MM/yy HH:mm:ss")}</div>
+                <div id="date-created-${i + 1}" class="col my-auto">${tillControlEvent.dateCreated?.withZone(userTimeZone)?.toString("dd/MM/yy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
                 <div id="amount-${i + 1}" class="col my-auto">

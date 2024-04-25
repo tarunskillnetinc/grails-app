@@ -60,7 +60,7 @@
                 <div id="vat-${i + 1}" class="col my-auto text-truncate"><g:formatNumber number="${promotionSale.vat}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div id="date-created-${i + 1}" class="col my-auto text-truncate">${promotionSale.dateCreated?.toString("dd/MM/yyyy HH:mm")}</div>
+                <div id="date-created-${i + 1}" class="col my-auto text-truncate">${promotionSale.dateCreated?.withZone(userTimeZone)?.toString("dd/MM/yyyy HH:mm")}</div>
             </g:if>
         </div>
     </g:each>

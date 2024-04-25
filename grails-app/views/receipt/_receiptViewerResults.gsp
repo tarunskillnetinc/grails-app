@@ -36,7 +36,7 @@
             <div id="transaction-amount-${i + 1}" class="col-2 my-auto">
                 <g:formatNumber number="${receipt.transactionAmount ?: BigDecimal.ZERO}" type="currency" />
             </div>
-            <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${receipt.dateGenerated?.toDate()}" /></div>
+            <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${receipt.dateGenerated?.toDate()}" timeZone="Europe/London" /></div>
             <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:message code="TransactionPaymentMethodType.${receipt.paymentMethod}" /></div>
         </div>
     </g:each>
