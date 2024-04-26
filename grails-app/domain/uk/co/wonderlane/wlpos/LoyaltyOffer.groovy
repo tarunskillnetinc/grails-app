@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
@@ -34,7 +33,6 @@ class LoyaltyOffer {
     String customAttributes
     DateTime dateCreated
     DateTime dateModified
-    @JsonIgnore
     Collection<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
     Integer remainingRedemptions
 

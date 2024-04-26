@@ -20,14 +20,11 @@ class Promotion {
     boolean loyalty
     DateTime updateDatetime
     Integer retailerPromotionId
-    @JsonIgnore
     Collection<PromotionGroup> groups = new ArrayList<>()
     String rpidAsString
 
-    @JsonIgnore
     static hasMany = [groups: PromotionGroup]
 
-    @JsonIgnore
     static hasOne = [symbolGroupPromotion : SymbolGroupPromotion]
 
     static mapping = {
