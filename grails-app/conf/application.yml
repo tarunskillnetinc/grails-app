@@ -741,3 +741,6 @@ wlpos:
     receiptServiceQueue: "ReceiptService"
     rawTransactionWriterQueue: "RawTransactionWriter"
     snappyServiceQueue: "SnappyService"
+    loyaltyMemberService: "LoyaltyMemberService"
+    loyaltyTransactionService: "LoyaltyTransactionService"
+    offerService: "OfferService"
