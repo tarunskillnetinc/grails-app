@@ -420,6 +420,10 @@ class LoyaltyController {
 
             //load all promotions for retailer
             List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
+            List<uk.co.wonderlane.wlpos.entities.Promotion> promotionEntityList = new ArrayList<>()
+            for (Promotion promotion : promotions) {
+                promotionEntityList.add(promotion.getPromotion())
+            }
 
             //load all segments for retailer
             List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
@@ -428,7 +432,7 @@ class LoyaltyController {
             ObjectMapper objectMapper = new ObjectMapper()
             objectMapper.registerModule(new JodaModule())
             objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            String promotionsJson = objectMapper.writeValueAsString(promotions)
+            String promotionsJson = objectMapper.writeValueAsString(promotionEntityList)
             String segmentsJson = objectMapper.writeValueAsString(segments)
 
             //Load eligible offer status
