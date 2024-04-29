@@ -28,7 +28,7 @@ class ReportingController {
     private static final PROMOTIONS_REPORT_SORT_COLUMNS = ["type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated"]
     private static final PROMOTION_REPORT_SORT_COLUMNS = ["itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat"]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = ["type", "quantity"]
-    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = ["dateCreated", "type", "usersName", "reason", "amount"]
+    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = ["dateCreated", "type", "tillId", "usersName", "reason", "amount"]
     private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = ["transactionDate", "storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status"]
     private static final ORDERS_REPORT_SORT_COLUMNS = ["orderId", "storeId", "status", "dateCompleted", "supplierName", "numberOfItems", "value"]
     private static final ORDER_REPORT_SORT_COLUMNS = ["sku", "description", "orderedQuantity", "packQuantity", "lineValue"]
