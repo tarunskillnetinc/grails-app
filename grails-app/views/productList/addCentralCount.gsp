@@ -73,15 +73,20 @@
                         <div class="col">
                             <div class="form-group row mt-4 ml-5">
                                 <label for="endDate" class="col-4 col-form-label text-left pr-4">Stores</label>
-                                <g:select id="storeIdList"
-                                          name="storeIdList"
-                                          from="${availableStores}"
-                                          multiple="true"
-                                          value=""
-                                          optionValue="${{it.config.storeName}}"
-                                          optionKey="${{it.config.storeNumber}}"
-                                          class="form-control col-8"
-                                          style="height: 200px;"/>
+                                    <div class="checkbox-scroll-container" style="height: 200px; overflow-y: auto; padding-left: 20px; padding-right: 20px; border: 1px solid black; ">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllStores" name="selectAllStores" onclick="toggleSelectAll()">
+                                            <label class="form-check-label" for="selectAllStores">All Stores</label>
+                                        </div>
+                                        <g:each in="${availableStores}" var="store">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="storeId${store.config.storeNumber}" name="storeIdList" value="${store.config.storeNumber}">
+                                                <label class="form-check-label" for="storeId${store.config.storeNumber}">${store.config.storeName}</label>
+                                            </div>
+                                        </g:each>
+                                    </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -178,6 +183,35 @@
                     todayBtn: "linked",
                     orientation: "bottom auto"
                 });
+            });
+            function toggleSelectAll(checkbox) {
+                var selectAllCheckbox = document.getElementById("selectAllStores");
+                var storeCheckboxes = document.querySelectorAll('input[name="storeIdList"]');
+
+                // Check or uncheck all store checkboxes based on the state of the "Select All" checkbox
+                storeCheckboxes.forEach(function(checkbox) {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            }
+            function handleStoreCheckboxChange() {
+                var selectAllCheckbox = document.getElementById("selectAllStores");
+                var storeCheckboxes = document.querySelectorAll('input[name="storeIdList"]');
+
+                // Check if any store checkbox is unchecked
+                var isAnyUnchecked = Array.from(storeCheckboxes).some(function(checkbox) {
+                    return !checkbox.checked;
+                });
+
+                // If any store checkbox is unchecked, uncheck the "Select All" checkbox
+                if (isAnyUnchecked) {
+                    selectAllCheckbox.checked = false;
+                }
+            }
+
+            // Add event listeners to individual store checkboxes
+            var storeCheckboxes = document.querySelectorAll('input[name="storeIdList"]');
+            storeCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener("change", handleStoreCheckboxChange);
             });
         </script>
     </body>
