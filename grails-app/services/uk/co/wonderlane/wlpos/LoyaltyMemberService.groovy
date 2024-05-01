@@ -96,17 +96,16 @@ class LoyaltyMemberService {
                     }
                 }
 
-                if (activeOffers) {
+                if (activeOffers || inactiveOffers) {
                     or {
-                        eq("status", MemberOfferStatus.ACTIVE)
-                        eq("status", MemberOfferStatus.OPEN)
-                    }
-                }
-
-                if (inactiveOffers) {
-                    or {
-                        eq("status", MemberOfferStatus.CLOSED)
-                        eq("status", MemberOfferStatus.LIMITS)
+                        if (activeOffers) {
+                            eq("status", MemberOfferStatus.ACTIVE)
+                            eq("status", MemberOfferStatus.OPEN)
+                        }
+                        if (inactiveOffers) {
+                            eq("status", MemberOfferStatus.CLOSED)
+                            eq("status", MemberOfferStatus.LIMITS)
+                        }
                     }
                 }
             }
@@ -123,17 +122,16 @@ class LoyaltyMemberService {
                     }
                 }
 
-                if (activeOffers) {
+                if (activeOffers || inactiveOffers) {
                     or {
-                        eq("status", MemberOfferStatus.ACTIVE)
-                        eq("status", MemberOfferStatus.OPEN)
-                    }
-                }
-
-                if (inactiveOffers) {
-                    or {
-                        eq("status", MemberOfferStatus.CLOSED)
-                        eq("status", MemberOfferStatus.LIMITS)
+                        if (activeOffers) {
+                            eq("status", MemberOfferStatus.ACTIVE)
+                            eq("status", MemberOfferStatus.OPEN)
+                        }
+                        if (inactiveOffers) {
+                            eq("status", MemberOfferStatus.CLOSED)
+                            eq("status", MemberOfferStatus.LIMITS)
+                        }
                     }
                 }
 
