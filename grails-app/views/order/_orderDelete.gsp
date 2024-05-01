@@ -8,6 +8,6 @@
 
 
 <div class="modal-footer">
-    <button type="button" id="cancelShowSupplierButton" class="btn btn-danger" onclick="confirmOrderDelete()" data-dismiss="modal">Delete</button>
-    <button type="button" id="saveSupplierButton" class="btn btn-secondary" onclick="cancelOrderDelete();" style="margin-left: 15px; float: left; top: 0; right: 0">No</button>
+    <button type="button" id="cancelDeleteOrderButton" class="btn btn-secondary" onclick="cancelOrderDelete();" >No</button>
+    <button type="button" id="deleteOrderButton" class="btn btn-danger" onclick="confirmOrderDelete()" style="margin-left: 15px; float: left; top: 0; right: 0" data-dismiss="modal">Yes</button>
 </div>

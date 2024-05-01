@@ -201,7 +201,7 @@
                         $("#orderConfirmContent").html(response.responseText);
                     },
                     200: function (response) {
-                        window.location.href = "${createLink(controller: 'order', action: 'productList')}";
+                        window.location.href = "${createLink(controller: "reporting", action: "orders")}";
                     }
                 }
             });
