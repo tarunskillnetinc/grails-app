@@ -1933,11 +1933,13 @@ class ReportingController {
 
     private String getTillControlEventCsv(List<TillControlEvent> tillControlEventList) {
         StringBuilder stringBuilder = new StringBuilder()
-        stringBuilder.append("Type,User,Reason,Date,Amount\n")
+        stringBuilder.append("Type,Till ID,User,Reason,Date,Amount\n")
         tillControlEventList?.each {
             String type = getMappingFromResource("TillControlEventType." + it.type) != null ?
                     getMappingFromResource("TillControlEventType." + it.type) : "TillControlEventType." + it.type
             stringBuilder.append(type.toString()?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.tillId)
             stringBuilder.append(",")
             stringBuilder.append(it.usersName?.replace("'", "\\'"))
             stringBuilder.append(",")
