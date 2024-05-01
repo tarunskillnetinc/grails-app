@@ -214,16 +214,16 @@
     </div>
 </div>
 
-<h3 id="offer-service-title" class="text-center mt-5">Offer Service</h3>
-<p class="text-center">Offer service is used to handle offer data and add it to the database.</p>
+<h3 id="offer-service-title" class="text-center mt-5">Loyalty Offer Service</h3>
+<p class="text-center">Loyalty Offer service is used to handle offer data and add it to the database.</p>
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
-        <div>Offer Service is <span id="offer-service-availability" class="badge badge-${offerService?.consumers > 0 ? 'success' : 'danger'}">${offerService?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
-        <div id="offer-messages">Messages waiting to be processed: ${offerService != null ? offerService.messages : 0}.</div>
-        <div id="offer-activity">Latest activity:
-        <g:if test="${offerService?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${offerService?.idle_since?.toDate() ?: new Date()}" />.
+        <div>Loyalty Offer Service is <span id="loyalty-offer-service-availability" class="badge badge-${loyaltyOfferService?.consumers > 0 ? 'success' : 'danger'}">${loyaltyOfferService?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div id="loyalty-offer-messages">Messages waiting to be processed: ${loyaltyOfferService != null ? loyaltyOfferService.messages : 0}.</div>
+        <div id="loyalty-offer-activity">Latest activity:
+        <g:if test="${loyaltyOfferService?.idle_since}">
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyOfferService?.idle_since?.toDate() ?: new Date()}" />.
         </g:if>
         <g:else>
             Now.
