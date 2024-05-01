@@ -46,7 +46,7 @@
     <div class="my-3 text-right">
         <div>Displaying ${offset ? offset + 1 : 1} - ${((offset ?: 0) + (receipts?.size() ?: 0))} of ${totalCount} result${totalCount > 1 ? 's' : ''}</div>
         <div class="mt-3">
-            <util:remotePaginate action="ajaxGetReceipts" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate]" />
+            <util:remotePaginate action="ajaxGetReceipts" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate, tillId: tillId, transactionId: transactionId]" />
         </div>
     </div>
 </g:if>
