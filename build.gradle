@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.13.24-SNAPSHOT"
+version "1.13.25-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -184,16 +184,16 @@ sourceSets {
 tasks.withType(Jar) {
     doLast {
         // Specify the path to the existing zip file.
-        def zipFile = file("build/libs/WLPOS Back Office-${version}.zip")
+        def zipFile = file("build/libs/cloud-office-${version}.zip")
 
         // Create a temporary directory to unzip the existing zip.
-        def tempDir = file("build/libs/WLPOS Back Office-${version}")
+        def tempDir = file("build/libs/cloud-office-${version}")
 
         // Copy the built .jar to the temporary directory.
         copy {
-            from "build/libs/WLPOS Back Office-${version}.jar"
+            from "build/libs/cloud-office-${version}.jar"
             into tempDir
-            rename "WLPOS Back Office-${version}.jar", "application.jar"
+            rename "cloud-office-${version}.jar", "application.jar"
         }
 
         // Copy the Nginx config to the temporary directory.
