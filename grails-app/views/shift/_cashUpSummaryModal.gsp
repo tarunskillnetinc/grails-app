@@ -68,7 +68,7 @@
 
                     <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
                         <div class="col-6 offset-3">
-                            <g:select name="tenderReconciliationVarianceReason" from="${varianceReasons}" valueMessagePrefix="TenderReconciliationVarianceReason" class="form-control select-border" />
+                            <g:select name="tenderReconciliationVarianceReason" from="${varianceReasons}" class="form-control select-border" />
                         </div>
                     </div>
                     <div class="row ml-0 mr-0 pt-1 pb-2 form-group">

@@ -8,6 +8,7 @@ import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.LocationType
+import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
@@ -21,6 +22,7 @@ class ShiftController {
     def snapshotService
     def reportingService
     def locationService
+    def reasonCodeService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -167,7 +169,9 @@ class ShiftController {
             safeLocations = locationService.getStoreSafeLocations()
         }
 
-        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
+        def varianceReasons = reasonCodeService.getReasonCodesOfType(shift.retailerId, ReasonCodeType.TENDER_RECONCILIATION_VARIANCE, 0, 50, "DESC")
+                .getbValue().stream().map( {it.description }).collect()
+        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: varianceReasons, safeLocations: safeLocations ])
     }
 
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
