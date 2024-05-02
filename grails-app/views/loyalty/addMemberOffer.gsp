@@ -160,7 +160,7 @@
                             <div class="form-group row">
                                 <label id="selectedOffer" for="selectedOffer" class="col-2 col-form-label-sm text-right">Offers</label>
                                 <div class="col-10 input-group">
-                                    <input id="searchInput" class="form-control" type="text" placeholder="Search...">
+                                    <input id="searchInput" class="form-control" type="text" placeholder="Search for offers...">
                                     <div id="dropdownMenu" class="dropdown-menu dropdown-menu-left" aria-labelledby="dropdownMenuButton" style="left: 0; top: 100%;">
                                     </div>
                                 </div>
