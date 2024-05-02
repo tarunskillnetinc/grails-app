@@ -79,7 +79,8 @@
 
             <div class="row mt-4">
                 <div class="col-5">
-                    <div class="card bg-light border-wl">
+%{-- CORE-1460 - temporarily hiding the filter options as only the order id should matter here and filters are being overhauled soon --}%
+                    <div class="card bg-light border-wl" hidden="hidden">
                         <div id="filter-collapse" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse"
                              aria-expanded="false" aria-controls="filterCollapse">
                             <div class="row">

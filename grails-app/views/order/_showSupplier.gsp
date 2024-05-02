@@ -3,7 +3,7 @@
 </div>
 
 
-<div class="modal-body" style="max-height: 500px; overflow-x: auto; overflow-y: auto;">
+<div class="modal-body" style="max-height: 500px; overflow-x: auto; overflow-y: auto; overflow-wrap: break-word;">
 
     <!-- Search Bar -->
     <div class="input-group mb-3">

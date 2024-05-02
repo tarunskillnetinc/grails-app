@@ -8,6 +8,6 @@
 
 
 <div class="modal-footer">
-    <button type="button" id="cancelShowSupplierButton" class="btn btn-success" onclick="approveConfirm()" data-dismiss="modal">Complete</button>
-    <button type="button" id="saveSupplierButton" class="btn btn-secondary" onclick="cancelOrderConfirm();" style="margin-left: 15px; float: left;">Cancel</button>
+    <button type="button" id="cancelCompleteOrderButton" class="btn btn-secondary" onclick="cancelOrderConfirm()">No</button>
+    <button type="button" id="completeOrderButton" class="btn btn-success" onclick="approveConfirm();" style="margin-left: 15px; float: left;" data-dismiss="modal">Yes</button>
 </div>
