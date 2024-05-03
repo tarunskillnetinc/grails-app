@@ -1,8 +1,11 @@
 package uk.co.wonderlane.wlpos
 
+import grails.databinding.BindUsing
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
+import org.apache.el.lang.FunctionMapperImpl
 import org.springframework.web.multipart.MultipartFile
+import uk.co.wonderlane.wlpos.entities.FunctionToggle
 import uk.co.wonderlane.wlpos.entities.RetailerConfig
 import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
@@ -28,6 +31,7 @@ class RetailerController {
     @Secured(['ROLE_ENGINEER'])
     def index() {
         def retailer = Retailer.get(springSecurityService.principal.retailerId)
+        def items = retailer.config.retailerFunctionConfig.functionMenuItems["varianceReport"]
         [retailer: retailer]
     }
 
@@ -36,6 +40,13 @@ class RetailerController {
         if (retailerCommand.brandLogo?.filename != "" && retailerCommand.brandLogo?.filename != null) {
             brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
         }
+        for(toggle in retailerCommand.menuItemDetails.functionToggles.values()){
+            var t = new FunctionToggle()
+            t.name = toggle.name
+            t.enabled = toggle.enabled == true
+            retailerCommand.retailerFunctionConfig.functionMenuItems[toggle.parent].functionToggles[toggle.name] = t
+        }
+
         RetailerConfig retailerConfig = new RetailerConfig()
         RetailerTerminologyConfig terminologyConfig = new RetailerTerminologyConfig()
         RetailerTerminologyLocationsTableConfig locationsTableConfig = new RetailerTerminologyLocationsTableConfig()
@@ -48,6 +59,7 @@ class RetailerController {
         if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
             flash.error = "Product Term is empty. Should not be null."
         }
+
         if (retailerCommand?.retailerTerminologyConfig?.packTerm == "" || retailerCommand?.retailerTerminologyConfig?.packTerm == null) {
             flash.error = "Pack is empty. Should not be null."
         }
@@ -115,6 +127,7 @@ class RetailerController {
         if (retailerCommand.retailerFunctionConfig.categoryVisibility == null) {
             retailerCommand.retailerFunctionConfig.categoryVisibility = Visibility.ENABLED
         }
+
         if (flash.error) {
             redirect(action: "index")
         } else {
@@ -126,6 +139,7 @@ class RetailerController {
                     value.menuItemVisibility = Visibility.ENABLED
                 }
             }
+
 
             bindData(locationsTableConfig, retailerCommand.retailerTerminologyConfig.locationsTableConfig)
             bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
@@ -191,6 +205,9 @@ class RetailerCommand implements Validateable {
 
     RetailerTerminologyCommand retailerTerminologyConfig
 
+    MenuItemDetailsCommand menuItemDetails
+
+
 }
 
 class RetailerTerminologyCommand {
@@ -228,6 +245,21 @@ class RetailerFunctionCommand {
 }
 
 class FunctionMenuItemCommand {
+
     String name
     Visibility menuItemVisibility
+
+    Map<String,FunctionToggle> functionToggles = new HashMap<String,FunctionToggle>()
+}
+
+class MenuItemDetailsCommand{
+    Map<String,FunctionToggleCommand> functionToggles
+}
+
+class FunctionToggleCommand {
+    String parent
+    String name
+    Boolean enabled
+
+
 }

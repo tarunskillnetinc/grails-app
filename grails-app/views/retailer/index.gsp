@@ -714,17 +714,25 @@
                                                             <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                    <g:each in="${retailer.config.retailerFunctionConfig.functionMenuItems[item].functionToggles}" var="toggle" status="i">
+                                                        <div class="form-group row justify-content-center">
+                                                            <label for="${item}-${toggle.key}" class="col-2 wl-centered-checkbox-label">${toggle.key}</label>
+                                                            <input type="hidden" id = "${item}-${toggle.key}-parent" name="menuItemDetails.functionToggles[${toggle.key}-${item}].parent" value="${item}"/>
+                                                            <input type="hidden" id = "${item}-${toggle.key}-name" name="menuItemDetails.functionToggles[${toggle.key}-${item}].name" value="${toggle.key}"/>
+                                                            <input type="checkbox" class="col-1 wl-checkbox form-check-input" id = "${item}-${toggle.key}-enabled" value = "true" name="menuItemDetails.functionToggles[${toggle.key}-${item}].enabled" ${toggle.value.enabled.toString() === "true" ? "checked": ""}/>
+                                                        </div>
+                                                    </g:each>
                                             </div>
                                         </div>
                                     </div>
-                                </g:each>
-                            </div>
+                                </div>
+                            </g:each>
                         </div>
                     </div>
                 </div>
             </div>
-        </g:uploadForm>
-    </section>
+        </div>
+    </g:uploadForm>
+</section>
 </body>
 </html>

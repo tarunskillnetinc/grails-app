@@ -593,11 +593,15 @@ a.no-underline:hover {
     margin-left: -0.9rem;
 }
 
-.wl-label {
+.wl-label .wl-centered-checkbox-label{
     width: fit-content;
     max-width: fit-content;
     min-width: fit-content;
     margin-left: -100px;
+}
+
+.wl-centered-checkbox-label{
+    margin-top: 0.5rem;
 }
 
 .wl-radio {
