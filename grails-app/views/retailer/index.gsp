@@ -718,6 +718,7 @@
                                                         <div class="form-group row justify-content-center">
                                                             <input type="hidden" id = "${item}-${toggle.key}-parent" name="menuItemDetails.functionToggles[${toggle.key}-${item}].parent" value="${item}"/>
                                                             <input type="hidden" id = "${item}-${toggle.key}-name" name="menuItemDetails.functionToggles[${toggle.key}-${item}].name" value="${toggle.key}"/>
+                                                            <input type="hidden" id = "${item}-${toggle.key}-displayName" name="menuItemDetails.functionToggles[${toggle.key}-${item}].displayName" value="${toggle.value.displayName}"/>
                                                             <label for="${item}-${toggle.key}" class="wl-label col-form-label">${toggle.value.displayName}</label>
                                                             <div class="col-1">
                                                                 <input type="checkbox" class="wl-checkbox form-check-input" id = "${item}-${toggle.key}-enabled" value = "true" name="menuItemDetails.functionToggles[${toggle.key}-${item}].enabled" ${toggle.value.enabled.toString() === "true" ? "checked": ""}/>

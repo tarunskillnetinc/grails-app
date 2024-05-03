@@ -44,6 +44,7 @@ class RetailerController {
             var t = new FunctionToggle()
             t.name = toggle.name
             t.enabled = toggle.enabled == true
+            t.displayName = toggle.displayName
             retailerCommand.retailerFunctionConfig.functionMenuItems[toggle.parent].functionToggles[toggle.name] = t
         }
 
@@ -259,6 +260,7 @@ class MenuItemDetailsCommand{
 class FunctionToggleCommand {
     String parent
     String name
+    String displayName
     Boolean enabled
 
 
