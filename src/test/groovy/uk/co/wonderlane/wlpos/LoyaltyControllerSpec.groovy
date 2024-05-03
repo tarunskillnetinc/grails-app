@@ -36,7 +36,7 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
     def "should return the add member offer view when requested"() {
         given:
         controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
-            searchForAvailableOffersForMember(_) >> [new LoyaltyOffer()]
+            searchForAvailableOffersForMember(_, _) >> [new LoyaltyOffer()]
         }
 
         when:

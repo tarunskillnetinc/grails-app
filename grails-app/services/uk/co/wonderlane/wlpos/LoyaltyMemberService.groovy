@@ -181,7 +181,7 @@ class LoyaltyMemberService {
     }
 
     /* Returns all Offers for the current member that are not already associated ot a Member offer for them */
-    def searchForAvailableOffersForMember(String cardNumber) {
+    def searchForAvailableOffersForMember(String cardNumber, String offerDescription) {
         def member = Member.findByCardNumber(cardNumber)
 
         def memberOfferList = MemberOffer.createCriteria().list {
@@ -192,7 +192,7 @@ class LoyaltyMemberService {
         def currentDateTime = new DateTime()
 
         // Filter LoyaltyOffer objects by status and date range
-        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual("ACTIVE", currentDateTime, currentDateTime)
+        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "%${offerDescription}%")
 
         // Get the offers that are not linked to the member
         def offersNotLinkedToMember = activeOffers.findAll { offer ->

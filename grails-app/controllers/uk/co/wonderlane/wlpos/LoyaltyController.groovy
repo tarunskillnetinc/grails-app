@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.joda.JodaModule
+import grails.converters.JSON
 import grails.databinding.BindingFormat
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -35,14 +36,7 @@ class LoyaltyController {
     }
 
     def addMemberOffer(String cardNumber) {
-        def offers = loyaltyMemberService.searchForAvailableOffersForMember(cardNumber)
-
-        // Create a new list including only id and offer_description
-        def offersList = offers.collect { offer ->
-            [id: offer.id, offerDescription: offer.offerDescription]
-        }
-
-        render(view: "addMemberOffer", model: [cardNumber: cardNumber, offers: offersList])
+        render(view: "addMemberOffer", model: [cardNumber: cardNumber])
     }
 
     def showMemberDetails(String cardNumber) {
@@ -65,6 +59,29 @@ class LoyaltyController {
         def offer = loyaltyService.getLoyaltyOfferById(Integer.parseInt(id))
 
         render(template: "addMemberOfferSelect", model: [offer: offer, member: member])
+    }
+
+    def ajaxSearchForAvailableOffers() {
+        String cardNumber
+        String searchTerm
+
+        try {
+            cardNumber = params.cardNumber ? params.cardNumber : null
+            searchTerm = params.searchTerm ? params.searchTerm : ""
+        } catch (Exception e) {
+            log.error("Error when attempting to search for available offers, Exception " + e)
+            response.status = 400
+            return
+        }
+
+        def offers = loyaltyMemberService.searchForAvailableOffersForMember(cardNumber, searchTerm)
+
+        // Create a new list including only id and offer_description
+        def offersList = offers.collect { offer ->
+            [id: offer.id, offerDescription: offer.offerDescription]
+        }
+
+        render new JSON(offersList)
     }
 
     def ajaxSaveMemberOffer() {
@@ -101,6 +118,7 @@ class LoyaltyController {
             maxRedemptions: remainingRedemptions,
             currentRedemptions: 0,
             status: status ? MemberOfferStatus.ACTIVE : MemberOfferStatus.CLOSED,
+            dateModified: DateTime.now(DateTimeZone.UTC)
         )
 
         def updated = loyaltyMemberService.saveMemberOffer(memberOffer, memberId, offerId)
