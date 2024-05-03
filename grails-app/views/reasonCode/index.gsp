@@ -26,7 +26,7 @@
             ajaxSearch();
         });
 
-        function ajaxSearch() {
+        function ajaxSearch(sortParams) {
             clearErrorMsg();
             const searchResults = $('#search-results');
 
@@ -40,7 +40,12 @@
 
             $.ajax({
                 url: searchUrl,
-                data: {type: $("#code-type-select").val(), offset: 0, max: 50},
+                data: {type: $("#code-type-select").val(),
+                    max: sortParams ? sortParams["max"] : null,
+                    offset: sortParams ? sortParams.offset : null,
+                    sortColumn: sortParams ? sortParams.sortColumn : null,
+                    sortOrder: sortParams ? sortParams.sortOrder : null
+                },
                 success: function (resp) {
                     searchResults.html(resp);
                 },
@@ -234,14 +239,12 @@
             </div>
         </div>
 
-        <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-            <div class="col-4 font-weight-bold">Description</div>
-            <div class="col-4 font-weight-bold">Secret</div>
-            <div class="col-4 font-weight-bold"></div>
-        </div>
-
-
         <div id="search-results">
+            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+                <div class="col-4 font-weight-bold">Description</div>
+                <div class="col-4 font-weight-bold">Secret</div>
+                <div class="col-4 font-weight-bold"></div>
+            </div>
             <div class="px-0 text-center">
                 <div id="noResultsRow" class="pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
             </div>
