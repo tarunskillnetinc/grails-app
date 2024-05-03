@@ -716,10 +716,12 @@
                                                     </div>
                                                     <g:each in="${retailer.config.retailerFunctionConfig.functionMenuItems[item].functionToggles}" var="toggle" status="i">
                                                         <div class="form-group row justify-content-center">
-                                                            <label for="${item}-${toggle.key}" class="col-2 wl-centered-checkbox-label">${toggle.key}</label>
                                                             <input type="hidden" id = "${item}-${toggle.key}-parent" name="menuItemDetails.functionToggles[${toggle.key}-${item}].parent" value="${item}"/>
                                                             <input type="hidden" id = "${item}-${toggle.key}-name" name="menuItemDetails.functionToggles[${toggle.key}-${item}].name" value="${toggle.key}"/>
-                                                            <input type="checkbox" class="col-1 wl-checkbox form-check-input" id = "${item}-${toggle.key}-enabled" value = "true" name="menuItemDetails.functionToggles[${toggle.key}-${item}].enabled" ${toggle.value.enabled.toString() === "true" ? "checked": ""}/>
+                                                            <label for="${item}-${toggle.key}" class="wl-label col-form-label">${toggle.value.displayName}</label>
+                                                            <div class="col-1">
+                                                                <input type="checkbox" class="wl-checkbox form-check-input" id = "${item}-${toggle.key}-enabled" value = "true" name="menuItemDetails.functionToggles[${toggle.key}-${item}].enabled" ${toggle.value.enabled.toString() === "true" ? "checked": ""}/>
+                                                            </div>
                                                         </div>
                                                     </g:each>
                                             </div>
