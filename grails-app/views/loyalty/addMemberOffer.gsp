@@ -32,11 +32,7 @@
                 // Event listener for dropdown item click
                 $(document).on('click', '.dropdown-item', handleDropdownItemClick);
 
-                setTimeout(function() {
-                    $('#searchInput').trigger('input');
-                }, 100);
-
-                $('#searchInput').on('input', function() {
+                $('#searchInput').on('input click', function() {
                     let url = "${createLink(controller: 'loyalty', action: 'ajaxSearchForAvailableOffers')}";
 
                     let cardNumber = $('#cardNumber').val();

@@ -138,7 +138,6 @@ class PromotionService {
     }
 
     List<Promotion> getPromotionForRetailer(int retailerId) {
-        return Promotion.findAllByRetailerId(retailerId)
+        return Promotion.findAllByRetailerIdAndLoyaltyAndActive(retailerId, true, true)
     }
-
 }

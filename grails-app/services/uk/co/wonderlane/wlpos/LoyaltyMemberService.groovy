@@ -192,7 +192,7 @@ class LoyaltyMemberService {
         def currentDateTime = new DateTime()
 
         // Filter LoyaltyOffer objects by status and date range
-        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "%${offerDescription}%")
+        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "${offerDescription}%")
 
         // Get the offers that are not linked to the member
         def offersNotLinkedToMember = activeOffers.findAll { offer ->
