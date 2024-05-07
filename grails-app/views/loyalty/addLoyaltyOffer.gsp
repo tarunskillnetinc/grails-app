@@ -231,8 +231,7 @@
 
 
         function saveLoyaltyOffer(){
-
-            if(validateMandatoryFields()){//Validate for mandatory fields
+            if(validateMandatoryFields()){
                 return
             }
 
@@ -317,28 +316,34 @@
                     }
                 }
             });
-
         }
 
         function validateMandatoryFields(){
-            var offerDescription = $('#offerDescriptionId').val();
-            var offerStartDate = $('#offerStartDateId').val();
-            var offerEndDate = $('#offerEndDateId').val();
-            var offerStatus = $('#offerStatusId').val();
-            var selectedSegments = $('#offerSelectedSegmentsContainer .selected-item');
+            let error = false;
+            let errorString = "";
 
-            // Perform form validation
-            if (offerDescription.trim() === "" || offerStartDate.trim() === "" || offerEndDate.trim() === "" || offerStatus.trim() === "") {
-                var errorMessage = "All mandatory fields must be present before data can be saved.";
-                createErrorAlert(errorMessage)
-                return true; // Stop further execution of saveLoyaltyOffer() if form validation fails
-            }else if (selectedSegments.length === 0) {
-                var errorMessage = "At least one segment must be selected.";
-                createErrorAlert(errorMessage)
-                return true; // Stop further execution of saveLoyaltyOffer() if segment validation fails
+            if ($('#offerDescriptionId').val() == "")  {
+                errorString = errorString.concat("<li>Please enter an offer description</li>");
+                error = true;
             }
 
-            return false
+            if ($('#offerPromotionAssignedInput').val() == "")  {
+                errorString = errorString.concat("<li>Please select a promotion</li>");
+                error = true;
+            }
+
+            if ($('#offerSelectedSegmentsContainer .selected-item').length === 0) {
+                errorString = errorString.concat("<li>At least one segment must be selected</li>");
+                error = true;
+            }
+
+            if (error) {
+                let errorHeader = "All mandatory fields must be present before data can be saved."
+                let errorMessage = "<ul>" + errorHeader + errorString + "\n</ul>"
+                createErrorAlert(errorMessage)
+            }
+
+            return error
         }
 
         function createErrorAlert(errorMessage){
@@ -412,7 +417,7 @@
             </div>
 
             <div class="col-2 text-right">
-                <g:link id="cancel" class="btn btn-warning" name="cancel" action="loyaltyOffers" onclick="return confirm('Are you sure you want to cancel? All unsaved changes will be lost.');">Cancel</g:link>
+                <g:link id="cancel" class="btn btn-wl" name="cancel" action="loyaltyOffers" onclick="return confirm('Are you sure you want to cancel? All unsaved changes will be lost.');">Cancel</g:link>
                 <button id="save" class="btn btn-success" name="save" onclick="saveLoyaltyOffer();">Save</button>
             </div>
         </div>
@@ -424,44 +429,42 @@
 
             <div class="row mt-5 mb-3">
                 <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                    <label for="offerDescription" class="col-4 col-form-label text-right pr-4">Offer Description</label>
+                    <label id="offerDescription" for="offerDescription" class="col-4 col-form-label text-right pr-4">Offer Description</label>
                     <g:textField name="offerDescription" id="offerDescriptionId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" autocomplete="off" />
                 </div>
-                <div class="form-group row col-12 col-12 col-sm-5">
-                    <label for="role" class="col-4 col-form-label text-right pr-4">Status</label>
+                <div class="form-group row col-12 col-sm-5">
+                    <label id="role" for="role" class="col-4 col-form-label text-right pr-4">Status</label>
                     <g:select name="role" id="offerStatusId" class="col-3 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status ? loyaltyOffer?.status : defaultStatus}" valueMessagePrefix="Role" />
                 </div>
             </div>
 
             <div class="row mt-2 mb-3">
                 <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                    <label for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
+                    <label id="offerStartDate" for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
                     <g:textField name="offerStartDate" id="offerStartDateId" class="col-5 form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" readonly="false"/>
                 </div>
-                <div class="form-group row col-12 col-12 col-sm-5">
-                    <label for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
+                <div class="form-group row col-12 col-sm-5">
+                    <label id="offerEndDate" for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
                     <g:textField name="offerEndDate" id="offerEndDateId" class="col-5 form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" readonly="false"/>
                 </div>
             </div>
 
             <div class="row mt-2 mb-5">
                 <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                    <label for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
+                    <label id="offerMaxRedemptions" for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
                     <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
                 </div>
-                <div class="form-group row col-12 col-12 col-sm-5">
-                    <label for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
+                <div class="form-group row col-12 col-sm-5">
+                    <label id="offerMaxBudget" for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
                     <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxBudget}" />
                 </div>
             </div>
 
-
             <div class="row mt-5 mb-3">
                 <div class="form-group row col-12 col-sm-6 offset-sm-1">
-                    <label for="offerPromotionAssigned" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
+                    <label id="offerPromotionAssigned" for="offerPromotionAssigned" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
                     <div class="dropdown-content col-5">
                         <div class="input-group-append">
-                            <asset:image src="search.png" id="offerPromotionSearchButton" name="offerPromotionSearchButton" onclick="searchProduct()" class="wl-search-button" />
                             <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput"
                                    oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
                         </div>
@@ -475,16 +478,20 @@
                 </div>
 
                 <div class="form-group row col-12 col-12 col-sm-5">
-                    <label for="offerSegmentAssigned" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
+                    <label id="offerSegmentAssigned" for="offerSegmentAssigned" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
                     <div class="dropdown-content col-5">
                         <div class="input-group-append">
-                            <asset:image src="search.png" id="offerSegmentSearchButton" name="offerSegmentSearchButton" onclick="searchProduct()" class="wl-search-button" />
-                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput" ${isUpdate ? 'disabled' : ''}>
+                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput"
+                                oninput="filterDropdown('offerSegmentAssignedInput', 'offerSegmentAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
                         </div>
                         <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px; border-top: 0; border-bottom: 1px solid #ccc;"></div>
                         <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments" readonly = "${isUpdate ? true : false}">
                         <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple" style="display: true;" from="${segments}" optionValue="description"
-                                  value="${selectedSegmentIds}" optionKey="id" class="form-control select-border" disabled="${isUpdate ? true : false}" onchange="updateSegmentInput()"/>
+                                  value="${selectedSegmentIds}"
+                                  optionKey="id"
+                                  class="form-control select-border"
+                                  disabled="${isUpdate ? true : false}"
+                                  onchange="updateSegmentInput()"/>
                     </div>
                 </div>
 
