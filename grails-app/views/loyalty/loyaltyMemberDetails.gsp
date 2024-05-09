@@ -37,34 +37,32 @@
             }
 
             function validateUpdates() {
-                 if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {        
-                    let error = false;
-                    let errorString = "";
+                let error = false;
+                let errorString = "";
 
-                    if ($('#email').val() !== "")  {
-                        let email = $('#email').val();
+                let email = $('#email').val();
 
-                        if (!validateEmail(email)) {
-                            error = true;
-                            errorString = errorString.concat("\n<li>Please enter a valid email address</li>");
-                        }
+                if (!validateEmail(email)) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>Please enter a valid email address</li>");
+                }
+
+                if ($('#mobile_no').val() !== "")  {
+                    let mobile = $('#mobile_no').val();
+
+                    if (!validateMobileNumber(mobile)) {
+                        error = true;
+                        errorString = errorString.concat("\n<li>Please enter a valid mobile number</li>");
                     }
+                }
 
-                    if ($('#mobile_no').val() !== "")  {
-                        let mobile = $('#mobile_no').val();
-
-                        if (!validateMobileNumber(mobile)) {
-                            error = true;
-                            errorString = errorString.concat("\n<li>Please enter a valid mobile number</li>");
-                        }
-                    }
-
-                    if (!error) {
+                if (!error) {
+                    if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
                         $('#memberDetails').submit();
-                    } else {
-                        $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
-                        $('#validation-errors').prop("hidden", false);
                     }
+                } else {
+                    $('#validation-errors').html("<ul>" + errorString + "\n</ul>");
+                    $('#validation-errors').prop("hidden", false);
                 }
             }
         </script>
