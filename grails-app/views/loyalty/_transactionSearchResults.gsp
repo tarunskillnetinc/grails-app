@@ -25,7 +25,7 @@
 <div id="search-results">
     <g:if test="${transactions == null}">
         <div class="row ml-0 mr-0 text-center">
-            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search criteria to recall member transaction results</div>
+            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search criteria to display transactional information.</div>
         </div>
     </g:if>
 
