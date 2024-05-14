@@ -1,7 +1,10 @@
 package uk.co.wonderlane.wlpos
 
 import grails.databinding.BindingFormat
+import org.springframework.validation.BeanPropertyBindingResult
+import org.springframework.validation.Errors
 import org.springframework.validation.FieldError
+import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
@@ -53,12 +56,13 @@ class ProductListController {
         }
 
         def productListsToBeSaved = new ArrayList()
+        // Define an empty list to store failed product lists
+        def failedProductLists = []
 
         for (int storeId : cmd.storeIdList) {
             def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
 
             def productList = new ProductList()
-
             productList.properties = cmd.properties
 
             productList.userId = springSecurityService.principal.id
@@ -70,33 +74,49 @@ class ProductListController {
             }
 
             if (cmd.productVariantId) {
+                // Loop over each product variant
                 cmd.productVariantId.each {
                     def productVariant = productService.getProductVariant(it)
 
                     if (productVariant) {
                         int quantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
 
-                        ProductListItem productListItem = new ProductListItem()
-                        productListItem.productVariant = productVariant
-                        productListItem.fillQuantity = 0
-                        productListItem.productList = productList
-                        productListItem.productQuantityInStock = quantityInStock
-                        productList.productListItems.add(productListItem)
+                        Product product = Product.findByItemCode(productVariant?.product?.itemCode)
+                        if (product)
+                        RangeProduct rangeProduct = RangeProduct.findByProductId(product.getId())
+
+                        if (rangeProduct) {
+                            ProductListItem productListItem = new ProductListItem()
+                            productListItem.productVariant = productVariant
+                            productListItem.fillQuantity = 0
+                            productListItem.productList = productList
+                            productListItem.productQuantityInStock = quantityInStock
+                            productList.productListItems.add(productListItem)
+                        }
+
                     }
                 }
             }
+
 
             if (!productList.validate()) {
                 onError(cmd, productList);
                 return
             }
 
-            productListsToBeSaved.add(productList)
+            if (productList.getProductListItems().size() > 0) {
+                productListsToBeSaved.add(productList)
+            } else {
+                failedProductLists.add(productList)
+            }
         }
 
         try {
             productListService.saveProductLists(productListsToBeSaved)
             flash.message = "Central count saved successfully."
+            if (failedProductLists.size() > 0) {
+                flash.warning = failedProductLists.size() + " Central count could not be created due to product ranging"
+            }
             redirect(action: "listCentralCounts")
         } catch (Exception e) {
             e.printStackTrace()
@@ -112,6 +132,8 @@ class ProductListController {
                 productList.errors.rejectValue("productListItems", code)
             } else if (field == "storeIdList") {
                 productList.errors.reject("productList.centralCount.noStoreSelected")
+            } else if (field == "productListItems") {
+                productList.errors.reject("productList.centralCount.noProductSelected")
             } else {
                 productList.errors.rejectValue(field, code)
             }
