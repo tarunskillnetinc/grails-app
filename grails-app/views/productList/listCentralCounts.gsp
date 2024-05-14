@@ -64,6 +64,10 @@
                 <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
+            <g:if test="${flash.warning}">
+                <div id="warning-message" class="alert alert-warning alert-wl mx-0" role="alert">${flash.warning}</div>
+            </g:if>
+
             <div class="row mt-4 ml-0 mr-0">
                 <div class="col-10 mt-4">
                     <div class="col-6">
