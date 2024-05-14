@@ -1,10 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.databinding.BindingFormat
-import org.springframework.validation.BeanPropertyBindingResult
-import org.springframework.validation.Errors
 import org.springframework.validation.FieldError
-import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
