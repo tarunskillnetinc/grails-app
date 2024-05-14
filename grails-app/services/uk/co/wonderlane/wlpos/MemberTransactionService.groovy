@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.enums.MemberTransactionStatus
 import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 
 @Transactional("loyalty")
@@ -45,6 +46,11 @@ class MemberTransactionService {
                 } else {
                     le("transactionTimestamp", endWindow)
                 }
+            }
+
+            or {  // Filter based on status column
+                eq("status", MemberTransactionStatus.COMPLETED)
+                eq("status", MemberTransactionStatus.REDEEMED)
             }
 
             if (sortColumn == "storeName") {
