@@ -79,16 +79,17 @@ class ProductListController {
                         int quantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
 
                         Product product = Product.findByItemCode(productVariant?.product?.itemCode)
-                        if (product)
-                        RangeProduct rangeProduct = RangeProduct.findByProductId(product.getId())
+                        if (product) {
+                            RangeProduct rangeProduct = RangeProduct.findByProductId(product.getId())
 
-                        if (rangeProduct) {
-                            ProductListItem productListItem = new ProductListItem()
-                            productListItem.productVariant = productVariant
-                            productListItem.fillQuantity = 0
-                            productListItem.productList = productList
-                            productListItem.productQuantityInStock = quantityInStock
-                            productList.productListItems.add(productListItem)
+                            if (rangeProduct) {
+                                ProductListItem productListItem = new ProductListItem()
+                                productListItem.productVariant = productVariant
+                                productListItem.fillQuantity = 0
+                                productListItem.productList = productList
+                                productListItem.productQuantityInStock = quantityInStock
+                                productList.productListItems.add(productListItem)
+                            }
                         }
 
                     }
