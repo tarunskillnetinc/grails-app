@@ -28,7 +28,7 @@ class ReportingController {
     private static final PROMOTIONS_REPORT_SORT_COLUMNS = ["type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated"]
     private static final PROMOTION_REPORT_SORT_COLUMNS = ["itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat"]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = ["type", "quantity"]
-    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = ["dateCreated", "type", "usersName", "reason", "amount"]
+    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = ["dateCreated", "type", "tillId", "usersName", "reason", "amount"]
     private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = ["transactionDate", "storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status"]
     private static final ORDERS_REPORT_SORT_COLUMNS = ["orderId", "storeId", "status", "dateCompleted", "supplierName", "numberOfItems", "value"]
     private static final ORDER_REPORT_SORT_COLUMNS = ["sku", "description", "orderedQuantity", "packQuantity", "lineValue"]
@@ -199,10 +199,10 @@ class ReportingController {
                 filteredGroupedProductSales?.each { groupedProductSale ->
                     int initQuantity = groupedProductSale.value[0].quantity
 
-                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.costPrice }.setScale(2)
-                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum {it.retailPrice }.setScale(2)
-                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.vatAmount }.setScale(2)
-                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.margin }.setScale(2)
+                    groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
+                    groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
 
                     groupedProductSale.value[0].quantity = 0
                     groupedProductSale.value[0].refundQuantity = 0
@@ -221,10 +221,10 @@ class ReportingController {
             } else {
                 if (!params.descriptionFilter || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.descriptionFilter?.toLowerCase())) {
                     Sale groupedSale = new Sale(
-                            costPrice: salesGroup.value.sum { it.costPrice }.setScale(2),
-                            retailPrice: salesGroup.value.sum { it.retailPrice }.setScale(2),
-                            vatAmount: salesGroup.value.sum { it.vatAmount }.setScale(2),
-                            margin: salesGroup.value.sum { it.margin }.setScale(2),
+                            costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
+                            retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
+                            vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
+                            margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
                             productUnitSize: ""
                     )
@@ -327,7 +327,8 @@ class ReportingController {
                                                             sortParams  : sortParams,
                                                             startDate   : startDate,
                                                             endDate     : endDate,
-                                                            totalResults: totalResults])
+                                                            totalResults: totalResults,
+                                                            userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -661,7 +662,7 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getPromotions(promotionSales)
         } else {
-            render(template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
+            render(template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount, userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -816,7 +817,7 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getTillControlEventCsv(tillControlEvents)
         } else {
-            render(template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+            render(template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount, userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -1932,11 +1933,13 @@ class ReportingController {
 
     private String getTillControlEventCsv(List<TillControlEvent> tillControlEventList) {
         StringBuilder stringBuilder = new StringBuilder()
-        stringBuilder.append("Type,User,Reason,Date,Amount\n")
+        stringBuilder.append("Type,Till ID,User,Reason,Date,Amount\n")
         tillControlEventList?.each {
             String type = getMappingFromResource("TillControlEventType." + it.type) != null ?
                     getMappingFromResource("TillControlEventType." + it.type) : "TillControlEventType." + it.type
             stringBuilder.append(type.toString()?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.tillId)
             stringBuilder.append(",")
             stringBuilder.append(it.usersName?.replace("'", "\\'"))
             stringBuilder.append(",")

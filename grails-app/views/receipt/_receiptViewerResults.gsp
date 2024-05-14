@@ -36,7 +36,7 @@
             <div id="transaction-amount-${i + 1}" class="col-2 my-auto">
                 <g:formatNumber number="${receipt.transactionAmount ?: BigDecimal.ZERO}" type="currency" />
             </div>
-            <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${receipt.dateGenerated?.toDate()}" /></div>
+            <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${receipt.dateGenerated?.toDate()}" timeZone="Europe/London" /></div>
             <div id="date-generated-${i + 1}" class="col-2 my-auto"><g:message code="TransactionPaymentMethodType.${receipt.paymentMethod}" /></div>
         </div>
     </g:each>
@@ -46,7 +46,7 @@
     <div class="my-3 text-right">
         <div>Displaying ${offset ? offset + 1 : 1} - ${((offset ?: 0) + (receipts?.size() ?: 0))} of ${totalCount} result${totalCount > 1 ? 's' : ''}</div>
         <div class="mt-3">
-            <util:remotePaginate action="ajaxGetReceipts" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate]" />
+            <util:remotePaginate action="ajaxGetReceipts" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[startDate: startDate, endDate: endDate, tillId: tillId, transactionId: transactionId]" />
         </div>
     </div>
 </g:if>
