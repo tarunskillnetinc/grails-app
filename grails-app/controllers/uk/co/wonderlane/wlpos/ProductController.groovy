@@ -530,6 +530,7 @@ class ProductController extends BaseController {
         // check for errors added manually from barcode and category checks or validate can remove them
         //  before they are handled
         if (product.hasErrors()) {
+            reapplyLostProductUpdates(newProduct, product, productVariantsList, editedProduct)
             return product
         }
 
@@ -583,6 +584,8 @@ class ProductController extends BaseController {
             if (isRequest) {
                 flash.message = "Product saved successfully"
             }
+        } else {
+            reapplyLostProductUpdates(newProduct, product, productVariantsList, editedProduct)
         }
 
         if (!product.hasErrors()) {
@@ -601,6 +604,24 @@ class ProductController extends BaseController {
         }
 
         return product
+    }
+
+    private void reapplyLostProductUpdates(Boolean newProduct, Product product, List<ProductVariant> productVariantsList, editedProduct) {
+        if (!newProduct) {
+            // productVariantsList is only the new variants so addAll works here
+            product.variants.addAll(productVariantsList)
+            product.variants.forEach {
+                variant -> {
+                    editedProduct.variants.forEach {
+                        editedVariant -> {
+                            if (variant.sku == editedVariant.sku) {
+                                variant.locationz = editedVariant.locationz ?: variant.locations
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     def getColumns() {
@@ -1294,8 +1315,9 @@ class ProductController extends BaseController {
     def ajaxAddTempLocation(AddVariantCommand cmd) {
         def storeId = springSecurityService.principal.storeId
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
 
-        render(template: "locationVariant", model: [index: cmd.index, variant: cmd, locationsEnabled: locationsEnabled, storeId: storeId])
+        render(template: "locationVariant", model: [index: cmd.index, locationsType: locationsType, variant: cmd, locationsEnabled: locationsEnabled, storeId: storeId])
     }
 
     def ajaxAddPrice(int index, long sku, boolean zeroPrice) {

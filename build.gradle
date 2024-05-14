@@ -182,3 +182,36 @@ grails {
 sourceSets {
     elasticbeanstalk
 }
+
+tasks.withType(Jar) {
+    archiveName "Cloud Office ${version}.jar"
+
+    doLast {
+        // Specify the path to the existing zip file.
+        def zipFile = file("build/libs/Cloud Office ${version}.zip")
+
+        // Create a temporary directory to unzip the existing zip.
+        def tempDir = file("build/libs/Cloud Office ${version}")
+
+        // Copy the built .jar to the temporary directory.
+        copy {
+            from "build/libs/Cloud Office ${version}.jar"
+            into tempDir
+            rename "Cloud Office ${version}.jar", "application.jar"
+        }
+
+        // Copy the Nginx config to the temporary directory.
+        copy {
+            from "src/elasticbeanstalk/resources/"
+            into "${tempDir}/.platform/nginx/conf.d/"
+        }
+
+        // Update the existing zip file with the modified content.
+        ant.zip(destfile: zipFile) {
+            fileset(dir: tempDir)
+        }
+
+        // Clean up temporary directory.
+        delete(tempDir)
+    }
+}
