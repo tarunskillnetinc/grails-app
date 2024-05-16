@@ -11,6 +11,17 @@
     <script type='text/javascript'>
         let isUpdate = false
 
+        window.onload = function() {
+            var numericFields = document.querySelectorAll('.numeric-field');
+            numericFields.forEach(function(field) {
+                field.addEventListener('input', function(event) {
+                    if (!/^\d*$/.test(event.target.value)) {
+                        event.target.value = event.target.value.replace(/[^\d]/g, '');
+                    }
+                });
+            });
+        };
+
         $(function() {
             // Set start date to today and initialize datepicker
             $('#offerStartDateId').datepicker({
@@ -56,7 +67,6 @@
                     changingDate = false;
                 }
             });
-
         });
 
         //Adding event listener to load existing multi selected segments  + promotions
@@ -452,11 +462,11 @@
             <div class="row mt-2 mb-5">
                 <div class="form-group row col-12 col-sm-6 offset-sm-1">
                     <label id="offerMaxRedemptions" for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
-                    <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
+                    <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-5 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
                 </div>
                 <div class="form-group row col-12 col-sm-5">
                     <label id="offerMaxBudget" for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
-                    <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.maxBudget}" />
+                    <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-5 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxBudget}" autocomplete="off" />
                 </div>
             </div>
 
