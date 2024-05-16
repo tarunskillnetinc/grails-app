@@ -209,7 +209,6 @@ class LoyaltyController {
 
     def ajaxMemberOffers() {
         String cardNumber
-        String searchBy
         String searchTerm
         Boolean activeOffers
         Boolean inactiveOffers
@@ -220,7 +219,6 @@ class LoyaltyController {
 
         try {
             cardNumber = params.cardNumber
-            searchBy = params.searchBy ? params.searchBy : ""
             searchTerm = params.searchTerm ? params.searchTerm : ""
             activeOffers = params.activeOffers ? params.activeOffers.toBoolean() : false
             inactiveOffers = params.inactiveOffers ? params.inactiveOffers.toBoolean() : false
@@ -234,7 +232,7 @@ class LoyaltyController {
             return
         }
 
-        def offers = loyaltyMemberService.findAllMemberOffers(cardNumber, searchTerm, searchBy, activeOffers, inactiveOffers, max, offset, sortColumn, sortOrder)
+        def offers = loyaltyMemberService.findAllMemberOffers(cardNumber, searchTerm, activeOffers, inactiveOffers, max, offset, sortColumn, sortOrder)
 
         render(template: "memberOffersSearchResults", model: [cardNumber: params.cardNumber,
                                                               searchTerm: params.searchTerm,

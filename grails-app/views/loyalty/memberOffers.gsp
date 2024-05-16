@@ -23,7 +23,6 @@
                 let cardNumber = $('#cardNumber').val();
 
                 let searchTerm = $('#memberOfferSearchTerm').val();
-                let searchBy = $('#memberOfferSearchBy').val();
 
                 let activeOffers = $('#activeOffers').prop("checked");
                 let inactiveOffers = $('#inactiveOffers').prop("checked");
@@ -33,7 +32,6 @@
                     data: {
                         cardNumber: cardNumber,
                         searchTerm: searchTerm,
-                        searchBy: searchBy,
                         activeOffers: activeOffers,
                         inactiveOffers: inactiveOffers,
                         max: sortParams ? sortParams["max"] : null,
@@ -99,21 +97,18 @@
                         </div>
                         <div class="card-body collapse show" id="filterCollapse">
                             <div class="form-group row">
-                                <label for="memberOfferSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
+                                <label class="col-2 col-form-label-sm text-right">Search By Description</label>
                                 <div class="col-10 input-group">
                                     <g:textField id="memberOfferSearchTerm" name="memberOfferSearchTerm" maxlength="100" class="form-control" aria-describedby="select-addon2" />
-                                    <div class="input-group-append">
-                                        <g:select id="memberOfferSearchBy" name="memberOfferSearchBy" from="${['description', 'offerId']}" value="everything" valueMessagePrefix="MemberOfferSearchBy" class="form-control select-border" style="z-index: 0;" />
-                                    </div>
                                 </div>
                             </div>
                             <div class="row form-group form-check pl-0">
                                  <div class="col-4 col-form-label text-right pr-4 pt-0 pb-0">
-                                     <label for="activeOffers" class="col-form-label text-right wl-label">Active Offers</label>
+                                     <label class="col-form-label text-right wl-label">Active Offers</label>
                                      <g:checkBox id="activeOffers" name="activeOffers" class="col-1 form-check-input wl-checkbox" />
                                  </div>
                                  <div class="col-4 col-form-label text-right pr-4 pt-0 pb-0">
-                                     <label for="inactiveOffers" class="col-form-label text-right wl-label">Inactive Offers</label>
+                                     <label class="col-form-label text-right wl-label">Inactive Offers</label>
                                      <g:checkBox id="inactiveOffers" name="inactiveOffers" class="col-1 form-check-input wl-checkbox" />
                                  </div>
                              </div>
