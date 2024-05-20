@@ -190,6 +190,7 @@ class RetailerCommand implements Validateable {
     boolean twoStageSel
     boolean averyEnabled
     boolean scoEnabled
+    boolean sendStockUpdates
     String rabbitMqUrl
     boolean rabbitMqSslEnabled
     int rabbitMqPort
