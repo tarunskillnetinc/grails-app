@@ -48,11 +48,6 @@ class MemberTransactionService {
                 }
             }
 
-            or {  // Filter based on status column
-                eq("status", MemberTransactionStatus.COMPLETED)
-                eq("status", MemberTransactionStatus.REDEEMED)
-            }
-
             if (sortColumn == "storeName") {
                 createAlias("store", "s", org.hibernate.sql.JoinType.LEFT_OUTER_JOIN)
                 order("s.name", sortOrder ?: "asc")
