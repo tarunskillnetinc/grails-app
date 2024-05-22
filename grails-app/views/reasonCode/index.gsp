@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.ReasonCodeType" %>
 <html>
 <head>
     <meta name="layout" content="main" />
@@ -14,6 +15,7 @@
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
         const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
+        const reasonCodeTypeProductList = "${ReasonCodeType.PRODUCT_LIST.name()}";
 
         let modalContents;
         let modal;
@@ -24,6 +26,7 @@
             modal = $('#edit-code-modal');
             errorMsg = $('#error-message');
             ajaxSearch();
+            updateDirectionColumnVisibility();
         });
 
         function ajaxSearch() {
@@ -52,6 +55,19 @@
                     );
                 }
             });
+
+            updateDirectionColumnVisibility();
+        }
+
+        function updateDirectionColumnVisibility() {
+            const selectedType = $("#code-type-select").val();
+            const directionColumn = $("#direction-column");
+
+            if (selectedType === reasonCodeTypeProductList) {
+                directionColumn.show();
+            } else {
+                directionColumn.hide();
+            }
         }
 
         function ajaxEdit(id) {
@@ -236,6 +252,7 @@
 
         <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
             <div class="col-4 font-weight-bold">Description</div>
+            <div class="col-2 font-weight-bold" id="direction-column" style="display: none;">Direction</div>
             <div class="col-4 font-weight-bold">Secret</div>
             <div class="col-4 font-weight-bold"></div>
         </div>
