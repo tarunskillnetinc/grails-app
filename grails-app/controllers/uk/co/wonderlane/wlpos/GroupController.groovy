@@ -32,7 +32,7 @@ class GroupController {
 
     def ajaxGetAvailableStores(int groupId) {
         def group = Group.get(groupId)
-        def storeSettings = Store.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "storeId", order: "ASC"])
+        def storeSettings = Store.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "id", order: "ASC"])
 
         storeSettings.removeAll(group.stores)
 
