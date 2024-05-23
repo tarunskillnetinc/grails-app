@@ -6,10 +6,10 @@ class ProductListItem {
 
     int id
     ProductVariant productVariant
-    int productQuantityInStock
-    Integer quantity
-    int fillQuantity = 0
-    Integer parentQuantity
+    BigDecimal productQuantityInStock
+    BigDecimal quantity
+    BigDecimal fillQuantity = BigDecimal.ZERO
+    BigDecimal parentQuantity
 
     static belongsTo = [ productList: ProductList, productListItemGroup: ProductListItemGroup ]
 

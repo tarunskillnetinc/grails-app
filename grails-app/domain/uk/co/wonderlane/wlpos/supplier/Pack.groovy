@@ -12,7 +12,7 @@ class Pack {
 
     int id
     Supplier supplier
-    Integer quantity
+    BigDecimal quantity
     BigDecimal price
     String orderCode
     String barcode
