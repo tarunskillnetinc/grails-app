@@ -19,16 +19,6 @@
             event.target.value = numericValue;
         });
 
-        $('#remainingRedemptions').on('input', function(event) {
-            let value = parseInt(event.target.value);
-            if (isNaN(value) || value < 0 || value > 99) {
-                event.target.setCustomValidity('Please enter a number between 0 and 99.');
-            } else {
-                event.target.setCustomValidity('');
-            }
-        });
-
-
         let oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 

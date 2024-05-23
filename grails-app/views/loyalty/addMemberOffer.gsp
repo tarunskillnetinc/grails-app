@@ -92,6 +92,16 @@
                 let error = false;
                 let errorString = "";
 
+                if ($('#startDateFilter').val() == "")  {
+                    errorString = errorString.concat("<li>Please enter a start date</li>");
+                    error = true;
+                }
+
+                if ($('#endDateFilter').val() == "")  {
+                    errorString = errorString.concat("<li>Please enter an end date</li>");
+                    error = true;
+                }
+
                 if ($('#remainingRedemptions').val() == "")  {
                     errorString = errorString.concat("<li>Please enter a value for the remaining redemptions</li>");
                     error = true;
