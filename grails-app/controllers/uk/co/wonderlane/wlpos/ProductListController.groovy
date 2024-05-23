@@ -30,9 +30,20 @@ class ProductListController {
     }
 
     def ajaxGetCentralCounts(String searchTerm, String searchBy) {
-        def productLists = productListService.getCentralCounts(searchTerm, searchBy)
 
-        render(template: "centralCountSearchResults", model: [productLists: productLists, searchTerm: searchTerm, searchBy: searchBy])
+        def productLists = productListService.getCentralCounts(
+                searchTerm, searchBy,
+                params.offset ? Integer.parseInt(params.offset) : 0,
+                params.max ? Integer.parseInt(params.max) : 50
+        )
+
+        render(template: "centralCountSearchResults", model: [
+                productLists: productLists,
+                searchTerm: searchTerm,
+                searchBy: searchBy,
+                offset: params.offset ?: 0,
+                max: params.max ?: 50
+        ])
     }
 
     def addCentralCount() {

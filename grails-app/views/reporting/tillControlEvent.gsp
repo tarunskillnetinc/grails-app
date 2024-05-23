@@ -136,6 +136,10 @@
                                 <label class="form-check-label" for="columnsType">Type</label>
                             </div>
                             <div class="form-group form-check">
+                                <g:checkBox name="columns" id="columnsTillId" class="form-check-input" value="tillId" checked="${!userColumns || userColumns?.columns?.find { it.column == 'tillId' }?.enabled}" />
+                                <label class="form-check-label" for="columnsTillId">Till ID</label>
+                            </div>
+                            <div class="form-group form-check">
                                 <g:checkBox name="columns" id="columnsUsersName" class="form-check-input" value="usersName" checked="${!userColumns || userColumns?.columns?.find { it.column == 'usersName' }?.enabled}" />
                                 <label class="form-check-label" for="columnsUsersName">User</label>
                             </div>
