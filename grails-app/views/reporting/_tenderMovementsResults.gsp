@@ -40,7 +40,7 @@
     <g:each in="${tenderMovements}" var="tenderMovement" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
-                <div class="col my-auto"><g:formatDate date="${tenderMovement.timestamp.toDate()}" format="dd/MM/yy HH:mm:ss" /></div>
+                <div class="col my-auto"><g:formatDate date="${tenderMovement.timestamp.toDate()}" format="dd/MM/yy HH:mm:ss" timeZone="Europe/London" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
                 <div class="col my-auto">${tenderMovement.store?.config?.storeNumber}</div>

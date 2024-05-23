@@ -2,6 +2,9 @@
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
         <div class="col font-weight-bold"><a id="type" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'type', sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
     </g:if>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "tillId" }?.enabled}">
+        <div class="col font-weight-bold"><a id="till-id" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'tillId', sortOrder: ${sortParams?.sortColumn == 'tillId' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Till ID</a></div>
+    </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "usersName" }?.enabled}">
         <div class="col font-weight-bold"><a id="users-name" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'usersName', sortOrder: ${sortParams?.sortColumn == 'usersName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">User</a></div>
     </g:if>
@@ -32,24 +35,22 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
                 <div id="type-${i + 1}" class="col my-auto"><g:message code="TillControlEventType.${tillControlEvent.type}" /></div>
             </g:if>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "tillId" }?.enabled}">
+                <div id="till-id-${i + 1}" class="col my-auto">${tillControlEvent.tillId}</div>
+            </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "usersName" }?.enabled}">
                 <div id="users-name-${i + 1}" class="col my-auto">${tillControlEvent.usersName}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
-                <div id="reason-${i + 1}" class="col my-auto">
+                <div id="reason-${i + 1}" class="col my-auto overflow-hidden">
                     <g:if test="${!tillControlEvent.reason}">N/A</g:if>
-                    <g:elseif test="${tillControlEvent.type.name() == 'CUSTOMER_REFUSAL'}"><g:message code="CustomerRefusalReason.${tillControlEvent.reason}" /></g:elseif>
-                    <g:elseif test="${tillControlEvent.type.name() == 'REFUND'}"><g:message code="RefundReason.${tillControlEvent.reason}" /></g:elseif>
-                    <g:elseif test="${tillControlEvent.type.name() == 'MARKDOWN'}"><g:message code="MarkdownReason.${tillControlEvent.reason}" /></g:elseif>
-                    <g:elseif test="${tillControlEvent.type.name() == 'LINE_VOID'}"><g:message code="LineVoidReason.${tillControlEvent.reason}" /></g:elseif>
-                    <g:elseif test="${tillControlEvent.type.name() == 'PAID_OUT'}"><g:message code="PaidOutReason.${tillControlEvent.reason}" /></g:elseif>
                     <g:else>${tillControlEvent.reason}</g:else>
 
                     <g:if test="${tillControlEvent.reasonOther}">&nbsp;-&nbsp;${tillControlEvent.reasonOther}</g:if>
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div id="date-created-${i + 1}" class="col my-auto">${tillControlEvent.dateCreated.toString("dd/MM/yy HH:mm:ss")}</div>
+                <div id="date-created-${i + 1}" class="col my-auto">${tillControlEvent.dateCreated?.withZone(userTimeZone)?.toString("dd/MM/yy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "amount" }?.enabled}">
                 <div id="amount-${i + 1}" class="col my-auto">
