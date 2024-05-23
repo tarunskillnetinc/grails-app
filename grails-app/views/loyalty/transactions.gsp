@@ -10,6 +10,7 @@
 
         <script type="text/javascript">
             $(document).ready(function () {
+                var changingDate = false;
                 $(".mask-money").maskMoney({ allowZero: true });
                 $(".mask-money").maskMoney('mask');
 
@@ -30,7 +31,58 @@
                     todayBtn: "linked",
                     orientation: "bottom auto"
                 });
+
+                $('#endWindowFilter').change(function() {
+                    if (!changingDate) {
+                        changingDate = true;
+                        validateAndCorrectDates();
+                        changingDate = false;
+                    }
+                });
+
+                // Add change event listener to offer start date to validate and correct dates
+                $('#startWindowFilter').change(function() {
+                    if (!changingDate) {
+                        changingDate = true;
+                        validateAndCorrectDates();
+                        changingDate = false;
+                    }
+                });
             });
+
+            function validateAndCorrectDates() {
+                var startDate = $('#startWindowFilter').datepicker('getDate');
+                var endDate = $('#endWindowFilter').datepicker('getDate');
+                var today = new Date();
+
+                // Reset time components to 00:00:00 to compare dates only
+                today.setHours(0, 0, 0, 0);
+
+                // Check if start date is in the future
+                if (startDate > today) {
+                    $('#startWindowFilter').datepicker('setDate', today);
+                }
+
+                // Check if end date is in the future
+                if (endDate > today) {
+                    $('#endWindowFilter').datepicker('setDate', today);
+                }
+
+                // Re-fetch dates after potential adjustments
+                startDate = $('#startWindowFilter').datepicker('getDate');
+                endDate = $('#endWindowFilter').datepicker('getDate');
+
+                // Check if end date is before start date
+                if (endDate < startDate) {
+                    // Set start date to today
+                    $('#startWindowFilter').datepicker('setDate', today);
+
+                    // Set end date to 1 week from start date
+                    var newEndDate = new Date();
+                    newEndDate.setDate(today.getDate());
+                    $('#endWindowFilter').datepicker('setDate', newEndDate);
+                }
+            }
 
             function resetForm() {
                 document.getElementById('memberTransactionSearchTerm').value = null;
