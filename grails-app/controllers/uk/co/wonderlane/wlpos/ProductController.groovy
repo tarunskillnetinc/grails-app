@@ -1692,6 +1692,7 @@ class AddPackCommand implements Validateable {
     Integer maximumOrderQuantity
     Boolean allowSubstitutes
     boolean isNewPack = false
+    boolean isWeighted = false
     Integer productVariantId
 
     static constraints = {
@@ -1706,9 +1707,10 @@ class AddPackCommand implements Validateable {
             if (BigDecimal.ZERO == it) return ['addPackCommand.price.zero']
             if (it >= 10000) return ['addPackCommand.price.max']
         }
-        quantity validator: {
-            if (it <= BigDecimal.ZERO) return ['addPackCommand.packQuantity.zero']
-            if (it > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
+        quantity validator: { quantity, pack ->
+            if (!pack.isWeighted && quantity.remainder(BigDecimal.ONE) != BigDecimal.ZERO) return ['addPackCommand.packQuantity.integer']
+            if (quantity <= BigDecimal.ZERO) return ['addPackCommand.packQuantity.zero']
+            if (quantity > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
         }
         recommendedRetailPrice validator: {
             if (BigDecimal.ZERO == it) return ['addPackCommand.recommendedRetailPrice.zero']
