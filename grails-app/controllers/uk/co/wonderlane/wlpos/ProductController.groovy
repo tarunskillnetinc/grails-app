@@ -1710,7 +1710,7 @@ class AddPackCommand implements Validateable {
         quantity validator: { quantity, pack ->
             if (!pack.isWeighted && quantity.remainder(BigDecimal.ONE) != BigDecimal.ZERO) return ['addPackCommand.packQuantity.integer']
             if (quantity <= BigDecimal.ZERO) return ['addPackCommand.packQuantity.zero']
-            if (quantity > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
+            if (quantity > BigDecimal.valueOf(Integer.MAX_VALUE)) return ['addPackCommand.packQuantity.maxValue']
         }
         recommendedRetailPrice validator: {
             if (BigDecimal.ZERO == it) return ['addPackCommand.recommendedRetailPrice.zero']
