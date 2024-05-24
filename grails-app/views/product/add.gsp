@@ -740,6 +740,44 @@
                     });
             }
 
+            function isWeightedItem() {
+                const weightedBox = $("#weightedItem");
+                return weightedBox && weightedBox.prop("checked");
+            }
+
+            function acceptPackQuantity(e) {
+                if (!isWeightedItem()) {
+                    acceptNumeric(e);
+                    return;
+                }
+                if ((e.key < '0' && e.key > '9') && e.key !== '.') {
+                    e.preventDefault();
+                }
+            }
+
+            function validatePackQuantity(e, min, max, decimalPlaces) {
+                if (!isWeightedItem()) {
+                    preventOverflowValue(e);
+                    return;
+                }
+
+                const splits = e.value.split('.');
+                if (splits.length > 2) {
+                    e.value = splits[0] + '.' + splits[1];
+                    return;
+                } else if (splits.length === 2 && splits[1].length > decimalPlaces) {
+                    e.value = splits[0] + '.' + splits[1].substring(0, decimalPlaces);
+                }
+
+                const val = parseFloat(e.value);
+                if (isNaN(val) || val < min) {
+                    e.value = min;
+                } else if (val > max || !isFinite(val)) {
+                    e.value = max;
+                }
+            }
+
+
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
                 var params = { index: variantIndex };
