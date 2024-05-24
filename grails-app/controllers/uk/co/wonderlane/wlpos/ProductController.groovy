@@ -1862,7 +1862,7 @@ class ProductVariantCommand {
 class PackCommand {
     int id
     Supplier supplier
-    int quantity
+    BigDecimal quantity
     BigDecimal price
     String orderCode
     String barcode
