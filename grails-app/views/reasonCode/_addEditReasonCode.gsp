@@ -24,38 +24,68 @@
     });
 
     function updateAdditionalFuncSection() {
-        const promptId = $('#prompt-age-section')
-        const returnStock = $('#return-stock-section')
-        const adjustInOut = $('#adjust-in-out-section')
-        const secret = $('#secret-section')
+        const promptForAge = $("#prompt-age-section");
+        const promptForText = $("#prompt-for-text");
+        const returnStock = $("#return-stock-section");
+        const adjustInOut = $("#adjust-in-out-section");
+        const secret = $("#secret-section");
 
-        switch ($('#type').val()) {
+        switch ($("#type").val()) {
             case "PAID_OUT":
-                promptId.show()
+                promptForAge.show();
+                promptForText.hide();
+                returnStock.hide();
+                adjustInOut.hide();
+                secret.hide();
 
-                returnStock.hide()
-                adjustInOut.hide()
-                secret.hide()
                 break;
             case "REFUND":
-                returnStock.show()
+                promptForText.hide();
+                returnStock.show();
+                promptForAge.hide();
+                adjustInOut.hide();
+                secret.hide();
 
-                promptId.hide()
-                adjustInOut.hide()
-                secret.hide()
                 break;
             case "PRODUCT_LIST":
-                adjustInOut.show()
-                secret.show()
+                promptForText.show();
+                adjustInOut.show();
+                secret.show();
+                promptForAge.hide();
+                returnStock.hide();
 
-                promptId.hide()
-                returnStock.hide()
+                break;
+            case "LINE_VOID":
+                promptForText.hide();
+                promptForAge.hide();
+                returnStock.hide();
+                adjustInOut.hide();
+                secret.hide();
+
+                break;
+            case "CUSTOMER_REFUSAL":
+                promptForText.hide();
+                promptForAge.hide();
+                returnStock.hide();
+                adjustInOut.hide();
+                secret.hide();
+
+                break;
+            case "MARKDOWN":
+                promptForText.hide();
+                promptForAge.hide();
+                returnStock.hide();
+                adjustInOut.hide();
+                secret.hide();
+
                 break;
             default:
-                promptId.hide()
-                returnStock.hide()
-                adjustInOut.hide()
-                secret.hide()
+                promptForText.show();
+                promptForAge.hide();
+                returnStock.hide();
+                adjustInOut.hide();
+                secret.hide();
+
                 break;
         }
     }
@@ -100,7 +130,7 @@
             </div>
         </div>
 
-        <div class="row form-group mb-4">
+        <div class="row form-group mb-4" id="prompt-for-text">
             <label for="promptForText" class="col-3 offset-1 col-form-label text-right">Prompt for Text:</label>
             <div class="input-group col-4">
                 <g:checkBox name="promptForText" value="${reasonCode?.promptForText}" class="col-1 form-check-input wl-checkbox" />

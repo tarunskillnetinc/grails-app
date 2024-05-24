@@ -130,7 +130,7 @@
 
     <section id="addProduct-section" class="container-fluid mt-4">
         <g:uploadForm name="save-button" action="save">
-            <div id="accordionGeneral">
+            <div id="accordion">
                 <!-- General information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="generalDetails" data-toggle="collapse" data-target="#collapseGeneralDetails" aria-expanded="true" aria-controls="collapseGeneralDetails">
@@ -149,17 +149,19 @@
                             <div class="col-12">
                                 <h5 class="text-center">Location Type</h5>
                                 <div class="form-group row justify-content-center">
-                                    <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">None</label>
-                                    <div class="col-10 col-lg-1">
-                                        <input type="radio" class="col-2 form-check-input wl-radio" name="locationsType" id="locationTypeNone" value="NONE" ${retailer?.config?.locationsType.toString() === 'NONE' ? 'checked' : '' }/>
+                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                        <label for="productLookupVisibilityEnabled" class="form-check-label">None</label>
+                                        <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeNone" value="NONE" ${retailer?.config?.locationsType.toString() === 'NONE' ? 'checked' : '' }/>
                                     </div>
-                                    <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Simple</label>
-                                    <div class="col-10 col-lg-1">
-                                        <input type="radio" class="col-2 form-check-input wl-radio" name="locationsType" id="locationTypeSimple" value="SIMPLE" ${retailer?.config?.locationsType.toString() === 'SIMPLE' ? 'checked' : '' }/>
+
+                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                        <label for="productLookupVisibilityDisabled" class="form-check-label">Simple</label>
+                                        <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeSimple" value="SIMPLE" ${retailer?.config?.locationsType.toString() === 'SIMPLE' ? 'checked' : '' }/>
                                     </div>
-                                    <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Advanced</label>
-                                    <div class="col-10 col-lg-1">
-                                        <input type="radio" class="col-2 form-check-input wl-radio" name="locationsType" id="locationTypeAdvanvced" value="ADVANCED" ${retailer?.config?.locationsType.toString() === 'ADVANCED' ? 'checked' : '' }/>
+
+                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                        <label for="productLookupVisibilityInvisible" class="form-check-label">Advanced</label>
+                                        <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeAdvanvced" value="ADVANCED" ${retailer?.config?.locationsType.toString() === 'ADVANCED' ? 'checked' : '' }/>
                                     </div>
                                 </div>
 
@@ -295,8 +297,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="accordion">
+
                 <!-- Brand information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="brandDetails" data-toggle="collapse" data-target="#collapseBrandDetails" aria-expanded="true" aria-controls="collapseBrandDetails">
@@ -339,8 +340,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="accordionTerminology">
+
                 <!-- Terminology information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="terminologyDetails" data-toggle="collapse" data-target="#collapseTerminologyDetails" aria-expanded="true" aria-controls="collapseTerminologyDetails">
@@ -354,7 +354,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseTerminologyDetails" class="collapse " aria-labelledby="terminologyDetails" data-parent="#accordionTerminology">
+                    <div id="collapseTerminologyDetails" class="collapse " aria-labelledby="terminologyDetails" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="col-12">
                                 <div class="form-group row">
@@ -525,8 +525,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="accordionFunctionModification">
+
                 <!-- Function Modification. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="functionModification" data-toggle="collapse" data-target="#collapseFunctionModification" aria-expanded="true" aria-controls="collapseFunctionModification">
@@ -540,9 +539,9 @@
                         </div>
                     </div>
 
-                    <div id="collapseFunctionModification" class="collapse " aria-labelledby="functionModificationDetails" data-parent="#accordionFunctionModification">
+                    <div id="collapseFunctionModification" class="collapse " aria-labelledby="functionModificationDetails" data-parent="#accordion">
                         <div class="card-body py-5">
-                            <div class="col-12">
+                            <div id="functionAccordion" class="col-12">
                                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                                     <div class="card-header pointer" id="productLookup" data-toggle="collapse" data-target="#collapseProductLookup" aria-expanded="true" aria-controls="collapseProductLookup">
                                         <div class="row">
@@ -555,7 +554,7 @@
                                         </div>
                                     </div>
 
-                                    <div id="collapseProductLookup" class="collapse" aria-labelledby="productLookup" data-parent="#productLookup">
+                                    <div id="collapseProductLookup" class="collapse" aria-labelledby="productLookup" data-parent="#functionAccordion">
                                         <div class="card-body py-5">
                                             <div class="col-12">
                                                 <div class="form-group row">
@@ -567,79 +566,94 @@
                                                         <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">SEL & RTC Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">SEL & RTC Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="selVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="selVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="selVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="selVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="selVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="selVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">VAT Rates Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">VAT Rates Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="vatRatesVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="vatRatesVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="vatRatesVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="vatRatesVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="vatRatesVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="vatRatesVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">Style Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">Style Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="styleVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="styleVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="styleVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="styleVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="styleVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="styleVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">Category Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">Category Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="categoryVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="categoryVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="categoryVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="categoryVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="categoryVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="categoryVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="productLookupVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="productLookupVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="productLookupVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -687,7 +701,7 @@
                                             </div>
                                         </div>
 
-                                        <div id="collapse${item}" class="collapse" aria-labelledby="${item}" data-parent="#${item}">
+                                        <div id="collapse${item}" class="collapse" aria-labelledby="${item}" data-parent="#functionAccordion">
                                             <div class="card-body py-5">
                                                 <div class="col-12">
                                                     <div class="form-group row">
@@ -699,19 +713,22 @@
                                                             <div class="btn btn-danger" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
                                                         </div>
                                                     </div>
-                                                    <h5 class="text-center">Visibility Status</h5>
+
+                                                    <h5 class="text-center mt-5">Visibility Status</h5>
                                                     <div class="form-group row justify-content-center">
-                                                        <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                        <div class="col-10 col-lg-1">
-                                                            <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                        <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                            <label for="productLookupVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                            <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                         </div>
-                                                        <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                        <div class="col-10 col-lg-1">
-                                                            <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
+
+                                                        <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                            <label for="productLookupVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                            <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
                                                         </div>
-                                                        <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                        <div class="col-10 col-lg-1">
-                                                            <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                        <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                            <label for="productLookupVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                            <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                         </div>
                                                     </div>
                                                     <g:each in="${retailer.config.retailerFunctionConfig.functionMenuItems[item].functionToggles}" var="toggle" status="i">

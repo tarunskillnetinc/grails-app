@@ -1,4 +1,13 @@
 <%@ page import="uk.co.wonderlane.wlpos.enums.ReasonCodeType" %>
+<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+    <div class="col-4 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'description', sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Description</a></div>
+    <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
+        <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'additionalFunctionality', sortOrder: ${sortColumn == 'additionalFunctionality' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Direction</a></div>
+    </g:if>
+    <div class="col-4 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'secret', sortOrder: ${sortColumn == 'secret' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Secret</a></div>
+    <div class="col-4 font-weight-bold"></div>
+</div>
+
 <g:if test="${!reasonCodes || reasonCodes?.size() == 0}">
     <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
 </g:if>
@@ -23,5 +32,5 @@
 </g:each>
 
 <div class="my-3 text-right">
-    <util:remotePaginate controller="reasonCode" action="ajaxSearch" total="${totalResults ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="[type: type]" onSuccess="\$('html, body').animate({ scrollTop: 0 }, 'fast')"/>
+    <util:remotePaginate controller="reasonCode" action="ajaxSearch" total="${totalResults ?: 0}" update="search-results" offset="${offset ?: 0}" max="${max ?: 50}" params="[type: type, sortColumn: sortColumn, sortOrder: sortOrder]" onSuccess="\$('html, body').animate({ scrollTop: 0 }, 'fast')"/>
 </div>

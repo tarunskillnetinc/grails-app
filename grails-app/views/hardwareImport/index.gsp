@@ -23,8 +23,7 @@
             };
         }
 
-        function resetMessages()
-        {
+        function resetMessages() {
             $('#successMessage').hide();
             $('#failureMessage').hide();
         }
@@ -75,8 +74,12 @@
                     resetFileUploadInput();
                     setPreventWindowNavigation(null);
                 },
-                error: function () {
-                    handleUploadError(uploadButton, "There was an error completing the import. Please ensure the file is valid.")
+                error: function (resp) {
+                    if (resp.status === 413) {
+                        handleUploadError(uploadButton, "File size too large. Please try again.")
+                    } else {
+                        handleUploadError(uploadButton, "There was an error completing the import. Please ensure the file is valid.")
+                    }
                 }
             });
         }
@@ -127,7 +130,15 @@
                         setPreventWindowNavigation(null);
                     },
                     error: function (data) {
-                        if(!data.status === 504){
+                        if (data.status === 413) {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Hardware"
+                            showErrorAlert("File size too large. Please try again.")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        } else if (!data.status === 504) {
                             $("#uploadResults").html(""); // Stop spinner as it has errored
                             const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
                             uploadButton.disabled = false
@@ -184,9 +195,10 @@
         </div>
     </section>
 
-    <div class="alert alert-success alert-wl" role="alert" id="successMessage" style="display: none"></div>
-
-    <div class="alert alert-danger alert-wl" role="alert" id="failureMessage" style="display: none"></div>
+    <section id="alerts-container" class="container-fluid">
+        <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
+        <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
+    </section>
 
     <section id="uploadResultsSection" class="container-fluid">
         <div id="uploadResults">

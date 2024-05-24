@@ -11,12 +11,12 @@ class ReasonCodeService {
         rc.save()
     }
 
-    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max, String order) {
+    Pair<Integer, List<ReasonCode>> getReasonCodesOfType(int retailerId, ReasonCodeType type, int offset, int max, String sortColumn, String sortOrder) {
         int count = ReasonCode.countByRetailerIdAndTypeAndDeleted(retailerId, type, false)
         if (count == 0) {
             return new Pair<Integer, List<ReasonCode>>(0, new ArrayList<ReasonCode>())
         }
-        def result = ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: offset, max: max, sort: "description", order: order])
+        def result = ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false, [offset: offset, max: max, sort: sortColumn, order: sortOrder])
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 

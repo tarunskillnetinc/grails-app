@@ -174,48 +174,6 @@ span.dropdown-header {
     color: white;
 }
 
-.pills-wl {
-    margin-top: 30px;
-    margin-left: 40px;
-    margin-right: 40px;
-    border-bottom: 2px solid #707070;
-}
-
-.pills-wl.sub-pills {
-    padding-bottom: 20px;
-    border-bottom: 2px solid #575756;
-}
-
-.pills-wl li a {
-    color: #575756;
-}
-
-.pills-wl li a.active {
-    border: 2px solid #707070;
-    color: #575756 !important;
-    background-color: #FFFFFF !important;
-}
-
-.pills-wl.sub-pills li a {
-    color: #575756;
-}
-
-.pills-wl.sub-pills li a.active {
-    border: 1px solid #575756;
-    color: #FFFFFF !important;
-    background-color: #575756 !important;
-}
-
-.pills-wl li.show a.dropdown-toggle {
-    color: #FFFFFF !important;
-    background-color: #575756 !important;
-}
-
-.pills-wl li div.dropdown-menu a:hover {
-    color: #575756;
-    background-color: #CEEEE9;
-}
-
 .tabs-wl {
     margin-top: 30px;
     margin-left: 40px;
@@ -600,6 +558,14 @@ a.no-underline:hover {
     margin-left: -100px;
 }
 
+.wl-label-right {
+    width: fit-content;
+    max-width: fit-content;
+    min-width: fit-content;
+    margin-left: 38px;
+    margin-top: 5px;
+}
+
 .wl-radio {
     height: 20px;
     width: 20px;
@@ -642,7 +608,7 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
 }
 
 .wl-striped1 {
-    background: #FDF9F9;
+    background: #F4FAF8;
 }
 
 .wl-striped0.hoverable:hover {
@@ -650,7 +616,7 @@ input[type=number].no-number-arrows::-webkit-inner-spin-button, input[type=numbe
 }
 
 .wl-striped1.hoverable:hover {
-    background: #F9F1F1;
+    background: #EEF7F4;
 }
 
 .pl-125 {

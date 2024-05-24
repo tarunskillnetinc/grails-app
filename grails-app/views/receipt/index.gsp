@@ -109,10 +109,33 @@
                     input.value = input.value.slice(0, maxLength);
                 }
             }
-        </script>
+
+            function printReceipt() {
+                var mywindow = window.open("", "PRINT", "height=800,width=426");
+
+                mywindow.document.write("<html><head>");
+                mywindow.document.write("<link rel='stylesheet' href='${asset.assetPath(src: "receipt.css")}' type='text/css' />");
+                mywindow.document.write("<link rel='stylesheet' href='${asset.assetPath(src: "receiptprint.css")}' type='text/css' />");
+                mywindow.document.write("<\/head>");
+                mywindow.document.write('<body style="max-width:423px;">');
+                mywindow.document.write($("#receiptModalContent").html());
+                mywindow.document.write("</body></html>");
+
+                mywindow.document.close(); // necessary for IE >= 10
+                mywindow.focus(); // necessary for IE >= 10*/
+
+                // Running this after a short delay because I assume the CSS hasn't properly rendered before the print dialog kicks in so the printed document isn't styled correctly.
+                setTimeout(() => {
+                    mywindow.print();
+                    mywindow.close();
+                }, 300);
+
+                return true;
+            }
+    </script>
     </head>
 
-    <body>
+<body>
         <section id="breadcrumb-container" class="container-fluid">
             <nav aria-label="breadcrumb">
                 <div class="row mt-4">
@@ -204,6 +227,7 @@
                         <div id="receiptModalContent"></div>
 
                         <div class="modal-footer">
+                            <button type="button" id="printReceiptButton" class="btn btn-info mr-auto" onclick="printReceipt();">Print</button>
                             <button type="button" id="closeReceiptModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
                     </div>
