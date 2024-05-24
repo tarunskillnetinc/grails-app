@@ -1681,7 +1681,7 @@ class AddPackCommand implements Validateable {
     int index
     Integer id
     SupplierCommand supplier
-    Integer quantity
+    BigDecimal quantity
     BigDecimal price
     String orderCode
     String barcode
@@ -1707,7 +1707,7 @@ class AddPackCommand implements Validateable {
             if (it >= 10000) return ['addPackCommand.price.max']
         }
         quantity validator: {
-            if (it <= 0) return ['addPackCommand.packQuantity.zero']
+            if (it <= BigDecimal.ZERO) return ['addPackCommand.packQuantity.zero']
             if (it > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
         }
         recommendedRetailPrice validator: {

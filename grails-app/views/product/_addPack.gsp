@@ -36,7 +36,7 @@
             </g:if>
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeypress="return acceptPackQuantity(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="validatePackQuantity(this, 0, 999.999, 3)"/>
+            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeypress="return acceptPackQuantity(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="validatePackQuantity(this)"/>
         </div>
         <div class="input-group col-2 my-auto">
             <div class="input-group-prepend">

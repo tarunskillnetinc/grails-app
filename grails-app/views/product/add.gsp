@@ -750,12 +750,12 @@
                     acceptNumeric(e);
                     return;
                 }
-                if ((e.key < '0' && e.key > '9') && e.key !== '.') {
+                if ((e.key < '0' || e.key > '9') && e.key !== '.') {
                     e.preventDefault();
                 }
             }
 
-            function validatePackQuantity(e, min, max, decimalPlaces) {
+            function validatePackQuantity(e) {
                 if (!isWeightedItem()) {
                     preventOverflowValue(e);
                     return;
@@ -765,15 +765,19 @@
                 if (splits.length > 2) {
                     e.value = splits[0] + '.' + splits[1];
                     return;
-                } else if (splits.length === 2 && splits[1].length > decimalPlaces) {
-                    e.value = splits[0] + '.' + splits[1].substring(0, decimalPlaces);
+                } else if (splits.length === 2 && splits[1].length > 3) {
+                    e.value = splits[0] + '.' + splits[1].substring(0, 3);
                 }
 
                 const val = parseFloat(e.value);
-                if (isNaN(val) || val < min) {
-                    e.value = min;
-                } else if (val > max || !isFinite(val)) {
-                    e.value = max;
+                if (isNaN(val)) {
+                    return;
+                }
+
+                if (val < 0) {
+                    e.value = 0;
+                } else if (val > (Math.pow(2, 31) -1)) {
+                    e.value = Math.pow(2, 31) -1;
                 }
             }
 
