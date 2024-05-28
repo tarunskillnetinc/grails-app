@@ -30,6 +30,9 @@
                 <div id="success-message" class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
+            %{--set to hidden so we can display warning message with client side rendering--}%
+            <div id="warning-message" class="alert alert-warning alert-wl mx-0" role="alert" style="display: none"></div>
+
             <g:hasErrors bean="${productList}">
                 <div id="error-list" class="alert alert-danger alert-wl mx-0" role="alert">
                     <g:renderErrors bean="${productList}" as="list" />

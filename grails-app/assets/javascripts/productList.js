@@ -9,6 +9,7 @@ function productSelected (id, itemCode, description) {
             for (const element of productList.children()) {
                 if (element.id.toUpperCase() === "PRODUCTVARIANT" + id) {
                     // TODO - need to display a warning somehow...
+                    $('#warning-message').text("THIS IS AN ERROR").show()
                     return
                 }
             }
