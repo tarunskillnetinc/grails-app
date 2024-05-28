@@ -4,11 +4,20 @@ function productSelected (id, itemCode, description) {
         url: addProductUrl,
         data: { productVariantId: id },
         success: function(resp) {
-            $("#productList").append(resp);
+            let productList = $("#productList")
+
+            for (const element of productList.children()) {
+                if (element.id.toUpperCase() === "PRODUCTVARIANT" + id) {
+                    // TODO - need to display a warning somehow...
+                    return
+                }
+            }
+
+            productList.append(resp);
 
             $('#noResultsRow').hide();
 
-            let i = $('#productList').children().length - 1; // remove hidden noResultsRow
+            let i = productList.children().length - 1; // remove hidden noResultsRow
             let row = $('#productVariant' +id);
             row.addClass("wl-striped" +((i-1) % 2));
             row.find('#prod-0-id').attr("id", "prod-" + i + "-id");
