@@ -703,6 +703,8 @@
                 params["defaultSupplier"] = filterValues["defaultSupplier"];
                 params["productVariantId"] = variantId;
 
+                const isWeighted = isWeightedItem();
+
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
@@ -724,6 +726,7 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
+                    params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
                 });
                     $.ajax({
                         url: savePackUrl,
@@ -739,6 +742,48 @@
                         }
                     });
             }
+
+            function isWeightedItem() {
+                const weightedBox = $("#weightedItem");
+                return weightedBox && weightedBox.prop("checked");
+            }
+
+            function acceptPackQuantity(e) {
+                if (!isWeightedItem()) {
+                    acceptNumeric(e);
+                    return;
+                }
+                if ((e.key < '0' || e.key > '9') && e.key !== '.') {
+                    e.preventDefault();
+                }
+            }
+
+            function validatePackQuantity(e) {
+                if (!isWeightedItem()) {
+                    preventOverflowValue(e);
+                    return;
+                }
+
+                const splits = e.value.split('.');
+                if (splits.length > 2) {
+                    e.value = splits[0] + '.' + splits[1];
+                    return;
+                } else if (splits.length === 2 && splits[1].length > 3) {
+                    e.value = splits[0] + '.' + splits[1].substring(0, 3);
+                }
+
+                const val = parseFloat(e.value);
+                if (isNaN(val)) {
+                    return;
+                }
+
+                if (val < 0) {
+                    e.value = 0;
+                } else if (val > (Math.pow(2, 31) -1)) {
+                    e.value = Math.pow(2, 31) -1;
+                }
+            }
+
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
