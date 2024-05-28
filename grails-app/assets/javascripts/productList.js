@@ -5,13 +5,19 @@ function productSelected (id, itemCode, description) {
         data: { productVariantId: id },
         success: function(resp) {
             let productList = $("#productList")
+            let warningMessage = $('#warning-message')
 
             for (const element of productList.children()) {
                 if (element.id.toUpperCase() === "PRODUCTVARIANT" + id) {
-                    // TODO - need to display a warning somehow...
-                    $('#warning-message').text("THIS IS AN ERROR").show()
+                    if (warningMessage.length) {
+                        warningMessage.text("Product has already been added.").show()
+                    }
                     return
                 }
+            }
+
+            if (warningMessage.length) {
+                warningMessage.hide()
             }
 
             productList.append(resp);
