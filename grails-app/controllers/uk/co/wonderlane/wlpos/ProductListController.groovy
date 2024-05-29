@@ -48,7 +48,7 @@ class ProductListController {
 
     def addCentralCount() {
         def retailerId = springSecurityService.principal.retailerId
-        availableStores = storeService.getStores(retailerId)
+        availableStores = storeService.getActiveStores(retailerId)
 
         [availableStores: availableStores]
     }
@@ -91,9 +91,11 @@ class ProductListController {
 
                         Product product = Product.findByItemCode(productVariant?.product?.itemCode)
                         if (product) {
-                            RangeProduct rangeProduct = RangeProduct.findByProductId(product.getId())
 
-                            if (rangeProduct) {
+                            Range range = Range.findById(storeSettings.getRangeId())
+                            RangeProduct rangeProduct = RangeProduct.findByProductIdAndRange(product.getId(), range)
+
+                            if (rangeProduct && !rangeProduct.getDeleted()) {
                                 ProductListItem productListItem = new ProductListItem()
                                 productListItem.productVariant = productVariant
                                 productListItem.fillQuantity = 0
@@ -122,7 +124,9 @@ class ProductListController {
 
         try {
             productListService.saveProductLists(productListsToBeSaved)
-            flash.message = "Central count saved successfully."
+            if (productListsToBeSaved.size() > 0) {
+                flash.message = "Central count saved successfully."
+            }
             if (failedProductLists.size() > 0) {
                 flash.warning = failedProductLists.size() + " Central count could not be created due to product ranging"
             }
