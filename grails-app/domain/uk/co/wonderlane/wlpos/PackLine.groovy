@@ -31,8 +31,8 @@ class PackLine {
         pack nullable: true
     }
 
-    int getTotalQuantity() {
-        return (quantity ?: BigDecimal.ZERO).multiply((pack?.quantity ?: BigDecimal.ZERO))?.intValue()
+    BigDecimal getTotalQuantity() {
+        return (quantity ?: BigDecimal.ZERO).multiply((pack?.quantity ?: BigDecimal.ZERO)) ?: BigDecimal.ZERO
     }
 
     BigDecimal getTotalCostPrice() {

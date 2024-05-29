@@ -28,6 +28,8 @@
     </g:if>
 
     <g:each in="${orders}" var="order" status="i">
+        <g:set var="isWeighted" value="${order.pack?.productVariant?.product?.weightedItem ?: false}"/>
+
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
                 <div id="sku-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.productListItem?.productVariant?.sku}</div>
@@ -38,16 +40,22 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderedQuantity" }?.enabled}">
                 <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
                 <g:if test="${order.pack}">
-                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.pack?.quantity?.multiply(order.quantity)}</div>
+                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">
+                        ${order.pack?.quantity?.multiply(order.quantity)?.setScale(isWeighted ? 3 : 0)}
+                        <g:if test="${isWeighted}"> kg</g:if><g:else> ea (each)</g:else>
+                    </div>
                 </g:if>
                 <g:else>
-                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.quantity}</div>
+                    <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">
+                        ${order.quantity}
+                        <g:if test="${isWeighted}"> kg</g:if><g:else> ea (each)</g:else>
+                    </div>
                 </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packQuantity" }?.enabled}">
                 <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
                 <g:if test="${order.pack}">
-                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.pack?.quantity}</div>
+                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.pack?.quantity?.setScale(isWeighted ? 3 : 0)}</div>
                 </g:if>
                 <g:else>
                     <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">1</div>

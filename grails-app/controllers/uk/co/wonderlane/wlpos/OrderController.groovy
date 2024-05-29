@@ -295,13 +295,13 @@ class PackLineRequestCommand {
     int productListId
     int productItemId
     int productVariantId
-    int quantity
-    int fillQuantity
+    BigDecimal quantity
+    BigDecimal fillQuantity
     List<PackLinesCommand> packLines
 }
 
 class PackLinesCommand{
     int id
-    int quantity
+    BigDecimal quantity
     String orderCode
 }

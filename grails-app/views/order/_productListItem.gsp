@@ -10,7 +10,7 @@
     <asset:javascript src="reporting.js" />
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
-
+    <asset:javascript src="validators/input-validator.js"/>
 
     <style>
         .quantity__input {
@@ -38,29 +38,6 @@
     </style>
 
     <script type='text/javascript'>
-
-        document.addEventListener("DOMContentLoaded", function() {
-            let numbers = document.querySelectorAll('.quantity__input');
-            numbers.forEach(function(input) {
-                input.addEventListener("input", function(event) {
-                    let inputValue = parseInt(input.value);
-                    if (isNaN(inputValue)) {
-                        // Reset to the minimum value if the input is not a valid number
-                        input.value = input.min;
-                    } else if (inputValue < input.min) {
-                        // If the input value is less than the minimum, set it to the minimum value
-                        input.value = input.min;
-                    } else if (inputValue > input.max) {
-                        // If the input value is greater than the maximum, set it to the maximum value
-                        input.value = input.max;
-                    } else {
-                        // Set the value to the parsed int value
-                        input.value = inputValue;
-                    }
-                });
-            });
-        });
-
         function increment(id) {
             var packLineSelector = "#packLines\\[" + id + "\\]\\.";
             var value = parseInt($(packLineSelector + "quantity").val());
@@ -190,6 +167,8 @@
         <g:hiddenField name="productVariantId" id="productVariantId" value="${variants?.id ?: 0}" />
         <g:hiddenField name="productItemId" id="productItemId" value="${productItemId ?: 0}" />
 
+        <g:set var="isWeighted" value="${variants?.product?.weightedItem ?: false}"/>
+
         <div id="collapseProductVariants1"  aria-labelledby="productVariants" data-parent="#accordion">
             <div class="card-body py-5">
 
@@ -215,9 +194,10 @@
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
                                     <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input" value="${singleQuantity}"
-                                           min="0" max="999999" style="width: 100px">
+                                           min="0" max="999999" style="width: 100px"
+                                           onkeydown="acceptQuantity(event, ${isWeighted})" onkeyup="validateQuantity(this, 0, 999999, ${isWeighted})">
                                     <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
-                                    <span id="packQty">x Singles</span>
+                                    <span id="packQty">x <g:if test="${isWeighted}">Kilograms</g:if><g:else>Singles</g:else></span>
                                 </div>
                             </g:if>
                             <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
@@ -228,7 +208,7 @@
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
-                                            min="0" max="${pack.maximumOrderQuantity}" style="width: 100px">
+                                            min="0" max="${pack.maximumOrderQuantity}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 999999, false)">
                                         <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
