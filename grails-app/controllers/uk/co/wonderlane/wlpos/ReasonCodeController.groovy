@@ -7,6 +7,7 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 import static groovy.json.JsonOutput.toJson
 
@@ -35,12 +36,14 @@ class ReasonCodeController {
             type = ReasonCodeType.PAID_OUT
         }
 
-        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max, params.order ?: "ASC")
+        Pair<Integer, List<ReasonCode>> searchResults = reasonCodeService.getReasonCodesOfType(retailerId, type, offset, max, params.sortColumn ?: "description", params.sortOrder ?: "asc")
         render(template: "reasonCodeSearchResults", model: [
                 reasonCodes: searchResults.getbValue(),
                 max: max,
                 offset: offset,
                 type: type.name(),
+                sortColumn: params.sortColumn ?: "description",
+                sortOrder: params.sortOrder ?: "asc",
                 totalResults: searchResults.getaValue()
         ])
     }
@@ -106,7 +109,7 @@ class ReasonCodeController {
         }
 
         // Check for Duplicate Reason Code
-        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code, rc.id)
+        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code, rc.additionalFunctionality, rc.id)
 
         //If the duplicate reason code is deleted, we should re-open it rather than handle it as a duplicate
         if (duplicateReasonCode != null) {
@@ -116,7 +119,8 @@ class ReasonCodeController {
                 render "OK"
                 return
             } else if (duplicateReasonCode.code == rc.code) {
-                errors.add(messageSource.getMessage('reasonCode.code.duplicate.error', null, locale))
+                String errorMessageCode = rc.type == ReasonCodeType.PRODUCT_LIST ? 'reasonCode.code.product.list.duplicate.error' : 'reasonCode.code.duplicate.error'
+                errors.add(messageSource.getMessage(errorMessageCode, null, locale))
             }
         }
 

@@ -62,11 +62,11 @@ class ReceiptController {
             }
         }
 
-        if ( tillId == 0 ) {
+        if (tillId == 0) {
             inputErrors += "<li>Till ID filter must be between 1 and 99999999.</li>"
         }
 
-        if ( transactionId == 0) {
+        if (transactionId == 0) {
             inputErrors += "<li>Transaction Number filter must be between 1 and 999999999.</li>"
         }
 
@@ -74,7 +74,7 @@ class ReceiptController {
             render(status: HttpStatus.BAD_REQUEST.code, inputErrors)
         } else {
             def (results, totalCount) = receiptService.getReceipts(startDate, endDate, tillId, transactionId, sort, order, offset, max)
-            render(template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, totalReceiptLineType: ReceiptLineType.TOTAL])
+            render(template: "receiptViewerResults", model: [receipts: results, totalCount: totalCount, sort: sort, order: order, offset: offset, max: max, startDate: params.startDate, endDate: params.endDate, tillId: params.tillId, transactionId: params.transactionId, totalReceiptLineType: ReceiptLineType.TOTAL])
         }
     }
 

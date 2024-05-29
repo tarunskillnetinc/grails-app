@@ -6,8 +6,8 @@
 
     <title>Till Assignment</title>
 
-    <asset:javascript src="co-utils.js"/>
-    <asset:javascript src="validators/input-validator.js"/>
+    <asset:javascript src="co-utils.js" />
+    <asset:javascript src="validators/input-validator.js" />
 
     <script type="text/javascript">
 
