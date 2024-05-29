@@ -28,7 +28,7 @@
     </g:if>
 
     <g:each in="${orders}" var="order" status="i">
-        <g:set var="isWeighted" value="${order.pack?.productVariant?.product?.weightedItem ?: false}"/>
+        <g:set var="isWeighted" value="${order.productListItem?.productVariant?.product?.weightedItem ?: false}"/>
 
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
