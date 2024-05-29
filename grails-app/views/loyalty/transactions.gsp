@@ -63,24 +63,26 @@
                     $('#startWindowFilter').datepicker('setDate', today);
                 }
 
-                // Check if end date is in the future
-                if (endDate > today) {
-                    $('#endWindowFilter').datepicker('setDate', today);
-                }
-
                 // Re-fetch dates after potential adjustments
                 startDate = $('#startWindowFilter').datepicker('getDate');
-                endDate = $('#endWindowFilter').datepicker('getDate');
 
-                // Check if end date is before start date
-                if (endDate < startDate) {
-                    // Set start date to today
-                    $('#startWindowFilter').datepicker('setDate', today);
+                // If endDate is selected, validate it
+                if (endDate !== null) {
+                    // Check if end date is in the future
+                    if (endDate > today) {
+                        $('#endWindowFilter').datepicker('setDate', today);
+                    }
 
-                    // Set end date to 1 week from start date
-                    var newEndDate = new Date();
-                    newEndDate.setDate(today.getDate());
-                    $('#endWindowFilter').datepicker('setDate', newEndDate);
+                    // Re-fetch endDate after potential adjustment
+                    endDate = $('#endWindowFilter').datepicker('getDate');
+
+                    // Check if end date is before start date
+                    if (endDate < startDate) {
+                        // Set end date to 1 week from start date
+                        // var newEndDate = new Date(startDate);
+                        // newEndDate.setDate(startDate.getDate());
+                        $('#endWindowFilter').datepicker('setDate', today);
+                    }
                 }
             }
 
