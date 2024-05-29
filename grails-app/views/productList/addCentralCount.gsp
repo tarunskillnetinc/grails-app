@@ -31,7 +31,7 @@
             </g:if>
 
             %{--set to hidden so we can display warning message with client side rendering--}%
-            <div id="warning-message" class="alert alert-warning alert-wl mx-0" role="alert" style="display: none"></div>
+            <div id="warning-message" class="alert alert-warning alert-wl mx-0 hidden" role="alert"></div>
 
             <g:hasErrors bean="${productList}">
                 <div id="error-list" class="alert alert-danger alert-wl mx-0" role="alert">

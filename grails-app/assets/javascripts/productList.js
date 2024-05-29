@@ -10,14 +10,15 @@ function productSelected (id, itemCode, description) {
             for (const element of productList.children()) {
                 if (element.id.toUpperCase() === "PRODUCTVARIANT" + id) {
                     if (warningMessage.length) {
-                        warningMessage.text("Product has already been added.").show()
+                        warningMessage.text("Product has already been added.")
+                        warningMessage.removeClass("hidden")
                     }
                     return
                 }
             }
 
             if (warningMessage.length) {
-                warningMessage.hide()
+                warningMessage.addClass("hidden")
             }
 
             productList.append(resp);
