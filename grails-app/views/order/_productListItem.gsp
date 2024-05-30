@@ -38,25 +38,28 @@
     </style>
 
     <script type='text/javascript'>
-        function increment(id) {
-            var packLineSelector = "#packLines\\[" + id + "\\]\\.";
-            var value = parseInt($(packLineSelector + "quantity").val());
+        function increment(id, weighted) {
+            const input = $("#packLines\\[" + id + "\\]\\.quantity");
+            let value = weighted ? parseFloat(input.val()) : parseInt(input.val());
             value = isNaN(value) ? 0 : value;
-            value++;
-            $(packLineSelector + "quantity").val(value);
-            if (value > $(packLineSelector + "quantity")[0].max) {
-                $(packLineSelector + "quantity").val($(packLineSelector + "quantity")[0].max);
+            if (weighted) {
+                value = (value + 0.001).toFixed(3)
+            } else {
+                value++
             }
+            input.val(value > input[0].max ? input[0].max : value);
         }
 
-        function decrement(id) {
-            var packLineSelector = "#packLines\\[" + id + "\\]\\.";
-            var value = parseInt($(packLineSelector + "quantity").val());
+        function decrement(id, weighted) {
+            const input = $("#packLines\\[" + id + "\\]\\.quantity");
+            let value = weighted ? parseFloat(input.val()) : parseInt(input.val());
             value = isNaN(value) ? 0 : value;
-            if (value > 0) {
-                value--;
+            if (value > 0 && weighted) {
+                value = (value - 0.001).toFixed(3);
+            } else if (value > 0) {
+                value--
             }
-            $(packLineSelector + "quantity").val(value);
+            input.val(value);
         }
 
         function save() {
@@ -189,27 +192,27 @@
                             <!--This is for non symbol group orders, quantities are calculated in server and passed into view-->
                             <g:if test="${isNoSymbolOrders}">
                                 <div class="quantity-${packSingles}" id="${packSingles}" style="width: 100%; margin-bottom: 30px" >
-                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles})">-</button>
+                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles}, ${isWeighted})">-</button>
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
                                     <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input" value="${singleQuantity}"
                                            min="0" max="999999" style="width: 100px"
                                            onkeydown="acceptQuantity(event, ${isWeighted})" onkeyup="validateQuantity(this, 0, 999999, ${isWeighted})">
-                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
+                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles}, ${isWeighted})" >+</button>
                                     <span id="packQty">x <g:if test="${isWeighted}">Kilograms</g:if><g:else>Singles</g:else></span>
                                 </div>
                             </g:if>
                             <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
                                 <g:each in="${packs}" var="pack" status="i">
                                     <div class="quantity-${pack.id}" id="${pack.id}" style="width: 100%; margin-bottom: 30px" >
-                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id})">-</button>
+                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id}, false)">-</button>
                                         <g:hiddenField name="packLines[${pack.id}].id" id="packLines[${pack.id}].id" value="${pack?.id ?: 0}" />
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
                                             min="0" max="${pack.maximumOrderQuantity}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 999999, false)">
-                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
+                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id}, false)" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
                                 </g:each>
