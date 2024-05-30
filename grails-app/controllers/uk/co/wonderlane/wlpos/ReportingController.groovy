@@ -12,7 +12,6 @@ import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
-import uk.co.wonderlane.wlpos.supplier.Supplier
 
 class ReportingController {
 
@@ -95,14 +94,18 @@ class ReportingController {
                     vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     margin: salesGroup.value.sum { it.quantity > 0 ? it.margin.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
-                    productUnitSize: ""
+                    productUnitSize: "",
+                    "refundQuantity": BigDecimal.ZERO,
+                    "quantity": BigDecimal.ZERO
             )
 
             salesGroup.value.each {
+                Product product = Product.findById(it?.productId)
+                int quantity = product.weightedItem ? 1 : it?.quantity.intValue()
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity -= it.quantity
+                    groupedSale.refundQuantity -= quantity
                 } else {
-                    groupedSale.quantity += it.quantity
+                    groupedSale.quantity += quantity
                 }
             }
 
@@ -226,7 +229,9 @@ class ReportingController {
                             vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
                             margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
-                            productUnitSize: ""
+                            productUnitSize: "",
+                            "refundQuantity": BigDecimal.ZERO,
+                            "quantity": BigDecimal.ZERO
                     )
 
                     salesGroup.value.each {
@@ -419,14 +424,18 @@ class ReportingController {
                     vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
                     margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                     productDescription: salesGroup.value[0].salesCategories.find { it.categoryLevel == currentCategoryLevel }?.categoryDescription,
-                    productUnitSize: ""
+                    productUnitSize: "",
+                    "refundQuantity": BigDecimal.ZERO,
+                    "quantity": BigDecimal.ZERO
             )
 
             salesGroup.value.each {
+                Product product = Product.findById(it?.productId)
+                int quantity = product.weightedItem ? 1 : it?.quantity.intValue()
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity -= it.quantity
+                    groupedSale.refundQuantity -= quantity
                 } else {
-                    groupedSale.quantity += it.quantity
+                    groupedSale.quantity += quantity
                 }
             }
 
@@ -1228,15 +1237,6 @@ class ReportingController {
         def productListItem = productListService.getProductListItem(productListItemId)
 
         def packLines = productListItem?.packLines
-
-        int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity?.multiply(BigDecimal.valueOf(it.pack?.quantity ?: 0)) ?: BigDecimal.ZERO } ?: 0
-        int totalSingles = (productListItem.quantity ?: productListItem.fillQuantity) - totalQuantityFromPacks
-
-        if (totalSingles > 0) {
-            def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
-
-            packLines.add([pack: dummyPack, quantity: totalSingles, productListItem: productListItem, totalQuantity: totalSingles, totalValue: productListItem?.productVariant?.currentPrice?.multiply(BigDecimal.valueOf(totalSingles)) ?: BigDecimal.ZERO])
-        }
 
         if (productListItem) {
             switch (sortParams.sortColumn) {
