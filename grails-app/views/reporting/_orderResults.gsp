@@ -47,7 +47,7 @@
                 </g:if>
                 <g:else>
                     <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">
-                        ${order.quantity}
+                        ${order.quantity?.setScale(isWeighted ? 3 : 0)}
                         <g:if test="${isWeighted}"> kg</g:if><g:else> ea (each)</g:else>
                     </div>
                 </g:else>

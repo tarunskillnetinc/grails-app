@@ -218,7 +218,7 @@
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
                                             min="0" max="${pack.maximumOrderQuantity}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 999999, false)">
                                         <button id="incrementButton" class="counterButton" onclick="increment(${pack.id}, false)" >+</button>
-                                        <span id="packQty">x ${pack.quantity} Packs</span>
+                                        <span id="packQty">x ${pack.quantity?.setScale(isWeighted ? 3 : 0)} Packs</span>
                                     </div>
                                 </g:each>
                             </g:if>
