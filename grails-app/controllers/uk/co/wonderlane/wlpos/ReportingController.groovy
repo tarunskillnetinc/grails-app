@@ -1800,12 +1800,27 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.productListItem?.productVariant?.product?.description)
             stringBuilder.append(",")
-            stringBuilder.append(it.pack?.quantity.multiply(it.quantity))
+
+            BigDecimal orderedQuantity
+            BigDecimal packQuantity
+            BigDecimal lineValue
+            if (it?.pack) {
+                // (pack line)
+                orderedQuantity = it.pack?.quantity?.multiply(it.quantity)
+                packQuantity = it.pack?.quantity
+                lineValue = it.pack?.price?.multiply(it.quantity)
+            } else {
+                // (singles line)
+                orderedQuantity = it.quantity
+                packQuantity = 1
+                lineValue = (it?.productListItem?.productVariant?.costPrice ?: BigDecimal.ZERO) * (it?.quantity ?: BigDecimal.ZERO)
+            }
+
+            stringBuilder.append(orderedQuantity)
             stringBuilder.append(",")
-            stringBuilder.append(it.pack?.quantity)
+            stringBuilder.append(packQuantity)
             stringBuilder.append(",")
-            //in reports line value represent in dollars ($)
-            stringBuilder.append("£" + (it.pack?.price?.multiply(it.quantity)))
+            stringBuilder.append("£" + lineValue)
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
