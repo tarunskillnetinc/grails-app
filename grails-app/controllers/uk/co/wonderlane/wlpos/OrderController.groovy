@@ -65,7 +65,7 @@ class OrderController {
             redirect(controller: "reporting", action: "orders")
         } else {
             boolean isNoSymbolOrders = false
-            int singleQuantity = 0
+            BigDecimal singleQuantity = 0
             ArrayList<Pack> packs = new ArrayList<>()
             uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getProductListById(Integer.parseInt(params.productListId))
 
@@ -93,12 +93,11 @@ class OrderController {
                 //Calculate non symbol group 'singles' quantities
                 if (supplier?.getSymbolGroup() == null) {
                     isNoSymbolOrders = true
-                    int nonSingleQuantity = 0
+                    BigDecimal nonSingleQuantity = BigDecimal.ZERO
                     for (uk.co.wonderlane.wlpos.entities.wlim.PackLine packLine : productItemList?.getPackLines()) {
                         for (Pack filterPack : packs) {
-                            if (packLine.getOrderCode() == filterPack.getOrderCode()) {
+                            if (packLine.getOrderCode() == filterPack.getOrderCode() && packLine?.packId == filterPack?.id) {
                                 nonSingleQuantity = nonSingleQuantity + filterPack.getQuantity() * packLine.getQuantity()
-                                break
                             }
                         }
                     }

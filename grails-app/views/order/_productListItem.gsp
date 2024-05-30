@@ -62,7 +62,7 @@
             input.val(value);
         }
 
-        function save() {
+        function save(weighted) {
             var supplierId = $('#supplierId').val();
             var productListId = $('#productListId').val();
             var productVariantId = $('#productVariantId').val();
@@ -73,8 +73,8 @@
                 productVariantId: productVariantId,
                 productItemId: productItemId
             };
-            quantity = 0
-            packLineIndex = 0
+            let quantity = 0
+            let packLineIndex = 0
             $("#variants").find("div").each(function () {
                 var innerDivId = $(this).attr("id");
                 var packLineSelector = "#packLines\\[" + innerDivId + "\\]\\.";
@@ -83,10 +83,15 @@
                     params["packLines[" + packLineIndex + "].id"] = $(packLineSelector + "id").val();
                     params["packLines[" + packLineIndex + "].orderCode"] = $(packLineSelector + "orderCode").val();
                     params["packLines[" + packLineIndex + "].quantity"] = $(packLineSelector + "quantity").val();
-                    quantity = quantity + parseInt($(packLineSelector + "quantity").val()) * parseInt($(packLineSelector + "size").val())
+                    quantity += weighted
+                        ? parseFloat($(packLineSelector + "quantity").val()) * parseFloat($(packLineSelector + "size").val())
+                        : parseInt($(packLineSelector + "quantity").val()) * parseInt($(packLineSelector + "size").val())
                     packLineIndex++;
                 }
             });
+            if (weighted) {
+                quantity = quantity.toFixed(3)
+            }
             params["quantity"] = quantity
             if(quantity > 0){
                 $.ajax({
@@ -103,7 +108,7 @@
                         }
                     }
                 });
-            }else {
+            } else {
                 $.ajax({
                     url: "${createLink(controller: 'order', action: 'ajaxShowQuantityWarningWindow')}",
                     method: "GET",
@@ -146,6 +151,8 @@
 
     <section id="order-list-container" class="container-fluid">
 
+        <g:set var="isWeighted" value="${variants?.product?.weightedItem ?: false}"/>
+
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
                 <h2 class="mx-auto my-auto">Order List Item</h2>
@@ -154,10 +161,10 @@
             <div class="col-2 text-right">
                 <button id="cancel" class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
                 <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
-                    <button id="save" class="btn btn-success" name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" name="save" onclick="save(${isWeighted})">Save</button>
                 </g:if>
                 <g:else>
-                    <button id="save" class="btn btn-success" disabled name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" disabled name="save" onclick="save(${isWeighted})">Save</button>
                 </g:else>
 
             </div>
@@ -169,8 +176,6 @@
         <g:hiddenField name="productListId"  id="productListId" value="${productListId ?: 0}" />
         <g:hiddenField name="productVariantId" id="productVariantId" value="${variants?.id ?: 0}" />
         <g:hiddenField name="productItemId" id="productItemId" value="${productItemId ?: 0}" />
-
-        <g:set var="isWeighted" value="${variants?.product?.weightedItem ?: false}"/>
 
         <div id="collapseProductVariants1"  aria-labelledby="productVariants" data-parent="#accordion">
             <div class="card-body py-5">
