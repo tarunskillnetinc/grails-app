@@ -91,7 +91,7 @@ class ReasonCodeController {
         customBindParams(rc, params)
         rc.discard()
 
-        if (rc.description == null || rc.description == "") {
+        if (rc.description == null || rc.description == "" || rc.description.trim().empty) {
             errors.add(messageSource.getMessage('reasonCode.description.nullable.error', null, locale))
         } else if (newEntry || updatedDesc) {
             // new reason code or the description has been changed on an existing one
