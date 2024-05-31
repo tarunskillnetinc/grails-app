@@ -4,7 +4,8 @@
     <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
         <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'additionalFunctionality', sortOrder: ${sortColumn == 'additionalFunctionality' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Direction</a></div>
     </g:if>
-    <div class="col-4 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'secret', sortOrder: ${sortColumn == 'secret' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Secret</a></div>
+    <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'secret', sortOrder: ${sortColumn == 'secret' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Secret</a></div>
+    <div class="col-2 font-weight-bold"><a href="#" onclick="ajaxSearch({ sortColumn: 'preferredReasonCode', sortOrder: ${sortColumn == 'preferredReasonCode' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Preferred Reason Code</a></div>
     <div class="col-4 font-weight-bold"></div>
 </div>
 
@@ -18,8 +19,9 @@
         <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
             <div id="desc-${i + 1}" class="col-2 my-auto text-truncate">${code.additionalFunctionality ? "Movement In" : "Movement Out"}</div>
         </g:if>
-        <div id="secret-${i + 1}" class="col-4 my-auto text-truncate">${code.secret}</div>
-        <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
+        <div id="secret-${i + 1}" class="col-2 my-auto text-truncate">${code.secret}</div>
+        <div id="preferredReasonCode-${i + 1}" class="col-2 my-auto text-truncate">${code.preferredReasonCode}</div>
+    <g:if test="${type == ReasonCodeType.PRODUCT_LIST.name()}">
             <div class="col-2 my-auto text-right">
         </g:if>
         <g:else>
