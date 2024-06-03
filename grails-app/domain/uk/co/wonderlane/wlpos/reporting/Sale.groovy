@@ -26,7 +26,7 @@ class Sale {
     String usersName
     DateTime dateCreated
 
-    int refundQuantity
+    BigDecimal refundQuantity
     BigDecimal avgCostPrice // Calculated value, marked transient below.
     BigDecimal avgRetailPrice // Calculated value, marked transient below.
     BigDecimal avgMargin // Calculated value, marked transient below.
