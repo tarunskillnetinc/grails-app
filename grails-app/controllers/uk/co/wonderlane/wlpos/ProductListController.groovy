@@ -31,6 +31,8 @@ class ProductListController {
 
     def ajaxGetCentralCounts(String searchTerm, String searchBy) {
 
+        session.CENTRAL_COUNT_SEARCH_TERM = searchTerm
+
         def productLists = productListService.getCentralCounts(
                 searchTerm, searchBy,
                 params.offset ? Integer.parseInt(params.offset) : 0,
