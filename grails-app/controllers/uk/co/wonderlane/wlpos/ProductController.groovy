@@ -687,7 +687,7 @@ class ProductController extends BaseController {
 
         editedProduct.variants?.each { editedVariant ->
 
-            def existingVariant = product.variants?.findAll { variant -> variant.id == editedVariant.id && variant.effectiveDate.isEqual(new DateTime(editedVariant.effectiveDate).withZone(DateTimeZone.UTC).withTimeAtStartOfDay())}?.max { it.id }
+            def existingVariant = product.variants?.find { variant -> variant.id == editedVariant.id }
 
             // If the variant we're editing is the current one for our store and the effective date is today or the same as the one we're editing, we update it. Otherwise we need a new variant.
             if (editedVariant.id != 0 && existingVariant &&
