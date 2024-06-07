@@ -560,10 +560,10 @@
                                                 <div class="form-group row">
                                                     <label for="productLookupName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Name</label>
                                                     <div class="col-7 col-lg-4">
-                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].name}"/>
+                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig?.functionMenuItems['productLookup'].name}"/>
                                                     </div>
                                                     <div class="form-group row">
-                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
+                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('Product Lookup')">Reset</div>
                                                     </div>
                                                 </div>
 
@@ -710,7 +710,7 @@
                                                             <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[${item}].name" id="${item}Name" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].name}"/>
                                                         </div>
                                                         <div class="form-group row">
-                                                            <div class="btn btn-danger" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
+                                                            <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(camelToReadable('${item}'))">Reset</div>
                                                         </div>
                                                     </div>
 
