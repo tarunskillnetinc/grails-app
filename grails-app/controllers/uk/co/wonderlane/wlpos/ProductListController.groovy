@@ -83,6 +83,8 @@ class ProductListController {
                 productList.endDate = productList.endDate.plusDays(1)
             }
 
+            productList.setEndDate(productList.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
+
             if (cmd.productVariantId) {
                 // Loop over each product variant
                 cmd.productVariantId.each {
