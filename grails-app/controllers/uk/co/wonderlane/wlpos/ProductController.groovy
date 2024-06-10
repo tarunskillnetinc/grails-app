@@ -638,7 +638,8 @@ class ProductController extends BaseController {
         try {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
             editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
-        } catch (Exception ex) {
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
             editedProduct.setEffectiveDate(null)
         }
 
@@ -794,7 +795,9 @@ class ProductController extends BaseController {
                 DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
                 return selectedDate.withTimeAtStartOfDay()
             }
-        } catch (Exception ignore) { }
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
+        }
         return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
     }
 
