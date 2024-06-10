@@ -54,6 +54,7 @@ class BackOfficeRabbitService extends RabbitService {
 
     private void initVirtualHost(String virtualHost) {
         setVirtualHost(virtualHost)
+        close() // close old connection before opening a new one (WAIT-585)
         init()
 
         if (channel == null || !channel.isOpen()) {
