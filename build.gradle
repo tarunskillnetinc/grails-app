@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.14.21-SNAPSHOT"
+version "1.14.29-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.14.81-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.14.93-SNAPSHOT'
 
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
@@ -179,4 +179,39 @@ grails {
 
 sourceSets {
     elasticbeanstalk
+}
+
+tasks.named("assemble") {
+    def projectName = it.project.name
+    def projectVersion = it.project.version
+
+    doLast {
+        // Specify the path to the existing zip file.
+        def zipFile = file("build/libs/Cloud Office ${projectVersion}.zip")
+
+        // Create a temporary directory to unzip the existing zip.
+        def tempDir = file("build/libs/Cloud Office ${projectVersion}")
+
+        // Copy the built .jar to the temporary directory.
+        println "Build jar = ${projectName}-${projectVersion}.jar"
+        copy {
+            from "build/libs/${projectName}-${projectVersion}.jar"
+            into tempDir
+            rename "${projectName}-${projectVersion}.jar", "application.jar"
+        }
+
+        // Copy the Nginx config to the temporary directory.
+        copy {
+            from "src/elasticbeanstalk/resources/"
+            into "${tempDir}/.platform/nginx/conf.d/"
+        }
+
+        // Update the existing zip file with the modified content.
+        ant.zip(destfile: zipFile) {
+            fileset(dir: tempDir)
+        }
+
+        // Clean up temporary directory.
+        delete(tempDir)
+    }
 }

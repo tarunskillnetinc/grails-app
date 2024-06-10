@@ -19,6 +19,8 @@ class Store {
     Integer createdUserId
     Date updatedDatetime
     Integer updatedUserId
+    String retailerStoreId
+    boolean deleted
 
     // This constructor is required or dependency injection (springSecurityService) breaks.
     public Store() {}
@@ -38,6 +40,8 @@ class Store {
         createdUserId column: "createdUserId"
         updatedDatetime column: "updatedDatetime"
         updatedUserId column: "updatedUserId"
+        retailerStoreId column: "retailerStoreId"
+        deleted column: "deleted"
     }
 
     static constraints = {
@@ -52,6 +56,8 @@ class Store {
         createdUserId nullable: true
         updatedDatetime nullable: true
         updatedUserId nullable: true
+        retailerStoreId nullable: true
+        deleted nullable: false
     }
 
     def colorCodeValidator(String colorCode) {
@@ -100,6 +106,7 @@ class Store {
         store.setId(id)
         store.setRetailerId(retailerId)
         store.setParentStoreId(parentStoreId)
+        store.setRetailerStoreId(retailerStoreId)
 
         store.setConfig(getConfig())
 

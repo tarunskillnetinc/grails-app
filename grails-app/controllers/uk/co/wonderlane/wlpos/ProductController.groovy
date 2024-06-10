@@ -528,6 +528,7 @@ class ProductController extends BaseController {
         // check for errors added manually from barcode and category checks or validate can remove them
         //  before they are handled
         if (product.hasErrors()) {
+            reapplyLostProductUpdates(newProduct, product, productVariantsList, editedProduct)
             return product
         }
 
@@ -536,6 +537,10 @@ class ProductController extends BaseController {
             product.errors.rejectValue("itemCode", "product.itemCode.validator.error")
         } else if (product.itemCode == null || product.itemCode.trim().isEmpty()) {
             product.errors.rejectValue("itemCode", "product.itemCode.nullable.error")
+        }
+
+        if (editedProduct.effectiveDate == null) {
+            product.errors.reject('error.Product.badEffectiveDate')
         }
 
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct) ) {
@@ -581,6 +586,8 @@ class ProductController extends BaseController {
             if (isRequest) {
                 flash.message = "Product saved successfully"
             }
+        } else {
+            reapplyLostProductUpdates(newProduct, product, productVariantsList, editedProduct)
         }
 
         if (!product.hasErrors()) {
@@ -601,6 +608,24 @@ class ProductController extends BaseController {
         return product
     }
 
+    private void reapplyLostProductUpdates(Boolean newProduct, Product product, List<ProductVariant> productVariantsList, editedProduct) {
+        if (!newProduct) {
+            // productVariantsList is only the new variants so addAll works here
+            product.variants.addAll(productVariantsList)
+            product.variants.forEach {
+                variant -> {
+                    editedProduct.variants.forEach {
+                        editedVariant -> {
+                            if (variant.sku == editedVariant.sku) {
+                                variant.locationz = editedVariant.locationz ?: variant.locations
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     def getColumns() {
         return productService.getColumns()
     }
@@ -610,8 +635,13 @@ class ProductController extends BaseController {
         def topLevelCategories = categoryService.getTopLevelCategories()
         def vatValues = VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-        editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+        try {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+            editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
+            editedProduct.setEffectiveDate(null)
+        }
 
         Product product = saveProduct(editedProduct, params, true)
 
@@ -665,12 +695,13 @@ class ProductController extends BaseController {
         List<ProductVariant> productVariantList = new ArrayList<>()
 
         editedProduct.variants?.each { editedVariant ->
-            def existingVariant = product.variants?.find { existingVariant -> existingVariant.id == editedVariant.id }
+
+            def existingVariant = product.variants?.find { variant -> variant.id == editedVariant.id }
 
             // If the variant we're editing is the current one for our store and the effective date is today or the same as the one we're editing, we update it. Otherwise we need a new variant.
             if (editedVariant.id != 0 && existingVariant &&
                     editedVariant.storeId == springSecurityService.principal.storeId &&
-                    (!effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()) || effectiveDate == editedVariant.effectiveDate)) {
+                    (!effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()) || effectiveDate.isEqual(new DateTime(editedVariant.effectiveDate).withZone(DateTimeZone.UTC).withTimeAtStartOfDay()))) {
 
                 // Variant we saved is one which already exists, check for changes.
                 if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
@@ -759,13 +790,16 @@ class ProductController extends BaseController {
     }
 
     private DateTime getEffectiveDate(def effectiveDate) {
-        if (effectiveDate) {
-            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-            DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
-            return selectedDate.withTimeAtStartOfDay()
-        } else {
-            return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        try {
+            if (effectiveDate) {
+                DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+                DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
+                return selectedDate.withTimeAtStartOfDay()
+            }
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
         }
+        return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
     }
 
     private DateTime getEffectiveDate() {
@@ -1292,8 +1326,9 @@ class ProductController extends BaseController {
     def ajaxAddTempLocation(AddVariantCommand cmd) {
         def storeId = springSecurityService.principal.storeId
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
 
-        render(template: "locationVariant", model: [index: cmd.index, variant: cmd, locationsEnabled: locationsEnabled, storeId: storeId])
+        render(template: "locationVariant", model: [index: cmd.index, locationsType: locationsType, variant: cmd, locationsEnabled: locationsEnabled, storeId: storeId])
     }
 
     def ajaxAddPrice(int index, long sku, boolean zeroPrice) {
@@ -2034,7 +2069,4 @@ class CSVUploadProduct {
 
         return productCommand
     }
-
-
-
 }

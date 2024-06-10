@@ -166,38 +166,51 @@
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="retailer-settings-dropdown" controller="retailer" class="dropdown-item">Retailer Settings</g:link>
+                                    <span id="sales-report" class="dropdown-header">Estate Management</span>
+
+                                    <g:link elementId="stores-list-dropdown" controller="store" class="dropdown-item">Store Management</g:link>
+                                    <g:link elementId="till-assignment-dropdown" controller="tillAssignment" class="dropdown-item">Till Management</g:link>
+                                    <g:link elementId="user-groups-dropdown" controller="group" class="dropdown-item disabled">Store Hierarchy</g:link>
+
+                                    <div class="dropdown-divider"></div>
                                 </g:if>
                             </sec:ifAnyGranted>
-                            <g:link elementId="store-settings-dropdown" controller="store" class="dropdown-item">Store Settings</g:link>
-                            <g:link elementId="user-groups-dropdown" controller="group" class="dropdown-item disabled">User Groups</g:link>
+
+                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
+                            </g:if>
+
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
+
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
                             </g:if>
+
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
                             </g:if>
+
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <div class="dropdown-divider"></div>
+
+                                    <span id="sales-report" class="dropdown-header">Retailer Configuration</span>
+
+                                    <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
+                                    <g:link elementId="reason-code-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
+                                </g:if>
+                            </sec:ifAnyGranted>
+
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <div class="dropdown-divider"></div>
+
+                                    <span id="sales-report" class="dropdown-header">Engineer Functions</span>
+
+                                    <g:link elementId="retailer-settings-dropdown" controller="retailer" class="dropdown-item">Retailer Configuration</g:link>
                                     <g:link elementId="hardware-import-dropdown" controller="hardwareImport" class="dropdown-item">Hardware Import</g:link>
-                                </g:if>
-                            </sec:ifAnyGranted>
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="till-assignment-dropdown" controller="tillAssignment" class="dropdown-item">Till Assignment</g:link>
-                                </g:if>
-                            </sec:ifAnyGranted>
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Category Maintenance</g:link>
-                            </g:if>
-                            </sec:ifAnyGranted>
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="category-maintenance-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
                         </div>

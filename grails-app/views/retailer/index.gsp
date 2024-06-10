@@ -130,7 +130,7 @@
 
     <section id="addProduct-section" class="container-fluid mt-4">
         <g:uploadForm name="save-button" action="save">
-            <div id="accordionGeneral">
+            <div id="accordion">
                 <!-- General information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="generalDetails" data-toggle="collapse" data-target="#collapseGeneralDetails" aria-expanded="true" aria-controls="collapseGeneralDetails">
@@ -149,17 +149,19 @@
                             <div class="col-12">
                                 <h5 class="text-center">Location Type</h5>
                                 <div class="form-group row justify-content-center">
-                                    <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">None</label>
-                                    <div class="col-10 col-lg-1">
-                                        <input type="radio" class="col-2 form-check-input wl-radio" name="locationsType" id="locationTypeNone" value="NONE" ${retailer?.config?.locationsType.toString() === 'NONE' ? 'checked' : '' }/>
+                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                        <label for="productLookupVisibilityEnabled" class="form-check-label">None</label>
+                                        <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeNone" value="NONE" ${retailer?.config?.locationsType.toString() === 'NONE' ? 'checked' : '' }/>
                                     </div>
-                                    <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Simple</label>
-                                    <div class="col-10 col-lg-1">
-                                        <input type="radio" class="col-2 form-check-input wl-radio" name="locationsType" id="locationTypeSimple" value="SIMPLE" ${retailer?.config?.locationsType.toString() === 'SIMPLE' ? 'checked' : '' }/>
+
+                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                        <label for="productLookupVisibilityDisabled" class="form-check-label">Simple</label>
+                                        <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeSimple" value="SIMPLE" ${retailer?.config?.locationsType.toString() === 'SIMPLE' ? 'checked' : '' }/>
                                     </div>
-                                    <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Advanced</label>
-                                    <div class="col-10 col-lg-1">
-                                        <input type="radio" class="col-2 form-check-input wl-radio" name="locationsType" id="locationTypeAdvanvced" value="ADVANCED" ${retailer?.config?.locationsType.toString() === 'ADVANCED' ? 'checked' : '' }/>
+
+                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                        <label for="productLookupVisibilityInvisible" class="form-check-label">Advanced</label>
+                                        <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeAdvanvced" value="ADVANCED" ${retailer?.config?.locationsType.toString() === 'ADVANCED' ? 'checked' : '' }/>
                                     </div>
                                 </div>
 
@@ -302,8 +304,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="accordion">
+
                 <!-- Brand information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="brandDetails" data-toggle="collapse" data-target="#collapseBrandDetails" aria-expanded="true" aria-controls="collapseBrandDetails">
@@ -346,8 +347,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="accordionTerminology">
+
                 <!-- Terminology information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="terminologyDetails" data-toggle="collapse" data-target="#collapseTerminologyDetails" aria-expanded="true" aria-controls="collapseTerminologyDetails">
@@ -361,13 +361,13 @@
                         </div>
                     </div>
 
-                    <div id="collapseTerminologyDetails" class="collapse " aria-labelledby="terminologyDetails" data-parent="#accordionTerminology">
+                    <div id="collapseTerminologyDetails" class="collapse " aria-labelledby="terminologyDetails" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="col-12">
                                 <div class="form-group row">
                                     <label for="productTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Product Term</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.productTerm" id="productTerm" value="${retailer?.config?.retailerTerminologyConfig.productTerm}" />
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.productTerm" id="productTerm" value="${retailer?.config?.retailerTerminologyConfig?.productTerm}" maxlength="8"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-product-term-button" onclick="$('#productTerm').val('Product')">Reset</div>
@@ -376,7 +376,7 @@
                                 <div class="form-group row">
                                     <label for="packTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Pack</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.packTerm" id="packTerm" value="${retailer?.config?.retailerTerminologyConfig.packTerm}" />
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.packTerm" id="packTerm" value="${retailer?.config?.retailerTerminologyConfig?.packTerm}" maxlength="15" />
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-pack-term-button" onclick="$('#packTerm').val('Pack')">Reset</div>
@@ -385,25 +385,25 @@
                                 <div class="form-group row">
                                     <label for="qisTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QIS (Quantity In Stock)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityInStockTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" value="${retailer?.config?.retailerTerminologyConfig?.quantityInStockTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('Quantity In Stock')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('QIS')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="qooTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QOO (Quantity On Order)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityOnOrderTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm" value="${retailer?.config?.retailerTerminologyConfig?.quantityOnOrderTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('Quantity On Order')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('QOO')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="userTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">User</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.userTerm" id="userTerm" value="${retailer?.config?.retailerTerminologyConfig.userTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.userTerm" id="userTerm" value="${retailer?.config?.retailerTerminologyConfig?.userTerm}" maxlength="8"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-user-term-button"onclick="$('#userTerm').val('User')">Reset</div>
@@ -412,7 +412,7 @@
                                 <div class="form-group row">
                                     <label for="storeTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeTerm" id="storeTerm" value="${retailer?.config?.retailerTerminologyConfig.storeTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeTerm" id="storeTerm" value="${retailer?.config?.retailerTerminologyConfig?.storeTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-store-term-button"onclick="$('#storeTerm').val('Store')">Reset</div>
@@ -421,7 +421,7 @@
                                 <div class="form-group row">
                                     <label for="itemCodeTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Item Code</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.itemCodeTerm" id="itemCodeTerm" value="${retailer?.config?.retailerTerminologyConfig?.itemCodeTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.itemCodeTerm" id="itemCodeTerm" value="${retailer?.config?.retailerTerminologyConfig?.itemCodeTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-itemCode-term-button"onclick="$('#itemCodeTerm').val('Item Code')">Reset</div>
@@ -430,7 +430,7 @@
                                 <div class="form-group row">
                                     <label for="storeHoldingsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Holdings</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeHoldingsTerm" id="storeHoldingsTerm" value="${retailer?.config?.retailerTerminologyConfig?.storeHoldingsTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.storeHoldingsTerm" id="storeHoldingsTerm" value="${retailer?.config?.retailerTerminologyConfig?.storeHoldingsTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-storeHoldings-term-button"onclick="$('#storeHoldingsTerm').val('Store Holdings')">Reset</div>
@@ -439,7 +439,7 @@
                                 <div class="form-group row">
                                     <label for="inStockTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">In Stock</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.inStockTerm" id="inStockTerm" value="${retailer?.config?.retailerTerminologyConfig?.inStockTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.inStockTerm" id="inStockTerm" value="${retailer?.config?.retailerTerminologyConfig?.inStockTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-inStock-term-button"onclick="$('#inStockTerm').val('In Stock')">Reset</div>
@@ -448,7 +448,7 @@
                                 <div class="form-group row">
                                     <label for="deliveredTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Delivered</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.deliveredTerm" id="deliveredTerm" value="${retailer?.config?.retailerTerminologyConfig?.deliveredTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.deliveredTerm" id="deliveredTerm" value="${retailer?.config?.retailerTerminologyConfig?.deliveredTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-delivered-term-button"onclick="$('#deliveredTerm').val('Delivered')">Reset</div>
@@ -457,7 +457,7 @@
                                 <div class="form-group row">
                                     <label for="accentBarStoreTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store (Accent Bar)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.accentBarStoreTerm" id="accentBarStoreTerm" value="${retailer?.config?.retailerTerminologyConfig?.accentBarStoreTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.accentBarStoreTerm" id="accentBarStoreTerm" value="${retailer?.config?.retailerTerminologyConfig?.accentBarStoreTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-accent-bar-store-term-button"onclick="$('#accentBarStoreTerm').val('Store')">Reset</div>
@@ -467,7 +467,7 @@
                                 <div class="form-group row">
                                     <label for="stockLocationsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Locations (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-stockLocations-term-button"onclick="$('#stockLocationsTerm').val('Stock Locations')">Reset</div>
@@ -476,7 +476,7 @@
                                 <div class="form-group row">
                                     <label for="descriptionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Description (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.descriptionTerm" id="descriptionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.descriptionTerm" id="descriptionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-description-term-button"onclick="$('#descriptionTerm').val('Description')">Reset</div>
@@ -485,7 +485,7 @@
                                 <div class="form-group row">
                                     <label for="bayTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Bay (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.bayTerm" id="bayTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.bayTerm" id="bayTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-bay-term-button"onclick="$('#bayTerm').val('Bay')">Reset</div>
@@ -494,7 +494,7 @@
                                 <div class="form-group row">
                                     <label for="shelfTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfTerm" id="shelfTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfTerm" id="shelfTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-shelf-term-button"onclick="$('#shelfTerm').val('Shelf')">Reset</div>
@@ -503,7 +503,7 @@
                                 <div class="form-group row">
                                     <label for="positionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Position (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.positionTerm" id="positionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.positionTerm" id="positionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-position-term-button"onclick="$('#positionTerm').val('Position')">Reset</div>
@@ -512,7 +512,7 @@
                                 <div class="form-group row">
                                     <label for="aisleTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Aisle (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.aisleTerm" id="aisleTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.aisleTerm" id="aisleTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-aisle-term-button"onclick="$('#aisleTerm').val('Aisle')">Reset</div>
@@ -521,7 +521,7 @@
                                 <div class="form-group row">
                                     <label for="shelfCapacityTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf Capacity (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfCapacityTerm" id="shelfCapacityTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfCapacityTerm" id="shelfCapacityTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('Shelf Capacity')">Reset</div>
@@ -532,8 +532,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="accordionFunctionModification">
+
                 <!-- Function Modification. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="functionModification" data-toggle="collapse" data-target="#collapseFunctionModification" aria-expanded="true" aria-controls="collapseFunctionModification">
@@ -547,9 +546,9 @@
                         </div>
                     </div>
 
-                    <div id="collapseFunctionModification" class="collapse " aria-labelledby="functionModificationDetails" data-parent="#accordionFunctionModification">
+                    <div id="collapseFunctionModification" class="collapse " aria-labelledby="functionModificationDetails" data-parent="#accordion">
                         <div class="card-body py-5">
-                            <div class="col-12">
+                            <div id="functionAccordion" class="col-12">
                                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                                     <div class="card-header pointer" id="productLookup" data-toggle="collapse" data-target="#collapseProductLookup" aria-expanded="true" aria-controls="collapseProductLookup">
                                         <div class="row">
@@ -562,7 +561,7 @@
                                         </div>
                                     </div>
 
-                                    <div id="collapseProductLookup" class="collapse" aria-labelledby="productLookup" data-parent="#productLookup">
+                                    <div id="collapseProductLookup" class="collapse" aria-labelledby="productLookup" data-parent="#functionAccordion">
                                         <div class="card-body py-5">
                                             <div class="col-12">
                                                 <div class="form-group row">
@@ -574,79 +573,94 @@
                                                         <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">SEL & RTC Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">SEL & RTC Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="selVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="selVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="selVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="selVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="selVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="selVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.shelfEdgeVisibility" id="selVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.shelfEdgeVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">VAT Rates Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">VAT Rates Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="vatRatesVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="vatRatesVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="vatRatesVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="vatRatesVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="vatRatesVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="vatRatesVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.vatRatesVisibility" id="vatRatesVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.vatRatesVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">Style Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">Style Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="styleVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="styleVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="styleVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="styleVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="styleVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="styleVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.styleVisibility" id="styleVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.styleVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">Category Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">Category Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="categoryVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="categoryVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="categoryVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === "DISABLED" ? 'checked' : ''} />
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="categoryVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === "DISABLED" ? 'checked' : ''} />
                                                     </div>
-                                                    <label for="categoryVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="categoryVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.categoryVisibility" id="categoryVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.categoryVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
-                                                <h5 class="text-center">Visibility Status</h5>
+
+                                                <h5 class="text-center mt-4">Visibility Status</h5>
                                                 <div class="form-group row justify-content-center">
-                                                    <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="productLookupVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="productLookupVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
                                                     </div>
-                                                    <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                    <div class="col-10 col-lg-1">
-                                                        <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                    <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                        <label for="productLookupVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                        <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[productLookup].menuItemVisibility" id="productLookupVisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -694,7 +708,7 @@
                                             </div>
                                         </div>
 
-                                        <div id="collapse${item}" class="collapse" aria-labelledby="${item}" data-parent="#${item}">
+                                        <div id="collapse${item}" class="collapse" aria-labelledby="${item}" data-parent="#functionAccordion">
                                             <div class="card-body py-5">
                                                 <div class="col-12">
                                                     <div class="form-group row">
@@ -706,19 +720,22 @@
                                                             <div class="btn btn-danger" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
                                                         </div>
                                                     </div>
-                                                    <h5 class="text-center">Visibility Status</h5>
+
+                                                    <h5 class="text-center mt-5">Visibility Status</h5>
                                                     <div class="form-group row justify-content-center">
-                                                        <label for="productLookupVisibilityEnabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Enabled</label>
-                                                        <div class="col-10 col-lg-1">
-                                                            <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
+                                                        <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                            <label for="productLookupVisibilityEnabled" class="form-check-label">Enabled</label>
+                                                            <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityEnabled" value="ENABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'ENABLED' ? 'checked' : '' }/>
                                                         </div>
-                                                        <label for="productLookupVisibilityDisabled" class="col-10 col-lg-1 col-form-label text-right pr-4">Disabled</label>
-                                                        <div class="col-10 col-lg-1">
-                                                            <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
+
+                                                        <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                            <label for="productLookupVisibilityDisabled" class="form-check-label">Disabled</label>
+                                                            <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityDisabled" value="DISABLED" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'DISABLED' ? 'checked' : '' }/>
                                                         </div>
-                                                        <label for="productLookupVisibilityInvisible" class="col-10 col-lg-1 col-form-label text-right pr-4">Invisible</label>
-                                                        <div class="col-10 col-lg-1">
-                                                            <input type="radio" class="col-2 form-check-input wl-radio" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
+
+                                                        <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
+                                                            <label for="productLookupVisibilityInvisible" class="form-check-label">Invisible</label>
+                                                            <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                         </div>
                                                     </div>
                                                     <g:each in="${retailer.config.retailerFunctionConfig.functionMenuItems[item].functionToggles}" var="toggle" status="i">

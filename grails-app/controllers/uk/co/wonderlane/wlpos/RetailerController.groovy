@@ -40,7 +40,7 @@ class RetailerController {
         if (retailerCommand.brandLogo?.filename != "" && retailerCommand.brandLogo?.filename != null) {
             brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
         }
-        for(toggle in retailerCommand.menuItemDetails.functionToggles.values()){
+        for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
             var t = new FunctionToggle()
             t.name = toggle.name
             t.enabled = toggle.enabled == true

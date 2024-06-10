@@ -53,7 +53,7 @@ class StoreServiceSpec extends Specification implements ServiceUnitTest<StoreSer
         storeSettings1.springSecurityService = springSecurityService
 
         when: 'The save store settings action is executed'
-        service.saveStoreSettings(storeSettings1)
+        service.saveStore(storeSettings1)
 
         Store insertStoreSetting = principalStoreId ? Store.findById(principalStoreId) : Store.findByRetailerId(principalRetailerId)
 
