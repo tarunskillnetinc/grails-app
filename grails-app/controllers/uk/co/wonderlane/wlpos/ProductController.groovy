@@ -539,6 +539,10 @@ class ProductController extends BaseController {
             product.errors.rejectValue("itemCode", "product.itemCode.nullable.error")
         }
 
+        if (editedProduct.effectiveDate == null) {
+            product.errors.reject('error.Product.badEffectiveDate')
+        }
+
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct) ) {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
@@ -631,8 +635,13 @@ class ProductController extends BaseController {
         def topLevelCategories = categoryService.getTopLevelCategories()
         def vatValues = VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-        editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+        try {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+            editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
+            editedProduct.setEffectiveDate(null)
+        }
 
         Product product = saveProduct(editedProduct, params, true)
 
@@ -780,13 +789,16 @@ class ProductController extends BaseController {
     }
 
     private DateTime getEffectiveDate(def effectiveDate) {
-        if (effectiveDate) {
-            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-            DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
-            return selectedDate.withTimeAtStartOfDay()
-        } else {
-            return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        try {
+            if (effectiveDate) {
+                DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+                DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
+                return selectedDate.withTimeAtStartOfDay()
+            }
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
         }
+        return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
     }
 
     private DateTime getEffectiveDate() {
