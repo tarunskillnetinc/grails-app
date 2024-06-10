@@ -57,7 +57,7 @@ class Product {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
-        itemCode column: "itemCode"
+        itemCode column: "itemCode", sqlType: "char"
         description column: "`description`"
         receiptDescription column: "receiptDescription"
         category column: "categoryId"
