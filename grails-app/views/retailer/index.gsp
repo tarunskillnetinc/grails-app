@@ -68,10 +68,20 @@
         }
         function camelToReadable(camelCaseString) {
             // Use a regular expression to split the string at capital letters
-            const words = camelCaseString.split(/(?=[A-Z])/);
+            const words = splitCamelCaseString(camelCaseString);
             // Capitalize the first letter of each word and join with spaces
             const readableString = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             return readableString;
+        }
+
+        function renameBottomButtonName(camelCaseString) {
+            const words = splitCamelCaseString(camelCaseString);
+            words[1].charAt(0).toUpperCase();
+            return words[1];
+        }
+
+        function splitCamelCaseString(camelCaseString) {
+            return camelCaseString.split(/(?=[A-Z])/);
         }
     </script>
 </head>
@@ -560,10 +570,10 @@
                                                 <div class="form-group row">
                                                     <label for="productLookupName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Name</label>
                                                     <div class="col-7 col-lg-4">
-                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].name}"/>
+                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig?.functionMenuItems['productLookup'].name}"/>
                                                     </div>
                                                     <div class="form-group row">
-                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
+                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('Product Lookup')">Reset</div>
                                                     </div>
                                                 </div>
 
@@ -661,6 +671,13 @@
                                     </div>
                                 </div>
                                 <%
+                                    var bottomFileButtonName = "bottomFileButton"
+                                    var bottomButtonNames = [
+                                            "bottomHomeButton",
+                                            "bottomProductButton",
+                                            bottomFileButtonName,
+                                            "bottomSettingsButton"
+                                    ]
                                     var itemList = [
                                             "gapCheck",
                                             "stockCount",
@@ -681,12 +698,10 @@
                                             "priceCheck",
                                             "storeSales",
                                             "storeReports",
-                                            "varianceReport",
-                                            "bottomHomeButton",
-                                            "bottomProductButton",
-                                            "bottomFileButton",
-                                            "bottomSettingsButton",
+                                            "varianceReport"
                                     ]
+
+                                    itemList.addAll(bottomButtonNames)
                                 %>
                                 <g:each in="${itemList}" var="item" status="index">
                                     <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -710,7 +725,15 @@
                                                             <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[${item}].name" id="${item}Name" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].name}"/>
                                                         </div>
                                                         <div class="form-group row">
-                                                            <div class="btn btn-danger" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
+                                                            <g:if test="${item == bottomFileButtonName}">
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val('Sales')">Reset</div>
+                                                            </g:if>
+                                                            <g:elseif test="${bottomButtonNames.contains(item)}">
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(renameBottomButtonName('${item}'))">Reset</div>
+                                                            </g:elseif>
+                                                            <g:else>
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(camelToReadable('${item}'))">Reset</div>
+                                                            </g:else>
                                                         </div>
                                                     </div>
 
