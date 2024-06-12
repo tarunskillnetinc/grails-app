@@ -35,33 +35,44 @@ class ProductListService extends MySqlDal {
                     like("description", "%$searchTerm%")
                     def matchingEnums =[]
                     ProductListStatus.values().each {status ->
-                        if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                        if (status.name().toString().toLowerCase().contains(searchTerm.toLowerCase())){
                             matchingEnums.add(status)
                         }
                     }
                     if (matchingEnums.size() > 0) {
-                        matchingEnums.each {matchingEnum ->
+                        matchingEnums.each { matchingEnum ->
                             eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
                         }
                     }
-                    like("ownerUsersName", "%$searchTerm%")
+
+                    if (searchTerm == "N/A") {
+                        isNull("ownerUsersName")
+                    } else {
+                        like("ownerUsersName", "%$searchTerm%")
+                    }
                 }
             } else if (searchBy == "Description" && searchTerm) {
                 like("description", "%$searchTerm%")
             } else if (searchBy == "Status" && searchTerm) {
-                def matchingEnums =[]
-                ProductListStatus.values().each {status ->
-                    if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
-                        matchingEnums.add(status)
+                or {
+                    def matchingEnums = []
+                    ProductListStatus.values().each { status ->
+                        if (status.name().toString().toLowerCase().contains(searchTerm.toLowerCase())) {
+                            matchingEnums.add(status)
+                        }
                     }
-                }
-                if (matchingEnums.size() > 0) {
-                    matchingEnums.each {matchingEnum ->
-                        like("status", ProductListStatus.valueOf(matchingEnum.toString()))
+                    if (matchingEnums.size() > 0) {
+                        matchingEnums.each { matchingEnum ->
+                            eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
+                        }
                     }
                 }
             } else if (searchBy == "Current Owner" && searchTerm) {
-                like("ownerUsersName", "%$searchTerm%")
+                if (searchTerm == "N/A") {
+                    isNull("ownerUsersName")
+                } else {
+                    like("ownerUsersName", "%$searchTerm%")
+                }
             }
         }
     }
