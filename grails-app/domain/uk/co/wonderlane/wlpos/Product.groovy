@@ -115,7 +115,7 @@ class Product {
     }
 
     List<RangeProduct> getRanges() {
-        return RangeProduct.findAllByProductId(id)
+        return RangeProduct.findAllByProductIdAndDeleted(id, false)
     }
 
     BigDecimal getCostPrice() {
