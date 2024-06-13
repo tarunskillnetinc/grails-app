@@ -38,13 +38,12 @@ class Product {
 
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
-    Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
 
     BigDecimal retailPrice
     BigDecimal costPrice
 
-    static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
+    static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant ]
 
     static transients = ['retailPrice', 'costPrice']
 
@@ -78,7 +77,6 @@ class Product {
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
-        discountRates joinTable: [name: 'productdiscount', key: 'productId', column: 'discountRateId']
     }
 
     static constraints = {
@@ -260,9 +258,6 @@ class Product {
         }
         refundMessages.each {
             product.getRefundMessages().add(it.getMessage())
-        }
-        discountRates.each {
-            product.getDiscountRates().add(it.getDiscountRate())
         }
         product.setRetailerItemId(retailerProductId)
         product.setLocal(false)
