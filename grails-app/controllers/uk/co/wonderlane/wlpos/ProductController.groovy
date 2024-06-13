@@ -580,7 +580,7 @@ class ProductController extends BaseController {
                     return product
                 }
 
-                saveRangeUpdates(product, editedProduct.rangeId)
+                saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
             }
 
             if (isRequest) {
@@ -1246,44 +1246,47 @@ class ProductController extends BaseController {
         }
     }
 
-    private void saveRangeUpdates(Product product, int[] savedRanges) {
-        def rangesRemovedFrom = []
-        def rangesAddedTo = []
+    private void saveRangeUpdates(Product product, HashSet<Integer> savedRanges) {
+        def productRanges = RangeProduct.getExistingProductRanges(product.id)
+        def ranges = Range.getExistingRetailerRanges(springSecurityService.principal.retailerId)
         def productHistories = []
 
-        def rangeProducts = RangeProduct.findAllByProductId(product.id)
-        rangeProducts.each { RangeProduct rangeProduct ->
-            if (!savedRanges?.contains(rangeProduct.rangeId)) {
-                rangesRemovedFrom.add(rangeProduct.rangeId)
-            }
-        }
-
         savedRanges?.each { Integer rangeId ->
-            if (!rangeProducts.any { it.rangeId == rangeId }) {
-                rangesAddedTo.add(rangeId)
+            if (!productRanges.containsKey(rangeId)) {
+                // range doesn't exist for product, so add it
+                addRange(product, ranges.get(rangeId), productHistories)
+            } else if (productRanges.get(rangeId).deleted) {
+                // range exists, but is soft deleted, un-delete it
+                undeleteRange(product, productRanges.get(rangeId), ranges.get(rangeId), productHistories)
             }
         }
 
-        rangesRemovedFrom.each { Integer rangeId ->
-            RangeProduct rangeProductDelete = rangeProducts.find { it.rangeId == rangeId }
-            productHistories.add(handleProductRangeHistory(rangeProductDelete, false))
-            productService.deleteRangeProduct(rangeProductDelete)
-        }
-
-        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
-        rangesAddedTo.each { Integer rangeId ->
-            RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
-            productHistories.add(handleProductRangeHistory(rangeProduct, true))
-            productService.saveRangeProduct(rangeProduct)
-            productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
-        }
-
-        if (productHistories != null && productHistories.size() > 0){
+        // delete all ranges that have been unselected, except those already soft-deleted
+        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories)}
+        if (productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
     }
 
-    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
+    private void addRange(Product product, Range range, ArrayList<ProductHistory> history) {
+        RangeProduct rangeProduct = new RangeProduct(range: range, productId: product.id)
+        history.add(handleProductRangeHistory(rangeProduct, true))
+        productService.saveRangeProduct(rangeProduct)
+        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, range))
+    }
+
+    private void undeleteRange(Product product, RangeProduct rangeProduct, Range range, ArrayList<ProductHistory> history) {
+        history.add(handleProductRangeHistory(rangeProduct, true))
+        productService.undeleteRangeProduct(rangeProduct)
+        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, range))
+    }
+
+    private void deleteRange(RangeProduct rangeProduct, ArrayList<ProductHistory> history) {
+        history.add(handleProductRangeHistory(rangeProduct, false))
+        productService.deleteRangeProduct(rangeProduct)
+    }
+
+    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew) {
         def now = DateTime.now(DateTimeZone.UTC)
         ProductHistoryType productHistoryType = isNew ? ProductHistoryType.PRODUCT_RANGE_ADD : ProductHistoryType.PRODUCT_RANGE_DELETE
 

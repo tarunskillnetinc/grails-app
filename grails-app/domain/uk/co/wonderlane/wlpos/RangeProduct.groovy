@@ -40,4 +40,8 @@ class RangeProduct implements Serializable {
     int hashCode() {
         return (range?.id?.hashCode() ?: 123) + productId.hashCode()
     }
+
+    static HashMap<Integer, RangeProduct> getExistingProductRanges(Integer productId) {
+        return findAllByProductId(productId).collectEntries{[it.rangeId, it]} as HashMap<Integer, RangeProduct>
+    }
 }
