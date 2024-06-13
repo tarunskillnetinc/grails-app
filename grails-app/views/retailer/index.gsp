@@ -115,14 +115,18 @@
     <g:hasErrors bean="${retailer}">
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${retailer}" as="list" />
+                <g:renderErrors bean="${retailer}" as="list"/>
             </div>
         </section>
     </g:hasErrors>
 
     <g:if test="${flash.error}">
-        <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+        <section id="errors-container2" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:each in="${flash.error}" var="error" status="i">
+                    ${error}<br/>
+                </g:each>
+            </div>
         </section>
     </g:if>
 
@@ -135,7 +139,6 @@
             </div>
         </section>
     </g:if>
-
 
 
     <section id="addProduct-section" class="container-fluid mt-4">
