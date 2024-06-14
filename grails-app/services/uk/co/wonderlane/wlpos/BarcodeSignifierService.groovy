@@ -116,6 +116,46 @@ class BarcodeSignifierService extends MySqlDal {
         return result
     }
 
+    def deleteSignifier(int retailerId, int signifierId) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = null
+        def result = [:]
+
+        try {
+            transaction = session.beginTransaction()
+
+            // Fetching the existing signifier by retailerId and signifierId
+            String hql = "FROM BarcodeSignifier WHERE retailerId = :retailerId AND id = :signifierId"
+            BarcodeSignifier existingSignifier = session.createQuery(hql, BarcodeSignifier.class)
+                    .setParameter("retailerId", retailerId)
+                    .setParameter("signifierId", signifierId)
+                    .uniqueResult()
+
+            if (existingSignifier != null) {
+                // Deleting associated embedded data
+                String deleteEmbeddedDataHql = "DELETE FROM BarcodeSignifierEmbeddedData WHERE barcodeSignifierId = :signifierId"
+                session.createQuery(deleteEmbeddedDataHql)
+                        .setParameter("signifierId", existingSignifier.id)
+                        .executeUpdate()
+
+                // Deleting the signifier
+                session.delete(existingSignifier)
+            }
+
+            transaction.commit()
+            result.success = true
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback()
+            }
+            result.success = false
+        } finally {
+            session.close()
+        }
+
+        return result
+    }
+
     private void handleException(Exception e, def result) {
         def errorMessages = [:]
         if (e instanceof ConstraintViolationException && e.getSQLException().getMessage().toLowerCase().contains("unique_retailer_pattern_length")) {

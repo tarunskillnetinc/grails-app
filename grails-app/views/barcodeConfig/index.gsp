@@ -24,6 +24,7 @@
     var getSignifiersURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSearchForBarcodeSignifiers')}"
     var addSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxAddSignifier')}"
     var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
+    var deleteSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxDeleteSignifier')}"
 
     var globalSortParams = null;
 
@@ -101,12 +102,37 @@
         });
     }
 
+    function deleteSignifier(signifierId) {
+        if (confirm("This will delete the selected signifier.")) {
+            $.ajax({
+                url: deleteSignifierURL,
+                method: "DELETE",
+                data: {signifierId: signifierId},
+                success: function (data, textStatus, resp) {
+                    $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                    getSignifiers()
+                },
+                error: function (resp) {
+                    $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                    getSignifiers()
+                }
+            });
+        }
+    }
+
     function hideBtns() {
         $('.modal-footer').hide()
     }
 
     function showBtns() {
         $('.modal-footer').show()
+    }
+
+    function clearFilters() {
+        $("#typeFilter").val("");
+        $("#descriptionFilter").val("");
+        $("#patternFilter").val("");
+        getSignifiers()
     }
     </script>
 </head>
@@ -158,7 +184,7 @@
                         <div class="form-group row">
                             <label for="typeFilter" class="col-2 col-form-label-sm text-right">Type</label>
                             <div class="col-3">
-                                <g:select name="typeFilter" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
+                                <g:select id="typeFilter" name="typeFilter" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
                                           optionKey="${{it}}"
                                           noSelection="['': 'All']"
                                           class="form-control select-border"></g:select>

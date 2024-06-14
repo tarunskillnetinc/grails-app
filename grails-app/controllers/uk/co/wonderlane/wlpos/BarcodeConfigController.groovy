@@ -52,12 +52,12 @@ class BarcodeConfigController {
         render (template: "signifiersSearchResults", model: [signifiers: signifiers, sortParams: sortParams, offset: offset, max: max, totalResults: totalResults])
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    @Secured(['ROLE_ENGINEER'])
     def ajaxAddSignifier() {
         render (template: 'addSignifier', model: [enableEdit: false, error:false, signifierTypes: BarcodeSignifierType.values()])
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    @Secured(['ROLE_ENGINEER'])
     def ajaxSaveSignifier() {
 
         def signifier = new uk.co.wonderlane.wlpos.BarcodeSignifier();
@@ -78,5 +78,16 @@ class BarcodeConfigController {
             return
         }
         render "OK"
+    }
+
+    @Secured(['ROLE_ENGINEER'])
+    def ajaxDeleteSignifier(int signifierId) {
+        int retailerId = springSecurityService.principal.retailerId
+        def result = barcodeSignifierService.deleteSignifier(retailerId, signifierId)
+        if (result.success) {
+            render status: 200, text: "Barcode signifier has been deleted successfully."
+        } else {
+            render status: 500, text: "Error deleting Barcode Signifier."
+        }
     }
 }

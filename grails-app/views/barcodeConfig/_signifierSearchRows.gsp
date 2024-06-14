@@ -19,7 +19,7 @@
         </div>
         <div class="col-2 my-auto text-right">
             <button id="edit-${i + 1}" class="btn btn-wl mx-2" onclick="">Edit</button>
-            <button id="delete-${i + 1}" class="btn btn-danger mx-2" onclick="">Delete</button>
+            <button id="delete-${i + 1}" class="btn btn-danger mx-2" onclick="deleteSignifier(${signifier['id']})">Delete</button>
         </div>
     </div>
 </g:each>
