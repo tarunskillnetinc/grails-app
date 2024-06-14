@@ -37,13 +37,41 @@ class BarcodeSignifier {
     }
 
     static constraints = {
-        pattern size: 1..45, blank: false, nullable: false
+        pattern blank: true, nullable: true, validator: { val, obj ->
+            if (val == null || val.trim().isEmpty()) {
+                return ['signifier.pattern.required']
+            } else if (val.length() > 45 ) {
+                return ['signifier.pattern.charLength']
+            }
+        }
         startIndex blank: true, nullable: true
-        length blank: true, nullable: true
-        retailerId nullable: false
-        type size: 1..20, nullable: false, blank: false
-        description size:0..45, blank: true, nullable: true
-        receiptDescription size:0..20, blank: true, nullable: true
+        length blank: true, nullable: true, validator: { val, obj ->
+            if (val == null) {
+                return ['signifier.length.required']
+            }
+        }
+        retailerId blank: true, nullable: true, validator: { val, obj ->
+            if (val == null) {
+                return ['signifier.retailerId.required']
+            }
+        }
+        type blank: true, nullable: true, validator: { val, obj ->
+            if (val == null || val.trim().isEmpty()) {
+                return ['signifier.type.required']
+            } else if (val.length() > 20 ) {
+                return ['signifier.type.charLength']
+            }
+        }
+        description blank: true, nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 45 ) {
+                return ['signifier.description.charLength']
+            }
+        }
+        receiptDescription  blank: true, nullable: true, validator: { val, obj ->
+            if (val != null && val.length() > 20 ) {
+                return ['signifier.receiptDescription.charLength']
+            }
+        }
         checkDigit blank: true, nullable: true
         discountPercentage blank: true, nullable: true
     }

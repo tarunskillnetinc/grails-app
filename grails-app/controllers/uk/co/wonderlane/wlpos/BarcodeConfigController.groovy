@@ -51,4 +51,32 @@ class BarcodeConfigController {
 
         render (template: "signifiersSearchResults", model: [signifiers: signifiers, sortParams: sortParams, offset: offset, max: max, totalResults: totalResults])
     }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxAddSignifier() {
+        render (template: 'addSignifier', model: [enableEdit: false, error:false, signifierTypes: BarcodeSignifierType.values()])
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxSaveSignifier() {
+
+        def signifier = new uk.co.wonderlane.wlpos.BarcodeSignifier();
+        signifier.type = params.typeValue ? params.typeValue : null;
+        signifier.pattern = params.patternValue ? params.patternValue : null
+        signifier.startIndex = params.startIndexValue ? Integer.parseInt(params.startIndexValue) : null
+        signifier.length = params.lengthValue ? Integer.parseInt(params.lengthValue) : null
+        signifier.description = params.descriptionValue ? params.descriptionValue : null
+        signifier.receiptDescription = params.receiptDescriptionValue ? params.receiptDescriptionValue : null
+        signifier.checkDigit = params.checkDigitValue ? Boolean.parseBoolean(params.checkDigitValue) : null
+        signifier.discountPercentage = params.discountPercentageValue ? Integer.parseInt(params.discountPercentageValue) : null
+        signifier.retailerId = springSecurityService.principal.retailerId
+
+        def result = barcodeSignifierService.saveSignifier(signifier);
+        if (!result.success) {
+            render(template: "addSignifier",  model: [signifier:signifier, error:true,
+                                                      errorMessages:result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
+            return
+        }
+        render "OK"
+    }
 }

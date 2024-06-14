@@ -38,7 +38,7 @@
         offset: ${sortParams?.offset},
         sort: 'receiptDescription',
         order: ${sortParams?.sort == 'receiptDescription' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-    });">Receipt Description<a/></div>
+    });">Receipt Description</a></div>
     <div class="col-2 font-weight-bold text-center">Embedded Data</div>
     <div class="col-2 font-weight-bold text-center"></div>
 </div>

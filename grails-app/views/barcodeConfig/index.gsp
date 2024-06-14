@@ -8,9 +8,22 @@
     <asset:javascript src="co-utils.js" />
     <asset:javascript src="validators/input-validator.js" />
 
+    <style>
+        .custom-checkbox-align .form-check-input {
+            width: 1.5em;
+            height: 1.5em;
+            margin-left: 0;
+        }
+        .field-error {
+            font-size: 0.7em; /* Adjust the size as needed */
+        }
+    </style>
+
     <script type="text/javascript">
 
     var getSignifiersURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSearchForBarcodeSignifiers')}"
+    var addSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxAddSignifier')}"
+    var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
 
     var globalSortParams = null;
 
@@ -47,6 +60,53 @@
                 $('#results-container').html(resp);
             }
         });
+    }
+
+    function addSignifier() {
+        $("#addSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+        $('#addSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+        $.ajax({
+            url: addSignifierURL,
+            method: "GET",
+            success: function (resp) {
+                $("#addSignifierContent").html(resp);
+                applyListeners();
+            }
+        });
+    }
+
+    function cancelSignifier() {
+        if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+            $('#addSignifierModal').modal('hide')
+        }
+    }
+
+    function saveSignifier() {
+        var formValues = $("#addSignifierForm").serialize();
+        $("#addSignifierContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>")
+        hideBtns();
+        $.ajax({
+            url: saveSignifierURL,
+            method: "POST",
+            data: formValues,
+            success: function (resp) {
+                if (resp === "OK") {
+                    $('#addSignifierModal').modal('hide')
+                    getSignifiers()
+                } else {
+                    showBtns();
+                    $("#addSignifierContent").html(resp);
+                }
+            }
+        });
+    }
+
+    function hideBtns() {
+        $('.modal-footer').hide()
+    }
+
+    function showBtns() {
+        $('.modal-footer').show()
     }
     </script>
 </head>
@@ -136,22 +196,12 @@
     </div>
 </section>
 
-<section id="addTill-modal" class="container-fluid">
-    <!-- Add Till modal -->
-    <div class="modal fade" id="addTillModal" tabindex="-1" role="dialog" aria-labelledby="addTillModalLabel"
+<section id="addSignifier-modal" class="container-fluid">
+    <!-- Add Signifier modal -->
+    <div class="modal fade" id="addSignifierModal" tabindex="-1" role="dialog" aria-labelledby="addSignifierModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
-            <div id="addTillContent" class="modal-content"></div>
-        </div>
-    </div>
-</section>
-
-<section id="advancedConfiguration-modal" class="container-fluid">
-    <!-- Advanced Configuration modal -->
-    <div class="modal fade" id="advancedTillModal" tabindex="-1" role="dialog" aria-labelledby="advancedTillModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div id="advancedTillContent" class="modal-content"></div>
+            <div id="addSignifierContent" class="modal-content"></div>
         </div>
     </div>
 </section>
