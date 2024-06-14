@@ -73,6 +73,10 @@ class BarcodeSignifier {
             }
         }
         checkDigit blank: true, nullable: true
-        discountPercentage blank: true, nullable: true
+        discountPercentage blank: true, nullable: true, validator: { val, obj ->
+            if (val != null && (val < 0 || val > 100) ) {
+                return ['signifier.discountPercentage.charLength']
+            }
+        }
     }
 }

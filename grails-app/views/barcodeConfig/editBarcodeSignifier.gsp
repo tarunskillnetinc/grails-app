@@ -100,12 +100,14 @@
           <div class="form-group row">
             <label for="typeValue" class="col-2 col-form-label-mandatory text-right">Type</label>
             <div class="col-4">
-              <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
-                        optionKey="${{it}}"
-                        noSelection="['': 'Select Type']"
-                        class="form-control select-border"
-                        value="${signifier?.type}" />
-              <div class="field-error text-sm-left">
+              <div class="input-group">
+                <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
+                          optionKey="${{it}}"
+                          noSelection="['': 'Select Type']"
+                          class="form-control select-border"
+                          value="${signifier?.type}" />
+              </div>
+              <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'type', errorMessages: errorMessages, error: error]" />
               </div>
             </div>
@@ -117,15 +119,19 @@
           <div class="form-group row">
             <label for="patternValue" class="col-2 col-form-label-mandatory text-right">Pattern</label>
             <div class="col-4">
-              <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-              <div class="field-error text-sm-left">
+              <div class="input-group">
+                <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+              </div>
+              <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'pattern', errorMessages: errorMessages, error: error]" />
               </div>
             </div>
             <label for="lengthValue" class="col-2 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
-              <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-              <div class="field-error text-sm-left">
+              <div class="input-group">
+                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+              </div>
+              <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
               </div>
             </div>
@@ -133,9 +139,15 @@
           <div class="form-group row">
             <label for="discountPercentageValue" class="col-2 col-form-label-sm text-right">Discount Percentage</label>
             <div class="col-4">
-              <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+              <div class="input-group">
+                <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+              </div>
+              <div class="field-error text-sm-left mt-2">
+                <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />
+              </div>
             </div>
           </div>
+          <g:render template="/errors/errorMessage" model="[errorKey: 'general', errorMessages: errorMessages, error: error]" />
         </form>
         <div id="btn-container" class="form-group row">
           <div class="col-12 text-right">

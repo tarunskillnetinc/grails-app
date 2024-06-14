@@ -8,6 +8,7 @@ import org.springframework.dao.DuplicateKeyException
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 
+import javax.persistence.PersistenceException
 import java.sql.SQLException
 
 @Transactional
@@ -180,6 +181,13 @@ class BarcodeSignifierService extends MySqlDal {
         def errorMessages = [:]
         if (e instanceof ConstraintViolationException && e.getSQLException().getMessage().toLowerCase().contains("unique_retailer_pattern_length")) {
             errorMessages.general = "The combination of pattern and length cannot be duplicated."
+        } else if(e instanceof PersistenceException && e.getCause() instanceof ConstraintViolationException) {
+            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause()
+            if (constraintViolationException.getSQLException().getMessage().toLowerCase().contains("unique_retailer_pattern_length")) {
+                errorMessages.general = "The combination of pattern and length cannot be duplicated."
+            } else {
+                errorMessages.general = "An unexpected error occurred while saving the data."
+            }
         } else {
             errorMessages.general = "An unexpected error occurred while saving the data."
         }

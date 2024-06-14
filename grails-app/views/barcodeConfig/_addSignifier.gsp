@@ -22,35 +22,39 @@
 
         <div class="row form-group mb-4">
             <label for="typeValue" class="col-3 offset-1 col-form-label-mandatory text-right">Type</label>
-            <div class="input-group col-4">
-                <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
-                          optionKey="${{it}}"
-                          noSelection="['': 'Select Type']"
-                          class="form-control select-border"
-                          value="${signifier?.type}" />
-                <div class="field-error text-sm-left">
+            <div class="col-4">
+                <div class="input-group">
+                    <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
+                              optionKey="${{it}}"
+                              noSelection="['': 'Select Type']"
+                              class="form-control select-border"
+                              value="${signifier?.type}" />
+                </div>
+                <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'type', errorMessages: errorMessages, error: error]" />
                 </div>
             </div>
         </div>
 
         <div class="row form-group mb-4">
-            <label for="patternValue" class="col-3 offset-1 col-form-label-mandatory text-right" >Pattern</label>
-
-            <div class="input-group col-4">
-                <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-                <div class="field-error text-sm-left">
+            <label for="patternValue" class="col-3 offset-1 col-form-label-mandatory text-right">Pattern</label>
+            <div class="col-4">
+                <div class="input-group">
+                    <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                </div>
+                <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'pattern', errorMessages: errorMessages, error: error]" />
                 </div>
             </div>
         </div>
 
         <div class="row form-group mb-4">
-            <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right" >Length</label>
-
-            <div class="input-group col-4">
-                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-                <div class="field-error text-sm-left">
+            <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right">Length</label>
+            <div class="col-4">
+                <div class="input-group">
+                    <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                </div>
+                <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
                 </div>
             </div>
@@ -77,8 +81,13 @@
         <div class="row form-group mb-4">
             <label for="discountPercentageValue" class="col-3 offset-1 col-form-label text-right">Discount Percentage</label>
 
-            <div class="input-group col-4">
-                <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+            <div class="col-4">
+                <div class="input-group">
+                    <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+                </div>
+                <div class="field-error text-sm-left mt-2">
+                    <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />
+                </div>
             </div>
         </div>
 
