@@ -8,10 +8,17 @@
 </div>
 
 <div class="modal-body">
-    <div class="text-center mt-4 mb-5">Please complete the following form to add a new Signifier. Type, Pattern and Length are required.</div>
+    <div class="text-center mt-4 mb-5">Please complete the following form to add a new Signifier. Type, Pattern, and Length are required.</div>
 
     <g:form name="addSignifierForm">
-        <g:hiddenField name="id" value="${signifier?.id}" />
+
+        <div class="row form-group mb-4">
+            <label for="descriptionValue" class="col-3 offset-1 col-form-label text-right">Description</label>
+
+            <div class="input-group col-4">
+                <g:textField name="descriptionValue" value="${signifier?.description}" class="form-control bottom-border" />
+            </div>
+        </div>
 
         <div class="row form-group mb-4">
             <label for="typeValue" class="col-3 offset-1 col-form-label-mandatory text-right">Type</label>
@@ -31,7 +38,7 @@
             <label for="patternValue" class="col-3 offset-1 col-form-label-mandatory text-right" >Pattern</label>
 
             <div class="input-group col-4">
-                <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                 <div class="field-error text-sm-left">
                     <g:render template="/errors/fieldError" model="[errorKey: 'pattern', errorMessages: errorMessages, error: error]" />
                 </div>
@@ -42,26 +49,10 @@
             <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right" >Length</label>
 
             <div class="input-group col-4">
-                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                 <div class="field-error text-sm-left">
                     <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
                 </div>
-            </div>
-        </div>
-
-        <div class="row form-group mb-4">
-            <label for="startIndexValue" class="col-3 offset-1 col-form-label text-right" >Start Index</label>
-
-            <div class="input-group col-4">
-                <g:field type="number" id="startIndex" name="startIndexValue" value="${signifier?.startIndex}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
-            </div>
-        </div>
-
-        <div class="row form-group mb-4">
-            <label for="descriptionValue" class="col-3 offset-1 col-form-label text-right">Description</label>
-
-            <div class="input-group col-4">
-                <g:textField name="descriptionValue" value="${signifier?.description}" class="form-control bottom-border" />
             </div>
         </div>
 

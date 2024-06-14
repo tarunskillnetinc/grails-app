@@ -134,6 +134,10 @@
         $("#patternFilter").val("");
         getSignifiers()
     }
+
+    function loadEditSignifier(signifierId) {
+        window.location.href = '<g:createLink controller="barcodeConfig" action="editBarcodeSignifier"/>?signifierId=' + signifierId;
+    }
     </script>
 </head>
 
@@ -152,7 +156,7 @@
     </nav>
 </section>
 
-<section id="tillAssignment" class="container-fluid">
+<section id="barcodeConfiguration" class="container-fluid">
     <div class="row header-wl mt-3">
         <div class="col-6 offset-3">
             <h2 id="page-title" class="mx-auto my-auto">Barcode Configuration</h2>

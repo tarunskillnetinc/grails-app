@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
-import uk.co.wonderlane.wlpos.entities.BarcodeSignifier
 import uk.co.wonderlane.wlpos.enums.BarcodeSignifierType
 
 class BarcodeConfigController {
@@ -59,26 +58,34 @@ class BarcodeConfigController {
 
     @Secured(['ROLE_ENGINEER'])
     def ajaxSaveSignifier() {
-
-        def signifier = new uk.co.wonderlane.wlpos.BarcodeSignifier();
-        signifier.type = params.typeValue ? params.typeValue : null;
+        def signifier = new BarcodeSignifier()
+        signifier.id = params.id ? Integer.parseInt(params.id) : null
+        signifier.type = params.typeValue ? params.typeValue : null
         signifier.pattern = params.patternValue ? params.patternValue : null
         signifier.startIndex = params.startIndexValue ? Integer.parseInt(params.startIndexValue) : null
         signifier.length = params.lengthValue ? Integer.parseInt(params.lengthValue) : null
         signifier.description = params.descriptionValue ? params.descriptionValue : null
         signifier.receiptDescription = params.receiptDescriptionValue ? params.receiptDescriptionValue : null
-        signifier.checkDigit = params.checkDigitValue ? Boolean.parseBoolean(params.checkDigitValue) : null
+        signifier.checkDigit = params.checkDigitValue ? params.checkDigitValue == "on" : false
         signifier.discountPercentage = params.discountPercentageValue ? Integer.parseInt(params.discountPercentageValue) : null
         signifier.retailerId = springSecurityService.principal.retailerId
 
-        def result = barcodeSignifierService.saveSignifier(signifier);
+        def result = barcodeSignifierService.saveSignifier(signifier)
         if (!result.success) {
-            render(template: "addSignifier",  model: [signifier:signifier, error:true,
-                                                      errorMessages:result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
+            if (params.id == null) {
+                render(template: "addSignifier", model: [signifier: signifier, error: true,
+                                                         errorMessages: result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
+            } else {
+                // Render the editBarcodeSignifier GSP with errors
+                render(view: "editBarcodeSignifier", model: [signifier: signifier, error: true,
+                                                                 errorMessages: result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
+            }
             return
         }
         render "OK"
     }
+
+
 
     @Secured(['ROLE_ENGINEER'])
     def ajaxDeleteSignifier(int signifierId) {
@@ -89,5 +96,11 @@ class BarcodeConfigController {
         } else {
             render status: 500, text: "Error deleting Barcode Signifier."
         }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def editBarcodeSignifier() {
+        BarcodeSignifier barcodeSignifier = barcodeSignifierService.getBarcodeSignifierById(Integer.parseInt(params.signifierId))
+        [signifierId:params.signifierId, signifierTypes: BarcodeSignifierType.values(), signifier:barcodeSignifier]
     }
 }

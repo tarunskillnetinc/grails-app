@@ -97,7 +97,23 @@ class BarcodeSignifierService extends MySqlDal {
                 return result
             }
 
-            session.save(barcodeSignifier)
+            if (barcodeSignifier.id) {
+                // Fetch existing entity if id is present
+                BarcodeSignifier existingSignifier = session.get(BarcodeSignifier, barcodeSignifier.id)
+                if (existingSignifier) {
+                    // Copy properties from the incoming entity to the existing one
+                    existingSignifier.properties = barcodeSignifier.properties
+                    session.saveOrUpdate(existingSignifier)
+                } else {
+                    // Handle case where the id does not match any existing entity
+                    result.errorMessages = ["id": "Barcode Signifier with provided ID does not exist."]
+                    result.success = false
+                    return result
+                }
+            } else {
+                session.saveOrUpdate(barcodeSignifier)
+            }
+
             transaction.commit()
 
             result.success = true
@@ -154,6 +170,10 @@ class BarcodeSignifierService extends MySqlDal {
         }
 
         return result
+    }
+
+    def getBarcodeSignifierById(int signifierId) {
+        return BarcodeSignifier.findById(signifierId)
     }
 
     private void handleException(Exception e, def result) {

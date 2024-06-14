@@ -1,0 +1,178 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<html>
+<head>
+  <meta name="layout" content="main" />
+
+  <title>Barcode Configuration</title>
+  <asset:javascript src="co-utils.js" />
+  <asset:javascript src="validators/input-validator.js" />
+
+  <style>
+  .custom-checkbox-align .form-check-input {
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 0;
+  }
+  .field-error {
+    font-size: 0.7em; /* Adjust the size as needed */
+  }
+  .form-container {
+    border: 1px solid #cccccc; /* Add gray border */
+    padding: 20px; /* Add padding for better spacing */
+    width: 50%; /* Make the form half of the page size */
+    margin: 0 auto; /* Center the form */
+  }
+  </style>
+
+  <script type="text/javascript">
+
+    var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
+
+    function saveSignifier() {
+      var formValues = $("#editSignifierForm").serialize();
+      $("#editSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+      $('#editSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+      hideBtns();
+      $.ajax({
+        url: saveSignifierURL,
+        method: "POST",
+        data: formValues,
+        success: function (resp) {
+          if (resp === "OK") {
+            window.location.href = '<g:createLink controller="barcodeConfig" action="index"/>';
+          } else {
+            document.open();
+            document.write(resp);
+            document.close();
+          }
+        }
+      });
+    }
+
+    function hideBtns() {
+      $('#btn-container').hide()
+    }
+
+    function showBtns() {
+      $('#btn-container').show()
+    }
+  </script>
+</head>
+
+<body>
+<section id="breadcrumb-container" class="container-fluid">
+  <nav aria-label="breadcrumb">
+    <div class="row mt-4">
+      <div class="col">
+        <ol class="breadcrumb">
+          <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+          <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Edit Barcode Signifier.</li>
+        </ol>
+      </div>
+    </div>
+  </nav>
+</section>
+
+<section id="tillAssignment" class="container-fluid">
+  <div class="row header-wl mt-3">
+    <div class="col-6 offset-3">
+      <h2 id="page-title" class="mx-auto my-auto">Edit Barcode Signifier.</h2>
+    </div>
+  </div>
+</section>
+
+<section id="form-section" class="container-fluid">
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="form-container">
+        <form name="editSignifierForm" id="editSignifierForm">
+          <g:hiddenField name="id" value="${signifier?.id}" />
+          <div class="form-group row">
+            <label for="descriptionValue" class="col-2 col-form-label-sm text-right">Description</label>
+            <div class="col-4">
+              <g:textField name="descriptionValue" value="${signifier?.description}" class="form-control bottom-border" />
+            </div>
+            <label for="receiptDescriptionValue" class="col-2 col-form-label-sm text-right">Receipt Description</label>
+            <div class="col-4">
+              <g:textField name="receiptDescriptionValue" value="${signifier?.receiptDescription}" class="form-control bottom-border" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="typeValue" class="col-2 col-form-label-mandatory text-right">Type</label>
+            <div class="col-4">
+              <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
+                        optionKey="${{it}}"
+                        noSelection="['': 'Select Type']"
+                        class="form-control select-border"
+                        value="${signifier?.type}" />
+              <div class="field-error text-sm-left">
+                <g:render template="/errors/fieldError" model="[errorKey: 'type', errorMessages: errorMessages, error: error]" />
+              </div>
+            </div>
+            <label for="checkDigitValue" class="col-2 col-form-label-sm text-right">Check Digit</label>
+            <div class="col-4 custom-checkbox-align">
+              <g:checkBox name="checkDigitValue" value="${signifier?.checkDigit}" class="form-check-input" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="patternValue" class="col-2 col-form-label-mandatory text-right">Pattern</label>
+            <div class="col-4">
+              <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+              <div class="field-error text-sm-left">
+                <g:render template="/errors/fieldError" model="[errorKey: 'pattern', errorMessages: errorMessages, error: error]" />
+              </div>
+            </div>
+            <label for="lengthValue" class="col-2 col-form-label-mandatory text-right">Length</label>
+            <div class="col-4">
+              <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+              <div class="field-error text-sm-left">
+                <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="discountPercentageValue" class="col-2 col-form-label-sm text-right">Discount Percentage</label>
+            <div class="col-4">
+              <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+            </div>
+          </div>
+        </form>
+        <div id="btn-container" class="form-group row">
+          <div class="col-12 text-right">
+            <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="clearForm();">Reset</button>
+            <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="saveSignifier()">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="signifiers-container" class="container-fluid mb-1">
+  <div class="row mt-5">
+    <div class="col-12 text-right">
+      <a id="addEmbeddedData" href="#" class="btn btn-wl mt-1">Add Embedded Data</a>
+    </div>
+  </div>
+  <div id="results-container mt-1">
+    <g:render template="embeddedDataSearchResults"/>
+  </div>
+</section>
+
+<section id="editSignifier-modal" class="container-fluid">
+  <!-- Add Signifier modal -->
+  <div class="modal fade" id="editSignifierModal" tabindex="-1" role="dialog" aria-labelledby="addSignifierModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div id="editSignifierContent" class="modal-content"></div>
+    </div>
+  </div>
+</section>
+
+<script type="text/javascript">
+  function clearForm() {
+    document.getElementById('editSignifierForm').reset();
+  }
+</script>
+</body>
+</html>
