@@ -70,7 +70,7 @@ class ProductListController {
         def failedProductLists = []
 
         for (int storeId : cmd.storeIdList) {
-            def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
+            def storeSettings = storeService.getStore(springSecurityService.principal.retailerId, storeId)
 
             def productList = new ProductList()
             productList.properties = cmd.properties
@@ -85,34 +85,24 @@ class ProductListController {
 
             productList.setEndDate(productList.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
 
-            if (cmd.productVariantId) {
-                // Loop over each product variant
-                cmd.productVariantId.each {
-                    def productVariant = productService.getProductVariant(it)
-
-                    if (productVariant) {
-                        int quantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
-
-                        Product product = Product.findByItemCode(productVariant?.product?.itemCode)
-                        if (product) {
-
-                            Range range = Range.findById(storeSettings.getRangeId())
-                            RangeProduct rangeProduct = RangeProduct.findByProductIdAndRange(product.getId(), range)
-
-                            if (rangeProduct && !rangeProduct.getDeleted()) {
-                                ProductListItem productListItem = new ProductListItem()
-                                productListItem.productVariant = productVariant
-                                productListItem.fillQuantity = 0
-                                productListItem.productList = productList
-                                productListItem.productQuantityInStock = quantityInStock
-                                productList.productListItems.add(productListItem)
-                            }
+            if (cmd.productIds) {
+                // Loop over each product
+                cmd.productIds.each {
+                    RangeProduct rangeProduct = RangeProduct.findByProductIdAndRange(it, Range.load(storeSettings.getRangeId()))
+                    if (rangeProduct && !rangeProduct.getDeleted()) {
+                        ProductVariant[] variants = ProductVariant.findAllByProduct(Product.load(it))
+                        ProductVariant productVariant = variants?.sort {v -> v.storeId }?.reverse()?.find {v -> v.storeId == null || v.storeId == storeId }
+                        if (productVariant) {
+                            ProductListItem productListItem = new ProductListItem()
+                            productListItem.productVariant = productVariant
+                            productListItem.fillQuantity = 0
+                            productListItem.productList = productList
+                            productListItem.productQuantityInStock = productVariant.getProductStock(storeId)?.quantityInStock ?: 0
+                            productList.productListItems.add(productListItem)
                         }
-
                     }
                 }
             }
-
 
             if (!productList.validate()) {
                 onError(cmd, productList);
@@ -176,6 +166,7 @@ class SaveCentralCountCommand {
     ProductListType type = ProductListType.SCHEDULED_COUNT
     ProductListStatus status = ProductListStatus.PENDING
     Integer[] productVariantId
+    Integer[] productIds
     List<Integer> storeIdList = new ArrayList<>()
 
     static constraints = {
@@ -183,6 +174,7 @@ class SaveCentralCountCommand {
         startDate nullable: false
         endDate nullable: false
         productVariantId nullable: false
+        productIds nullable: false
         storeIdList validator: {
             if (it.size() == 0) {
                 ["productList.centralCount.noStoreSelected"]
