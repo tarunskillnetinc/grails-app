@@ -32,8 +32,8 @@
         offset: ${sortParams?.offset},
         sort: 'format',
         order: ${sortParams?.sort == 'format' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-    });">Format<a/></div>
-    <div class="col-2 font-weight-bold text-center"></div>
+    });">Format</a></div>
+    <div class="col-4 font-weight-bold text-center"></div>
 </div>
 
 <div class="d-flex justify-content-center">
@@ -44,9 +44,9 @@
 
 <div id="search-results">
     <g:set var="row" value="${0}" scope="request"/>
-    <g:render template="embeddedDataSearchRows" model="[signifiers: signifiers, level: 0]"/>
+    <g:render template="embeddedData/embeddedDataSearchRows" model="[embeddedDataList: embeddedDataList, level: 0]"/>
 </div>
 
-<div class="my-3 text-right">
-    <util:remotePaginate controller="barcodeConfig" action="ajaxSearchForBarcodeSignifiers" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" />
-</div>
+%{--<div class="my-3 text-right">--}%
+%{--    <util:remotePaginate controller="barcodeConfig" action="ajaxShowEmbeddedDataList" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" />--}%
+%{--</div>--}%

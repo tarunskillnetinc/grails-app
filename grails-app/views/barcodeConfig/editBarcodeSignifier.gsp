@@ -27,6 +27,14 @@
   <script type="text/javascript">
 
     var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
+    var addEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxAddEmbeddedData')}?signifierId=${signifier?.id}"
+    var saveEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveEmbeddedData')}"
+    var loadEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxShowEmbeddedDataList')}"
+
+    $(function() {
+
+      getEmbeddedData();
+    });
 
     function saveSignifier() {
       var formValues = $("#editSignifierForm").serialize();
@@ -49,12 +57,70 @@
       });
     }
 
+    function saveEmbeddedData() {
+      var formValues = $("#addEmbeddedDataForm").serialize();
+      $("#editSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+      $('#editSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+      hideBtns();
+      $.ajax({
+        url: saveEmbeddedDataURL,
+        method: "POST",
+        data: formValues,
+        success: function (resp) {
+          if (resp === "OK") {
+            $('#editSignifierModal').modal('hide')
+            showBtns();
+            // getSignifiers()
+          } else {
+            showBtns();
+            $("#editSignifierContent").html(resp);
+          }
+        }
+      });
+    }
+
+    function addEmbeddedData() {
+      $("#editSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+      $('#editSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+      $.ajax({
+        url: addEmbeddedDataURL,
+        method: "GET",
+        success: function (resp) {
+          $("#editSignifierContent").html(resp);
+        }
+      });
+    }
+
     function hideBtns() {
       $('#btn-container').hide()
+      $('#addEmbeddedData').hide()
     }
 
     function showBtns() {
       $('#btn-container').show()
+      $('#addEmbeddedData').show()
+    }
+
+    function cancelEmbeddedData() {
+      if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+        $('#editSignifierModal').modal('hide')
+      }
+    }
+
+    function getEmbeddedData() {
+      $('#results-container').html("");
+      $("#loading-indicator").show();
+
+      var filterParams = {}
+      filterParams['barcodeSignifierId'] = "${signifier?.id}";
+
+      $.ajax({
+        url: loadEmbeddedDataURL,
+        data: filterParams,
+        success: function(resp) {
+          $('#results-container').html(resp);
+        }
+      });
     }
   </script>
 </head>
@@ -163,11 +229,11 @@
 <section id="signifiers-container" class="container-fluid mb-1">
   <div class="row mt-5">
     <div class="col-12 text-right">
-      <a id="addEmbeddedData" href="#" class="btn btn-wl mt-1">Add Embedded Data</a>
+      <a id="addEmbeddedData" href="#" class="btn btn-wl mt-1" onclick="addEmbeddedData()">Add Embedded Data</a>
     </div>
   </div>
-  <div id="results-container mt-1">
-    <g:render template="embeddedDataSearchResults"/>
+  <div id="results-container" class="mt-1">
+    <g:render template="embeddedData/embeddedDataSearchResults"/>
   </div>
 </section>
 

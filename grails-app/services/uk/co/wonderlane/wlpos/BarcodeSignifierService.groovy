@@ -22,6 +22,16 @@ class BarcodeSignifierService extends MySqlDal {
         super(databaseCredentials)
     }
 
+    /**
+     * Retrieves a list of BarcodeSignifiers based on the specified filters and sorting criteria.
+     *
+     * @param retailerId  the ID of the retailer to filter BarcodeSignifiers by
+     * @param type        the type of BarcodeSignifier to filter by (optional)
+     * @param pattern     the pattern of BarcodeSignifier to filter by (optional)
+     * @param description the description to search for in BarcodeSignifier's description or receipt description (optional)
+     * @param sortBy      the column to sort the results by, which must be one of the allowed columns to prevent SQL injection (optional)
+     * @return a list of BarcodeSignifiers that match the specified filters and sorting criteria
+     */
     def getSignifiersByFilters(Integer retailerId, String type, String pattern, String description, String sortBy) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder
@@ -133,6 +143,13 @@ class BarcodeSignifierService extends MySqlDal {
         return result
     }
 
+    /**
+     * Deletes a BarcodeSignifier and its associated embedded data based on the provided retailerId and signifierId.
+     *
+     * @param retailerId the ID of the retailer to which the BarcodeSignifier belongs
+     * @param signifierId the ID of the BarcodeSignifier to be deleted
+     * @return a result map indicating the success or failure of the deletion operation
+     */
     def deleteSignifier(int retailerId, int signifierId) {
         Session session = sessionFactory.openSession()
         Transaction transaction = null
@@ -173,10 +190,88 @@ class BarcodeSignifierService extends MySqlDal {
         return result
     }
 
+    /**
+     * Retrieves a BarcodeSignifier by its unique identifier.
+     *
+     * @param signifierId the unique identifier of the BarcodeSignifier
+     * @return the BarcodeSignifier object corresponding to the provided identifier, or null if not found
+     */
     def getBarcodeSignifierById(int signifierId) {
         return BarcodeSignifier.findById(signifierId)
     }
 
+    /**
+     * Saves or updates a BarcodeSignifierEmbeddedData entity in the database.
+     * Validates the embedded data before persisting it. If the entity has an ID, it attempts to update an existing record.
+     * If validation fails or an error occurs, it populates the result map with appropriate error messages.
+     *
+     * @param embeddedData the BarcodeSignifierEmbeddedData entity to be saved or updated
+     * @return a result map indicating the success or failure of the operation, along with any error messages
+     */
+    def saveEmbeddedData(BarcodeSignifierEmbeddedData embeddedData) {
+        Session session = sessionFactory.openSession()
+        Transaction transaction = null
+        def result = [:]
+
+        try {
+            transaction = session.beginTransaction()
+
+            if (!embeddedData.validate()) {
+                def errorMessages = embeddedData.errors.fieldErrors.collectEntries { error ->
+                    [(error.field): messageSource.getMessage(error.code, error.arguments, Locale.default)]
+                }
+                result.errorMessages = errorMessages
+                result.success = false
+                return result
+            }
+
+            if (embeddedData.id) {
+                // Fetch existing entity if id is present
+                BarcodeSignifierEmbeddedData existingEmbeddedData = session.get(BarcodeSignifierEmbeddedData, embeddedData.id)
+                if (existingEmbeddedData) {
+                    // Copy properties from the incoming entity to the existing one
+                    existingSignifier.properties = embeddedData.properties
+                    session.saveOrUpdate(existingSignifier)
+                } else {
+                    // Handle case where the id does not match any existing entity
+                    result.errorMessages = ["id": "Barcode Signifier with provided ID does not exist."]
+                    result.success = false
+                    return result
+                }
+            } else {
+                session.saveOrUpdate(embeddedData)
+            }
+
+            transaction.commit()
+
+            result.success = true
+            result.savedObject = embeddedData
+        } catch (ConstraintViolationException e) {
+            if (transaction != null) transaction.rollback()
+            handleException(e, result)
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback()
+            handleException(e, result)
+        } finally {
+            session.clear()
+            session.close()
+        }
+
+        return result
+    }
+
+    def getEmbeddedData(int signifierId) {
+        BarcodeSignifier barcodeSignifier = new BarcodeSignifier()
+        barcodeSignifier.setId(signifierId);
+        return BarcodeSignifierEmbeddedData.findAllByBarcodeSignifier(barcodeSignifier)
+    }
+
+    /**
+     * Handles exceptions that occur during data persistence operations and populates the result map with appropriate error messages.
+     *
+     * @param e      the exception that was thrown during the operation
+     * @param result the result map to be populated with success status and error messages
+     */
     private void handleException(Exception e, def result) {
         def errorMessages = [:]
         if (e instanceof ConstraintViolationException && e.getSQLException().getMessage().toLowerCase().contains("unique_retailer_pattern_length")) {

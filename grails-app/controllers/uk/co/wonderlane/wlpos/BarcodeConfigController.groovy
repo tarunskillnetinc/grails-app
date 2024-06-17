@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
 import uk.co.wonderlane.wlpos.enums.BarcodeSignifierType
+import uk.co.wonderlane.wlpos.enums.EmbeddedDataType
 
 class BarcodeConfigController {
 
@@ -103,4 +104,64 @@ class BarcodeConfigController {
         BarcodeSignifier barcodeSignifier = barcodeSignifierService.getBarcodeSignifierById(Integer.parseInt(params.signifierId))
         [signifierId:params.signifierId, signifierTypes: BarcodeSignifierType.values(), signifier:barcodeSignifier]
     }
+
+    @Secured(['ROLE_ENGINEER'])
+    def ajaxAddEmbeddedData() {
+        render (template:"embeddedData/addEmbeddedData", model:[signifierId:params.signifierId, embeddedDataTypes: EmbeddedDataType.values()])
+    }
+
+    @Secured(['ROLE_ENGINEER'])
+    def ajaxSaveEmbeddedData() {
+        def embeddedData = new BarcodeSignifierEmbeddedData()
+        embeddedData.id = params.id ? Integer.parseInt(params.id) : 0
+        BarcodeSignifier barcodeSignifier = barcodeSignifierService.getBarcodeSignifierById(params.barcodeSignifierId ? Integer.parseInt(params.barcodeSignifierId) : 0)
+        embeddedData.barcodeSignifier = barcodeSignifier
+        embeddedData.type = params.typeValue ? params.typeValue : null
+        embeddedData.format = params.formatValue ? params.formatValue : null
+        embeddedData.startIndex = params.startIndexValue ? Integer.parseInt(params.startIndexValue) : null
+        embeddedData.length = params.lengthValue ? Integer.parseInt(params.lengthValue) : null
+
+        def result = barcodeSignifierService.saveEmbeddedData(embeddedData)
+        if (!result.success) {
+            if (params.id == null) {
+                render(template: "embeddedData/addEmbeddedData", model: [embeddedData: embeddedData, error: true,
+                                                         errorMessages: result.errorMessages, embeddedDataTypes: EmbeddedDataType.values()])
+            } else {
+                // Render the editBarcodeSignifier GSP with errors
+//                render(view: "editBarcodeSignifier", model: [signifier: signifier, error: true,
+//                                                             errorMessages: result.errorMessages, embeddedDataTypes: EmbeddedDataType.values()])
+            }
+            return
+        }
+        render "OK"
+    }
+
+    @Secured(['ROLE_ENGINEER'])
+    def ajaxShowEmbeddedDataList() {
+
+//        def sortParams = [:]
+
+//        if (!params.sort) {
+//            sortParams = [max: MAX, offset: 0, sort: "storeNumber", order: "ASC"]
+//        } else {
+//            sortParams.max = Integer.parseInt(params.max)
+//            sortParams.offset = Integer.parseInt(params.offset)
+//            sortParams.sort = params.sort
+//            sortParams.order = params.order
+//        }
+//
+//        int offset = params.offset ? Integer.parseInt(params.offset) : 0
+//        int max = params.max ? Integer.parseInt(params.max) : MAX
+//
+//        String sortBy = null;
+//        if (params.sort != null && params.order != null) {
+//            sortBy = String.format("%s %s", params.sort , params.order)
+//        }
+
+        def embeddedDataList = barcodeSignifierService.getEmbeddedData(params.barcodeSignifierId ?
+                Integer.parseInt(params.barcodeSignifierId) : 0)
+        render (template: "embeddedData/embeddedDataSearchResults", model: [embeddedDataList: embeddedDataList])
+    }
+
+
 }

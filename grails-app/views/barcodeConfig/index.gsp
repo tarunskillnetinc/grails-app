@@ -71,7 +71,6 @@
             method: "GET",
             success: function (resp) {
                 $("#addSignifierContent").html(resp);
-                applyListeners();
             }
         });
     }
