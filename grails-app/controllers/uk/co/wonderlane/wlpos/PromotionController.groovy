@@ -19,6 +19,7 @@ class PromotionController {
     def springSecurityService
 
     def productService
+    def storeService
     def promotionService
     def rabbitService
     def gsonProvider
@@ -97,6 +98,7 @@ class PromotionController {
         } else if (tagsRequired?.size() > 0 || tagsOffer?.size() > 0) {
             productItemType = "tag"
         }
+
 
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
@@ -192,6 +194,7 @@ class PromotionController {
         List<Map> categoriesOffer = new ArrayList<>()
         List<Map> tagsRequired = new ArrayList<>()
         List<Map> tagsOffer = new ArrayList<>()
+
 
         render (view: 'maintenance', model:[promotion: null,
                                             promoType: 'bogof',
@@ -596,6 +599,62 @@ class PromotionController {
 
     def ajaxGetPromotionsForProduct() {
         render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
+    }
+
+    def addAllStores() {
+        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
+        session.addedStores = session.addedStores ?: []
+        session.addedStores.addAll(stores)
+        render(template: '/promotion/storeList', model: [addedStores: stores])
+    }
+
+    def removeAllStores() {
+        session.addedStores.clear()
+        def stores = [] // Logic to remove all stores from stores
+        render(template: '/promotion/storeList', model: [addedStores: stores])
+    }
+
+    def getAllStores() {
+        Integer storeNumberFilter
+        String storeNameFilter
+        def sortParams = [:]
+
+        if (!params.sort) {
+            sortParams = [max: 50, offset: 0, sort: "storeNumber", order: "ASC"]
+        } else {
+            sortParams.max = Integer.parseInt(params.max)
+            sortParams.offset = Integer.parseInt(params.offset)
+            sortParams.sort = params.sort
+            sortParams.order = params.order
+        }
+
+//        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
+        def (stores, storeCount) = storeService.searchStores(springSecurityService.principal.retailerId, storeNumberFilter, storeNameFilter, false, sortParams)
+
+
+        if (session.addedStores) {
+            def addedStores = session.addedStores
+            def addedStoreIds = []
+            addedStores.each{ store ->
+                addedStoreIds.add(store.id)
+            }
+
+            // Remove stores from stores based on addedStoreIds
+            stores = stores.findAll { store ->
+                !addedStoreIds.contains(store.id)
+            }
+        }
+        render(template: '/promotion/storeSelectionList', model: [stores: stores, totalResults: stores.size(), sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: ""])
+    }
+
+    def addStores() {
+        def storeIds = params."storeIds[]"
+        def addedStores = Store.findAllByIdInList(storeIds.collect { it.toInteger() }) // Retrieve selected stores by IDs
+
+        // Assuming addedStores is a session attribute or part of the model in your main view
+        session.addedStores = session.addedStores ?: []
+        session.addedStores.addAll(addedStores)
+        render(template: '/promotion/storeList', model: [addedStores: session.addedStores])
     }
 
     private String validateSortColumn(String sortColumn) {

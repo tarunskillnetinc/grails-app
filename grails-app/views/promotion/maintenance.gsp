@@ -11,7 +11,15 @@
         <asset:javascript src="money-mask.js" />
         <asset:javascript src="co-utils.js"/>
         <script type='text/javascript'>
-            $(function() {
+        var globalSortParams = null;
+
+        $(function() {
+                // const storesPerPage = 10; // Number of stores to display per page
+                // let currentPage = 1; // Initialize current page
+
+
+
+
                 $('.input-group.date.startDate').datepicker({
                     format: "DD dd MM yyyy",
                     weekStart: 1,
@@ -696,6 +704,110 @@
                 }
             }
 
+            function addAllStores() {
+                $.ajax({
+                    url: '${createLink(controller: "promotion", action: "addAllStores")}',
+                    type: 'POST',
+                    success: function(response) {
+                        $('#search-results').html(response);
+                    }
+                });
+            }
+
+            function removeAllStores() {
+                $.ajax({
+                    url: '${createLink(controller: "promotion", action: "removeAllStores")}',
+                    type: 'POST',
+                    success: function(response) {
+                        $('#search-results').html(response);
+                    }
+                });
+            }
+
+            function getAllStores() {
+                var filterParams = {};
+
+                $("#filtersForm input").each(function() {
+                    filterParams[$(this).attr("name")] = $(this).val();
+                }).get();
+
+                $("#filtersForm :checkbox:checked").each(function() {
+                    filterParams[$(this).attr("name")] = true;
+                }).get();
+
+                $.extend(filterParams, globalSortParams);
+
+                $.ajax({
+                    url: '${createLink(controller: "promotion", action: "getAllStores")}',
+                    data: filterParams,
+                    success: function (response) {
+                        $('#store-selection-list').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Error: ' + error);
+                    }
+                });
+            }
+
+            function clearFilters() {
+                $("#filtersForm input").each(function() {
+                    $(this).val("");
+                }).get();
+
+                getAllStores();
+            }
+
+            function toggleSelectStore(storeId, index) {
+                console.log(`Toggling store with ID: ${storeId} at index: ${index}`);
+                const button = $('#modal-store-select-' + index);
+                if (!button.length) {
+                    console.error(`Button with ID modal-store-select-${index} not found`);
+                    return;
+                }
+
+                const checkbox = $('#store-' + storeId);
+                if (!checkbox.length) {
+                    console.error(`Checkbox with ID store-${storeId} not found`);
+                    return;
+                }
+
+                console.log(checkbox.prop('checked'))
+                if (checkbox.prop('checked')) {
+                    checkbox.prop('checked', false);
+                    button.removeClass('btn-danger').addClass('btn-primary').text('Select');
+                    console.log(`Store ${storeId} deselected`);
+                } else {
+                    checkbox.prop('checked', true);
+                    button.removeClass('btn-primary').addClass('btn-danger').text('Remove');
+                    console.log(`Store ${storeId} selected`);
+                }
+                console.log($('#store-selection-list .form-check-input:checked').length)
+            }
+
+
+
+            function addSelectedStores() {
+                console.log("length " + $('#store-selection-list .form-check-input:checked').length)
+                let selectedStoreIds = [];
+                $('#store-selection-list .form-check-input:checked').each(function() {
+                    selectedStoreIds.push($(this).val());
+                    console.log("pushed " + selectedStoreIds)
+                });
+
+                $.ajax({
+                    url: '${createLink(controller: "promotion", action: "addStores")}',
+                    type: 'POST',
+                    data: {storeIds: selectedStoreIds},
+                    success: function(response) {
+                        $('#search-results').html(response);
+                        $('#store-selection-list').empty();
+                        $('#promotionStoreSearchModal').modal('hide');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Error: ' + error);
+                    }
+                });
+            }
         </script>
     </head>
 
