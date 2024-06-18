@@ -230,8 +230,8 @@ class BarcodeSignifierService extends MySqlDal {
                 BarcodeSignifierEmbeddedData existingEmbeddedData = session.get(BarcodeSignifierEmbeddedData, embeddedData.id)
                 if (existingEmbeddedData) {
                     // Copy properties from the incoming entity to the existing one
-                    existingSignifier.properties = embeddedData.properties
-                    session.saveOrUpdate(existingSignifier)
+                    existingEmbeddedData.properties = embeddedData.properties
+                    session.saveOrUpdate(existingEmbeddedData)
                 } else {
                     // Handle case where the id does not match any existing entity
                     result.errorMessages = ["id": "Barcode Signifier with provided ID does not exist."]
@@ -266,6 +266,17 @@ class BarcodeSignifierService extends MySqlDal {
         return BarcodeSignifierEmbeddedData.findAllByBarcodeSignifier(barcodeSignifier)
     }
 
+    def getEmbeddedDataFormats() {
+        //Expecting this to be configurable through a db migration in future
+        return new String[]{
+            "jjjj"
+        }
+    }
+
+    def getEmbeddedDataById(int embeddedDataId) {
+        return BarcodeSignifierEmbeddedData.findById(embeddedDataId)
+    }
+
     /**
      * Handles exceptions that occur during data persistence operations and populates the result map with appropriate error messages.
      *
@@ -274,19 +285,37 @@ class BarcodeSignifierService extends MySqlDal {
      */
     private void handleException(Exception e, def result) {
         def errorMessages = [:]
-        if (e instanceof ConstraintViolationException && e.getSQLException().getMessage().toLowerCase().contains("unique_retailer_pattern_length")) {
+        String message = e instanceof ConstraintViolationException ? e.getSQLException().getMessage().toLowerCase() :
+                e instanceof PersistenceException && e.getCause() instanceof ConstraintViolationException ?
+                        ((ConstraintViolationException) e.getCause()).getSQLException().getMessage().toLowerCase() : ""
+
+        if (message.contains("unique_retailer_pattern_length")) {
             errorMessages.general = "The combination of pattern and length cannot be duplicated."
-        } else if(e instanceof PersistenceException && e.getCause() instanceof ConstraintViolationException) {
-            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause()
-            if (constraintViolationException.getSQLException().getMessage().toLowerCase().contains("unique_retailer_pattern_length")) {
-                errorMessages.general = "The combination of pattern and length cannot be duplicated."
-            } else {
-                errorMessages.general = "An unexpected error occurred while saving the data."
-            }
+        } else if (message.contains("unique_embeddeddata_type_barcodesignifierid")) {
+            errorMessages.type = "The type cannot be duplicated for a Barcode Signifier."
         } else {
             errorMessages.general = "An unexpected error occurred while saving the data."
         }
+
         result.success = false
         result.errorMessages = errorMessages
     }
+
+    def deleteEmbeddedData(int embeddedDataId) {
+        def result = [:]
+        try {
+            BarcodeSignifierEmbeddedData embeddedData = BarcodeSignifierEmbeddedData.findById(embeddedDataId)
+            if (embeddedData) {
+                embeddedData.delete(flush: true)
+                result.success = true
+            } else {
+                result.success = false
+                result.errorMessages = ["general": "Embedded data not found."]
+            }
+        } catch (Exception e) {
+            handleException(e, result)
+        }
+        return result
+    }
+
 }

@@ -4,8 +4,8 @@ class BarcodeSignifierEmbeddedData {
 
     int id
     String type
-    int startIndex
-    int length
+    Integer startIndex
+    Integer length
     String format
 
     static belongsTo = [ barcodeSignifier: BarcodeSignifier ]
@@ -24,9 +24,25 @@ class BarcodeSignifierEmbeddedData {
 
     static constraints = {
         id nullable: true
-        type nullable: false, blank: false
-        startIndex nallable: true, blank: true
-        length nullable:true, blank: true
-        format nullable: false, blank: false
+        type blank: true, nullable: true, validator: { val, obj ->
+            if (val == null || val.trim().isEmpty()) {
+                return ['embeddeddata.type.required']
+            } else if (val.length() > 20 ) {
+                return ['embeddeddata.type.charLength']
+            }
+        }
+        startIndex blank: true, nullable: true, validator: { val, obj ->
+            if (val == null) {
+                return ['embeddeddata.startindex.required']
+            }
+        }
+        length blank: true, nullable: true
+        format blank: true, nullable: true, validator: { val, obj ->
+            if (val == null || val.trim().isEmpty()) {
+                return ['embeddeddata.format.required']
+            } else if (val.length() > 6 ) {
+                return ['embeddeddata.format.charLength']
+            }
+        }
     }
 }

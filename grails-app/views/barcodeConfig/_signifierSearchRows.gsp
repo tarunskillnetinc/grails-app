@@ -4,10 +4,10 @@
 
 <g:each in="${signifiers}" var="signifier" status="i">
     <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable z-index-1" style="cursor: pointer;" title="Click to edit." onclick="loadEditSignifier(${signifier['id']})">
+        <div id="description-id-${i + 1}" class="col-3 my-auto text-center">${signifier['description']}</div>
         <div id="type-id-${i + 1}" class="col-1 my-auto text-center">${message(code: 'BarcodeSignifierType.' + signifier['type'])}</div>
         <div id="pattern-id-${i + 1}" class="col-1 my-auto text-center">${signifier['pattern']}</div>
         <div id="length-id-${i + 1}" class="col-1 my-auto text-center">${signifier['length']}</div>
-        <div id="description-id-${i + 1}" class="col-3 my-auto text-center">${signifier['description']}</div>
         <div id="receiptDescription-id-${i + 1}" class="col-2 my-auto text-center">${signifier['receiptDescription']}</div>
         <div id="embedded-id-${i + 1}" class="col-2 my-auto text-center">
             <g:if test="${signifier.barcodeSignifierEmbeddedDatas.size() > 0}">

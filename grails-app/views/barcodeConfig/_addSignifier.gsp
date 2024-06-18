@@ -52,7 +52,7 @@
             <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
                 <div class="input-group">
-                    <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                    <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);" />
                 </div>
                 <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />

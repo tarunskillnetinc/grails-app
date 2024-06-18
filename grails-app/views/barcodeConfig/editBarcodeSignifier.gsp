@@ -28,11 +28,12 @@
 
     var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
     var addEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxAddEmbeddedData')}?signifierId=${signifier?.id}"
-    var saveEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveEmbeddedData')}"
+    var editEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxEditEmbeddedData')}?signifierId=${signifier?.id}"
+    var saveEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveEmbeddedData')}?signifierId=${signifier?.id}"
     var loadEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxShowEmbeddedDataList')}"
+    var deleteEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxDeleteEmbeddedData')}"
 
     $(function() {
-
       getEmbeddedData();
     });
 
@@ -70,7 +71,7 @@
           if (resp === "OK") {
             $('#editSignifierModal').modal('hide')
             showBtns();
-            // getSignifiers()
+            getEmbeddedData();
           } else {
             showBtns();
             $("#editSignifierContent").html(resp);
@@ -90,6 +91,23 @@
         }
       });
     }
+
+    function editEmbeddedData(embeddedDataId) {
+      $("#editSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+      $('#editSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+      var urlParams = {}
+      urlParams['embeddedDataId'] = embeddedDataId;
+
+      $.ajax({
+        url: editEmbeddedDataURL,
+        method: "GET",
+        data: urlParams,
+        success: function (resp) {
+          $("#editSignifierContent").html(resp);
+        }
+      });
+    }
+
 
     function hideBtns() {
       $('#btn-container').hide()
@@ -122,6 +140,24 @@
         }
       });
     }
+
+    function deleteEmbeddedData(embeddedDataId) {
+      if (confirm("This will delete the selected Embedded Data.")) {
+        $.ajax({
+          url: deleteEmbeddedDataURL,
+          method: "DELETE",
+          data: {embeddedDataId: embeddedDataId},
+          success: function (data, textStatus, resp) {
+            $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+            getEmbeddedData()
+          },
+          error: function (resp) {
+            $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+            getEmbeddedData()
+          }
+        });
+      }
+    }
   </script>
 </head>
 
@@ -139,7 +175,7 @@
   </nav>
 </section>
 
-<section id="tillAssignment" class="container-fluid">
+<section id="editSignifierTtl" class="container-fluid">
   <div class="row header-wl mt-3">
     <div class="col-6 offset-3">
       <h2 id="page-title" class="mx-auto my-auto">Edit Barcode Signifier.</h2>
@@ -228,6 +264,9 @@
 
 <section id="signifiers-container" class="container-fluid mb-1">
   <div class="row mt-5">
+    <div class="col-12 mt-5 d-flex justify-content-center">
+      <h4 id="embedded-data-title" class="mx-auto my-auto">Embedded Data.</h4>
+    </div>
     <div class="col-12 text-right">
       <a id="addEmbeddedData" href="#" class="btn btn-wl mt-1" onclick="addEmbeddedData()">Add Embedded Data</a>
     </div>

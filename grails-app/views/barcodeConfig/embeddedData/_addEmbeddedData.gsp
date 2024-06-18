@@ -49,10 +49,14 @@
 
         <!-- Text field for format -->
         <div class="row form-group mb-4">
-            <label for="formatValue" class="col-3 offset-1 col-form-label text-right">Format</label>
+            <label for="formatValue" class="col-3 offset-1 col-form-label-mandatory text-right">Format</label>
             <div class="col-4">
                 <div class="input-group">
-                    <g:field type="text" id="formatValue" name="formatValue" value="${embeddedData?.format}" class="form-control bottom-border" />
+                    <g:select name="formatValue" from="${formatList}" valueMessagePrefix="EmbeddedDataFormats"
+                              optionKey="${{it}}"
+                              noSelection="['': 'Select Format']"
+                              class="form-control select-border"
+                              value="${embeddedData?.format}" />
                 </div>
                 <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'format', errorMessages: errorMessages, error: error]" />
@@ -61,7 +65,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right">Length</label>
+            <label for="lengthValue" class="col-3 offset-1 col-form-label text-right">Length</label>
             <div class="col-4">
                 <div class="input-group">
                     <g:field type="number" id="lengthValue" name="lengthValue" value="${embeddedData?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />

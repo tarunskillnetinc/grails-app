@@ -74,8 +74,7 @@ class BarcodeConfigController {
         def result = barcodeSignifierService.saveSignifier(signifier)
         if (!result.success) {
             if (params.id == null) {
-                render(template: "addSignifier", model: [signifier: signifier, error: true,
-                                                         errorMessages: result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
+                render(template: "addSignifier", model: [signifier: signifier, error:true, errorMessages: result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
             } else {
                 // Render the editBarcodeSignifier GSP with errors
                 render(view: "editBarcodeSignifier", model: [signifier: signifier, error: true,
@@ -107,7 +106,18 @@ class BarcodeConfigController {
 
     @Secured(['ROLE_ENGINEER'])
     def ajaxAddEmbeddedData() {
-        render (template:"embeddedData/addEmbeddedData", model:[signifierId:params.signifierId, embeddedDataTypes: EmbeddedDataType.values()])
+        render (template:"embeddedData/addEmbeddedData",
+                model:[signifierId:params.signifierId, embeddedDataTypes: EmbeddedDataType.values(), enableEdit: false,
+                       formatList:barcodeSignifierService.getEmbeddedDataFormats()])
+    }
+
+    @Secured(['ROLE_ENGINEER'])
+    def ajaxEditEmbeddedData() {
+        int embeddedDataId = params.embeddedDataId ? Integer.parseInt(params.embeddedDataId) : null
+        BarcodeSignifierEmbeddedData embeddedData = barcodeSignifierService.getEmbeddedDataById(embeddedDataId)
+        render (template:"embeddedData/addEmbeddedData",
+                model:[embeddedData:embeddedData, embeddedDataTypes: EmbeddedDataType.values(),
+                       formatList:barcodeSignifierService.getEmbeddedDataFormats(),signifierId:params.signifierId,enableEdit: true])
     }
 
     @Secured(['ROLE_ENGINEER'])
@@ -123,13 +133,15 @@ class BarcodeConfigController {
 
         def result = barcodeSignifierService.saveEmbeddedData(embeddedData)
         if (!result.success) {
-            if (params.id == null) {
-                render(template: "embeddedData/addEmbeddedData", model: [embeddedData: embeddedData, error: true,
-                                                         errorMessages: result.errorMessages, embeddedDataTypes: EmbeddedDataType.values()])
+            if (embeddedData.id == 0) {
+                render(template: "embeddedData/addEmbeddedData", model: [embeddedData: embeddedData,signifierId:barcodeSignifier.id,enableEdit: false,
+                                                                         error:true, errorMessages: result.errorMessages, embeddedDataTypes: EmbeddedDataType.values(),
+                                                                         formatList:barcodeSignifierService.getEmbeddedDataFormats()])
             } else {
-                // Render the editBarcodeSignifier GSP with errors
-//                render(view: "editBarcodeSignifier", model: [signifier: signifier, error: true,
-//                                                             errorMessages: result.errorMessages, embeddedDataTypes: EmbeddedDataType.values()])
+//                 Render the editBarcodeSignifier GSP with errors
+                render(template: "embeddedData/addEmbeddedData", model: [embeddedData: embeddedData,signifierId:barcodeSignifier.id,enableEdit: true,
+                                                                         error:true, errorMessages: result.errorMessages, embeddedDataTypes: EmbeddedDataType.values(),
+                                                                         formatList:barcodeSignifierService.getEmbeddedDataFormats()])
             }
             return
         }
@@ -138,29 +150,16 @@ class BarcodeConfigController {
 
     @Secured(['ROLE_ENGINEER'])
     def ajaxShowEmbeddedDataList() {
-
-//        def sortParams = [:]
-
-//        if (!params.sort) {
-//            sortParams = [max: MAX, offset: 0, sort: "storeNumber", order: "ASC"]
-//        } else {
-//            sortParams.max = Integer.parseInt(params.max)
-//            sortParams.offset = Integer.parseInt(params.offset)
-//            sortParams.sort = params.sort
-//            sortParams.order = params.order
-//        }
-//
-//        int offset = params.offset ? Integer.parseInt(params.offset) : 0
-//        int max = params.max ? Integer.parseInt(params.max) : MAX
-//
-//        String sortBy = null;
-//        if (params.sort != null && params.order != null) {
-//            sortBy = String.format("%s %s", params.sort , params.order)
-//        }
-
         def embeddedDataList = barcodeSignifierService.getEmbeddedData(params.barcodeSignifierId ?
                 Integer.parseInt(params.barcodeSignifierId) : 0)
         render (template: "embeddedData/embeddedDataSearchResults", model: [embeddedDataList: embeddedDataList])
+    }
+
+    @Secured(['ROLE_ENGINEER'])
+    def ajaxDeleteEmbeddedData() {
+        int embeddedDataId = params.embeddedDataId ? Integer.parseInt(params.embeddedDataId) : 0
+        barcodeSignifierService.deleteEmbeddedData(embeddedDataId)
+        render "OK"
     }
 
 

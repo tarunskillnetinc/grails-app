@@ -9,6 +9,12 @@
 </script>
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+    <div class="col-3 font-weight-bold text-center"> <a id="sinifier-list-description" href="#" onclick="getSignifiers({
+        max: ${sortParams?.max},
+        offset: ${sortParams?.offset},
+        sort: 'description',
+        order: ${sortParams?.sort == 'description' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
+    });">Description<a/></div>
     <div class="col-1 font-weight-bold text-center"> <a id="sinifier-list-type" href="#" onclick="getSignifiers({
         max: ${sortParams?.max},
         offset: ${sortParams?.offset},
@@ -27,12 +33,6 @@
         sort: 'length',
         order: ${sortParams?.sort == 'length' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
 });">Length</a></div>
-    <div class="col-3 font-weight-bold text-center"> <a id="sinifier-list-description" href="#" onclick="getSignifiers({
-        max: ${sortParams?.max},
-        offset: ${sortParams?.offset},
-        sort: 'description',
-        order: ${sortParams?.sort == 'description' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-    });">Description<a/></div>
     <div class="col-2 font-weight-bold text-center"> <a id="sinifier-list-receipt-description" href="#" onclick="getSignifiers({
         max: ${sortParams?.max},
         offset: ${sortParams?.offset},
