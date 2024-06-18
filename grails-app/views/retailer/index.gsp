@@ -10,7 +10,7 @@
 
         function validateImg(input) {
             if (input.files[0].size >= 1048576 /* 1MB */) {
-                return '${message(code:'button.error.fileSize.message', default:"Image file size too large")}'
+                return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'
             }
             if (input.files[0].type !== "image/png") {
                 return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'
