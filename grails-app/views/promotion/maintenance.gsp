@@ -11,12 +11,15 @@
         <asset:javascript src="money-mask.js" />
         <asset:javascript src="co-utils.js"/>
         <script type='text/javascript'>
-        var globalSortParams = null;
+        let tempSelectedStoreIds = [];
 
         $(function() {
-                // const storesPerPage = 10; // Number of stores to display per page
-                // let currentPage = 1; // Initialize current page
-
+            // Reapply selection after pagination
+            $(document).on('ajaxSuccess', function(event, xhr, settings) {
+                if (settings.url.includes('getAllStores')) {
+                    reapplySelection();
+                }
+            });
 
 
 
@@ -709,17 +712,18 @@
                     url: '${createLink(controller: "promotion", action: "addAllStores")}',
                     type: 'POST',
                     success: function(response) {
-                        $('#search-results').html(response);
+                        $('.store-search-results').html(response);
                     }
                 });
             }
 
             function removeAllStores() {
+                tempSelectedStoreIds = []
                 $.ajax({
                     url: '${createLink(controller: "promotion", action: "removeAllStores")}',
                     type: 'POST',
                     success: function(response) {
-                        $('#search-results').html(response);
+                        $('.store-search-results').html(response);
                     }
                 });
             }
@@ -727,15 +731,9 @@
             function getAllStores() {
                 var filterParams = {};
 
-                $("#filtersForm input").each(function() {
+                $("#filters input").each(function() {
                     filterParams[$(this).attr("name")] = $(this).val();
                 }).get();
-
-                $("#filtersForm :checkbox:checked").each(function() {
-                    filterParams[$(this).attr("name")] = true;
-                }).get();
-
-                $.extend(filterParams, globalSortParams);
 
                 $.ajax({
                     url: '${createLink(controller: "promotion", action: "getAllStores")}',
@@ -750,7 +748,7 @@
             }
 
             function clearFilters() {
-                $("#filtersForm input").each(function() {
+                $("#filters input").each(function() {
                     $(this).val("");
                 }).get();
 
@@ -758,16 +756,16 @@
             }
 
             function toggleSelectStore(storeId, index) {
-                console.log(`Toggling store with ID: ${storeId} at index: ${index}`);
+                console.log(`Toggling store with ID: ` + storeId + ` at index: ` + index);
                 const button = $('#modal-store-select-' + index);
                 if (!button.length) {
-                    console.error(`Button with ID modal-store-select-${index} not found`);
+                    console.error(`Button with ID modal-store-select-` + index + ` not found`);
                     return;
                 }
 
                 const checkbox = $('#store-' + storeId);
                 if (!checkbox.length) {
-                    console.error(`Checkbox with ID store-${storeId} not found`);
+                    console.error(`Checkbox with ID store-` + storeId + ` not found`);
                     return;
                 }
 
@@ -775,32 +773,22 @@
                 if (checkbox.prop('checked')) {
                     checkbox.prop('checked', false);
                     button.removeClass('btn-danger').addClass('btn-primary').text('Select');
-                    console.log(`Store ${storeId} deselected`);
+                    tempSelectedStoreIds.splice(tempSelectedStoreIds.indexOf(storeId), 1);
                 } else {
                     checkbox.prop('checked', true);
                     button.removeClass('btn-primary').addClass('btn-danger').text('Remove');
-                    console.log(`Store ${storeId} selected`);
+                    tempSelectedStoreIds.push(storeId);
                 }
-                console.log($('#store-selection-list .form-check-input:checked').length)
             }
 
-
-
             function addSelectedStores() {
-                console.log("length " + $('#store-selection-list .form-check-input:checked').length)
-                let selectedStoreIds = [];
-                $('#store-selection-list .form-check-input:checked').each(function() {
-                    selectedStoreIds.push($(this).val());
-                    console.log("pushed " + selectedStoreIds)
-                });
-
                 $.ajax({
-                    url: '${createLink(controller: "promotion", action: "addStores")}',
+                    url: '${createLink(controller: "promotion", action: "ajaxAddStores")}',
                     type: 'POST',
-                    data: {storeIds: selectedStoreIds},
+                    data: {storeIds: tempSelectedStoreIds},
                     success: function(response) {
-                        $('#search-results').html(response);
-                        $('#store-selection-list').empty();
+                        $('.store-search-results').html(response)
+                        // $('#store-selection-list').empty();//TODO - WTF
                         $('#promotionStoreSearchModal').modal('hide');
                     },
                     error: function(xhr, status, error) {
@@ -808,7 +796,34 @@
                     }
                 });
             }
-        </script>
+
+            function reapplySelection() {
+                tempSelectedStoreIds.forEach(storeId => {
+                    const button = $('#store-' + storeId).next('button');
+                    button.removeClass('btn-primary').addClass('btn-danger').text('Remove');
+                    $('#store-' + storeId).prop('checked', true);
+                });
+            }
+
+        function removeStore(storeId, index) {
+            $.ajax({
+                url: "${createLink(controller: 'promotion', action: 'removeStores')}",
+                type: 'POST',
+                data: {
+                    storeId: storeId
+                },
+                success: function(response) {
+                    // Update the list of added stores
+                    tempSelectedStoreIds.splice(tempSelectedStoreIds.indexOf(storeId), 1);
+                    console.log(tempSelectedStoreIds.length)
+                    $('.store-search-results').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error removing store: " + error);
+                }
+            });
+        }
+    </script>
     </head>
 
     <body>

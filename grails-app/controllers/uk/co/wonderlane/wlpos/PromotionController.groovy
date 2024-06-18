@@ -628,33 +628,67 @@ class PromotionController {
             sortParams.order = params.order
         }
 
-//        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
-        def (stores, storeCount) = storeService.searchStores(springSecurityService.principal.retailerId, storeNumberFilter, storeNameFilter, false, sortParams)
+        if (params.storeNumberFilter && params.storeNumberFilter.isNumber()) {
+            storeNumberFilter = Integer.parseInt(params.storeNumberFilter)
+        }
+        if (params.storeNameFilter && params.storeNameFilter != "null") {
+            storeNameFilter = params.storeNameFilter
+        }
 
+        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
 
         if (session.addedStores) {
             def addedStores = session.addedStores
             def addedStoreIds = []
+            // Loop over addesStores and add the Ids to an array
             addedStores.each{ store ->
                 addedStoreIds.add(store.id)
             }
 
             // Remove stores from stores based on addedStoreIds
-            stores = stores.findAll { store ->
-                !addedStoreIds.contains(store.id)
+            stores.removeIf {store ->
+                addedStoreIds.contains(store.id)
             }
         }
-        render(template: '/promotion/storeSelectionList', model: [stores: stores, totalResults: stores.size(), sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: ""])
+
+        // Filter results on storeNameFilter
+        if (storeNameFilter) {
+            stores.removeIf {store ->
+                !store.config.storeName.toLowerCase().contains(storeNameFilter.toLowerCase())
+            }
+        }
+
+        // Filter results on storeNumberFilter
+        if (storeNumberFilter) {
+            stores.removeIf {store ->
+                !store.config.storeNumber.equals(storeNumberFilter)
+            }
+        }
+
+        def paginatedStores = stores.subList(0 + sortParams.offset, Math.min(sortParams.max + sortParams.offset, stores.size()))
+
+        render(template: '/promotion/storeSelectionList', model: [stores: paginatedStores, totalResults: stores.size(), sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: ""])
     }
 
-    def addStores() {
+    def ajaxAddStores() {
         def storeIds = params."storeIds[]"
-        def addedStores = Store.findAllByIdInList(storeIds.collect { it.toInteger() }) // Retrieve selected stores by IDs
+        def addedStores = Store.findAllByIdInList(Arrays.asList(storeIds)) // Retrieve selected stores by IDs
 
-        // Assuming addedStores is a session attribute or part of the model in your main view
         session.addedStores = session.addedStores ?: []
         session.addedStores.addAll(addedStores)
         render(template: '/promotion/storeList', model: [addedStores: session.addedStores])
+    }
+    def removeStores() {
+        def storeId = params.storeId as Long
+        def addedStores = session.addedStores
+
+        if (addedStores) {
+            addedStores = addedStores.findAll { it.id != storeId }
+            session.addedStores = addedStores
+        }
+
+        // Render the updated store list
+        render(template: '/promotion/storeList', model: [addedStores: addedStores])
     }
 
     private String validateSortColumn(String sortColumn) {

@@ -26,6 +26,8 @@
     </div>
 </div>
 
+<g:render template="addStoresModal"/>
+
 <div class="tab-content">
     <div class="tab-pane fade show ${promoType.equals('bogof') ? 'active' : ''}" id="bogof" role="tabpanel" aria-labelledby="bogof-tab">
         <g:form method="post" action="save" class="mt-5" name="bogof-form">
@@ -156,95 +158,7 @@
                     </div>
                 </div>
             </div>
-
-            <div id="bogof-stores" class="collapsible-products row mt-3">
-                <h2 class="col-1 mr-2">Stores</h2>
-                <div id="bogof-StoresSection" class="promotion-products-container col-10 offset-1">
-                    <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                        <div class="col-2 font-weight-bold">Store Number</div>
-                        <div class="col-2 font-weight-bold">Store Name</div>
-                    </div>
-                    <div id="search-results">
-                        <g:render template="storeList"/>
-                    </div>
-                    <div class="row justify-content-end mb-3 mr-3">
-                        <button id="bogof-add-store-btn" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionStoreSearchModal" onclick="getAllStores()">Add Store</button>
-                        <button id="bogof-add-all-stores-btn" type="button" class="btn btn-wl mr-1" onclick="addAllStores()">Add All Stores</button>
-                        <button id="bogof-remove-all-stores-btn" type="button" class="btn btn-wl mr-1" onclick="removeAllStores()">Remove All Stores</button>
-                    </div>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="promotionStoreSearchModal" tabindex="-1" role="dialog" aria-labelledby="promotionStoreSearchModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="promotionStoreSearchModalLabel">Select Stores</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-
-
-                                    <div id="filters" class="card bg-light border-wl">
-                                        <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
-                                            <div class="row">
-                                                <div class="col-10">Filters</div>
-                                                <div class="col-2 text-right">
-                                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card-body collapse" id="filterCollapse">
-                                            <g:form name="filtersForm" id="filtersForm">
-                                                <div class="form-group row">
-                                                    <label for="storeNumberFilter" class="col-2 col-form-label-sm text-right">Store Number</label>
-                                                    <div class="col-4">
-                                                        <g:field id="storeNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" value="${storeNumberFilter}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
-                                                    </div>
-
-                                                    <label for="storeNameFilter" class="col-2 col-form-label-sm text-right">Store Name</label>
-                                                    <div class="col-4">
-                                                        <g:textField id="storeNameFilter" name="storeNameFilter" value="${storeNameFilter}" class="form-control bottom-border" />
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group row mb-0 mt-4">
-                                                    <div class="col-6 text-right">
-                                                        <button id="filter-clear-button" type="button" class="btn btn-danger text-right" onclick="clearFilters();">Reset Filters</button>
-                                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getAllStores();">Filter</button>
-                                                    </div>
-                                                </div>
-                                            </g:form>
-                                        </div>
-                                    </div>
-
-
-                                        <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                                            <div class="col-4 font-weight-bold">Store Number</div>
-                                            <div class="col-4 font-weight-bold">Store Name</div>
-                                        </div>
-                                    <!-- Store List to Select From -->
-                                    <div id="store-selection-list">
-                                        <!-- Store list will be loaded here via AJAX -->
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" onclick="addSelectedStores()">Add Selected Stores</button>
-                                </div>
-                                <!-- Pagination Controls -->
-                                <div class="my-3 text-left">
-                                    <util:remotePaginate controller="promotion" action="getAllStores" total="${totalResults ?: 0}" update="store-list" offset="${sortParams?.offset ?: 0}" max="${sortParams?.max ?: 50}" params="[sort: sortParams?.sort, order: sortParams?.order, storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter, showDeletedFilter: showDeletedFilter]" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="bogof-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
@@ -434,7 +348,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="xfory-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
@@ -578,7 +492,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="percentage-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
@@ -735,7 +649,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
@@ -884,7 +798,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
