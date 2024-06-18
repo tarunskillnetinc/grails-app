@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.14.13.14-SNAPSHOT"
+version "1.13.26-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.16-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.14.62-SNAPSHOT'
 
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
@@ -109,8 +109,6 @@ dependencies {
     implementation 'com.opencsv:opencsv:5.7.1'
     implementation 'software.amazon.awssdk:s3:2.20.26'
     implementation 'commons-io:commons-io:2.11.0'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.13.0'
-
 
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
@@ -181,4 +179,39 @@ grails {
 
 sourceSets {
     elasticbeanstalk
+}
+
+tasks.named("assemble") {
+    def projectName = it.project.name
+    def projectVersion = it.project.version
+
+    doLast {
+        // Specify the path to the existing zip file.
+        def zipFile = file("build/libs/Cloud Office ${projectVersion}.zip")
+
+        // Create a temporary directory to unzip the existing zip.
+        def tempDir = file("build/libs/Cloud Office ${projectVersion}")
+
+        // Copy the built .jar to the temporary directory.
+        println "Build jar = ${projectName}-${projectVersion}.jar"
+        copy {
+            from "build/libs/${projectName}-${projectVersion}.jar"
+            into tempDir
+            rename "${projectName}-${projectVersion}.jar", "application.jar"
+        }
+
+        // Copy the Nginx config to the temporary directory.
+        copy {
+            from "src/elasticbeanstalk/resources/"
+            into "${tempDir}/.platform/nginx/conf.d/"
+        }
+
+        // Update the existing zip file with the modified content.
+        ant.zip(destfile: zipFile) {
+            fileset(dir: tempDir)
+        }
+
+        // Clean up temporary directory.
+        delete(tempDir)
+    }
 }

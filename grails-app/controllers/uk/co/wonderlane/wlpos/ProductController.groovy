@@ -2070,7 +2070,4 @@ class CSVUploadProduct {
 
         return productCommand
     }
-
-
-
 }
