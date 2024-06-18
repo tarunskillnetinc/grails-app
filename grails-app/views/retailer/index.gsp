@@ -8,27 +8,33 @@
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
+        function validateImg(input) {
+            if (input.files[0].size >= 1048576 /* 1MB */) {
+                return '${message(code:'button.error.fileSize.message', default:"Image file size too large")}'
+            }
+            if (input.files[0].type !== "image/png") {
+                return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'
+            }
+        }
+
         $(document).ready(function () {
             $('input[name=brandLogo]').change(function() {
-                if (this.files[0].size < 1048576 /* 1MB */) {
-                    if (this.files[0].type === "image/png") {
-                        const fileData = this.files[0];
-                        if (FileReader && fileData) {
-                            var urlFileReader = new FileReader();
-                            urlFileReader.onload = function () {
-                                var brandingImage = $(".branding-image");
-                                brandingImage.attr("src", urlFileReader.result);
-                                brandingImage.removeAttr("hidden");
-                            }
-                            urlFileReader.readAsDataURL(fileData);
-                        } else {
-                            // fallback?
-                        }
-                    } else {
-                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                const error = validateImg(this);
+                if (error) {
+                    $('input[name=brandLogo]').val(null);
+                    alert(error);
+                    return
+                }
+
+                const fileData = this.files[0];
+                if (FileReader && fileData) {
+                    const urlFileReader = new FileReader();
+                    urlFileReader.onload = function () {
+                        const brandingImage = $(".branding-image");
+                        brandingImage.attr("src", urlFileReader.result);
+                        brandingImage.removeAttr("hidden");
                     }
-                } else {
-                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                    urlFileReader.readAsDataURL(fileData);
                 }
             });
 
@@ -142,7 +148,7 @@
 
 
     <section id="addProduct-section" class="container-fluid mt-4">
-        <g:uploadForm name="save-button" action="save">
+        <g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
             <div id="accordion">
                 <!-- General information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">

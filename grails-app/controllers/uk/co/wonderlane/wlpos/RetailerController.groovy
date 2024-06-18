@@ -39,13 +39,16 @@ class RetailerController {
 
     @Secured(['ROLE_ENGINEER'])
     def save(RetailerCommand retailerCommand) {
+        def errorMessages = []
+
         if (retailerCommand.brandLogo?.filename != "" && retailerCommand.brandLogo?.filename != null) {
             if (retailerCommand.brandLogo.size <= MAX_LOGO_SIZE) {
                 brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
             } else {
-                flash.error = message(code: 'retailer.logo.maxsize')
+                errorMessages << message(code: 'retailer.logo.maxsize')
             }
         }
+
         for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
             var t = new FunctionToggle()
             t.name = toggle.name
@@ -67,7 +70,6 @@ class RetailerController {
             retailerCommand?.retailerTerminologyConfig?.locationsTableConfig = new RetailerTerminologyLocationsTableConfigCommand()
         }
 
-        def errorMessages = []
         if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
             errorMessages << "Product Term is empty. Should not be null."
         }
