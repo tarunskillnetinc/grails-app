@@ -7,7 +7,7 @@
         <div id="store-number-${i + 1}" class="col-2 my-auto">${store.config.storeNumber}</div>
         <div id="store-name-${i + 1}" class="col-2 my-auto">${store.config.storeName}</div>
         <div class="col-6 my-auto text-right">
-            <button id="store-delete-${i + 1}" class="btn btn-danger" onclick="removeStore(${store.id}, ${i + 1})">Remove</button>
+            <button id="store-delete-${i + 1}" type="button" class="btn btn-danger" onclick="removeStore(${store.id}, ${i + 1})">Remove</button>
         </div>
     </div>
 </g:each>

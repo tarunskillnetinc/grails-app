@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import groovy.time.Duration
+
 import org.apache.commons.lang3.RegExUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -99,6 +99,7 @@ class PromotionController {
             productItemType = "tag"
         }
 
+        session.addedStores = !promo.storeIds.isEmpty() ? Store.findAllByIdInList(promo.storeIds) : []
 
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
@@ -109,7 +110,8 @@ class PromotionController {
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
                                             productItemType: productItemType,
-                                            editing: true])
+                                            editing: true,
+                                            addedStores: session.addedStores])
     }
 
     def maintenanceError() {
@@ -424,6 +426,18 @@ class PromotionController {
                 break
         }
 
+        promotion.stores*.delete()
+        promotion.stores.clear()
+
+        session.addedStores.each { store ->
+            
+            PromotionStore ps = new PromotionStore(promotion: promotion, storeId: store.id)
+            if (ps.validate()) {
+                promotion.addToStores(ps)
+                ps.delete()
+            }
+        }
+
         if (promotion.validate()) {
             def type = params.promotionType
             if (!params."${type}-doesNotExpire") {
@@ -439,6 +453,13 @@ class PromotionController {
             promotion.errors.reject('error.Promotion.invalidPromotionError')
             redirect(controller: "promotion", action: "maintenanceError")
             return
+        }
+    }
+
+    def removeStoreFromSession(int storeId) {
+        if (session.addedStores) {
+            // Remove the store from session.addedStores based on the storeId
+            session.addedStores = session.addedStores.findAll { it.id != storeId }
         }
     }
 
@@ -601,20 +622,20 @@ class PromotionController {
         render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
     }
 
-    def addAllStores() {
+    def ajaxAddAllStores() {
         def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
         session.addedStores = session.addedStores ?: []
         session.addedStores.addAll(stores)
         render(template: '/promotion/storeList', model: [addedStores: stores])
     }
 
-    def removeAllStores() {
+    def ajaxRemoveAllStores() {
         session.addedStores.clear()
         def stores = [] // Logic to remove all stores from stores
         render(template: '/promotion/storeList', model: [addedStores: stores])
     }
 
-    def getAllStores() {
+    def ajaxGetAllStores() {
         Integer storeNumberFilter
         String storeNameFilter
         def sortParams = [:]
@@ -678,17 +699,25 @@ class PromotionController {
         session.addedStores.addAll(addedStores)
         render(template: '/promotion/storeList', model: [addedStores: session.addedStores])
     }
-    def removeStores() {
+
+    def ajaxRemoveStores() {
         def storeId = params.storeId as Long
         def addedStores = session.addedStores
 
         if (addedStores) {
-            addedStores = addedStores.findAll { it.id != storeId }
+            addedStores = addedStores.findAll {
+                it.id != storeId
+            }
             session.addedStores = addedStores
         }
 
         // Render the updated store list
         render(template: '/promotion/storeList', model: [addedStores: addedStores])
+    }
+
+    def ajaxClearSessionAddedStores() {
+        // TODO FIX THIS SOMEHOW PLS FML
+//        session.addedStores.clear()
     }
 
     private String validateSortColumn(String sortColumn) {

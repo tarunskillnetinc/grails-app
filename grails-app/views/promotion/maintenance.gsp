@@ -21,6 +21,14 @@
                 }
             });
 
+            $(window).on('beforeunload', function() {
+                $.ajax({
+                    url: "${createLink(controller: 'promotion', action: 'ajaxClearSessionAddedStores')}",
+                    type: 'POST',
+                    async: false,  // Make the request synchronous to ensure it completes before the page unloads
+                });
+            });
+
 
 
                 $('.input-group.date.startDate').datepicker({
@@ -709,7 +717,7 @@
 
             function addAllStores() {
                 $.ajax({
-                    url: '${createLink(controller: "promotion", action: "addAllStores")}',
+                    url: '${createLink(controller: "promotion", action: 'ajaxAddAllStores')}',
                     type: 'POST',
                     success: function(response) {
                         $('.store-search-results').html(response);
@@ -720,7 +728,7 @@
             function removeAllStores() {
                 tempSelectedStoreIds = []
                 $.ajax({
-                    url: '${createLink(controller: "promotion", action: "removeAllStores")}',
+                    url: '${createLink(controller: "promotion", action: 'ajaxRemoveAllStores')}',
                     type: 'POST',
                     success: function(response) {
                         $('.store-search-results').html(response);
@@ -736,7 +744,7 @@
                 }).get();
 
                 $.ajax({
-                    url: '${createLink(controller: "promotion", action: "getAllStores")}',
+                    url: '${createLink(controller: "promotion", action: 'ajaxGetAllStores')}',
                     data: filterParams,
                     success: function (response) {
                         $('#store-selection-list').html(response);
@@ -783,12 +791,11 @@
 
             function addSelectedStores() {
                 $.ajax({
-                    url: '${createLink(controller: "promotion", action: "ajaxAddStores")}',
+                    url: '${createLink(controller: "promotion", action: 'ajaxAddStores')}',
                     type: 'POST',
                     data: {storeIds: tempSelectedStoreIds},
                     success: function(response) {
                         $('.store-search-results').html(response)
-                        // $('#store-selection-list').empty();//TODO - WTF
                         $('#promotionStoreSearchModal').modal('hide');
                     },
                     error: function(xhr, status, error) {
@@ -807,7 +814,7 @@
 
         function removeStore(storeId, index) {
             $.ajax({
-                url: "${createLink(controller: 'promotion', action: 'removeStores')}",
+                url: "${createLink(controller: 'promotion', action: 'ajaxRemoveStores')}",
                 type: 'POST',
                 data: {
                     storeId: storeId
