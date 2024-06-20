@@ -17,7 +17,19 @@
         .field-error {
             font-size: 0.7em; /* Adjust the size as needed */
         }
-    </style>
+
+        #signifiers-container {
+            position: relative;
+        }
+
+        #sync-button {
+            position: absolute;
+            top: 0px; /* Adjust as needed */
+            right: 25px; /* Adjust as needed */
+            z-index: 1; /* Ensure it stays above other content */
+        }
+
+</style>
 
     <script type="text/javascript">
 
@@ -25,6 +37,7 @@
     var addSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxAddSignifier')}"
     var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
     var deleteSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxDeleteSignifier')}"
+    var syncAllSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSyncAllMessageToRabbit')}"
 
     var globalSortParams = null;
 
@@ -95,6 +108,23 @@
                     getSignifiers()
                 } else {
                     showBtns();
+                    $("#addSignifierContent").html(resp);
+                }
+            }
+        });
+    }
+
+    function syncAllToTills() {
+        $("#addSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+        $('#addSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+        $.ajax({
+            url: syncAllSignifierURL,
+            method: "GET",
+            success: function (resp) {
+                if (resp === "OK") {
+                    $("#addSignifierContent").html("");
+                    $('#addSignifierModal').modal({show: false, backdrop: 'static', keyboard: false});
+                } else {
                     $("#addSignifierContent").html(resp);
                 }
             }
@@ -220,7 +250,8 @@
 </section>
 
 <section id="signifiers-container" class="container-fluid mb-3">
-    <div id="results-container">
+    <button id="sync-button" type="button" class="btn btn-wl text-right" onclick="syncAllToTills();">Sync all to tills</button>
+    <div id="results-container" >
         <g:render template="signifiersSearchResults"/>
     </div>
 </section>

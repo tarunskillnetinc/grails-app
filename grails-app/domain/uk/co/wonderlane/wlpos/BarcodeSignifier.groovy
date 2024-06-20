@@ -42,6 +42,8 @@ class BarcodeSignifier {
                 return ['signifier.pattern.required']
             } else if (val.length() > 45 ) {
                 return ['signifier.pattern.charLength']
+            } else if (!val.isNumber()) {
+                return ['signifier.pattern.nonNumeric']
             }
         }
         startIndex blank: true, nullable: true

@@ -158,6 +158,12 @@
         });
       }
     }
+
+    function resetPage() {
+      if (confirm("All unsaved changes will be lost, are you sure you want to reset?")) {
+        clearForm();
+      }
+    }
   </script>
 </head>
 
@@ -253,7 +259,7 @@
         </form>
         <div id="btn-container" class="form-group row">
           <div class="col-12 text-right">
-            <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="clearForm();">Reset</button>
+            <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
             <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="saveSignifier()">Submit</button>
           </div>
         </div>

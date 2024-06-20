@@ -115,6 +115,7 @@ class BarcodeSignifierService extends MySqlDal {
                     // Copy properties from the incoming entity to the existing one
                     existingSignifier.properties = barcodeSignifier.properties
                     session.saveOrUpdate(existingSignifier)
+                    barcodeSignifier = existingSignifier
                 } else {
                     // Handle case where the id does not match any existing entity
                     result.errorMessages = ["id": "Barcode Signifier with provided ID does not exist."]
@@ -177,6 +178,7 @@ class BarcodeSignifierService extends MySqlDal {
             }
 
             transaction.commit()
+            result.deletedObject = existingSignifier
             result.success = true
         } catch (Exception e) {
             if (transaction != null) {
@@ -308,6 +310,7 @@ class BarcodeSignifierService extends MySqlDal {
             if (embeddedData) {
                 embeddedData.delete(flush: true)
                 result.success = true
+                result.deletedObject = embeddedData
             } else {
                 result.success = false
                 result.errorMessages = ["general": "Embedded data not found."]
