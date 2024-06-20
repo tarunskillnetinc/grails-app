@@ -270,6 +270,7 @@ class BarcodeSignifierService extends MySqlDal {
 
     def getEmbeddedDataFormats() {
         //Expecting this to be configurable through a db migration in future
+        //TODO: CORE-4071: The format list has not yet been finalized, and we expect this to be configurable.
         return new String[]{
             "jjjj"
         }

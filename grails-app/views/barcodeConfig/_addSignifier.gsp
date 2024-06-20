@@ -83,7 +83,7 @@
 
             <div class="col-4">
                 <div class="input-group number-box">
-                    <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptNumericPercentage(event);"/>
+                    <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptMaxNumberValue(event, 100);"/>
                 </div>
                 <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />
