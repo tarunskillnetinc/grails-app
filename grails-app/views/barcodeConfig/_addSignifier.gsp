@@ -8,7 +8,7 @@
 </div>
 
 <div class="modal-body">
-    <div class="text-center mt-4 mb-5">Please complete the following form to add a new Signifier. Type, Pattern, and Length are required.</div>
+    <div class="text-center mt-4 mb-5">Please complete the following form to add a new Signifier. Type and Length are required.</div>
 
     <g:form name="addSignifierForm">
 
@@ -37,7 +37,7 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="patternValue" class="col-3 offset-1 col-form-label-mandatory text-right">Pattern</label>
+            <label for="patternValue" class="col-3 offset-1 col-form-label text-right">Pattern</label>
             <div class="col-4">
                 <div class="input-group">
                     <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
@@ -51,8 +51,8 @@
         <div class="row form-group mb-4">
             <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
-                <div class="input-group">
-                    <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);" />
+                <div class="input-group number-box">
+                    <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" min="0" max="45" onkeydown="acceptMaxNumberValue(event, 45);" />
                 </div>
                 <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
@@ -82,8 +82,8 @@
             <label for="discountPercentageValue" class="col-3 offset-1 col-form-label text-right">Discount Percentage</label>
 
             <div class="col-4">
-                <div class="input-group">
-                    <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+                <div class="input-group number-box">
+                    <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptNumericPercentage(event);"/>
                 </div>
                 <div class="field-error text-sm-left mt-2">
                     <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />

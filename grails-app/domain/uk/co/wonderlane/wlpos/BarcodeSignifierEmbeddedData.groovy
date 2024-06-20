@@ -36,7 +36,11 @@ class BarcodeSignifierEmbeddedData {
                 return ['embeddeddata.startindex.required']
             }
         }
-        length blank: true, nullable: true
+        length blank: true, nullable: true , validator: { val, obj ->
+            if (val == null) {
+                return ['embeddeddata.length.required']
+            }
+        }
         format blank: true, nullable: true, validator: { val, obj ->
             if (val == null || val.trim().isEmpty()) {
                 return ['embeddeddata.format.required']

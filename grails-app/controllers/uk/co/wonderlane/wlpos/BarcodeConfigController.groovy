@@ -56,7 +56,7 @@ class BarcodeConfigController {
         render (template: "signifiersSearchResults", model: [signifiers: signifiers, sortParams: sortParams, offset: offset, max: max, totalResults: totalResults])
     }
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddSignifier() {
         render (template: 'addSignifier', model: [enableEdit: false, error:false, signifierTypes: BarcodeSignifierType.values()])
     }
@@ -66,7 +66,7 @@ class BarcodeConfigController {
         def signifier = new BarcodeSignifier()
         signifier.id = params.id ? Integer.parseInt(params.id) : 0
         signifier.type = params.typeValue ? params.typeValue : null
-        signifier.pattern = params.patternValue ? params.patternValue : null
+        signifier.pattern = params.patternValue ? params.patternValue : ""
         signifier.startIndex = params.startIndexValue ? Integer.parseInt(params.startIndexValue) : null
         signifier.length = params.lengthValue ? Integer.parseInt(params.lengthValue) : null
         signifier.description = params.descriptionValue ? params.descriptionValue : null
@@ -110,14 +110,14 @@ class BarcodeConfigController {
         [signifierId:params.signifierId, signifierTypes: BarcodeSignifierType.values(), signifier:barcodeSignifier]
     }
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddEmbeddedData() {
         render (template:"embeddedData/addEmbeddedData",
                 model:[signifierId:params.signifierId, embeddedDataTypes: EmbeddedDataType.values(), enableEdit: false,
                        formatList:barcodeSignifierService.getEmbeddedDataFormats()])
     }
 
-    @Secured(['ROLE_ENGINEER'])
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditEmbeddedData() {
         int embeddedDataId = params.embeddedDataId ? Integer.parseInt(params.embeddedDataId) : null
         BarcodeSignifierEmbeddedData embeddedData = barcodeSignifierService.getEmbeddedDataById(embeddedDataId)
@@ -192,6 +192,7 @@ class BarcodeConfigController {
         final List<uk.co.wonderlane.wlpos.entities.BarcodeSignifier> barcodeSignifiersSync = new ArrayList<>()
         barcodeSignifiers.each {signifier ->
             uk.co.wonderlane.wlpos.entities.BarcodeSignifier barcodeSignifierSync = new uk.co.wonderlane.wlpos.entities.BarcodeSignifier();
+            barcodeSignifierSync.id = signifier.id
             barcodeSignifierSync.retailerId = signifier.retailerId
             barcodeSignifierSync.pattern = signifier.pattern
             barcodeSignifierSync.startIndex = signifier.startIndex

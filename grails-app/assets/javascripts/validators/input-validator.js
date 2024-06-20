@@ -26,6 +26,15 @@ function acceptNumeric(e) {
 function acceptNumericInt(e) {
     const maxValue = 2147483647; // Maximum integer value in Java
 
+    acceptMaxNumberValue(e, maxValue);
+}
+
+function acceptNumericPercentage(e) {
+    const maxValue = 100; // Maximum integer value in Java
+    acceptMaxNumberValue(e, maxValue);
+}
+
+function acceptMaxNumberValue(e, maxValue) {
     // Allow digits, backspace, and arrow keys without further checks
     if (e.key === 'Backspace' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Delete') {
         return;
@@ -44,7 +53,6 @@ function acceptNumericInt(e) {
         e.preventDefault(); // Prevent non-digit characters
     }
 }
-
 function validateInput(input){
     // Remove leading minus sign if present
     input.value = input.value.replace(/^-/, '');

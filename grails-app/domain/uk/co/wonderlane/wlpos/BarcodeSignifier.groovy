@@ -38,11 +38,9 @@ class BarcodeSignifier {
 
     static constraints = {
         pattern blank: true, nullable: true, validator: { val, obj ->
-            if (val == null || val.trim().isEmpty()) {
-                return ['signifier.pattern.required']
-            } else if (val.length() > 45 ) {
+            if (val != null && val.length() > 45 ) {
                 return ['signifier.pattern.charLength']
-            } else if (!val.isNumber()) {
+            } else if (val != null && !val.isEmpty() && !val.isNumber()) {
                 return ['signifier.pattern.nonNumeric']
             }
         }
@@ -50,6 +48,8 @@ class BarcodeSignifier {
         length blank: true, nullable: true, validator: { val, obj ->
             if (val == null) {
                 return ['signifier.length.required']
+            } else if (val > 45) {
+                return ['signifier.length.45value']
             }
         }
         retailerId blank: true, nullable: true, validator: { val, obj ->

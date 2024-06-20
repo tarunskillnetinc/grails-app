@@ -22,6 +22,9 @@
     width: 50%; /* Make the form half of the page size */
     margin: 0 auto; /* Center the form */
   }
+  .number-box {
+    width: 80px;
+  }
   </style>
 
   <script type="text/javascript">
@@ -39,8 +42,7 @@
 
     function saveSignifier() {
       var formValues = $("#editSignifierForm").serialize();
-      $("#editSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-      $('#editSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+      $("#loading-indicator").show();
       hideBtns();
       $.ajax({
         url: saveSignifierURL,
@@ -48,6 +50,7 @@
         data: formValues,
         success: function (resp) {
           if (resp === "OK") {
+            $("#loading-indicator").hide();
             window.location.href = '<g:createLink controller="barcodeConfig" action="index"/>';
           } else {
             document.open();
@@ -60,14 +63,14 @@
 
     function saveEmbeddedData() {
       var formValues = $("#addEmbeddedDataForm").serialize();
-      $("#editSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-      $('#editSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+      $("#loading-indicator").show();
       hideBtns();
       $.ajax({
         url: saveEmbeddedDataURL,
         method: "POST",
         data: formValues,
         success: function (resp) {
+          $("#loading-indicator").hide();
           if (resp === "OK") {
             $('#editSignifierModal').modal('hide')
             showBtns();
@@ -225,7 +228,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label for="patternValue" class="col-2 col-form-label-mandatory text-right">Pattern</label>
+            <label for="patternValue" class="col-2 col-form-label text-right">Pattern</label>
             <div class="col-4">
               <div class="input-group">
                 <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
@@ -236,8 +239,8 @@
             </div>
             <label for="lengthValue" class="col-2 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
-              <div class="input-group">
-                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+              <div class="input-group number-box">
+                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" min="0" max="45" onkeydown="acceptMaxNumberValue(event, 45);" />
               </div>
               <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
@@ -247,8 +250,8 @@
           <div class="form-group row">
             <label for="discountPercentageValue" class="col-2 col-form-label-sm text-right">Discount Percentage</label>
             <div class="col-4">
-              <div class="input-group">
-                <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" />
+              <div class="input-group number-box">
+                <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptNumericPercentage(event);"/>
               </div>
               <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />
@@ -259,8 +262,10 @@
         </form>
         <div id="btn-container" class="form-group row">
           <div class="col-12 text-right">
-            <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
-            <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="saveSignifier()">Submit</button>
+            <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+              <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
+              <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="saveSignifier()">Submit</button>
+            </sec:ifAnyGranted>
           </div>
         </div>
       </div>
@@ -274,7 +279,9 @@
       <h4 id="embedded-data-title" class="mx-auto my-auto">Embedded Data.</h4>
     </div>
     <div class="col-12 text-right">
-      <a id="addEmbeddedData" href="#" class="btn btn-wl mt-1" onclick="addEmbeddedData()">Add Embedded Data</a>
+      <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+        <a id="addEmbeddedData" href="#" class="btn btn-wl mt-1" onclick="addEmbeddedData()">Add Embedded Data</a>
+      </sec:ifAnyGranted>
     </div>
   </div>
   <div id="results-container" class="mt-1">

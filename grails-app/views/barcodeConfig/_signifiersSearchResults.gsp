@@ -9,7 +9,7 @@
 </script>
 
 <div class="row mt-5 pb-2 pt-5 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-3 font-weight-bold text-center"> <a id="sinifier-list-description" href="#" onclick="getSignifiers({
+    <div class="col-3 font-weight-bold text-left"> <a id="sinifier-list-description" href="#" onclick="getSignifiers({
         max: ${sortParams?.max},
         offset: ${sortParams?.offset},
         sort: 'description',

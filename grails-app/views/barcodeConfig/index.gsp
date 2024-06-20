@@ -29,7 +29,21 @@
             z-index: 1; /* Ensure it stays above other content */
         }
 
-</style>
+        .number-box {
+            width: 80px;
+        }
+
+        /* Add custom styles for the filter form */
+        #typeFilter, #patternFilter {
+            display: inline-block;
+            width: auto;
+        }
+
+        #descriptionFilter {
+            width: 100%;
+        }
+    </style>
+
 
     <script type="text/javascript">
 
@@ -79,10 +93,12 @@
     function addSignifier() {
         $("#addSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
         $('#addSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+        $("#loading-indicator").show();
         $.ajax({
             url: addSignifierURL,
             method: "GET",
             success: function (resp) {
+                $("#loading-indicator").hide();
                 $("#addSignifierContent").html(resp);
             }
         });
@@ -90,14 +106,14 @@
 
     function cancelSignifier() {
         if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
-            $('#addSignifierModal').modal('hide')
+            $('#addSignifierModal').modal('hide');
         }
     }
 
     function saveSignifier() {
         var formValues = $("#addSignifierForm").serialize();
-        $("#addSignifierContent .modal-body").html("<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div>")
         hideBtns();
+        $("#loading-indicator").show();
         $.ajax({
             url: saveSignifierURL,
             method: "POST",
@@ -107,23 +123,22 @@
                     $('#addSignifierModal').modal('hide')
                     getSignifiers()
                 } else {
-                    showBtns();
                     $("#addSignifierContent").html(resp);
                 }
+                $("#loading-indicator").hide();
+                showBtns();
             }
         });
     }
 
     function syncAllToTills() {
-        $("#addSignifierContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-        $('#addSignifierModal').modal({show: true, backdrop: 'static', keyboard: false});
+        $("#loading-indicator").show();
         $.ajax({
             url: syncAllSignifierURL,
             method: "GET",
             success: function (resp) {
                 if (resp === "OK") {
-                    $("#addSignifierContent").html("");
-                    $('#addSignifierModal').modal({show: false, backdrop: 'static', keyboard: false});
+                    $("#loading-indicator").hide();
                 } else {
                     $("#addSignifierContent").html(resp);
                 }
@@ -133,16 +148,19 @@
 
     function deleteSignifier(signifierId) {
         if (confirm("This will delete the selected signifier.")) {
+            $("#loading-indicator").show();
             $.ajax({
                 url: deleteSignifierURL,
                 method: "DELETE",
                 data: {signifierId: signifierId},
                 success: function (data, textStatus, resp) {
                     $("#errors-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                    $("#loading-indicator").hide();
                     getSignifiers()
                 },
                 error: function (resp) {
                     $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + resp.responseText + '</div>');
+                    $("#loading-indicator").hide();
                     getSignifiers()
                 }
             });
@@ -171,7 +189,6 @@
 </head>
 
 <body>
-
 <section id="breadcrumb-container" class="container-fluid">
     <nav aria-label="breadcrumb">
         <div class="row mt-4">
@@ -192,8 +209,10 @@
         </div>
 
         <div class="col-3 text-right">
-            <a id="addTill" href="#" class="btn btn-wl mt-1" onclick="addSignifier();">Add Signifier</a>
-            <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getSignifiers();">Refresh</a>
+            <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+                <a id="addTill" href="#" class="btn btn-wl mt-1" onclick="addSignifier();">Add Signifier</a>
+                <a id="refresh" href="#" class="btn btn-wl mt-1" onclick="getSignifiers();">Refresh</a>
+            </sec:ifAnyGranted>
         </div>
     </div>
 </section>
@@ -222,16 +241,16 @@
                                           noSelection="['': 'All']"
                                           class="form-control select-border"></g:select>
                             </div>
+                            <label for="patternFilter" class="col-2 col-form-label-sm text-right">Barcode Pattern</label>
+                            <div class="col-3">
+                                <g:field id="patternFilter" type="text" name="patternFilter" value="${pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                            </div>
                         </div>
 
                         <div class="form-group row">
                             <label for="descriptionFilter" class="col-2 col-form-label-sm text-right">Description</label>
-                            <div class="col-3">
+                            <div class="col-8">
                                 <g:field id="descriptionFilter" type="text" name="descriptionFilter" value="${description}" class="form-control bottom-border" oninput="validateInput(this);" />
-                            </div>
-                            <label for="patternFilter" class="col-2 col-form-label-sm text-right">Barcode Pattern</label>
-                            <div class="col-4">
-                                <g:field id="patternFilter" type="text" name="patternFilter" value="${pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                             </div>
                         </div>
 
@@ -249,8 +268,11 @@
     </div>
 </section>
 
+
 <section id="signifiers-container" class="container-fluid mb-3">
-    <button id="sync-button" type="button" class="btn btn-wl text-right" onclick="syncAllToTills();">Sync all to tills</button>
+    <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+        <button id="sync-button" type="button" class="btn btn-wl text-right" onclick="syncAllToTills();">Sync all to tills</button>
+    </sec:ifAnyGranted>
     <div id="results-container" >
         <g:render template="signifiersSearchResults"/>
     </div>

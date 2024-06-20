@@ -8,7 +8,7 @@
 </div>
 
 <div class="modal-body">
-    <div class="text-center mt-4 mb-5">Please complete the following form to add a new EmbeddedData. Type, Pattern, and Length are required.</div>
+    <div class="text-center mt-4 mb-5">Please complete the following form to add a new EmbeddedData. Type, Start Index, Format and Length are required.</div>
 
     <g:form name="addEmbeddedDataForm">
         <!-- Hidden field for id -->
@@ -38,7 +38,7 @@
         <div class="row form-group mb-4">
             <label for="startIndexValue" class="col-3 offset-1 col-form-label-mandatory text-right">Start Index</label>
             <div class="col-4">
-                <div class="input-group">
+                <div class="input-group number-box">
                     <g:field type="number" id="startIndexValue" name="startIndexValue" value="${embeddedData?.startIndex}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                 </div>
                 <div class="field-error text-sm-left mt-2">
@@ -65,9 +65,9 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="lengthValue" class="col-3 offset-1 col-form-label text-right">Length</label>
+            <label for="lengthValue" class="col-3 offset-1 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
-                <div class="input-group">
+                <div class="input-group number-box">
                     <g:field type="number" id="lengthValue" name="lengthValue" value="${embeddedData?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                 </div>
                 <div class="field-error text-sm-left mt-2">
@@ -82,5 +82,7 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelAddTillButton" class="btn btn-wl" onclick="cancelEmbeddedData();">Cancel</button>
-    <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveEmbeddedData();">Save</button>
+    <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+        <button type="button" id="saveAddSupplierButton" class="btn btn-success" onclick="saveEmbeddedData();">Save</button>
+    </sec:ifAnyGranted>
 </div>
