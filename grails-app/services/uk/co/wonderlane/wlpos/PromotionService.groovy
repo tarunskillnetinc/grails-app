@@ -127,6 +127,12 @@ class PromotionService {
             if (sortColumn != "supplierName") {
                 order(sortColumn ?: "description", sortOrder ?: "asc")
             }
+
+            if (springSecurityService.principal.storeId) {
+                stores {
+                    inList("storeId", springSecurityService.principal.storeId)
+                }
+            }
         }
 
         return promotions
