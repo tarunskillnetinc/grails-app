@@ -14,6 +14,16 @@ class PromotionService {
         promotion.save()
     }
 
+    def savePromotionStores(Promotion promotion, Collection<Store> stores) {
+        stores.each { store ->
+                PromotionStore ps = new PromotionStore(promotion: promotion, storeId: store.id)
+                if (ps.validate()) {
+                    promotion.addToStores(ps)
+                }
+        }
+        promotion.save()
+    }
+
     def getPromotion(int promotionId) {
         def promotionCriteria = Promotion.createCriteria()
 
