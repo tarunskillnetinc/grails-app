@@ -73,7 +73,6 @@ class Product {
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
-        discountRates joinTable: [name: 'productdiscount', key: 'productId', column: 'discountRateId']
     }
 
     static constraints = {

@@ -1,5 +1,7 @@
 import grails.util.Environment
 import uk.co.wonderlane.wlpos.AmazonBrandAssetsService
+import uk.co.wonderlane.wlpos.BarcodeSignifier
+import uk.co.wonderlane.wlpos.BarcodeSignifierService
 import uk.co.wonderlane.wlpos.BrandAssetsService
 import uk.co.wonderlane.wlpos.HardwareService
 import uk.co.wonderlane.wlpos.ImageService
@@ -185,6 +187,17 @@ beans = {
                     grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+    }
+
+    barcodeSignifierService(BarcodeSignifierService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+        messageSource = ref('messageSource')
     }
 
     gsonProvider(GsonProvider)
