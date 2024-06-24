@@ -58,7 +58,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="tempSelectedStoreIds = []" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="addSelectedStores()">Add Selected Stores</button>
+                <button type="button" class="btn btn-success" onclick="addSelectedStores()">Add Selected Stores</button>
             </div>
         </div>
     </div>

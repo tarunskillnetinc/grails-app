@@ -747,6 +747,7 @@
                     data: filterParams,
                     success: function (response) {
                         $('#store-selection-list').html(response);
+                        reapplySelection()
                     },
                     error: function (xhr, status, error) {
                         console.log('Error: ' + error);
