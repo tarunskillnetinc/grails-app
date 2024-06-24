@@ -15,6 +15,6 @@
     </g:each>
     <!-- Pagination Controls -->
     <div class="my-3 text-left">
-        <util:remotePaginate controller="promotion" action="getAllStores" total="${totalResults ?: 0}" update="store-list" offset="${sortParams?.offset ?: 0}" max="${sortParams?.max ?: 50}" params="[sort: sortParams?.sort, order: sortParams?.order, storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter]" />
+        <util:remotePaginate controller="promotion" action="ajaxGetAllStores" total="${totalResults ?: 0}" update="store-list" offset="${sortParams?.offset ?: 0}" max="${sortParams?.max ?: 50}" params="[sort: sortParams?.sort, order: sortParams?.order, storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter]" />
     </div>
 </ul>

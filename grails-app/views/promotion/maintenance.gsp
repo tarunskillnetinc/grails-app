@@ -16,7 +16,7 @@
         $(function() {
             // Reapply selection after pagination
             $(document).on('ajaxSuccess', function(event, xhr, settings) {
-                if (settings.url.includes('getAllStores')) {
+                if (settings.url.includes('ajaxGetAllStores')) {
                     reapplySelection();
                 }
             });
@@ -747,7 +747,6 @@
                     data: filterParams,
                     success: function (response) {
                         $('#store-selection-list').html(response);
-                        reapplySelection()
                     },
                     error: function (xhr, status, error) {
                         console.log('Error: ' + error);
