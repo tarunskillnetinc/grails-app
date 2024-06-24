@@ -172,6 +172,7 @@ class RetailerCommand implements Validateable {
     boolean twoStageSel
     boolean averyEnabled
     boolean scoEnabled
+    boolean twoDimensionalBarcodesEnabled
     String rabbitMqUrl
     boolean rabbitMqSslEnabled
     int rabbitMqPort
@@ -181,6 +182,7 @@ class RetailerCommand implements Validateable {
     String rabbitMqTransactionsExchange
     String rabbitMqDataSyncExchange
     String rabbitMqReceiptsExchange
+    String imageWebServiceUrl
 
     MultipartFile brandLogo
 

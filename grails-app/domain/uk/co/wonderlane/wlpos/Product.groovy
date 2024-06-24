@@ -2,14 +2,10 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
+import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
 import java.math.RoundingMode
-import java.util.stream.Collectors
-
-import org.springframework.context.i18n.LocaleContextHolder
 
 class Product {
 
