@@ -200,8 +200,7 @@ class PromotionController {
         List<Map> categoriesOffer = new ArrayList<>()
         List<Map> tagsRequired = new ArrayList<>()
         List<Map> tagsOffer = new ArrayList<>()
-
-
+        
         render (view: 'maintenance', model:[promotion: null,
                                             promoType: 'bogof',
                                             productsRequired: productsRequired,
