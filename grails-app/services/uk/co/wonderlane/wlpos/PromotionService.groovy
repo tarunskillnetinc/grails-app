@@ -63,6 +63,11 @@ class PromotionService {
                 isNull("endDate")
                 gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1))
             }
+            if (springSecurityService.principal.storeId) {
+                stores {
+                    inList("storeId", springSecurityService.principal.storeId)
+                }
+            }
         }
 
         def relevantPromotions = []
