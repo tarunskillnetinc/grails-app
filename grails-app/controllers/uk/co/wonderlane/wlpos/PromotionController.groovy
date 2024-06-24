@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 
 import org.apache.commons.lang3.RegExUtils
+import org.hibernate.Session
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -19,12 +20,15 @@ class PromotionController {
     def springSecurityService
 
     def productService
-    def storeService
     def promotionService
     def rabbitService
     def gsonProvider
 
     def index() {
+        if (session.addedStores) {
+            session.addedStores.clear()
+        }
+
         List<uk.co.wonderlane.wlpos.enums.PromotionType> promotionTypes = new ArrayList<>()
         promotionTypes.add(PromotionType.BOGOF)
         promotionTypes.add(PromotionType.FIXED_AMOUNT_DISCOUNT)
@@ -426,25 +430,16 @@ class PromotionController {
                 break
         }
 
-        promotion.stores*.delete()
-        promotion.stores.clear()
-
-        session.addedStores.each { store ->
-            
-            PromotionStore ps = new PromotionStore(promotion: promotion, storeId: store.id)
-            if (ps.validate()) {
-                promotion.addToStores(ps)
-                ps.delete()
-            }
-        }
-
         if (promotion.validate()) {
             def type = params.promotionType
             if (!params."${type}-doesNotExpire") {
                 // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
                 promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
             }
+            promotion.stores*.delete()
+            promotion.stores.clear()
             promotionService.savePromotion(promotion)
+            promotionService.savePromotionStores(promotion, session.addedStores)
 
             redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
             return
@@ -713,11 +708,6 @@ class PromotionController {
 
         // Render the updated store list
         render(template: '/promotion/storeList', model: [addedStores: addedStores])
-    }
-
-    def ajaxClearSessionAddedStores() {
-        // TODO FIX THIS SOMEHOW PLS FML
-//        session.addedStores.clear()
     }
 
     private String validateSortColumn(String sortColumn) {

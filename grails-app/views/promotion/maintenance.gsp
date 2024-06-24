@@ -30,7 +30,6 @@
             });
 
 
-
                 $('.input-group.date.startDate').datepicker({
                     format: "DD dd MM yyyy",
                     weekStart: 1,
