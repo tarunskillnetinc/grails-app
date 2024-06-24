@@ -2,14 +2,10 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
+import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 
 import java.math.RoundingMode
-import java.util.stream.Collectors
-
-import org.springframework.context.i18n.LocaleContextHolder
 
 class Product {
 
@@ -38,13 +34,12 @@ class Product {
 
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
-    Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariant> variants = new ArrayList<>()
 
     BigDecimal retailPrice
     BigDecimal costPrice
 
-    static hasMany = [ saleMessages: Message, refundMessages: Message, discountRates: DiscountRate, variants: ProductVariant ]
+    static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant ]
 
     static transients = ['retailPrice', 'costPrice']
 
@@ -260,9 +255,6 @@ class Product {
         }
         refundMessages.each {
             product.getRefundMessages().add(it.getMessage())
-        }
-        discountRates.each {
-            product.getDiscountRates().add(it.getDiscountRate())
         }
         product.setRetailerItemId(retailerProductId)
         product.setLocal(false)

@@ -199,6 +199,12 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group row">
+                                    <label for="2DBarcodesEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">2D Barcodes Enabled</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="twoDimensionalBarcodesEnabled" id="2DBarcodesEnabled" ${retailer?.config?.twoDimensionalBarcodesEnabled ? 'checked' : ''} />
+                                    </div>
+                                </div>
 
                                 <div class="form-group row">
                                     <label for="scoEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">SCO Enabled</label>
@@ -292,6 +298,16 @@
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-rabbitmq-receipts-exchange-button" onclick="$('#rabbitMqReceiptsExchange').val('')">Reset</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="imageWebServiceUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Image Web Service URL</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-11 form-control bottom-border" name="imageWebServiceUrl" id="imageWebServiceUrl" value="${retailer?.config?.imageWebServiceUrl}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-image-web-service-url-button" onclick="$('#imageWebServiceUrl').val('')">Reset</div>
                                     </div>
                                 </div>
                             </div>
