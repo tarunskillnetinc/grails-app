@@ -539,7 +539,24 @@
                                         <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('Shelf Capacity')">Reset</div>
                                     </div>
                                 </div>
-
+                                <div class="form-group row">
+                                    <label for="stockRoomTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomTerm" id="stockRoomTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-term-button" onclick="$('#stockRoomTerm').val('Stockroom')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="stockRoomAbbreviatedTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room (Abbreviated)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomAbbreviatedTerm" id="stockRoomAbbreviatedTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomAbbreviatedTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-abbreviated-term-button" onclick="$('#stockRoomAbbreviatedTerm').val('S/R')">Reset</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
