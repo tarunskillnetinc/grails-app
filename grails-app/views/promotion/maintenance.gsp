@@ -779,11 +779,11 @@
                 console.log(checkbox.prop('checked'))
                 if (checkbox.prop('checked')) {
                     checkbox.prop('checked', false);
-                    button.removeClass('btn-danger').addClass('btn-primary').text('Select');
+                    button.removeClass('btn-primary').addClass('btn-secondary').text('Select');
                     tempSelectedStoreIds.splice(tempSelectedStoreIds.indexOf(storeId), 1);
                 } else {
                     checkbox.prop('checked', true);
-                    button.removeClass('btn-primary').addClass('btn-danger').text('Remove');
+                    button.removeClass('btn-secondary').addClass('btn-primary').text('Selected');
                     tempSelectedStoreIds.push(storeId);
                 }
             }

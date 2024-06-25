@@ -8,7 +8,7 @@
 
             <div class="col-4 my-auto text-right">
                 <input class="form-check-input hidden" type="checkbox" value="${store.id}" id="store-${store.id}">
-                <button id="modal-store-select-${i + 1}" class="btn btn-success"
+                <button id="modal-store-select-${i + 1}" class="btn btn-secondary"
                         onclick="event.cancelBubble = true; toggleSelectStore(${store.id}, ${i + 1})">Select</button>
             </div>
         </div>
