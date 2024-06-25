@@ -16,6 +16,8 @@ class RetailerController {
     def springSecurityService
     def brandAssetsService
     def retailerConfigService
+    def retailerProvider
+
 
     String camelToReadable(String camelCaseString) {
         // Use a regular expression to split the string at capital letters
@@ -139,7 +141,7 @@ class RetailerController {
             retailerConfig.loyaltyRetailerConfig = loyaltyRetailerConfig
 
             retailerConfigService.saveRetailerConfig(retailerConfig)
-
+            springSecurityService.principal.retailer = retailerProvider.getRetailer(springSecurityService.principal.retailerId)
             flash.message = ["Retailer saved successfully."]
 
             redirect(action: "index")
