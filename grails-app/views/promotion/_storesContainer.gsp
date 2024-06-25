@@ -9,7 +9,7 @@
             <g:render template="storeList"/>
         </div>
         <div class="row justify-content-end mb-3 mr-3">
-            <button id="add-store-btn" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionStoreSearchModal" onclick="getAllStores()">Add Store</button>
+            <button id="add-store-btn" type="button" class="btn btn-wl mr-1" data-toggle="modal" data-target="#promotionStoreSearchModal" onclick="getAllStores()">Add Stores</button>
             <button id="add-all-stores-btn" type="button" class="btn btn-wl mr-1" onclick="addAllStores()">Add All Stores</button>
             <button id="remove-all-stores-btn" type="button" class="btn btn-wl mr-1" onclick="removeAllStores()">Remove All Stores</button>
         </div>
