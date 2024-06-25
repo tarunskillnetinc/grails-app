@@ -603,6 +603,7 @@ class ProductService extends MySqlDal {
                     result.productItemCode = rs.getString("productItemCode")
                     result.productDescription = rs.getString("productDescription")
                     result.rangeId = rs.getInt("rangeId")
+                    result.deleted = rs.getBoolean("deleted")
 
                     results.add(result)
                 }
@@ -622,6 +623,11 @@ class ProductService extends MySqlDal {
     }
 
     def saveRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.save()
+    }
+
+    def undeleteRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.deleted = false
         rangeProduct?.save()
     }
 

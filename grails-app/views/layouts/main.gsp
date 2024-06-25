@@ -199,7 +199,7 @@
                                     <span id="sales-report" class="dropdown-header">Retailer Configuration</span>
 
                                     <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
-                                    <g:link elementId="category-maintenance-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
+                                    <g:link elementId="reason-code-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
 

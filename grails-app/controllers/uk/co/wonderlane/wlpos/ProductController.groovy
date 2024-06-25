@@ -539,6 +539,10 @@ class ProductController extends BaseController {
             product.errors.rejectValue("itemCode", "product.itemCode.nullable.error")
         }
 
+        if (editedProduct.effectiveDate == null) {
+            product.errors.reject('error.Product.badEffectiveDate')
+        }
+
         if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct) ) {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
@@ -576,7 +580,7 @@ class ProductController extends BaseController {
                     return product
                 }
 
-                saveRangeUpdates(product, editedProduct.rangeId)
+                saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
             }
 
             if (isRequest) {
@@ -631,8 +635,13 @@ class ProductController extends BaseController {
         def topLevelCategories = categoryService.getTopLevelCategories()
         def vatValues = VatCode.findAllByRetailerId(springSecurityService.principal.retailerId)
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-        editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+        try {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+            editedProduct.setEffectiveDate(formatter.parseDateTime(params.effectiveDate))
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
+            editedProduct.setEffectiveDate(null)
+        }
 
         Product product = saveProduct(editedProduct, params, true)
 
@@ -686,12 +695,13 @@ class ProductController extends BaseController {
         List<ProductVariant> productVariantList = new ArrayList<>()
 
         editedProduct.variants?.each { editedVariant ->
-            def existingVariant = product.variants?.find { existingVariant -> existingVariant.id == editedVariant.id }
+
+            def existingVariant = product.variants?.find { variant -> variant.id == editedVariant.id }
 
             // If the variant we're editing is the current one for our store and the effective date is today or the same as the one we're editing, we update it. Otherwise we need a new variant.
             if (editedVariant.id != 0 && existingVariant &&
                     editedVariant.storeId == springSecurityService.principal.storeId &&
-                    (!effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()) || effectiveDate == editedVariant.effectiveDate)) {
+                    (!effectiveDate.isAfter(DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()) || effectiveDate.isEqual(new DateTime(editedVariant.effectiveDate).withZone(DateTimeZone.UTC).withTimeAtStartOfDay()))) {
 
                 // Variant we saved is one which already exists, check for changes.
                 if (builder.getChangedProductVariantIds().contains(existingVariant.id)) {
@@ -780,13 +790,16 @@ class ProductController extends BaseController {
     }
 
     private DateTime getEffectiveDate(def effectiveDate) {
-        if (effectiveDate) {
-            DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
-            DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
-            return selectedDate.withTimeAtStartOfDay()
-        } else {
-            return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        try {
+            if (effectiveDate) {
+                DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
+                DateTime selectedDate = DateTime.parse(effectiveDate, dateFormatter)
+                return selectedDate.withTimeAtStartOfDay()
+            }
+        } catch (UnsupportedOperationException | IllegalArgumentException | NullPointerException ex) {
+            log.println("exception parsing user provided date: ${ex.getMessage()}")
         }
+        return DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
     }
 
     private DateTime getEffectiveDate() {
@@ -1233,44 +1246,47 @@ class ProductController extends BaseController {
         }
     }
 
-    private void saveRangeUpdates(Product product, int[] savedRanges) {
-        def rangesRemovedFrom = []
-        def rangesAddedTo = []
+    private void saveRangeUpdates(Product product, HashSet<Integer> savedRanges) {
+        def productRanges = RangeProduct.getExistingProductRanges(product.id)
+        def ranges = Range.getExistingRetailerRanges(springSecurityService.principal.retailerId)
         def productHistories = []
 
-        def rangeProducts = RangeProduct.findAllByProductId(product.id)
-        rangeProducts.each { RangeProduct rangeProduct ->
-            if (!savedRanges?.contains(rangeProduct.rangeId)) {
-                rangesRemovedFrom.add(rangeProduct.rangeId)
-            }
-        }
-
         savedRanges?.each { Integer rangeId ->
-            if (!rangeProducts.any { it.rangeId == rangeId }) {
-                rangesAddedTo.add(rangeId)
+            if (!productRanges.containsKey(rangeId)) {
+                // range doesn't exist for product, so add it
+                addRange(product, ranges.get(rangeId), productHistories)
+            } else if (productRanges.get(rangeId).deleted) {
+                // range exists, but is soft deleted, un-delete it
+                undeleteRange(product, productRanges.get(rangeId), ranges.get(rangeId), productHistories)
             }
         }
 
-        rangesRemovedFrom.each { Integer rangeId ->
-            RangeProduct rangeProductDelete = rangeProducts.find { it.rangeId == rangeId }
-            productHistories.add(handleProductRangeHistory(rangeProductDelete, false))
-            productService.deleteRangeProduct(rangeProductDelete)
-        }
-
-        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
-        rangesAddedTo.each { Integer rangeId ->
-            RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
-            productHistories.add(handleProductRangeHistory(rangeProduct, true))
-            productService.saveRangeProduct(rangeProduct)
-            productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
-        }
-
-        if (productHistories != null && productHistories.size() > 0){
+        // delete all ranges that have been unselected, except those already soft-deleted
+        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories)}
+        if (productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
     }
 
-    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
+    private void addRange(Product product, Range range, ArrayList<ProductHistory> history) {
+        RangeProduct rangeProduct = new RangeProduct(range: range, productId: product.id)
+        history.add(handleProductRangeHistory(rangeProduct, true))
+        productService.saveRangeProduct(rangeProduct)
+        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, range))
+    }
+
+    private void undeleteRange(Product product, RangeProduct rangeProduct, Range range, ArrayList<ProductHistory> history) {
+        history.add(handleProductRangeHistory(rangeProduct, true))
+        productService.undeleteRangeProduct(rangeProduct)
+        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, range))
+    }
+
+    private void deleteRange(RangeProduct rangeProduct, ArrayList<ProductHistory> history) {
+        history.add(handleProductRangeHistory(rangeProduct, false))
+        productService.deleteRangeProduct(rangeProduct)
+    }
+
+    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew) {
         def now = DateTime.now(DateTimeZone.UTC)
         ProductHistoryType productHistoryType = isNew ? ProductHistoryType.PRODUCT_RANGE_ADD : ProductHistoryType.PRODUCT_RANGE_DELETE
 

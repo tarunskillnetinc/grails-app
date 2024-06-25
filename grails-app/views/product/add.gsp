@@ -246,6 +246,7 @@
                     params["shelfCapacity"] = $(selector + "shelfCapacity").val();
                     params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
                     params["zeroPrice"] = $("#zeroPrice").prop("checked");
+                    params["effectiveDate"] = $(selector + "effectiveDate").val();
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -296,6 +297,7 @@
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
                 var shelfCapacity = $("#addVariantShelfCapacity").val();
                 var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
+                var effectiveDate = $("#addEffectiveDate").val();
                 var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
                 if (sku === "") {
@@ -303,7 +305,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodeValues = []; // To store the barcode values for validation
