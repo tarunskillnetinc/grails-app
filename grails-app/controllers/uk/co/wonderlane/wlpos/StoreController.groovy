@@ -1,9 +1,10 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.SpringSecurityService
+import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import uk.co.wonderlane.wlpos.entities.StoreConfig
 import uk.co.wonderlane.wlpos.entities.SyncMessage
-import uk.co.wonderlane.wlpos.entities.loyalty.LoyaltyStoreConfig
 import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
@@ -24,33 +25,191 @@ class StoreController {
 
     protected final StoreSettingViewOptions viewOptions = new StoreSettingViewOptions()
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-        def store
+        if (springSecurityService.principal.storeId) {
+            flash.error = "You cannot access this page when logged in as a store."
+            redirect(uri: "/")
+            return
+        }
 
+        [storeNumberFilter: params.storeNumberFilter,
+         storeNameFilter: params.storeNameFilter,
+         showDeletedFilter: params.showDeletedFilter,
+         max: params.max,
+         offset: params.offset,
+         sort: params.sort,
+         order: params.order]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxGetStores() {
+        Integer storeNumberFilter
+        String storeNameFilter
+        boolean showDeletedFilter = false
+
+        def sortParams = [:]
+
+        try {
+            if (!params.sort) {
+                sortParams = [max: 50, offset: 0, sort: "storeNumber", order: "ASC"]
+            } else {
+                sortParams.max = Integer.parseInt(params.max)
+                sortParams.offset = Integer.parseInt(params.offset)
+                sortParams.sort = params.sort
+                sortParams.order = params.order
+            }
+
+            if (params.storeNumberFilter && params.storeNumberFilter.isNumber()) {
+                storeNumberFilter = Integer.parseInt(params.storeNumberFilter)
+            }
+            if (params.storeNameFilter && params.storeNameFilter != "null") {
+                storeNameFilter = params.storeNameFilter
+            }
+            if (params.showDeletedFilter == "true") {
+                showDeletedFilter = true
+            }
+
+            def (stores, storeCount) = storeService.searchStores(springSecurityService.principal.retailerId, storeNumberFilter, storeNameFilter, showDeletedFilter, sortParams)
+
+            render(template: "storeSearchResults", model: [stores: stores, totalResults: storeCount, sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: "", showDeletedFilter: showDeletedFilter])
+        } catch (Exception e) {
+            render status: 500, text:" Error searching for stores."
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def ajaxDeleteStore(int storeId, boolean deleted) {
+        try {
+            def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+
+            store.deleted = deleted
+
+            storeService.saveStore(store)
+
+            render status: 200, text: "Store $store.config.storeNumber has been ${deleted ? 'deleted' : 'reinstated'}."
+        } catch (Exception e) {
+            render status: 500, text: "Error ${deleted ? 'deleting' : 'reinstating'} store."
+        }
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def add() {
+        def parentStores = storeService.getStoresByType(springSecurityService.principal.retailerId, StoreType.STORE).sort { it.config.storeNumber }
+        def storeTypes = StoreType.values().findAll { it != StoreType.HEAD_OFFICE }
+        def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
+        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
+
+        [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges]
+    }
+
+    def config() {
+        def store
+        boolean viewingOwnStore = true
+
+        // Logged in as a store so return only your store.
         if (springSecurityService.principal.storeId) {
             store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        } else if (params.id && params.id.isNumber()) {
+            // If you're logged in at HO level you can access any store's config.
+            def userRoles = springSecurityService.principal.authorities*.authority
+
+            if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+                store = storeService.getStore(springSecurityService.principal.retailerId, Integer.parseInt(params.id))
+
+                viewingOwnStore = false
+            }
         } else {
+            // HO level accessing own store.
             store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
         }
 
         (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber)
 
-        setViewOptions(store.config.storeType.name())
+        setViewOptions(store?.config?.storeType?.name(), viewingOwnStore)
 
         [storeSettings               : store,
          availablePriceBands         : availablePriceBands,
          availableProductRanges      : availableProductRanges,
          availablePrintReceiptOptions: PrintReceiptOption.values(),
          availableParentStores       : availableParentStores,
-         viewOptions                 : viewOptions]
+         viewOptions                 : viewOptions,
+         storeNumberFilter           : params.storeNumberFilter,
+         storeNameFilter             : params.storeNameFilter,
+         showDeletedFilter           : params.showDeletedFilter,
+         max                         : params.max,
+         offset                      : params.offset,
+         sort                        : params.sort,
+         order                       : params.order]
+    }
+
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    def saveNewStore(NewStoreCommand newStoreCommand) {
+        if (!newStoreCommand.validate()) {
+            def parentStores = storeService.getStoresByType(springSecurityService.principal.retailerId, StoreType.STORE).sort { it.config.storeNumber }
+            def storeTypes = StoreType.values().findAll { it != StoreType.HEAD_OFFICE }
+            def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
+            def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId).sort { it.description }
+
+            render(view: "add", model: [store : newStoreCommand, parentStores: parentStores, storeTypes: storeTypes, priceBands: priceBands, ranges: ranges])
+        } else {
+            // Validated.
+            def storeCopyingConfigFrom = null
+            if (newStoreCommand.copyConfigFrom) {
+                storeCopyingConfigFrom = storeService.getStore(springSecurityService.principal.retailerId, newStoreCommand.copyConfigFrom)
+            }
+
+            Store store = new Store()
+            store.retailerId = springSecurityService.principal.retailerId
+            store.parentStoreId = newStoreCommand.parentStoreId
+
+            if (storeCopyingConfigFrom) {
+                store.range = storeCopyingConfigFrom.range
+                store.priceBand = storeCopyingConfigFrom.priceBand
+            } else {
+                store.range = newStoreCommand.range
+                store.priceBand = newStoreCommand.priceBand
+            }
+
+            StoreConfig storeConfig = storeCopyingConfigFrom ? storeCopyingConfigFrom.config : new StoreConfig()
+
+            // These fields are taken from the UI, the rest of the config values will be inherited (assuming a "copy from" store was selected).
+            storeConfig.storeType = uk.co.wonderlane.wlpos.enums.StoreType.valueOf(newStoreCommand.type.name())
+            storeConfig.storeNumber = newStoreCommand.storeNumber
+            storeConfig.storeName = newStoreCommand.storeName
+            storeConfig.addressBuildingNumberOrName = newStoreCommand.addressBuildingNumberOrName
+            storeConfig.addressLine1 = newStoreCommand.addressLine1
+            storeConfig.addressLine2 = newStoreCommand.addressLine2
+            storeConfig.addressTown = newStoreCommand.addressTown
+            storeConfig.addressCounty = newStoreCommand.addressCounty
+            storeConfig.addressCountry = newStoreCommand.addressCountry
+            storeConfig.addressPostCode = newStoreCommand.addressPostCode
+            storeConfig.phoneNumber = newStoreCommand.phoneNumber
+
+            store.config = storeConfig
+
+            storeService.saveStore(store)
+
+            flash.message = "Store created successfully."
+            redirect (action: "config", id: store.id)
+        }
     }
 
     def save(StoreCommand storeCommand) {
         def store
 
+        // Logged in as a store so return only your store.
         if (springSecurityService.principal.storeId) {
             store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+        } else if (params.id && params.id.isNumber()) {
+            // If you're logged in at HO level you can access any store's config.
+            def userRoles = springSecurityService.principal.authorities*.authority
+
+            if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
+                store = storeService.getStore(springSecurityService.principal.retailerId, Integer.parseInt(params.id))
+            }
         } else {
+            // HO level accessing own store.
             store = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, null)
         }
 
@@ -60,21 +219,16 @@ class StoreController {
         // Note, this saving is deliberately being done completely outside of Hibernate and GORM because they don't handle JSON columns well (at all).
         if (storeCommand.validate() & storeCommand.config.validate()) { // Deliberately a single & so that both validates get called even if the first one fails.
             StoreConfig storeConfig = new StoreConfig()
-            LoyaltyStoreConfig loyaltyStoreConfig = new LoyaltyStoreConfig()
 
             bindData(storeConfig, storeCommand.config)
-            bindData(loyaltyStoreConfig, storeCommand.config.loyaltyStoreConfig)
-            storeConfig.loyaltyStoreConfig = loyaltyStoreConfig
 
-            storeService.saveStoreSettings(storeCommand, gsonProvider.gson.toJson(storeConfig))
+            storeService.saveStore(storeCommand, gsonProvider.gson.toJson(storeConfig))
 
             // Only need to push this out if it's a store level change, there are no head office controlled settings.
             if (springSecurityService.principal.storeId) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.STORE_SETTINGS, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
                 syncMessage.setInsert(true)
-                syncMessage.setStoreSettings(
-                        storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).refresh().getStore()
-                )
+                syncMessage.setStoreSettings(storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).refresh().getStore())
 
                 rabbitService.sendMessage(syncMessage)
             }
@@ -86,22 +240,22 @@ class StoreController {
                     springSecurityService.principal.range = storeCommand.range
                 }
 
-                flash.message = ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
+                flash.message = "Store settings saved successfully. \nAs the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes. \nPlease perform this operation from the Till Connectivity page in the Monitoring menu."
             } else {
-                flash.message = ["Store settings saved successfully."]
+                flash.message = "Store settings saved successfully."
             }
 
-            redirect(action: "index")
+            redirect(action: "config", id: store.id)
         } else {
             (availablePriceBands, availableProductRanges, availableParentStores) = loadDropdownData(springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber)
 
-            render(view: "index", model: [storeSettings               : storeCommand,
-                                          configErrors                : storeCommand.config,
-                                          availablePriceBands         : availablePriceBands,
-                                          availableProductRanges      : availableProductRanges,
-                                          availableParentStores       : availableParentStores,
-                                          availablePrintReceiptOptions: PrintReceiptOption.values(),
-                                          viewOptions                 : viewOptions])
+            render(view: "config", model: [storeSettings               : storeCommand,
+                                           configErrors                : storeCommand.config,
+                                           availablePriceBands         : availablePriceBands,
+                                           availableProductRanges      : availableProductRanges,
+                                           availableParentStores       : availableParentStores,
+                                           availablePrintReceiptOptions: PrintReceiptOption.values(),
+                                           viewOptions                 : viewOptions])
         }
     }
 
@@ -115,7 +269,7 @@ class StoreController {
         [availablePriceBands, availableProductRanges, allParentStores]
     }
 
-    private void setViewOptions(String storeType) {
+    private void setViewOptions(String storeType, boolean viewingOwnStore) {
         def userRoles = springSecurityService.principal.authorities*.authority
 
         boolean isHeadOffice = false
@@ -131,35 +285,80 @@ class StoreController {
             isEngineerUser = userRoles.contains("ROLE_ENGINEER")
         }
 
-        boolean isChildStore = Arrays.asList(StoreType.CAFE.getValue(), StoreType.CANTEEN.getValue()).contains(storeType)
+        boolean isChildStore = Arrays.asList(StoreType.CAFE.name(), StoreType.CANTEEN.name()).contains(storeType)
 
-        viewOptions.showUISettings = !isHeadOffice
-        viewOptions.showParentStoreSettings = !isHeadOffice && (isHeadOfficeUser || isEngineerUser) && isChildStore
-        viewOptions.showLoyaltySettings = !isHeadOffice
+        viewOptions.showUISettings = !isHeadOffice || !viewingOwnStore
+        viewOptions.showParentStoreSettings = (!isHeadOffice || !viewingOwnStore) && (isHeadOfficeUser || isEngineerUser) && isChildStore
     }
 }
 
 class StoreSettingViewOptions {
     public boolean showUISettings
     public boolean showParentStoreSettings
-    public boolean showLoyaltySettings
+}
+
+class NewStoreCommand implements Validateable {
+
+    SpringSecurityService springSecurityService
+    StoreService storeService
+
+    Integer storeNumber
+    StoreType type
+    String storeName
+    String addressBuildingNumberOrName
+    String addressLine1
+    String addressLine2
+    String addressTown
+    String addressCounty
+    String addressCountry
+    String addressPostCode
+    String phoneNumber
+    Integer parentStoreId
+    Integer copyConfigFrom
+    Range range
+    PriceBand priceBand
+
+    static constraints = {
+        storeNumber nullable: false, validator: { val, obj ->
+            def existingStore = obj.storeService.getStoreByStoreNumber(obj.springSecurityService.principal.retailerId, val)
+
+            if (existingStore) {
+                return false
+            }
+        }
+        type nullable: false
+        storeName nullable: false, blank: false, maxSize: 45
+        addressBuildingNumberOrName nullable: true, maxSize: 45
+        addressLine1 nullable: true, maxSize: 45
+        addressLine2 nullable: true, maxSize: 45
+        addressTown nullable: true, maxSize: 45
+        addressCounty nullable: true, maxSize: 45
+        addressCountry nullable: true, maxSize: 45
+        addressPostCode nullable: true, maxSize: 45
+        phoneNumber nullable: true, maxSize: 45
+        parentStoreId nullable: true
+        copyConfigFrom nullable: true
+        range nullable: true
+        priceBand nullable: true
+    }
 }
 
 class StoreCommand implements Validateable {
     int id
-    int retailerId
     Integer parentStoreId
     PriceBand priceBand
     Range range
+    String retailerStoreId
+    boolean deleted
 
     StoreConfigCommand config
 
     static constraints = {
         id nullable: true
-        retailerId nullable: false
         parentStoreId nullable: true
         priceBand nullable: false
         range nullable: false
+        retailerStoreId nullable: true
         config nullable: false
     }
 }
@@ -195,7 +394,6 @@ class StoreConfigCommand implements Validateable {
     String website
     String companyNumber
     String returnsMessage
-    LoyaltyStoreConfigCommand loyaltyStoreConfig
 
     static constraints = {
         storeNumber nullable: true
@@ -237,7 +435,6 @@ class StoreConfigCommand implements Validateable {
         website nullable: true, maxsize: 40
         companyNumber nullable: true, maxSize: 10
         returnsMessage nullable: true, maxSize: 200
-        loyaltyStoreConfig nullable: true
     }
 
     def colorCodeValidator(String colorCode) {
@@ -261,8 +458,4 @@ class StoreConfigCommand implements Validateable {
     private boolean isValidHexCode(String s) {
         return s.chars().allMatch({ c -> "0123456789ABCDEFabcdef".indexOf(c) >= 0 });
     }
-}
-
-class LoyaltyStoreConfigCommand {
-    boolean isLoyaltyEnable = false
 }

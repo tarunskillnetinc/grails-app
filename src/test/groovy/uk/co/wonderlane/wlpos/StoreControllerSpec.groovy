@@ -256,11 +256,9 @@ class StoreControllerSpec extends Specification implements ControllerUnitTest<St
 
         then: 'The model index render'
         if (originalPriceBandId != newPriceBandId || originalRangeId != newRangeId) {
-            assert flash.message ==
-                    ["Store settings saved successfully.", "As the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."]
+            assert flash.message == "Store settings saved successfully. \nAs the store's range or price band have changed, the store's tills need to be synced in order to receive the necessary product changes.", "Please perform this operation from the Till Connectivity page in the Monitoring menu."
         } else {
-            assert flash.message ==
-                    ["Store settings saved successfully."]
+            assert flash.message == "Store settings saved successfully."
         }
         assert response.redirectedUrl.startsWith('/storeSettings/index')
 
