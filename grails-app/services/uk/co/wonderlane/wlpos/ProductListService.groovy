@@ -57,14 +57,18 @@ class ProductListService extends MySqlDal {
                 or {
                     def matchingEnums = []
                     ProductListStatus.values().each { status ->
-                        if (status.name().toString().toLowerCase().contains(searchTerm.toLowerCase())) {
+                        if (status.getFriendlyName().toString().toLowerCase().contains(searchTerm.toLowerCase())) {
                             matchingEnums.add(status)
                         }
                     }
-                    if (matchingEnums.size() > 0) {
-                        matchingEnums.each { matchingEnum ->
-                            eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
-                        }
+
+                    if ((matchingEnums.size() <= 0)) {
+                        eq("status", null)
+                        return
+                    }
+
+                    matchingEnums.each { matchingEnum ->
+                        eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
                     }
                 }
             } else if (searchBy == "Current Owner" && searchTerm) {
