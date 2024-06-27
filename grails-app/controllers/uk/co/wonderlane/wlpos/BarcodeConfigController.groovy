@@ -67,7 +67,6 @@ class BarcodeConfigController {
         signifier.id = params.id ? Integer.parseInt(params.id) : 0
         signifier.type = params.typeValue ? params.typeValue : null
         signifier.pattern = params.patternValue ? params.patternValue : ""
-        signifier.startIndex = params.startIndexValue ? Integer.parseInt(params.startIndexValue) : null
         signifier.length = params.lengthValue ? Integer.parseInt(params.lengthValue) : null
         signifier.description = params.descriptionValue ? params.descriptionValue : null
         signifier.receiptDescription = params.receiptDescriptionValue ? params.receiptDescriptionValue : null
@@ -195,7 +194,6 @@ class BarcodeConfigController {
             barcodeSignifierSync.id = signifier.id
             barcodeSignifierSync.retailerId = signifier.retailerId
             barcodeSignifierSync.pattern = signifier.pattern
-            barcodeSignifierSync.startIndex = signifier.startIndex
             barcodeSignifierSync.length = signifier.length
             barcodeSignifierSync.type = signifier.type
             barcodeSignifierSync.description = signifier.description
