@@ -5,7 +5,6 @@ class BarcodeSignifier {
     int id
     int retailerId
     String pattern
-    Integer startIndex
     Integer length
     String type
     String description
@@ -25,12 +24,11 @@ class BarcodeSignifier {
         id column: "id",  sqlType: 'smallint'
         retailerId column: "retailerId", sqlType: "tinyint"
         pattern column: "pattern"
-        startIndex column: "startIndex"
         length column: "length"
         type column: "type"
         description column: "description"
         receiptDescription column: "receiptDescription"
-        checkDigit column: "checkDigit", sqlType: "tinyint"
+        checkDigit column: "checkDigit"
         discountPercentage column: "discountPercentage", sqlType: "tinyint"
 
         barcodeSignifierEmbeddedDatas joinTable: [name: 'barcodesignifierembeddeddata', key: 'barcodeSignifierId']
@@ -44,7 +42,6 @@ class BarcodeSignifier {
                 return ['signifier.pattern.nonNumeric']
             }
         }
-        startIndex blank: true, nullable: true
         length blank: true, nullable: true, validator: { val, obj ->
             if (val == null) {
                 return ['signifier.length.required']

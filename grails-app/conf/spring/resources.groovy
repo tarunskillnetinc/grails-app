@@ -1,6 +1,5 @@
 import grails.util.Environment
 import uk.co.wonderlane.wlpos.AmazonBrandAssetsService
-import uk.co.wonderlane.wlpos.BarcodeSignifier
 import uk.co.wonderlane.wlpos.BarcodeSignifierService
 import uk.co.wonderlane.wlpos.BrandAssetsService
 import uk.co.wonderlane.wlpos.HardwareService

@@ -54,7 +54,7 @@ class BarcodeSignifierService extends MySqlDal {
             filters << [description: "%${description}%"]
         }
 
-        queryBuilder.append(" GROUP BY bs.id, bs.retailerId, bs.pattern, bs.startIndex, bs.length, bs.type")
+        queryBuilder.append(" GROUP BY bs.id, bs.retailerId, bs.pattern, bs.length, bs.type")
 
         def allowedSortColumns = [
                 "type asc",
