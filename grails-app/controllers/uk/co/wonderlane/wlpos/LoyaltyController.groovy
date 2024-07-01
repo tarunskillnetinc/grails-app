@@ -40,8 +40,12 @@ class LoyaltyController {
     }
 
     def showMemberDetails(String cardNumber) {
+        int availableLoyaltyOffers = 0;
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
-        render (view: "loyaltyMemberDetails", model: [member: member])
+        if (member && member?.offers ) {
+            availableLoyaltyOffers = member?.offers?.size()
+        }
+        render (view: "loyaltyMemberDetails", model: [member: member, availableLoyaltyOffers: availableLoyaltyOffers])
     }
 
     def offerDetails(String cardNumber, Integer id) {

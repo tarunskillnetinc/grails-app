@@ -133,7 +133,7 @@
                         <div class="col-12 col-lg-6">
                             <div class="row form-group mb-3">
                                 <label for="offersAvailable" class="col-4 col-form-label text-right pr-4">Offers Available</label>
-                                <g:field name="offersAvailable" type="text" class="col-2 form-control bottom-border" value="${member?.offersAvailable}" readonly="true" />
+                                <g:field name="offersAvailable" type="text" class="col-2 form-control bottom-border" value="${availableLoyaltyOffers}" readonly="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="currentSpend" class="col-4 col-form-label text-right pr-4">Current Spend This Year</label>
