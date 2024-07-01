@@ -382,12 +382,11 @@ class LoyaltyController {
                                                                     totalCount            : segment?.totalCount
             ])
         } catch (Exception ex) {
+            List<String> errorList = new ArrayList<>()
             log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
+            errorList.add("Failed to load loyalty segments")
             response.setStatus(500)
-            render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                                                    error_header: "Loyalty Segment Search Error",
-                                                    error_body  : "Error when loading loyalty segment"
-            ])
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
         }
     }
 
@@ -408,12 +407,10 @@ class LoyaltyController {
                                                                    sortParams           : sortParams
             ])
         } catch (Exception ex) {
+            List<String> errorList = new ArrayList<>()
             log.error("Error when loading loyalty offers search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
-            response.setStatus(500)
-            render(view: "_loyaltyGenericError", contentType: "text/html", model: [
-                                                    error_header: "Loyalty Offers Search Error",
-                                                    error_body  : "Error when loading loyalty offers"
-            ])
+            errorList.add("Failed to load loyalty offers")
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
         }
     }
 

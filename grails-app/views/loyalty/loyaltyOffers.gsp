@@ -114,8 +114,7 @@
                 statusCode: {
                     500: function (response) {
                         $('#search-results').html("<div class=\"d-flex justify-content-center\"><span class=\"text-muted\">No results found.</span></div>");
-                        $('#loyaltyOffersModal').modal({show: true});
-                        $("#loyaltyOffersContent").html(response.responseText);
+                        errorMessageDisplay(response)
                     },
                     200: function (response) {
                         $('#results-container').html(response);
@@ -124,6 +123,36 @@
                     }
                 }
             });
+        }
+
+        function errorMessageDisplay(response){
+            var errorList = response.responseJSON.error;
+            if (errorList && errorList.length > 0) {
+                var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+
+                errorList.forEach(function(errorMessage) {
+                    var errorMessageSpan = $('<span>' + errorMessage + '</span>');
+                    errorDiv.append(errorMessageSpan);
+                    errorDiv.append($('<br>'));
+                });
+
+                var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+
+                closeIcon.click(function () {
+                    errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
+                });
+
+                errorDiv.append(closeIcon);
+                $('#errors-container').html(errorDiv);
+
+                // Adjust icon position to top-right corner
+                closeIcon.css({
+                    "position": "absolute",
+                    "top": "-10px",
+                    "right": "1px",
+                    "margin": "0.5rem"
+                });
+            }
         }
 
         function cancelLoyaltyError(){
@@ -161,6 +190,15 @@
             });
         }
     </script>
+
+    <style>
+
+        #errors-container {
+            margin-top: 20px; /* Adjust the value as needed */
+            margin-bottom: 20px; /* Adjust the value as needed */
+        }
+
+    </style>
 </head>
 
 <body>
@@ -180,6 +218,8 @@
 <section id="reasonCodeMaintenance" class="container-fluid">
 
     <section id="success-container"></section>
+
+    <section id="errors-container" class="container-fluid mb-20"></section>
 
 
     <g:if test="${flash.error}">
