@@ -333,7 +333,8 @@ class ReportingController {
                                                             startDate   : startDate,
                                                             endDate     : endDate,
                                                             totalResults: totalResults,
-                                                            userTimeZone: DateTimeZone.forID("Europe/London")])
+                                                            userTimeZone: DateTimeZone.forID("Europe/London"),
+                                                            isWeighted  : Product.findById(productId)?.weightedItem])
         }
     }
 
