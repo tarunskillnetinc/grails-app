@@ -1,9 +1,9 @@
 <div class="modal-header">
     <g:if test="${enableEdit}">
-        <h2>Edit Signifier</h2>
+        <h2>Edit Embedded Data</h2>
     </g:if>
     <g:else>
-        <h2>Add Signifier</h2>
+        <h2>Add Embedded Data</h2>
     </g:else>
 </div>
 
