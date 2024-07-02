@@ -51,7 +51,7 @@
             var changingDate = false;
 
             // Add change event listener to offer end date to validate and correct dates
-            $('#offerEndDateId').change(function() {
+            $('#offerEndDateId').blur(function() {
                 if (!changingDate) {
                     changingDate = true;
                     validateAndCorrectDates();
