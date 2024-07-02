@@ -26,7 +26,7 @@
                 $('#endWindowFilter').datepicker({
                     format: "dd/mm/yyyy",
                     weekStart: 1,
-                    todayHighlight: true,
+                    todayHighlight: false,
                     autoclose: true,
                     todayBtn: "linked",
                     orientation: "bottom auto"
@@ -79,9 +79,9 @@
                     // Check if end date is before start date
                     if (endDate < startDate) {
                         // Set end date to 1 week from start date
-                        // var newEndDate = new Date(startDate);
-                        // newEndDate.setDate(startDate.getDate());
-                        $('#endWindowFilter').datepicker('setDate', today);
+                        var newEndDate = new Date(startDate);
+                        newEndDate.setDate(startDate.getDate() + 7);
+                        $('#endWindowFilter').datepicker('setDate', newEndDate);
                     }
                 }
             }
