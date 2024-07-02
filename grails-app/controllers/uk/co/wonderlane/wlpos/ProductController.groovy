@@ -580,7 +580,9 @@ class ProductController extends BaseController {
                     return product
                 }
 
-                saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
+                if (editedProduct.rangeId != null) {
+                    saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
+                }
             }
 
             if (isRequest) {
