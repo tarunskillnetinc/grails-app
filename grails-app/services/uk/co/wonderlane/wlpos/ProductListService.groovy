@@ -33,13 +33,9 @@ class ProductListService extends MySqlDal {
             if (searchBy == "Everything" && searchTerm) {
                 or {
                     like("description", "%$searchTerm%")
-                    def matchingEnums =[]
-                    ProductListStatus.values().each {status ->
-                        if (status.name().toString().toLowerCase().contains(searchTerm.toLowerCase())){
-                            matchingEnums.add(status)
-                        }
-                    }
-                    if (matchingEnums.size() > 0) {
+                    def matchingEnums = searchStatuses(searchTerm)
+
+                    if (!matchingEnums.isEmpty()) {
                         matchingEnums.each { matchingEnum ->
                             eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
                         }
@@ -55,16 +51,15 @@ class ProductListService extends MySqlDal {
                 like("description", "%$searchTerm%")
             } else if (searchBy == "Status" && searchTerm) {
                 or {
-                    def matchingEnums = []
-                    ProductListStatus.values().each { status ->
-                        if (status.name().toString().toLowerCase().contains(searchTerm.toLowerCase())) {
-                            matchingEnums.add(status)
-                        }
+                    def matchingEnums = searchStatuses(searchTerm)
+
+                    if (matchingEnums.isEmpty()) {
+                        eq("status", null)
+                        return
                     }
-                    if (matchingEnums.size() > 0) {
-                        matchingEnums.each { matchingEnum ->
-                            eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
-                        }
+
+                    matchingEnums.each { matchingEnum ->
+                        eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
                     }
                 }
             } else if (searchBy == "Current Owner" && searchTerm) {
@@ -75,6 +70,17 @@ class ProductListService extends MySqlDal {
                 }
             }
         }
+    }
+
+    private static def searchStatuses(String searchTerm) {
+        def statuses =[]
+        ProductListStatus.values().each {status ->
+            if (status.getFriendlyName().toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                statuses.add(status)
+            }
+        }
+
+        return statuses
     }
 
     def getOrders(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate) {

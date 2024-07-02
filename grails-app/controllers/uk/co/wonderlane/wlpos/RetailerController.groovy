@@ -19,6 +19,8 @@ class RetailerController {
     def brandAssetsService
     def retailerConfigService
 
+    final int MAX_LOGO_SIZE = 1048576
+
     String camelToReadable(String camelCaseString) {
         // Use a regular expression to split the string at capital letters
         def words = camelCaseString.split(/(?=[A-Z])/)
@@ -37,9 +39,16 @@ class RetailerController {
 
     @Secured(['ROLE_ENGINEER'])
     def save(RetailerCommand retailerCommand) {
+        def errorMessages = []
+
         if (retailerCommand.brandLogo?.filename != "" && retailerCommand.brandLogo?.filename != null) {
-            brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
+            if (retailerCommand.brandLogo.size <= MAX_LOGO_SIZE) {
+                brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
+            } else {
+                errorMessages << message(code: 'retailer.logo.maxsize')
+            }
         }
+
         for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
             var t = new FunctionToggle()
             t.name = toggle.name
@@ -61,7 +70,6 @@ class RetailerController {
             retailerCommand?.retailerTerminologyConfig?.locationsTableConfig = new RetailerTerminologyLocationsTableConfigCommand()
         }
 
-        def errorMessages = []
         if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
             errorMessages << "Product Term is empty. Should not be null."
         }
@@ -116,6 +124,20 @@ class RetailerController {
         }
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == null) {
             errorMessages << "Shelf Capacity is empty. Should not be null."
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.stockRoomTerm == "" || retailerCommand?.retailerTerminologyConfig?.stockRoomTerm == null) {
+            flash.error = "Stock Room is empty. Should not be null."
+        } else {
+            if (retailerCommand?.retailerTerminologyConfig?.stockRoomTerm.length() > 20) {
+                flash.error = "Stock Room cannot be more than 20 characters in length."
+            }
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm == "" || retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm == null) {
+            flash.error = "Stock Room (Abbreviated) is empty. Should not be null."
+        } else {
+            if (retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm.length() > 3) {
+                flash.error = "Stock Room (Abbreviated) cannot be more than 3 characters in length."
+            }
         }
 
         if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null) {
@@ -228,6 +250,8 @@ class RetailerTerminologyCommand {
     String deliveredTerm
     String accentBarStoreTerm
     RetailerTerminologyLocationsTableConfigCommand locationsTableConfig
+    String stockRoomTerm
+    String stockRoomAbbreviatedTerm
 }
 
 class RetailerTerminologyLocationsTableConfigCommand {

@@ -8,27 +8,33 @@
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
+        function validateImg(input) {
+            if (input.files[0].size >= 1048576 /* 1MB */) {
+                return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'
+            }
+            if (input.files[0].type !== "image/png") {
+                return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'
+            }
+        }
+
         $(document).ready(function () {
             $('input[name=brandLogo]').change(function() {
-                if (this.files[0].size < 1048576 /* 1MB */) {
-                    if (this.files[0].type === "image/png") {
-                        const fileData = this.files[0];
-                        if (FileReader && fileData) {
-                            var urlFileReader = new FileReader();
-                            urlFileReader.onload = function () {
-                                var brandingImage = $(".branding-image");
-                                brandingImage.attr("src", urlFileReader.result);
-                                brandingImage.removeAttr("hidden");
-                            }
-                            urlFileReader.readAsDataURL(fileData);
-                        } else {
-                            // fallback?
-                        }
-                    } else {
-                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                const error = validateImg(this);
+                if (error) {
+                    $('input[name=brandLogo]').val(null);
+                    alert(error);
+                    return
+                }
+
+                const fileData = this.files[0];
+                if (FileReader && fileData) {
+                    const urlFileReader = new FileReader();
+                    urlFileReader.onload = function () {
+                        const brandingImage = $(".branding-image");
+                        brandingImage.attr("src", urlFileReader.result);
+                        brandingImage.removeAttr("hidden");
                     }
-                } else {
-                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                    urlFileReader.readAsDataURL(fileData);
                 }
             });
 
@@ -142,7 +148,7 @@
 
 
     <section id="addProduct-section" class="container-fluid mt-4">
-        <g:uploadForm name="save-button" action="save">
+        <g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
             <div id="accordion">
                 <!-- General information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -533,7 +539,24 @@
                                         <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('Shelf Capacity')">Reset</div>
                                     </div>
                                 </div>
-
+                                <div class="form-group row">
+                                    <label for="stockRoomTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomTerm" id="stockRoomTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-term-button" onclick="$('#stockRoomTerm').val('Stockroom')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="stockRoomAbbreviatedTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room (Abbreviated)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomAbbreviatedTerm" id="stockRoomAbbreviatedTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomAbbreviatedTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-abbreviated-term-button" onclick="$('#stockRoomAbbreviatedTerm').val('S/R')">Reset</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

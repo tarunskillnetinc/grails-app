@@ -19,9 +19,10 @@ class Promotion {
     DateTime updateDatetime
     Integer retailerPromotionId
     Collection<PromotionGroup> groups = new ArrayList<>()
+    Collection<PromotionStore> stores = new ArrayList<>()
     String rpidAsString
 
-    static hasMany = [groups: PromotionGroup]
+    static hasMany = [groups: PromotionGroup, stores: PromotionStore]
 
     static hasOne = [symbolGroupPromotion : SymbolGroupPromotion]
 
@@ -83,6 +84,12 @@ class Promotion {
         updateDatetime nullable: false
         retailerPromotionId nullable: true, range: 0..999999999
         symbolGroupPromotion nullable: true
+    }
+
+    Collection<Integer> getStoreIds() {
+        Collection<Integer> result = new ArrayList<>();
+        stores.each {result.add(it.storeId)}
+        return result;
     }
 
     public uk.co.wonderlane.wlpos.entities.Promotion getPromotion() {

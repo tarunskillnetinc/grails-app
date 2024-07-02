@@ -26,6 +26,8 @@
     </div>
 </div>
 
+<g:render template="addStoresModal"/>
+
 <div class="tab-content">
     <div class="tab-pane fade show ${promoType.equals('bogof') ? 'active' : ''}" id="bogof" role="tabpanel" aria-labelledby="bogof-tab">
         <g:form method="post" action="save" class="mt-5" name="bogof-form">
@@ -156,7 +158,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="bogof-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
@@ -346,7 +348,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="xfory-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
@@ -490,7 +492,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="percentage-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
@@ -647,7 +649,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
@@ -796,7 +798,7 @@
                     </div>
                 </div>
             </div>
-
+            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
