@@ -106,11 +106,15 @@
                     errorString = errorString.concat("<li>Please enter a value for the remaining redemptions</li>");
                     error = true;
                 }
+                if ((new Date($('#endDateFilter').val())).getTime() <= (new Date($('#startDateFilter').val())).getTime()) {
+                    errorString = errorString.concat("<li>End date must be after start date</li>");
+                    error = true;
+                }
 
                 if (!error) {
                     $('#saveMemberOffer').submit();
                 } else {
-                    let errorHeader = "All mandatory fields must be present before data can be saved."
+                    let errorHeader = "All mandatory fields must be present and valid before data can be saved."
                     $('#validation-errors').html("<ul>" + errorHeader + errorString + "\n</ul>");
                     $('#validation-errors').prop("hidden", false);
                 }
