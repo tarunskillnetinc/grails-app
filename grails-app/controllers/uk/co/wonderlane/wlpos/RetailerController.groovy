@@ -126,17 +126,17 @@ class RetailerController {
             errorMessages << "Shelf Capacity is empty. Should not be null."
         }
         if (retailerCommand?.retailerTerminologyConfig?.stockRoomTerm == "" || retailerCommand?.retailerTerminologyConfig?.stockRoomTerm == null) {
-            flash.error = "Stock Room is empty. Should not be null."
+            errorMessages << "Stock Room is empty. Should not be null."
         } else {
             if (retailerCommand?.retailerTerminologyConfig?.stockRoomTerm.length() > 20) {
-                flash.error = "Stock Room cannot be more than 20 characters in length."
+                errorMessages << "Stock Room cannot be more than 20 characters in length."
             }
         }
         if (retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm == "" || retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm == null) {
-            flash.error = "Stock Room (Abbreviated) is empty. Should not be null."
+            errorMessages << "Stock Room (Abbreviated) is empty. Should not be null."
         } else {
             if (retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm.length() > 3) {
-                flash.error = "Stock Room (Abbreviated) cannot be more than 3 characters in length."
+                errorMessages << "Stock Room (Abbreviated) cannot be more than 3 characters in length."
             }
         }
 
