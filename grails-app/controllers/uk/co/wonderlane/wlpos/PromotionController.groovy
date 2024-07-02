@@ -429,7 +429,7 @@ class PromotionController {
                 break
         }
 
-        if (promotion.validate()) {
+        if (promotion.validate() && session.addedStores?.isEmpty() == false) {
             def type = params.promotionType
             if (!params."${type}-doesNotExpire") {
                 // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
