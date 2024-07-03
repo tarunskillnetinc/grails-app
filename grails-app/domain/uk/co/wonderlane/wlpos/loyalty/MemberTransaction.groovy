@@ -14,8 +14,8 @@ class MemberTransaction {
     int transactionId
     DateTime transactionTimestamp
     String redeemableOffers
-    Double transactionTotal
-    Double transactionDiscount
+    BigDecimal transactionTotal
+    BigDecimal transactionDiscount
     Integer transactionPoints
     Integer transactionStamps
     MemberTransactionStatus status

@@ -21,8 +21,8 @@ class Member {
     Date lastTransaction
     Integer offersAvailable
     Integer currentPoints
-    Double currentSpend
-    Double currentSavings
+    BigDecimal currentSpend = BigDecimal.ZERO
+    BigDecimal currentSavings = BigDecimal.ZERO
     Integer currentStamps
     Integer maxStamps
     MemberStatus status

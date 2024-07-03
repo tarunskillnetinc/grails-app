@@ -11,7 +11,7 @@ class MemberOffer {
     DateTime visibleFromDate
     DateTime startDate
     DateTime endDate
-    Double currentSavings
+    BigDecimal currentSavings = BigDecimal.ZERO
     Integer currentRedemptions
     Integer maxRedemptions
     MemberOfferStatus status
