@@ -623,6 +623,13 @@
                     }
                 }
 
+                countDOM = $('#store-required');
+                if (parseInt(countDOM.val()) < 1) {
+                    error = true;
+                    errorString = errorString.concat("\n<li>At least one store should be added</li>");
+                    $('#StoresSection').addClass("is-invalid")
+                }
+
                 if (!error) {
                     $('#' + promoType + '-form').submit();
                 } else {
@@ -720,6 +727,7 @@
                     type: 'POST',
                     success: function(response) {
                         $('.store-search-results').html(response);
+                        $('#StoresSection').removeClass("is-invalid")
                     }
                 });
             }
@@ -796,6 +804,7 @@
                     success: function(response) {
                         $('.store-search-results').html(response)
                         $('#promotionStoreSearchModal').modal('hide');
+                        $('#StoresSection').removeClass("is-invalid")
                     },
                     error: function(xhr, status, error) {
                         console.log('Error: ' + error);
