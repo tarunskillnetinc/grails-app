@@ -216,7 +216,7 @@
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
-                                            min="0" max="${pack.maximumOrderQuantity}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 999999, false)">
+                                            min="0" max="${pack.maximumOrderQuantity ?: 99999}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 99999, false)">
                                         <button id="incrementButton" class="counterButton" onclick="increment(${pack.id}, false)" >+</button>
                                         <span id="packQty">x ${pack.quantity?.setScale(isWeighted ? 3 : 0)} Packs</span>
                                     </div>
