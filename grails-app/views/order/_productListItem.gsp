@@ -201,7 +201,8 @@
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input" value="${singleQuantity}"
+                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input"
+                                           value="${singleQuantity.remainder(BigDecimal.ONE) == BigDecimal.ZERO ? singleQuantity.setScale(0) : singleQuantity}"
                                            min="0" max="999999" style="width: 100px"
                                            onkeydown="acceptQuantity(event, ${isWeighted})" onkeyup="validateQuantity(this, 0, 999999, ${isWeighted})">
                                     <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles}, ${isWeighted})" >+</button>
