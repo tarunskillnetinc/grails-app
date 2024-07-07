@@ -273,8 +273,8 @@ class LoyaltyController {
             endWindow = params.endWindow ? DateTime.parse(params.endWindow, dateFormatter).plusDays(1) : null
             max = params.max ? Integer.parseInt(params.max) : null
             offset = params.offset ? Integer.parseInt(params.offset) : null
-            sortColumn = validateSortColumn(params.sortColumn)
-            sortOrder = validateSortOrder(params.sortOrder)
+            sortColumn = validateSortColumn(params.sortColumn) != null ? validateSortColumn(params.sortColumn): "dateCreated"
+            sortOrder = validateSortOrder(params.sortOrder) != null ? validateSortOrder(params.sortOrder) : "desc"
         } catch (Exception e) {
             log.error("Error when retrieving loyalty member transactions, Exception " + e)
             response.status = 400
