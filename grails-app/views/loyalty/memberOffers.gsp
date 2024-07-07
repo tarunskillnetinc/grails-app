@@ -124,7 +124,17 @@
             </div>
 
             <div id="results-container" class="align-content-center">
-                <g:render template="memberOffersSearchResults" />
+                <g:render template="memberOffersSearchResults"
+                          model="[cardNumber: cardNumber, searchTerm: searchTerm,
+                                  searchBy  : searchBy,
+                                  offset    : offset,
+                                  max: max,
+                                  sortColumn: sortColumn,
+                                  sortOrder : sortOrder,
+                                  offers: offers,
+                                  totalResults: totalResults]"
+
+                />
             </div>
         </section>
     </body>

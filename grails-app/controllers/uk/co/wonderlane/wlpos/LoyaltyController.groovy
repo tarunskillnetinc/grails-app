@@ -32,7 +32,26 @@ class LoyaltyController {
     }
 
     def offers(String cardNumber) {
-        render(view: "memberOffers", model: [cardNumber: cardNumber])
+        String searchTerm = ""
+        String searchBy = "description"
+        Boolean activeOffers = false
+        Boolean inactiveOffers = false
+        Integer max = 20
+        Integer offset = null
+        String sortColumn = "startDate"
+        String sortOrder = "DESC"
+
+        def offers = loyaltyMemberService.findAllMemberOffers(cardNumber, searchTerm, activeOffers, inactiveOffers, max, offset, sortColumn, sortOrder)
+
+        render(view: "memberOffers", model: [cardNumber: cardNumber,
+                                             searchTerm: searchTerm,
+                                             searchBy  : searchBy,
+                                             offset    : offset,
+                                             max       : max,
+                                             sortColumn: sortColumn,
+                                             sortOrder : sortOrder,
+                                             offers: offers["offers"],
+                                             totalResults: offers["totalResults"]])
     }
 
     def addMemberOffer(String cardNumber) {
