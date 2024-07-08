@@ -7,6 +7,18 @@
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
 
+        <style>
+            .no-bullets {
+                list-style-type: none;
+                padding-left: 0; /* Remove left padding */
+            }
+
+            .no-bullets li {
+                margin-left: 0; /* Remove left margin */
+            }
+
+        </style>
+
         <script type='text/javascript'>
             $(document).ready(function() {
                 let selectedId;
@@ -115,7 +127,7 @@
                     $('#saveMemberOffer').submit();
                 } else {
                     let errorHeader = "All mandatory fields must be present and valid before data can be saved."
-                    $('#validation-errors').html("<ul>" + errorHeader + errorString + "\n</ul>");
+                    $('#validation-errors').html("<ul class='no-bullets'>" + errorHeader + errorString + "\n</ul>");
                     $('#validation-errors').prop("hidden", false);
                 }
             }
