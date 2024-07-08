@@ -25,6 +25,10 @@
         let twelveMonthsLater = new Date();
         twelveMonthsLater.setMonth(twelveMonthsLater.getMonth() + 12);
 
+        // Subtract 7 days from twelveMonthsLater since end date to automatically mapped into 12 months
+        let endDate = new Date(twelveMonthsLater);
+        endDate.setDate(endDate.getDate() - 7);
+
         $('#startDateFilter').datepicker({
             format: "dd/mm/yyyy",
             weekStart: 1,
@@ -33,7 +37,7 @@
             todayBtn: "linked",
             orientation: "bottom auto",
             startDate: oneMonthAgo,
-            endDate: twelveMonthsLater
+            endDate: endDate
         });
 
         $('#endDateFilter').datepicker({
@@ -46,6 +50,91 @@
             startDate: new Date(),
             endDate: twelveMonthsLater
         });
+
+        //By using the changingDate flag, ensure that the function is only called once per change event
+        var changingDate = false;
+
+        // Add change event listener to offer end date to validate and correct dates
+        $('#endDateFilter').blur(function() {
+            if (!changingDate) {
+                changingDate = true;
+                validateAndCorrectDates();
+                changingDate = false;
+            }
+        });
+
+        // Add change event listener to offer start date to validate and correct dates
+        $('#startDateFilter').change(function() {
+            if (!changingDate) {
+                changingDate = true;
+                validateAndCorrectDates();
+                changingDate = false;
+            }
+        });
+
+        function validateAndCorrectDates() {
+            var startDate = $('#startDateFilter').datepicker('getDate');
+            var endDate = $('#endDateFilter').datepicker('getDate');
+            var today = new Date();
+
+            // Reset time components to 00:00:00 to compare dates only
+            today.setHours(0, 0, 0, 0);
+
+            // If startDate is null or empty, set it to today
+            if (!startDate) {
+                startDate = today;
+                $('#startDateFilter').datepicker('setDate', startDate);
+            }
+
+            // Re-fetch startDate after potential adjustments
+            startDate = $('#startDateFilter').datepicker('getDate');
+
+            // If endDate is null or empty, set it to one week from startDate
+            if (!endDate) {
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 7);
+                $('#endDateFilter').datepicker('setDate', endDate);
+            }
+
+            // Re-fetch endDate after potential adjustment
+            endDate = $('#endDateFilter').datepicker('getDate');
+
+            // Ensure startDate is less than endDate
+            if (endDate <= startDate) {
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 7);
+                $('#endDateFilter').datepicker('setDate', endDate);
+            }
+
+            // Add event listeners to dynamically validate dates when they are changed
+            $('#startDateFilter').on('change', function() {
+                var newStartDate = $(this).datepicker('getDate');
+                var currentEndDate = $('#endDateFilter').datepicker('getDate');
+
+                if (!newStartDate) {
+                    newStartDate = today;
+                    $(this).datepicker('setDate', newStartDate);
+                }
+
+                if (!currentEndDate || currentEndDate <= newStartDate) {
+                    var newEndDate = new Date(newStartDate);
+                    newEndDate.setDate(newStartDate.getDate() + 7);
+                    $('#endDateFilter').datepicker('setDate', newEndDate);
+                }
+            });
+
+            $('#endDateFilter').on('change', function() {
+                var currentStartDate = $('#startDateFilter').datepicker('getDate');
+                var newEndDate = $(this).datepicker('getDate');
+
+                if (!newEndDate || newEndDate <= currentStartDate) {
+                    newEndDate = new Date(currentStartDate);
+                    newEndDate.setDate(currentStartDate.getDate() + 7);
+                    $(this).datepicker('setDate', newEndDate);
+                }
+            });
+        }
+
     });
 </script>
 

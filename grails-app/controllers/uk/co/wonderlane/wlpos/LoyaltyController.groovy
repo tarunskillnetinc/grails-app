@@ -39,7 +39,7 @@ class LoyaltyController {
         Integer max = 20
         Integer offset = null
         String sortColumn = "startDate"
-        String sortOrder = "DESC"
+        String sortOrder = "desc"
 
         def offers = loyaltyMemberService.findAllMemberOffers(cardNumber, searchTerm, activeOffers, inactiveOffers, max, offset, sortColumn, sortOrder)
 
