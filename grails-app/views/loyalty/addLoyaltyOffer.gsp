@@ -8,6 +8,18 @@
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
 
+    <style>
+        .no-bullets {
+            list-style-type: none;
+            padding-left: 0; /* Remove left padding */
+        }
+
+        .no-bullets li {
+            margin-left: 0; /* Remove left margin */
+        }
+
+    </style>
+
     <script type='text/javascript'>
         let isUpdate = false
 
@@ -399,7 +411,7 @@
 
             if (error) {
                 let errorHeader = "All mandatory fields must be present before data can be saved."
-                let errorMessage = "<ul>" + errorHeader + errorString + "\n</ul>"
+                let errorMessage = "<ul  class='no-bullets'>" + errorHeader + errorString + "\n</ul>"
                 createErrorAlert(errorMessage)
             }
 

@@ -79,7 +79,7 @@ class LoyaltyController {
 
     def ajaxSelectedOffer(String id, String cardNumber) {
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
-        def offer = loyaltyService.getLoyaltyOfferById(Integer.parseInt(id))
+        def offer = loyaltyService.getLoyaltyOfferById(Integer.parseInt(String.valueOf(id)))
 
         render(template: "addMemberOfferSelect", model: [offer: offer, member: member])
     }
@@ -247,8 +247,10 @@ class LoyaltyController {
             inactiveOffers = params.inactiveOffers ? params.inactiveOffers.toBoolean() : false
             max = params.max ? Integer.parseInt(params.max) : null
             offset = params.offset ? Integer.parseInt(params.offset) : null
-            sortColumn = validateSortColumn(params.sortColumn)
-            sortOrder = validateSortOrder(params.sortOrder)
+            sortColumn = params.sortColumn != null ?  params.sortColumn : "startDate"
+            sortOrder = params.sortOrder != null ?  params.sortOrder : "desc"
+            validateSortColumn(sortColumn)
+            validateSortOrder(sortOrder)
         } catch (Exception e) {
             log.error("Error when retrieving loyalty member offers, Exception " + e)
             response.status = 400
