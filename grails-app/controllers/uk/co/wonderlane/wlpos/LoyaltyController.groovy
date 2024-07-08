@@ -32,7 +32,26 @@ class LoyaltyController {
     }
 
     def offers(String cardNumber) {
-        render(view: "memberOffers", model: [cardNumber: cardNumber])
+        String searchTerm = ""
+        String searchBy = "description"
+        Boolean activeOffers = false
+        Boolean inactiveOffers = false
+        Integer max = 20
+        Integer offset = null
+        String sortColumn = "startDate"
+        String sortOrder = "desc"
+
+        def offers = loyaltyMemberService.findAllMemberOffers(cardNumber, searchTerm, activeOffers, inactiveOffers, max, offset, sortColumn, sortOrder)
+
+        render(view: "memberOffers", model: [cardNumber: cardNumber,
+                                             searchTerm: searchTerm,
+                                             searchBy  : searchBy,
+                                             offset    : offset,
+                                             max       : max,
+                                             sortColumn: sortColumn,
+                                             sortOrder : sortOrder,
+                                             offers: offers["offers"],
+                                             totalResults: offers["totalResults"]])
     }
 
     def addMemberOffer(String cardNumber) {
@@ -53,14 +72,14 @@ class LoyaltyController {
         render (view: "memberOfferDetails", model: [cardNumber: cardNumber, offer: offer])
     }
 
-    def transactionDetails(String cardNumber, String memberId, String transactionId) {
-        def transaction = memberTransactionService.findTransactionByMemberIdAndTransactionId(Integer.parseInt(memberId), Integer.parseInt(transactionId))
+    def transactionDetails(String cardNumber, String memberId, String id) {
+        def transaction = memberTransactionService.findTransactionByMemberIdAndId(Integer.parseInt(memberId), Integer.parseInt(id))
         render (view: "transactionDetails", model: [cardNumber: cardNumber, transaction: transaction])
     }
 
     def ajaxSelectedOffer(String id, String cardNumber) {
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
-        def offer = loyaltyService.getLoyaltyOfferById(Integer.parseInt(id))
+        def offer = loyaltyService.getLoyaltyOfferById(Integer.parseInt(String.valueOf(id)))
 
         render(template: "addMemberOfferSelect", model: [offer: offer, member: member])
     }
@@ -228,8 +247,10 @@ class LoyaltyController {
             inactiveOffers = params.inactiveOffers ? params.inactiveOffers.toBoolean() : false
             max = params.max ? Integer.parseInt(params.max) : null
             offset = params.offset ? Integer.parseInt(params.offset) : null
-            sortColumn = validateSortColumn(params.sortColumn)
-            sortOrder = validateSortOrder(params.sortOrder)
+            sortColumn = params.sortColumn != null ?  params.sortColumn : "startDate"
+            sortOrder = params.sortOrder != null ?  params.sortOrder : "desc"
+            validateSortColumn(sortColumn)
+            validateSortOrder(sortOrder)
         } catch (Exception e) {
             log.error("Error when retrieving loyalty member offers, Exception " + e)
             response.status = 400
@@ -273,8 +294,8 @@ class LoyaltyController {
             endWindow = params.endWindow ? DateTime.parse(params.endWindow, dateFormatter).plusDays(1) : null
             max = params.max ? Integer.parseInt(params.max) : null
             offset = params.offset ? Integer.parseInt(params.offset) : null
-            sortColumn = validateSortColumn(params.sortColumn)
-            sortOrder = validateSortOrder(params.sortOrder)
+            sortColumn = validateSortColumn(params.sortColumn) != null ? validateSortColumn(params.sortColumn): "dateCreated"
+            sortOrder = validateSortOrder(params.sortOrder) != null ? validateSortOrder(params.sortOrder) : "desc"
         } catch (Exception e) {
             log.error("Error when retrieving loyalty member transactions, Exception " + e)
             response.status = 400

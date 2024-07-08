@@ -2,15 +2,14 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.enums.MemberTransactionStatus
 import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 
 @Transactional("loyalty")
 class MemberTransactionService {
 
     /* Returns the Member Transaction for the supplied member id and transaction id */
-    def findTransactionByMemberIdAndTransactionId(Integer memberId, Integer transactionId) {
-        MemberTransaction.findByMemberIdAndTransactionId(memberId, transactionId)
+    def findTransactionByMemberIdAndId(Integer memberId, Integer id) {
+        MemberTransaction.findByMemberIdAndId(memberId, id)
     }
 
     /* Returns all Member Transactions for the passed in search parameters */

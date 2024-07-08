@@ -75,7 +75,7 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
     def "should return the transaction details view when requested"() {
         given:
         controller.memberTransactionService = Stub(MemberTransactionService) {
-            findTransactionByMemberIdAndTransactionId(_, _) >> new MemberTransaction()
+            findTransactionByMemberIdAndId(_, _) >> new MemberTransaction()
         }
 
         when:

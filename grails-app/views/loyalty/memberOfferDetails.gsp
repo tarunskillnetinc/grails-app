@@ -74,19 +74,19 @@
                     <div class="row">
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <div class="row form-group mb-3">
-                                <label for="description" class="col-5 col-form-label text-right pr-4">Description</label>
+                                <label id = "description" for="description" class="col-5 col-form-label text-right pr-4">Description</label>
                                 <g:textField name="description" type="text" nullable="true" class="col-3 form-control bottom-border" value="${offer?.offerDescription}" readonly="true" />
                             </div>
                             <div class="row form-group mb-3">
-                                <label for="currentRedemptions" class="col-5 col-form-label text-right pr-4">Number Of Times Redeemed</label>
+                                <label  id = "currentRedemptions" for="currentRedemptions" class="col-5 col-form-label text-right pr-4">Number Of Times Redeemed</label>
                                 <g:textField name="currentRedemptions" type="number" nullable="true" class="col-3 form-control bottom-border" value="${offer?.currentRedemptions}" readonly="true" />
                             </div>
                             <div class="row form-group mb-3">
-                                <label for="remainingRedemptions" class="col-5 col-form-label text-right pr-4">Remaining Redemptions</label>
+                                <label id = "remainingRedemptions" for="remainingRedemptions" class="col-5 col-form-label text-right pr-4">Remaining Redemptions</label>
                                 <g:textField name="remainingRedemptions" type="number" nullable="true" class="col-3 form-control bottom-border numeric-field" value="${offer?.remainingRedemptions}" />
                             </div>
                             <div class="row form-group mb-3">
-                                <label for="savings" class="col-5 col-form-label text-right pr-4">Savings</label>
+                                <label id = "savings" for="savings" class="col-5 col-form-label text-right pr-4">Savings</label>
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">&pound;</span>
                                 </div>
@@ -95,16 +95,16 @@
                         </div>
                         <div class="col-12 col-lg-6">
                             <div class="row form-group mb-3">
-                                <label for="startDate" class="col-5 col-form-label text-right pr-4">Start Date</label>
+                                <label id = "startDate" for="startDate" class="col-5 col-form-label text-right pr-4">Start Date</label>
                                 <g:textField name="startDate" type="text" nullable="true" class="col-3 form-control bottom-border" value="${offer?.startDate ? DateTimeFormat.forPattern('hh:mm:ss dd/MM/yyyy').print(offer?.startDate) : ''}" readonly="true" />
                             </div>
                             <div class="row form-group mb-3">
-                                <label for="endDate" class="col-5 col-form-label text-right pr-4">End Date</label>
+                                <label id = "endDate" for="endDate" class="col-5 col-form-label text-right pr-4">End Date</label>
                                 <g:textField name="endDate" type="text" nullable="true" class="col-3 form-control bottom-border" value="${offer?.endDate ? DateTimeFormat.forPattern('hh:mm:ss dd/MM/yyyy').print(offer?.endDate) : ''}" readonly="true" />
                             </div>
                             <div class="row form-group mb-3">
-                                <label for="status" class="col-5 col-form-label text-right pr-4">Status</label>
-                                <g:select id="status" name="status" from="${['ACTIVE', 'CLOSED', 'LIMITS', 'OPEN']}" valueMessagePrefix="MemberOfferStatus" value="${offer?.status}" class="col-3 form-control bottom-border" />
+                                <label id = "status" for="status" class="col-5 col-form-label text-right pr-4">Status</label>
+                                <g:select id="status" name="status" from="${['ACTIVE', 'CLOSED', 'LIMITS', 'OPEN']}" valueMessagePrefix="MemberOfferStatus" value="${offer?.status}" class="col-3 form-control select-border" />
                             </div>
                         </div>
                     </div>
@@ -112,7 +112,7 @@
 
                 <div class="tab-content">
                     <div class="row my-5">
-                        <g:link elementId="memberOfferUpdate-cancel" action="offers" params="[cardNumber: cardNumber]" class="btn btn-wl col-1 offset-1" onClick="return confirm('Any unsaved changes will be lost, are you sure you wish to continue?');">Cancel</g:link>
+                        <g:link elementId="memberOfferUpdate-cancel" action="offers" params="[cardNumber: cardNumber]" class="btn btn-wl col-1 offset-1" onClick="return confirm('Are you sure you want to cancel? All unsaved changes will be lost.');">Cancel</g:link>
                         <button id="memberOfferUpdateSave" type="button" name="memberOfferUpdate-save-button" onclick="validateUpdates()" class="btn btn-success col-1 offset-8">Save</button>
                     </div>
                 </div>

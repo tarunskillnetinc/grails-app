@@ -8,6 +8,18 @@
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
 
+    <style>
+        .no-bullets {
+            list-style-type: none;
+            padding-left: 0; /* Remove left padding */
+        }
+
+        .no-bullets li {
+            margin-left: 0; /* Remove left margin */
+        }
+
+    </style>
+
     <script type='text/javascript'>
         let isUpdate = false
 
@@ -79,18 +91,68 @@
         function validateAndCorrectDates() {
             var startDate = $('#offerStartDateId').datepicker('getDate');
             var endDate = $('#offerEndDateId').datepicker('getDate');
+            var today = new Date();
 
-            // Check if end date is before start date
-            if (endDate < startDate) {
-                // Set start date to today
-                $('#offerStartDateId').datepicker('setDate', new Date());
+            // Reset time components to 00:00:00 to compare dates only
+            today.setHours(0, 0, 0, 0);
 
-                // Set end date to 1 week from start date
-                var newEndDate = new Date();
-                newEndDate.setDate(newEndDate.getDate() + 7);
-                $('#offerEndDateId').datepicker('setDate', newEndDate);
+            // If startDate is null or empty, set it to today
+            if (!startDate) {
+                startDate = today;
+                $('#offerStartDateId').datepicker('setDate', startDate);
             }
+
+            // Re-fetch startDate after potential adjustments
+            startDate = $('#offerStartDateId').datepicker('getDate');
+
+            // If endDate is null or empty, set it to one week from startDate
+            if (!endDate) {
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 7);
+                $('#offerEndDateId').datepicker('setDate', endDate);
+            }
+
+            // Re-fetch endDate after potential adjustment
+            endDate = $('#offerEndDateId').datepicker('getDate');
+
+            // Ensure startDate is less than endDate
+            if (endDate <= startDate) {
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 7);
+                $('#offerEndDateId').datepicker('setDate', endDate);
+            }
+
+            // Add event listeners to dynamically validate dates when they are changed
+            $('#offerStartDateId').on('change', function() {
+                var newStartDate = $(this).datepicker('getDate');
+                var currentEndDate = $('#offerEndDateId').datepicker('getDate');
+
+                if (!newStartDate) {
+                    newStartDate = today;
+                    $(this).datepicker('setDate', newStartDate);
+                }
+
+                if (!currentEndDate || currentEndDate <= newStartDate) {
+                    var newEndDate = new Date(newStartDate);
+                    newEndDate.setDate(newStartDate.getDate() + 7);
+                    $('#offerEndDateId').datepicker('setDate', newEndDate);
+                }
+            });
+
+            $('#offerEndDateId').on('change', function() {
+                var currentStartDate = $('#offerStartDateId').datepicker('getDate');
+                var newEndDate = $(this).datepicker('getDate');
+
+                if (!newEndDate || newEndDate <= currentStartDate) {
+                    newEndDate = new Date(currentStartDate);
+                    newEndDate.setDate(currentStartDate.getDate() + 7);
+                    $(this).datepicker('setDate', newEndDate);
+                }
+            });
         }
+
+
+
 
         function updateSegmentInputOnLoading() {
             var selectedSegmentIdList = ${selectedSegmentIds}; // Get the selected segment IDs from the server response
@@ -349,7 +411,7 @@
 
             if (error) {
                 let errorHeader = "All mandatory fields must be present before data can be saved."
-                let errorMessage = "<ul>" + errorHeader + errorString + "\n</ul>"
+                let errorMessage = "<ul  class='no-bullets'>" + errorHeader + errorString + "\n</ul>"
                 createErrorAlert(errorMessage)
             }
 

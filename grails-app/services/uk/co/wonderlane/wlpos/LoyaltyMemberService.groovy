@@ -75,6 +75,8 @@ class LoyaltyMemberService {
     /* Returns all Member Offers by the exact card number if any exist */
     def findAllMemberOffers(String cardNumber, String searchTerm, Boolean activeOffers, Boolean inactiveOffers, Integer max, Integer offset, String sortColumn, String sortOrder) {
 
+        max = max ?: 20
+
         def totalCount = 0
         def filteredOffers = []
 

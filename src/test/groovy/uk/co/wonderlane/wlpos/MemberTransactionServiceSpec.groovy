@@ -57,7 +57,7 @@ class MemberTransactionServiceSpec extends Specification implements ServiceUnitT
         }
 
         when: 'Get transaction by member Id and transaction Id action is executed'
-        def transactionReturned = service.findTransactionByMemberIdAndTransactionId(expectedTransaction.memberId, expectedTransaction.transactionId)
+        def transactionReturned = service.findTransactionByMemberIdAndId(expectedTransaction.memberId, expectedTransaction.transactionId)
 
         then: 'successfully return the transaction'
         transactionReturned != null
