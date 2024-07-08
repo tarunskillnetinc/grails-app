@@ -1,7 +1,9 @@
 <asset:javascript src="validators/input-validator.js" />
+<g:render template="storesContainer"/>
 
 <div class="row mt-2">
     <div class="col-12">
+        <h2 class="row col-12">Promotion Type</h2>
         <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
             <li class="nav-item">
                 <a id="bogof-tab" data-toggle="tab" href="#bogof" aria-selected="true" role="tab" aria-controls="bogof" class="nav-link ${editing ? (promoType.equals('bogof') ? 'active' : 'disabled') : (promoType.equals('bogof') ? 'active' : '')}">BOGOF</a>
@@ -37,7 +39,7 @@
             <g:hiddenField name="bogof-noItemChange" value="true"/>
 
             <div id="bogof-details">
-                <h2 class="row col-1">Details</h2>
+                <h2 class="row col-12">Promotion Details</h2>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="bogof-description" class="col-3 col-form-label text-right pr-4">Description</label>
@@ -158,7 +160,6 @@
                     </div>
                 </div>
             </div>
-            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="bogof-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="bogof-save" type="button" name="bogof-save-button" onclick="quickValidateSubmit('bogof');" class="btn btn-success col-1 offset-8">Save</button>
@@ -173,7 +174,7 @@
             <g:hiddenField name="xfory-noItemChange" value="true" />
 
             <div id="xfory-details">
-                <h2 class="row col-1">Details</h2>
+                <h2 class="row col-12">Promotion Details</h2>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="xfory-description" class="col-3 col-form-label text-right pr-4">Description</label>
@@ -348,7 +349,6 @@
                     </div>
                 </div>
             </div>
-            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="xfory-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="xfory-save" type="button" name="xfory-save-button" onclick="quickValidateSubmit('xfory');" class="btn btn-success col-1 offset-8">Save</button>
@@ -363,7 +363,7 @@
             <g:hiddenField name="percentage-noItemChange" value="true"/>
 
             <div id="percentage-details">
-                <h2 class="row col-1">Details</h2>
+                <h2 class="row col-12">Promotion Details</h2>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="percentage-description" class="col-3 col-form-label text-right pr-4">Description</label>
@@ -492,7 +492,6 @@
                     </div>
                 </div>
             </div>
-            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="percentage-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="percentage-save" type="button" name="percentage-save-button" onclick="quickValidateSubmit('percentage');" class="btn btn-success col-1 offset-8">Save</button>
@@ -507,7 +506,7 @@
             <g:hiddenField name="fixedAmount-noItemChange" value="true" />
 
             <div id="fixedAmount-details">
-                <h2 class="row col-1">Details</h2>
+                <h2 class="row col-12">Promotion Details</h2>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedAmount-description" class="col-3 col-form-label text-right pr-4">Description</label>
@@ -649,7 +648,6 @@
                     </div>
                 </div>
             </div>
-            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="fixedAmount-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedAmount-save" type="button" name="fixedAmount-save-button" onclick="quickValidateSubmit('fixedAmount');" class="btn btn-success col-1 offset-8">Save</button>
@@ -664,7 +662,7 @@
             <g:hiddenField name="fixedPrice-noItemChange" value="true" />
 
             <div id="fixedPrice-details">
-                <h2 class="row col-1">Details</h2>
+                <h2 class="row col-12">Promotion Details</h2>
                 <div class="row">
                     <div class="form-group row col-12 col-sm-6">
                         <label for="fixedPrice-description" class="col-3 col-form-label text-right pr-4">Description</label>
@@ -798,7 +796,6 @@
                     </div>
                 </div>
             </div>
-            <g:render template="storesContainer"/>
             <div class="row my-5">
                 <g:link elementId="fixedPrice-cancel" action="index" class="btn btn-wl col-1 offset-1">Cancel</g:link>
                 <button id="fixedPrice-save" type="button" name="fixedPrice-save-button" onclick="quickValidateSubmit('fixedPrice');" class="btn btn-success col-1 offset-8">Save</button>
