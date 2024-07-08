@@ -18,7 +18,7 @@
                             <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link action="loyaltyMembers">Membership Management</g:link></li>
                             <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><g:link action="showMemberDetails" params="[cardNumber: cardNumber]">${cardNumber}</g:link></li>
                             <li id="breadcrumb-4" class="breadcrumb-item" aria-current="page"><g:link action="transactions" params="[cardNumber: cardNumber]">Member Transactions</g:link></li>
-                            <li id="breadcrumb-5" class="breadcrumb-item active" aria-current="page">${transaction?.transactionId ?: "Transaction Details"}</li>
+                            <li id="breadcrumb-5" class="breadcrumb-item active" aria-current="page">${transaction?.id ?: "Transaction Details"}</li>
                         </ol>
                     </div>
                 </div>
