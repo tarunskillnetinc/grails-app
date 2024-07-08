@@ -72,8 +72,8 @@ class LoyaltyController {
         render (view: "memberOfferDetails", model: [cardNumber: cardNumber, offer: offer])
     }
 
-    def transactionDetails(String cardNumber, String memberId, String transactionId) {
-        def transaction = memberTransactionService.findTransactionByMemberIdAndId(Integer.parseInt(memberId), Integer.parseInt(transactionId))
+    def transactionDetails(String cardNumber, String memberId, String id) {
+        def transaction = memberTransactionService.findTransactionByMemberIdAndId(Integer.parseInt(memberId), Integer.parseInt(id))
         render (view: "transactionDetails", model: [cardNumber: cardNumber, transaction: transaction])
     }
 

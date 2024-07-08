@@ -8,8 +8,8 @@ import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 class MemberTransactionService {
 
     /* Returns the Member Transaction for the supplied member id and transaction id */
-    def findTransactionByMemberIdAndId(Integer memberId, Integer transactionId) {
-        MemberTransaction.findByMemberIdAndId(memberId, transactionId)
+    def findTransactionByMemberIdAndId(Integer memberId, Integer id) {
+        MemberTransaction.findByMemberIdAndId(memberId, id)
     }
 
     /* Returns all Member Transactions for the passed in search parameters */

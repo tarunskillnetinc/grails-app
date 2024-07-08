@@ -36,7 +36,7 @@
     </g:if>
 
     <g:each in="${transactions}" var="transaction" status="i">
-        <div id="transaction-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'transactionDetails', params:[cardNumber: cardNumber, memberId: transaction.memberId, transactionId: transaction.id])}';" >
+        <div id="transaction-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'transactionDetails', params:[cardNumber: cardNumber, memberId: transaction.memberId, id: transaction.id])}';" >
             <div id="transaction-result-${i+1}-transactionId" class="col-2 text-truncate">${transaction.id}</div>
             <div id="transaction-result-${i+1}-storeId" class="col-1 text-truncate">${transaction.storeId}</div>
             <div id="transaction-result-${i+1}-storeName" class="col text-truncate">${transaction.store.name}</div>
