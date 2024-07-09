@@ -2,6 +2,7 @@ import com.google.zxing.common.BitMatrix
 import com.google.zxing.oned.Code128Writer
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
+import uk.co.wonderlane.wlpos.ReceiptLine
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 
 import java.math.RoundingMode
@@ -17,18 +18,11 @@ class ReceiptTagLib {
 
     final static int QTY_WIDTH = 8
     final static String EMPTY_QTY_COL = "&nbsp;".repeat(QTY_WIDTH)
-    final static String KG_UNIT = "/kg"
-    final static String HUNDRED_GRAM_UNIT = "/100g"
 
     def currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
     def receiptLine = { attrs, body ->
         def receiptLine = attrs.receiptLine
-
-        BigDecimal qty = receiptLine.quantity
-        BigDecimal total =  receiptLine.total
-        String text = receiptLine.text
-        Integer maxLen = attrs.maxTotalLength as Integer ?: 0
 
         switch (receiptLine.type) {
             case ReceiptLineType.IMAGE:
@@ -83,13 +77,9 @@ class ReceiptTagLib {
                 }
                 break
             case ReceiptLineType.BASKET_ITEM:
-                makeBasketItemLine(qty, text, total, maxLen, null)?.genHtml()
-                break
             case ReceiptLineType.BASKET_ITEM_KG:
-                makeBasketItemLine(qty, text, total, maxLen, KG_UNIT)?.genHtml()
-                break
             case ReceiptLineType.BASKET_ITEM_100G:
-                makeBasketItemLine(qty, text, total, maxLen, HUNDRED_GRAM_UNIT)?.genHtml()
+                out << makeBasketItemLine(receiptLine as ReceiptLine, attrs.maxTotalLength as Integer ?: 0)
                 break
             case ReceiptLineType.TENDER_ITEM:
                 out << """<div><span class="qty">${EMPTY_QTY_COL}</span></span>"""
@@ -216,47 +206,28 @@ class ReceiptTagLib {
         }
     }
 
-    private class ReceiptViewerLine {
-        final String col1
-        final String col2
-        final String col3
+    private String makeBasketItemLine(ReceiptLine line, int maxLen) {
+        String unitSuffix = line?.type?.unitSuffix() ?: ""
+        boolean weighted = unitSuffix != null
+        String desc = line?.text ?: ""
 
-        ReceiptViewerLine(String col1, String col2, String col3) {
-            this.col1 = col1 ?: ""
-            this.col2 = col2 ?: ""
-            this.col3 = col3 ?: ""
-        }
-
-        void genHtml() {
-            out << """<div>"""
-                    << """<span class="qty">${col1}</span>"""
-                    << """<span class="desc">${col2}</span>"""
-                    << """<span class="total">${col3}</span>"""
-                    << """</div>"""
-        }
-    }
-
-    private ReceiptViewerLine makeBasketItemLine(BigDecimal quantityVal, String descVal, BigDecimal totalVal, int maxLen, String weightedSuffix) {
-        boolean weighted = weightedSuffix != null
-        String desc = descVal ?: ""
-
-        String total = totalVal == null
+        String total = line?.total == null
                 ? ""
-                : currencyFormatter.format(totalVal)
+                : currencyFormatter.format(line?.total)
 
-        String quantity = quantityVal == null
+        String quantity = line?.quantity == null
                 ? ""
-                : quantityVal.setScale(weighted ? 3 : 0).toString() + (weighted ? "kg" : "")
+                : line.quantity.setScale(weighted ? 3 : 0).toString() + (weighted ? "kg" : "")
 
-        String unit = quantityVal == null || totalVal == null
+        String unit = line?.quantity == null || line?.total == null
                 ? ""
-                : currencyFormatter.format(totalVal.divide(quantityVal, 2, RoundingMode.HALF_UP)) + (weightedSuffix ?: "")
+                : currencyFormatter.format(line.total.divide(line.quantity, 2, RoundingMode.HALF_UP)) + unitSuffix
 
-        return new ReceiptViewerLine(
-                quantity + "&nbsp;".repeat(QTY_WIDTH - quantity.length()),
-                desc.substring(0, Math.min(BASKET_ITEM_LENGTH - (unit + " " + total).length(), desc.length())),
-                unit + (!unit.isEmpty() ? "&nbsp;".repeat(Math.max(maxLen - total.length() + 1, 1)) : "") + total
-        )
+        return """<div>""" +
+                """<span class="qty">${quantity + "&nbsp;".repeat(QTY_WIDTH - quantity.length())}</span>""" +
+                """<span class="desc">${desc.substring(0, Math.min(BASKET_ITEM_LENGTH - (unit + " " + total).length(), desc.length()))}</span>""" +
+                """<span class="total">${unit + (!unit.isEmpty() ? "&nbsp;".repeat(Math.max(maxLen - total.length() + 1, 1)) : "") + total}</span>""" +
+                """</div>"""
     }
 
     private static byte[] hexStringToByteArray(String s) {
