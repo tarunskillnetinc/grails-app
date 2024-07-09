@@ -20,7 +20,7 @@
         offset: ${sortParams?.offset},
         sort: 'startIndex',
         order: ${sortParams?.sort == 'startIndex' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-});">Pattern</a></div>
+});">Start Index</a></div>
     <div class="col-2 font-weight-bold text-center"> <a id="sinifier-list-length" href="#" onclick="getSignifiers({
         max: ${sortParams?.max},
         offset: ${sortParams?.offset},
