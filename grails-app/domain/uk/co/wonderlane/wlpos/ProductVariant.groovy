@@ -8,6 +8,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.supplier.Pack
 
+import java.util.stream.Collectors
+
 class ProductVariant implements Serializable {
 
     def springSecurityService
@@ -132,16 +134,30 @@ class ProductVariant implements Serializable {
 
     public List<Barcode> getBarcodes() {
         // Load all barcodes based on sku.
-        def barcodesOnSku = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
+        def barcodesOnSku = Barcode.findAllBySkuAndRetailerIdAndEffectiveDateLessThanEquals(
+                sku, springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
 
         // Declare list to populate displaying barcodes.
         def barcodesToShow = new ArrayList<Barcode>()
 
-        // Group by barcodes based on barcode value.
-        def barcodesMap = barcodesOnSku?.groupBy {it.barcode }
+        // Sort the list by id in descending order in case if barcode deleted in same date as created list might not be in
+        def sortedBarcodes = barcodesOnSku.stream()
+                .sorted((b1, b2) -> {
+                    int compareEffectiveDate = b2.getEffectiveDate().compareTo(b1.getEffectiveDate())
+                    if (compareEffectiveDate != 0) {
+                        return compareEffectiveDate
+                    }
+                    return b2.getId().compareTo(b1.getId())
+                })
+                .collect(Collectors.toList())
+
+        // Group by barcode, ensuring each group is sorted by id in descending order
+        // Collect into linkedHashMap to ensure the map maintains insertion order
+        def groupedByBarcodeValue = sortedBarcodes.stream().collect(Collectors.groupingBy({it.barcode},
+                {-> new LinkedHashMap<>()}, Collectors.toList()))
 
         // They're already sorted in effective date, so if the first is valid then display it, if not then it's deleted and shouldn't be displayed.
-        barcodesMap?.each {
+        groupedByBarcodeValue?.each {
             if (it.value?.first()?.recordStatus == ('C' as char)) {
                 barcodesToShow.add(it.value?.first())
             }

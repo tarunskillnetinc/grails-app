@@ -1,6 +1,7 @@
 <g:set var="pos" value="${(i != null) ? (i+1) : 0}"/>
 <div class="row ml-0 mr-0 pt-2 pb-2 ${(i != null) ? 'wl-striped' + (i%2) : ''}" id="productVariant${productVariant?.id}">
     <g:hiddenField name="productVariantId" value="${productVariant?.id}" />
+    <g:hiddenField name="productIds" value="${productVariant?.product.id}"/>
 
     <div id="prod-${pos}-id" class="col-1 my-auto text-truncate">${productVariant?.id}</div>
     <div id="prod-${pos}-sku" class="col-2 my-auto">${productVariant?.sku}</div>

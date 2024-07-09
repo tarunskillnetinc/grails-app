@@ -150,6 +150,8 @@ class ProductService extends MySqlDal {
     }
 
     boolean isLocationValid(Product product, ProductCommand editedProduct){
+       def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+       List selectedHierarchy = new ArrayList()
         def isValid = true
 
         for (ProductVariant pv : product?.variants){
@@ -174,7 +176,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(Product product, List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-
+        
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (!productPrice.validate()) {
@@ -577,6 +579,7 @@ class ProductService extends MySqlDal {
                     result.productItemCode = rs.getString("productItemCode")
                     result.productDescription = rs.getString("productDescription")
                     result.rangeId = rs.getInt("rangeId")
+                    result.deleted = rs.getBoolean("deleted")
 
                     results.add(result)
                 }
@@ -596,6 +599,11 @@ class ProductService extends MySqlDal {
     }
 
     def saveRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.save()
+    }
+
+    def undeleteRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.deleted = false
         rangeProduct?.save()
     }
 

@@ -7,6 +7,7 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 import static groovy.json.JsonOutput.toJson
 
@@ -90,7 +91,7 @@ class ReasonCodeController {
         customBindParams(rc, params)
         rc.discard()
 
-        if (rc.description == null || rc.description == "") {
+        if (rc.description == null || rc.description == "" || rc.description.trim().empty) {
             errors.add(messageSource.getMessage('reasonCode.description.nullable.error', null, locale))
         } else if (newEntry || updatedDesc) {
             // new reason code or the description has been changed on an existing one
@@ -108,7 +109,7 @@ class ReasonCodeController {
         }
 
         // Check for Duplicate Reason Code
-        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code, rc.id)
+        def duplicateReasonCode = reasonCodeService.findByCode(springSecurityService.principal.retailerId, rc.code, rc.additionalFunctionality, rc.id)
 
         //If the duplicate reason code is deleted, we should re-open it rather than handle it as a duplicate
         if (duplicateReasonCode != null) {
@@ -118,7 +119,8 @@ class ReasonCodeController {
                 render "OK"
                 return
             } else if (duplicateReasonCode.code == rc.code) {
-                errors.add(messageSource.getMessage('reasonCode.code.duplicate.error', null, locale))
+                String errorMessageCode = rc.type == ReasonCodeType.PRODUCT_LIST ? 'reasonCode.code.product.list.duplicate.error' : 'reasonCode.code.duplicate.error'
+                errors.add(messageSource.getMessage(errorMessageCode, null, locale))
             }
         }
 
