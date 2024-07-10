@@ -54,7 +54,7 @@
         //By using the changingDate flag, ensure that the function is only called once per change event
         var changingDate = false;
 
-        // Add change event listener to offer end date to validate and correct dates
+        // Add blur event listener to end date to validate and correct dates
         $('#endDateFilter').blur(function() {
             if (!changingDate) {
                 changingDate = true;
@@ -63,8 +63,8 @@
             }
         });
 
-        // Add change event listener to offer start date to validate and correct dates
-        $('#startDateFilter').change(function() {
+        // Add blur event listener to start date to validate and correct dates
+        $('#startDateFilter').blur(function() {
             if (!changingDate) {
                 changingDate = true;
                 validateAndCorrectDates();
@@ -105,35 +105,46 @@
                 endDate.setDate(startDate.getDate() + 7);
                 $('#endDateFilter').datepicker('setDate', endDate);
             }
-
-            // Add event listeners to dynamically validate dates when they are changed
-            $('#startDateFilter').on('change', function() {
-                var newStartDate = $(this).datepicker('getDate');
-                var currentEndDate = $('#endDateFilter').datepicker('getDate');
-
-                if (!newStartDate) {
-                    newStartDate = today;
-                    $(this).datepicker('setDate', newStartDate);
-                }
-
-                if (!currentEndDate || currentEndDate <= newStartDate) {
-                    var newEndDate = new Date(newStartDate);
-                    newEndDate.setDate(newStartDate.getDate() + 7);
-                    $('#endDateFilter').datepicker('setDate', newEndDate);
-                }
-            });
-
-            $('#endDateFilter').on('change', function() {
-                var currentStartDate = $('#startDateFilter').datepicker('getDate');
-                var newEndDate = $(this).datepicker('getDate');
-
-                if (!newEndDate || newEndDate <= currentStartDate) {
-                    newEndDate = new Date(currentStartDate);
-                    newEndDate.setDate(currentStartDate.getDate() + 7);
-                    $(this).datepicker('setDate', newEndDate);
-                }
-            });
         }
+
+        // Ensure the start date can be cleared and entered manually
+        $('#startDateFilter').on('input', function() {
+            if (!$(this).val()) {
+                $('#startDateFilter').data('manual-empty', true);
+            } else {
+                $('#startDateFilter').data('manual-empty', false);
+            }
+        });
+
+        // Ensure the end date can be cleared and entered manually
+        $('#endDateFilter').on('input', function() {
+            if (!$(this).val()) {
+                $('#endDateFilter').data('manual-empty', true);
+            } else {
+                $('#endDateFilter').data('manual-empty', false);
+            }
+        });
+
+        // Fill start date if it's empty when losing focus
+        $('#startDateFilter').blur(function() {
+            if ($('#startDateFilter').data('manual-empty')) {
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+                $('#startDateFilter').datepicker('setDate', today);
+                $('#startDateFilter').data('manual-empty', false);
+            }
+        });
+
+        // Fill end date if it's empty when losing focus
+        $('#endDateFilter').blur(function() {
+            if ($('#endDateFilter').data('manual-empty')) {
+                var startDate = $('#startDateFilter').datepicker('getDate') || new Date();
+                var newEndDate = new Date(startDate);
+                newEndDate.setDate(startDate.getDate() + 7);
+                $('#endDateFilter').datepicker('setDate', newEndDate);
+                $('#endDateFilter').data('manual-empty', false);
+            }
+        });
 
     });
 </script>
