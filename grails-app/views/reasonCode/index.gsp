@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.ReasonCodeType" %>
 <html>
 <head>
     <meta name="layout" content="main" />
@@ -14,6 +15,7 @@
         const addUrl = "${createLink(controller: 'reasonCode', action: 'ajaxAddReasonCode')}";
         const saveUrl = "${createLink(controller: 'reasonCode', action: 'ajaxSaveReasonCode')}";
         const deleteUrl = "${createLink(controller: 'reasonCode', action: 'ajaxDeleteReasonCode')}"
+        const reasonCodeTypeProductList = "${ReasonCodeType.PRODUCT_LIST.name()}";
 
         let modalContents;
         let modal;
@@ -24,6 +26,7 @@
             modal = $('#edit-code-modal');
             errorMsg = $('#error-message');
             ajaxSearch();
+            updateDirectionColumnVisibility();
         });
 
         function ajaxSearch(sortParams) {
@@ -57,6 +60,22 @@
                     );
                 }
             });
+
+            updateDirectionColumnVisibility();
+        }
+
+        function updateDirectionColumnVisibility() {
+            const selectedType = $("#code-type-select").val();
+            const directionColumn = $("#direction-column");
+            const directionColumnHeader = $("#direct-column-header");
+
+            if (selectedType === reasonCodeTypeProductList) {
+                directionColumn.show();
+                directionColumnHeader.show();
+            } else {
+                directionColumn.hide();
+                directionColumnHeader.hide();
+            }
         }
 
         function ajaxEdit(id) {
@@ -238,13 +257,13 @@
                 </div>
             </div>
         </div>
-
         <div id="search-results">
-            <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-4 font-weight-bold">Description</div>
-                <div class="col-4 font-weight-bold">Secret</div>
-                <div class="col-4 font-weight-bold"></div>
-            </div>
+		<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+		    <div class="col-4 font-weight-bold">Description</div>
+		    <div class="col-2 font-weight-bold" id="direction-column" style="display: none;">Direction</div>
+		    <div class="col-4 font-weight-bold">Secret</div>
+		    <div class="col-4 font-weight-bold"></div>
+		</div>
             <div class="px-0 text-center">
                 <div id="noResultsRow" class="pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
             </div>
