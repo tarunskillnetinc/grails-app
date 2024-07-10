@@ -51,7 +51,10 @@ class LoyaltyController {
                                              sortColumn: sortColumn,
                                              sortOrder : sortOrder,
                                              offers: offers["offers"],
-                                             totalResults: offers["totalResults"]])
+                                             totalResults: offers["totalResults"],
+                                             activeOffers: activeOffers,
+                                             inactiveOffers: inactiveOffers
+        ])
     }
 
     def addMemberOffer(String cardNumber) {
@@ -150,7 +153,7 @@ class LoyaltyController {
             flash.message = "Member Offer created successfully"
         }
 
-        offers(cardNumber)
+        redirect(action: "offers", params: [cardNumber: cardNumber])
     }
 
     def memberOfferUpdate() {
@@ -158,11 +161,12 @@ class LoyaltyController {
         String remainingRedemptions
         String status
         Boolean updated = false
-
+        String cardNumber
         try {
             id = params.offerId ? Integer.parseInt(params.offerId) : null
             remainingRedemptions = params.remainingRedemptions ? params.remainingRedemptions : null
             status = params.status ? params.status : null
+            cardNumber = params.cardNumber
         } catch (Exception e) {
             log.error("Error when attempting to update loyalty member offer, Exception " + e)
             response.status = 400
@@ -176,7 +180,7 @@ class LoyaltyController {
             flash.message = "Member Offer updated successfully"
         }
 
-        redirect(action: "loyaltyMembers")
+        redirect(action: "offers", params: [cardNumber: cardNumber])
     }
 
     def memberUpdateSave() {
@@ -245,7 +249,7 @@ class LoyaltyController {
             searchTerm = params.searchTerm ? params.searchTerm : ""
             activeOffers = params.activeOffers ? params.activeOffers.toBoolean() : false
             inactiveOffers = params.inactiveOffers ? params.inactiveOffers.toBoolean() : false
-            max = params.max ? Integer.parseInt(params.max) : null
+            max = params.max ? Integer.parseInt(params.max) : 20
             offset = params.offset ? Integer.parseInt(params.offset) : null
             sortColumn = params.sortColumn != null ?  params.sortColumn : "startDate"
             sortOrder = params.sortOrder != null ?  params.sortOrder : "desc"
@@ -267,7 +271,9 @@ class LoyaltyController {
                                                               sortColumn: params.sortColumn,
                                                               sortOrder : params.sortOrder,
                                                               offers: offers["offers"],
-                                                              totalResults: offers["totalResults"]])
+                                                              totalResults: offers["totalResults"],
+                                                              activeOffers: activeOffers,
+                                                              inactiveOffers: inactiveOffers])
     }
 
     def ajaxMemberTransactions() {

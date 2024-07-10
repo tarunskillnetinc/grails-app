@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
@@ -160,6 +161,7 @@ class LoyaltyMemberService {
             }
 
             if (updated) {
+                memberOffer.dateModified = DateTime.now(DateTimeZone.UTC)
                 if (memberOffer.validate()) {
                     memberOffer.save(flush: true)
                 }
