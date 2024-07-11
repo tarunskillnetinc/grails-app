@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import uk.co.wonderlane.wlpos.ReceiptLine
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
+import uk.co.wonderlane.wlpos.receipts.ReceiptLineHelper
 
 import java.math.RoundingMode
 import java.text.NumberFormat
@@ -207,26 +208,11 @@ class ReceiptTagLib {
     }
 
     private String makeBasketItemLine(ReceiptLine line, int maxLen) {
-        String unitSuffix = line?.type?.unitSuffix() ?: ""
-        boolean weighted = unitSuffix != null
-        String desc = line?.text ?: ""
-
-        String total = line?.total == null
-                ? ""
-                : currencyFormatter.format(line?.total)
-
-        String quantity = line?.quantity == null
-                ? ""
-                : line.quantity.setScale(weighted ? 3 : 0).toString() + (weighted ? "kg" : "")
-
-        String unit = line?.quantity == null || line?.total == null
-                ? ""
-                : currencyFormatter.format(line.total.divide(line.quantity, 2, RoundingMode.HALF_UP)) + unitSuffix
-
+        ReceiptLineHelper.ReceiptLineColumns cols = ReceiptLineHelper.generateBasketItemLineHtml(line.toReceiptLine(), BASKET_ITEM_LENGTH)
         return """<div>""" +
-                """<span class="qty">${quantity + "&nbsp;".repeat(QTY_WIDTH - quantity.length())}</span>""" +
-                """<span class="desc">${desc.substring(0, Math.min(BASKET_ITEM_LENGTH - (unit + " " + total).length(), desc.length()))}</span>""" +
-                """<span class="total">${unit + (!unit.isEmpty() ? "&nbsp;".repeat(Math.max(maxLen - total.length() + 1, 1)) : "") + total}</span>""" +
+                """<span class="qty">${cols.col1}</span>""" +
+                """<span class="desc">${cols.col2}</span>""" +
+                """<span class="total">${cols.col3}</span>""" +
                 """</div>"""
     }
 
