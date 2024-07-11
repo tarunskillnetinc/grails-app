@@ -18,4 +18,8 @@ class Range {
         retailerId nullable: false
         description size: 1..100, blank: false, nullable: false
     }
+
+    static HashMap<Integer, Range> getExistingRetailerRanges(Integer retailerId) {
+        return findAllByRetailerId(retailerId).collectEntries{[it.id, it]} as HashMap<Integer, Range>
+    }
 }

@@ -48,7 +48,7 @@
                 <div id="date-completed-${i + 1}" class="col-2 my-auto">${order.dateCompleted?.toString("dd/MM/yyyy HH:mm:ss")}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
-                <div id="supplier-name-${i + 1}" class="col-2 my-auto">${order.supplierReference}</div>
+                <div id="supplier-name-${i + 1}" class="col-2 my-auto text-truncate">${order.supplierReference}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
                 <div id="quantity-${i + 1}" class="col-2 my-auto">${order.totalQuantity}</div>
