@@ -208,7 +208,7 @@ class ReceiptTagLib {
     }
 
     private String makeBasketItemLine(ReceiptLine line, int maxLen) {
-        ReceiptLineHelper.ReceiptLineColumns cols = ReceiptLineHelper.generateBasketItemLineHtml(line.toReceiptLine(), BASKET_ITEM_LENGTH)
+        ReceiptLineHelper.ReceiptLineColumns cols = ReceiptLineHelper.generateBasketItemLineHtml(line.toReceiptLine(), BASKET_ITEM_LENGTH, maxLen)
         return """<div>""" +
                 """<span class="qty">${cols.col1}</span>""" +
                 """<span class="desc">${cols.col2}</span>""" +
