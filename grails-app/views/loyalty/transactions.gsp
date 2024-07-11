@@ -184,7 +184,7 @@
                                 <div class="col-10 input-group">
                                     <g:textField id="memberTransactionSearchTerm" name="memberTransactionSearchTerm" maxlength="100" class="form-control" aria-describedby="select-addon2" />
                                     <div class="input-group-append">
-                                        <g:select id="memberTransactionSearchBy" name="memberTransactionSearchBy" from="${['storeId', 'transactionId']}" value="everything" valueMessagePrefix="MemberTransactionSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                        <g:select id="memberTransactionSearchBy" name="memberTransactionSearchBy" from="${['storeId', 'id']}" value="everything" valueMessagePrefix="MemberTransactionSearchBy" class="form-control select-border" style="z-index: 0;" />
                                     </div>
                                 </div>
                             </div>
