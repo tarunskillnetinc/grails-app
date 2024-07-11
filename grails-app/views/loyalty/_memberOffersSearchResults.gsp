@@ -55,7 +55,7 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxMemberOffers" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 5}" params="[cardNumber: cardNumber,
+    <util:remotePaginate action="ajaxMemberOffers" total="${totalResults ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 20}" params="[cardNumber: cardNumber,
                                                                                                                                                                searchTerm: searchTerm,
                                                                                                                                                                searchBy: searchBy,
                                                                                                                                                                activeOffers: activeOffers,
