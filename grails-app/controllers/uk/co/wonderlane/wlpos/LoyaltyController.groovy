@@ -251,8 +251,8 @@ class LoyaltyController {
             inactiveOffers = params.inactiveOffers ? params.inactiveOffers.toBoolean() : false
             max = params.max ? Integer.parseInt(params.max) : 20
             offset = params.offset ? Integer.parseInt(params.offset) : null
-            sortColumn = params.sortColumn != null ?  params.sortColumn : "startDate"
-            sortOrder = params.sortOrder != null ?  params.sortOrder : "desc"
+            sortColumn = params.sortColumn ?: "startDate"
+            sortOrder = params.sortOrder ?: "desc"
             validateSortColumn(sortColumn)
             validateSortOrder(sortOrder)
         } catch (Exception e) {
@@ -263,13 +263,13 @@ class LoyaltyController {
 
         def offers = loyaltyMemberService.findAllMemberOffers(cardNumber, searchTerm, activeOffers, inactiveOffers, max, offset, sortColumn, sortOrder)
 
-        render(template: "memberOffersSearchResults", model: [cardNumber: params.cardNumber,
-                                                              searchTerm: params.searchTerm,
+        render(template: "memberOffersSearchResults", model: [cardNumber: cardNumber,
+                                                              searchTerm: searchTerm,
                                                               searchBy  : params.searchBy,
-                                                              offset    : params.offset,
-                                                              max       : params.max,
-                                                              sortColumn: params.sortColumn,
-                                                              sortOrder : params.sortOrder,
+                                                              offset    : offset,
+                                                              max       : max,
+                                                              sortColumn: sortColumn,
+                                                              sortOrder : sortOrder,
                                                               offers: offers["offers"],
                                                               totalResults: offers["totalResults"],
                                                               activeOffers: activeOffers,
