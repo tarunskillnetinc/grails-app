@@ -8,28 +8,33 @@
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
-        $(document).ready(function () {
+        function validateImg(input) {
+            if (input.files[0].size >= 1048576 /* 1MB */) {
+                return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'
+            }
+            if (input.files[0].type !== "image/png") {
+                return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'
+            }
+        }
 
+        $(document).ready(function () {
             $('input[name=brandLogo]').change(function() {
-                if (this.files[0].size < 1048576 /* 1MB */) {
-                    if (this.files[0].type === "image/png") {
-                        const fileData = this.files[0];
-                        if (FileReader && fileData) {
-                            var urlFileReader = new FileReader();
-                            urlFileReader.onload = function () {
-                                var brandingImage = $(".branding-image");
-                                brandingImage.attr("src", urlFileReader.result);
-                                brandingImage.removeAttr("hidden");
-                            }
-                            urlFileReader.readAsDataURL(fileData);
-                        } else {
-                            // fallback?
-                        }
-                    } else {
-                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                const error = validateImg(this);
+                if (error) {
+                    $('input[name=brandLogo]').val(null);
+                    alert(error);
+                    return
+                }
+
+                const fileData = this.files[0];
+                if (FileReader && fileData) {
+                    const urlFileReader = new FileReader();
+                    urlFileReader.onload = function () {
+                        const brandingImage = $(".branding-image");
+                        brandingImage.attr("src", urlFileReader.result);
+                        brandingImage.removeAttr("hidden");
                     }
-                } else {
-                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                    urlFileReader.readAsDataURL(fileData);
                 }
             });
 
@@ -69,10 +74,20 @@
         }
         function camelToReadable(camelCaseString) {
             // Use a regular expression to split the string at capital letters
-            const words = camelCaseString.split(/(?=[A-Z])/);
+            const words = splitCamelCaseString(camelCaseString);
             // Capitalize the first letter of each word and join with spaces
             const readableString = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             return readableString;
+        }
+
+        function renameBottomButtonName(camelCaseString) {
+            const words = splitCamelCaseString(camelCaseString);
+            words[1].charAt(0).toUpperCase();
+            return words[1];
+        }
+
+        function splitCamelCaseString(camelCaseString) {
+            return camelCaseString.split(/(?=[A-Z])/);
         }
     </script>
 </head>
@@ -106,14 +121,20 @@
     <g:hasErrors bean="${retailer}">
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${retailer}" as="list" />
+                <g:renderErrors bean="${retailer}" as="list"/>
             </div>
         </section>
     </g:hasErrors>
 
     <g:if test="${flash.error}">
-        <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+        <section id="errors-container2" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <ul>
+                    <g:each in="${flash.error}" var="error" status="i">
+                        <li>${error}</li>
+                    </g:each>
+                </ul>
+            </div>
         </section>
     </g:if>
 
@@ -130,7 +151,7 @@
 
 
     <section id="addProduct-section" class="container-fluid mt-4">
-        <g:uploadForm name="save-button" action="save">
+        <g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
             <div id="accordion">
                 <!-- General information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -295,7 +316,6 @@
                                         <div class="btn btn-danger" id="reset-rabbitmq-receipts-exchange-button" onclick="$('#rabbitMqReceiptsExchange').val('')">Reset</div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -363,7 +383,7 @@
                                 <div class="form-group row">
                                     <label for="productTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Product Term</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.productTerm" id="productTerm" value="${retailer?.config?.retailerTerminologyConfig.productTerm}" />
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.productTerm" id="productTerm" value="${retailer?.config?.retailerTerminologyConfig?.productTerm}" maxlength="8"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-product-term-button" onclick="$('#productTerm').val('Product')">Reset</div>
@@ -372,7 +392,7 @@
                                 <div class="form-group row">
                                     <label for="packTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Pack</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.packTerm" id="packTerm" value="${retailer?.config?.retailerTerminologyConfig.packTerm}" />
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.packTerm" id="packTerm" value="${retailer?.config?.retailerTerminologyConfig?.packTerm}" maxlength="15" />
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-pack-term-button" onclick="$('#packTerm').val('Pack')">Reset</div>
@@ -381,19 +401,19 @@
                                 <div class="form-group row">
                                     <label for="qisTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QIS (Quantity In Stock)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityInStockTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityInStockTerm" id="qisTerm" value="${retailer?.config?.retailerTerminologyConfig?.quantityInStockTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('Quantity In Stock')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qis-term-button" onclick="$('#qisTerm').val('QIS')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="qooTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QOO (Quantity On Order)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm" value="${retailer?.config?.retailerTerminologyConfig.quantityOnOrderTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.quantityOnOrderTerm" id="qooTerm" value="${retailer?.config?.retailerTerminologyConfig?.quantityOnOrderTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('Quantity On Order')">Reset</div>
+                                        <div class="btn btn-danger" id="reset-qoo-term-button"onclick="$('#qooTerm').val('QOO')">Reset</div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -450,11 +470,20 @@
                                         <div class="btn btn-danger" id="reset-delivered-term-button"onclick="$('#deliveredTerm').val('Delivered')">Reset</div>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label for="accentBarStoreTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store (Accent Bar)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.accentBarStoreTerm" id="accentBarStoreTerm" value="${retailer?.config?.retailerTerminologyConfig?.accentBarStoreTerm}" maxlength="15"/>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-accent-bar-store-term-button"onclick="$('#accentBarStoreTerm').val('Store')">Reset</div>
+                                    </div>
+                                </div>
                                 <!-- Locations Table Terminology -->
                                 <div class="form-group row">
                                     <label for="stockLocationsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Locations (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-stockLocations-term-button"onclick="$('#stockLocationsTerm').val('Stock Locations')">Reset</div>
@@ -463,7 +492,7 @@
                                 <div class="form-group row">
                                     <label for="descriptionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Description (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.descriptionTerm" id="descriptionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.descriptionTerm" id="descriptionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.descriptionTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-description-term-button"onclick="$('#descriptionTerm').val('Description')">Reset</div>
@@ -472,7 +501,7 @@
                                 <div class="form-group row">
                                     <label for="bayTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Bay (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.bayTerm" id="bayTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.bayTerm" id="bayTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.bayTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-bay-term-button"onclick="$('#bayTerm').val('Bay')">Reset</div>
@@ -481,7 +510,7 @@
                                 <div class="form-group row">
                                     <label for="shelfTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfTerm" id="shelfTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfTerm" id="shelfTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-shelf-term-button"onclick="$('#shelfTerm').val('Shelf')">Reset</div>
@@ -490,7 +519,7 @@
                                 <div class="form-group row">
                                     <label for="positionTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Position (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.positionTerm" id="positionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.positionTerm" id="positionTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.positionTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-position-term-button"onclick="$('#positionTerm').val('Position')">Reset</div>
@@ -499,7 +528,7 @@
                                 <div class="form-group row">
                                     <label for="aisleTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Aisle (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.aisleTerm" id="aisleTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.aisleTerm" id="aisleTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.aisleTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-aisle-term-button"onclick="$('#aisleTerm').val('Aisle')">Reset</div>
@@ -508,13 +537,30 @@
                                 <div class="form-group row">
                                     <label for="shelfCapacityTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Shelf Capacity (Locations Table)</label>
                                     <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfCapacityTerm" id="shelfCapacityTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm}"/>
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.shelfCapacityTerm" id="shelfCapacityTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm}" maxlength="15"/>
                                     </div>
                                     <div class="form-group row">
                                         <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('Shelf Capacity')">Reset</div>
                                     </div>
                                 </div>
-
+                                <div class="form-group row">
+                                    <label for="stockRoomTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomTerm" id="stockRoomTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-term-button" onclick="$('#stockRoomTerm').val('Stockroom')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="stockRoomAbbreviatedTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room (Abbreviated)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomAbbreviatedTerm" id="stockRoomAbbreviatedTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomAbbreviatedTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-abbreviated-term-button" onclick="$('#stockRoomAbbreviatedTerm').val('S/R')">Reset</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -554,10 +600,10 @@
                                                 <div class="form-group row">
                                                     <label for="productLookupName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Name</label>
                                                     <div class="col-7 col-lg-4">
-                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].name}"/>
+                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig?.functionMenuItems['productLookup'].name}"/>
                                                     </div>
                                                     <div class="form-group row">
-                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
+                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('Product Lookup')">Reset</div>
                                                     </div>
                                                 </div>
 
@@ -655,6 +701,13 @@
                                     </div>
                                 </div>
                                 <%
+                                    var bottomFileButtonName = "bottomFileButton"
+                                    var bottomButtonNames = [
+                                            "bottomHomeButton",
+                                            "bottomProductButton",
+                                            bottomFileButtonName,
+                                            "bottomSettingsButton"
+                                    ]
                                     var itemList = [
                                             "gapCheck",
                                             "stockCount",
@@ -675,12 +728,10 @@
                                             "priceCheck",
                                             "storeSales",
                                             "storeReports",
-                                            "varianceReport",
-                                            "bottomHomeButton",
-                                            "bottomProductButton",
-                                            "bottomFileButton",
-                                            "bottomSettingsButton",
+                                            "varianceReport"
                                     ]
+
+                                    itemList.addAll(bottomButtonNames)
                                 %>
                                 <g:each in="${itemList}" var="item" status="index">
                                     <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -704,7 +755,15 @@
                                                             <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[${item}].name" id="${item}Name" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].name}"/>
                                                         </div>
                                                         <div class="form-group row">
-                                                            <div class="btn btn-danger" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
+                                                            <g:if test="${item == bottomFileButtonName}">
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val('Sales')">Reset</div>
+                                                            </g:if>
+                                                            <g:elseif test="${bottomButtonNames.contains(item)}">
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(renameBottomButtonName('${item}'))">Reset</div>
+                                                            </g:elseif>
+                                                            <g:else>
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(camelToReadable('${item}'))">Reset</div>
+                                                            </g:else>
                                                         </div>
                                                     </div>
 
@@ -725,7 +784,17 @@
                                                             <input type="radio" class="form-check-input wl-radio ml-2" name="retailerFunctionConfig.functionMenuItems[${item}].menuItemVisibility" id="${item}VisibilityInvisible" value="INVISIBLE" ${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].menuItemVisibility.toString() === 'INVISIBLE' ? 'checked' : '' }/>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                    <g:each in="${retailer.config.retailerFunctionConfig.functionMenuItems[item].functionToggles}" var="toggle" status="i">
+                                                        <div class="form-group row justify-content-center">
+                                                            <input type="hidden" id = "${item}-${toggle.key}-parent" name="menuItemDetails.functionToggles[${toggle.key}-${item}].parent" value="${item}"/>
+                                                            <input type="hidden" id = "${item}-${toggle.key}-name" name="menuItemDetails.functionToggles[${toggle.key}-${item}].name" value="${toggle.key}"/>
+                                                            <input type="hidden" id = "${item}-${toggle.key}-displayName" name="menuItemDetails.functionToggles[${toggle.key}-${item}].displayName" value="${toggle.value.displayName}"/>
+                                                            <label for="${item}-${toggle.key}" class="wl-label col-form-label">${toggle.value.displayName}</label>
+                                                            <div class="col-1">
+                                                                <input type="checkbox" class="wl-checkbox form-check-input" id = "${item}-${toggle.key}-enabled" value = "true" name="menuItemDetails.functionToggles[${toggle.key}-${item}].enabled" ${toggle.value.enabled.toString() === "true" ? "checked": ""}/>
+                                                            </div>
+                                                        </div>
+                                                    </g:each>
                                             </div>
                                         </div>
                                     </div>
@@ -801,5 +870,14 @@
 
         </g:uploadForm>
     </section>
+                                </div>
+                            </g:each>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </g:uploadForm>
+</section>
 </body>
 </html>

@@ -18,7 +18,7 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].allowSubstitutes" value="${pack.allowSubstitutes}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcode" value="${pack.barcode}" />
 
-            <div id="variants[${variantIndex}].packs[${packIndex}].packText">${pack.quantity} @ <g:formatNumber number="${pack.price}" type="currency" /> (${pack.supplier.name})</div>
+            <div class="text-truncate" id="variants[${variantIndex}].packs[${packIndex}].packText">${pack.quantity} @ <g:formatNumber number="${pack.price}" type="currency" /> (${pack.supplier.name})</div>
         </div>
     </g:if>
 </g:each>

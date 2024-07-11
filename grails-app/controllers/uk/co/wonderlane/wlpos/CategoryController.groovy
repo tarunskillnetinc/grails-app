@@ -203,12 +203,26 @@ class CategoryController extends BaseController {
         while (tempCategory) {
             categoryList.add(tempCategory.id)
 
+            if (!isValidParentCategory(tempCategory.id, tempCategory.parentCategory)) {
+                return
+            }
+
             tempCategory = tempCategory.parentCategory
         }
 
         def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ?true : false
 
         render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnable: loyaltyEnable])
+    }
+
+    private boolean isValidParentCategory(int childId, Category parentCategory) {
+        if (parentCategory != null && childId == parentCategory.id) {
+            flash.error = "Error loading category"
+            redirect(action: "index")
+            return false
+        }
+
+        return true
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])

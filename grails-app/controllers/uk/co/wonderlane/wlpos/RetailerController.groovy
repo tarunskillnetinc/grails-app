@@ -7,7 +7,6 @@ import uk.co.wonderlane.wlpos.entities.RetailerConfig
 import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyLocationsTableConfig
-import uk.co.wonderlane.wlpos.entities.loyalty.LoyaltyRetailerConfig
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.Visibility
 
@@ -18,6 +17,8 @@ class RetailerController {
     def retailerConfigService
     def retailerProvider
 
+
+    final int MAX_LOGO_SIZE = 1048576
 
     String camelToReadable(String camelCaseString) {
         // Use a regular expression to split the string at capital letters
@@ -36,9 +37,24 @@ class RetailerController {
 
     @Secured(['ROLE_ENGINEER'])
     def save(RetailerCommand retailerCommand) {
+        def errorMessages = []
+
         if (retailerCommand.brandLogo?.filename != "" && retailerCommand.brandLogo?.filename != null) {
-            brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
+            if (retailerCommand.brandLogo.size <= MAX_LOGO_SIZE) {
+                brandAssetsService.saveBrandLogo(retailerCommand.brandLogo.bytes)
+            } else {
+                errorMessages << message(code: 'retailer.logo.maxsize')
+            }
         }
+
+        for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
+            var t = new FunctionToggle()
+            t.name = toggle.name
+            t.enabled = toggle.enabled == true
+            t.displayName = toggle.displayName
+            retailerCommand.retailerFunctionConfig.functionMenuItems[toggle.parent].functionToggles[toggle.name] = t
+        }
+
         RetailerConfig retailerConfig = new RetailerConfig()
         RetailerTerminologyConfig terminologyConfig = new RetailerTerminologyConfig()
         RetailerTerminologyLocationsTableConfig locationsTableConfig = new RetailerTerminologyLocationsTableConfig()
@@ -104,6 +120,21 @@ class RetailerController {
         if (retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == "" || retailerCommand?.retailerTerminologyConfig?.locationsTableConfig?.shelfCapacityTerm == null) {
             flash.error = "Shelf Capacity is empty. Should not be null."
         }
+        if (retailerCommand?.retailerTerminologyConfig?.stockRoomTerm == "" || retailerCommand?.retailerTerminologyConfig?.stockRoomTerm == null) {
+            errorMessages << "Stock Room is empty. Should not be null."
+        } else {
+            if (retailerCommand?.retailerTerminologyConfig?.stockRoomTerm.length() > 20) {
+                errorMessages << "Stock Room cannot be more than 20 characters in length."
+            }
+        }
+        if (retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm == "" || retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm == null) {
+            errorMessages << "Stock Room (Abbreviated) is empty. Should not be null."
+        } else {
+            if (retailerCommand?.retailerTerminologyConfig?.stockRoomAbbreviatedTerm.length() > 3) {
+                errorMessages << "Stock Room (Abbreviated) cannot be more than 3 characters in length."
+            }
+        }
+
         if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null) {
             retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = Visibility.ENABLED
         }
@@ -116,7 +147,10 @@ class RetailerController {
         if (retailerCommand.retailerFunctionConfig.categoryVisibility == null) {
             retailerCommand.retailerFunctionConfig.categoryVisibility = Visibility.ENABLED
         }
-        if (flash.error) {
+
+
+        if (errorMessages != null && !errorMessages.isEmpty()) {
+            flash.error = errorMessages
             redirect(action: "index")
         } else {
             retailerCommand.retailerFunctionConfig.functionMenuItems.each { key, value ->
@@ -127,6 +161,7 @@ class RetailerController {
                     value.menuItemVisibility = Visibility.ENABLED
                 }
             }
+
 
             bindData(locationsTableConfig, retailerCommand.retailerTerminologyConfig.locationsTableConfig)
             bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
@@ -196,6 +231,9 @@ class RetailerCommand implements Validateable {
 
     LoyaltyConfigCommand loyaltyConfig
 
+    MenuItemDetailsCommand menuItemDetails
+
+
 }
 
 class RetailerTerminologyCommand {
@@ -232,8 +270,24 @@ class RetailerFunctionCommand {
 }
 
 class FunctionMenuItemCommand {
+
     String name
     Visibility menuItemVisibility
+
+    Map<String,FunctionToggle> functionToggles = new HashMap<String,FunctionToggle>()
+}
+
+class MenuItemDetailsCommand{
+    Map<String,FunctionToggleCommand> functionToggles
+}
+
+class FunctionToggleCommand {
+    String parent
+    String name
+    String displayName
+    Boolean enabled
+
+
 }
 
 class LoyaltyConfigCommand {
