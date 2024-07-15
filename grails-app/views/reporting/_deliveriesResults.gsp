@@ -89,7 +89,7 @@
                 </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "supplierName" }?.enabled}">
-                <div id="supplier-name-${i + 1}" class="col-2 my-auto">${delivery?.supplierReference}</div>
+                <div id="supplier-name-${i + 1}" class="col-2 my-auto text-truncate">${delivery?.supplierReference}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "numberOfItems" }?.enabled}">
                 <div id="number-of-items-${i + 1}" class="col-2 my-auto">${delivery?.productListItems?.size()}</div>

@@ -20,8 +20,8 @@ class ReasonCodeService {
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 
-    ReasonCode findByCode(int retailerId, String code, int id) {
-        return ReasonCode.findByRetailerIdAndCodeAndIdNotEqual(retailerId, code, id)
+    ReasonCode findByCode(int retailerId, String code, boolean additionalFunctionality, int id) {
+        return ReasonCode.findByRetailerIdAndCodeAndAdditionalFunctionalityAndIdNotEqual(retailerId, code, additionalFunctionality, id)
     }
 
     boolean isLastOfType(int retailerId, ReasonCodeType type) {

@@ -1,7 +1,8 @@
 package uk.co.wonderlane.wlpos
 
-import groovy.time.Duration
+
 import org.apache.commons.lang3.RegExUtils
+import org.hibernate.Session
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -24,6 +25,10 @@ class PromotionController {
     def gsonProvider
 
     def index() {
+        if (session.addedStores) {
+            session.addedStores.clear()
+        }
+
         List<uk.co.wonderlane.wlpos.enums.PromotionType> promotionTypes = new ArrayList<>()
         promotionTypes.add(PromotionType.BOGOF)
         promotionTypes.add(PromotionType.FIXED_AMOUNT_DISCOUNT)
@@ -98,6 +103,8 @@ class PromotionController {
             productItemType = "tag"
         }
 
+        session.addedStores = !promo.storeIds.isEmpty() ? Store.findAllByIdInList(promo.storeIds) : []
+
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
                                             productsRequired: productsRequired,
@@ -107,7 +114,8 @@ class PromotionController {
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
                                             productItemType: productItemType,
-                                            editing: true])
+                                            editing: true,
+                                            addedStores: session.addedStores])
     }
 
     def maintenanceError() {
@@ -192,7 +200,7 @@ class PromotionController {
         List<Map> categoriesOffer = new ArrayList<>()
         List<Map> tagsRequired = new ArrayList<>()
         List<Map> tagsOffer = new ArrayList<>()
-
+        
         render (view: 'maintenance', model:[promotion: null,
                                             promoType: 'bogof',
                                             productsRequired: productsRequired,
@@ -422,13 +430,16 @@ class PromotionController {
                 break
         }
 
-        if (promotion.validate()) {
+        if (promotion.validate() && session.addedStores?.isEmpty() == false) {
             def type = params.promotionType
             if (!params."${type}-doesNotExpire") {
                 // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
                 promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
             }
+            promotion.stores*.delete()
+            promotion.stores.clear()
             promotionService.savePromotion(promotion)
+            promotionService.savePromotionStores(promotion, session.addedStores)
 
             redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
             return
@@ -437,6 +448,13 @@ class PromotionController {
             promotion.errors.reject('error.Promotion.invalidPromotionError')
             redirect(controller: "promotion", action: "maintenanceError")
             return
+        }
+    }
+
+    def removeStoreFromSession(int storeId) {
+        if (session.addedStores) {
+            // Remove the store from session.addedStores based on the storeId
+            session.addedStores = session.addedStores.findAll { it.id != storeId }
         }
     }
 
@@ -600,6 +618,99 @@ class PromotionController {
 
     def ajaxGetPromotionsForProduct() {
         render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
+    }
+
+    def ajaxAddAllStores() {
+        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
+        session.addedStores = session.addedStores ?: []
+        session.addedStores.addAll(stores)
+        render(template: '/promotion/storeList', model: [addedStores: stores])
+    }
+
+    def ajaxRemoveAllStores() {
+        session.addedStores.clear()
+        def stores = [] // Logic to remove all stores from stores
+        render(template: '/promotion/storeList', model: [addedStores: stores])
+    }
+
+    def ajaxGetAllStores() {
+        Integer storeNumberFilter
+        String storeNameFilter
+        def sortParams = [:]
+
+        if (!params.sort) {
+            sortParams = [max: 50, offset: 0, sort: "storeNumber", order: "ASC"]
+        } else {
+            sortParams.max = Integer.parseInt(params.max)
+            sortParams.offset = Integer.parseInt(params.offset)
+            sortParams.sort = params.sort
+            sortParams.order = params.order
+        }
+
+        if (params.storeNumberFilter && params.storeNumberFilter.isNumber()) {
+            storeNumberFilter = Integer.parseInt(params.storeNumberFilter)
+        }
+        if (params.storeNameFilter && params.storeNameFilter != "null") {
+            storeNameFilter = params.storeNameFilter
+        }
+
+        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
+
+        if (session.addedStores) {
+            def addedStores = session.addedStores
+            def addedStoreIds = []
+            // Loop over addesStores and add the Ids to an array
+            addedStores.each{ store ->
+                addedStoreIds.add(store.id)
+            }
+
+            // Remove stores from stores based on addedStoreIds
+            stores.removeIf {store ->
+                addedStoreIds.contains(store.id)
+            }
+        }
+
+        // Filter results on storeNameFilter
+        if (storeNameFilter) {
+            stores.removeIf {store ->
+                !store.config.storeName.toLowerCase().contains(storeNameFilter.toLowerCase())
+            }
+        }
+
+        // Filter results on storeNumberFilter
+        if (storeNumberFilter) {
+            stores.removeIf {store ->
+                !store.config.storeNumber.equals(storeNumberFilter)
+            }
+        }
+
+        def paginatedStores = stores.subList(0 + sortParams.offset, Math.min(sortParams.max + sortParams.offset, stores.size()))
+
+        render(template: '/promotion/storeSelectionList', model: [stores: paginatedStores, totalResults: stores.size(), sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: ""])
+    }
+
+    def ajaxAddStores() {
+        def storeIds = params."storeIds[]"
+        def addedStores = Store.findAllByIdInList(Arrays.asList(storeIds)) // Retrieve selected stores by IDs
+
+        session.addedStores = session.addedStores ?: []
+        session.addedStores.addAll(addedStores)
+        render(template: '/promotion/storeList', model: [addedStores: session.addedStores])
+    }
+
+    def ajaxRemoveStores() {
+        def storeId = params.storeId as Long
+        def addedStores = session.addedStores
+
+        if (addedStores) {
+            addedStores = addedStores.findAll {
+                it.id != storeId
+            }
+            session.addedStores = addedStores
+        }
+
+        // Render the updated store list
+        render(template: '/promotion/storeList', model: [addedStores: addedStores])
     }
 
     private String validateSortColumn(String sortColumn) {

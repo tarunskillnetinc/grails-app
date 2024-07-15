@@ -64,6 +64,10 @@
                 <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
+            <g:if test="${flash.warning}">
+                <div id="warning-message" class="alert alert-warning alert-wl mx-0" role="alert">${flash.warning}</div>
+            </g:if>
+
             <div class="row mt-4 ml-0 mr-0">
                 <div class="col-10 mt-4">
                     <div class="col-6">
@@ -83,7 +87,7 @@
                                 <div class="form-group row">
                                     <label for="centralCountSearchTerm" class="col-2 col-form-label-sm text-right">Search Term</label>
                                     <div class="col-10 input-group">
-                                        <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" aria-describedby="select-addon2" />
+                                        <g:textField id="centralCountSearchTerm" name="centralCountSearchTerm" maxlength="100" class="form-control" aria-describedby="select-addon2" value="${session.CENTRAL_COUNT_SEARCH_TERM}" />
 
                                         <div class="input-group-append">
                                             <g:select id="centralCountSearchBy" name="centralCountSearchBy" from="${['Everything',

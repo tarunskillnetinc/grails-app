@@ -4,6 +4,7 @@ class RangeProduct implements Serializable {
 
     Range range
     int productId
+    boolean deleted
 
     static mapping = {
         table "rangeproduct"
@@ -13,11 +14,13 @@ class RangeProduct implements Serializable {
 
         productId column: "productId"
         range column: "rangeId"
+        deleted column: "deleted"
     }
 
     static constraints = {
         productId nullable: false
         range nullable: false
+        deleted nullable: false
     }
 
     @Override
@@ -36,5 +39,9 @@ class RangeProduct implements Serializable {
     @Override
     int hashCode() {
         return (range?.id?.hashCode() ?: 123) + productId.hashCode()
+    }
+
+    static HashMap<Integer, RangeProduct> getExistingProductRanges(Integer productId) {
+        return findAllByProductId(productId).collectEntries{[it.rangeId, it]} as HashMap<Integer, RangeProduct>
     }
 }

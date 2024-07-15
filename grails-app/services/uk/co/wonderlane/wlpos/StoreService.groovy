@@ -29,6 +29,10 @@ class StoreService extends MySqlDal {
         return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId])
     }
 
+    def getActiveStores(int retailerId) {
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND s.deleted = 0 AND JSON_EXTRACT(config, '\$.storeType') != 'HEAD_OFFICE' ORDER BY s.id DESC", [retailerId: retailerId])
+    }
+
     def getStoresByType(int retailerId, StoreType storeType) {
         return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND JSON_EXTRACT(config, '\$.storeType') = :storeType ORDER BY s.id DESC", [retailerId: retailerId, storeType: storeType.name()])
     }
