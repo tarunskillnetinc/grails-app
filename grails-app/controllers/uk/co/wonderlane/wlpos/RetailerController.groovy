@@ -250,6 +250,9 @@ class RetailerTerminologyCommand {
     String inStockTerm
     String deliveredTerm
     RetailerTerminologyLocationsTableConfigCommand locationsTableConfig
+    String stockRoomTerm
+    String stockRoomAbbreviatedTerm
+
 }
 
 class RetailerTerminologyLocationsTableConfigCommand {
