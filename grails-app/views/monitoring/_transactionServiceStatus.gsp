@@ -215,7 +215,7 @@
 </div>
 
 <h3 id="offer-service-title" class="text-center mt-5">Loyalty Offer Service</h3>
-<p class="text-center">Loyalty Offer service is used to handle offer data and add it to the database.</p>
+<p class="text-center">Loyalty Offer service is used to handle transactional offer data and update it to the database.</p>
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
@@ -233,7 +233,7 @@
 </div>
 
 <h3 id="offer-allocation-service-title" class="text-center mt-5">Loyalty Offer Allocation Service</h3>
-<p class="text-center">Loyalty Offer service is used to handle offer data and add it to the database.</p>
+<p class="text-center">Loyalty Offer Allocation service is used to handle offer and segment data and apply it to the database.</p>
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
