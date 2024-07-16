@@ -7,7 +7,7 @@
         <div id="data-sync-service-messages">Messages waiting to be processed: ${ dataSyncServiceQueue != null ? dataSyncServiceQueue.messages : 0}.</div>
         <div id="data-sync-service-activity">Latest activity:
         <g:if test="${dataSyncServiceQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${dataSyncServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${dataSyncServiceQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -25,7 +25,7 @@
         <div id="transaction-processor-messages">Messages waiting to be processed: ${transactionProcessorQueue != null ? transactionProcessorQueue.messages : 0}.</div>
         <div id="transaction-processor-activity">Latest activity:
             <g:if test="${transactionProcessorQueue?.idle_since}">
-                <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${transactionProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
+                <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${transactionProcessorQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
             </g:if>
             <g:else>
                 Now.
@@ -43,7 +43,7 @@
         <div id="kpi-processor-messages">Messages waiting to be processed: ${kpiProcessorQueue != null ? kpiProcessorQueue.messages : 0}.</div>
         <div id="kpi-processor-activity">Latest activity:
         <g:if test="${kpiProcessorQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${kpiProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${kpiProcessorQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -61,7 +61,7 @@
         <div id="reporting-processor-messages">Messages waiting to be processed: ${reportingProcessorQueue != null ? reportingProcessorQueue.messages : 0}.</div>
         <div id="reporting-processor-activity">Latest activity:
         <g:if test="${reportingProcessorQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${reportingProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${reportingProcessorQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -79,7 +79,7 @@
         <div id="shift-processor-messages">Messages waiting to be processed: ${shiftProcessorQueue != null ? shiftProcessorQueue.messages : 0}.</div>
         <div id="shift-processor-activity">Latest activity:
         <g:if test="${shiftProcessorQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shiftProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shiftProcessorQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -97,7 +97,7 @@
         <div id="stock-processor-messages">Messages waiting to be processed: ${stockProcessorQueue != null ? stockProcessorQueue.messages : 0}.</div>
         <div id="stock-processor-activity">Latest activity:
         <g:if test="${stockProcessorQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${stockProcessorQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${stockProcessorQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -115,7 +115,7 @@
         <div id="receipt-service-messages">Messages waiting to be processed: ${receiptServiceQueue != null ? receiptServiceQueue.messages : 0}.</div>
         <div id="receipt-service-activity">Latest activity:
         <g:if test="${receiptServiceQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${receiptServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${receiptServiceQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -133,7 +133,7 @@
         <div id="nisa-service-messages">Messages waiting to be processed: ${nisaServiceQueue != null ? nisaServiceQueue.messages : 0}.</div>
         <div id="nisa-service-activity">Latest activity:
         <g:if test="${nisaServiceQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${nisaServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${nisaServiceQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -151,7 +151,7 @@
         <div id="raw-transaction-messages">Messages waiting to be processed: ${rawTransactionWriterQueue != null ? rawTransactionWriterQueue.messages : 0}.</div>
         <div id="raw-transaction-activity">Latest activity:
             <g:if test="${rawTransactionWriterQueue?.idle_since}">
-                <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${rawTransactionWriterQueue?.idle_since?.toDate() ?: new Date()}" />.
+                <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${rawTransactionWriterQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
             </g:if>
             <g:else>
                 Now.
@@ -169,7 +169,7 @@
         <div id="snappy-service-messages">Messages waiting to be processed: ${snappyServiceQueue != null ? snappyServiceQueue.messages : 0}.</div>
         <div id="snappy-service-activity">Latest activity:
         <g:if test="${snappyServiceQueue?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${snappyServiceQueue?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${snappyServiceQueue?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -187,7 +187,7 @@
         <div id="loyalty-member-messages">Messages waiting to be processed: ${loyaltyMemberService != null ? loyaltyMemberService.messages : 0}.</div>
         <div id="loyalty-member-activity">Latest activity:
         <g:if test="${loyaltyMemberService?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyMemberService?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyMemberService?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -205,7 +205,7 @@
         <div id="loyalty-transaction-messages">Messages waiting to be processed: ${loyaltyTransactionService != null ? loyaltyTransactionService.messages : 0}.</div>
         <div id="loyalty-transaction-activity">Latest activity:
         <g:if test="${loyaltyTransactionService?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyTransactionService?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyTransactionService?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.
@@ -215,7 +215,7 @@
 </div>
 
 <h3 id="offer-service-title" class="text-center mt-5">Loyalty Offer Service</h3>
-<p class="text-center">Loyalty Offer service is used to handle offer data and add it to the database.</p>
+<p class="text-center">Loyalty Offer service is used to handle transactional offer data and update it to the database.</p>
 
 <div class="card bg-light border-wl col-6 offset-3">
     <div class="card-body text-center">
@@ -223,7 +223,25 @@
         <div id="loyalty-offer-messages">Messages waiting to be processed: ${loyaltyOfferService != null ? loyaltyOfferService.messages : 0}.</div>
         <div id="loyalty-offer-activity">Latest activity:
         <g:if test="${loyaltyOfferService?.idle_since}">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyOfferService?.idle_since?.toDate() ?: new Date()}" />.
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyOfferService?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
+        </g:if>
+        <g:else>
+            Now.
+        </g:else>
+        </div>
+    </div>
+</div>
+
+<h3 id="offer-allocation-service-title" class="text-center mt-5">Loyalty Offer Allocation Service</h3>
+<p class="text-center">Loyalty Offer Allocation service is used to handle offer and segment data and apply it to the database.</p>
+
+<div class="card bg-light border-wl col-6 offset-3">
+    <div class="card-body text-center">
+        <div>Loyalty Offer Allocation Service is <span id="loyalty-offer-allocation-service-availability" class="badge badge-${loyaltyOfferAllocationService?.consumers > 0 ? 'success' : 'danger'}">${loyaltyOfferAllocationService?.consumers > 0 ? 'Online' : 'Offline'}</span></div>
+        <div id="loyalty-offer-allocation-messages">Messages waiting to be processed: ${loyaltyOfferAllocationService != null ? loyaltyOfferAllocationService.messages : 0}.</div>
+        <div id="loyalty-offer-allocation-activity">Latest activity:
+        <g:if test="${loyaltyOfferAllocationService?.idle_since}">
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${loyaltyOfferAllocationService?.idle_since?.toDate() ?: new Date()}" timeZone="Europe/London"/>.
         </g:if>
         <g:else>
             Now.

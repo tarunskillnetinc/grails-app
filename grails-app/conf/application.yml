@@ -744,3 +744,4 @@ wlpos:
     loyaltyMemberService: "LoyaltyMemberService"
     loyaltyTransactionService: "LoyaltyTransactionService"
     loyaltyOfferService: "LoyaltyOfferService"
+    loyaltyOfferAllocationService: "LoyaltyOfferAllocationService"
