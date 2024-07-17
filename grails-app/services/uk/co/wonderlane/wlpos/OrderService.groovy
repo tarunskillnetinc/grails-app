@@ -323,9 +323,9 @@ class OrderService extends MySqlDal  {
 
             // Save completed status in database.
             //Update status in product list as complete
-            confirmProductList(connection, productListId)
+            confirmProductList(connection, productListId, getStatusToUpdate(productList.getType(), productList.getParentId()))
 
-            if (supplier.getSymbolGroup() !=null && supplier.getSymbolGroup().getId() > 0){
+            if (supplier.getSymbolGroup() != null && supplier.getSymbolGroup().getId() > 0) {
                 //In case of symbol group order send request NISA
                 return nisaService.generateXMLForOrder(connection, productList)
             } else {
@@ -337,6 +337,33 @@ class OrderService extends MySqlDal  {
             }
 
         }
+    }
+
+    private static ProductListStatus getStatusToUpdate(ProductListType type, int parentId) throws SQLException {
+        // This function replicates the logic that was previously in saveProductList stored procedure
+        if (type != null && type.IsIn(ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK)) {
+            return ProductListStatus.PARTIALLY_COMPLETE;
+        } else if (type == ProductListType.INVENTORY_ADJUSTMENT || parentId == 0 || doesParentAndChildrenProductListItemCountsMatch(parentId)) {
+            return ProductListStatus.COMPLETE;
+        }
+        return ProductListStatus.PARTIALLY_COMPLETE;
+    }
+
+    private boolean doesParentAndChildrenProductListItemCountsMatch(int parentId) throws SQLException {
+        boolean result = false;
+
+        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call doesParentAndChildrenProductListItemCountsMatch(?) }")) {
+            cstmt.setInt(1, parentId);
+
+            if (cstmt.execute()) {
+                ResultSet rs = cstmt.getResultSet();
+
+                if (rs.next()) {
+                    result = rs.getBoolean("result");
+                }
+            }
+        }
+        return result;
     }
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductList getProductListById(int productListId) throws SQLException {
@@ -424,11 +451,12 @@ class OrderService extends MySqlDal  {
     }
 
     //Update status in product list
-    private void confirmProductList(Connection connection, int productListId) throws SQLException {
+    private void confirmProductList(Connection connection, int productListId, ProductListStatus status) throws SQLException {
         CallableStatement cstmt
         try {
-            cstmt = connection.prepareCall("{ call saveProductList(?) }")
+            cstmt = connection.prepareCall("{ call saveProductList(?, ?) }")
             cstmt.setInt(1, productListId);
+            cstmt.setString(2, status.name());
             cstmt.executeUpdate();
         }catch(Exception ex){
             ex.printStackTrace()
@@ -453,6 +481,7 @@ class OrderService extends MySqlDal  {
             throw ex
         }
     }
+
 
     def saveProductDeliveries(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier){
         int productListId = saveDeliveryProduct(connection, productList, type,  status, supplier)
@@ -503,11 +532,11 @@ class OrderService extends MySqlDal  {
         CallableStatement stmt
         HashMap<Integer, Integer> productDeliveryListItemMap = new HashMap<>();
         try{
-            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?) }")
+            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?, ?) }")
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
                 BigDecimal stockInQuantity = productVariant.getQuantityInStock()
-                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity() : BigDecimal.ZERO,listItem.getFillQuantity())
+                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity().intValue() : 0,listItem.getFillQuantity(), locationId)
                 if (stmt.execute()) {
                     ResultSet rs = stmt.getResultSet();
                     if (rs.next()) {
@@ -565,9 +594,9 @@ class OrderService extends MySqlDal  {
         CallableStatement cstmt
         int productListItemId = -1
         try {
-            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?) }")
+            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?, ?) }")
             populateListItemInsertStatement(cstmt, packLineRequestCommand.getProductListId(), packLineRequestCommand.getProductItemId(), -1, packLineRequestCommand.getProductVariantId(),quantityInStock,
-                    packLineRequestCommand.getQuantity(),packLineRequestCommand.getFillQuantity())
+                    packLineRequestCommand.getQuantity(),packLineRequestCommand.getFillQuantity(),null)
             if (cstmt.execute()) {
                 ResultSet rs = cstmt.getResultSet();
                 if (rs.next()) {
@@ -811,7 +840,7 @@ class OrderService extends MySqlDal  {
         return productVariant;
     }
 
-    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productListItemGroupId, int productVariantId, BigDecimal productQuantityInStore, BigDecimal quantity, BigDecimal fillQuantity) {
+    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productListItemGroupId, int productVariantId, BigDecimal productQuantityInStore, BigDecimal quantity, BigDecimal fillQuantity, Integer locationId) {
         cstmt.setInt(1, productListId)
         cstmt.setInt(2, productItemList)
         cstmt.setInt(3, productListItemGroupId)
@@ -832,6 +861,12 @@ class OrderService extends MySqlDal  {
             cstmt.setBigDecimal(7, fillQuantity)
         } else {
             cstmt.setNull(7, Types.DECIMAL)
+        }
+
+        if (locationId != null) {
+            cstmt.setInt(8, locationId);
+        } else {
+            cstmt.setNull(8, Types.INTEGER);
         }
     }
 
