@@ -74,16 +74,16 @@
                 <div class="col-4 my-auto">${packLine?.productListItem?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packCost" }?.enabled}">
-                <div class="col-1 my-auto"><g:formatNumber number="${packLine?.pack?.price}" type="currency" /></div>
+                <div class="col-1 my-auto"><g:formatNumber number="${packLine?.getPackCost()}" type="currency" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packSize" }?.enabled}">
-                <div class="col-1 my-auto">${packLine?.pack?.quantity}</div>
+                <div class="col-1 my-auto">${packLine?.getPackSize()}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "deliveryQuantity" }?.enabled}">
                 <div class="col-2 my-auto">${packLine?.quantity?.intValue()}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalQuantity" }?.enabled}">
-                <div class="col-1 my-auto">${packLine?.totalQuantity}</div>
+                <div class="col-1 my-auto">${packLine?.totalQuantity}${packLine?.isWeighted() ? " kg" : " ea (each)"}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "currentSell" }?.enabled}">
                 <div class="col-1 my-auto"><g:formatNumber number="${packLine?.productListItem?.productVariant?.currentPrice}" type="currency" /></div>

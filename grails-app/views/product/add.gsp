@@ -705,6 +705,8 @@
                 params["defaultSupplier"] = filterValues["defaultSupplier"];
                 params["productVariantId"] = variantId;
 
+                const isWeighted = isWeightedItem();
+
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
@@ -726,6 +728,7 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
+                    params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
                 });
                     $.ajax({
                         url: savePackUrl,
@@ -741,6 +744,12 @@
                         }
                     });
             }
+
+            function isWeightedItem() {
+                const weightedBox = $("#weightedItem");
+                return weightedBox && weightedBox.prop("checked");
+            }
+
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
