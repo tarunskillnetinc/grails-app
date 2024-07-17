@@ -482,7 +482,6 @@ class OrderService extends MySqlDal  {
         }
     }
 
-
     def saveProductDeliveries(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier){
         int productListId = saveDeliveryProduct(connection, productList, type,  status, supplier)
         HashMap<Integer, Integer> productDeliveryListItemMap = saveDeliveryProductItemList(connection, productList, productListId)
@@ -536,7 +535,8 @@ class OrderService extends MySqlDal  {
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
                 BigDecimal stockInQuantity = productVariant.getQuantityInStock()
-                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity().intValue() : 0,listItem.getFillQuantity(), locationId)
+                Integer locationId = listItem.getLocation() == null ? null : listItem.getLocation().getId()
+                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity() : BigDecimal.ZERO,listItem.getFillQuantity(), locationId)
                 if (stmt.execute()) {
                     ResultSet rs = stmt.getResultSet();
                     if (rs.next()) {
