@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.entities.BarcodeSignifier
 
 class Barcode {
 
@@ -32,7 +31,7 @@ class Barcode {
         sku nullable: false
         retailerId nullable: false
         barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
-            if (!obj.isBarcodeNonProduct(obj.retailerId)) {
+            if (!obj.isBarcodeNonProductType(obj.retailerId)) {
                 //Initially set barcode value is available for use
                 boolean isBarcodeActive = false
 
@@ -76,7 +75,7 @@ class Barcode {
         recordStatus nullable: false
     }
 
-    private boolean isBarcodeNonProduct(int retailerId){
+    private boolean isBarcodeNonProductType(int retailerId){
         String barcodeType = barcodeSignifiersType(retailerId)
         if (barcodeType != null && barcodeType.equals("LOYALTY")){
             return true
