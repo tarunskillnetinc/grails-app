@@ -16,7 +16,7 @@ import javax.xml.parsers.ParserConfigurationException
 import java.sql.*
 
 @Transactional
-class OrderService extends MySqlDal  {
+class OrderService extends MySqlDal {
 
     def springSecurityService
     def userService
@@ -27,7 +27,7 @@ class OrderService extends MySqlDal  {
     }
 
     // This will create new product list
-    def createProductList(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, Supplier supplier){
+    def createProductList(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, Supplier supplier) {
         Connection connection
         try {
             connection = getConnection()
@@ -35,19 +35,19 @@ class OrderService extends MySqlDal  {
 
             User user = userService.getUser(springSecurityService.principal.id)
             productList = createNewProductList(connection, productList, productListType, user)
-            if (productList != null){
+            if (productList != null) {
                 updateListSupplier(connection, supplier, productList.getId())
             }
 
             connection.commit()
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when creating new product list , Exception " + ex.getMessage())
-            if (connection != null){
+            if (connection != null) {
                 connection.rollback()
             }
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
@@ -55,7 +55,7 @@ class OrderService extends MySqlDal  {
     }
 
     // This will save product list items and packs
-    def saveProductOrder(PackLineRequestCommand packLineRequestCommand){
+    def saveProductOrder(PackLineRequestCommand packLineRequestCommand) {
         Connection connection
         try {
             connection = getConnection()
@@ -64,21 +64,21 @@ class OrderService extends MySqlDal  {
             saveProductListsAndPackLines(connection, packLineRequestCommand)
 
             connection.commit()
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when saving product order, request is rollback , Exception " + ex.getMessage())
-            if (connection != null){
+            if (connection != null) {
                 connection.rollback()
             }
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
     }
 
     // This will work on confirming order request
-    def confirmOrder(int productListId, Supplier supplier){
+    def confirmOrder(int productListId, Supplier supplier) {
         String response = null;
         Connection connection
         try {
@@ -88,14 +88,14 @@ class OrderService extends MySqlDal  {
             response = confirmProductList(connection, supplier, productListId)
 
             connection.commit()
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when saving product order, request is rollback , Exception " + ex.getMessage())
-            if (connection != null){
+            if (connection != null) {
                 connection.rollback()
             }
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
@@ -121,14 +121,14 @@ class OrderService extends MySqlDal  {
             deleteProductListById(connection, productListId)
 
             connection.commit()
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when deleting product list, request is rollback , Exception " + ex.getMessage())
-            if (connection != null){
+            if (connection != null) {
                 connection.rollback()
             }
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
@@ -149,14 +149,14 @@ class OrderService extends MySqlDal  {
             }
 
             connection.commit()
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order exception found when deleting product item, request is rollback , Exception " + ex.getMessage())
-            if (connection != null){
+            if (connection != null) {
                 connection.rollback()
             }
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
@@ -164,8 +164,8 @@ class OrderService extends MySqlDal  {
 
     /** =================================== Start product list creation methods =========================================================== **/
 
-    private createNewProductList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, User user){
-        if (productList == null){
+    private createNewProductList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, ProductListType productListType, User user) {
+        if (productList == null) {
             productList = addNewProductList(connection, productListType, ProductListStatus.IN_PROGRESS, -1, user.getUsername())
         }
         return productList
@@ -282,11 +282,11 @@ class OrderService extends MySqlDal  {
                     }
                 }
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Order create exception found when checking for active product list, Exception " + ex.getMessage())
             throw ex
-        } finally{
-            if (conn != null){
+        } finally {
+            if (conn != null) {
                 conn.close()
             }
         }
@@ -295,13 +295,13 @@ class OrderService extends MySqlDal  {
 
     private boolean updateListSupplier(Connection connection, Supplier supplier, int productListId) throws SQLException {
         CallableStatement cstmt
-        try{
+        try {
             cstmt = connection.prepareCall("{ call updateListSupplier(?, ?, ?) }")
             cstmt.setInt(1, productListId)
             cstmt.setString(2, String.valueOf(supplier.getId()))
             cstmt.setString(3, supplier.getReference())
             cstmt.executeUpdate();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Order create exception found when updating product list supplier id, Exception " + ex.getMessage())
             throw ex
@@ -323,9 +323,9 @@ class OrderService extends MySqlDal  {
 
             // Save completed status in database.
             //Update status in product list as complete
-            confirmProductList(connection, productListId)
+            confirmProductList(connection, productListId, getStatusToUpdate(productList.getType(), productList.getParentId()))
 
-            if (supplier.getSymbolGroup() !=null && supplier.getSymbolGroup().getId() > 0){
+            if (supplier.getSymbolGroup() != null && supplier.getSymbolGroup().getId() > 0) {
                 //In case of symbol group order send request NISA
                 return nisaService.generateXMLForOrder(connection, productList)
             } else {
@@ -337,6 +337,33 @@ class OrderService extends MySqlDal  {
             }
 
         }
+    }
+
+    private static ProductListStatus getStatusToUpdate(ProductListType type, int parentId) throws SQLException {
+        // This function replicates the logic that was previously in saveProductList stored procedure
+        if (type != null && type.IsIn(ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK)) {
+            return ProductListStatus.PARTIALLY_COMPLETE;
+        } else if (type == ProductListType.INVENTORY_ADJUSTMENT || parentId == 0 || doesParentAndChildrenProductListItemCountsMatch(parentId)) {
+            return ProductListStatus.COMPLETE;
+        }
+        return ProductListStatus.PARTIALLY_COMPLETE;
+    }
+
+    private boolean doesParentAndChildrenProductListItemCountsMatch(int parentId) throws SQLException {
+        boolean result = false;
+
+        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call doesParentAndChildrenProductListItemCountsMatch(?) }")) {
+            cstmt.setInt(1, parentId);
+
+            if (cstmt.execute()) {
+                ResultSet rs = cstmt.getResultSet();
+
+                if (rs.next()) {
+                    result = rs.getBoolean("result");
+                }
+            }
+        }
+        return result;
     }
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductList getProductListById(int productListId) throws SQLException {
@@ -387,12 +414,12 @@ class OrderService extends MySqlDal  {
                     }
                 }
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Order create exception found when loading product list by id , Exception " + ex.getMessage())
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
@@ -424,45 +451,46 @@ class OrderService extends MySqlDal  {
     }
 
     //Update status in product list
-    private void confirmProductList(Connection connection, int productListId) throws SQLException {
+    private void confirmProductList(Connection connection, int productListId, ProductListStatus status) throws SQLException {
         CallableStatement cstmt
         try {
-            cstmt = connection.prepareCall("{ call saveProductList(?) }")
+            cstmt = connection.prepareCall("{ call saveProductList(?, ?) }")
             cstmt.setInt(1, productListId);
+            cstmt.setString(2, status.name());
             cstmt.executeUpdate();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Order create exception found when confirming product list , Exception " + ex.getMessage())
             throw ex
         }
     }
 
-    private void saveProductStock(Connection connection, uk.co.wonderlane.wlpos.entities.ProductVariant productVariant) throws SQLException{
+    private void saveProductStock(Connection connection, uk.co.wonderlane.wlpos.entities.ProductVariant productVariant) throws SQLException {
         CallableStatement cstmt
         try {
             cstmt = connection.prepareCall("{ call saveProductStock(?, ?, ?, ?, ?) }")
-            cstmt.setInt(1,  productVariant.getStoreId())
-            cstmt.setLong(2,  productVariant.getSku())
-            cstmt.setBigDecimal(3,  productVariant.getQuantityInStock())
-            cstmt.setBigDecimal(4,  productVariant.getQuantityOnOrder())
-            cstmt.setBigDecimal(5,  productVariant.getQuantityOnOrder())
+            cstmt.setInt(1, productVariant.getStoreId())
+            cstmt.setLong(2, productVariant.getSku())
+            cstmt.setBigDecimal(3, productVariant.getQuantityInStock())
+            cstmt.setBigDecimal(4, productVariant.getQuantityOnOrder())
+            cstmt.setBigDecimal(5, productVariant.getQuantityOnOrder())
             cstmt.execute();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Order create exception found when saving product stock , Exception " + ex.getMessage())
             throw ex
         }
     }
 
-    def saveProductDeliveries(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier){
-        int productListId = saveDeliveryProduct(connection, productList, type,  status, supplier)
+    def saveProductDeliveries(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier) {
+        int productListId = saveDeliveryProduct(connection, productList, type, status, supplier)
         HashMap<Integer, Integer> productDeliveryListItemMap = saveDeliveryProductItemList(connection, productList, productListId)
         saveDeliveryPackLines(connection, productList, productListId, productDeliveryListItemMap)
         return null
     }
 
     def saveDeliveryProduct(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier) throws SQLException {
-        int productListId = saveDeliveryProductList(connection, productList, type,  status)
+        int productListId = saveDeliveryProductList(connection, productList, type, status)
         updateListSupplier(connection, supplier, productListId)
         return productListId
     }
@@ -492,7 +520,7 @@ class OrderService extends MySqlDal  {
             if (resultSet.next()) {
                 return resultSet.getInt("id"); // This returns the id of the product list record created
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when saving delivery product list for non symbol group, Exception " + ex.getMessage())
             throw ex
         }
@@ -502,12 +530,13 @@ class OrderService extends MySqlDal  {
     private HashMap<Integer, Integer> saveDeliveryProductItemList(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, int deliveryListId) throws SQLException {
         CallableStatement stmt
         HashMap<Integer, Integer> productDeliveryListItemMap = new HashMap<>();
-        try{
-            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?) }")
+        try {
+            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?, ?) }")
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
                 BigDecimal stockInQuantity = productVariant.getQuantityInStock()
-                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity() : BigDecimal.ZERO,listItem.getFillQuantity())
+                Integer locationId = listItem.getLocation() == null ? null : listItem.getLocation().getId()
+                populateListItemInsertStatement(stmt, deliveryListId, -1, -1, listItem.getProductVariantId(), stockInQuantity, listItem.getQuantity() != null ? listItem.getQuantity() : BigDecimal.ZERO, listItem.getFillQuantity(), locationId)
                 if (stmt.execute()) {
                     ResultSet rs = stmt.getResultSet();
                     if (rs.next()) {
@@ -516,7 +545,7 @@ class OrderService extends MySqlDal  {
                     }
                 }
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when saving delivery product list items for non symbol group, Exception " + ex.getMessage())
             throw ex
         }
@@ -546,12 +575,12 @@ class OrderService extends MySqlDal  {
 
     /** =================================== Start saving product list items and packs method =========================================================== **/
 
-    private saveProductListsAndPackLines(Connection connection, PackLineRequestCommand packLineRequestCommand){
+    private saveProductListsAndPackLines(Connection connection, PackLineRequestCommand packLineRequestCommand) {
         int productListItemId = saveProductListItems(connection, packLineRequestCommand)
         saveOrderedPacks(connection, packLineRequestCommand, ProductListType.ORDER.toString(), productListItemId)
     }
 
-    private saveProductListItems(Connection connection, PackLineRequestCommand packLinesCommand){
+    private saveProductListItems(Connection connection, PackLineRequestCommand packLinesCommand) {
 
         uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(springSecurityService.principal.storeId, packLinesCommand.getProductVariantId())
         BigDecimal quantityInStock = productVariant.getQuantityInStock()
@@ -565,16 +594,16 @@ class OrderService extends MySqlDal  {
         CallableStatement cstmt
         int productListItemId = -1
         try {
-            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?) }")
-            populateListItemInsertStatement(cstmt, packLineRequestCommand.getProductListId(), packLineRequestCommand.getProductItemId(), -1, packLineRequestCommand.getProductVariantId(),quantityInStock,
-                    packLineRequestCommand.getQuantity(),packLineRequestCommand.getFillQuantity())
+            cstmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?, ?) }")
+            populateListItemInsertStatement(cstmt, packLineRequestCommand.getProductListId(), packLineRequestCommand.getProductItemId(), -1, packLineRequestCommand.getProductVariantId(), quantityInStock,
+                    packLineRequestCommand.getQuantity(), packLineRequestCommand.getFillQuantity(), null)
             if (cstmt.execute()) {
                 ResultSet rs = cstmt.getResultSet();
                 if (rs.next()) {
                     productListItemId = rs.getInt("productListItemId")
                 }
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when saving product list items, Exception " + ex.getMessage())
             throw ex
         }
@@ -582,9 +611,9 @@ class OrderService extends MySqlDal  {
         return productListItemId;
     }
 
-    private saveOrderedPacks(Connection connection,PackLineRequestCommand packLineRequest, String type, int productListItemId) throws SQLException {
+    private saveOrderedPacks(Connection connection, PackLineRequestCommand packLineRequest, String type, int productListItemId) throws SQLException {
         CallableStatement cstmt
-        try{
+        try {
             cstmt = connection.prepareCall("{ call savePackLine(?, ?, ?, ?, ?, ?) }")
             for (PackLinesCommand packLineCommand : packLineRequest.getPackLines()) {
                 populatePackLinesInsertStatement(cstmt, packLineRequest.getProductListId(), packLineCommand.getId(), packLineCommand.getQuantity(), packLineCommand.getOrderCode(), type, productListItemId)
@@ -592,7 +621,7 @@ class OrderService extends MySqlDal  {
                 cstmt.clearParameters()
             }
             cstmt.executeBatch()
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when saving order pack lines, Exception " + ex.getMessage())
             throw ex
         }
@@ -611,11 +640,11 @@ class OrderService extends MySqlDal  {
                 return mapProductVariant(rs);
             }
             return null
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when retrieving product variant from DB, Exception " + ex.getMessage())
             throw ex
-        }finally{
-            if (connection != null){
+        } finally {
+            if (connection != null) {
                 connection.close()
             }
         }
@@ -628,11 +657,11 @@ class OrderService extends MySqlDal  {
 
     private int deletePackLinesId(Connection connection, int productListItemId) throws SQLException {
         CallableStatement cstmt
-        try{
+        try {
             cstmt = connection.prepareCall("{ call deletePackLines(?) }")
             cstmt.setInt(1, productListItemId);
             cstmt.execute();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when deleting product pack lines by id, request is rollback , Exception " + ex.getMessage())
             throw ex
         }
@@ -641,11 +670,11 @@ class OrderService extends MySqlDal  {
 
     private int deleteProductListItemId(Connection connection, int productListItemId) throws SQLException {
         CallableStatement cstmt
-        try{
+        try {
             cstmt = connection.prepareCall("{ call deleteProductListItem(?) }")
             cstmt.setInt(1, productListItemId);
             cstmt.execute();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when deleting product list item by id, request is rollback , Exception " + ex.getMessage())
             throw ex
         }
@@ -654,11 +683,11 @@ class OrderService extends MySqlDal  {
 
     private void deleteProductListById(Connection connection, int productListId) throws SQLException {
         CallableStatement cstmt
-        try{
+        try {
             cstmt = connection.prepareCall("{ call deleteProductList(?) }")
             cstmt.setInt(1, productListId);
             cstmt.executeUpdate();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             log.error("Order create exception found when deleting order list by id, request is rollback , Exception " + ex.getMessage())
             throw ex
         }
@@ -811,7 +840,7 @@ class OrderService extends MySqlDal  {
         return productVariant;
     }
 
-    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productListItemGroupId, int productVariantId, BigDecimal productQuantityInStore, BigDecimal quantity, BigDecimal fillQuantity) {
+    private populateListItemInsertStatement(CallableStatement cstmt, int productListId, int productItemList, int productListItemGroupId, int productVariantId, BigDecimal productQuantityInStore, BigDecimal quantity, BigDecimal fillQuantity, Integer locationId) {
         cstmt.setInt(1, productListId)
         cstmt.setInt(2, productItemList)
         cstmt.setInt(3, productListItemGroupId)
@@ -833,9 +862,15 @@ class OrderService extends MySqlDal  {
         } else {
             cstmt.setNull(7, Types.DECIMAL)
         }
+
+        if (locationId != null) {
+            cstmt.setInt(8, locationId);
+        } else {
+            cstmt.setNull(8, Types.INTEGER);
+        }
     }
 
-    private populatePackLinesInsertStatement(CallableStatement cstmt, int productListId,  int packId, BigDecimal packQuantity, String orderCode, String type, int productListItemId){
+    private populatePackLinesInsertStatement(CallableStatement cstmt, int productListId, int packId, BigDecimal packQuantity, String orderCode, String type, int productListItemId) {
         cstmt.setInt(1, productListId)
         cstmt.setInt(2, productListItemId)
 
