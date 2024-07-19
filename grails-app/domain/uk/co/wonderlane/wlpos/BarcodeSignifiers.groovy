@@ -5,7 +5,7 @@ class BarcodeSignifiers {
     int id
     int retailerId
     String pattern
-    int startIndex
+    Integer startIndex
     Integer length
     String type
 
@@ -25,7 +25,7 @@ class BarcodeSignifiers {
     static constraints = {
         retailerId nullable: false
         pattern nullable: false
-        startIndex nullable: false
+        startIndex nullable: true
         length nullable: true
         type nullable: false
     }
