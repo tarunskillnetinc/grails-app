@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import org.hibernate.sql.JoinType
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 
@@ -13,7 +14,7 @@ class MemberTransactionService {
     }
 
     /* Returns all Member Transactions for the passed in search parameters */
-    def findAllTransactionsByMemberId(Integer id, String searchTerm, String searchBy, Double minAmount, Double maxAmount, DateTime startWindow, DateTime endWindow,
+    def findAllTransactionsByMemberId(Integer id, String searchTerm, String searchBy, BigDecimal minAmount, BigDecimal maxAmount, DateTime startWindow, DateTime endWindow,
                                         Integer max, Integer offset, String sortColumn, String sortOrder) {
         max = max ?: 20
         offset = offset ?: 0
@@ -48,7 +49,7 @@ class MemberTransactionService {
             }
 
             if (sortColumn == "storeName") {
-                createAlias("store", "s", org.hibernate.sql.JoinType.LEFT_OUTER_JOIN)
+                createAlias("store", "s", JoinType.LEFT_OUTER_JOIN)
                 order("s.name", sortOrder ?: "asc")
             } else {
                 order(sortColumn ?: "storeId", sortOrder ?: "asc")

@@ -19,7 +19,7 @@ class ReceiptController {
     }
 
     def ajaxGetReceipts() {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
         int max = params.max ? Integer.parseInt(params.max) : 50
@@ -86,5 +86,16 @@ class ReceiptController {
                                              firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
                                              maxTotalLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
                                              maxVatLength: receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM}?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+    }
+
+    def ajaxGetReceiptByTransaction(int transactionId, int storeId, int terminalId) {
+        def receipt = receiptService.getReceipt(transactionId, storeId, terminalId)
+        if (receipt != null) {
+            render(template: "receipt", model: [receipt              : receipt,
+                                                containsModifiers    : receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
+                                                firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
+                                                maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
+                                                maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+        }
     }
 }
