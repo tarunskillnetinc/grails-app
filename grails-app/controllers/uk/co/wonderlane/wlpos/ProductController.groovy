@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos
 import com.opencsv.bean.CsvBindByName
 import com.opencsv.bean.CsvToBeanBuilder
 import grails.converters.JSON
-import grails.databinding.BindingFormat
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.apache.commons.lang3.StringUtils
@@ -15,6 +14,7 @@ import org.joda.time.format.DateTimeFormatter
 import org.springframework.http.HttpStatus
 import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
+import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
@@ -472,8 +472,8 @@ class ProductController extends BaseController {
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
 
-                    if (!isValidBarcode(barcode)) {
-                        product.errors.reject('product.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                    if (!barcode.validate()) {
+                        handleBarcodeValidation(barcode, product)
                     }
                 }
 
@@ -785,8 +785,8 @@ class ProductController extends BaseController {
 
                         newVariant.barcodez.add(newBarcode)
 
-                        if (!isValidBarcode(newBarcode)) {
-                            product.errors.reject('product.barcodes.notUnique', [newBarcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                        if (!newBarcode.validate()) {
+                            handleBarcodeValidation(newBarcode, product)
                         }
                 })
 
@@ -828,11 +828,8 @@ class ProductController extends BaseController {
 
                 existingVariant.barcodez.add(barcode)
 
-                if (!isValidBarcode(barcode)) {
-                    product.errors.reject(
-                            'product.barcodes.notUnique',
-                            [barcode.barcode] as Object[],
-                            'Barcode {0} already exists on another SKU.')
+                 if (!barcode.validate()) {
+                     handleBarcodeValidation(barcode, product)
                 }
             } else { // If barcode do exists change update existing values
 
@@ -852,11 +849,8 @@ class ProductController extends BaseController {
                     futureBarcode.effectiveDate = effectiveDate
                     futureBarcode.recordStatus = 'C'
 
-                    if (!isValidBarcode(futureBarcode)) {
-                        product.errors.reject(
-                                'product.barcodes.notUnique',
-                                [futureBarcode.barcode] as Object[],
-                                'Barcode {0} already exists on another SKU.')
+                    if (!futureBarcode.validate()) {
+                        handleBarcodeValidation(futureBarcode, product)
                     } else {
                         //Add mark deleted barcode and newly updated barcode to add into DB
                         existingVariant.barcodez.add(existingBarcode)
@@ -1612,9 +1606,28 @@ class ProductController extends BaseController {
 
     }
 
-    def isValidBarcode(Barcode barcode) {
-        barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+    def handleBarcodeValidation(Barcode barcode, Product product) {
+        if (barcode == null || StringUtils.isEmpty(barcode.getBarcode())) {
+            product.errors.reject('product.barcodes.empty', 'Barcode is empty.')
+        }
+        if (barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
+            barcode.errors.allErrors
+                    .each { FieldError error ->
+                        final String field = error.field?.replace('profile.', '')
+                        final String code = "barcode.$field.$error.code"
+                        if (field == "barcode") {
+                            if (code == "barcode.barcode.patternMismatch") {
+                                product.errors.reject('product.barcodes.patternMismatch', [barcode.barcode] as Object[], 'Barcode {0} pattern is not valid for product barcode.')
+                            } else {
+                                product.errors.reject('product.barcodes.notUnique', [barcode.barcode] as Object[], 'Barcode {0} already exists on another SKU.')
+                            }
+                        } else {
+                            product.errors.rejectValue(field, code)
+                        }
+                    }
+        }
     }
+
 
     def ajaxCSVProductUpload() {
         def file = request.getFile('file')
