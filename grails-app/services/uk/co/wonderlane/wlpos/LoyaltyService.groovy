@@ -144,7 +144,7 @@ class LoyaltyService{
             SyncMessage loyaltyOfferSyncMessage = new SyncMessage(SyncMessageType.LOYALTY_OFFER, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
             loyaltyOfferSyncMessage.setInsert(true)
             loyaltyOfferSyncMessage.setLoyaltyOffer(updatedOffer.getLoyaltyOffer())
-            rabbitService.sendMessage(loyaltyOfferSyncMessage)
+            rabbitService.sendOfferAllocationMessage("DataSync", loyaltyOfferSyncMessage)
         }catch(Exception ex){
             log.error("Error at pushing updated loyalty offer into rabbitMQ, Exception " + ex)
             throw ex

@@ -187,8 +187,6 @@ class LoyaltyOffer {
         loyaltyOffer.setWeighting(weighting)
         loyaltyOffer.setRequiresActivation(requiresActivation)
         loyaltyOffer.setCustomAttributes(customAttributes)
-        loyaltyOffer.setDateCreated(dateCreated)
-        loyaltyOffer.setDateModified(dateModified)
         loyaltyOfferSegments.each {
             loyaltyOffer.getLoyaltyOfferSegments().add(it.getLoyaltyOfferSegments())
         }

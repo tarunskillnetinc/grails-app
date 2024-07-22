@@ -64,52 +64,37 @@
                 orientation: "bottom auto"
             });
 
-            // Add blur event listener to offer end date to validate and correct dates
-            $('#offerEndDateId').blur(function() {
-                if (!changingDate) {
-                    changingDate = true;
-                    validateAndCorrectDates();
-                    changingDate = false;
-                }
+            // Add event listeners to validate and correct dates
+            $('#offerEndDateId').on('change', function() {
+                validateAndCorrectDates();
             });
 
-            // Add blur event listener to offer start date to validate and correct dates
-            $('#offerStartDateId').blur(function() {
-                if (!changingDate) {
-                    changingDate = true;
-                    validateAndCorrectDates();
-                    changingDate = false;
-                }
+            $('#offerStartDateId').on('change', function() {
+                validateAndCorrectDates();
             });
 
             function validateAndCorrectDates() {
                 var startDate = $('#offerStartDateId').datepicker('getDate');
                 var endDate = $('#offerEndDateId').datepicker('getDate');
                 var today = new Date();
+                today.setHours(0, 0, 0, 0);  // Reset time components to 00:00:00 to compare dates only
 
-                // Reset time components to 00:00:00 to compare dates only
-                today.setHours(0, 0, 0, 0);
-
-                // If startDate is null or empty, set it to today
                 if (!startDate) {
                     startDate = today;
                     $('#offerStartDateId').datepicker('setDate', startDate);
                 }
 
-                // Re-fetch startDate after potential adjustments
-                startDate = $('#offerStartDateId').datepicker('getDate');
-
-                // If endDate is null or empty, set it to one week from startDate
                 if (!endDate) {
                     endDate = new Date(startDate);
                     endDate.setDate(startDate.getDate() + 7);
                     $('#offerEndDateId').datepicker('setDate', endDate);
                 }
 
-                // Re-fetch endDate after potential adjustment
+                // Ensure startDate is not null after setting default value
+                startDate = $('#offerStartDateId').datepicker('getDate');
                 endDate = $('#offerEndDateId').datepicker('getDate');
 
-                // Ensure startDate is less than endDate
+                // Ensure startDate is less than or equal to endDate
                 if (endDate <= startDate) {
                     endDate = new Date(startDate);
                     endDate.setDate(startDate.getDate() + 7);
@@ -118,7 +103,7 @@
             }
 
             // Fill start date if it's empty when losing focus
-            $('#offerStartDateId').blur(function() {
+            $('#offerStartDateId').on('blur', function() {
                 var startDate = $(this).datepicker('getDate');
                 if (!startDate) {
                     var today = new Date();
@@ -128,7 +113,7 @@
             });
 
             // Fill end date if it's empty when losing focus
-            $('#offerEndDateId').blur(function() {
+            $('#offerEndDateId').on('blur', function() {
                 var endDate = $(this).datepicker('getDate');
                 if (!endDate) {
                     var startDate = $('#offerStartDateId').datepicker('getDate') || new Date();
