@@ -463,11 +463,11 @@ class LoyaltyController {
             DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : DateTime.now(DateTimeZone.UTC).plusDays(7)
 
             //load all promotions for retailer
-            List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
+            //List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
+            def promotions = promotionService.searchPromotions(DateTime.now(DateTimeZone.UTC), null, null, "", false, null, null, null, null,
+                    null, null, true)
             List<uk.co.wonderlane.wlpos.entities.Promotion> promotionEntityList = new ArrayList<>()
-            for (Promotion promotion : promotions) {
-                promotionEntityList.add(promotion.getPromotion())
-            }
+            promotions?.each {promotion -> promotionEntityList.add(promotion.getPromotion())}
 
             //load all segments for retailer
             List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)

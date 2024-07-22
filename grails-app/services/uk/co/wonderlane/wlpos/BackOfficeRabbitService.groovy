@@ -170,4 +170,8 @@ class BackOfficeRabbitService extends RabbitService {
             sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         }
     }
+
+    void sendOfferAllocationMessage(String exchange, SyncMessage loyaltyOfferSyncMessage){
+        sendExchangeMessage(exchange, gson.toJson(loyaltyOfferSyncMessage))
+    }
 }
