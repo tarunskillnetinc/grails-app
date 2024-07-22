@@ -62,7 +62,7 @@ class LoyaltyController {
     }
 
     def showMemberDetails(String cardNumber) {
-        int availableLoyaltyOffers = 0;
+        int availableLoyaltyOffers = 0
         def member = loyaltyMemberService.findByCardNumber(cardNumber)
         if (member && member?.offers ) {
             availableLoyaltyOffers = member?.offers?.size()
@@ -281,8 +281,8 @@ class LoyaltyController {
         String cardNumber
         String searchBy
         String searchTerm
-        double minAmount
-        double maxAmount
+        BigDecimal minAmount
+        BigDecimal maxAmount
         DateTime startWindow
         DateTime endWindow
         Integer max
@@ -294,8 +294,8 @@ class LoyaltyController {
             cardNumber = params.cardNumber
             searchBy = params.searchBy ? params.searchBy : ""
             searchTerm = params.searchTerm ? params.searchTerm : ""
-            minAmount = params.minAmount ? Double.parseDouble(params.minAmount) : 0
-            maxAmount = params.maxAmount ? Double.parseDouble(params.maxAmount) : 0
+            minAmount = params.minAmount ? BigDecimal.valueOf(Double.parseDouble(params.minAmount)) : 0
+            maxAmount = params.maxAmount ? BigDecimal.valueOf(Double.parseDouble(params.maxAmount)) : 0
             startWindow = params.startWindow ? DateTime.parse(params.startWindow, dateFormatter) : null
             endWindow = params.endWindow ? DateTime.parse(params.endWindow, dateFormatter).plusDays(1) : null
             max = params.max ? Integer.parseInt(params.max) : null
@@ -367,7 +367,7 @@ class LoyaltyController {
                                                          totalResults: results["totalResults"]])
     }
 
-    private String validateSortColumn(String sortColumn) {
+    private static String validateSortColumn(String sortColumn) {
         def availableColumns = [ "cardNumber", "email", "firstName", "lastName", "storeId", "storeName", "transactionId", "status",
                                  "transactionTotal", "transactionTimestamp", "startDate", "endDate", "offerDescription", "currentRedemptions", "remainingRedemptions" ]
 
@@ -380,7 +380,7 @@ class LoyaltyController {
         }
     }
 
-    private String validateSortOrder(String sortOrder) {
+    private static String validateSortOrder(String sortOrder) {
         def availableOrders = [ "asc", "desc" ]
 
         if (!sortOrder) {
@@ -555,7 +555,7 @@ class LoyaltyOfferCommand {
     Date endDate
     BigDecimal maxBudget
     int maxRedemptions
-    Collection<LoyaltyOfferSegmentCommand> loyaltyOfferSegments = new ArrayList<>();
+    Collection<LoyaltyOfferSegmentCommand> loyaltyOfferSegments = new ArrayList<>()
 
 }
 

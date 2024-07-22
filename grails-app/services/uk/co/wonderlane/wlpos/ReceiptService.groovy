@@ -50,4 +50,15 @@ class ReceiptService {
             }
         }
     }
+
+    def getReceipt(int transactionId, int storeId, int tillId) {
+        def receiptCriteria = Receipt.createCriteria()
+
+        return receiptCriteria.get() {
+            eq ("transactionId", transactionId)
+            eq ("storeId", storeId)
+            eq("tillId", tillId)
+            eq ("retailerId", springSecurityService.principal.retailerId)
+        }
+    }
 }
