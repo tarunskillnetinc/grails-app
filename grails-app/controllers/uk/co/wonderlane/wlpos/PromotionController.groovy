@@ -104,6 +104,7 @@ class PromotionController {
         }
 
         session.addedStores = !promo.storeIds.isEmpty() ? Store.findAllByIdInList(promo.storeIds) : []
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
 
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
@@ -115,7 +116,8 @@ class PromotionController {
                                             tagsOffer: tagsOffer,
                                             productItemType: productItemType,
                                             editing: true,
-                                            addedStores: session.addedStores])
+                                            addedStores: session.addedStores,
+                                            loyaltyEnable: loyaltyEnable])
     }
 
     def maintenanceError() {
@@ -182,6 +184,8 @@ class PromotionController {
             productItemType = "tag"
         }
 
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+
         render (view: 'maintenance', model:[promotion: promo,
                                             promoType: promo.type.toString().toLowerCase(),
                                             productsRequired: productsRequired,
@@ -190,7 +194,8 @@ class PromotionController {
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
-                                            productItemType: productItemType])
+                                            productItemType: productItemType,
+                                            loyaltyEnable: loyaltyEnable])
     }
 
     def add() {
@@ -200,7 +205,9 @@ class PromotionController {
         List<Map> categoriesOffer = new ArrayList<>()
         List<Map> tagsRequired = new ArrayList<>()
         List<Map> tagsOffer = new ArrayList<>()
-        
+
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+
         render (view: 'maintenance', model:[promotion: null,
                                             promoType: 'bogof',
                                             productsRequired: productsRequired,
@@ -209,7 +216,8 @@ class PromotionController {
                                             categoriesOffer: categoriesOffer,
                                             tagsRequired: tagsRequired,
                                             tagsOffer: tagsOffer,
-                                            editing: false])
+                                            editing: false,
+                                            loyaltyEnable: loyaltyEnable])
     }
 
     def setupBasePromotion(Promotion promotion, String type) {
