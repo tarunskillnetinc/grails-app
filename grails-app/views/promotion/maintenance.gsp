@@ -124,6 +124,8 @@
                     $('.promo-amount').removeClass("is-invalid");
                 });
 
+                $('.promo-loyalty').attr("disabled", ${!loyaltyEnable});
+
                 applyListeners();
             });
 
