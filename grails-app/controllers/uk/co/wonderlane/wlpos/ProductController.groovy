@@ -1303,10 +1303,10 @@ class ProductController extends BaseController {
         return productHistory
     }
 
-    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
+    def ajaxSearchCategories(String searchTerm, boolean triggerOnCategoryChange, int level, int selectedCategoryId) {
         def searchResults = baseSearchCategories(searchTerm)
         boolean isSearch = searchTerm?.length() > 0
-        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
+        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
     }
 
     def ajaxGetChildCategories(int categoryId, int level, int selectedCategoryId, boolean triggerOnCategoryChange) {

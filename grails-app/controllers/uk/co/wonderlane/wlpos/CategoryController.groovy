@@ -45,10 +45,10 @@ class CategoryController extends BaseController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxSearchMaintenanceCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
+    def ajaxSearchMaintenanceCategories(String searchTerm, boolean triggerOnCategoryChange, int level, int selectedCategoryId) {
         def searchResults = baseSearchCategories(searchTerm)
         boolean isSearch = searchTerm?.length() > 0
-        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
+        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
