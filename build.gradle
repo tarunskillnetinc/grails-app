@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.14.38-SNAPSHOT"
+version "1.14.39-SNAPSHOT-STMP"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.14.96-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.14.111-SNAPSHOT-STMP'
 
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
