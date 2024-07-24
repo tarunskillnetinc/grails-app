@@ -118,7 +118,7 @@
                     errorString = errorString.concat("<li>Please enter a value for the remaining redemptions</li>");
                     error = true;
                 }
-                if ((new Date($('#endDateFilter').val())).getTime() <= (new Date($('#startDateFilter').val())).getTime()) {
+                if ($('#endDateFilter').datepicker('getDate') <= $('#startDateFilter').datepicker('getDate')) {
                     errorString = errorString.concat("<li>End date must be after start date</li>");
                     error = true;
                 }
