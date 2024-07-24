@@ -150,6 +150,8 @@ class ProductService extends MySqlDal {
     }
 
    boolean isLocationValid(Product product, ProductCommand editedProduct){
+       def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+       List selectedHierarchy = new ArrayList()
        def isValid = true
 
        for (ProductVariant pv : product?.variants){
@@ -163,6 +165,30 @@ class ProductService extends MySqlDal {
            }
        }
 
+       if (locationsType ==  LocationsType.ADVANCED.name()) {
+           for (ProductVariantCommand pv : editedProduct?.variants) {
+               for (LocationCommand location : pv.locationz){
+                   //Validate entered value for location number is numeric or not -> Only numeric allowed
+                   if (location.getLocationNumber() != null && !location.getLocationNumber().isEmpty() && !location.getLocationNumber().matches("-?\\d+(\\.\\d+)?(?:\\s*\\d+(\\.\\d+)?)?")){
+                       product.errors.reject('product.location.number.validation.error', [location.getLocationNumber(), String.valueOf(pv.sku)] as Object[],
+                               'product.location.number.validation.error.default')
+                       isValid = false
+                       break
+                   }
+                   selectedHierarchy.add(location.locationHierarchy)
+               }
+           }
+       }
+
+       // If there is an error loop over to add previously db saved entries into response product
+       if (!isValid){
+           product.variants.forEach {
+               variant -> {
+                   variant.locationz =
+                           editedProduct?.variants?.find(it -> it.id = variant.id)?.locationz ?: variant.locations
+               }
+           }
+       }
        return isValid;
     }
 
@@ -577,6 +603,7 @@ class ProductService extends MySqlDal {
                     result.productItemCode = rs.getString("productItemCode")
                     result.productDescription = rs.getString("productDescription")
                     result.rangeId = rs.getInt("rangeId")
+                    result.deleted = rs.getBoolean("deleted")
 
                     results.add(result)
                 }
@@ -596,6 +623,11 @@ class ProductService extends MySqlDal {
     }
 
     def saveRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.save()
+    }
+
+    def undeleteRangeProduct(RangeProduct rangeProduct) {
+        rangeProduct?.deleted = false
         rangeProduct?.save()
     }
 

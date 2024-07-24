@@ -31,6 +31,8 @@ class ProductListController {
 
     def ajaxGetCentralCounts(String searchTerm, String searchBy) {
 
+        session.CENTRAL_COUNT_SEARCH_TERM = searchTerm
+
         def productLists = productListService.getCentralCounts(
                 searchTerm, searchBy,
                 params.offset ? Integer.parseInt(params.offset) : 0,
@@ -48,7 +50,7 @@ class ProductListController {
 
     def addCentralCount() {
         def retailerId = springSecurityService.principal.retailerId
-        availableStores = storeService.getStores(retailerId)
+        availableStores = storeService.getActiveStores(retailerId)
 
         [availableStores: availableStores]
     }
@@ -64,12 +66,13 @@ class ProductListController {
         }
 
         def productListsToBeSaved = new ArrayList()
+        // Define an empty list to store failed product lists
+        def failedProductLists = []
 
         for (int storeId : cmd.storeIdList) {
-            def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
+            def storeSettings = storeService.getStore(springSecurityService.principal.retailerId, storeId)
 
             def productList = new ProductList()
-
             productList.properties = cmd.properties
 
             productList.userId = springSecurityService.principal.id
@@ -80,16 +83,23 @@ class ProductListController {
                 productList.endDate = productList.endDate.plusDays(1)
             }
 
-            if (cmd.productVariantId) {
-                cmd.productVariantId.each {
-                    def productVariant = productService.getProductVariant(it)
+            productList.setEndDate(productList.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
 
-                    if (productVariant) {
-                        ProductListItem productListItem = new ProductListItem()
-                        productListItem.productVariant = productVariant
-                        productListItem.fillQuantity = 0
-                        productListItem.productList = productList
-                        productList.productListItems.add(productListItem)
+            if (cmd.productIds) {
+                // Loop over each product
+                cmd.productIds.each {
+                    RangeProduct rangeProduct = RangeProduct.findByProductIdAndRange(it, Range.load(storeSettings.getRangeId()))
+                    if (rangeProduct && !rangeProduct.getDeleted()) {
+                        ProductVariant[] variants = ProductVariant.findAllByProduct(Product.load(it))
+                        ProductVariant productVariant = variants?.sort {v -> v.storeId }?.reverse()?.find {v -> v.storeId == null || v.storeId == storeId }
+                        if (productVariant) {
+                            ProductListItem productListItem = new ProductListItem()
+                            productListItem.productVariant = productVariant
+                            productListItem.fillQuantity = 0
+                            productListItem.productList = productList
+                            productListItem.productQuantityInStock = productVariant.getProductStock(storeId)?.quantityInStock ?: 0
+                            productList.productListItems.add(productListItem)
+                        }
                     }
                 }
             }
@@ -99,12 +109,21 @@ class ProductListController {
                 return
             }
 
-            productListsToBeSaved.add(productList)
+            if (productList.getProductListItems().size() > 0) {
+                productListsToBeSaved.add(productList)
+            } else {
+                failedProductLists.add(productList)
+            }
         }
 
         try {
             productListService.saveProductLists(productListsToBeSaved)
-            flash.message = "Central count saved successfully."
+            if (productListsToBeSaved.size() > 0) {
+                flash.message = "Central count saved successfully."
+            }
+            if (failedProductLists.size() > 0) {
+                flash.warning = failedProductLists.size() + " Central count could not be created due to product ranging"
+            }
             redirect(action: "listCentralCounts")
         } catch (Exception e) {
             e.printStackTrace()
@@ -120,6 +139,8 @@ class ProductListController {
                 productList.errors.rejectValue("productListItems", code)
             } else if (field == "storeIdList") {
                 productList.errors.reject("productList.centralCount.noStoreSelected")
+            } else if (field == "productListItems") {
+                productList.errors.reject("productList.centralCount.noProductSelected")
             } else {
                 productList.errors.rejectValue(field, code)
             }
@@ -145,6 +166,7 @@ class SaveCentralCountCommand {
     ProductListType type = ProductListType.SCHEDULED_COUNT
     ProductListStatus status = ProductListStatus.PENDING
     Integer[] productVariantId
+    Integer[] productIds
     List<Integer> storeIdList = new ArrayList<>()
 
     static constraints = {
@@ -152,6 +174,7 @@ class SaveCentralCountCommand {
         startDate nullable: false
         endDate nullable: false
         productVariantId nullable: false
+        productIds nullable: false
         storeIdList validator: {
             if (it.size() == 0) {
                 ["productList.centralCount.noStoreSelected"]
