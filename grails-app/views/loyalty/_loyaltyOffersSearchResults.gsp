@@ -62,7 +62,7 @@
             <div id="count-${i + 1}" class="col-1">${offer.currentRedemptions}</div>
             <div id="count-${i + 1}" class="col-1">${offer.maxRedemptions}</div>
             <div id="count-${i + 1}" class="col-1">${offer.maxBudget}</div>
-            <div id="count-${i + 1}" class="col-1">${offer.currentBudget}</div>
+            <div id="count-${i + 1}" class="col-1">${offer?.maxBudget ? (offer.maxBudget - offer.currentBudget): ''}</div>
         </div>
     </g:each>
 </div>
