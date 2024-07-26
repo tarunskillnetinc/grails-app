@@ -129,9 +129,11 @@
     <g:if test="${flash.error}">
         <section id="errors-container2" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:each in="${flash.error}" var="error" status="i">
-                    ${error}<br/>
-                </g:each>
+                <ul>
+                    <g:each in="${flash.error}" var="error" status="i">
+                        <li>${error}</li>
+                    </g:each>
+                </ul>
             </div>
         </section>
     </g:if>

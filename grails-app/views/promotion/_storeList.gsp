@@ -2,6 +2,7 @@
     <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No stores found.</div>
 </g:if>
 
+<g:hiddenField name="store-required" value="${addedStores ? addedStores?.size() : 0}"/>
 <g:each in="${addedStores}" var="store" status="i">
     <div id="store-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable">
         <div id="store-number-${i + 1}" class="col-2 my-auto">${store.config.storeNumber}</div>
