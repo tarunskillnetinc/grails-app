@@ -12,6 +12,7 @@ import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
+import uk.co.wonderlane.wlpos.utils.QuantityHelper
 
 import java.sql.*
 import java.util.Date
@@ -786,7 +787,7 @@ class ProductService extends MySqlDal {
         if (resultSet.wasNull()) {
             productVariant.setColour(null);
         }
-        productVariant.setQuantityOnOrder(resultSet.getInt("quantityOnOrder"))
+        productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
         productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
 

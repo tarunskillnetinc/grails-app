@@ -467,7 +467,6 @@ class ProductListService extends MySqlDal {
             productList.setRetailerListId(null)
         }
 
-
         return productList
     }
 
