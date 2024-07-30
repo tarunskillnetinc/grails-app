@@ -471,9 +471,9 @@ class OrderService extends MySqlDal {
             cstmt = connection.prepareCall("{ call saveProductStock(?, ?, ?, ?, ?) }")
             cstmt.setInt(1, productVariant.getStoreId())
             cstmt.setLong(2, productVariant.getSku())
-            cstmt.setBigDecimal(3, productVariant.getQuantityInStock())
-            cstmt.setBigDecimal(4, productVariant.getQuantityOnOrder())
-            cstmt.setBigDecimal(5, productVariant.getQuantityOnOrder())
+            cstmt.setBigDecimal(3, productVariant.getQuantityInStock() != null ? productVariant.getQuantityInStock() : BigDecimal.ZERO)
+            cstmt.setBigDecimal(4, productVariant.getQuantityOnOrder() != null ? productVariant.getQuantityOnOrder() : BigDecimal.ZERO)
+            cstmt.setBigDecimal(5, productVariant.getQuantityOnOrder() != null ? productVariant.getQuantityOnOrder() : BigDecimal.ZERO)
             cstmt.execute();
         } catch (Exception ex) {
             ex.printStackTrace()
@@ -860,7 +860,7 @@ class OrderService extends MySqlDal {
         if (fillQuantity != null) {
             cstmt.setBigDecimal(7, fillQuantity)
         } else {
-            cstmt.setNull(7, Types.DECIMAL)
+            cstmt.setBigDecimal(7, BigDecimal.ZERO)
         }
 
         if (locationId != null) {
