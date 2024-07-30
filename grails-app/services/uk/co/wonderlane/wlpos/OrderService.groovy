@@ -353,7 +353,7 @@ class OrderService extends MySqlDal {
     private boolean doesParentAndChildrenProductListItemCountsMatch(int parentId) throws SQLException {
         boolean result = false
 
-        try (Connection conn = getConnection() CallableStatement cstmt = conn.prepareCall("{ call doesParentAndChildrenProductListItemCountsMatch(?) }")) {
+        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call doesParentAndChildrenProductListItemCountsMatch(?) }")) {
             cstmt.setInt(1, parentId)
 
             if (cstmt.execute()) {

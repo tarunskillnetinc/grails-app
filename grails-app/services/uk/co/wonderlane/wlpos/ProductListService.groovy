@@ -440,7 +440,7 @@ class ProductListService extends MySqlDal {
             productList.setReasonDescription(null)
         }
 
-        productList.setStockAdjustedOnCompletion(rs.getBoolean("stockAdjustedOnCompletion"));
+        productList.setStockAdjustedOnCompletion(rs.getBoolean("stockAdjustedOnCompletion"))
         productList.setStartDate(new DateTime(rs.getTimestamp("startDate")).withZoneRetainFields(DateTimeZone.UTC))
         if (rs.wasNull()) {
             productList.setStartDate(null)
@@ -461,8 +461,8 @@ class ProductListService extends MySqlDal {
             productList.setSupplierReference(null)
         }
 
-        productList.setDestinationStore(rs.getInt("destinationStoreId"));
-        productList.setRetailerListId(rs.getString("retailerListId"));
+        productList.setDestinationStore(rs.getInt("destinationStoreId"))
+        productList.setRetailerListId(rs.getString("retailerListId"))
         if (rs.wasNull()) {
             productList.setRetailerListId(null)
         }
