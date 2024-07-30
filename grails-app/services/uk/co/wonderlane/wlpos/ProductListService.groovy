@@ -176,9 +176,7 @@ class ProductListService extends MySqlDal {
             productList.dateStarted = productList.dateStarted ?: DateTime.now(DateTimeZone.UTC)
             productList.dateCompleted = DateTime.now(DateTimeZone.UTC)
 
-            uk.co.wonderlane.wlpos.entities.wlim.ProductList productListToSend = getProductListById(productListId)
-            sendProductListExportRequest(productListToSend)
-            productList.save(deepValidate: false) // deepValidate = false so it won't go through and validate every ProductVariant in every ProductListLine etc.
+            productList.save(deepValidate: false, flush: true) // deepValidate = false so it won't go through and validate every ProductVariant in every ProductListLine etc.
         }
     }
 
@@ -442,6 +440,7 @@ class ProductListService extends MySqlDal {
             productList.setReasonDescription(null)
         }
 
+        productList.setStockAdjustedOnCompletion(rs.getBoolean("stockAdjustedOnCompletion"));
         productList.setStartDate(new DateTime(rs.getTimestamp("startDate")).withZoneRetainFields(DateTimeZone.UTC))
         if (rs.wasNull()) {
             productList.setStartDate(null)
@@ -461,6 +460,13 @@ class ProductListService extends MySqlDal {
         if (rs.wasNull()) {
             productList.setSupplierReference(null)
         }
+
+        productList.setDestinationStore(rs.getInt("destinationStoreId"));
+        productList.setRetailerListId(rs.getString("retailerListId"));
+        if (rs.wasNull()) {
+            productList.setRetailerListId(null)
+        }
+
 
         return productList
     }
@@ -512,6 +518,11 @@ class ProductListService extends MySqlDal {
         }
         productListItemMap.put(productItemId, productListItem)
         return productListItem
+    }
+
+    def sendProductListExportRequest(int productListId) {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productListToSend = getProductListById(productListId)
+        sendProductListExportRequest(productListToSend)
     }
 
     def sendProductListExportRequest(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList) {
