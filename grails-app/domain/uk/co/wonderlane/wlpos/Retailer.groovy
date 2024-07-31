@@ -7,7 +7,6 @@ import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
 class Retailer implements Serializable {
 
     def gson = new GsonBuilder().registerTypeAdapter(boolean.class, new BooleanTypeAdapter()).create()
-    def retailerProvider
 
     int id
     String name
