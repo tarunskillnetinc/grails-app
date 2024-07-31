@@ -12,6 +12,8 @@ import com.google.gson.JsonSerializer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.ISODateTimeFormat
+import uk.co.wonderlane.wlpos.requests.clientexport.StockTransaction
+import uk.co.wonderlane.wlpos.utils.PropertyBasedInterfaceMarshal
 
 import java.lang.reflect.Type
 
@@ -33,6 +35,7 @@ class GsonProvider {
                         return ISODateTimeFormat.dateTime().parseDateTime(json.getAsString()).withZone(DateTimeZone.UTC)
                     }
                 })
+                .registerTypeAdapter(StockTransaction.class, new PropertyBasedInterfaceMarshal())
                 .create()
     }
 

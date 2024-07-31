@@ -1198,6 +1198,7 @@ class ReportingController {
         // Head office or correct store level can accept this delivery.
         if (springSecurityService.principal.storeId == null || (springSecurityService.principal.storeId == productList?.store?.id)) {
             productListService.acceptDelivery(productListId)
+            productListService.sendProductListExportRequest(productListId)
         }
 
         response.status = 200
