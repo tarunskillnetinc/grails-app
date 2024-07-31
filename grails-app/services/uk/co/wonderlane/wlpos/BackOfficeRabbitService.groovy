@@ -172,6 +172,8 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     void sendOfferAllocationMessage(String exchange, SyncMessage loyaltyOfferSyncMessage){
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
+        declareExchange(exchange)
         sendExchangeMessage(exchange, gson.toJson(loyaltyOfferSyncMessage))
     }
 }
