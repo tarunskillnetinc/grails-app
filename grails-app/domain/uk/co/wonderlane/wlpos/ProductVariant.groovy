@@ -1,13 +1,12 @@
 package uk.co.wonderlane.wlpos
 
 import org.grails.web.util.WebUtils
-import uk.co.wonderlane.wlpos.enums.LocationsType
-
-import java.math.RoundingMode
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.supplier.Pack
 
+import java.math.RoundingMode
 import java.util.stream.Collectors
 
 class ProductVariant implements Serializable {

@@ -51,7 +51,7 @@ class BarcodeSignifier {
         }
         retailerId blank: true, nullable: true, validator: { val, obj ->
             if (val == null) {
-                return ['signifier.retailerId.required']
+                return ['common.retailerId.required']
             }
         }
         type blank: true, nullable: true, validator: { val, obj ->

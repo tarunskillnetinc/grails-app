@@ -1,8 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 

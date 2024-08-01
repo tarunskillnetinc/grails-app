@@ -4,11 +4,7 @@ import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.gorm.DataTest
 import grails.testing.web.controllers.ControllerUnitTest
 import uk.co.wonderlane.wlpos.helpers.TestPagedResultList
-import uk.co.wonderlane.wlpos.reporting.PromotionSale
-import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
-import uk.co.wonderlane.wlpos.reporting.Sale
-import uk.co.wonderlane.wlpos.reporting.SaleCategory
-import uk.co.wonderlane.wlpos.reporting.SortParams
+import uk.co.wonderlane.wlpos.reporting.*
 
 class ReportingControllerPromotionsSpec extends ReportingControllerSpecBase implements ControllerUnitTest<ReportingController>, DataTest {
     Class<?>[] getDomainClassesToMock() {

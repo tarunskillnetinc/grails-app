@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.joda.time.DateTime
@@ -18,7 +17,6 @@ import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
-import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 @Transactional

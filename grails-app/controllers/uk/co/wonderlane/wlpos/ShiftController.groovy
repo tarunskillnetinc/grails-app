@@ -2,8 +2,8 @@ package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
@@ -12,7 +12,6 @@ import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.Location
-import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 class ShiftController {
 

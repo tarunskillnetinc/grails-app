@@ -3,18 +3,17 @@ package uk.co.wonderlane.wlpos
 import io.micronaut.http.MediaType
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException
 import org.codehaus.groovy.runtime.InvokerHelper
+import uk.co.wonderlane.wlpos.entities.ImageRecord
 import uk.co.wonderlane.wlpos.entities.SyncMessage
-import uk.co.wonderlane.wlpos.enums.SyncMessageType
-import uk.co.wonderlane.wlpos.enums.ButtonType
-import uk.co.wonderlane.wlpos.enums.ButtonGridType
-import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.enums.*
 
 class ButtonController {
 
     def springSecurityService
     def productService
     def buttonService
-    def imageService
+    IImageService imageService
+    def imageRecordService
     def rabbitService
     def gsonProvider
 
@@ -269,15 +268,17 @@ class ButtonController {
     }
 
     private void buildAndSendButtonImageMessage(Button button) {
-        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_IMAGE)
+        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.IMAGE_SYNC)
         syncMessage.setTransactionId(button.id)
 
         if (button.imageDisplay) {
-            byte[] image = imageService.getButtonImage(button.id)
-
             syncMessage.setInsert(true)
-            syncMessage.setByteArray(image)
+            syncMessage.setImageRecord(imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id))
         } else {
+            syncMessage.setImageRecord(new ImageRecord(
+                    imageId: button.id,
+                    type: ImageType.BUTTON
+            ))
             syncMessage.setInsert(false)
         }
 

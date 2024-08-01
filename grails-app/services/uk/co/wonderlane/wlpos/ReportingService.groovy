@@ -8,15 +8,7 @@ import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
-import uk.co.wonderlane.wlpos.reporting.PayPointSale
-import uk.co.wonderlane.wlpos.reporting.PromotionSale
-import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
-import uk.co.wonderlane.wlpos.reporting.ReportType
-import uk.co.wonderlane.wlpos.reporting.Sale
-import uk.co.wonderlane.wlpos.reporting.SaleCategory
-import uk.co.wonderlane.wlpos.reporting.TenderMovement
-import uk.co.wonderlane.wlpos.reporting.TillControlEvent
-import uk.co.wonderlane.wlpos.reporting.ReportColumns
+import uk.co.wonderlane.wlpos.reporting.*
 
 @Transactional("reporting")
 class ReportingService {

@@ -1,5 +1,5 @@
-import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.Category
+import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 

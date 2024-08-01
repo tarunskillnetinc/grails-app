@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import uk.co.wonderlane.wlpos.entities.ImageRecord
+
 interface IImageService {
 
     def getButtonImage(int buttonId) throws Exception

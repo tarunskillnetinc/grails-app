@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos
 import com.opencsv.bean.CsvBindByName
 import com.opencsv.bean.CsvToBeanBuilder
 import grails.converters.JSON
-import grails.databinding.BindingFormat
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.apache.commons.lang3.StringUtils

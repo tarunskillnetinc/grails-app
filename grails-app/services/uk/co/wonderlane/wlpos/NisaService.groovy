@@ -16,11 +16,7 @@ import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
 import java.nio.charset.StandardCharsets
-import java.sql.CallableStatement
-import java.sql.Connection
-import java.sql.ResultSet
-import java.sql.SQLException
-import java.sql.Types
+import java.sql.*
 import java.util.zip.GZIPInputStream
 
 @Transactional
