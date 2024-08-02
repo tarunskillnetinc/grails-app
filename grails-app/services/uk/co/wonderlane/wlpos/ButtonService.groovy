@@ -8,7 +8,6 @@ import uk.co.wonderlane.wlpos.enums.ProcessType
 class ButtonService {
 
     def springSecurityService
-    def imageRecordService
 
     def saveButton(Button button) {
         button.save()

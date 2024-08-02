@@ -179,12 +179,7 @@ beans = {
         messageSource = ref('messageSource')
     }
 
-    imageRecordService(ImageRecordService,
-            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
-                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
-                    grailsApplication.config.getProperty('mysql.wlpos.username'),
-                    grailsApplication.config.getProperty('mysql.wlpos.password'),
-                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+    imageRecordService(ImageRecordService) {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
     }
@@ -195,8 +190,7 @@ beans = {
         environments {
             development {
                 //Can be tested with local s3 bucket
-                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
-                    imageRecordService = ref('imageRecordService')
+                imageService(AmazonImageService) {
                     s3Client = S3Client.builder()
                             .region(Region.US_EAST_1)
                             .endpointOverride(URI.create("http://localhost:" + grailsApplication.config.getProperty('wlpos.localeS3Port')))
@@ -204,51 +198,52 @@ beans = {
                                     grailsApplication.config.getProperty('wlpos.localeS3SecretKey'))))
                             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                             .build();
+                    config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
             }
             hades {
-                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
-                    imageRecordService = ref('imageRecordService')
+                imageService(AmazonImageService) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
             }
             persephone {
-                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
-                    imageRecordService = ref('imageRecordService')
+                imageService(AmazonImageService) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
             }
             cerberus {
-                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
-                    imageRecordService = ref('imageRecordService')
+                imageService(AmazonImageService) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
             }
             preprod {
-                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
-                    imageRecordService = ref('imageRecordService')
+                imageService(AmazonImageService) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')
                 }
             }
             production {
-                imageService(AmazonImageService, grailsApplication.config.getProperty('wlpos.customerDisplayImageBucket'), grailsApplication.config.getProperty('wlpos.receiptImageBucket'), grailsApplication.config.getProperty('wlpos.buttonImageBucket')) {
-                    imageRecordService = ref('imageRecordService')
+                imageService(AmazonImageService) {
                     s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+                    config = grailsApplication.config
                 }
                 brandAssetsService(AmazonBrandAssetsService, grailsApplication.config.getProperty('wlpos.brandAssetsBucket')) {
                     springSecurityService = ref('springSecurityService')

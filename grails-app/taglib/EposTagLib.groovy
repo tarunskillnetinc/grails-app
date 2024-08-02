@@ -1,5 +1,7 @@
 import uk.co.wonderlane.wlpos.Category
 import uk.co.wonderlane.wlpos.Group
+import uk.co.wonderlane.wlpos.ImageRecord
+import uk.co.wonderlane.wlpos.enums.ImageType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
@@ -14,6 +16,7 @@ class EposTagLib {
     def productService
     def promotionService
     def imageService
+    def imageRecordService
 
     def quicksellMenu = { attrs, body ->
         def buttonGrids = buttonService.getOtherButtonGrids()
@@ -260,7 +263,8 @@ class EposTagLib {
     }
 
     def buttonImage = {attrs, body ->
-        def buttonImage = imageService.getButtonImage(attrs.buttonId)
+        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, attrs.buttonId)
+        def buttonImage = imageService.getImage(imageRecord)
 
         if (buttonImage != null) {
             out << """<img src="data:image/png;base64,${buttonImage.encodeBase64()}" class="mx-auto my-auto button-grid-button-image" />"""
