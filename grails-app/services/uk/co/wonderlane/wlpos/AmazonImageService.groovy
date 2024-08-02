@@ -66,6 +66,10 @@ class AmazonImageService implements IImageService {
     }
 
     def generateBucketName(ImageRecord imageRecord) {
-        return config.getProperty("wlpos.${imageRecord.getType().toLowerCase()}ImageBucket")
+        String bucketName = config.getProperty("wlpos.${imageRecord.getType().toLowerCase()}ImageBucket")
+        if (bucketName == null || bucketName.isEmpty()) {
+            bucketName = config.getProperty("wlpos.defaultImageBucket")
+        }
+        return bucketName;
     }
 }
