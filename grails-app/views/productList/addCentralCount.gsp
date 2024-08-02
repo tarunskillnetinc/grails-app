@@ -83,7 +83,7 @@
                                         </div>
                                         <g:each in="${availableStores}" var="store">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="storeId${store.config.storeNumber}" name="storeIdList" value="${store.id}">
+                                                <input class="form-check-input" type="checkbox" id="storeId${store.config.storeNumber}" name="storeIdList" value="${store.config.storeNumber}">
                                                 <label class="form-check-label" for="storeId${store.config.storeNumber}">${store.config.storeName}</label>
                                             </div>
                                         </g:each>

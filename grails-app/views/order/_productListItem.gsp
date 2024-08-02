@@ -10,7 +10,7 @@
     <asset:javascript src="reporting.js" />
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
-
+    <asset:javascript src="validators/input-validator.js"/>
 
     <style>
         .quantity__input {
@@ -38,51 +38,31 @@
     </style>
 
     <script type='text/javascript'>
-
-        document.addEventListener("DOMContentLoaded", function() {
-            let numbers = document.querySelectorAll('.quantity__input');
-            numbers.forEach(function(input) {
-                input.addEventListener("input", function(event) {
-                    let inputValue = parseInt(input.value);
-                    if (isNaN(inputValue)) {
-                        // Reset to the minimum value if the input is not a valid number
-                        input.value = input.min;
-                    } else if (inputValue < input.min) {
-                        // If the input value is less than the minimum, set it to the minimum value
-                        input.value = input.min;
-                    } else if (inputValue > input.max) {
-                        // If the input value is greater than the maximum, set it to the maximum value
-                        input.value = input.max;
-                    } else {
-                        // Set the value to the parsed int value
-                        input.value = inputValue;
-                    }
-                });
-            });
-        });
-
-        function increment(id) {
-            var packLineSelector = "#packLines\\[" + id + "\\]\\.";
-            var value = parseInt($(packLineSelector + "quantity").val());
+        function increment(id, weighted) {
+            const input = $("#packLines\\[" + id + "\\]\\.quantity");
+            let value = weighted ? parseFloat(input.val()) : parseInt(input.val());
             value = isNaN(value) ? 0 : value;
-            value++;
-            $(packLineSelector + "quantity").val(value);
-            if (value > $(packLineSelector + "quantity")[0].max) {
-                $(packLineSelector + "quantity").val($(packLineSelector + "quantity")[0].max);
+            if (weighted) {
+                value = (value + 0.001).toFixed(3)
+            } else {
+                value++
             }
+            input.val(value > input[0].max ? input[0].max : value);
         }
 
-        function decrement(id) {
-            var packLineSelector = "#packLines\\[" + id + "\\]\\.";
-            var value = parseInt($(packLineSelector + "quantity").val());
+        function decrement(id, weighted) {
+            const input = $("#packLines\\[" + id + "\\]\\.quantity");
+            let value = weighted ? parseFloat(input.val()) : parseInt(input.val());
             value = isNaN(value) ? 0 : value;
-            if (value > 0) {
-                value--;
+            if (value > 0 && weighted) {
+                value = (value - 0.001).toFixed(3);
+            } else if (value > 0) {
+                value--
             }
-            $(packLineSelector + "quantity").val(value);
+            input.val(value);
         }
 
-        function save() {
+        function save(weighted) {
             var supplierId = $('#supplierId').val();
             var productListId = $('#productListId').val();
             var productVariantId = $('#productVariantId').val();
@@ -93,8 +73,8 @@
                 productVariantId: productVariantId,
                 productItemId: productItemId
             };
-            quantity = 0
-            packLineIndex = 0
+            let quantity = 0
+            let packLineIndex = 0
             $("#variants").find("div").each(function () {
                 var innerDivId = $(this).attr("id");
                 var packLineSelector = "#packLines\\[" + innerDivId + "\\]\\.";
@@ -103,10 +83,15 @@
                     params["packLines[" + packLineIndex + "].id"] = $(packLineSelector + "id").val();
                     params["packLines[" + packLineIndex + "].orderCode"] = $(packLineSelector + "orderCode").val();
                     params["packLines[" + packLineIndex + "].quantity"] = $(packLineSelector + "quantity").val();
-                    quantity = quantity + parseInt($(packLineSelector + "quantity").val()) * parseInt($(packLineSelector + "size").val())
+                    quantity += weighted
+                        ? parseFloat($(packLineSelector + "quantity").val()) * parseFloat($(packLineSelector + "size").val())
+                        : parseInt($(packLineSelector + "quantity").val()) * parseInt($(packLineSelector + "size").val())
                     packLineIndex++;
                 }
             });
+            if (weighted) {
+                quantity = quantity.toFixed(3)
+            }
             params["quantity"] = quantity
             if(quantity > 0){
                 $.ajax({
@@ -123,7 +108,7 @@
                         }
                     }
                 });
-            }else {
+            } else {
                 $.ajax({
                     url: "${createLink(controller: 'order', action: 'ajaxShowQuantityWarningWindow')}",
                     method: "GET",
@@ -166,6 +151,8 @@
 
     <section id="order-list-container" class="container-fluid">
 
+        <g:set var="isWeighted" value="${variants?.product?.weightedItem ?: false}"/>
+
         <div class="row header-wl mt-3">
             <div class="col-8 offset-2">
                 <h2 class="mx-auto my-auto">Order List Item</h2>
@@ -174,10 +161,10 @@
             <div class="col-2 text-right">
                 <button id="cancel" class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
                 <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
-                    <button id="save" class="btn btn-success" name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" name="save" onclick="save(${isWeighted})">Save</button>
                 </g:if>
                 <g:else>
-                    <button id="save" class="btn btn-success" disabled name="save" onclick="save()">Save</button>
+                    <button id="save" class="btn btn-success" disabled name="save" onclick="save(${isWeighted})">Save</button>
                 </g:else>
 
             </div>
@@ -210,27 +197,29 @@
                             <!--This is for non symbol group orders, quantities are calculated in server and passed into view-->
                             <g:if test="${isNoSymbolOrders}">
                                 <div class="quantity-${packSingles}" id="${packSingles}" style="width: 100%; margin-bottom: 30px" >
-                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles})">-</button>
+                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles}, ${isWeighted})">-</button>
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input" value="${singleQuantity}"
-                                           min="0" max="999999" style="width: 100px">
-                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
-                                    <span id="packQty">x Singles</span>
+                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input"
+                                           value="${singleQuantity.remainder(BigDecimal.ONE) == BigDecimal.ZERO ? singleQuantity.setScale(0) : singleQuantity}"
+                                           min="0" max="999999" style="width: 100px"
+                                           onkeydown="acceptQuantity(event, ${isWeighted})" onkeyup="validateQuantity(this, 0, 999999, ${isWeighted})">
+                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles}, ${isWeighted})" >+</button>
+                                    <span id="packQty">x <g:if test="${isWeighted}">Kilograms</g:if><g:else>Singles</g:else></span>
                                 </div>
                             </g:if>
                             <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
                                 <g:each in="${packs}" var="pack" status="i">
                                     <div class="quantity-${pack.id}" id="${pack.id}" style="width: 100%; margin-bottom: 30px" >
-                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id})">-</button>
+                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id}, false)">-</button>
                                         <g:hiddenField name="packLines[${pack.id}].id" id="packLines[${pack.id}].id" value="${pack?.id ?: 0}" />
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
-                                            min="0" max="${pack.maximumOrderQuantity}" style="width: 100px">
-                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
-                                        <span id="packQty">x ${pack.quantity} Packs</span>
+                                            min="0" max="${pack.maximumOrderQuantity ?: 99999}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 99999, false)">
+                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id}, false)" >+</button>
+                                        <span id="packQty">x ${pack.quantity?.setScale(isWeighted ? 3 : 0)} Packs</span>
                                     </div>
                                 </g:each>
                             </g:if>
