@@ -27,7 +27,7 @@ class ButtonController {
         }
 
         if (button.imageDisplay) {
-            ImageRecord imageRecord = getImageRecordOrRecover(button)
+            ImageRecord imageRecord = imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id)
             buttonImage = imageService.getImage(imageRecord)
         }
 
@@ -41,25 +41,6 @@ class ButtonController {
          storeId: getStoreId(),
          displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
          displayManualOption: button.tenderType != null]
-    }
-
-    private ImageRecord getImageRecordOrRecover(Button button) {
-        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
-        //Make this backward compatible by saving image record if not exist
-        if (imageRecord == null) {
-            imageRecord = new ImageRecord(
-                    retailerId: springSecurityService.principal.retailerId,
-                    type: ImageType.BUTTON.name(),
-                    imageId: button.id,
-                    storageKey: "${springSecurityService.principal.retailerId}/${button.id}.png",
-                    guid: UUID.randomUUID().toString(),
-                    name: "",
-                    creationTime: DateTime.now(),
-                    updatedTime: DateTime.now()
-            )
-            imageRecord = imageRecordService.saveImageRecord(imageRecord)
-        }
-        return imageRecord;
     }
 
     private Button getButton(String idS, String buttonGridIdS, String rowS, String columnS) {
@@ -115,7 +96,7 @@ class ButtonController {
         if (form.id > 0) {
             button = Button.get(form.id)
             if (button.imageDisplay) {
-                imageRecord = getImageRecordOrRecover(button)
+                imageRecord = imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id)
             }
         } else {
             button = new Button()
@@ -193,7 +174,7 @@ class ButtonController {
                         imageRecord = new ImageRecord(
                                 retailerId: springSecurityService.principal.retailerId,
                                 type: ImageType.BUTTON,
-                                name: form.image.name,
+                                name: form.image.getOriginalFilename(),
                                 imageId: button.id,
                                 storageKey: "${springSecurityService.principal.retailerId}/${button.id}.png", //Assumed that Only png images allowed
                                 guid: UUID.randomUUID(),
@@ -203,6 +184,7 @@ class ButtonController {
                     } else {
                         imageRecord.guid = UUID.randomUUID()
                         imageRecord.updatedTime = DateTime.now()
+                        imageRecord.name = form.image.getOriginalFilename()
                     }
                     button.imageDisplay = true
                     if (image != null) {
@@ -316,17 +298,7 @@ class ButtonController {
 
         // Converted the ImageRecord to a normal entity that comes from the common library.
         // This ensures that the complex data set from the database entity is omitted.
-        syncMessage.setImageRecord(new uk.co.wonderlane.wlpos.entities.ImageRecord(
-                id: imageRecord.id,
-                retailerId: imageRecord.retailerId,
-                guid: imageRecord.guid,
-                type: imageRecord.type,
-                imageId: imageRecord.imageId,
-                name: imageRecord.name,
-                storageKey: imageRecord.storageKey,
-                creationTime: imageRecord.creationTime,
-                updatedTime: imageRecord.updatedTime
-        ))
+        syncMessage.setImageRecord(imageRecord.toEntity())
         if (button.imageDisplay) {
             syncMessage.setInsert(true)
         } else {
@@ -385,7 +357,7 @@ class ButtonController {
     def unassign(int id) {
         Button button = Button.get(id)
         int buttonGridId = button.buttonGrid.id
-        imageService.deleteImage(getImageRecordOrRecover(button))
+        imageService.deleteImage(imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id))
         buttonService.deleteButton(button)
         buttonService.deleteOverrides(id)
         syncAfterBtnRemoval(id, buttonGridId)
@@ -395,7 +367,7 @@ class ButtonController {
     def deleteOverride(int id) {
         Button button = Button.get(id)
         int buttonGridId = button.buttonGrid.id
-        imageService.deleteImage(getImageRecordOrRecover(button))
+        imageService.deleteImage(imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id))
         buttonService.deleteOverrideBtn(button.id)
         syncAfterBtnRemoval(id, buttonGridId)
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())

@@ -212,16 +212,14 @@ environments:
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: transactions
         wlpos:
-            customerDisplayImageDirectory: "C:\\WLPOS Files\\Customer Display Images"
-            receiptImageDirectory: "C:\\WLPOS Files\\Receipt Images"
-            buttonImageDirectory: "C:\\WLPOS Files\\Button Images"
-            brandAssetsDirectory: "C:\\WLPOS Files\\Retailer Images"
-
-            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            cfdImageBucket: "retail-platform-customer-display-images-test"
             receiptImageBucket: "retail-platform-receipt-images-test"
             buttonImageBucket: "retail-platform-button-images-test"
             brandAssetsBucket: "retail-platform-brand-assets-test"
 
+            localeS3Port: 4566
+            localeS3AccessKey: test
+            localeS3SecretKey: test
     hades:
         dataSource:
             pooled: true

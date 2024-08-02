@@ -65,18 +65,22 @@ class ImageRecord {
                 return ['imagerecord.storage.key.required']
             }
         }
+        name nullable: true
     }
 
-//    def beforeInsert() {
-//        creationTime = DateTime.now()
-//        updatedTime = creationTime
-//        guid = UUID.randomUUID().toString()
-//    }
-//
-//    def beforeUpdate() {
-//        updatedTime = DateTime.now()
-//        guid = UUID.randomUUID().toString()
-//    }
+    def toEntity() {
+        return new uk.co.wonderlane.wlpos.entities.ImageRecord(
+                id: this.id,
+                retailerId: this.retailerId,
+                guid: this.guid,
+                type: this.type,
+                imageId: this.imageId,
+                name: this.name,
+                storageKey: this.storageKey,
+                creationTime: this.creationTime,
+                updatedTime: this.updatedTime
+        )
+    }
 
     static boolean isValidGuid(String guid) {
         // Regular expression pattern to match all versions of UUIDs
