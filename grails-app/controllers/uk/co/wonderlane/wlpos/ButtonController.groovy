@@ -382,6 +382,7 @@ class ButtonController {
         removeImageSyncMessage.setImageRecord(imageRecord)
         removeImageSyncMessage.setTransactionId(id)
         removeImageSyncMessage.setInsert(false)
+        removeImageSyncMessage.setDelete(true)
         rabbitService.sendMessage(removeImageSyncMessage)
 
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
