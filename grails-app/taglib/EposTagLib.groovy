@@ -263,7 +263,7 @@ class EposTagLib {
     }
 
     def buttonImage = {attrs, body ->
-        ImageRecord imageRecord = imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, attrs.buttonId as int)
+        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, attrs.buttonId as int)
         def buttonImage = imageService.getImage(imageRecord)
 
         if (buttonImage != null) {

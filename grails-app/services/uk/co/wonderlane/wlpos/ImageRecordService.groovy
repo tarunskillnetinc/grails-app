@@ -50,29 +50,4 @@ class ImageRecordService {
     def deleteImageRecord(ImageRecord imageRecord) throws SQLException {
         imageRecord.delete()
     }
-
-    /**
-     * Recover and fetch the image record. This method provides backward compatibility for systems that need to recover ImageRecords for old images.
-     * @param imageType The type of the image.
-     * @param imageId The ID of the image.
-     * @return An instance of ImageRecord.
-     */
-    def getImageRecordOrRecover(ImageType imageType, int imageId) throws SQLException {
-        ImageRecord imageRecord = getImageRecordByImageId(imageType, imageId)
-        //Make this backward compatible by saving image record if not exist
-        if (imageRecord == null) {
-            imageRecord = new ImageRecord(
-                    retailerId: springSecurityService.principal.retailerId,
-                    type: imageType.name(),
-                    imageId: imageId,
-                    storageKey: "${springSecurityService.principal.retailerId}/${imageId}.png",
-                    guid: UUID.randomUUID().toString(),
-                    name: "",
-                    creationTime: DateTime.now(),
-                    updatedTime: DateTime.now()
-            )
-            saveImageRecord(imageRecord)
-        }
-        return imageRecord;
-    }
 }

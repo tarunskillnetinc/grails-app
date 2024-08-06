@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.*
 
+import java.awt.Image
+
 class ButtonController {
 
     def springSecurityService
@@ -27,7 +29,7 @@ class ButtonController {
         }
 
         if (button.imageDisplay) {
-            ImageRecord imageRecord = imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id)
+            ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
             buttonImage = imageService.getImage(imageRecord)
         }
 
@@ -96,7 +98,7 @@ class ButtonController {
         if (form.id > 0) {
             button = Button.get(form.id)
             if (button.imageDisplay) {
-                imageRecord = imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id)
+                imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
             }
         } else {
             button = new Button()
@@ -357,24 +359,27 @@ class ButtonController {
     def unassign(int id) {
         Button button = Button.get(id)
         int buttonGridId = button.buttonGrid.id
-        imageService.deleteImage(imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id))
+        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
+        imageService.deleteImage(imageRecord)
         buttonService.deleteButton(button)
         buttonService.deleteOverrides(id)
-        syncAfterBtnRemoval(id, buttonGridId)
+        syncAfterBtnRemoval(id, buttonGridId, imageRecord)
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
     }
 
     def deleteOverride(int id) {
         Button button = Button.get(id)
         int buttonGridId = button.buttonGrid.id
-        imageService.deleteImage(imageRecordService.getImageRecordOrRecover(ImageType.BUTTON, button.id))
+        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
+        imageService.deleteImage(imageRecord)
         buttonService.deleteOverrideBtn(button.id)
-        syncAfterBtnRemoval(id, buttonGridId)
+        syncAfterBtnRemoval(id, buttonGridId, imageRecord)
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
     }
 
-    def syncAfterBtnRemoval(id, buttonGridId) {
-        SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+    def syncAfterBtnRemoval(id, buttonGridId, ImageRecord imageRecord) {
+        SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.IMAGE_SYNC, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+        removeImageSyncMessage.setImageRecord(imageRecord)
         removeImageSyncMessage.setTransactionId(id)
         removeImageSyncMessage.setInsert(false)
         rabbitService.sendMessage(removeImageSyncMessage)
