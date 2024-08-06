@@ -574,7 +574,7 @@
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="ImageWebServiceSettings" data-toggle="collapse" data-target="#collapseImageWebServiceSettings" aria-expanded="true" aria-controls="collapseBrandDetails">
                         <div class="row">
-                            <div class="col-10 font-weight-bold">Image Web Service Settings</div>
+                            <div class="col-10 font-weight-bold">Image Settings</div>
                             <div class="col-2 text-right">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
