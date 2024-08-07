@@ -4,7 +4,6 @@ import grails.gorm.transactions.Transactional
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.hibernate.exception.ConstraintViolationException
-import org.springframework.dao.DuplicateKeyException
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 

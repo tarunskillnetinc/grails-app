@@ -10,15 +10,7 @@ import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.helpers.HibernateTestMockCriteria
 import uk.co.wonderlane.wlpos.helpers.TestPagedResultList
-import uk.co.wonderlane.wlpos.reporting.PayPointSale
-import uk.co.wonderlane.wlpos.reporting.PromotionSale
-import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
-import uk.co.wonderlane.wlpos.reporting.ReportColumn
-import uk.co.wonderlane.wlpos.reporting.ReportColumns
-import uk.co.wonderlane.wlpos.reporting.ReportType
-import uk.co.wonderlane.wlpos.reporting.Sale
-import uk.co.wonderlane.wlpos.reporting.SaleCategory
-import uk.co.wonderlane.wlpos.reporting.TillControlEvent
+import uk.co.wonderlane.wlpos.reporting.*
 
 class ReportingServiceSpec extends Specification implements ServiceUnitTest<ReportingService>, DataTest {
     Class<?>[] getDomainClassesToMock() {

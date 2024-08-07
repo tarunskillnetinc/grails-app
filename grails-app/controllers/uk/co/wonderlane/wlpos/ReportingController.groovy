@@ -12,7 +12,6 @@ import uk.co.wonderlane.wlpos.enums.TillControlEventType
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
-import uk.co.wonderlane.wlpos.supplier.Supplier
 
 class ReportingController {
 

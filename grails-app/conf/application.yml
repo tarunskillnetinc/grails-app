@@ -212,16 +212,11 @@ environments:
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: transactions
         wlpos:
-            customerDisplayImageDirectory: "C:\\WLPOS Files\\Customer Display Images"
-            receiptImageDirectory: "C:\\WLPOS Files\\Receipt Images"
-            buttonImageDirectory: "C:\\WLPOS Files\\Button Images"
-            brandAssetsDirectory: "C:\\WLPOS Files\\Retailer Images"
-
-            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            defaultImageBucket: "retail-platform-default-images-test"
+            cfdImageBucket: "retail-platform-customer-display-images-test"
             receiptImageBucket: "retail-platform-receipt-images-test"
             buttonImageBucket: "retail-platform-button-images-test"
             brandAssetsBucket: "retail-platform-brand-assets-test"
-
     hades:
         dataSource:
             pooled: true
@@ -293,7 +288,8 @@ environments:
                 database: transactions
 
         wlpos:
-            customerDisplayImageBucket: "retail-platform-customer-display-images-test"
+            defaultImageBucket: "retail-platform-default-images-test"
+            cfdImageBucket: "retail-platform-customer-display-images-test"
             receiptImageBucket: "retail-platform-receipt-images-test"
             buttonImageBucket: "retail-platform-button-images-test"
             brandAssetsBucket: "retail-platform-brand-assets-test"
@@ -374,7 +370,8 @@ environments:
                 database: persephone-transactions
 
         wlpos:
-            customerDisplayImageBucket: "persephone-retail-platform-customer-display-images"
+            defaultImageBucket: "persephone-retail-platform-default-images"
+            cfdDisplayImageBucket: "persephone-retail-platform-customer-display-images"
             receiptImageBucket: "persephone-retail-platform-receipt-images"
             buttonImageBucket: "persephone-retail-platform-button-images"
             brandAssetsBucket: "persephone-retail-platform-brand-assets"
@@ -455,7 +452,8 @@ environments:
                 database: cerberus-transactions
 
         wlpos:
-            customerDisplayImageBucket: "cerberus-retail-platform-customer-display-images"
+            defaultImageBucket: "persephone-retail-platform-default-images"
+            cfdImageBucket: "cerberus-retail-platform-customer-display-images"
             receiptImageBucket: "cerberus-retail-platform-receipt-images"
             buttonImageBucket: "cerberus-retail-platform-button-images"
             brandAssetsBucket: "cerberus-retail-platform-brand-assets"
@@ -535,7 +533,8 @@ environments:
                 database: transactions
 
         wlpos:
-            customerDisplayImageBucket: "retail-platform-customer-display-images-preprod"
+            defaultImageBucket: "persephone-retail-platform-default-images"
+            cfdImageBucket: "retail-platform-customer-display-images-preprod"
             receiptImageBucket: "retail-platform-receipt-images-preprod"
             buttonImageBucket: "retail-platform-button-images-preprod"
             brandAssetsBucket: "retail-platform-brand-assets-preprod"
@@ -615,7 +614,8 @@ environments:
                 database: transactions
 
         wlpos:
-            customerDisplayImageBucket: "retail-platform-customer-display-images-prod"
+            defaultImageBucket: "persephone-retail-platform-default-images"
+            cfdImageBucket: "retail-platform-customer-display-images-prod"
             receiptImageBucket: "retail-platform-receipt-images-prod"
             buttonImageBucket: "retail-platform-button-images-prod"
             brandAssetsBucket: "retail-platform-brand-assets-prod"
@@ -626,9 +626,9 @@ environments:
             serverURL: "https://trust-retail.com"
 
 wlpos:
-    imageDirectory: "/opt/BackOffice/Images/"
-    receiptImageDirectory: "/opt/BackOffice/Receipts/"
-    buttonImageDirectory: "/opt/BackOffice/Buttons/"
+    localeS3Port: 4566
+    localeS3AccessKey: test
+    localeS3SecretKey: test
 
     transactionProcessorQueue: "TransactionProcessor"
     dataSyncServiceQueue: "DataSyncService"

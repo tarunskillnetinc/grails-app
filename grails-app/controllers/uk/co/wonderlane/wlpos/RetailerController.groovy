@@ -1,15 +1,11 @@
 package uk.co.wonderlane.wlpos
 
-import grails.databinding.BindUsing
+
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
-import org.apache.el.lang.FunctionMapperImpl
 import org.springframework.web.multipart.MultipartFile
-import uk.co.wonderlane.wlpos.entities.FunctionToggle
-import uk.co.wonderlane.wlpos.entities.RetailerConfig
-import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
-import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
-import uk.co.wonderlane.wlpos.entities.RetailerTerminologyLocationsTableConfig
+import uk.co.wonderlane.wlpos.Retailer
+import uk.co.wonderlane.wlpos.entities.*
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.Visibility
 

@@ -3,11 +3,11 @@ package uk.co.wonderlane.wlpos
 import io.micronaut.http.MediaType
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException
 import org.codehaus.groovy.runtime.InvokerHelper
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.entities.SyncMessage
-import uk.co.wonderlane.wlpos.enums.SyncMessageType
-import uk.co.wonderlane.wlpos.enums.ButtonType
-import uk.co.wonderlane.wlpos.enums.ButtonGridType
-import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.enums.*
+
+import java.awt.Image
 
 class ButtonController {
 
@@ -15,6 +15,7 @@ class ButtonController {
     def productService
     def buttonService
     def imageService
+    def imageRecordService
     def rabbitService
     def gsonProvider
 
@@ -28,7 +29,8 @@ class ButtonController {
         }
 
         if (button.imageDisplay) {
-            buttonImage = imageService.getButtonImage(button.id)
+            ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
+            buttonImage = imageService.getImage(imageRecord)
         }
 
         [button: button,
@@ -92,8 +94,12 @@ class ButtonController {
             form.id = 0
         }
 
+        ImageRecord imageRecord = null;
         if (form.id > 0) {
             button = Button.get(form.id)
+            if (button.imageDisplay) {
+                imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
+            }
         } else {
             button = new Button()
             button.buttonGrid = ButtonGrid.get(form.buttonGridId)
@@ -134,8 +140,8 @@ class ButtonController {
 
         if (button.type == ButtonType.BLANK) {
             button.setBlankFields()
-            if (existingButton) {
-                imageService.deleteButtonImage(button.id)
+            if (existingButton && button.imageDisplay) {
+                imageService.deleteImage(imageRecord)
             }
         }
 
@@ -154,7 +160,8 @@ class ButtonController {
             }
 
             if (form.removeImage) {
-                imageService.deleteButtonImage(button.id)
+                imageService.deleteImage(imageRecord)
+                imageRecordService.deleteImageRecord(imageRecord)
                 button.imageDisplay = false
                 button.textDisplay = true
                 if (singularButtonUpdate) {
@@ -165,25 +172,44 @@ class ButtonController {
             } else if (form.image.bytes.length != 0) {
                 byte[] image = form.image.bytes
                 if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                    if (!button.imageDisplay) {
+                        imageRecord = new ImageRecord(
+                                retailerId: springSecurityService.principal.retailerId,
+                                type: ImageType.BUTTON,
+                                name: form.image.getOriginalFilename(),
+                                imageId: button.id,
+                                storageKey: "${springSecurityService.principal.retailerId}/${button.id}.png", //Assumed that Only png images allowed
+                                guid: UUID.randomUUID(),
+                                creationTime: DateTime.now(),
+                                updatedTime: DateTime.now()
+                        )
+                    } else {
+                        imageRecord.guid = UUID.randomUUID()
+                        imageRecord.updatedTime = DateTime.now()
+                        imageRecord.name = form.image.getOriginalFilename()
+                    }
                     button.imageDisplay = true
                     if (image != null) {
-                        saveButton(button, image, singularButtonUpdate)
+                        saveButton(button, image, singularButtonUpdate, imageRecord)
                     }
                 }
             } else if (!existingButton && !isHeadOffice) {
                 // if store override grab image from s3 and save it again
                 if (button.imageDisplay) {
-                    byte[] image = imageService.getButtonImage(form.overrideId)
-                    saveButton(button, image, singularButtonUpdate)
+                    imageRecord.imageId = form.overrideId
+                    imageRecord.id = 0 //0 allowed to save image record as a new ImageRecord due to override
+                    imageRecord.guid = UUID.randomUUID()
+                    byte[] image = imageService.getImage(imageRecord)
+                    saveButton(button, image, singularButtonUpdate, imageRecord)
                 }
             }
 
             try {
                 if (singularButtonUpdate) {
-                    buildAndSendButtonImageMessage(button)
+                    buildAndSendButtonImageMessage(button, imageRecord)
                 } else {
                     button.buttonGrid.buttons?.forEach({ iteratedButton ->
-                        buildAndSendButtonImageMessage(iteratedButton)
+                        buildAndSendButtonImageMessage(iteratedButton, imageRecord)
                     })
                 }
 
@@ -214,8 +240,8 @@ class ButtonController {
                     productVariant = productService.getProductVariant(button.sku)
                 }
 
-                if (button.imageDisplay) {
-                    buttonImage = imageService.getButtonImage(button.id)
+                if (button.imageDisplay && imageRecord != null) {
+                    buttonImage = imageService.getImage(imageRecord)
                 }
 
                 // TODO Populate an error to display on screen.
@@ -233,11 +259,11 @@ class ButtonController {
                 ])
             }
         } else {
-            renderError(button, form)
+            renderError(button, form, imageRecord)
         }
     }
 
-    private void renderError(Button button, SaveButtonFormCommand form) {
+    private void renderError(Button button, SaveButtonFormCommand form, ImageRecord imageRecord) {
         def productVariant = null
         def buttonImage = null
         def uploadedImage = false
@@ -245,7 +271,7 @@ class ButtonController {
             buttonImage = form.image.bytes
             uploadedImage = true
         } else if (button.imageDisplay) {
-            buttonImage = imageService.getButtonImage(button.id)
+            buttonImage = imageService.getImage(imageRecord)
         }
 
         if (button.type == ButtonType.PRODUCT && button.sku) {
@@ -268,15 +294,15 @@ class ButtonController {
         ])
     }
 
-    private void buildAndSendButtonImageMessage(Button button) {
-        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.BUTTON_IMAGE)
+    private void buildAndSendButtonImageMessage(Button button, ImageRecord imageRecord) {
+        SyncMessage syncMessage = buildButtonSyncMessage(SyncMessageType.IMAGE_SYNC)
         syncMessage.setTransactionId(button.id)
 
+        // Converted the ImageRecord to a normal entity that comes from the common library.
+        // This ensures that the complex data set from the database entity is omitted.
+        syncMessage.setImageRecord(imageRecord.toEntity())
         if (button.imageDisplay) {
-            byte[] image = imageService.getButtonImage(button.id)
-
             syncMessage.setInsert(true)
-            syncMessage.setByteArray(image)
         } else {
             syncMessage.setInsert(false)
         }
@@ -333,26 +359,30 @@ class ButtonController {
     def unassign(int id) {
         Button button = Button.get(id)
         int buttonGridId = button.buttonGrid.id
-        imageService.deleteButtonImage(button.id)
+        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
+        imageService.deleteImage(imageRecord)
         buttonService.deleteButton(button)
         buttonService.deleteOverrides(id)
-        syncAfterBtnRemoval(id, buttonGridId)
+        syncAfterBtnRemoval(id, buttonGridId, imageRecord)
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
     }
 
     def deleteOverride(int id) {
         Button button = Button.get(id)
         int buttonGridId = button.buttonGrid.id
-        imageService.deleteButtonImage(button.id)
+        ImageRecord imageRecord = imageRecordService.getImageRecordByImageId(ImageType.BUTTON, button.id)
+        imageService.deleteImage(imageRecord)
         buttonService.deleteOverrideBtn(button.id)
-        syncAfterBtnRemoval(id, buttonGridId)
+        syncAfterBtnRemoval(id, buttonGridId, imageRecord)
         redirect (controller: "buttonGrid", action: "show", id: buttonGridId, storeId: getStoreId())
     }
 
-    def syncAfterBtnRemoval(id, buttonGridId) {
-        SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.BUTTON_IMAGE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+    def syncAfterBtnRemoval(id, buttonGridId, ImageRecord imageRecord) {
+        SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.IMAGE_SYNC, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+        removeImageSyncMessage.setImageRecord(imageRecord)
         removeImageSyncMessage.setTransactionId(id)
         removeImageSyncMessage.setInsert(false)
+        removeImageSyncMessage.setDelete(true)
         rabbitService.sendMessage(removeImageSyncMessage)
 
         SyncMessage syncMessage = new SyncMessage(SyncMessageType.BUTTON_GRID, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
@@ -365,9 +395,10 @@ class ButtonController {
         return springSecurityService.principal.storeId
     }
 
-    def saveButton(Button button, byte[] image, boolean singularButtonUpdate){
-        if (image != null) {
-            imageService.saveButtonImage(button.id, image)
+    def saveButton(Button button, byte[] image, boolean singularButtonUpdate, ImageRecord imageRecord){
+        imageRecordService.saveImageRecord(imageRecord)
+        if (image != null && imageRecord.id > 0) {
+            imageService.saveImage(imageRecord, image)
             button.imageDisplay = true
         }
 

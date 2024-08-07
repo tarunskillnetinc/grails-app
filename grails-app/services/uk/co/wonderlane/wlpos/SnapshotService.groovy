@@ -5,11 +5,8 @@ import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
-import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
-import uk.co.wonderlane.wlpos.enums.LocationType
-import uk.co.wonderlane.wlpos.reporting.Location
 
 import java.sql.CallableStatement
 import java.sql.Connection

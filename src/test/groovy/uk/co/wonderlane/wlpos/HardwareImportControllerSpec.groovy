@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.testing.web.controllers.ControllerUnitTest
-import io.micronaut.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
 import spock.lang.Specification
 
