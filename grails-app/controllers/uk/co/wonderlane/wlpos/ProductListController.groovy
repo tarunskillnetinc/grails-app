@@ -84,19 +84,12 @@ class ProductListController {
                     def productVariant = productService.getProductVariant(it)
 
                     if (productVariant) {
-                        int quantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
-
-                        Product product = Product.findByItemCode(productVariant?.product?.itemCode)
-                        if (product) {
-
-                                ProductListItem productListItem = new ProductListItem()
-                                productListItem.productVariant = productVariant
-                                productListItem.fillQuantity = 0
-                                productListItem.productList = productList
-                                productListItem.productQuantityInStock = quantityInStock
-                                productList.productListItems.add(productListItem)
-                        }
-
+                        ProductListItem productListItem = new ProductListItem()
+                        productListItem.productVariant = productVariant
+                        productListItem.fillQuantity = 0
+                        productListItem.productList = productList
+                        productListItem.productQuantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
+                        productList.productListItems.add(productListItem)
                     }
                 }
             }
@@ -116,11 +109,11 @@ class ProductListController {
 
             def productListStoresToBeSaved = new ArrayList()
 
+            // TODO - change the cmd obj to contain store ID not store number
             for (int storeId : cmd.storeIdList) {
-                        def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
                         ProductListStore productListStore = new ProductListStore()
                         productListStore.productList = productList
-                        productListStore.store = storeSettings
+                        productListStore.store = Store.load(storeId)
                         productListStoresToBeSaved.add(productListStore)
                     }
             productListService.saveProductListStores(productListStoresToBeSaved)
