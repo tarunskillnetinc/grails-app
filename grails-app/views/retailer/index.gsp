@@ -570,9 +570,9 @@
                         </div>
                     </div>
                 </div>
-                <!-- Image Web Service. -->
+                <!-- Image Settings. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
-                    <div class="card-header pointer" id="ImageWebServiceSettings" data-toggle="collapse" data-target="#collapseImageWebServiceSettings" aria-expanded="true" aria-controls="collapseBrandDetails">
+                    <div class="card-header pointer" id="ImageSettings" data-toggle="collapse" data-target="#collapseImageSettings" aria-expanded="true" aria-controls="collapseBrandDetails">
                         <div class="row">
                             <div class="col-10 font-weight-bold">Image Settings</div>
                             <div class="col-2 text-right">
@@ -583,7 +583,7 @@
                         </div>
                     </div>
 
-                    <div id="collapseImageWebServiceSettings" class="collapse " aria-labelledby="ImageWebServiceSettings" data-parent="#accordion">
+                    <div id="collapseImageSettings" class="collapse " aria-labelledby="ImageSettings" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="form-group row">
                                 <label for="imageWebServiceUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Image Web Service URL</label>
@@ -618,7 +618,7 @@
                                     <input type="number" class="col-5 form-control bottom-border" name="cfdProfileImageCount" id="cfdProfileImageCount" value="${retailer?.config?.cfdProfileImageCount}" />
                                 </div>
                                 <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-cfdProfileImageCount" onclick="$('#cfdProfileImageCount').val('')">Reset</div>
+                                    <div class="btn btn-danger" id="reset-cfdProfileImageCount" onclick="$('#cfdProfileImageCount').val('15')">Reset</div>
                                 </div>
                             </div>
                         </div>
