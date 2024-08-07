@@ -321,15 +321,6 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
-                                    <label for="imageWebServiceUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Image Web Service URL</label>
-                                    <div class="col-7 col-lg-4">
-                                        <input type="text" class="col-11 form-control bottom-border" name="imageWebServiceUrl" id="imageWebServiceUrl" value="${retailer?.config?.imageWebServiceUrl}" />
-                                    </div>
-                                    <div class="form-group row">
-                                        <div class="btn btn-danger" id="reset-image-web-service-url-button" onclick="$('#imageWebServiceUrl').val('')">Reset</div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -579,7 +570,60 @@
                         </div>
                     </div>
                 </div>
+                <!-- Image Settings. -->
+                <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                    <div class="card-header pointer" id="ImageSettings" data-toggle="collapse" data-target="#collapseImageSettings" aria-expanded="true" aria-controls="collapseImageSettings">
+                        <div class="row">
+                            <div class="col-10 font-weight-bold">Image Settings</div>
+                            <div class="col-2 text-right">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div id="collapseImageSettings" class="collapse " aria-labelledby="ImageSettings" data-parent="#accordion">
+                        <div class="card-body py-5">
+                            <div class="form-group row">
+                                <label for="imageWebServiceUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Image Web Service URL</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="text" class="col-11 form-control bottom-border" name="imageWebServiceUrl" id="imageWebServiceUrl" value="${retailer?.config?.imageWebServiceUrl}" />
+                                </div>
+                                <div class="form-group row">
+                                    <div class="btn btn-danger" id="reset-image-web-service-url-button" onclick="$('#imageWebServiceUrl').val('')">Reset</div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="cfdMaxImageUpload" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Customer Facing Display Max Image Upload</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="number" class="col-5 form-control bottom-border" name="cfdMaxImageUpload" id="cfdMaxImageUpload" value="${retailer?.config?.cfdMaxImageUpload}" />
+                                </div>
+                                <div class="form-group row">
+                                    <div class="btn btn-danger" id="reset-cfdMaxImageUpload" onclick="$('#cfdMaxImageUpload').val('')">Reset</div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="cfdMaxProfiles" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Customer Facing Display Max Profiles</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="number" class="col-5 form-control bottom-border" name="cfdMaxProfiles" id="cfdMaxProfiles" value="${retailer?.config?.cfdMaxProfiles}" />
+                                </div>
+                                <div class="form-group row">
+                                    <div class="btn btn-danger" id="reset-cfdMaxProfiles" onclick="$('#cfdMaxProfiles').val('')">Reset</div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="cfdProfileImageCount" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Customer Facing Display Profile Image Count</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="number" class="col-5 form-control bottom-border" name="cfdProfileImageCount" id="cfdProfileImageCount" value="${retailer?.config?.cfdProfileImageCount}" />
+                                </div>
+                                <div class="form-group row">
+                                    <div class="btn btn-danger" id="reset-cfdProfileImageCount" onclick="$('#cfdProfileImageCount').val('15')">Reset</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Function Modification. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
                     <div class="card-header pointer" id="functionModification" data-toggle="collapse" data-target="#collapseFunctionModification" aria-expanded="true" aria-controls="collapseFunctionModification">
@@ -818,6 +862,8 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </g:uploadForm>
 </section>

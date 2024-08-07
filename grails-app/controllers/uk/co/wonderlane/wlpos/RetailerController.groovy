@@ -223,6 +223,9 @@ class RetailerCommand implements Validateable {
     String rabbitMqDataSyncExchange
     String rabbitMqReceiptsExchange
     String imageWebServiceUrl
+    Integer cfdMaxImageUpload
+    Integer cfdMaxProfiles
+    Integer cfdProfileImageCount
 
     MultipartFile brandLogo
 
