@@ -9,8 +9,6 @@
                 </button>
             </div>
             <div class="modal-body">
-
-
                 <div id="filters" class="card bg-light border-wl">
                     <div class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="collapseExample">
                         <div class="row">
