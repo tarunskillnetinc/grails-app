@@ -572,7 +572,7 @@
                 </div>
                 <!-- Image Settings. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
-                    <div class="card-header pointer" id="ImageSettings" data-toggle="collapse" data-target="#collapseImageSettings" aria-expanded="true" aria-controls="collapseBrandDetails">
+                    <div class="card-header pointer" id="ImageSettings" data-toggle="collapse" data-target="#collapseImageSettings" aria-expanded="true" aria-controls="collapseImageSettings">
                         <div class="row">
                             <div class="col-10 font-weight-bold">Image Settings</div>
                             <div class="col-2 text-right">
