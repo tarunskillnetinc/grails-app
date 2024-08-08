@@ -515,7 +515,7 @@ environments:
             port: 5671
             apiProtocol: https
             apiPort: 443
-            virtualHost: "Persephone"
+            virtualHost: "Zagreus"
             username: retailplatform
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
