@@ -219,7 +219,7 @@
                                                   from="${parentStores}"
                                                   noSelection="['': 'None']"
                                                   value="${store?.parentStoreId}"
-                                                  optionValue="${{it?.config?.storeName}}"
+                                                  optionValue="${{it?.config?.storeNumber + ' - ' +it?.config?.storeName}}"
                                                   optionKey="id"
                                                   class="form-control select-border" />
                                     </div>
