@@ -68,5 +68,5 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxSearchLoyaltyOffers" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[loyaltyOffersTerm: loyaltyOffersTerm, loyaltyOffersSearchBy: loyaltyOffersSearchBy]" />
+    <util:remotePaginate action="ajaxSearchLoyaltyOffers" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: loyaltyOffersTerm, searchBy: loyaltyOffersSearchBy, sortColumn: sortParams?.sortColumn, sortOrder: sortParams?.sortOrder]" />
 </div>

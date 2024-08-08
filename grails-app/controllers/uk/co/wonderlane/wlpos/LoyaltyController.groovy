@@ -426,12 +426,12 @@ class LoyaltyController {
                     params.offset ? Integer.parseInt(params.offset) : defaultOffSet, sortParams.sortColumn, sortParams.sortOrder)
 
             render(template: "loyaltyOffersSearchResults", model: [offers               : offer?.offers,
-                                                                   loyaltyOffersTerm    : params.loyaltyOffersTerm,
-                                                                   loyaltyOffersSearchBy: params.loyaltyOffersSearchBy,
+                                                                   loyaltyOffersTerm    : params.searchTerm,
+                                                                   loyaltyOffersSearchBy: params.searchBy,
                                                                    max                  : params.max ?: defaultPagination,
                                                                    offset               : params.offset ?: defaultOffSet,
                                                                    totalCount           : offer?.totalCount,
-                                                                   sortParams           : sortParams
+                                                                   sortParams: sortParams
             ])
         } catch (Exception ex) {
             List<String> errorList = new ArrayList<>()

@@ -1,3 +1,5 @@
+<%@ page import="java.math.RoundingMode" %>
+
 <script type="application/javascript">
     $(document).ready(function() {
         // Assuming your page buttons have a specific class (e.g., "page-button")
@@ -29,7 +31,12 @@
             <g:hiddenField name="supplierId" id="supplierId" value="${supplier?.id ?: 0}" />
             <div class="col-2">${productListItem.getProductVariantId()}</div>
             <div class="col-6" style='word-break: break-all; word-wrap: break-word;'>${productListItem.getProductLongDescription()}</div>
-            <div class="col-2">${productListItem.getQuantity()}</div>
+            <div class="col-2">
+                ${productListItem.getQuantity().setScale(
+                        (productListItem.getQuantity().remainder(BigDecimal.ONE) == BigDecimal.ZERO) ? 0 : 3,
+                        RoundingMode.HALF_UP
+                )}
+            </div>
             <div class="col-2">
                 <button type="button" id="removeItemButton_${productListItem.getProductVariantId()}" class="btn btn-danger productItemDeleteButton"
                         data-dismiss="modal" data-productItemId="${productListItem?.id}" style="margin-left: -12px; float: left; top: 0; right: 0;"
