@@ -14,7 +14,7 @@
         <div class="col-12 form-group form-inline my-3">
             <g:if test="${showQuantityField}">
                 Quantity
-                <g:field type="number" min="0" max="1000" step="1" name="${promotionGroupType}Groups[${promoGroupId}].requiredQuantity" value="${promotionGroup.requiredQuantity ?: 1}" class="col-12 col-md-3 form-control mx-3" />
+                <g:field type="number" min="0" max="1000" step="1" name="${promotionGroupType}Groups[${promoGroupId}].requiredQuantity" value="${promotionGroup.requiredQuantity ? promotionGroup.requiredQuantity : (promotionGroup.requiredValue ? '' : 1)}" class="col-12 col-md-3 form-control mx-3" />
 
                 <g:if test="${showValueField}">
                     or Value
