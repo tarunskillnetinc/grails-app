@@ -319,7 +319,7 @@ class NewStoreCommand implements Validateable {
     PriceBand priceBand
 
     static constraints = {
-        storeNumber nullable: false, validator: { val, obj ->
+        storeNumber nullable: false,blank: false, min:1, max: 999999, validator: { val, obj ->
             def existingStore = obj.storeService.getStoreByStoreNumber(obj.springSecurityService.principal.retailerId, val)
 
             if (existingStore) {
@@ -327,15 +327,15 @@ class NewStoreCommand implements Validateable {
             }
         }
         type nullable: false
-        storeName nullable: false, blank: false, maxSize: 45
-        addressBuildingNumberOrName nullable: true, maxSize: 45
-        addressLine1 nullable: true, maxSize: 45
-        addressLine2 nullable: true, maxSize: 45
-        addressTown nullable: true, maxSize: 45
-        addressCounty nullable: true, maxSize: 45
-        addressCountry nullable: true, maxSize: 45
-        addressPostCode nullable: true, maxSize: 45
-        phoneNumber nullable: true, maxSize: 45
+        storeName nullable: false, blank: false, maxSize: 30
+        addressBuildingNumberOrName nullable: true, maxSize: 30
+        addressLine1 nullable: true, maxSize: 20
+        addressLine2 nullable: true, maxSize: 20
+        addressTown nullable: true, maxSize: 20
+        addressCounty nullable: true, maxSize: 20
+        addressCountry nullable: true, maxSize: 20
+        addressPostCode nullable: true, maxSize: 8
+        phoneNumber nullable: true, maxSize: 12
         parentStoreId nullable: true
         copyConfigFrom nullable: true
         range nullable: true
