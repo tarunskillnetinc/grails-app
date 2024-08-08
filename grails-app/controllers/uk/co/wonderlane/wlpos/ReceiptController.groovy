@@ -19,7 +19,7 @@ class ReceiptController {
     }
 
     def ajaxGetReceipts() {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
 
         int offset = params.offset ? Integer.parseInt(params.offset) : 0
         int max = params.max ? Integer.parseInt(params.max) : 50
