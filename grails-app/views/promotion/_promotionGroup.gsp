@@ -1,4 +1,4 @@
-<div id="${promoGroupName}" class="promotion-product-container container-fluid col-4 my-4 mx-4 py-4 px-3">
+<div id="${promoGroupName}" class="promotion-product-container container-fluid col-12 col-lg-4 my-4 mx-4 py-4 px-3">
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].id" value="${promotionGroup.id}" />
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].type" value="${promotionGroup.type}" />
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].sku" value="${promotionGroup.sku}" />
@@ -7,7 +7,7 @@
 
     <div class="row">
         <div class="col-11"><strong>${promotionGroupDescription}</strong></div>
-        <div class="col-1 text-right"><a id="${promoGroupName}-DeleteButton" href="#" onclick="return deletePromotionGroup('${promoGroupName}', '${promotionGroupType}');" class="text-dark"><sup>X</sup></a></div>
+        <div class="col-1 text-right pl-0"><a id="${promoGroupName}-DeleteButton" href="#" onclick="return deletePromotionGroup('${promoGroupName}', '${promotionGroupType}');" class="text-dark"><sup>X</sup></a></div>
     </div>
 
     <div class="row">

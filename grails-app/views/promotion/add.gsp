@@ -384,6 +384,12 @@
                     }
                 });
             }
+
+            // Store filters.
+            function clearFilters() {
+                $("#storeNumberFilter").val("");
+                $("#storeNameFilter").val("");
+            }
     </script>
     </head>
 
