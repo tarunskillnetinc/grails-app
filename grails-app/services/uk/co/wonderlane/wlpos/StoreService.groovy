@@ -21,6 +21,10 @@ class StoreService extends MySqlDal {
         return Store.findByRetailerIdAndId(retailerId, storeId)
     }
 
+    def getStores(Collection<Integer> storeIds) {
+        return Store.findAll("FROM Store s WHERE s.retailerId = :retailerId AND id IN (:storeIds) ORDER BY s.id DESC", [retailerId: springSecurityService.principal.retailerId, storeIds: storeIds])
+    }
+
     def getStoreByStoreNumber(int retailerId, Integer storeNumber) {
         return Store.find("FROM Store s WHERE s.retailerId = :retailerId AND (JSON_EXTRACT(config, '\$.storeNumber') = :storeNumber OR (:storeNumber IS NULL AND JSON_EXTRACT(config, '\$.storeType') = 'HEAD_OFFICE')) ORDER BY s.id DESC", [retailerId: retailerId, storeNumber: storeNumber])
     }
