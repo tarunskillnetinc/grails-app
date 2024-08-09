@@ -536,8 +536,11 @@ environments:
 
         wlpos:
             defaultImageBucket: "zagreus-retail-platform-default-images"
-            cfdDisplayImageBucket: "zagreus-retail-platform-customer-display-images"
+            cfdImageBucket: "zagreus-retail-platform-customer-display-images"
+            customerDisplayImageBucket: "zagreus-retail-platform-customer-display-images"
             receiptImageBucket: "zagreus-retail-platform-receipt-images"
+            receipt_headerImageBucket: "zagreus-retail-platform-receipt-images"
+            receipt_footerImageBucket: "zagreus-retail-platform-receipt-images"
             buttonImageBucket: "zagreus-retail-platform-button-images"
             brandAssetsBucket: "zagreus-retail-platform-brand-assets"
 
