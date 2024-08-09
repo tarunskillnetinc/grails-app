@@ -1,6 +1,15 @@
 <g:form name="add-promotion-form" action="save">
     <g:hiddenField name="id" value="${promotion?.id}" />
 
+    <g:if test="${!canEdit}">
+        <script>
+            disableSaveButton();
+            $(document).ready(function(){
+                $('form[name="add-promotion-form"] input, form[name="add-promotion-form"] select, form[name="add-promotion-form"] textarea, form[name="add-promotion-form"] button').attr('disabled', true);
+            });
+        </script>
+    </g:if>
+
     <div id="accordion">
         <!-- Promotion information. -->
         <div class="card bg-light border-wl accordion-card col-12 col-md-10 offset-md-1 px-0">
@@ -134,7 +143,7 @@
                 <div class="card-body py-5">
                     <div id="promotionOfferGroupsContainer" class="row mb-4 justify-content-center">
                         <g:each in="${promotion?.offerGroups}" var="promotionGroup" status="i">
-                            <g:render template="promotionGroup" model="[promotionGroup: promotionGroup, promoGroupName: 'offerPromoGroup-' +i, promotionGroupType: 'offer', promoGroupId: i, showQuantityField: g.showQuantityField(promotionType: promotion?.type), showValueField: g.showValueField(promotionType: promotion?.type), promotionGroupDescription: g.promotionGroupHeader(promotionGroup: promotionGroup)]" />
+                            <g:render template="promotionGroup" model="[promotionGroup: promotionGroup, promoGroupName: 'offerPromoGroup-' +i, promotionGroupType: 'offer', promoGroupId: i, showQuantityField: g.showQuantityField(promotionType: promotion?.type), showValueField: g.showValueField(promotionType: promotion?.type), promotionGroupDescription: g.promotionGroupHeader(promotionGroup: promotionGroup), canDeleteProduct: canEdit]" />
                         </g:each>
                     </div>
 

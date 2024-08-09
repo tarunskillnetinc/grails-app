@@ -285,6 +285,10 @@
                 enableOrDisablePromotionGroupButtons(promotionGroupType);
             }
 
+            function disableSaveButton() {
+                $("#save-btn").attr("disabled", true);
+            }
+
             function getAllStores() {
                 var filterParams = {};
 
@@ -436,7 +440,7 @@
         </g:if>
 
         <section id="add-edit-section" class="container-fluid mt-4">
-            <g:render template="addEditForm" model="[promotion: promotion]" />
+            <g:render template="addEditForm" model="[promotion: promotion, canEdit: canEdit]"/>
         </section>
 
         <g:render template="productSearch" />

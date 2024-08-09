@@ -44,7 +44,7 @@ class PromotionController {
     }
 
     def add() {
-        [promotionTypes: PromotionType.values()]
+        [promotionTypes: PromotionType.values(), canEdit: true]
     }
 
     def edit(int id) {
@@ -56,10 +56,27 @@ class PromotionController {
             return
         }
 
+        def canEdit = true
+        // If we're logged in at store level and promotion has stores
+        if (promotion?.stores && springSecurityService.principal.storeId) {
+            // Check if the user's store ID is in the list of promotion stores
+            promotion.stores.each { store ->
+                if (springSecurityService.principal.storeId == store.id) {
+                    // If the promotion has more than one store, it should be read only
+                    if (promotion.stores.size() > 1) {
+                        canEdit = false
+                        return // Exit the loop early as further checks are unnecessary
+                    }
+                }
+            }
+        }
+
+
         // In the current implementation, the stores on the form are stored in the session so we need to set these now otherwise we can't manipulate the list on screen correctly.
         session.addedStores = promotion?.stores
 
-        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values()])
+
+        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit])
     }
 
     def ajaxSearchTags(String searchTerm) {
@@ -129,6 +146,13 @@ class PromotionController {
     }
 
     def save(PromotionCommand promotionCommand) {
+
+        // If we're logged in at a store, we want to ensure the promotionCommand contains our store.
+        if (springSecurityService.principal.storeId) {
+            Store store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            promotionCommand.storez.add(new PromotionStoreCommand(id: store.id, storeName: store.config.storeName, storeNumber: store.config.storeNumber))
+        }
+
         // Deliberate use of & so that the children get validated regardless of the promotion itself being validated.
         if (promotionCommand.validate() & validateChildren(promotionCommand)) {
             Promotion promotion
