@@ -36,7 +36,7 @@ class LoyaltyService{
 
 
     def getLoyaltyOffers(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder){
-        def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
+        def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
                 if (searchBy == 'Description') {
@@ -44,6 +44,11 @@ class LoyaltyService{
                 } else if (searchBy == 'ID') {
                     sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
                 }
+            }
+            if(sortColumn == 'remainingBudget'){
+                sqlRestriction "1=1 order by (max_budget - current_budget) ${sortOrder == 'asc' ? 'asc' : 'desc'}"
+            } else {
+                order(sortColumn, sortOrder == 'asc' ? 'asc' : 'desc')
             }
         }
 

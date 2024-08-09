@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.services.s3.model.S3Exception
 
 import java.nio.ByteBuffer
 
@@ -31,11 +32,15 @@ class AmazonImageService implements IImageService {
 
     @Override
     def getButtonImage(int buttonId) throws Exception {
-        String key = "${springSecurityService.principal.retailerId}/${buttonId}.png"
+        try {
+            String key = "${springSecurityService.principal.retailerId}/${buttonId}.png"
 
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(buttonImagesBucket).key(key).build()
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(buttonImagesBucket).key(key).build()
 
-        return s3Client.getObjectAsBytes(getObjectRequest).asByteArray()
+            return s3Client.getObjectAsBytes(getObjectRequest).asByteArray()
+        } catch (S3Exception ignored) {
+            return null
+        }
     }
 
     @Override

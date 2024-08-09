@@ -25,8 +25,8 @@
         sortOrder: ${sortParams?.sortColumn == 'maxRedemptions' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Max Redemptions</a></div>
     <div class="col-1 font-weight-bold"><a id="maxBudget" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'maxBudget',
         sortOrder: ${sortParams?.sortColumn == 'maxBudget' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Budget</a></div>
-    <div class="col-1 font-weight-bold"><a id="currentBudget" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'currentBudget',
-        sortOrder: ${sortParams?.sortColumn == 'currentBudget' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Remaining Budget</a></div>
+    <div class="col-1 font-weight-bold"><a id="remainingBudget" href="#" onclick="reOrderData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'remainingBudget',
+        sortOrder: ${sortParams?.sortColumn == 'remainingBudget' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Remaining Budget</a></div>
 </div>
 
 <div id="search-results">
@@ -68,5 +68,5 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxSearchLoyaltyOffers" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[loyaltyOffersTerm: loyaltyOffersTerm, loyaltyOffersSearchBy: loyaltyOffersSearchBy]" />
+    <util:remotePaginate action="ajaxSearchLoyaltyOffers" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: loyaltyOffersTerm, searchBy: loyaltyOffersSearchBy, sortColumn: sortParams?.sortColumn, sortOrder: sortParams?.sortOrder]" />
 </div>
