@@ -25,7 +25,7 @@
                             <div class="form-group row">
                                 <label for="storeNumberFilter" class="col-2 col-form-label-sm text-right">Store Number</label>
                                 <div class="col-4">
-                                    <g:field id="storeNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" value="${storeNumberFilter}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                                    <g:field id="storeNumberFilter" type="number" min="0" max="2147483647" name="storeNumberFilter" value="${storeNumberFilter}" class="form-control bottom-border" />
                                 </div>
 
                                 <label for="storeNameFilter" class="col-2 col-form-label-sm text-right">Store Name</label>
