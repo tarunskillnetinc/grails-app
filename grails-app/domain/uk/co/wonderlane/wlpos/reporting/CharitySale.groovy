@@ -21,7 +21,7 @@ class CharitySale {
 
         id column : "id"
         storeId column : "storeId", sqlType: "smallint"
-        storeNumber column : "storeNumber", sqlType: "smallint"
+        storeNumber column : "storeNumber"
         retailerId column : "retailerId", sqlType: "tinyint"
         tillId column : "tillId"
         transactionId column : "transactionId"
