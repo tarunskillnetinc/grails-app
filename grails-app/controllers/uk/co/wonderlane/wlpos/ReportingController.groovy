@@ -1633,6 +1633,7 @@ class ReportingController {
     private String getSalesByProductCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
         String pattern = "dd/MM/yy HH:mm:ss"
+        DateTimeZone userTimeZone = DateTimeZone.forID("Europe/London")
         DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern)
         stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
         sales?.each {
@@ -1642,7 +1643,12 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append("£" + it.costPrice?.setScale(2))
             stringBuilder.append(",")
-            stringBuilder.append("£" + it.retailPrice.subtract(it.vatAmount)?.setScale(2))
+
+            // Net Total Logic
+            def netTotal = it.retailPrice >= 0 ? it.retailPrice.subtract(it.costPrice) :
+                    it.retailPrice.negate().subtract(it.costPrice).negate()
+            stringBuilder.append("£" + netTotal?.setScale(2))
+
             stringBuilder.append(",")
             stringBuilder.append("£" + it.vatAmount?.setScale(2))
             stringBuilder.append(",")
@@ -1652,7 +1658,12 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.usersName)
             stringBuilder.append(",")
-            stringBuilder.append(it.dateCreated ? formatter.print(it.dateCreated) : "N/A")
+
+            // Timestamp Logic
+            def timestamp = it.dateCreated ? it.dateCreated.withZone(userTimeZone)?.
+                    toString("dd/MM/yyyy HH:mm:ss") : "N/A"
+            stringBuilder.append(timestamp)
+
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
