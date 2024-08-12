@@ -33,37 +33,54 @@ class ProductListService extends MySqlDal {
             if (searchBy == "Everything" && searchTerm) {
                 or {
                     like("description", "%$searchTerm%")
-                    def matchingEnums =[]
-                    ProductListStatus.values().each {status ->
-                        if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
-                            matchingEnums.add(status)
-                        }
-                    }
-                    if (matchingEnums.size() > 0) {
-                        matchingEnums.each {matchingEnum ->
+                    def matchingEnums = searchStatuses(searchTerm)
+
+                    if (!matchingEnums.isEmpty()) {
+                        matchingEnums.each { matchingEnum ->
                             eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
                         }
                     }
-                    like("ownerUsersName", "%$searchTerm%")
+
+                    if (searchTerm == "N/A") {
+                        isNull("ownerUsersName")
+                    } else {
+                        like("ownerUsersName", "%$searchTerm%")
+                    }
                 }
             } else if (searchBy == "Description" && searchTerm) {
                 like("description", "%$searchTerm%")
             } else if (searchBy == "Status" && searchTerm) {
-                def matchingEnums =[]
-                ProductListStatus.values().each {status ->
-                    if (status.toString().toLowerCase().contains(searchTerm.toLowerCase())){
-                        matchingEnums.add(status)
+                or {
+                    def matchingEnums = searchStatuses(searchTerm)
+
+                    if (matchingEnums.isEmpty()) {
+                        eq("status", null)
+                        return
                     }
-                }
-                if (matchingEnums.size() > 0) {
-                    matchingEnums.each {matchingEnum ->
-                        like("status", ProductListStatus.valueOf(matchingEnum.toString()))
+
+                    matchingEnums.each { matchingEnum ->
+                        eq("status", ProductListStatus.valueOf(matchingEnum.toString()))
                     }
                 }
             } else if (searchBy == "Current Owner" && searchTerm) {
-                like("ownerUsersName", "%$searchTerm%")
+                if (searchTerm == "N/A") {
+                    isNull("ownerUsersName")
+                } else {
+                    like("ownerUsersName", "%$searchTerm%")
+                }
             }
         }
+    }
+
+    private static def searchStatuses(String searchTerm) {
+        def statuses =[]
+        ProductListStatus.values().each {status ->
+            if (status.getFriendlyName().toString().toLowerCase().contains(searchTerm.toLowerCase())){
+                statuses.add(status)
+            }
+        }
+
+        return statuses
     }
 
     def getOrders(Integer storeId, Integer supplierId, DateTime startDate, DateTime endDate) {
@@ -154,15 +171,15 @@ class ProductListService extends MySqlDal {
             productList.productListItems?.each {
                 def productStock = it.productVariant?.getProductStock(productList.store?.id)
 
-                int quantityInStock = productStock?.quantityInStock ?: 0
-                int quantityOnOrder = productStock?.quantityOnOrder ?: 0
-                int quantityDelivered = productStock?.quantityDelivered ?: 0
+                BigDecimal quantityInStock = productStock?.quantityInStock ?: 0
+                BigDecimal quantityOnOrder = productStock?.quantityOnOrder ?: 0
+                BigDecimal quantityDelivered = productStock?.quantityDelivered ?: 0
 
                 cstmt.setInt(1, productList.store?.id)
                 cstmt.setLong(2, it.productVariant?.sku)
-                cstmt.setInt(3, productList.stockAdjustedOnCompletion ? quantityInStock + it.quantity : quantityInStock)
-                cstmt.setInt(4, Math.max(quantityOnOrder - it.quantity, 0))
-                cstmt.setInt(5, productList.stockAdjustedOnCompletion ? quantityDelivered : quantityDelivered + it.quantity)
+                cstmt.setBigDecimal(3, productList.stockAdjustedOnCompletion ? quantityInStock.add(it.quantity) : quantityInStock)
+                cstmt.setBigDecimal(4, quantityOnOrder.subtract(it.quantity).max(BigDecimal.ZERO))
+                cstmt.setBigDecimal(5, productList.stockAdjustedOnCompletion ? quantityDelivered : quantityDelivered.add(it.quantity))
 
                 cstmt.addBatch()
             }

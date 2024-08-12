@@ -8,27 +8,33 @@
         var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";
         var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";
 
+        function validateImg(input) {
+            if (input.files[0].size >= 1048576 /* 1MB */) {
+                return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'
+            }
+            if (input.files[0].type !== "image/png") {
+                return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'
+            }
+        }
+
         $(document).ready(function () {
             $('input[name=brandLogo]').change(function() {
-                if (this.files[0].size < 1048576 /* 1MB */) {
-                    if (this.files[0].type === "image/png") {
-                        const fileData = this.files[0];
-                        if (FileReader && fileData) {
-                            var urlFileReader = new FileReader();
-                            urlFileReader.onload = function () {
-                                var brandingImage = $(".branding-image");
-                                brandingImage.attr("src", urlFileReader.result);
-                                brandingImage.removeAttr("hidden");
-                            }
-                            urlFileReader.readAsDataURL(fileData);
-                        } else {
-                            // fallback?
-                        }
-                    } else {
-                        alert('${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}')
+                const error = validateImg(this);
+                if (error) {
+                    $('input[name=brandLogo]').val(null);
+                    alert(error);
+                    return
+                }
+
+                const fileData = this.files[0];
+                if (FileReader && fileData) {
+                    const urlFileReader = new FileReader();
+                    urlFileReader.onload = function () {
+                        const brandingImage = $(".branding-image");
+                        brandingImage.attr("src", urlFileReader.result);
+                        brandingImage.removeAttr("hidden");
                     }
-                } else {
-                    alert('${message(code:'button.error.fileSize.message', default:"Image file size too large")}')
+                    urlFileReader.readAsDataURL(fileData);
                 }
             });
 
@@ -68,10 +74,20 @@
         }
         function camelToReadable(camelCaseString) {
             // Use a regular expression to split the string at capital letters
-            const words = camelCaseString.split(/(?=[A-Z])/);
+            const words = splitCamelCaseString(camelCaseString);
             // Capitalize the first letter of each word and join with spaces
             const readableString = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             return readableString;
+        }
+
+        function renameBottomButtonName(camelCaseString) {
+            const words = splitCamelCaseString(camelCaseString);
+            words[1].charAt(0).toUpperCase();
+            return words[1];
+        }
+
+        function splitCamelCaseString(camelCaseString) {
+            return camelCaseString.split(/(?=[A-Z])/);
         }
     </script>
 </head>
@@ -105,14 +121,20 @@
     <g:hasErrors bean="${retailer}">
         <section id="errors-container" class="container-fluid">
             <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <g:renderErrors bean="${retailer}" as="list" />
+                <g:renderErrors bean="${retailer}" as="list"/>
             </div>
         </section>
     </g:hasErrors>
 
     <g:if test="${flash.error}">
-        <section id="errors-container" class="container-fluid">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+        <section id="errors-container2" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <ul>
+                    <g:each in="${flash.error}" var="error" status="i">
+                        <li>${error}</li>
+                    </g:each>
+                </ul>
+            </div>
         </section>
     </g:if>
 
@@ -129,7 +151,7 @@
 
 
     <section id="addProduct-section" class="container-fluid mt-4">
-        <g:uploadForm name="save-button" action="save">
+        <g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
             <div id="accordion">
                 <!-- General information. -->
                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -203,6 +225,13 @@
                                     <label for="scoEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">SCO Enabled</label>
                                     <div class="col-7 col-lg-4">
                                         <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="scoEnabled" id="scoEnabled" ${retailer?.config?.scoEnabled ? 'checked' : ''} />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="qrCodeScanningEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QR Code Scanning Enabled</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="qrCodeScanningEnabled" id="qrCodeScanningEnabled" ${retailer?.config?.qrCodeScanningEnabled ? 'checked' : ''} />
                                     </div>
                                 </div>
 
@@ -527,7 +556,24 @@
                                         <div class="btn btn-danger" id="reset-shelfCapacity-term-button"onclick="$('#shelfCapacityTerm').val('Shelf Capacity')">Reset</div>
                                     </div>
                                 </div>
-
+                                <div class="form-group row">
+                                    <label for="stockRoomTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomTerm" id="stockRoomTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-term-button" onclick="$('#stockRoomTerm').val('Stockroom')">Reset</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="stockRoomAbbreviatedTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Room (Abbreviated)</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.stockRoomAbbreviatedTerm" id="stockRoomAbbreviatedTerm" value="${retailer?.config?.retailerTerminologyConfig.stockRoomAbbreviatedTerm}" />
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="btn btn-danger" id="reset-stock-room-abbreviated-term-button" onclick="$('#stockRoomAbbreviatedTerm').val('S/R')">Reset</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -567,10 +613,10 @@
                                                 <div class="form-group row">
                                                     <label for="productLookupName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Name</label>
                                                     <div class="col-7 col-lg-4">
-                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems['productLookup'].name}"/>
+                                                        <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[productLookup].name" id="productLookupName" value="${retailer?.config?.retailerFunctionConfig?.functionMenuItems['productLookup'].name}"/>
                                                     </div>
                                                     <div class="form-group row">
-                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('')">Reset</div>
+                                                        <div class="btn btn-danger" id="reset-product-lookup-name-button"onclick="$('#productLookupName').val('Product Lookup')">Reset</div>
                                                     </div>
                                                 </div>
 
@@ -668,6 +714,13 @@
                                     </div>
                                 </div>
                                 <%
+                                    var bottomFileButtonName = "bottomFileButton"
+                                    var bottomButtonNames = [
+                                            "bottomHomeButton",
+                                            "bottomProductButton",
+                                            bottomFileButtonName,
+                                            "bottomSettingsButton"
+                                    ]
                                     var itemList = [
                                             "gapCheck",
                                             "stockCount",
@@ -688,12 +741,10 @@
                                             "priceCheck",
                                             "storeSales",
                                             "storeReports",
-                                            "varianceReport",
-                                            "bottomHomeButton",
-                                            "bottomProductButton",
-                                            "bottomFileButton",
-                                            "bottomSettingsButton",
+                                            "varianceReport"
                                     ]
+
+                                    itemList.addAll(bottomButtonNames)
                                 %>
                                 <g:each in="${itemList}" var="item" status="index">
                                     <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -717,7 +768,15 @@
                                                             <input type="text" class="col-5 form-control bottom-border" name="retailerFunctionConfig.functionMenuItems[${item}].name" id="${item}Name" value="${retailer?.config?.retailerFunctionConfig.functionMenuItems[item].name}"/>
                                                         </div>
                                                         <div class="form-group row">
-                                                            <div class="btn btn-danger" id="reset-${item}-name-button"onclick="$('#${item}Name').val('')">Reset</div>
+                                                            <g:if test="${item == bottomFileButtonName}">
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val('Sales')">Reset</div>
+                                                            </g:if>
+                                                            <g:elseif test="${bottomButtonNames.contains(item)}">
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(renameBottomButtonName('${item}'))">Reset</div>
+                                                            </g:elseif>
+                                                            <g:else>
+                                                                <div class="btn btn-danger item-label" id="reset-${item}-name-button"onclick="$('#${item}Name').val(camelToReadable('${item}'))">Reset</div>
+                                                            </g:else>
                                                         </div>
                                                     </div>
 

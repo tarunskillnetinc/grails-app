@@ -563,7 +563,6 @@ class ProductController extends BaseController {
                 return product
             }
 
-
             if (builder && builder.productHistories) {
                 productService.saveProductHistories(builder.productHistories)
             }
@@ -580,7 +579,9 @@ class ProductController extends BaseController {
                     return product
                 }
 
-                saveRangeUpdates(product, editedProduct.rangeId)
+                if (editedProduct.rangeId != null) {
+                    saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
+                }
             }
 
             if (isRequest) {
@@ -958,8 +959,8 @@ class ProductController extends BaseController {
             productService.saveProductHistories(builder.productHistories)
         }
 
-        for (int i = 0; i < deleteLocations.size(); i++) {
-            deleteLocations.get(i).delete()
+        deleteLocations.each{ location ->
+            location.deleted = true
         }
     }
 
@@ -1246,44 +1247,47 @@ class ProductController extends BaseController {
         }
     }
 
-    private void saveRangeUpdates(Product product, int[] savedRanges) {
-        def rangesRemovedFrom = []
-        def rangesAddedTo = []
+    private void saveRangeUpdates(Product product, HashSet<Integer> savedRanges) {
+        def productRanges = RangeProduct.getExistingProductRanges(product.id)
+        def ranges = Range.getExistingRetailerRanges(springSecurityService.principal.retailerId)
         def productHistories = []
 
-        def rangeProducts = RangeProduct.findAllByProductId(product.id)
-        rangeProducts.each { RangeProduct rangeProduct ->
-            if (!savedRanges?.contains(rangeProduct.rangeId)) {
-                rangesRemovedFrom.add(rangeProduct.rangeId)
-            }
-        }
-
         savedRanges?.each { Integer rangeId ->
-            if (!rangeProducts.any { it.rangeId == rangeId }) {
-                rangesAddedTo.add(rangeId)
+            if (!productRanges.containsKey(rangeId)) {
+                // range doesn't exist for product, so add it
+                addRange(product, ranges.get(rangeId), productHistories)
+            } else if (productRanges.get(rangeId).deleted) {
+                // range exists, but is soft deleted, un-delete it
+                undeleteRange(product, productRanges.get(rangeId), ranges.get(rangeId), productHistories)
             }
         }
 
-        rangesRemovedFrom.each { Integer rangeId ->
-            RangeProduct rangeProductDelete = rangeProducts.find { it.rangeId == rangeId }
-            productHistories.add(handleProductRangeHistory(rangeProductDelete, false))
-            productService.deleteRangeProduct(rangeProductDelete)
-        }
-
-        def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId)
-        rangesAddedTo.each { Integer rangeId ->
-            RangeProduct rangeProduct = new RangeProduct(range: ranges?.find { it.id == rangeId }, productId: product.id)
-            productHistories.add(handleProductRangeHistory(rangeProduct, true))
-            productService.saveRangeProduct(rangeProduct)
-            productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
-        }
-
-        if (productHistories != null && productHistories.size() > 0){
+        // delete all ranges that have been unselected, except those already soft-deleted
+        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories)}
+        if (productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
     }
 
-    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew){
+    private void addRange(Product product, Range range, ArrayList<ProductHistory> history) {
+        RangeProduct rangeProduct = new RangeProduct(range: range, productId: product.id)
+        history.add(handleProductRangeHistory(rangeProduct, true))
+        productService.saveRangeProduct(rangeProduct)
+        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, range))
+    }
+
+    private void undeleteRange(Product product, RangeProduct rangeProduct, Range range, ArrayList<ProductHistory> history) {
+        history.add(handleProductRangeHistory(rangeProduct, true))
+        productService.undeleteRangeProduct(rangeProduct)
+        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, range))
+    }
+
+    private void deleteRange(RangeProduct rangeProduct, ArrayList<ProductHistory> history) {
+        history.add(handleProductRangeHistory(rangeProduct, false))
+        productService.deleteRangeProduct(rangeProduct)
+    }
+
+    private ProductHistory handleProductRangeHistory(RangeProduct rangeProduct, boolean isNew) {
         def now = DateTime.now(DateTimeZone.UTC)
         ProductHistoryType productHistoryType = isNew ? ProductHistoryType.PRODUCT_RANGE_ADD : ProductHistoryType.PRODUCT_RANGE_DELETE
 
@@ -1694,7 +1698,7 @@ class AddPackCommand implements Validateable {
     int index
     Integer id
     SupplierCommand supplier
-    Integer quantity
+    BigDecimal quantity
     BigDecimal price
     String orderCode
     String barcode
@@ -1705,6 +1709,7 @@ class AddPackCommand implements Validateable {
     Integer maximumOrderQuantity
     Boolean allowSubstitutes
     boolean isNewPack = false
+    boolean isWeighted = false
     Integer productVariantId
 
     static constraints = {
@@ -1719,9 +1724,10 @@ class AddPackCommand implements Validateable {
             if (BigDecimal.ZERO == it) return ['addPackCommand.price.zero']
             if (it >= 10000) return ['addPackCommand.price.max']
         }
-        quantity validator: {
-            if (it <= 0) return ['addPackCommand.packQuantity.zero']
-            if (it > Integer.MAX_VALUE) return ['addPackCommand.packQuantity.maxValue']
+        quantity validator: { quantity, pack ->
+            if (!pack.isWeighted && quantity.remainder(BigDecimal.ONE) != BigDecimal.ZERO) return ['addPackCommand.packQuantity.integer']
+            if (quantity <= BigDecimal.ZERO) return ['addPackCommand.packQuantity.zero']
+            if (quantity > BigDecimal.valueOf(Integer.MAX_VALUE)) return ['addPackCommand.packQuantity.maxValue']
         }
         recommendedRetailPrice validator: {
             if (BigDecimal.ZERO == it) return ['addPackCommand.recommendedRetailPrice.zero']
@@ -1875,7 +1881,7 @@ class ProductVariantCommand {
 class PackCommand {
     int id
     Supplier supplier
-    int quantity
+    BigDecimal quantity
     BigDecimal price
     String orderCode
     String barcode

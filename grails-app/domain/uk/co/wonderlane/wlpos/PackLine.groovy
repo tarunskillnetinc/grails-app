@@ -2,6 +2,8 @@ package uk.co.wonderlane.wlpos
 
 import uk.co.wonderlane.wlpos.supplier.Pack
 
+import java.math.RoundingMode
+
 class PackLine {
 
     int id
@@ -31,17 +33,42 @@ class PackLine {
         pack nullable: true
     }
 
-    int getTotalQuantity() {
-        return (quantity ?: BigDecimal.ZERO).multiply((pack?.quantity ?: BigDecimal.ZERO))?.intValue()
+    boolean isWeighted() {
+        return productListItem?.productVariant?.product?.weightedItem ?: false
+    }
+
+    BigDecimal getTotalQuantity() {
+        BigDecimal result = quantity ?: BigDecimal.ZERO
+        if (pack) {
+            result *= (pack?.quantity ?: BigDecimal.ZERO)
+        }
+        return result.setScale(isWeighted() ? 3 : 0, RoundingMode.HALF_UP)
     }
 
     BigDecimal getTotalCostPrice() {
-        return (quantity ?: BigDecimal.ZERO).multiply(pack?.price ?: BigDecimal.ZERO)
+        if (pack) {
+            return (quantity ?: BigDecimal.ZERO) * (pack?.price ?: BigDecimal.ZERO)
+        }
+        return (quantity ?: BigDecimal.ZERO) * (productListItem?.productVariant?.currentPrice ?: BigDecimal.ZERO)
     }
 
     BigDecimal getTotalValue() {
         def retailPrice = productListItem?.productVariant?.currentPrice ?: BigDecimal.ZERO
 
         return retailPrice.multiply(getTotalQuantity())
+    }
+
+    BigDecimal getPackCost() {
+        if (pack) {
+            return pack?.price ?: BigDecimal.ZERO
+        }
+        return productListItem?.productVariant?.currentPrice ?: BigDecimal.ZERO
+    }
+
+    BigDecimal getPackSize() {
+        if (pack) {
+            return pack?.quantity?.setScale(isWeighted() ? 3 : 0, RoundingMode.HALF_UP) ?: BigDecimal.ZERO
+        }
+        return 1 // singles
     }
 }

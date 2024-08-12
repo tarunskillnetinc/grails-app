@@ -14,6 +14,16 @@ class PromotionService {
         promotion.save()
     }
 
+    def savePromotionStores(Promotion promotion, Collection<Store> stores) {
+        stores.each { store ->
+                PromotionStore ps = new PromotionStore(promotion: promotion, storeId: store.id)
+                if (ps.validate()) {
+                    promotion.addToStores(ps)
+                }
+        }
+        promotion.save()
+    }
+
     def getPromotion(int promotionId) {
         def promotionCriteria = Promotion.createCriteria()
 
@@ -52,6 +62,11 @@ class PromotionService {
             or {
                 isNull("endDate")
                 gte("endDate", DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1))
+            }
+            if (springSecurityService.principal.storeId) {
+                stores {
+                    inList("storeId", springSecurityService.principal.storeId)
+                }
             }
         }
 
@@ -126,6 +141,12 @@ class PromotionService {
 
             if (sortColumn != "supplierName") {
                 order(sortColumn ?: "description", sortOrder ?: "asc")
+            }
+
+            if (springSecurityService.principal.storeId) {
+                stores {
+                    inList("id", springSecurityService.principal.storeId)
+                }
             }
         }
 
