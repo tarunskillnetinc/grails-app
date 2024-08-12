@@ -536,7 +536,6 @@ class ProductListService extends MySqlDal {
     }
 
     private void setProductListExportFields(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String retailerStoreId, ProductListStockTransaction productListExportRequest) throws SQLException {
-        productListExportRequest.setType(TransactionType.STOCK_TRANSACTION)
         productListExportRequest.setTransactionDateTime(DateTime.now())
         productListExportRequest.setRetailerId(springSecurityService.principal.retailerId)
         productListExportRequest.setProductList(productList)
