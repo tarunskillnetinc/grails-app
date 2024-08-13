@@ -109,13 +109,12 @@ class ProductListController {
 
             def productListStoresToBeSaved = new ArrayList()
 
-            // TODO - change the cmd obj to contain store ID not store number
             for (int storeId : cmd.storeIdList) {
-                        ProductListStore productListStore = new ProductListStore()
-                        productListStore.productList = productList
-                        productListStore.store = Store.load(storeId)
-                        productListStoresToBeSaved.add(productListStore)
-                    }
+                ProductListStore productListStore = new ProductListStore()
+                productListStore.productList = productList
+                productListStore.store = Store.load(storeId)
+                productListStoresToBeSaved.add(productListStore)
+            }
             productListService.saveProductListStores(productListStoresToBeSaved)
 
             redirect(action: "listCentralCounts")
