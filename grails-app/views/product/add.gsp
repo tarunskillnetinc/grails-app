@@ -513,6 +513,13 @@
                 });
             }
 
+            function saveButtonClicked() {
+                $('#add-product-form').submit();
+                $('#add-product-form').submit(function () {
+                    return false;
+                });
+            }
+
             // Delete barcode button was clicked, we just remove the div.
             function deleteBarcode(index) {
                 if (!confirm("This barcode will be deleted.")) {
@@ -943,7 +950,7 @@
 
                 <div class="col-2 text-right">
                     <g:link elementId="product-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
-                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
+                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="saveButtonClicked()">Save</button>
                 </div>
             </div>
         </section>

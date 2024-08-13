@@ -171,15 +171,15 @@ class ProductListService extends MySqlDal {
             productList.productListItems?.each {
                 def productStock = it.productVariant?.getProductStock(productList.store?.id)
 
-                int quantityInStock = productStock?.quantityInStock ?: 0
-                int quantityOnOrder = productStock?.quantityOnOrder ?: 0
-                int quantityDelivered = productStock?.quantityDelivered ?: 0
+                BigDecimal quantityInStock = productStock?.quantityInStock ?: 0
+                BigDecimal quantityOnOrder = productStock?.quantityOnOrder ?: 0
+                BigDecimal quantityDelivered = productStock?.quantityDelivered ?: 0
 
                 cstmt.setInt(1, productList.store?.id)
                 cstmt.setLong(2, it.productVariant?.sku)
-                cstmt.setInt(3, productList.stockAdjustedOnCompletion ? quantityInStock + it.quantity : quantityInStock)
-                cstmt.setInt(4, Math.max(quantityOnOrder - it.quantity, 0))
-                cstmt.setInt(5, productList.stockAdjustedOnCompletion ? quantityDelivered : quantityDelivered + it.quantity)
+                cstmt.setBigDecimal(3, productList.stockAdjustedOnCompletion ? quantityInStock.add(it.quantity) : quantityInStock)
+                cstmt.setBigDecimal(4, quantityOnOrder.subtract(it.quantity).max(BigDecimal.ZERO))
+                cstmt.setBigDecimal(5, productList.stockAdjustedOnCompletion ? quantityDelivered : quantityDelivered.add(it.quantity))
 
                 cstmt.addBatch()
             }

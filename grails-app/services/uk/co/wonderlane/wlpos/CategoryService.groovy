@@ -1,8 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
@@ -15,8 +13,18 @@ class CategoryService {
         return Category.findByIdAndRetailerId(categoryId, springSecurityService.principal.retailerId)
     }
 
-    def searchCategories(String searchTerm) {
-        return Category.findAllByRetailerIdAndDescriptionLike(springSecurityService.principal.retailerId, "%$searchTerm%")
+    def searchCategories(String searchTerm = null, String searchBy = "description", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
+        return Category.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+
+            if (searchTerm) {
+                if (searchBy == "description") {
+                    like("description", "%$searchTerm%")
+                } else if (searchBy == "categoryCode") {
+                    like("retailerCategoryCode", "%$searchTerm%")
+                }
+            }
+        }
     }
 
     def getTopLevelCategories() {

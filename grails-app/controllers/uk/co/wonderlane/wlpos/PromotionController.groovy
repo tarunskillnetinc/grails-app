@@ -1,8 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-
-import org.apache.commons.lang3.RegExUtils
-import org.hibernate.Session
+import grails.validation.Validateable
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -13,14 +11,15 @@ import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
-import java.math.RoundingMode
-
 class PromotionController {
 
     def springSecurityService
 
     def productService
     def promotionService
+    def storeService
+    def categoryService
+    def tagService
     def rabbitService
     def gsonProvider
 
@@ -44,410 +43,284 @@ class PromotionController {
         ])
     }
 
-    def maintenance() {
-        List<Map> productsRequired = new ArrayList<>()
-        List<Map> productsOffer = new ArrayList<>()
-        List<Map> categoriesRequired = new ArrayList<>()
-        List<Map> categoriesOffer = new ArrayList<>()
-        List<Map> tagsRequired = new ArrayList<>()
-        List<Map> tagsOffer = new ArrayList<>()
-
-        def promo = Promotion.findById(params.promotionId)
-
-        promo.groups.each {
-            if (it.type == PromotionGroupType.REQUIRED) {
-                if (it.sku != null) {
-                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
-                } else if (it.categoryId != null) {
-                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
-                } else {
-                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
-                }
-            } else {
-                if (it.sku != null) {
-                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
-                } else if (it.categoryId != null) {
-                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
-                } else {
-                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
-                }
-            }
-        }
-
-        tagsRequired?.each { tagRequired ->
-            tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
-                def productVariant = productService.getProductVariant(tagProduct.sku)
-
-                if (productVariant?.product) {
-                    tagProduct.productId = productVariant.product.id
-                    tagProduct.productDescription = productVariant.product.description
-                }
-            }
-        }
-
-        tagsOffer?.each { tagOffer ->
-            tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
-                def productVariant = productService.getProductVariant(tagProduct.sku)
-
-                if (productVariant?.product) {
-                    tagProduct.productId = productVariant.product.id
-                    tagProduct.productDescription = productVariant.product.description
-                }
-            }
-        }
-
-        def productItemType = "product"
-        if (categoriesRequired?.size() > 0 || categoriesOffer?.size() > 0) {
-            productItemType = "category"
-        } else if (tagsRequired?.size() > 0 || tagsOffer?.size() > 0) {
-            productItemType = "tag"
-        }
-
-        session.addedStores = !promo.storeIds.isEmpty() ? Store.findAllByIdInList(promo.storeIds) : []
-
-        render (view: 'maintenance', model:[promotion: promo,
-                                            promoType: promo.type.toString().toLowerCase(),
-                                            productsRequired: productsRequired,
-                                            productsOffer: productsOffer,
-                                            categoriesRequired: categoriesRequired,
-                                            categoriesOffer: categoriesOffer,
-                                            tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer,
-                                            productItemType: productItemType,
-                                            editing: true,
-                                            addedStores: session.addedStores])
-    }
-
-    def maintenanceError() {
-        List<Map> productsRequired = new ArrayList<>()
-        List<Map> productsOffer = new ArrayList<>()
-        List<Map> categoriesRequired = new ArrayList<>()
-        List<Map> categoriesOffer = new ArrayList<>()
-        List<Map> tagsRequired = new ArrayList<>()
-        List<Map> tagsOffer = new ArrayList<>()
-
-        def promo = flash.promotion
-
-        if (!promo) {
-            redirect (action: "add")
-            return
-        }
-
-        promo?.groups?.each {
-            if (it.type == PromotionGroupType.REQUIRED) {
-                if (it.sku != null) {
-                    productsRequired.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
-                } else if (it.categoryId != null) {
-                    categoriesRequired.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
-                } else {
-                    tagsRequired.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
-                }
-            } else {
-                if (it.sku != null) {
-                    productsOffer.add([product: productService.getProductVariant(it.sku)?.product, quantity: it.requiredQuantity, value: it.requiredValue, sku: it.sku])
-                } else if (it.categoryId != null) {
-                    categoriesOffer.add([category: Category.findById(it.categoryId), quantity: it.requiredQuantity, value: it.requiredValue])
-                } else {
-                    tagsOffer.add([tag: Tag.findById(it.tagId), quantity: it.requiredQuantity, value: it.requiredValue])
-                }
-            }
-        }
-
-        tagsRequired?.each { tagRequired ->
-            tagRequired.get("tag")?.tagProducts?.each { tagProduct ->
-                def productVariant = productService.getProductVariant(tagProduct.sku)
-
-                if (productVariant?.product) {
-                    tagProduct.productId = productVariant.product.id
-                    tagProduct.productDescription = productVariant.product.description
-                }
-            }
-        }
-
-        tagsOffer?.each { tagOffer ->
-            tagOffer.get("tag")?.tagProducts?.each { tagProduct ->
-                def productVariant = productService.getProductVariant(tagProduct.sku)
-
-                if (productVariant?.product) {
-                    tagProduct.productId = productVariant.product.id
-                    tagProduct.productDescription = productVariant.product.description
-                }
-            }
-        }
-
-        def productItemType = "product"
-        if (categoriesRequired?.size() > 0 || categoriesOffer?.size() > 0) {
-            productItemType = "category"
-        } else if (tagsRequired?.size() > 0 || tagsOffer?.size() > 0) {
-            productItemType = "tag"
-        }
-
-        render (view: 'maintenance', model:[promotion: promo,
-                                            promoType: promo.type.toString().toLowerCase(),
-                                            productsRequired: productsRequired,
-                                            productsOffer: productsOffer,
-                                            categoriesRequired: categoriesRequired,
-                                            categoriesOffer: categoriesOffer,
-                                            tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer,
-                                            productItemType: productItemType])
-    }
-
     def add() {
-        List<Map> productsRequired = new ArrayList<>()
-        List<Map> productsOffer = new ArrayList<>()
-        List<Map> categoriesRequired = new ArrayList<>()
-        List<Map> categoriesOffer = new ArrayList<>()
-        List<Map> tagsRequired = new ArrayList<>()
-        List<Map> tagsOffer = new ArrayList<>()
-        
-        render (view: 'maintenance', model:[promotion: null,
-                                            promoType: 'bogof',
-                                            productsRequired: productsRequired,
-                                            productsOffer: productsOffer,
-                                            categoriesRequired: categoriesRequired,
-                                            categoriesOffer: categoriesOffer,
-                                            tagsRequired: tagsRequired,
-                                            tagsOffer: tagsOffer,
-                                            editing: false])
+        [promotionTypes: PromotionType.values(), canEdit: true]
     }
 
-    def setupBasePromotion(Promotion promotion, String type) {
-        promotion.description = params."${type}-description"
-        promotion.receiptDescription = params."${type}-receiptDescription"
-        promotion.startDate = DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-startDate")
-        promotion.endDate = (params."${type}-doesNotExpire" ? null : DateTimeFormat.forPattern("EEEE dd MMMM yyyy").parseDateTime(params."${type}-endDate"))
+    def edit(int id) {
+        def promotion = promotionService.getPromotion(id)
 
-        promotion.updateDatetime = new DateTime()
-        promotion.active = params."${type}-active" != null
-        promotion.retailerPromotionId = params."${type}-retailerPromoId" ? Integer.parseInt(params."${type}-retailerPromoId") : null
+        if (!promotion) {
+            flash.error = "Promotion not found"
+            redirect (action: "index")
+            return
+        }
 
-        switch (type) {
-            case "bogof":
-                promotion.amount = new BigDecimal(0).setScale(2, RoundingMode.HALF_UP)
-                promotion.type = PromotionType.BOGOF
-                break
-            case "xfory":
-                promotion.amount = new BigDecimal(0).setScale(2, RoundingMode.HALF_UP)
-                promotion.type = PromotionType.X_FOR_Y
-                break
-            case "percentage":
-                String amount = RegExUtils.removeAll(params."percentage-amount", "[,]")
-                promotion.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP)
-                promotion.type = PromotionType.PERCENTAGE_DISCOUNT
-                break
-            case "fixedAmount":
-                String amount = RegExUtils.removeAll(params."fixedAmount-amount", "[,]")
-                promotion.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP)
-                promotion.type = PromotionType.FIXED_AMOUNT_DISCOUNT
-                break
-            case "fixedPrice":
-                String amount = RegExUtils.removeAll(params."fixedPrice-amount", "[,]")
-                promotion.amount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP)
-                promotion.type = PromotionType.FIXED_PRICE
-                break
+        def canEdit = true
+        // If we're logged in at store level and promotion has stores
+        if (promotion?.stores && springSecurityService.principal.storeId) {
+            // Check if the user's store ID is in the list of promotion stores
+            promotion.stores.each { store ->
+                if (springSecurityService.principal.storeId == store.id) {
+                    // If the promotion has more than one store, it should be read only
+                    if (promotion.stores.size() > 1) {
+                        canEdit = false
+                        return // Exit the loop early as further checks are unnecessary
+                    }
+                }
+            }
         }
 
 
-        return promotion
+        // In the current implementation, the stores on the form are stored in the session so we need to set these now otherwise we can't manipulate the list on screen correctly.
+        session.addedStores = promotion?.stores
+
+
+        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit])
     }
 
-    private Promotion failPromotion(Promotion promotion, PromotionType oldType) {
-        if (oldType) {
-            promotion.type = oldType
+    def ajaxSearchTags(String searchTerm) {
+        def tags = tagService.getTags(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+
+        render(template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: tags.totalCount])
+    }
+
+    def ajaxSearchCategories(String searchTerm, String searchBy) {
+        def categories = categoryService.searchCategories(searchTerm, searchBy)
+
+        render(template: "categorySearchResults", model: [categories: categories, searchTerm: searchTerm, searchBy: searchBy, max: params.max ?: 50, offset: params.offset, totalResults: categories.totalCount])
+    }
+
+    def ajaxGetSku(long id, String promotionType, String promotionGroupType, int groupId) {
+        // Note id is actually a sku.
+        def productVariant = productService.getProductVariant(id)
+
+        def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
+
+        PromotionGroupCommand promotionGroup = new PromotionGroupCommand()
+        promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
+        promotionGroup.sku = id
+
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: productVariant?.product?.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+    }
+
+    def ajaxGetTag(int id, String promotionType, String promotionGroupType, int groupId) {
+        def tag = tagService.getTag(id)
+
+        def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
+
+        PromotionGroupCommand promotionGroup = new PromotionGroupCommand()
+        promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
+        promotionGroup.tagId = id
+
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: tag.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+    }
+
+    def ajaxGetCategory(int id, String promotionType, String promotionGroupType, int groupId) {
+        def category = categoryService.getCategory(id)
+
+        def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
+
+        PromotionGroupCommand promotionGroup = new PromotionGroupCommand()
+        promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
+        promotionGroup.categoryId = id
+
+        render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: category.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
+    }
+
+    private List<Boolean> getQuantityAndValueFieldVisibility(PromotionType promotionType) {
+        switch (promotionType) {
+            case PromotionType.BOGOF:
+                return [false, false]
+            case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                return [true, true]
+            case PromotionType.PERCENTAGE_DISCOUNT:
+                return [true, false]
+            case PromotionType.X_FOR_Y:
+                return [true, false]
+            case PromotionType.FIXED_PRICE:
+                return [true, false]
         }
 
-        flash.promotion = promotion
-
-        return promotion
+        return [false, false]
     }
 
-    def save() {
-        def promotion = Promotion.findByRetailerIdAndId(springSecurityService.principal.retailerId, params.promotionId.equals("") ? 0 : Integer.valueOf(params.promotionId))
-        def newPromotion = false
-        if (promotion == null) {
-            promotion = new Promotion()
-            newPromotion = true
+    def save(PromotionCommand promotionCommand) {
 
+        // If we're logged in at a store, we want to ensure the promotionCommand contains our store.
+        if (springSecurityService.principal.storeId) {
+            Store store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            promotionCommand.storez.add(new PromotionStoreCommand(id: store.id, storeName: store.config.storeName, storeNumber: store.config.storeNumber))
+        }
+
+        // Deliberate use of & so that the children get validated regardless of the promotion itself being validated.
+        if (promotionCommand.validate() & validateChildren(promotionCommand)) {
+            Promotion promotion
+
+            if (promotionCommand.id > 0) {
+                promotion = promotionService.getPromotion(promotionCommand.id)
+
+                if (!promotion) {
+                    flash.error = "Promotion not found"
+                    redirect (action: "index")
+                    return
+                }
+            } else {
+                promotion = new Promotion()
+            }
+
+            bindData(promotion, promotionCommand)
+
+            promotion.updateDatetime = DateTime.now(DateTimeZone.UTC)
             promotion.retailerId = springSecurityService.principal.retailerId
-        }
 
-        def oldType = promotion.type
-
-        promotion = setupBasePromotion(promotion, params.promotionType)
-
-        if (!newPromotion) {
-            if (!promotion.validate()) {
-                // something is wrong already, don't go any further
-                promotion = failPromotion(promotion, oldType)
-                redirect(controller: "promotion", action: "maintenanceError")
-                return
+            if (promotion.type == PromotionType.BOGOF || promotion.type == PromotionType.X_FOR_Y) {
+                promotion.amount = BigDecimal.ZERO
             }
-        }
 
-        switch (params.promotionType) {
-            case "bogof":
-                if (newPromotion || oldType != promotion.type || !params.boolean('bogof-noItemChange')) {
-                    def promoRequiredGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.REQUIRED, requiredQuantity: 1, sku: params."bogof-product-required-1-sku", categoryId: params."bogof-category-required-1-categoryId", tagId: params."bogof-tag-required-1-tagId", value: null)
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion,type: PromotionGroupType.OFFER, requiredQuantity: 1, sku: params."bogof-product-required-1-sku", categoryId: params."bogof-category-required-1-categoryId", tagId: params."bogof-tag-required-1-tagId", value: null)
+            addRemovePromotionGroups(promotion, promotionCommand, PromotionGroupType.REQUIRED)
+            addRemovePromotionGroups(promotion, promotionCommand, PromotionGroupType.OFFER)
+            addRemoveStores(promotion, promotionCommand)
 
-                    if ((promoRequiredGroup != null && promoRequiredGroup.validate()) && (promoOfferGroup != null && promoOfferGroup.validate())) {
-                        promotion.groups*.delete()
-                        promotion.groups.clear()
-
-                        promotion.addToGroups(promoRequiredGroup)
-                        promotion.addToGroups(promoOfferGroup)
-                    } else {
-                        // something is wrong in the new groups
-                        promotion = failPromotion(promotion, oldType)
-                        promotion.errors.reject('error.Promotion.invalidPromotionError')
-                        redirect(controller: "promotion", action: "maintenanceError")
-                        return
-                    }
-                }
-                break
-            case "xfory":
-                if (newPromotion || oldType != promotion.type || !params.boolean('xfory-noItemChange')) {
-                    def promoRequiredGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.REQUIRED, requiredQuantity: params."xfory-${params.'xfory-promotionItemsType'}-required-1-quantity", sku: params."xfory-product-required-1-sku", categoryId: params."xfory-category-required-1-categoryId", tagId: params."xfory-tag-required-1-tagId", value: null)
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."xfory-${params.'xfory-promotionItemsType'}-offer-1-quantity", sku: params."xfory-product-offer-1-sku", categoryId: params."xfory-category-offer-1-categoryId", tagId: params."xfory-tag-offer-1-tagId", value: null)
-
-                    if ((promoRequiredGroup != null && promoRequiredGroup.validate()) && (promoOfferGroup != null && promoOfferGroup.validate())) {
-                        promotion.groups*.delete()
-                        promotion.groups.clear()
-
-                        promotion.addToGroups(promoRequiredGroup)
-                        promotion.addToGroups(promoOfferGroup)
-                    } else {
-                        // something is wrong in the new groups
-                        promotion = failPromotion(promotion, oldType)
-                        promotion.errors.reject('error.Promotion.invalidPromotionError')
-                        redirect(controller: "promotion", action: "maintenanceError")
-                        return
-                    }
-                }
-                break
-            case "percentage":
-                if (newPromotion || oldType != promotion.type || !params.boolean('percentage-noItemChange')) {
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."percentage-${params.'percentage-promotionItemsType'}-required-1-quantity", sku: params."percentage-product-required-1-sku", categoryId: params."percentage-category-required-1-categoryId", tagId: params."percentage-tag-required-1-tagId", value: null)
-
-                    if ((promoOfferGroup != null && promoOfferGroup.validate())) {
-                        promotion.groups*.delete()
-                        promotion.groups.clear()
-
-                        promotion.addToGroups(promoOfferGroup)
-                    }  else {
-                        promotion = failPromotion(promotion, oldType)
-                        promotion.errors.reject('error.Promotion.invalidPromotionError')
-                        redirect(controller: "promotion", action: "maintenanceError")
-                        return
-                    }
-                }
-                break
-            case "fixedAmount":
-                if (newPromotion || oldType != promotion.type || !params.boolean('fixedAmount-noItemChange')) {
-                    def promoOfferGroup = new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-quantity" == "" ? null : params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-quantity", sku: params."fixedAmount-product-required-1-sku", categoryId: params."fixedAmount-category-required-1-categoryId", tagId: params."fixedAmount-tag-required-1-tagId", requiredValue: params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-value" == "" ? null : new BigDecimal(params."fixedAmount-${params.'fixedAmount-promotionItemsType'}-required-1-value").setScale(2, RoundingMode.HALF_UP))
-
-                    if ((promoOfferGroup != null && promoOfferGroup.validate())) {
-                        promotion.groups*.delete()
-                        promotion.groups.clear()
-
-                        promotion.addToGroups(promoOfferGroup)
-                    } else {
-                        // something is wrong in the new groups
-                        promotion = failPromotion(promotion, oldType)
-                        promotion.errors.reject('error.Promotion.invalidPromotionError')
-                        redirect(controller: "promotion", action: "maintenanceError")
-                        return
-                    }
-                }
-                break
-            case "fixedPrice":
-                def itemNo = Integer.parseInt(params.'fixedPrice-count-required')
-
-                if (newPromotion || oldType != promotion.type || !params.boolean('fixedPrice-noItemChange')) {
-                    def promoOfferGroups = new ArrayList<PromotionGroup>()
-
-                    def count = 0
-                    for (int i = 0; i < itemNo; i++) {
-                        def param
-                        if (params."fixedPrice-promotionItemsType" == "product") {
-                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-sku/$
-                        } else {
-                            param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
-                        }
-
-                        while (!params.containsKey(param.toString())) {
-                            count++
-                            if (params."fixedPrice-promotionItemsType" == "product") {
-                                param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-sku/$
-                            } else {
-                                param = $/fixedPrice-${params."fixedPrice-promotionItemsType"}-required-${count}-${params."fixedPrice-promotionItemsType"}Id/$
-                            }
-                            if (count > 999999) {
-                                promotion = failPromotion(promotion, oldType)
-                                promotion.errors.reject('error.Promotion.invalidPromotionError')
-                                redirect(controller: "promotion", action: "maintenanceError")
-                                return
-                            }
-                        }
-
-                        if (params.containsKey(param.toString())){
-                            promoOfferGroups.add(new PromotionGroup(promotion: promotion, type: PromotionGroupType.OFFER, requiredQuantity: params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity" == "" ? null : params."fixedPrice-${params.'fixedPrice-promotionItemsType'}-required-${count}-quantity", sku: params."fixedPrice-product-required-${count}-sku", categoryId: params."fixedPrice-category-required-${count}-categoryId", tagId: params."fixedPrice-tag-required-${count}-tagId", value: null))
-                            count++
-                        }
-                    }
-
-                    if (!promoOfferGroups.isEmpty()) {
-                        def validationError = false
-                        promoOfferGroups.each {
-                            if (!it.validate()) {
-                                validationError = true
-                            }
-                        }
-
-                        if (!validationError) {
-                            promotion.groups*.delete()
-                            promotion.groups.clear()
-
-                            promoOfferGroups.each {
-                                promotion.addToGroups(it)
-                            }
-                        } else {
-                            promotion = failPromotion(promotion, oldType)
-                            promotion.errors.reject('error.Promotion.invalidPromotionError')
-                            redirect(controller: "promotion", action: "maintenanceError")
-                            return
-                        }
-                    } else {
-                        promotion = failPromotion(promotion, oldType)
-                        promotion.errors.reject('error.Promotion.invalidPromotionError')
-                        redirect(controller: "promotion", action: "maintenanceError")
-                        return
-                    }
-                }
-
-                break
-        }
-
-        if (promotion.validate() && session.addedStores?.isEmpty() == false) {
-            def type = params.promotionType
-            if (!params."${type}-doesNotExpire") {
-                // Client formats the Date Time without the Hours, Minutes, or Seconds, we can safely pad the saved date time, every time.
-                promotion.setEndDate(promotion.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
-            }
-            promotion.stores*.delete()
-            promotion.stores.clear()
             promotionService.savePromotion(promotion)
-            promotionService.savePromotionStores(promotion, session.addedStores)
 
-            redirect(controller: "promotion", action: "sendToTill" , params: [promotionId: promotion.id])
-            return
+            try {
+                sendToTills(promotion)
+            } catch (Exception e) {
+                flash.error = "Promotion was unable to be sent to tills."
+            }
+
+            flash.message = "Promotion added successfully."
+
+            redirect(action: "index")
         } else {
-            promotion = failPromotion(promotion, oldType)
-            promotion.errors.reject('error.Promotion.invalidPromotionError')
-            redirect(controller: "promotion", action: "maintenanceError")
-            return
+            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values()])
         }
+    }
+
+    private void addRemovePromotionGroups(Promotion promotion, PromotionCommand promotionCommand, PromotionGroupType promotionGroupType) {
+        def promotionGroups = []
+
+        promotionCommand.getGroups(promotionGroupType)?.each {
+            PromotionGroup promotionGroup = promotion?.groups?.find { pg -> pg.id == it.id && pg.type == promotionGroupType } ?: new PromotionGroup()
+
+            bindData(promotionGroup, it)
+
+            promotionGroups.add(promotionGroup)
+        }
+
+        // Calculate which groups were added to or removed from the promotion.
+        def removedGroups = promotion.groups?.findAll {it.type == promotionGroupType && !promotionGroups?.contains(it) }
+        def addedGroups = promotionGroups?.findAll { !promotion.groups?.contains(it) }
+
+        removedGroups?.each {
+            promotion.removeFromGroups(it)
+        }
+
+        addedGroups?.each {
+            promotion.addToGroups(it)
+        }
+    }
+
+    private void addRemoveStores(Promotion promotion, PromotionCommand promotionCommand) {
+        def selectedStores = storeService.getStores(promotionCommand.storez?.collect { it.id })
+
+        // Calculate which stores were added to or removed from the promotion.
+        def removedStores = promotion.stores?.findAll { !selectedStores?.contains(it) }
+        def addedStores = selectedStores?.findAll { !promotion.stores?.contains(it) }
+
+        removedStores?.each {
+            promotion.removeFromStores(it)
+        }
+
+        addedStores?.each {
+            promotion.addToStores(it)
+        }
+    }
+
+    private void sendToTills(Promotion promotion) {
+        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PROMOTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
+        syncMessage.setInsert(true)
+
+        // TODO This doesn't appear to take into account the actual stores selected from the list yet?
+
+        uk.co.wonderlane.wlpos.entities.Promotion tillPromo = promotion.getPromotion()
+
+        List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
+        for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
+            if (offerGroup.getTagId() != null) {
+                for (TagProduct tagProduct : Tag.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
+                    promotionGroup.setId(offerGroup.getId())
+                    promotionGroup.setPromotionId(offerGroup.getPromotionId())
+                    promotionGroup.setRequiredValue(offerGroup.getRequiredValue())
+                    promotionGroup.setType(offerGroup.getType())
+                    promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
+                    promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
+                    promotionGroup.setTagId(offerGroup.getTagId())
+                    promotionGroup.setSku(tagProduct.sku)
+
+                    tagGroups.add(promotionGroup)
+                }
+            }
+        }
+
+        tillPromo.getPromotionOfferGroups().addAll(tagGroups)
+        tagGroups.clear()
+
+        for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
+            if (requiredGroup.getTagId() != null) {
+                for (TagProduct tagProduct : Tag.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
+                    promotionGroup.setId(requiredGroup.getId())
+                    promotionGroup.setPromotionId(requiredGroup.getPromotionId())
+                    promotionGroup.setRequiredValue(requiredGroup.getRequiredValue())
+                    promotionGroup.setType(requiredGroup.getType())
+                    promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
+                    promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
+                    promotionGroup.setTagId(requiredGroup.getTagId())
+                    promotionGroup.setSku(tagProduct.sku)
+
+                    tagGroups.add(promotionGroup)
+                }
+            }
+        }
+
+        tillPromo.getPromotionRequiredGroups().addAll(tagGroups)
+
+        syncMessage.setPromotion(tillPromo)
+
+        rabbitService.sendMessage(syncMessage)
+    }
+
+    private boolean validateChildren(PromotionCommand promotionCommand) {
+        boolean valid = true
+
+        promotionCommand?.requiredGroups?.eachWithIndex { obj, i ->
+            if (!obj.validate()) {
+                valid = false
+                promotionCommand.errors.reject("promotionCommand.requiredGroups.error", [(i+1)] as Object[], "")
+            }
+
+            if (obj.requiredQuantity == null && obj.requiredValue == null) {
+                valid = false
+                promotionCommand.errors.reject("promotionCommand.requiredGroups.quantityOrValue.error", [(i+1)] as Object[], "")
+            }
+        }
+
+        promotionCommand?.offerGroups?.eachWithIndex { obj, i ->
+            if (!obj.validate()) {
+                valid = false
+                promotionCommand.errors.reject("promotionCommand.offerGroups.error", [(i+1)] as Object[], "")
+            }
+
+            if (obj.requiredQuantity == null && obj.requiredValue == null) {
+                valid = false
+                promotionCommand.errors.reject("promotionCommand.offerGroups.quantityOrValue.error", [(i+1)] as Object[], "")
+            }
+        }
+
+        return valid
     }
 
     def removeStoreFromSession(int storeId) {
@@ -556,62 +429,6 @@ class PromotionController {
                                                                       totalResults: totalCount])
     }
 
-    def sendToTill() {
-        SyncMessage syncMessage = new SyncMessage(SyncMessageType.PROMOTION, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, 0)
-        syncMessage.setInsert(true)
-
-        uk.co.wonderlane.wlpos.entities.Promotion tillPromo = Promotion.findById(Integer.parseInt(params.promotionId)).getPromotion()
-
-        List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
-        for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
-            if (offerGroup.getTagId() != null) {
-                for (TagProduct tagProduct : Tag.findById(offerGroup.tagId).tagProducts) {
-                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
-                    promotionGroup.setId(offerGroup.getId())
-                    promotionGroup.setPromotionId(offerGroup.getPromotionId())
-                    promotionGroup.setRequiredValue(offerGroup.getRequiredValue())
-                    promotionGroup.setType(offerGroup.getType())
-                    promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
-                    promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
-                    promotionGroup.setTagId(offerGroup.getTagId())
-                    promotionGroup.setSku(tagProduct.sku)
-
-                    tagGroups.add(promotionGroup)
-                }
-            }
-        }
-
-        tillPromo.getPromotionOfferGroups().addAll(tagGroups)
-        tagGroups.clear()
-
-        for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
-            if (requiredGroup.getTagId() != null) {
-                for (TagProduct tagProduct : Tag.findById(requiredGroup.tagId).tagProducts) {
-                    uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
-                    promotionGroup.setId(requiredGroup.getId())
-                    promotionGroup.setPromotionId(requiredGroup.getPromotionId())
-                    promotionGroup.setRequiredValue(requiredGroup.getRequiredValue())
-                    promotionGroup.setType(requiredGroup.getType())
-                    promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
-                    promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
-                    promotionGroup.setTagId(requiredGroup.getTagId())
-                    promotionGroup.setSku(tagProduct.sku)
-
-                    tagGroups.add(promotionGroup)
-                }
-            }
-        }
-
-        tillPromo.getPromotionRequiredGroups().addAll(tagGroups)
-
-        syncMessage.setPromotion(tillPromo)
-
-        rabbitService.sendMessage(syncMessage)
-
-        flash.message = "Promotion saved successfully"
-        redirect(action: "index", params: params)
-    }
-
     def ajaxGetPromotionsForProduct() {
         render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
     }
@@ -620,13 +437,13 @@ class PromotionController {
         def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
         session.addedStores = session.addedStores ?: []
         session.addedStores.addAll(stores)
-        render(template: '/promotion/storeList', model: [addedStores: stores])
+        render(template: 'storeList', model: [addedStores: stores])
     }
 
     def ajaxRemoveAllStores() {
         session.addedStores.clear()
         def stores = [] // Logic to remove all stores from stores
-        render(template: '/promotion/storeList', model: [addedStores: stores])
+        render(template: 'storeList', model: [addedStores: stores])
     }
 
     def ajaxGetAllStores() {
@@ -655,8 +472,9 @@ class PromotionController {
         if (session.addedStores) {
             def addedStores = session.addedStores
             def addedStoreIds = []
+
             // Loop over addesStores and add the Ids to an array
-            addedStores.each{ store ->
+            addedStores.each { store ->
                 addedStoreIds.add(store.id)
             }
 
@@ -682,31 +500,26 @@ class PromotionController {
 
         def paginatedStores = stores.subList(0 + sortParams.offset, Math.min(sortParams.max + sortParams.offset, stores.size()))
 
-        render(template: '/promotion/storeSelectionList', model: [stores: paginatedStores, totalResults: stores.size(), sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: ""])
+        render(template: 'storeSelectionList', model: [stores: paginatedStores, totalResults: stores.size(), sortParams: sortParams, storeNameFilter: storeNameFilter ?: "", storeNumberFilter: storeNumberFilter ?: ""])
     }
 
     def ajaxAddStores() {
-        def storeIds = params."storeIds[]"
-        def addedStores = Store.findAllByIdInList(Arrays.asList(storeIds)) // Retrieve selected stores by IDs
+        def storeIdStrings = params."storeIds[]"
+        def storeIds = storeIdStrings.collect { Integer.parseInt(it) }
+
+        def addedStores = storeService.getStores(storeIds) // Retrieve selected stores by IDs
 
         session.addedStores = session.addedStores ?: []
         session.addedStores.addAll(addedStores)
-        render(template: '/promotion/storeList', model: [addedStores: session.addedStores])
+
+        render(template: 'storeList', model: [addedStores: session.addedStores])
     }
 
-    def ajaxRemoveStores() {
-        def storeId = params.storeId as Long
-        def addedStores = session.addedStores
-
-        if (addedStores) {
-            addedStores = addedStores.findAll {
-                it.id != storeId
-            }
-            session.addedStores = addedStores
-        }
+    def ajaxRemoveStores(int storeId) {
+        session.addedStores = session.addedStores?.findAll { it.id != storeId }
 
         // Render the updated store list
-        render(template: '/promotion/storeList', model: [addedStores: addedStores])
+        render(template: 'storeList', model: [addedStores: session.addedStores])
     }
 
     private String validateSortColumn(String sortColumn) {
@@ -731,5 +544,128 @@ class PromotionController {
         } else {
             throw new RuntimeException("Bad request")
         }
+    }
+}
+
+class PromotionCommand implements Validateable {
+
+    Integer id
+    PromotionType type
+    String description
+    String receiptDescription
+    DateTime startDate
+    DateTime endDate
+    BigDecimal amount
+    boolean active
+    Integer retailerPromotionId
+    Collection<PromotionGroupCommand> requiredGroups = new ArrayList<>()
+    Collection<PromotionGroupCommand> offerGroups = new ArrayList<>()
+    Collection<PromotionStoreCommand> storez = new ArrayList<>() // Renamed to avoid data binding command object to real PromotionStore object.
+    SymbolGroupPromotion symbolGroupPromotion
+
+    static constraints = {
+        id nullable: true
+        description nullable: false, size: 1..200
+        receiptDescription nullable: false, size: 1..50
+        startDate nullable: false
+        endDate nullable: true
+        type nullable: false
+        amount nullable: true, validator: {val, obj ->
+            if (obj.type == PromotionType.FIXED_PRICE) {
+                BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'promotionCommand.fixedPriceNotSet'
+                } else if (val > maxValue) {
+                    return 'promotionCommand.fixedPriceExceeded'
+                }
+            } else if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT) {
+                BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'promotionCommand.fixedAmountNotSet'
+                } else if (val > maxValue) {
+                    return 'promotionCommand.fixedAmountExceeded'
+                }
+            } else if (obj.type == PromotionType.PERCENTAGE_DISCOUNT) {
+                BigDecimal maxValue = BigDecimal.valueOf(100.00)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'promotionCommand.percentageDiscountNotSet'
+                } else if (val > maxValue) {
+                    return 'promotionCommand.percentageDiscountExceeded'
+                }
+            }
+        }
+        active nullable: false
+        retailerPromotionId nullable: true, range: 0..999999999
+        requiredGroups validator: { val, obj ->
+            // Only X for Y has a separate required group.
+            if (obj.type == PromotionType.X_FOR_Y) {
+                if (val.size() == 0) {
+                    return ['promotionCommand.requiredGroupsNotSet']
+                }
+            }
+
+            return true
+        }
+        offerGroups validator: { val, obj ->
+            if (val.size() == 0) {
+                return 'promotionCommand.offerGroupsNotSet'
+            }
+
+            return true
+        }
+        storez validator: { val, obj ->
+            if (val.size() == 0) {
+                return 'promotionCommand.storesNotSet'
+            }
+
+            return true
+        }
+        symbolGroupPromotion nullable: true
+    }
+
+    def getGroups(PromotionGroupType promotionGroupType) {
+        return promotionGroupType == PromotionGroupType.REQUIRED ? requiredGroups : offerGroups
+    }
+}
+
+class PromotionGroupCommand implements Validateable {
+
+    int id
+    PromotionGroupType type
+    Long sku
+    Integer categoryId
+    Integer tagId
+    Integer requiredQuantity
+    BigDecimal requiredValue
+
+    static constraints = {
+        id nullable: true
+        type nullable: false
+        sku nullable: true, validator: { val, obj ->
+            val != null || !(obj.categoryId == null && obj.tagId == null)
+        }
+        categoryId nullable: true, validator: { val, obj ->
+            val != null || !(obj.sku == null && obj.tagId == null)
+        }
+        tagId nullable: true, validator: { val, obj ->
+            val != null || !(obj.sku == null && obj.categoryId == null)
+        }
+        requiredQuantity nullable: true, range:1..999999999
+        requiredValue nullable: true, min: 0.02, max:9999.99, scale: 2
+    }
+}
+
+class PromotionStoreCommand implements Validateable {
+
+    int id
+    String storeName
+    String storeNumber
+
+    // Mocking a config object so that the page doesn't need to differentiate between a real promotion and a promotion command.
+    def getConfig() {
+        return [storeName: storeName, storeNumber: storeNumber]
     }
 }
