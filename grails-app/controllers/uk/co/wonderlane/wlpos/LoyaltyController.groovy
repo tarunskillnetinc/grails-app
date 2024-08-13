@@ -147,10 +147,12 @@ class LoyaltyController {
             dateModified: DateTime.now(DateTimeZone.UTC)
         )
 
-        def updated = loyaltyMemberService.saveMemberOffer(memberOffer, memberId, offerId)
+        def updated = loyaltyMemberService.updateMemberOffer(memberOffer, memberId, offerId)
 
         if (updated) {
             flash.message = "Member Offer created successfully"
+        } else {
+            flash.error = "Member Offer creation failed"
         }
 
         redirect(action: "offers", params: [cardNumber: cardNumber])

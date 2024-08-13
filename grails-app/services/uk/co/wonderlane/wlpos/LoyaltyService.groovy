@@ -204,4 +204,16 @@ class LoyaltyService{
         }
         return errorMessages
     }
+
+    def updatedLoyaltyOfferCustomerCount(Integer offerId){
+        try {
+            LoyaltyOffer loyaltyOffer = getLoyaltyOfferById(offerId)
+            loyaltyOffer.setCurrentCustomers(loyaltyOffer.getCurrentCustomers() + 1)
+            saveLoyaltyOffer(loyaltyOffer)
+        } catch (Exception ex) {
+            log.error("Failed to update current customer count in loyalty offer table,  Exception " + ex)
+            throw new RuntimeException("Failed to update current customer count in loyalty offer table,  Exception " + ex.getMessage())
+        }
+
+    }
 }
