@@ -337,6 +337,35 @@ class ProductListService extends MySqlDal {
         }
     }
 
+    def saveProductListStores(List<ProductListStore> productListStoreArray) {
+        if (productListStoreArray.size() == 0) {
+            return
+        }
+
+        Connection connection
+
+        try {
+            connection = getConnection()
+            connection.setAutoCommit(false)
+
+            for (ProductListStore productListStore : productListStoreArray) {
+                productListStore.save()
+            }
+
+            connection.commit()
+        } catch (Exception ex) {
+            log.error("save productListStores failed, Exception " + ex.getMessage())
+            if (connection != null) {
+                connection.rollback()
+            }
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
+    }
+
     def deleteProductList(ProductList productList) {
         if (productList) {
             productList.delete()

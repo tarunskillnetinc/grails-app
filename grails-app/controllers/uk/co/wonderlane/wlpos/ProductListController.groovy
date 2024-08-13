@@ -66,18 +66,11 @@ class ProductListController {
         }
 
         def productListsToBeSaved = new ArrayList()
-        // Define an empty list to store failed product lists
-        def failedProductLists = []
-
-        for (int storeId : cmd.storeIdList) {
-            def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
-
             def productList = new ProductList()
             productList.properties = cmd.properties
 
             productList.userId = springSecurityService.principal.id
             productList.retailerId = springSecurityService.principal.retailerId
-            productList.store = storeSettings
 
             if (productList.startDate == productList.endDate) {
                 productList.endDate = productList.endDate.plusDays(1)
@@ -91,49 +84,39 @@ class ProductListController {
                     def productVariant = productService.getProductVariant(it)
 
                     if (productVariant) {
-                        int quantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
-
-                        Product product = Product.findByItemCode(productVariant?.product?.itemCode)
-                        if (product) {
-
-                            Range range = Range.findById(storeSettings.getRangeId())
-                            RangeProduct rangeProduct = RangeProduct.findByProductIdAndRange(product.getId(), range)
-
-                            if (rangeProduct && !rangeProduct.getDeleted()) {
-                                ProductListItem productListItem = new ProductListItem()
-                                productListItem.productVariant = productVariant
-                                productListItem.fillQuantity = 0
-                                productListItem.productList = productList
-                                productListItem.productQuantityInStock = quantityInStock
-                                productList.productListItems.add(productListItem)
-                            }
-                        }
-
+                        ProductListItem productListItem = new ProductListItem()
+                        productListItem.productVariant = productVariant
+                        productListItem.fillQuantity = 0
+                        productListItem.productList = productList
+                        productListItem.productQuantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
+                        productList.productListItems.add(productListItem)
                     }
                 }
             }
-
 
             if (!productList.validate()) {
                 onError(cmd, productList);
                 return
             }
 
-            if (productList.getProductListItems().size() > 0) {
-                productListsToBeSaved.add(productList)
-            } else {
-                failedProductLists.add(productList)
-            }
-        }
-
+            productListsToBeSaved.add(productList)
+        
         try {
             productListService.saveProductLists(productListsToBeSaved)
             if (productListsToBeSaved.size() > 0) {
                 flash.message = "Central count saved successfully."
             }
-            if (failedProductLists.size() > 0) {
-                flash.warning = failedProductLists.size() + " Central count could not be created due to product ranging"
+
+            def productListStoresToBeSaved = new ArrayList()
+
+            for (int storeId : cmd.storeIdList) {
+                ProductListStore productListStore = new ProductListStore()
+                productListStore.productList = productList
+                productListStore.store = Store.load(storeId)
+                productListStoresToBeSaved.add(productListStore)
             }
+            productListService.saveProductListStores(productListStoresToBeSaved)
+
             redirect(action: "listCentralCounts")
         } catch (Exception e) {
             e.printStackTrace()
