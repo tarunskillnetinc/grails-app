@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
-
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.joda.time.DateTime
@@ -13,12 +12,10 @@ import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
+import uk.co.wonderlane.wlpos.utils.QuantityHelper
 
-import java.sql.CallableStatement
-import java.sql.Connection
-import java.sql.ResultSet
-import java.sql.Types
-import java.time.LocalDateTime
+import java.sql.*
+import java.util.Date
 import java.util.stream.Collectors
 
 @Transactional
@@ -58,6 +55,29 @@ class ProductService extends MySqlDal {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
         }?.first() ?: null
+    }
+
+    uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getProductVariant(?, ?) }")
+            cstmt.setInt(1, storeId)
+            cstmt.setInt(2, productVariantId)
+            ResultSet rs = cstmt.executeQuery()
+            if (rs.next()) {
+                return mapProductVariant(rs)
+            }
+            return null
+        } catch (Exception ex) {
+            log.error("Order create exception found when retrieving product variant from DB, Exception " + ex.getMessage())
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
     }
 
     // TODO make this method only return the current effective date. Currently it will return any which exist (sorted so that the active one is first (unless the description has changed)).
@@ -165,7 +185,7 @@ class ProductService extends MySqlDal {
             }
         }
 
-        return isValid;
+        return isValid
     }
 
 
@@ -738,5 +758,39 @@ class ProductService extends MySqlDal {
         }
         locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
         locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
+    }
+
+    private uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
+
+        productVariant.setId(resultSet.getInt("id"))
+        productVariant.setProductId(resultSet.getInt("productId"))
+        productVariant.setStoreId(resultSet.getInt("storeId"))
+        productVariant.setSku(resultSet.getLong("sku"))
+
+        productVariant.setRetailPrice(resultSet.getBigDecimal("price"))
+        if (resultSet.wasNull()) {
+            productVariant.setRetailPrice(null)
+        }
+
+        productVariant.setCostPrice(resultSet.getBigDecimal("costPrice"))
+        if (resultSet.wasNull()) {
+            productVariant.setCostPrice(null)
+        }
+
+        productVariant.setSize(resultSet.getString("size"))
+        if (resultSet.wasNull()) {
+            productVariant.setSize(null);
+        }
+
+        productVariant.setColour(resultSet.getString("colour"))
+        if (resultSet.wasNull()) {
+            productVariant.setColour(null);
+        }
+        productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
+        productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
+        productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
+
+        return productVariant;
     }
 }

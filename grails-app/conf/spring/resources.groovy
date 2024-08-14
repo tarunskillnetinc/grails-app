@@ -73,6 +73,12 @@ beans = {
                     grailsApplication.config.getProperty('mysql.wlpos.database'))) {
 
         springSecurityService = ref('springSecurityService')
+        storeService = ref('storeService')
+        supplierService = ref('supplierService')
+        productService = ref('productService')
+        userService = ref('userService')
+        rabbitService = ref('rabbitService')
+        gsonProvider = ref('gsonProvider')
     }
 
     shelfEdgeLabelService(ShelfEdgeLabelService,
@@ -125,7 +131,9 @@ beans = {
             Integer.parseInt(grailsApplication.config.getProperty('rabbitmq.apiPort')),
             grailsApplication.config.getProperty('rabbitmq.username'),
             grailsApplication.config.getProperty('rabbitmq.password'),
-            Boolean.parseBoolean(grailsApplication.config.getProperty('rabbitmq.useSsl'))) {
+            Boolean.parseBoolean(grailsApplication.config.getProperty('rabbitmq.useSsl')),
+            grailsApplication.config.getProperty('rabbitmq.senderExchange')
+            ) {
 
         springSecurityService = ref('springSecurityService')
     }
@@ -140,6 +148,8 @@ beans = {
         springSecurityService = ref('springSecurityService')
         userService = ref('userService')
         nisaService = ref('nisaService')
+        productService = ref('productService')
+        productListService = ref('productListService')
     }
 
     nisaService(NisaService,
