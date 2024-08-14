@@ -148,8 +148,6 @@
         </section>
     </g:if>
 
-
-
     <section id="addProduct-section" class="container-fluid mt-4">
         <g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
             <div id="accordion">

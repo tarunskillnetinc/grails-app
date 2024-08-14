@@ -48,6 +48,7 @@ class RetailerController {
                 errorMessages << message(code: 'retailer.logo.maxsize')
             }
         }
+
         for(toggle in retailerCommand.menuItemDetails?.functionToggles?.values()){
             var t = new FunctionToggle()
             t.name = toggle.name
