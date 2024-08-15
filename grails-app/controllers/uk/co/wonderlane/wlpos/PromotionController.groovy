@@ -437,7 +437,7 @@ class PromotionController {
         session.addedStores = session.addedStores ?: []
         def remainingStores = getRemainingStores()
         session.addedStores.addAll(remainingStores)
-        render(template: 'storeList', model: [addedStores: remainingStores])
+        render(template: 'storeList', model: [addedStores: session.addedStores])
     }
 
     private List<Store> getRemainingStores() {
