@@ -48,7 +48,7 @@
                 <div id="description-${i + 1}" class="col-2 my-auto">&pound;${donation.donationTotal}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "dateCreated" }?.enabled}">
-                <div id="description-${i + 1}" class="col-2 my-auto">${donation.dateCreated?.toString("dd/MM/yyyy HH:mm")}</div>
+                <div id="description-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${donation.dateCreated?.toDate()}" timeZone="Europe/London" /></div>
             </g:if>
         </div>
     </g:each>
