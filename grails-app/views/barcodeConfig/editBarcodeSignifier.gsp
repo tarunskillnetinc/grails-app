@@ -223,11 +223,21 @@
           <div class="form-group row">
             <label for="descriptionValue" class="col-2 col-form-label-sm text-right">Description</label>
             <div class="col-4">
-              <g:textField name="descriptionValue" value="${signifier?.description}" class="form-control bottom-border" />
+              <sec:ifAnyGranted roles="ROLE_ENGINEER,ROLE_ENGINEER">
+                <g:textField name="descriptionValue" value="${signifier?.description}" class="form-control bottom-border" />
+              </sec:ifAnyGranted>
+              <sec:ifNotGranted roles="ROLE_ENGINEER,ROLE_ENGINEER">
+                <g:textField name="descriptionValue" value="${signifier?.description}" class="form-control bottom-border" readonly="true"/>
+              </sec:ifNotGranted>
             </div>
             <label for="receiptDescriptionValue" class="col-2 col-form-label-sm text-right">Receipt Description</label>
             <div class="col-4">
-              <g:textField name="receiptDescriptionValue" value="${signifier?.receiptDescription}" class="form-control bottom-border" />
+              <sec:ifAnyGranted roles="ROLE_ENGINEER,ROLE_ENGINEER">
+                <g:textField name="receiptDescriptionValue" value="${signifier?.receiptDescription}" class="form-control bottom-border" />
+              </sec:ifAnyGranted>
+              <sec:ifNotGranted roles="ROLE_ENGINEER,ROLE_ENGINEER">
+                <g:textField name="receiptDescriptionValue" value="${signifier?.receiptDescription}" class="form-control bottom-border" readonly="true"/>
+              </sec:ifNotGranted>
             </div>
           </div>
           <div class="form-group row">
@@ -299,7 +309,12 @@
             <label for="discountPercentageValue" class="col-2 col-form-label-sm text-right">Discount Percentage</label>
             <div class="col-4">
               <div class="input-group number-box">
-                <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptMaxNumberValue(event, 100);"/>
+                <sec:ifAnyGranted roles="ROLE_ENGINEER,ROLE_ENGINEER">
+                  <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptMaxNumberValue(event, 100);"/>
+                </sec:ifAnyGranted>
+                <sec:ifNotGranted roles="ROLE_ENGINEER,ROLE_ENGINEER">
+                  <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptMaxNumberValue(event, 100);" readonly="true"/>
+                </sec:ifNotGranted>
               </div>
               <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />
