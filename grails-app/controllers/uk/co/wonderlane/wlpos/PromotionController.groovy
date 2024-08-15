@@ -146,7 +146,6 @@ class PromotionController {
     }
 
     def save(PromotionCommand promotionCommand) {
-
         // If we're logged in at a store, we want to ensure the promotionCommand contains our store.
         if (springSecurityService.principal.storeId) {
             Store store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
@@ -176,6 +175,23 @@ class PromotionController {
 
             if (promotion.type == PromotionType.BOGOF || promotion.type == PromotionType.X_FOR_Y) {
                 promotion.amount = BigDecimal.ZERO
+            }
+
+            if (promotion.type == PromotionType.BOGOF) {
+                // For BOGOFs the user only selects a single item/category/tag which creates an OFFER group. We need to also add a matching REQUIRED group.
+                promotionCommand.requiredGroups?.clear()
+
+                promotionCommand.offerGroups?.each {
+                    PromotionGroupCommand pgc = new PromotionGroupCommand()
+                    pgc.type = PromotionGroupType.REQUIRED
+                    pgc.sku = it.sku
+                    pgc.categoryId = it.categoryId
+                    pgc.tagId = it.tagId
+                    pgc.requiredQuantity = it.requiredQuantity
+                    pgc.requiredValue = it.requiredValue
+
+                    promotionCommand.requiredGroups.add(pgc)
+                }
             }
 
             addRemovePromotionGroups(promotion, promotionCommand, PromotionGroupType.REQUIRED)
@@ -210,7 +226,7 @@ class PromotionController {
         }
 
         // Calculate which groups were added to or removed from the promotion.
-        def removedGroups = promotion.groups?.findAll {it.type == promotionGroupType && !promotionGroups?.contains(it) }
+        def removedGroups = promotion.groups?.findAll { it.type == promotionGroupType && !promotionGroups?.contains(it) }
         def addedGroups = promotionGroups?.findAll { !promotion.groups?.contains(it) }
 
         removedGroups?.each {
