@@ -194,7 +194,7 @@ class PromotionController {
 
             redirect(action: "index")
         } else {
-            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values()])
+            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values(), canEdit: true])
         }
     }
 
