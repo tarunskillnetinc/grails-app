@@ -504,7 +504,7 @@ class PromotionController {
     }
 
     def ajaxAddStores() {
-        def storeIdStrings = params.list('storeIds')
+        def storeIdStrings = params.list('storeIds[]')
         def storeIds = storeIdStrings.collect { Integer.parseInt(it) }
 
         def addedStores = storeService.getStores(storeIds) // Retrieve selected stores by IDs
