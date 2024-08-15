@@ -7,8 +7,8 @@
 
     <div class="row">
         <div class="col-11"><strong>${promotionGroupDescription}</strong></div>
-        <g:if test="${canDeleteProduct}">
-            <div class="col-1 text-right pl-0" disabled="${!canDeleteProduct}"><a id="${promoGroupName}-DeleteButton" href="#" onclick="return deletePromotionGroup('${promoGroupName}', '${promotionGroupType}');" class="text-dark" ><sup>X</sup></a></div>
+        <g:if test="${canDeleteProduct == null || (canDeleteProduct != null && canDeleteProduct == true)}">
+            <div class="col-1 text-right pl-0"><a id="${promoGroupName}-DeleteButton" href="#" onclick="return deletePromotionGroup('${promoGroupName}', '${promotionGroupType}');" class="text-dark" ><sup>X</sup></a></div>
         </g:if>
     </div>
 
