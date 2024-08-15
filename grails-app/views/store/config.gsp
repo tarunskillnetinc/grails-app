@@ -125,63 +125,63 @@
                                 <div class="form-group row">
                                     <label for="config.storeName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Name</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.storeName" maxlength="45" value="${storeSettings?.config?.storeName}" class="form-control bottom-border" />
+                                        <g:textField name="config.storeName" maxlength="30" value="${storeSettings?.config?.storeName}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressBuildingNumberOrName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Building Name / Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressBuildingNumberOrName" maxlength="45" value="${storeSettings?.config?.addressBuildingNumberOrName}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressBuildingNumberOrName" maxlength="30" value="${storeSettings?.config?.addressBuildingNumberOrName}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressLine1" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 1</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressLine1" maxlength="45" value="${storeSettings?.config?.addressLine1}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressLine1" maxlength="20" value="${storeSettings?.config?.addressLine1}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressLine2" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 2</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressLine2" maxlength="45" value="${storeSettings?.config?.addressLine2}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressLine2" maxlength="20" value="${storeSettings?.config?.addressLine2}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressTown" maxlength="45" value="${storeSettings?.config?.addressTown}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressTown" maxlength="20" value="${storeSettings?.config?.addressTown}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressCounty" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">County</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressCounty" maxlength="45" value="${storeSettings?.config?.addressCounty}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressCounty" maxlength="20" value="${storeSettings?.config?.addressCounty}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressCountry" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Country</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressCountry" maxlength="45" value="${storeSettings?.config?.addressCountry}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressCountry" maxlength="20" value="${storeSettings?.config?.addressCountry}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.addressPostCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Post Code</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.addressPostCode" maxlength="45" value="${storeSettings?.config?.addressPostCode}" class="form-control bottom-border" />
+                                        <g:textField name="config.addressPostCode" maxlength="8" value="${storeSettings?.config?.addressPostCode}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="config.phoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Phone Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="config.phoneNumber" maxlength="45" value="${storeSettings?.config?.phoneNumber}" class="form-control bottom-border" />
+                                        <g:textField name="config.phoneNumber" maxlength="12" value="${storeSettings?.config?.phoneNumber}" class="form-control bottom-border" />
                                     </div>
                                 </div>
                             </div>
