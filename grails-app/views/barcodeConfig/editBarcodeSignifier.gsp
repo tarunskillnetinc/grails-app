@@ -30,6 +30,7 @@
   <script type="text/javascript">
 
     var saveSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveSignifier')}"
+    var updateRestrictedSignifierURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxRestrictedSaveSignifier')}"
     var addEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxAddEmbeddedData')}?signifierId=${signifier?.id}"
     var editEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxEditEmbeddedData')}?signifierId=${signifier?.id}"
     var saveEmbeddedDataURL = "${createLink(controller: 'barcodeConfig', action: 'ajaxSaveEmbeddedData')}?signifierId=${signifier?.id}"
@@ -46,6 +47,27 @@
       hideBtns();
       $.ajax({
         url: saveSignifierURL,
+        method: "POST",
+        data: formValues,
+        success: function (resp) {
+          if (resp === "OK") {
+            $("#loading-indicator").hide();
+            window.location.href = '<g:createLink controller="barcodeConfig" action="index"/>';
+          } else {
+            document.open();
+            document.write(resp);
+            document.close();
+          }
+        }
+      });
+    }
+
+    function updateRestrictedSignifier() {
+      var formValues = $("#editSignifierForm").serialize();
+      $("#loading-indicator").show();
+      hideBtns();
+      $.ajax({
+        url: updateRestrictedSignifierURL,
         method: "POST",
         data: formValues,
         success: function (resp) {
@@ -177,7 +199,7 @@
       <div class="col">
         <ol class="breadcrumb">
           <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-          <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Edit Barcode Signifier.</li>
+          <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Edit Barcode Signifier</li>
         </ol>
       </div>
     </div>
@@ -212,11 +234,22 @@
             <label for="typeValue" class="col-2 col-form-label-mandatory text-right">Type</label>
             <div class="col-4">
               <div class="input-group">
-                <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
-                          optionKey="${{it}}"
-                          noSelection="['': 'Select Type']"
-                          class="form-control select-border"
-                          value="${signifier?.type}" />
+                <sec:ifAnyGranted roles="ROLE_ENGINEER">
+                  <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
+                            optionKey="${{it}}"
+                            noSelection="['': 'Select Type']"
+                            class="form-control select-border"
+                            value="${signifier?.type}" />
+                </sec:ifAnyGranted>
+                <sec:ifNotGranted roles="ROLE_ENGINEER">
+                  <g:select name="typeValue" from="${signifierTypes}" valueMessagePrefix="BarcodeSignifierType"
+                            optionKey="${{it}}"
+                            noSelection="['': 'Select Type']"
+                            class="form-control select-border"
+                            value="${signifier?.type}"
+                            disabled="true"
+                  />
+                </sec:ifNotGranted>
               </div>
               <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'type', errorMessages: errorMessages, error: error]" />
@@ -224,14 +257,24 @@
             </div>
             <label for="checkDigitValue" class="col-2 col-form-label-sm text-right">Check Digit</label>
             <div class="col-4 custom-checkbox-align">
-              <g:checkBox name="checkDigitValue" value="${signifier?.checkDigit}" class="form-check-input" />
+              <sec:ifAnyGranted roles="ROLE_ENGINEER">
+                <g:checkBox name="checkDigitValue" value="${signifier?.checkDigit}" class="form-check-input" />
+              </sec:ifAnyGranted>
+              <sec:ifNotGranted roles="ROLE_ENGINEER">
+                <g:checkBox name="checkDigitValue" value="${signifier?.checkDigit}" class="form-check-input" disabled="true"/>
+              </sec:ifNotGranted>
             </div>
           </div>
           <div class="form-group row">
             <label for="patternValue" class="col-2 col-form-label text-right">Pattern</label>
             <div class="col-4">
               <div class="input-group">
-                <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                <sec:ifAnyGranted roles="ROLE_ENGINEER">
+                  <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
+                </sec:ifAnyGranted>
+                <sec:ifNotGranted roles="ROLE_ENGINEER">
+                  <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" readonly="true"/>
+                </sec:ifNotGranted>
               </div>
               <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'pattern', errorMessages: errorMessages, error: error]" />
@@ -240,7 +283,12 @@
             <label for="lengthValue" class="col-2 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
               <div class="input-group number-box">
-                <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" min="0" max="45" onkeydown="acceptMaxNumberValue(event, 45);" />
+                <sec:ifAnyGranted roles="ROLE_ENGINEER">
+                  <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" min="0" max="45" onkeydown="acceptMaxNumberValue(event, 45);" />
+                </sec:ifAnyGranted>
+                <sec:ifNotGranted roles="ROLE_ENGINEER">
+                  <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" min="0" max="45" onkeydown="acceptMaxNumberValue(event, 45);" readonly="true"/>
+                </sec:ifNotGranted>
               </div>
               <div class="field-error text-sm-left mt-2">
                 <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
@@ -265,6 +313,10 @@
             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
               <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
               <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="saveSignifier()">Submit</button>
+            </sec:ifAnyGranted>
+            <sec:ifAnyGranted roles='ROLE_HEAD_OFFICE'>
+              <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
+              <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="updateRestrictedSignifier()">Submit</button>
             </sec:ifAnyGranted>
           </div>
         </div>
