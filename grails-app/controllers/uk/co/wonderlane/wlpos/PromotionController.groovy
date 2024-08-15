@@ -335,7 +335,7 @@ class PromotionController {
 
         render(template: "/promotion/productSearchResults", model: [products: products.products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
     }
-    
+
     def categorySearch() {
         def categories
         def totalResults
@@ -434,10 +434,18 @@ class PromotionController {
     }
 
     def ajaxAddAllStores() {
-        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
         session.addedStores = session.addedStores ?: []
-        session.addedStores.addAll(stores)
-        render(template: 'storeList', model: [addedStores: stores])
+        def remainingStores = getRemainingStores()
+        session.addedStores.addAll(remainingStores)
+        render(template: 'storeList', model: [addedStores: remainingStores])
+    }
+
+    private List<Store> getRemainingStores() {
+        def stores = Store.findAllByRetailerIdAndDeleted(springSecurityService.principal.retailerId, false)
+        def addedStoreIds = session.addedStores.collect { it.id } as Set
+        return stores.findAll { store ->
+            !addedStoreIds.contains(store.id)
+        }
     }
 
     def ajaxRemoveAllStores() {

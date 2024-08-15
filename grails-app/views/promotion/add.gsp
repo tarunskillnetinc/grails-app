@@ -60,7 +60,7 @@
                 enableOrDisablePromotionGroupButtons("offer");
             });
 
-            function emptyTempSelectedStoreIds() {
+            function resetTempSelectedStoreIds() {
                 tempSelectedStoreIds = []
             }
 
@@ -353,7 +353,7 @@
                     }
                 });
 
-                emptyTempSelectedStoreIds()
+                resetTempSelectedStoreIds()
             }
 
             function addAllStores() {
@@ -366,11 +366,10 @@
                     }
                 });
 
-                emptyTempSelectedStoreIds()
+                resetTempSelectedStoreIds()
             }
 
             function removeAllStores() {
-                emptyTempSelectedStoreIds()
                 $.ajax({
                     url: '${createLink(controller: "promotion", action: 'ajaxRemoveAllStores')}',
                     type: 'POST',
@@ -396,7 +395,7 @@
                     }
                 });
 
-                emptyTempSelectedStoreIds()
+                resetTempSelectedStoreIds()
             }
 
             // Store filters.
