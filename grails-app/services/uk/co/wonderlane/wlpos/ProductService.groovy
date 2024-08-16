@@ -31,7 +31,7 @@ class ProductService extends MySqlDal {
     }
 
     def getProductVariant(int id) {
-        return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
+        List<ProductVariant> variants = ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
             eq("id", id)
             or {
                 isNull("storeId")
@@ -40,11 +40,13 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }?.first() ?: null
+        }
+
+        return getFirstOrNullVariant(variants)
     }
 
     def getProductVariant(long sku) {
-        return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
+        List<ProductVariant> variants =  ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
             eq("sku", sku)
             or {
                 isNull("storeId")
@@ -54,7 +56,13 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }?.first() ?: null
+        }
+
+        return getFirstOrNullVariant(variants)
+    }
+
+    private static def getFirstOrNullVariant(List<ProductVariant> variants) {
+        return variants?.isEmpty() ? null : variants.first()
     }
 
     uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
