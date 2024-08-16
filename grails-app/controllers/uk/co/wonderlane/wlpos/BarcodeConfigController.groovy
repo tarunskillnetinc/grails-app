@@ -108,9 +108,6 @@ class BarcodeConfigController {
         render "OK"
     }
 
-
-
-
     @Secured(['ROLE_ENGINEER'])
     def ajaxDeleteSignifier(int signifierId) {
         int retailerId = springSecurityService.principal.retailerId
