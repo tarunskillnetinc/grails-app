@@ -60,6 +60,10 @@
                 enableOrDisablePromotionGroupButtons("offer");
             });
 
+            function resetTempSelectedStoreIds() {
+                tempSelectedStoreIds = []
+            }
+
             function formatDate(date, options, separator) {
                 function format(option) {
                     let formatter = new Intl.DateTimeFormat('en', option);
@@ -348,6 +352,8 @@
                         console.log('Error: ' + error);
                     }
                 });
+
+                resetTempSelectedStoreIds()
             }
 
             function addAllStores() {
@@ -359,10 +365,11 @@
                         $('#StoresSection').removeClass("is-invalid")
                     }
                 });
+
+                resetTempSelectedStoreIds()
             }
 
             function removeAllStores() {
-                tempSelectedStoreIds = []
                 $.ajax({
                     url: '${createLink(controller: "promotion", action: 'ajaxRemoveAllStores')}',
                     type: 'POST',
@@ -387,6 +394,8 @@
                         console.error("Error removing store: " + error);
                     }
                 });
+
+                resetTempSelectedStoreIds()
             }
 
             // Store filters.
