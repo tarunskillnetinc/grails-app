@@ -40,7 +40,7 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }?.first() ?: null
+        }?.find()
     }
 
     def getProductVariant(long sku) {
@@ -54,7 +54,7 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }?.first() ?: null
+        }?.find()
     }
 
     uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
@@ -170,8 +170,8 @@ class ProductService extends MySqlDal {
     }
 
     boolean isLocationValid(Product product, ProductCommand editedProduct){
-       def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
-       List selectedHierarchy = new ArrayList()
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+        List selectedHierarchy = new ArrayList()
         def isValid = true
 
         for (ProductVariant pv : product?.variants){
@@ -196,7 +196,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(Product product, List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-        
+
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (!productPrice.validate()) {
