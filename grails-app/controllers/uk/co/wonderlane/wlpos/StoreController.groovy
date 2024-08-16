@@ -27,11 +27,6 @@ class StoreController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-        if (springSecurityService.principal.storeId) {
-            flash.error = "You cannot access this page when logged in as a store."
-            redirect(uri: "/")
-            return
-        }
 
         [storeNumberFilter: params.storeNumberFilter,
          storeNameFilter: params.storeNameFilter,
