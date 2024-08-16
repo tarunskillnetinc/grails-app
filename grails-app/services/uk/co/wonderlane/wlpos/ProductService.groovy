@@ -31,7 +31,7 @@ class ProductService extends MySqlDal {
     }
 
     def getProductVariant(int id) {
-        List<ProductVariant> variants = ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
+        return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
             eq("id", id)
             or {
                 isNull("storeId")
@@ -40,13 +40,11 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }
-
-        return getFirstOrNullVariant(variants)
+        }?.find()
     }
 
     def getProductVariant(long sku) {
-        List<ProductVariant> variants =  ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
+        return ProductVariant.withCriteria(sort: "effectiveDate", order: "desc") {
             eq("sku", sku)
             or {
                 isNull("storeId")
@@ -56,13 +54,7 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }
-
-        return getFirstOrNullVariant(variants)
-    }
-
-    private static def getFirstOrNullVariant(List<ProductVariant> variants) {
-        return variants?.isEmpty() ? null : variants.first()
+        }?.find()
     }
 
     uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
@@ -178,8 +170,8 @@ class ProductService extends MySqlDal {
     }
 
     boolean isLocationValid(Product product, ProductCommand editedProduct){
-       def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
-       List selectedHierarchy = new ArrayList()
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+        List selectedHierarchy = new ArrayList()
         def isValid = true
 
         for (ProductVariant pv : product?.variants){
@@ -204,7 +196,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(Product product, List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-        
+
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (!productPrice.validate()) {
