@@ -42,19 +42,21 @@
                 todayBtn: "linked",
                 orientation: "bottom auto"
             }).on('changeDate', function(e) {
-                var startDate = e.date;
-                var maxEndDate = new Date(startDate);
-                /* Is set to 91 so that the last day is included in the 90 day period */
-                maxEndDate.setDate(startDate.getDate() + 91);
+                let startDate = e.date;
+                let endDate = new Date(startDate);
+                let currentDate = new Date();
+                currentDate.setHours(0,0,0,0);
 
-                var today = new Date();
-                if (maxEndDate > today) {
-                    maxEndDate = today;
+                /* To set the max end date allowed to be 90 days inclusive */
+                endDate.setDate(startDate.getDate() + 89);
+
+                if (endDate > currentDate) {
+                    endDate = currentDate;
                 }
 
                 $('#endDate').datepicker('setStartDate', startDate);
-                $('#endDate').datepicker('setEndDate', maxEndDate);
-                $('#endDate').datepicker('setDate', startDate);
+                $('#endDate').datepicker('setEndDate', endDate);
+                $('#endDate').datepicker('setDate', endDate);
             });
 
             $('#endDate').datepicker({
