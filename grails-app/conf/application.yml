@@ -215,6 +215,8 @@ environments:
             defaultImageBucket: "retail-platform-default-images-test"
             cfdImageBucket: "retail-platform-customer-display-images-test"
             receiptImageBucket: "retail-platform-receipt-images-test"
+            receipt_headerImageBucket: "retail-platform-receipt-images-test"
+            receipt_footerImageBucket: "retail-platform-receipt-images-test"
             buttonImageBucket: "retail-platform-button-images-test"
             brandAssetsBucket: "retail-platform-brand-assets-test"
 

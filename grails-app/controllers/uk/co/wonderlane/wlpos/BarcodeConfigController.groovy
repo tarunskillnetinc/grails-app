@@ -89,7 +89,24 @@ class BarcodeConfigController {
         render "OK"
     }
 
+    @Secured(['ROLE_HEAD_OFFICE'])
+    def ajaxRestrictedSaveSignifier() {
+        def id = params.id ? Integer.parseInt(params.id) : 0
+        def signifier = barcodeSignifierService.getBarcodeSignifierById(id)
+        signifier.description = params.descriptionValue ? params.descriptionValue : null
+        signifier.receiptDescription = params.receiptDescriptionValue ? params.receiptDescriptionValue : null
+        signifier.discountPercentage = params.discountPercentageValue ? Integer.parseInt(params.discountPercentageValue) : null
 
+        def result = barcodeSignifierService.saveSignifier(signifier)
+        if (!result.success) {
+            // Render the editBarcodeSignifier GSP with errors
+            render(view: "editBarcodeSignifier", model: [signifier: signifier, error: true,
+                                                         errorMessages: result.errorMessages, signifierTypes: BarcodeSignifierType.values()])
+            return
+        }
+        sendMessageToRabbit(true, [result.savedObject] as ArrayList)
+        render "OK"
+    }
 
     @Secured(['ROLE_ENGINEER'])
     def ajaxDeleteSignifier(int signifierId) {
