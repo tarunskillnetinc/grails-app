@@ -446,7 +446,24 @@ class PromotionController {
     }
 
     def ajaxGetPromotionsForProduct() {
-        render (view: "/product/_promotions", model: [promotions: params.productId ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId)) : []])
+        var promotions = []
+        var promotionsError = false
+        try {
+            promotions = params.productId
+                    ? promotionService.getPromotionsForProduct(Integer.parseInt(params.productId))
+                    : []
+        } catch (Exception e) {
+            log.error(e.message)
+            promotionsError = true
+        }
+
+        render(
+                view: "/product/_promotions",
+                model: [
+                        promotions: promotions,
+                        promotionsError: promotionsError
+                ]
+        )
     }
 
     def ajaxAddAllStores() {
