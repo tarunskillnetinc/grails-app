@@ -1,6 +1,13 @@
 <g:if test="${!promotions || promotions?.size() == 0}">
     <div class="row mx-5 text-center">
-        <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">This product is not currently on promotion.</div>
+        <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">
+            <g:if test="${promotionsError}">
+                There was an error fetching promotions.
+            </g:if>
+            <g:else>
+                This product is not currently on promotion.
+            </g:else>
+        </div>
     </div>
 </g:if>
 
