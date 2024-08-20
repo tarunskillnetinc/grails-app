@@ -113,6 +113,7 @@ class BarcodeSignifierService extends MySqlDal {
                 if (existingSignifier) {
                     // Copy properties from the incoming entity to the existing one
                     existingSignifier.properties = barcodeSignifier.properties
+                    existingSignifier.pattern = existingSignifier.pattern != null ? existingSignifier.pattern : ""
                     session.saveOrUpdate(existingSignifier)
                     barcodeSignifier = existingSignifier
                 } else {
