@@ -167,15 +167,15 @@
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="administrationDropdown">
                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                                <span id="estate-management" class="dropdown-header">Estate Management</span>
+                                <g:link elementId="stores-list-dropdown" controller="store" class="dropdown-item">Store Management</g:link>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <span id="estate-management" class="dropdown-header">Estate Management</span>
 
                                     <g:link elementId="till-assignment-dropdown" controller="tillAssignment" class="dropdown-item">Till Management</g:link>
                                     <g:link elementId="user-groups-dropdown" controller="group" class="dropdown-item disabled">Store Hierarchy</g:link>
 
                                     <div class="dropdown-divider"></div>
                                 </g:if>
-                                <g:link elementId="stores-list-dropdown" controller="store" class="dropdown-item">Store Management</g:link>
                             </sec:ifAnyGranted>
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
 
