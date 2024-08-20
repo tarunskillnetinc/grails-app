@@ -363,7 +363,7 @@
                                             <g:select name="parentStoreId" from="${availableParentStores}"
                                                       noSelection="['': 'None']"
                                                       value="${storeSettings?.parentStoreId}"
-                                                      optionValue="${{it?.config?.storeName}}" optionKey="id"
+                                                      optionValue="${{it?.config?.storeNumber +' - ' +it?.config?.storeName}}" optionKey="id"
                                                       class="form-control select-border"/>
                                         </div>
                                     </div>
