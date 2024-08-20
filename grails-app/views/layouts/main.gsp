@@ -173,9 +173,9 @@
                                     <g:link elementId="till-assignment-dropdown" controller="tillAssignment" class="dropdown-item">Till Management</g:link>
                                     <g:link elementId="user-groups-dropdown" controller="group" class="dropdown-item disabled">Store Hierarchy</g:link>
 
-                                    <div class="dropdown-divider"></div>
                                 </g:if>
                                 <g:link elementId="stores-list-dropdown" controller="store" class="dropdown-item">Store Management</g:link>
+                                <div class="dropdown-divider"></div>
                             </sec:ifAnyGranted>
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
 
