@@ -10,6 +10,8 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 import java.math.MathContext
 import java.math.RoundingMode
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class StoreController {
 
@@ -334,8 +336,15 @@ class NewStoreCommand implements Validateable {
         addressTown nullable: true, maxSize: 20
         addressCounty nullable: true, maxSize: 20
         addressCountry nullable: true, maxSize: 20
-        addressPostCode nullable: true, maxSize: 8
-        phoneNumber nullable: true, maxSize: 12
+        addressPostCode nullable: true, maxSize: 8, validator: {val, obj ->
+            if (val != null && Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(val).find())
+                return false
+        }
+        phoneNumber nullable: true, maxSize: 12, validator: {val, obj ->
+            if(val != null && !val.isNumber()){
+                return false
+            }
+        }
         parentStoreId nullable: true
         copyConfigFrom nullable: true
         range nullable: true
@@ -401,15 +410,22 @@ class StoreConfigCommand implements Validateable {
         receiptMessage1 nullable: true, maxSize: 100
         receiptMessage2 nullable: true, maxSize: 100
         vatRegistrationNumber nullable: true, maxSize: 45
-        storeName nullable: false, blank: false, maxSize: 45
-        addressBuildingNumberOrName nullable: true, maxSize: 45
-        addressLine1 nullable: true, maxSize: 45
-        addressLine2 nullable: true, maxSize: 45
-        addressTown nullable: true, maxSize: 45
-        addressCounty nullable: true, maxSize: 45
-        addressCountry nullable: true, maxSize: 45
-        addressPostCode nullable: true, maxSize: 45
-        phoneNumber nullable: true, maxSize: 45
+        storeName nullable: false, blank: false, maxSize: 30
+        addressBuildingNumberOrName nullable: true, maxSize: 30
+        addressLine1 nullable: true, maxSize: 20
+        addressLine2 nullable: true, maxSize: 20
+        addressTown nullable: true, maxSize: 20
+        addressCounty nullable: true, maxSize: 20
+        addressCountry nullable: true, maxSize: 20
+        addressPostCode nullable: true, maxSize: 8, validator: {val, obj ->
+            if (val != null && Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(val).find())
+                return false
+        }
+        phoneNumber nullable: true, maxSize: 12, validator: {val, obj ->
+            if(val != null && !val.isNumber()){
+                return false
+            }
+        }
         printReceiptOption nullable: false
         quantityPromptThreshold nullable: true, min: 1, max: 999
         valuePromptThreshold nullable: true, min: BigDecimal.ONE, max: 9999.99
