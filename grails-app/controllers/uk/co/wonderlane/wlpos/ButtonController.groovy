@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import io.micronaut.http.MediaType
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException
 import org.codehaus.groovy.runtime.InvokerHelper
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -37,7 +38,9 @@ class ButtonController {
          availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
          productSku: productVariant?.sku,
          productDescription: productVariant?.product?.description,
-         storeId: getStoreId()]
+         storeId: getStoreId(),
+         displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+         displayManualOption: button.tenderType != null]
     }
 
     private Button getButton(String idS, String buttonGridIdS, String rowS, String columnS) {
@@ -78,6 +81,10 @@ class ButtonController {
             return
         }
 
+        if (!form.exact && !form.manual && (form.amount == null || (form.amount != null && form.amount.compareTo(BigDecimal.ZERO) <= 0))) {
+            form.errors.reject(form.tenderType == TenderType.CASH ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
+        }
+
         def button
         def existingButton = true
 
@@ -91,9 +98,28 @@ class ButtonController {
             button = new Button()
             button.buttonGrid = ButtonGrid.get(form.buttonGridId)
             existingButton = false
+
+            if (springSecurityService.principal.storeId != null && (form.overrideId == null || form.overrideId == 0)) {
+                // CORE-2813 - editing an unassigned button at store level:
+                // need to create a blank at head office level so that we have something to override
+                def parent = createBlankToOverride(form.buttonGridId, form.row, form.column)
+                if (parent == null) {
+                    form.errors.reject('button.error.noParent')
+                    renderError(button, form)
+                    return
+                }
+                button.overrideId = parent.id
+                form.overrideId = parent.id
+                button.storeId = springSecurityService.principal.storeId
+                form.storeId = springSecurityService.principal.storeId
+            }
         }
 
         bindData(button, form)
+
+        if (form.exact) {
+            button.amount = BigDecimal.ZERO
+        }
 
         if (form.hasErrors()) {
             renderError(button, form)
@@ -102,7 +128,7 @@ class ButtonController {
 
         boolean isHeadOffice = springSecurityService.principal.storeId == null
 
-        if (springSecurityService.principal.storeId != null) {
+        if (!isHeadOffice) {
             button.storeId = springSecurityService.principal.storeId
         }
 
@@ -136,20 +162,19 @@ class ButtonController {
                 } else {
                     buttonService.saveButtonGrid(button.buttonGrid)
                 }
-            } else {
-                if (form.image) {
-                    byte[] image = form.image.bytes
-
-                    if (image.length > 0 && form.image.contentType == "image/png") {
-                        imageService.saveButtonImage(button.id, image)
-
-                        button.imageDisplay = true
-                        if (singularButtonUpdate) {
-                            buttonService.saveButton(button)
-                        } else {
-                            buttonService.saveButtonGrid(button.buttonGrid)
-                        }
+            } else if (form.image.bytes.length != 0) {
+                byte[] image = form.image.bytes
+                if (image.length > 0 && form.image.contentType == MediaType.IMAGE_PNG) {
+                    button.imageDisplay = true
+                    if (image != null) {
+                        saveButton(button, image, singularButtonUpdate)
                     }
+                }
+            } else if (!existingButton && !isHeadOffice) {
+                // if store override grab image from s3 and save it again
+                if (button.imageDisplay) {
+                    byte[] image = imageService.getButtonImage(form.overrideId)
+                    saveButton(button, image, singularButtonUpdate)
                 }
             }
 
@@ -202,7 +227,9 @@ class ButtonController {
                         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
                         productSku: productVariant?.sku,
                         productDescription: productVariant?.product?.description,
-                        storeId: getStoreId()
+                        storeId: getStoreId(),
+                        displayExactOption: button?.tenderType != null && button?.tenderType == TenderType.CASH,
+                        displayManualOption: button?.tenderType != null
                 ])
             }
         } else {
@@ -213,13 +240,16 @@ class ButtonController {
     private void renderError(Button button, SaveButtonFormCommand form) {
         def productVariant = null
         def buttonImage = null
+        def uploadedImage = false
+        if (form.image != null && !form.image.empty && form.image.contentType == MediaType.IMAGE_PNG) {
+            buttonImage = form.image.bytes
+            uploadedImage = true
+        } else if (button.imageDisplay) {
+            buttonImage = imageService.getButtonImage(button.id)
+        }
 
         if (button.type == ButtonType.PRODUCT && button.sku) {
             productVariant = productService.getProductVariant(button.sku)
-        }
-
-        if (button.imageDisplay) {
-            buttonImage = imageService.getButtonImage(button.id)
         }
 
         render (view: "edit", model: [
@@ -231,7 +261,10 @@ class ButtonController {
                 productSku: productVariant?.sku,
                 productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
-                form: form
+                form: form,
+                previousImage: uploadedImage,
+                displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+                displayManualOption: button.tenderType != null
         ])
     }
 
@@ -330,5 +363,44 @@ class ButtonController {
 
     def getStoreId() {
         return springSecurityService.principal.storeId
+    }
+
+    def saveButton(Button button, byte[] image, boolean singularButtonUpdate){
+        if (image != null) {
+            imageService.saveButtonImage(button.id, image)
+            button.imageDisplay = true
+        }
+
+        if (singularButtonUpdate) {
+            buttonService.saveButton(button)
+        } else {
+            buttonService.saveButtonGrid(button.buttonGrid)
+        }
+    }
+
+    private Button createBlankToOverride(int gridId, int row, int column) {
+        try {
+            Button blank = new Button()
+            blank.setBlankFields()
+            blank.type = ButtonType.BLANK
+            blank.row = row
+            blank.column = column
+            blank.storeId = null
+            blank.overrideId = null
+
+            def now = new Date()
+            blank.createdDatetime = now
+            blank.createdUserId = springSecurityService.principal.id
+            blank.updateDatetime = now
+            blank.updatedUserId = springSecurityService.principal.id
+
+            def grid = ButtonGrid.get(gridId)
+            blank.buttonGrid = grid
+            grid.addToButtons(blank)
+            buttonService.saveButtonGrid(grid)
+            return blank
+        } catch (Exception ignored) {
+            return null
+        }
     }
 }

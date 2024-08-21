@@ -33,11 +33,17 @@ class PromotionGroup {
 
     static constraints = {
         type nullable: false
-        sku nullable: true
-        categoryId nullable: true
-        tagId nullable: true
+        sku nullable: true, validator: {val, obj ->
+            val != null || !(obj.categoryId == null && obj.tagId == null)
+        }
+        categoryId nullable: true, validator: {val, obj ->
+            val != null || !(obj.sku == null && obj.tagId == null)
+        }
+        tagId nullable: true, validator: {val, obj ->
+            val != null || !(obj.sku == null && obj.categoryId == null)
+        }
         requiredQuantity nullable: true, range:1..999999999
-        requiredValue nullable:true, range:1F..9999.99F
+        requiredValue nullable:true, min: 0.02, max:9999.99, scale: 2
     }
 
     public uk.co.wonderlane.wlpos.entities.PromotionGroup getPromotionGroup() {

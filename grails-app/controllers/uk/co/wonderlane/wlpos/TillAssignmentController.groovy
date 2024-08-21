@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.plugin.springsecurity.annotation.Secured
+import grails.validation.Validateable
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
@@ -11,7 +12,6 @@ class TillAssignmentController {
     def springSecurityService
     def tillAssignmentService
     def storeService
-    def stores
     def configuration
     def editingTill = false
 
@@ -23,7 +23,7 @@ class TillAssignmentController {
             return
         }
 
-        stores = storeService.getStores(springSecurityService.principal.retailerId)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
 
         [stores: stores]
     }
@@ -67,7 +67,7 @@ class TillAssignmentController {
         }
 
         def totalResults = tills.size()
-        tills = tills.drop(offset).take(max);
+        tills = tills.drop(offset).take(max)
 
         render (template: "tillSearchResults", model: [tillList: tills, offset: offset, max: max, totalResults: totalResults])
     }
@@ -85,31 +85,27 @@ class TillAssignmentController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def saveNewTill(TillConfiguration tillConfiguration) {
-        tillConfiguration.save()
-    }
-
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxAddTill() {
-        stores = storeService.getStores(springSecurityService.principal.retailerId)
-        def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
-        render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, enableEdit: false])
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
+        def unassignedSerialNumbers = tillAssignmentService.getUnassignedTillStock()
+
+        render(template: "addTill", model: [stores: stores, serialNumbers: unassignedSerialNumbers, enableEdit: false])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxEditTill() {
-        stores = storeService.getStores(springSecurityService.principal.retailerId)
-        configuration = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, Integer.parseInt(params.get("storeId").toString()), Integer.parseInt(params.get("tillId").toString()))
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
+        def configuration = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, Integer.parseInt(params.get("storeId").toString()), Integer.parseInt(params.get("tillId").toString()))
         editingTill = true
-        def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
+        def unassignedSerialNumbers = tillAssignmentService.getUnassignedTillStock()
 
         // Append the selected Serial Number to the list
         def currentSerial = TillStock.findBySerialNumber(params.get("serialNumber").toString())
         if (currentSerial != null) {
-            serialNumbers.add(currentSerial)
+            unassignedSerialNumbers.add(currentSerial)
         }
 
-        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, enableEdit: true])
+        render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: unassignedSerialNumbers, enableEdit: true])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -130,113 +126,37 @@ class TillAssignmentController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxSaveTill() {
-        def serialNumbers = TillStock.findAllByRetailerIdAndStoreIdIsNullAndTillIdIsNull(springSecurityService.principal.retailerId)
-        if (!params.containsKey("storeId")) {
-            if (configuration != null) {
-                addTillStockToList(configuration.serialNumber, serialNumbers)
-                render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
-            } else {
-                render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveStoreError: true, enableEdit: editingTill])
-            }
-            return
-        }
+    def ajaxSaveTill(AddEditTillCommand addEditTillCommand) {
+        if (!addEditTillCommand.validate()) {
+            def stores = storeService.getStores(springSecurityService.principal.retailerId)?.sort { it.config.storeNumber + " - " + it.config.storeName }
+            def unusedSerialNumbers = tillAssignmentService.getUnassignedTillStock()
 
-        if (!isValidTillId(params.get("tillId").toString())) {
-            if (configuration != null) {
-                addTillStockToList(configuration.serialNumber, serialNumbers)
-                render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
-            } else {
-                render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
-            }
-            return
+            render(status: 500, template: "addTill", model: [till: addEditTillCommand, stores: stores, serialNumbers: unusedSerialNumbers, enableEdit: editingTill])
         } else {
-            // check that the Till ID hasn't been previously added
-            def entry
-            if (editingTill) {
-                if (configuration.tillId != (Integer.parseInt(params.get("tillId").toString()))) {
-                    entry = tillAssignmentService.getTillsByTillId(Integer.parseInt(params.get("tillId").toString()))
-                }
+            TillConfiguration till
+
+            if (addEditTillCommand.id) {
+                till = TillConfiguration.findByRetailerIdAndId(springSecurityService.principal.retailerId, addEditTillCommand.id)
             } else {
-                entry = tillAssignmentService.getTillsByTillId(Integer.parseInt(params.get("tillId").toString()))
+                till = new TillConfiguration()
+
+                till.scpTxnEndIndicator = ""
+                till.pposControlBar = ""
+                till.pin = 0
+                till.dateTimeCreated = DateTime.now(DateTimeZone.UTC)
             }
 
-            if (entry != null && entry.size != 0) {
-                if (configuration != null) {
-                    addTillStockToList(configuration.serialNumber, serialNumbers)
-                    render(template: "addTill", model: [till: configuration, stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
-                } else {
-                    render(template: "addTill", model: [stores: stores, serialNumbers: serialNumbers, saveTillError: true, enableEdit: editingTill])
-                }
-                return
-            }
-        }
+            till.retailerId = springSecurityService.principal.retailerId
+            till.storeId = addEditTillCommand.storeId
+            till.tillId = addEditTillCommand.tillId
+            till.description = addEditTillCommand.description
+            till.serialNumber = addEditTillCommand.serialNumber
+            till.pinExpiry = DateTime.now(DateTimeZone.UTC)
+            till.dateTimeUpdated = DateTime.now(DateTimeZone.UTC)
 
-        if (configuration != null) {
-            // Check for existing Till Configuration for this serial number
-            def existingConfig = TillConfiguration.findByRetailerIdAndStoreIdAndTillId(springSecurityService.principal.retailerId, configuration.storeId, configuration.tillId)
-            if (existingConfig != null) {
-                // Update the configuration with the new details (if any)
-                existingConfig.storeId = Integer.parseInt(params.get("storeId").toString())
-                existingConfig.tillId = Integer.parseInt(params.get("tillId").toString())
-                existingConfig.description = params.get("description").toString()
+            tillAssignmentService.saveTill(till)
 
-                if (params.containsKey("serialNumber")) {
-                    existingConfig.serialNumber = params.get("serialNumber").toString()
-                    tillAssignmentService.updateTillStock(existingConfig)
-
-                    // If the serial number has changed, update Till Stock to reflect the Serial Number becoming free
-                    if (configuration.serialNumber != params.get("serialNumber").toString()) {
-                        tillAssignmentService.updateTillStockBySerial(configuration.serialNumber)
-                    }
-                }
-                existingConfig.dateTimeUpdated = DateTime.now()
-
-                tillAssignmentService.saveTill(existingConfig)
-
-                configuration = null
-                editingTill = false
-                render "OK"
-            } else {
-                configuration = null
-                editingTill = false
-                render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
-            }
-        } else {
-            def newTill = new TillConfiguration()
-            newTill.retailerId = springSecurityService.principal.retailerId
-            newTill.storeId = Integer.parseInt(params.get("storeId").toString())
-            newTill.tillId = Integer.parseInt(params.get("tillId").toString())
-            newTill.description = params.get("description").toString()
-
-            if (params.containsKey("serialNumber")) {
-                newTill.serialNumber = params.get("serialNumber").toString()
-            }
-
-            // Set temp values to be done via other modals / generated later
-            newTill.scpTxnEndIndicator = ""
-            newTill.pposControlBar = ""
-            newTill.pposAdmin = false
-            newTill.pposRefund = false
-            newTill.pposSmartToken = false
-            newTill.printCardReceipts = false
-            newTill.baudRate = 0
-            newTill.pin = 0
-            newTill.pinExpiry = DateTime.now()
-            newTill.dateTimeCreated = DateTime.now()
-            newTill.dateTimeUpdated = DateTime.now()
-
-            if (newTill.validate()) {
-                // Store the New Till within the Till Configuration table
-                tillAssignmentService.saveTill(newTill)
-                // If we don't have a serial Number
-                if (newTill.serialNumber != null) {
-                    tillAssignmentService.updateTillStock(newTill)
-                }
-                render "OK"
-            } else {
-                render(template: "addTill", model: [till: newTill, stores: stores, serialNumbers: serialNumbers])
-            }
+            render "OK"
         }
     }
 
@@ -249,6 +169,8 @@ class TillAssignmentController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ajaxGeneratePin() {
+        def tillConfig = tillAssignmentService.getTill(Integer.parseInt(params.id))
+
         // Generate 8 digit code
         def random = new SecureRandom()
         int minimumValue = 10000000
@@ -257,7 +179,7 @@ class TillAssignmentController {
 
         def expiry = DateTime.now(DateTimeZone.UTC).plusHours(1)
 
-        tillAssignmentService.updateTillConfiguration(configuration.serialNumber, pin, expiry)
+        tillAssignmentService.updateTillConfiguration(tillConfig?.serialNumber, pin, expiry)
 
         render "The registration code for this till is ${pin} and will expire in one hour."
     }
@@ -312,6 +234,44 @@ class TillAssignmentController {
         def tillStock = TillStock.findBySerialNumber(searchNo)
         if (tillStock != null) {
             serialNumbers.add(tillStock)
+        }
+    }
+}
+
+class AddEditTillCommand implements Validateable {
+
+    def springSecurityService
+
+    int id
+    int tillId
+    int storeId // Actually store number.
+    String description
+    String serialNumber
+
+    static constraints = {
+        id nullable: true
+        tillId nullable: false, min: 1, validator: { val, obj ->
+            // Can only check for till ID uniqueness per store, if a store has been selected. Sounds obvious, right?
+            if (obj.storeId) {
+                def existingTills = TillConfiguration.findAllByRetailerIdAndStoreIdAndTillId(obj.springSecurityService.principal.retailerId, obj.storeId, val)
+
+                if (existingTills?.size() > 1 || (existingTills?.size() == 1 && existingTills?.first()?.id != obj.id)) {
+                    // Another till exists with this till ID at this store.
+                    return false
+                }
+            }
+        }
+        storeId nullable: false, min: 1 // Actually store number.
+        description nullable: true
+        serialNumber nullable: true, validator: { val, obj ->
+            if (val) {
+                def existingTills = TillConfiguration.findAllByRetailerIdAndSerialNumber(obj.springSecurityService.principal.retailerId, val)
+
+                if (existingTills?.size() > 1 || (existingTills?.size() == 1 && existingTills?.first()?.id != obj.id)) {
+                    // Another till exists with this serial number which isn't this one.
+                    return false
+                }
+            }
         }
     }
 }

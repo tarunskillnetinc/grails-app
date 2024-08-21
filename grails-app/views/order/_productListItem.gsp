@@ -11,6 +11,7 @@
     <asset:javascript src="jquery-ui.js" />
     <asset:stylesheet src="jquery-ui.css" />
 
+
     <style>
         .quantity__input {
             width: 60px;
@@ -30,14 +31,6 @@
             font-size: 20px;
         }
 
-        .ui-dialog-titlebar-close {
-            display: none;
-        }
-
-        .ui-dialog .ui-resizable-se {
-            background-image: url("");
-        }
-
         input[type="number"]::-webkit-inner-spin-button{
             display: none;
         }
@@ -45,39 +38,6 @@
     </style>
 
     <script type='text/javascript'>
-
-        $(function() {
-            $( "#dialog-confirm" ).dialog({
-                autoOpen : false,
-                modal : true,
-                height: "auto",
-                width: 400,
-                draggable: false,
-                resizable: false,
-                buttons: [{
-                    id: "ok-button",
-                    text: "Ok",
-                    click: function () {
-                        $(this).dialog("close");
-                    }
-                }]
-            });
-
-            $("#dialog-pack-save-error").dialog({
-                autoOpen: false,
-                resizable: false,
-                height: "auto",
-                width: 400,
-                modal: true,
-                buttons: {
-                    Ok: function () {
-                        $(this).dialog("close");
-                        $('#dialog-confirm').dialog("close");
-                    }
-                }
-            });
-
-        });
 
         document.addEventListener("DOMContentLoaded", function() {
             let numbers = document.querySelectorAll('.quantity__input');
@@ -148,15 +108,15 @@
                 }
             });
             params["quantity"] = quantity
-            var addPackLines = "${createLink(controller: 'order', action: 'ajaxSavePackLines')}";
             if(quantity > 0){
                 $.ajax({
-                    url: addPackLines,
+                    url: "${createLink(controller: 'order', action: 'ajaxSavePackLines')}",
                     method: "POST",
                     data: params,
                     statusCode: {
                         500: function (response) {
-                            $('#dialog-pack-save-error').dialog('open');
+                            $('#productListItemModal').modal({show: true});
+                            $("#productListItemContent").html(response.responseText);
                         },
                         200: function (response) {
                             window.location.href = window.location.href = '${createLink(controller: 'order', action:'productList')}';
@@ -164,8 +124,25 @@
                     }
                 });
             }else {
-                $('#dialog-confirm').dialog('open');
+                $.ajax({
+                    url: "${createLink(controller: 'order', action: 'ajaxShowQuantityWarningWindow')}",
+                    method: "GET",
+                    statusCode: {
+                        200: function (response) {
+                            $('#productListItemModal').modal({show: true});
+                            $("#productListItemContent").html(response);
+                        }
+                    }
+                });
             }
+        }
+
+        function cancelPackLineSaveError(){
+            $('#productListItemModal').modal('hide');
+        }
+
+        function cancelQuantityWarningError(){
+            $('#productListItemModal').modal('hide');
         }
     </script>
 
@@ -178,8 +155,9 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="order" action="productList" >Orders List</g:link></li>
-                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${variants?.product?.description}</li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="reporting" action="orders" >Orders Report</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="order" action="productList" >Orders List</g:link></li>
+                        <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${variants?.product?.description}</li>
                     </ol>
                 </div>
             </div>
@@ -236,7 +214,8 @@
                                     <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
                                     <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
                                     <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLinesSingles.quantity" type="text" class="quantity__input" value="${singleQuantity}" >
+                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input" value="${singleQuantity}"
+                                           min="0" max="999999" style="width: 100px">
                                     <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles})" >+</button>
                                     <span id="packQty">x Singles</span>
                                 </div>
@@ -249,7 +228,7 @@
                                         <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
                                         <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
                                         <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
-                                            min="0" max="${pack.maximumOrderQuantity}" style="width: fit-content">
+                                            min="0" max="${pack.maximumOrderQuantity}" style="width: 100px">
                                         <button id="incrementButton" class="counterButton" onclick="increment(${pack.id})" >+</button>
                                         <span id="packQty">x ${pack.quantity} Packs</span>
                                     </div>
@@ -267,13 +246,15 @@
 
     </section>
 
-    <div id="dialog-confirm" title="Quantity Warning" style="display:none;">
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Please add quantities before save</p>
-    </div>
 
-    <div id="dialog-pack-save-error" title="Save error" style="display:none;">
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error saving pack lines </p>
-    </div>
+    <section id="productListItem-modal" class="container-fluid">
+        <div class="modal fade" id="productListItemModal" tabindex="-1" role="dialog" aria-labelledby="productListItemModalLabel" data-backdrop="false"  aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="border: 2px black solid; margin-top: 120px" role="document">
+                <div id="productListItemContent" class="modal-content"></div>
+            </div>
+        </div>
+    </section>
+
 
 </body>
 </html>

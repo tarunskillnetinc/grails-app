@@ -9,6 +9,7 @@ import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -17,6 +18,7 @@ import java.sql.CallableStatement
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDateTime
 import java.util.stream.Collectors
 
 @Transactional
@@ -120,6 +122,7 @@ class ProductService extends MySqlDal {
 
     def saveLocations(Product product) {
         product?.variants?.each { variant ->
+            def variantLocations = Location.findAllByStoreIdAndSkuAndDeleted(springSecurityService.principal.storeId, variant.sku, false)
             variant.locationz?.each { location ->
                 if (location.hasProperty('delete') && location.delete) {
                     Location deletedLocation = new Location()
@@ -132,24 +135,57 @@ class ProductService extends MySqlDal {
                     deletedLocation.location = location.location
                     deletedLocation.shelfCapacity = location.shelfCapacity
                     deletedLocation.minimumDisplayQuantity = location.minimumDisplayQuantity
+                    deletedLocation.locationHierarchy = location.locationHierarchy
                     deletedLocation.save()
                 } else if (location instanceof Location) {
-                    location.save()
+                    def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == location.id }
+                    if (existingLocation && existingLocation.id > 0) {
+                        updateLocation(existingLocation, location, location.sku)
+                    } else{
+                        location.save()
+                    }
                 }
             }
         }
     }
 
+   boolean isLocationValid(Product product, ProductCommand editedProduct){
+       def isValid = true
+
+       for (ProductVariant pv : product?.variants){
+           for (Location location : pv.locationz){
+               if (!location.validate()) {
+                   product.errors.reject('product.location.validation.error', [String.valueOf(pv.sku)] as Object[],
+                           'product.location.validation.error.default')
+                   isValid = false
+                   break
+               }
+           }
+       }
+
+       return isValid;
+    }
+
+
     def saveProductVariant(ProductVariant productVariant) {
         productVariant.save()
     }
 
-    def saveProductPrices(List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
+    def saveProductPrices(Product product, List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
         
         productPrices.eachWithIndex { productPrice, index ->
-            if (productPrice?.price) {
+            if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
+                if (!productPrice.validate()) {
+                    if (productPrice.price.compareTo(BigDecimal.ZERO) <= 0 || productPrice.price.compareTo(BigDecimal.valueOf(99999.99)) >= 0){
+                        product.errors.reject('productPrice.price.range.error', ['0.01', '99,999.99', String.valueOf(productPrice.price)] as Object[] ,
+                                'productPrice.price.range.default.error')
+                    }
+
+                    return product
+                }
+
                 session.saveOrUpdate(productPrice)
 
                 // Clear the session for speed purposes.
@@ -338,26 +374,46 @@ class ProductService extends MySqlDal {
             }
 
             barcodeSkus = validBarcodeSkus?.unique()
-
         }
 
-        def queryParams = [retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, effectiveDate: now, max: maxResults, offset: startIndex]
-        def countQueryParams = [retailerId: springSecurityService.principal.retailerId, storeId: springSecurityService.principal.storeId, effectiveDate: now]
+        def queryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now, max: maxResults, offset: startIndex]
+        def countQueryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now]
 
-        // TODO Definitely a better way to put this lot together rather than two separate queries and sets of query params.
-        String searchQuery = """SELECT DISTINCT(p)
-                                FROM Product p
-                                JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
-                                LEFT JOIN Pack pk ON pk.productVariant = pv.id
-                                LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
-                                WHERE p.retailerId = :retailerId """
+        if (springSecurityService.principal.storeId) {
+            queryParams.range = springSecurityService.principal.range
+            countQueryParams.range = springSecurityService.principal.range
 
-        String countQuery = """SELECT COUNT(DISTINCT p)
-                                FROM Product p
-                                JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate
-                                LEFT JOIN Pack pk ON pk.productVariant = pv.id
-                                LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId
-                                WHERE p.retailerId = :retailerId """
+            queryParams.storeId = springSecurityService.principal.storeId
+            countQueryParams.storeId = springSecurityService.principal.storeId
+        }
+
+        String querySelect = "SELECT DISTINCT(p) "
+        String countQuerySelect = "SELECT COUNT(DISTINCT p) "
+
+        String searchQuery = """FROM Product p """
+
+        if (springSecurityService.principal.storeId) {
+            // Store level.
+            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate """
+        } else {
+            // Head office level.
+            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND pv.storeId IS NULL AND pv.effectiveDate <= :effectiveDate """
+        }
+
+        searchQuery += """LEFT JOIN Pack pk ON pk.productVariant = pv.id
+                          LEFT JOIN Barcode b ON pv.sku = b.sku AND b.retailerId = :retailerId """
+
+        if (springSecurityService.principal.storeId) {
+            // Store level.
+            searchQuery += """LEFT JOIN RangeProduct rp ON p.id = rp.productId AND rp.range = :range """
+        }
+
+        searchQuery += """WHERE p.retailerId = :retailerId """
+
+        if (springSecurityService.principal.storeId) {
+            // Store level.
+            searchQuery += """AND (rp.productId IS NOT NULL OR pv.storeId IS NOT NULL) """
+        }
 
         if (searchBy == "everything") {
             queryParams.barcodeSkus = barcodeSkus
@@ -370,44 +426,33 @@ class ProductService extends MySqlDal {
                                    OR p.description LIKE :searchTerm
                                    OR pk.barcode LIKE :searchTerm """
 
-            countQuery += """AND (pv.sku IN (:barcodeSkus)
-                                   OR p.itemCode LIKE :searchTerm
-                                   OR p.description LIKE :searchTerm
-                                   OR pk.barcode LIKE :searchTerm """
-
             if (searchTerm.isNumber()) {
                 queryParams.searchTermLong = Long.parseLong(searchTerm)
                 countQueryParams.searchTermLong = Long.parseLong(searchTerm)
 
                 searchQuery += """OR pv.sku = :searchTermLong) """
-                countQuery += """OR pv.sku = :searchTermLong) """
             } else {
                 searchQuery += """) """
-                countQuery += """) """
             }
         } else if (searchBy == "itemCode") {
             queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND (p.itemCode LIKE :searchTerm """
-            countQuery += """AND (p.itemCode LIKE :searchTerm """
 
             if (searchTerm.isNumber()) {
                 queryParams.searchTermLong = Long.parseLong(searchTerm)
                 countQueryParams.searchTermLong = Long.parseLong(searchTerm)
 
                 searchQuery += """OR pv.sku = :searchTermLong) """
-                countQuery += """OR pv.sku = :searchTermLong) """
             } else {
                 searchQuery += """) """
-                countQuery += """) """
             }
         } else if (searchBy == "description") {
             queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND p.description LIKE :searchTerm """
-            countQuery += """AND p.description LIKE :searchTerm """
         } else if (searchBy == "barcode") {
             queryParams.barcodeSkus = barcodeSkus
             queryParams.searchTerm = "%${searchTerm}%"
@@ -415,8 +460,6 @@ class ProductService extends MySqlDal {
             countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
-                                    OR pk.barcode LIKE :searchTerm) """
-            countQuery += """AND (pv.sku IN (:barcodeSkus)
                                     OR pk.barcode LIKE :searchTerm) """
         }
 
@@ -427,8 +470,8 @@ class ProductService extends MySqlDal {
         }
 
         def results = [:]
-        results.products = Product.executeQuery(searchQuery, queryParams)
-        results.totalCount = Product.executeQuery(countQuery, countQueryParams)?.get(0) ?: 0
+        results.products = Product.executeQuery(querySelect + searchQuery, queryParams)
+        results.totalCount = Product.executeQuery(countQuerySelect + searchQuery, countQueryParams)?.get(0) ?: 0
 
         return results
     }
@@ -580,18 +623,25 @@ class ProductService extends MySqlDal {
         stores?.each { Store store ->
             List<uk.co.wonderlane.wlpos.entities.Product> productEntities = new ArrayList<>()
             products.forEach({
-                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.config.storeNumber)
-                if (checkProductHasPriceForStore(productEntity, store.config.storeNumber)) {
+                uk.co.wonderlane.wlpos.entities.Product productEntity = it.getProduct(store.id, store.priceBand)
+                List<ProductVariant> variants = getFilteredProductVariantsWithPriceForStore(productEntity, store.id)
+                if (!variants.isEmpty()) {
+                    // Only send the update to the store if there are variants to send. This could mean the store has
+                    // old variants that don't get deleted but the alternative is sending incomplete product data.
+                    productEntity.setVariants(variants)
                     productEntities.add(productEntity)
                 }
             })
-            SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
-            syncMessage.setInsert(true)
-            syncMessage.setProducts(productEntities)
 
-            log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+            if (!productEntities.isEmpty()) {
+                SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
+                syncMessage.setInsert(true)
+                syncMessage.setProducts(productEntities)
 
-            rabbitService.sendMessage(syncMessage)
+                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+
+                rabbitService.sendMessage(syncMessage)
+            }
         }
     }
 
@@ -636,9 +686,49 @@ class ProductService extends MySqlDal {
         }
     }
 
-    private static boolean checkProductHasPriceForStore(uk.co.wonderlane.wlpos.entities.Product product, Integer storeId) {
-        return product.variants.findAll { it.storeId == null || it.storeId == storeId }
-                .stream().map({ it.getRetailPrice() })
-                .collect(Collectors.toList()).findAll({ it != null && it > BigDecimal.ZERO }).size() > 0
+    private static List<ProductVariant> getFilteredProductVariantsWithPriceForStore(uk.co.wonderlane.wlpos.entities.Product product, Integer storeId) {
+        if (product.isZeroPrice()) {
+            return product.getVariants() // already retrieved using a store id so is fine to return the whole list
+        }
+        return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
+                    && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
+    }
+
+    public Location deepCopyExistingLocation(Location existingLocation){
+        Location newLocation = new Location()
+        newLocation.id = existingLocation.id
+        newLocation.storeId = existingLocation.storeId
+        newLocation.sku = existingLocation.sku
+        newLocation.aisle = existingLocation.aisle
+        newLocation.bay = existingLocation.bay
+        newLocation.shelf = existingLocation.shelf
+        newLocation.position = existingLocation.position
+        newLocation.location = existingLocation.location
+        newLocation.shelfCapacity = existingLocation.shelfCapacity
+        newLocation.minimumDisplayQuantity = existingLocation.minimumDisplayQuantity
+        newLocation.locationHierarchy = existingLocation.locationHierarchy
+        newLocation.locationDescription = existingLocation.locationDescription
+        newLocation.locationNumber = existingLocation.locationNumber
+        return newLocation
+    }
+
+    private void updateLocation(def locationToBeUpdated, def editedLocation, def sku) {
+        def locationsType = springSecurityService.principal.retailer.config.locationsType
+        locationToBeUpdated.storeId = springSecurityService.principal.storeId
+        locationToBeUpdated.sku = sku
+
+        if (locationsType == LocationsType.ADVANCED) {
+            locationToBeUpdated.aisle = editedLocation.aisle
+            locationToBeUpdated.bay = editedLocation.bay
+            locationToBeUpdated.shelf = editedLocation.shelf
+            locationToBeUpdated.position = editedLocation.position
+            locationToBeUpdated.locationHierarchy = editedLocation.locationHierarchy
+            locationToBeUpdated.locationDescription = editedLocation.locationDescription
+            locationToBeUpdated.locationNumber = editedLocation.locationNumber
+        } else if (locationsType == LocationsType.SIMPLE) {
+            locationToBeUpdated.location = editedLocation.location
+        }
+        locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
+        locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }
 }

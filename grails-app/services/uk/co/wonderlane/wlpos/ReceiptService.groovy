@@ -14,57 +14,26 @@ class ReceiptService {
         def results
         def totalCount = 0
 
-        if (sort.equals("transactionAmount")) {
-            results = receiptsCriteria.list {
-                eq("retailerId", springSecurityService.principal.retailerId)
+        results = receiptsCriteria.list([offset: offset, max: max, sort: sort, order: order]) {
+            eq("retailerId", springSecurityService.principal.retailerId)
 
-                if (springSecurityService.principal.storeNumber != null) {
-                    eq("storeId", springSecurityService.principal.storeNumber)
-                }
-
-                gte("dateGenerated", fromDate)
-                lt("dateGenerated", toDate)
-
-                if (tillId) {
-                    eq("tillId", tillId)
-                }
-
-                if (transactionId) {
-                    eq("transactionId", transactionId)
-                }
+            if (springSecurityService.principal.storeNumber != null) {
+                eq("storeId", springSecurityService.principal.storeNumber)
             }
 
-            results = results.sort { it?.receiptLines?.find{ it.type.name() == 'TOTAL' }?.total ?: BigDecimal.ZERO }
+            gte("dateGenerated", fromDate)
+            lt("dateGenerated", toDate)
 
-            if (order == "desc") {
-                results = results.reverse()
+            if (tillId) {
+                eq("tillId", tillId)
             }
 
-            totalCount = results.size()
-
-            results = offset < results.size() ? results.subList(offset, (offset + max < results.size() ? offset + max : results.size())) : []
-        } else {
-            results = receiptsCriteria.list([offset: offset, max: max, sort: sort, order: order]) {
-                eq("retailerId", springSecurityService.principal.retailerId)
-
-                if (springSecurityService.principal.storeNumber != null) {
-                    eq("storeId", springSecurityService.principal.storeNumber)
-                }
-
-                gte("dateGenerated", fromDate)
-                lt("dateGenerated", toDate)
-
-                if (tillId) {
-                    eq("tillId", tillId)
-                }
-
-                if (transactionId) {
-                    eq("transactionId", transactionId)
-                }
+            if (transactionId) {
+                eq("transactionId", transactionId)
             }
-            
-            totalCount = results.totalCount
         }
+
+        totalCount = results.totalCount
 
         return [results, totalCount]
     }

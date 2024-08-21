@@ -22,12 +22,12 @@
 </g:if>
 
 <g:each in="${products}" var="product" status="i">
-    <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to select." style="cursor: pointer;" onclick="productSelected(${product.variants?.find { it.storeId == storeId }?.id}, '${ product.variants?.find { it.storeId == storeId }?.sku}', '${StringEscapeUtils.escapeJavaScript(product.description)}');" data-dismiss="modal">
+    <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to select." style="cursor: pointer;" onclick="productSelected(${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.id}, '${product.variants?.sort { it.storeId }?.reverse()?.find { it.storeId == null || it.storeId == storeId }?.sku}', '${StringEscapeUtils.escapeJavaScript(product.description)}');" data-dismiss="modal">
         <div id="product-result-${i+1}-item-code" class="col-2 text-truncate">${product.itemCode}</div>
         <div id="product-result-${i+1}-description" class="col-4">${product.description}</div>
         <div id="product-result-${i+1}-category" class="col-2">${product.category?.description}</div>
-        <div id="product-result-${i+1}-cost-price" class="col-2">£${product.variants?.find { it.storeId == storeId }?.costPrice ?: '0.00'}</div>
-        <div id="product-result-${i+1}-retail-price" class="col-2">£${product.variants?.find { it.storeId == storeId }?.currentPrice ?: '0.00'}</div>
+        <div id="product-result-${i+1}-cost-price" class="col-2">£${product.costPrice}</div>
+        <div id="product-result-${i+1}-retail-price" class="col-2">£${product.retailPrice}</div>
     </div>
 </g:each>
 

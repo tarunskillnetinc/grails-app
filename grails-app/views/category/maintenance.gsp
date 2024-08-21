@@ -10,6 +10,7 @@
     <asset:javascript src="category-select.js" />
     <asset:javascript src="money-mask.js" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
+    <asset:javascript src="co-utils.js"/>
 
     <script type="text/javascript">
         let getChildCategoriesUrl = "${createLink(controller: 'product', action: 'ajaxGetChildCategories')}";
@@ -18,21 +19,24 @@
         $(document).ready(function () {
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
+            intListener("restrictions.buyerAgeRestriction", 3, 999, true)
+            intListener("restrictions.buyerChallengeAge", 3, 999, true)
+            intListener("restrictions.sellerAgeRestriction", 3, 999, true)
         });
 
         function onCategoryChanged(selectedCategoryId) {
-            //call category map restrictions only when adding new product and restriction tab is not change by manually
-            let getRestrictionsUrl = "${createLink(controller: 'category', action: 'ajaxGetRestrictions')}";
+            let getInheritanceUrl = "${createLink(controller: 'category', action: 'ajaxGetInheritance')}";
             $.ajax({
-                url: getRestrictionsUrl,
+                url: getInheritanceUrl,
                 method: "GET",
                 data: {
                     selectedCategoryId: selectedCategoryId,
                 },
                 success: function (resp) {
-                    $("#categoryRestrictions").html(resp);
+                    $("#categoryInheritance").html(resp);
                     $(".mask-money").maskMoney({ allowZero: true });
                     $(".mask-money").maskMoney('mask');
+                    setFieldActivity()
                 }
             });
         }
@@ -58,6 +62,10 @@
         }
 
         $(function() {
+            setFieldActivity();
+        })
+
+        function setFieldActivity() {
             $('#description').on('input', function () {
                 $(this).val($(this).val().replace(/[^\x00-\x7F]/g, ""))
             })
@@ -80,7 +88,7 @@
                 $("#restrictions\\.sellerAgeRestriction").val("");
                 $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
             });
-        })
+        }
     </script>
 </head>
 

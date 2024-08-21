@@ -5,7 +5,7 @@
         <g:if test="${storeId}">
             <g:if test="${button?.storeId && button?.overrideId}">
                 <g:link elementId="remove-btn" action="deleteOverride" id="${button?.id}" tabindex="-1" role="button" class="btn btn-secondary" onClick="return confirm('You are about to delete this override.');">Remove Override</g:link>
-                <button id="save-btn" class="btn btn-success" name="save" onclick="document.querySelector('#submission-form').submit()">Save</button>
+                <button id="save-btn" class="btn btn-success" name="save" onclick="attemptSave()">Save</button>
             </g:if>
             <g:else>
                 <button id="save-btn" class="btn btn-success" name="save" onclick="saveOverride(${button?.id}, ${storeId})">Override</button>
@@ -19,7 +19,17 @@
                 <button id="unassign-btn" class="btn btn-secondary" disabled>Unassign</button>
             </g:else>
 
-            <button id="save-btn" class="btn btn-success" name="save" onclick="document.querySelector('#submission-form').submit()">Save</button>
+            <button id="save-btn" class="btn btn-success" name="save" onclick="attemptSave()">Save</button>
         </g:else>
         </div>
 </div>
+
+<script type="text/javascript">
+    function attemptSave() {
+        const amount = $("input[id*=amountInput]");
+        if (amount.val() !== "" && amount.val() < 0.01 && !$("input[id*=exactInput]").is(":checked")) {
+            amount.val("");
+        }
+        document.querySelector('#submission-form').submit()
+    }
+</script>

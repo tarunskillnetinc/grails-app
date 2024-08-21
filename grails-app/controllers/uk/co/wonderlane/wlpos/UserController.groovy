@@ -120,7 +120,7 @@ class UserController {
                     flash.message = "User saved successfully"
 
                     redirect (action: "index")
-                }else {
+                } else {
                     render (view: "userEdit", model: [user: saveUserCommand, roleValues: getEligibleUserRoles(user?.getRole()), isUserReadOnly: isUserReadOnly(user)])
                 }
             } else {
@@ -353,6 +353,6 @@ class SaveUserPasswordCommand {
             return (val == obj.password) ? true : ["error.User.passwordsDoNotMatch"]
         }
 
-        password nullable: false, blank: false, password: true, minSize: 5, maxSize: 70
+        password nullable: false, blank: false, password: true, minSize: 4, maxSize: 70
     }
 }

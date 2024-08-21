@@ -3,8 +3,8 @@
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'timestamp', sortOrder: ${sortParams?.sortColumn == 'timestamp' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Timestamp</a></div>
     </g:if>
-    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "store" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'store', sortOrder: ${sortParams?.sortColumn == 'store' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Store</a></div>
+    <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
+        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'storeId', sortOrder: ${sortParams?.sortColumn == 'storeId' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Store</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fromLocation" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'fromLocation', sortOrder: ${sortParams?.sortColumn == 'fromLocation' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">From Location</a></div>
@@ -19,7 +19,7 @@
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'type', sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
-        <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reason', sortOrder: ${sortParams?.sortColumn == 'reason' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Reason</a></div>
+        <div class="col-2 font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'reason', sortOrder: ${sortParams?.sortColumn == 'reason' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Reason</a></div>
     </g:if>
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "userName" }?.enabled}">
         <div class="col font-weight-bold"><a href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'userName', sortOrder: ${sortParams?.sortColumn == 'userName' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">User</a></div>
@@ -40,10 +40,10 @@
     <g:each in="${tenderMovements}" var="tenderMovement" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "timestamp" }?.enabled}">
-                <div class="col my-auto"><g:formatDate date="${tenderMovement.timestamp.toDate()}" format="dd/MM/yy HH:mm:ss" /></div>
+                <div class="col my-auto"><g:formatDate date="${tenderMovement.timestamp.toDate()}" format="dd/MM/yy HH:mm:ss" timeZone="Europe/London" /></div>
             </g:if>
-            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "store" }?.enabled}">
-                <div class="col my-auto">${tenderMovement.store?.config?.getStoreNumber()}</div>
+            <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "storeId" }?.enabled}">
+                <div class="col my-auto">${tenderMovement.store?.config?.storeNumber}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "fromLocation" }?.enabled}">
                 <g:if test="${tenderMovement.type == TenderMovementType.CASH_INBOUND}"><div class="col my-auto">Bank</div></g:if>
@@ -63,7 +63,7 @@
                 <div class="col my-auto"><g:message code="TenderMovementType.${tenderMovement.type}" /></div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
-                <div class="col my-auto">
+                <div class="col-2 my-auto">
                     <g:if test="${!tenderMovement.reason}">N/A</g:if>
                     <g:elseif test="${tenderMovement.type == 'PAID_OUT'}"><g:message code="PaidOutReason.${tenderMovement.reason}" /></g:elseif>
                     <g:else>${tenderMovement.reason}</g:else>

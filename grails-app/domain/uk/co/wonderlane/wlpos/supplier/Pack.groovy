@@ -1,9 +1,8 @@
 package uk.co.wonderlane.wlpos.supplier
 
 import org.joda.time.DateTime
-import uk.co.wonderlane.wlpos.Product
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.ProductVariant
-import uk.co.wonderlane.wlpos.Retailer
 import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
 
@@ -24,6 +23,7 @@ class Pack {
     Integer maximumOrderQuantity
     boolean allowSubstitutes
     boolean priceMarked
+    boolean primaryCase
     DateTime updateDatetime
 
     static mapping = {
@@ -44,6 +44,7 @@ class Pack {
         allowSubstitutes column: "allowSubstitutes"
         priceMarked column: "priceMarked"
         updateDatetime column: "updateDatetime"
+        primaryCase column: "primaryCase"
     }
 
     int getQuantity(List<PackLine> packLines){
@@ -52,6 +53,12 @@ class Pack {
             return packLine.quantity
         }
         return 0;
+    }
+
+    // pack is active if the current datetime is after the pack effectiveDate and before the pack effectiveEndDate
+    boolean isActive() {
+        DateTime now = DateTime.now(DateTimeZone.UTC)
+        return !supplier.deleted && (effectiveDate == null || now > effectiveDate) && (effectiveEndDate == null || now < effectiveEndDate)
     }
 
     static constraints = {
@@ -83,6 +90,7 @@ class Pack {
         maximumOrderQuantity nullable: true, min: 0 as Integer, max: 99999 as Integer
         allowSubstitutes nullable: false
         priceMarked nullable: false
+        primaryCase nullable: false
         updateDatetime nullable: false
     }
 
@@ -103,6 +111,7 @@ class Pack {
         pack.setMaximumOrderQuantity(maximumOrderQuantity != null ? maximumOrderQuantity : 0)
         pack.setAllowSubstitutes(allowSubstitutes)
         pack.setPriceMarked(priceMarked)
+        pack.setPrimaryCase(primaryCase)
         pack.setUpdateDate(updateDatetime)
 
         return pack

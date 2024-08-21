@@ -12,6 +12,10 @@ class TillAssignmentService {
         return TillConfiguration.findAllByRetailerId(springSecurityService.principal.retailerId)
     }
 
+    def getTill(int id) {
+        return TillConfiguration.findByRetailerIdAndId(springSecurityService.principal.retailerId, id)
+    }
+
     def getTillsByAllFilters(int storeIdValue, int tillIdValue, String serialNumberValue) {
         return TillConfiguration.findAllByRetailerIdAndStoreIdAndTillIdAndSerialNumberLike(springSecurityService.principal.retailerId, storeIdValue, tillIdValue, "%"+serialNumberValue+"%")
     }
@@ -42,6 +46,10 @@ class TillAssignmentService {
 
     def getTillBySerialNumber(String serialNumber) {
         return TillConfiguration.findByRetailerIdAndSerialNumberLike(springSecurityService.principal.retailerId, "%" + serialNumber + "%")
+    }
+
+    def getUnassignedTillStock() {
+        return TillStock.findAll("FROM TillStock ts WHERE NOT EXISTS (SELECT 1 FROM TillConfiguration tc WHERE tc.serialNumber = ts.serialNumber AND ts.retailerId = tc.retailerId) AND ts.retailerId = :retailerId ORDER BY ts.serialNumber ASC", [retailerId: springSecurityService.principal.retailerId])
     }
 
     def deleteEntryForStoreIdAndTillId(int storeIdValue, int tillIdValue) {

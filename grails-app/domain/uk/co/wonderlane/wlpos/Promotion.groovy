@@ -51,7 +51,33 @@ class Promotion {
         startDate nullable: false
         endDate nullable: true
         type nullable: false
-        amount nullable: false, range: 0F..9999.99F
+        amount nullable: false, validator: {val, obj ->
+            if (obj.type == PromotionType.FIXED_PRICE) {
+                BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'error.Promotion.fixedPriceNotSet'
+                } else if (val > maxValue) {
+                    return 'error.Promotion.fixedPriceExceeded'
+                }
+            } else if (obj.type == PromotionType.FIXED_AMOUNT_DISCOUNT) {
+                BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'error.Promotion.fixedAmountNotSet'
+                } else if (val > maxValue) {
+                    return 'error.Promotion.fixedAmountExceeded'
+                }
+            } else if (obj.type == PromotionType.PERCENTAGE_DISCOUNT) {
+                BigDecimal maxValue = BigDecimal.valueOf(100.00)
+
+                if (val <= BigDecimal.ZERO) {
+                    return 'error.Promotion.percentageDiscountNotSet'
+                } else if (val > maxValue) {
+                    return 'error.Promotion.percentageDiscountExceeded'
+                }
+            }
+        }
         lossCategoryId nullable: true
         active nullable: false
         updateDatetime nullable: false

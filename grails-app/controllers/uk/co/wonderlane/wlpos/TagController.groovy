@@ -39,9 +39,12 @@ class TagController {
     }
 
     def ajaxGetTags(String searchTerm, String searchBy) {
-        def tags = tagService.getTags(searchTerm, searchBy)
+        def tags = tagService.getTags(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
-        render (template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm])
+        render(template: "tagSearchResults", model: [tags      : tags,
+                                                     searchTerm: searchTerm,
+                                                     max       : params.max ?: 50,
+                                                     offset    : params.offset])
     }
 
     def add() {
@@ -182,7 +185,7 @@ class SaveTagCommand {
 
     static constraints = {
         description nullable: false, blank: false, maxSize: 100
-        maxSellQuantity nullable: true, max: 999
+        maxSellQuantity nullable: true, min: 1, max: 999
         sku nullable: false
     }
 }

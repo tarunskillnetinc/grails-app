@@ -70,7 +70,7 @@ class Button {
         row  nullable: false
         column nullable: false
         description nullable: false, maxSize: 50
-        amount nullable: true, min: 0.01, max: 9999.0
+        amount nullable: true, min: 0.00, max: 9999.0
         quantity nullable: true, min: 1, max: 999, validator: { val, obj ->
             if (obj.type == ButtonType.PRODUCT && !val) {
                 return false; // Quantity is not nullable for product buttons.

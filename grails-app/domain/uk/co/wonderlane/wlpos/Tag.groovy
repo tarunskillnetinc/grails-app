@@ -22,7 +22,7 @@ class Tag {
     }
 
     static constraints = {
-        maxSellQuantity nullable: true, max: 999
+        maxSellQuantity nullable: true, min: 1, max: 999
     }
 
     public uk.co.wonderlane.wlpos.entities.Tag getTag() {

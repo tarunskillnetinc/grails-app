@@ -20,6 +20,33 @@
                 });
             });
 
+            function selectAll() {
+                const uncheckedBoxes = $("input.selections:not(checked)");
+                uncheckedBoxes.each(function(i, checkbox) {
+                    const element = $(checkbox);
+                    element.prop("checked", true);
+                    toggleCheckBoxes(getIndexFromCheckBoxId(element.attr('id')));
+                });
+            }
+
+            function deselectAll() {
+                const checkedBoxes = $("input.selections:checked");
+                checkedBoxes.each(function(i, checkbox) {
+                    const element = $(checkbox);
+                    element.prop("checked", false);
+                    toggleCheckBoxes(getIndexFromCheckBoxId(element.attr('id')));
+                });
+            }
+
+            function getIndexFromCheckBoxId(id) {
+                // id should be "range-i-tick-box" where i is numeric
+                const splits = id.split('-');
+                if (splits.length < 2) {
+                    return 0;
+                }
+                return splits[1];
+            }
+
             function searchButtonClicked2() {
                 $('#offset').val(0);
                 search();
@@ -29,6 +56,17 @@
                 $('#tag').prop("selectedIndex", 0);
                 $('input[name="category.id"]:checked').prop("checked", false);
                 $('#searchTerm').val("");
+            }
+
+            function toggleCheckBoxes(i) {
+                const rangeStr = "range-" + i;
+                const selectedBox = $("#" + rangeStr + "-tick-box");
+                const disabled = !selectedBox.is(':checked');
+
+                // disable / enable all checkboxes on this row
+                $('[id^=' + rangeStr + "-ranges-" + ']').each((_, checkBox) => {
+                    $(checkBox).prop("disabled", disabled);
+                });
             }
 
             function search() {
@@ -176,16 +214,19 @@
                     </div>
                 </div>
 
-                <div class="col-2 offset-4 text-right">
+                <div class="col-4 offset-2 text-right">
+                    <button id="select-all-button" class="btn btn-wl" onclick="selectAll();">Select All</button>
+                    <button id="deselect-all-button" class="btn btn-wl" onclick="deselectAll();">Deselect All</button>
                     <button id="save-changes-button" class="btn btn-wl" onclick="saveRanges();">Save Changes</button>
                 </div>
             </div>
 
             <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-                <div class="col-2 font-weight-bold">Item Code</div>
-                <div class="col-6 font-weight-bold">Description</div>
+                <div class="col-1 font-weight-bold text-center my-auto">Selected</div>
+                <div class="col-2 font-weight-bold my-auto">Item Code</div>
+                <div class="col-6 font-weight-bold my-auto">Description</div>
                 <g:each in="${ranges}" var="range">
-                    <div class="col font-weight-bold text-center">${range.description}</div>
+                    <div class="col font-weight-bold text-center my-auto">${range.description}</div>
                 </g:each>
             </div>
 

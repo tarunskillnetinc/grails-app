@@ -16,7 +16,7 @@
     <div class="row mt-5 pb-2 table-wl bottom-border align-content-center ml-0 mr-0">
         <div class="col-4 font-weight-bold">Serial Number</div>
         <div class="col-4 font-weight-bold">Model</div>
-        <div class="col-4 font-weight-bold">Valid to import</div>
+        <div class="col-4 font-weight-bold">Valid to Import</div>
     </div>
 
     <g:each in="${rows}" var="row" status="i">

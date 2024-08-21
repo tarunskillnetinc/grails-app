@@ -224,7 +224,6 @@ span.dropdown-header {
 
 .tabs-wl li a {
     color: #575756;
-    background-color: #FFF9F9 !important;
 }
 
 .tabs-wl li a.active {
@@ -232,6 +231,7 @@ span.dropdown-header {
     border-width: 2px 2px 0 2px;
     border-color: #575756 !important;
     color: #575756 !important;
+    background-color: whitesmoke !important;
 }
 
 .tabs-wl li a:not(.active) {
@@ -346,6 +346,23 @@ a .button-grid-button.blank:hover {
     display:block;
 }
 
+.branding-container {
+    height:10rem;
+    width:15rem;
+    display: flex;
+    border: 1px solid #000000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.branding-image {
+    width:100%;
+    min-height: 60%;
+    object-fit: scale-down;
+    display:block;
+}
+
 .button-grid-image-container {
     width: 100%;
     height: 150px;
@@ -354,6 +371,9 @@ a .button-grid-button.blank:hover {
 .button-grid-text-container {
     width: 100%;
     height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .button-grid-button-image {
@@ -483,7 +503,11 @@ a.no-underline:hover {
 }
 
 .form-control.bottom-border:read-only {
-    background: #E9ECEF;
+    background: whitesmoke;
+}
+
+.form-control:disabled {
+    background-color: whitesmoke !important;
 }
 
 .form-check-input:read-only {
@@ -549,9 +573,31 @@ a.no-underline:hover {
     margin: 0;
 }
 
+/* Common styles for both classes */
+.wl-checkbox, .wl-checkbox-no-label {
+    height: 1.25rem; /* 20px in rem units */
+    width: 1.25rem; /* 20px in rem units */
+    min-height: 1.25rem; /* 20px in rem units */
+    min-width: 1.25rem; /* 20px in rem units */
+    max-width: 1.25rem; /* 20px in rem units */
+    max-height: 1.25rem; /* 20px in rem units */
+    margin-top: 0.625rem; /* 10px in rem units */
+}
+
+/* Specific style for .wl-checkbox */
 .wl-checkbox {
-    height: 20px;
-    margin-top: 10px;
+    margin-left: 1.875rem; /* 30px in rem units */
+}
+/* Specific style for .wl-checkbox-no-label */
+.wl-checkbox-no-label {
+    margin-left: -0.9rem;
+}
+
+.wl-label {
+    width: fit-content;
+    max-width: fit-content;
+    min-width: fit-content;
+    margin-left: -100px;
 }
 
 .wl-radio {

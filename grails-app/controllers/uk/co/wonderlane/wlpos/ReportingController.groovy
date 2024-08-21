@@ -17,6 +17,7 @@ import uk.co.wonderlane.wlpos.supplier.Supplier
 class ReportingController {
 
     def reportingService
+    def supplierService
     def productListService
     def storeService
     def springSecurityService
@@ -27,7 +28,7 @@ class ReportingController {
     private static final PROMOTIONS_REPORT_SORT_COLUMNS = ["type", "description", "quantity", "fullPrice", "discount", "margin", "profit", "vat", "dateCreated"]
     private static final PROMOTION_REPORT_SORT_COLUMNS = ["itemCode", "description", "costPrice", "fullPrice", "fullPriceMargin", "fullPriceProfit", "discount", "discountedPrice", "discountedMargin", "discountedProfit", "vat"]
     private static final TILL_CONTROL_EVENTS_REPORT_SORT_COLUMNS = ["type", "quantity"]
-    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = ["dateCreated", "type", "usersName", "reason", "amount"]
+    private static final TILL_CONTROL_EVENT_REPORT_SORT_COLUMNS = ["dateCreated", "type", "tillId", "usersName", "reason", "amount"]
     private static final PAYPOINT_SALE_REPORT_SORT_COLUMNS = ["transactionDate", "storeId", "wlTransactionId", "ppTransactionId", "terminalId", "description", "type", "value", "status"]
     private static final ORDERS_REPORT_SORT_COLUMNS = ["orderId", "storeId", "status", "dateCompleted", "supplierName", "numberOfItems", "value"]
     private static final ORDER_REPORT_SORT_COLUMNS = ["sku", "description", "orderedQuantity", "packQuantity", "lineValue"]
@@ -36,7 +37,7 @@ class ReportingController {
     private static final DELIVERY_PACK_REPORT_SORT_COLUMNS = ["description", "price", "packCost", "packSize", "deliveryQuantity", "totalQuantity", "totalSellValue"]
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
-    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "type","fromLocationType", "fromLocation", "toLocationType", "toLocation", "amount", "userName"]
+    private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "storeId", "fromLocation", "toLocation", "amount", "type", "reason", "userName"]
 
     def index() {
 
@@ -89,7 +90,6 @@ class ReportingController {
         // Populating a dummy sale object for any of the sales which are not in this category (because they have summed values for everything in that category).
         salesGrouped.each { salesGroup ->
             Sale groupedSale = new Sale(
-                    quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
                     costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice.setScale(2) : BigDecimal.ZERO.setScale(2) },
                     vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount.setScale(2) : BigDecimal.ZERO.setScale(2) },
@@ -98,7 +98,13 @@ class ReportingController {
                     productUnitSize: ""
             )
 
-            groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+            salesGroup.value.each {
+                if (it.quantity < 0) {
+                    groupedSale.refundQuantity -= it.quantity
+                } else {
+                    groupedSale.quantity += it.quantity
+                }
+            }
 
             // Also add a dummy category object so we know which category this is in the view.
             groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key))
@@ -191,19 +197,30 @@ class ReportingController {
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
-                    groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity }
-                    groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+                    int initQuantity = groupedProductSale.value[0].quantity
+
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
+
+                    groupedProductSale.value[0].quantity = 0
+                    groupedProductSale.value[0].refundQuantity = 0
+
+                    groupedProductSale.value.each {
+                        if (it.quantity < 0) {
+                            groupedProductSale.value[0].refundQuantity -= it.quantity
+                        } else {
+                            groupedProductSale.value[0].quantity += it.quantity
+                        }
+                    }
+                    initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity -= initQuantity) : (groupedProductSale.value[0].quantity += initQuantity)
 
                     finalSales.add(groupedProductSale.value[0])
                 }
             } else {
                 if (!params.descriptionFilter || salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription.toLowerCase().contains(params.descriptionFilter?.toLowerCase())) {
                     Sale groupedSale = new Sale(
-                            quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
                             costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
                             retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
                             vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
@@ -211,7 +228,14 @@ class ReportingController {
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
                             productUnitSize: ""
                     )
-                    groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+
+                    salesGroup.value.each {
+                        if (it.quantity < 0) {
+                            groupedSale.refundQuantity -= it.quantity
+                        } else {
+                            groupedSale.quantity += it.quantity
+                        }
+                    }
 
                     // Also add a dummy category object so we know which category this is in the view.
                     groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key))
@@ -303,7 +327,8 @@ class ReportingController {
                                                             sortParams  : sortParams,
                                                             startDate   : startDate,
                                                             endDate     : endDate,
-                                                            totalResults: totalResults])
+                                                            totalResults: totalResults,
+                                                            userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -361,6 +386,17 @@ class ReportingController {
             int totalResults = finalSales.size()
             finalSales = sortParams.offset < finalSales.size() ? finalSales.subList(sortParams.offset, (sortParams.offset + sortParams.max < finalSales.size() ? sortParams.offset + sortParams.max : finalSales.size())) : []
 
+            // Sort into the required order.
+            if (sortParams.sortColumn == "description") {
+                finalSales.sort { it.salesCategories?.first()?.categoryDescription }
+            } else {
+                finalSales.sort { it."${sortParams.sortColumn}" }
+            }
+
+            if (sortParams.sortOrder == "desc") {
+                finalSales = finalSales.reverse()
+            }
+
             render(template: "categorySalesResults", model: [sales       : finalSales,
                                                              userColumns : reportingService.getReportColumns(ReportType.CATEGORY_SALES),
                                                              sortParams  : sortParams,
@@ -378,7 +414,6 @@ class ReportingController {
             }
 
             Sale groupedSale = new Sale(
-                    quantity: salesGroup.value.sum { it.quantity > 0 ? it.quantity : 0 },
                     costPrice: salesGroup.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2),
                     retailPrice: salesGroup.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2),
                     vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
@@ -386,7 +421,14 @@ class ReportingController {
                     productDescription: salesGroup.value[0].salesCategories.find { it.categoryLevel == currentCategoryLevel }?.categoryDescription,
                     productUnitSize: ""
             )
-            groupedSale.refundQuantity = salesGroup.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+
+            salesGroup.value.each {
+                if (it.quantity < 0) {
+                    groupedSale.refundQuantity -= it.quantity
+                } else {
+                    groupedSale.quantity += it.quantity
+                }
+            }
 
             // Also add a dummy category object so we know which category this is in the view.
             groupedSale.addToSalesCategories(new SaleCategory(categoryId: (int) salesGroup.key, categoryLevel: currentCategoryLevel))
@@ -440,12 +482,24 @@ class ReportingController {
         def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
         filteredGroupedProductSales?.each { groupedProductSale ->
-            groupedProductSale.value[0].quantity = groupedProductSale.value.sum { it.quantity > 0 ? it.quantity : 0 }
-            groupedProductSale.value[0].refundQuantity = groupedProductSale.value.sum { it.quantity < 0 ? it.quantity : 0 } * -1
+            int initQuantity = groupedProductSale.value[0].quantity
+
             groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
             groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
             groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
             groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
+
+            groupedProductSale.value[0].quantity = 0
+            groupedProductSale.value[0].refundQuantity = 0
+
+            groupedProductSale.value.each {
+                if (it.quantity < 0) {
+                    groupedProductSale.value[0].refundQuantity -= it.quantity
+                } else {
+                    groupedProductSale.value[0].quantity += it.quantity
+                }
+            }
+            initQuantity < 0 ? (groupedProductSale.value[0].refundQuantity -= initQuantity) : (groupedProductSale.value[0].quantity += initQuantity)
 
             finalSales.add(groupedProductSale.value[0])
         }
@@ -608,7 +662,7 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getPromotions(promotionSales)
         } else {
-            render(template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount])
+            render(template: "promotionsResults", model: [promotionId: promotionId, promotionSales: promotionSales, userColumns: reportingService.getReportColumns(ReportType.PROMOTIONS), sortParams: sortParams, startDate: startDate, endDate: endDate, totalResults: promotionSales.totalCount, userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
@@ -763,18 +817,18 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getTillControlEventCsv(tillControlEvents)
         } else {
-            render(template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount])
+            render(template: "tillControlEventResults", model: [tillControlEvents: tillControlEvents, userColumns: reportingService.getReportColumns(ReportType.TILL_CONTROL_EVENT), sortParams: sortParams, totalResults: tillControlEvents.totalCount, userTimeZone: DateTimeZone.forID("Europe/London")])
         }
     }
 
     // The top level of the main orders report.
     def orders() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).minusDays(6).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         boolean enableOrderCreate = false
         if (springSecurityService.principal.storeId  != null &&  springSecurityService.principal.storeId > 0){
@@ -810,7 +864,28 @@ class ReportingController {
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1))
+        def orders = productListService.getOrders(storeId, supplierId, startDate, endDate.plusDays(1)).toList()
+
+        // Sort into the required order.
+        if (orders) {
+            switch (sortParams.sortColumn) {
+                case "supplierName":
+                    orders = orders.sort { it.supplierReference }
+                    break
+                case "numberOfItems":
+                    orders = orders.sort { it.totalQuantity }
+                    break
+                case "value":
+                    orders = orders.sort { it.totalValue }
+                    break
+                default:
+                    orders = orders.sort { it."${sortParams.sortColumn}" }
+            }
+
+            if (sortParams.sortOrder.equalsIgnoreCase("desc")) {
+                orders = orders?.reverse()
+            }
+        }
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "Orders-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
@@ -823,7 +898,7 @@ class ReportingController {
                                                       startDate   : startDate,
                                                       endDate     : endDate,
                                                       sortParams  : sortParams,
-                                                      totalResults: orders.totalCount])
+                                                      totalResults: orders.size()])
         }
     }
 
@@ -831,11 +906,11 @@ class ReportingController {
     def order() {
         int productListId = getIntegerParam(params.productListId)
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(6)
         DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType   : ReportType.ORDER,
          productListId: productListId,
@@ -913,7 +988,7 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        def suppliers = Supplier.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "name"])
+        def suppliers = supplierService.getSuppliers()
 
         [reportType : ReportType.DELIVERIES,
          suppliers : suppliers,
@@ -1478,9 +1553,24 @@ class ReportingController {
         TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
         Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
 
-        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder).toList()
 
-        render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS), sortParams: sortParams, startDate: startDate, endDate: endDate, tenderMovementType: tenderMovementType, tenderType: tenderType, storeId: storeId, totalResults: tenderMovements.totalCount])
+        if (params.csv != null && params.csv == "true") {
+            def fileName = "TenderMovements-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+            render getTenderMovementsCsv(tenderMovements)
+        } else {
+            render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements,
+                                                                userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS),
+                                                                sortParams: sortParams,
+                                                                startDate: startDate,
+                                                                endDate: endDate,
+                                                                tenderMovementType: tenderMovementType,
+                                                                tenderType: tenderType,
+                                                                storeId: storeId,
+                                                                totalResults: tenderMovements.size()])
+        }
     }
 
     def ajaxSaveReportColumns() {
@@ -1539,6 +1629,8 @@ class ReportingController {
 
     private String getSalesByProductCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
+        String pattern = "dd/MM/yy HH:mm:ss"
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern)
         stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
         sales?.each {
             stringBuilder.append(it.productItemCode?.replace("'", "\\'") + " - " + it.productDescription?.replace("'", "\\'") + " - " + it.productUnitSize?.replace("'", "\\'"))
@@ -1557,7 +1649,7 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.usersName)
             stringBuilder.append(",")
-            stringBuilder.append(it.dateCreated?.format("dd/MM/yy HH:mm:ss"))
+            stringBuilder.append(it.dateCreated ? formatter.print(it.dateCreated) : "N/A")
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
@@ -1725,7 +1817,7 @@ class ReportingController {
         productListList?.each {
             stringBuilder.append(it.getOrderId())
             stringBuilder.append(",")
-            stringBuilder.append(it.store?.storeId)
+            stringBuilder.append(it.store?.id)
             stringBuilder.append(",")
             stringBuilder.append(it.status)
             stringBuilder.append(",")
@@ -1749,7 +1841,7 @@ class ReportingController {
         deliveries?.each { delivery ->
             stringBuilder.append(delivery?.orderId)
             stringBuilder.append(",")
-            stringBuilder.append(delivery?.store?.storeId)
+            stringBuilder.append(delivery?.store?.id)
             stringBuilder.append(",")
             stringBuilder.append(g.message(code: "DeliveryStatus.${delivery?.status}"))
             stringBuilder.append(",")
@@ -1841,11 +1933,13 @@ class ReportingController {
 
     private String getTillControlEventCsv(List<TillControlEvent> tillControlEventList) {
         StringBuilder stringBuilder = new StringBuilder()
-        stringBuilder.append("Type,User,Reason,Date,Amount\n")
+        stringBuilder.append("Type,Till ID,User,Reason,Date,Amount\n")
         tillControlEventList?.each {
             String type = getMappingFromResource("TillControlEventType." + it.type) != null ?
                     getMappingFromResource("TillControlEventType." + it.type) : "TillControlEventType." + it.type
             stringBuilder.append(type.toString()?.replace("'", "\\'"))
+            stringBuilder.append(",")
+            stringBuilder.append(it.tillId)
             stringBuilder.append(",")
             stringBuilder.append(it.usersName?.replace("'", "\\'"))
             stringBuilder.append(",")
@@ -1879,6 +1973,32 @@ class ReportingController {
             stringBuilder.append(it.amount != null ? "£" + it.amount : "N/A")
             stringBuilder.append("\n")
         }
+        return stringBuilder.toString()
+    }
+
+    private String getTenderMovementsCsv(List<TenderMovement> tenderMovementList) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Timestamp,Store,From Location,To Location,Amount,Type,Reason,User\n")
+
+        tenderMovementList?.each { item ->
+            stringBuilder.append(item?.timestamp)
+            stringBuilder.append(",")
+            stringBuilder.append(item?.storeId)
+            stringBuilder.append(",")
+            stringBuilder.append(item.fromLocation?.description)
+            stringBuilder.append(",")
+            stringBuilder.append(item.toLocation?.description)
+            stringBuilder.append(",")
+            stringBuilder.append(item.amount)
+            stringBuilder.append(",")
+            stringBuilder.append(item.type)
+            stringBuilder.append(",")
+            stringBuilder.append(item.reason)
+            stringBuilder.append(",")
+            stringBuilder.append(item.userName)
+            stringBuilder.append("\n")
+        }
+
         return stringBuilder.toString()
     }
 

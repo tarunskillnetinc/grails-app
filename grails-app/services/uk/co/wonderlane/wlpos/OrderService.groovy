@@ -503,7 +503,7 @@ class OrderService extends MySqlDal  {
         CallableStatement stmt
         HashMap<Integer, Integer> productDeliveryListItemMap = new HashMap<>();
         try{
-            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?) }")
+            stmt = connection.prepareCall("{ call saveProductListItem(?, ?, ?, ?, ?, ?, ?) }")
             for (uk.co.wonderlane.wlpos.entities.wlim.ProductListItem listItem : productList.getProductListItems()) {
                 uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = getProductVariant(Integer.parseInt(productList.getStoreId()), listItem.getProductVariantId())
                 int stockInQuantity = productVariant.getQuantityInStock()

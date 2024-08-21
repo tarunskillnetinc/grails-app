@@ -12,17 +12,15 @@
 
 <g:each in="${rangeProducts}" var="rangeProduct" status="i">
     <div id="range-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
-        <div class="col-2 my-auto">
-            <div class="row form-group form-check mb-0">
-                <g:checkBox id="range-${i+1}-tick-box" name="product-${rangeProduct.key}" class="selections col-1 form-check-input wl-checkbox" style="margin-top: 8px;" />
-                <label id="range-${i+1}-item-code" for="product-${rangeProduct.key}" class="col-10 col-form-label pl-2 text-truncate">${rangeProduct.value[0].productItemCode}</label>
-            </div>
+        <div class="col form-group form-check mb-0 text-center">
+            <g:checkBox id="range-${i+1}-tick-box" name="product-${rangeProduct.key}" class="selections col form-check-input wl-checkbox-no-label" onchange="toggleCheckBoxes(${i+1});"/>
         </div>
+        <label id="range-${i+1}-item-code" for="product-${rangeProduct.key}" class="col-2 my-auto col-form-label text-truncate text-left">${rangeProduct.value[0].productItemCode}</label>
         <div id="range-${i+1}-description" class="col-6 my-auto">${rangeProduct.value[0].productDescription}</div>
 
         <g:each in="${ranges}" var="range" status="k">
-            <div class="col form-group form-check mb-0">
-                <g:checkBox id="range-${i+1}-ranges-${k+1}" name="range-${rangeProduct.key}-${range.id}" checked="${rangeProduct.value.find { it.rangeId == range.id }}" class="col form-check-input wl-checkbox" />
+            <div class="col form-group form-check mb-0 text-center">
+                <g:checkBox id="range-${i+1}-ranges-${k+1}" name="range-${rangeProduct.key}-${range.id}" checked="${rangeProduct.value.find { it.rangeId == range.id }}" class="col form-check-input wl-checkbox-no-label" disabled="true"/>
             </div>
         </g:each>
     </div>

@@ -200,7 +200,7 @@
                             <g:checkBox name="columns" id="columnsSupplier" class="form-check-input"
                                         value="supplierName"
                                         checked="${!userColumns || userColumns?.columns?.find { it.column == 'supplierName' }?.enabled}"/>
-                            <label class="form-check-label" for="columnsSupplier">Supplier Name</label>
+                            <label class="form-check-label" for="columnsSupplier">Supplier Reference</label>
                         </div>
 
                         <div class="form-group form-check">

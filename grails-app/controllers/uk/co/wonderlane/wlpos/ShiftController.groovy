@@ -29,10 +29,11 @@ class ShiftController {
             return
         }
 
-        DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
-        DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        String startDate = (DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)).toString(formatter)
+        String endDate = (DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()).toString(formatter)
 
-        [startDate: startDate, endDate: endDate]
+        [startDate: params.startDate ?: startDate , endDate: params.endDate ?: endDate, tillId: params.tillId]
     }
 
     def ajaxGetShifts() {

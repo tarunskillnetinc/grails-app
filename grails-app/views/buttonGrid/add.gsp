@@ -1,3 +1,4 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.ButtonGridType" %>
 <!doctype html>
 
 <html>
@@ -51,14 +52,19 @@
             <div class="form-group row margin-top-2rem">
                 <label for="description" class="col-3 col-form-label">Description</label>
                 <div class="col-7">
-                    <g:textField name="description" maxlength="45" value="${buttonGrid?.description}" class="form-control bottom-border" />
+                    <g:textField name="description" maxlength="45" value="${buttonGrid?.description}" class="form-control bottom-border" disabled="${buttonGrid != null && buttonGrid?.type?.name() != "OTHER"}" />
                 </div>
             </div>
 
             <div class="form-group row margin-top-2rem">
                 <label for="rows" class="col-3 col-form-label">Number of rows</label>
                 <div class="col-2">
-                    <g:field type="number" min="1" max="4" maxlength="1" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
+                    <g:if test="${buttonGrid?.id && buttonGrid?.type?.name() == 'SALES'}">
+                        <h6 class="form-control bottom-border">${buttonGrid?.rows ?: 4}</h6>
+                    </g:if>
+                    <g:else>
+                        <g:field type="number" min="1" max="4" maxlength="1" name="rows" value="${buttonGrid?.rows ?: 4}" class="form-control bottom-border" />
+                    </g:else>
                 </div>
             </div>
 
@@ -76,14 +82,14 @@
                         <g:link elementId="cancel-btn" controller="buttonGrid" action="show" id="${buttonGrid?.id}" tabindex="-1" role="button" class="btn btn-danger">Cancel</g:link>
                     </g:if>
                     <g:else>
-                        <g:link url="${request.getHeader('referer') ?: "/"}" id="cancel-btn" class="btn btn-danger">Cancel</g:link>
+                        <g:link url="/" id="cancel-btn" class="btn btn-danger">Cancel</g:link>
                     </g:else>
 
-                    <g:if test="${buttonGrid != null && buttonGrid.type.toString() == "OTHER"}">
+                    <g:if test="${buttonGrid?.id && buttonGrid.type.toString() == "OTHER"}">
                         <g:link elementId="delete-button-grid-btn" action="delete" id="${buttonGrid.id}" class="btn btn-wl" onClick="return confirm('You are about to delete this button grid. Are you sure you want to continue?');">Delete</g:link>
                     </g:if>
 
-                    <g:submitButton class="btn btn-success" name="save" value="Save" />
+                    <g:submitButton class="btn btn-success" name="save" value="Save" onclick="${buttonGrid?.id ? "return confirm('Confirm changes. Any decrease in grid dimensions may result in deleted buttons.');" : "" }" />
                 </div>
             </div>
         </g:form>

@@ -25,7 +25,7 @@ class SnapshotController {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
         DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        [startDate: startDate, endDate: endDate, safeLocations: locationService.getStoreSafeLocations()]
+        [startDate: startDate, endDate: endDate, safeLocations: locationService.getStoreSafeLocations(), shiftStartDate: params.shiftStartDate, shiftEndDate: params.shiftEndDate, shiftTillId: params.shiftTillId]
     }
 
     def ajaxGetSnapshots() {

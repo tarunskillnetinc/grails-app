@@ -10,6 +10,7 @@ class WonderLaneUserDetails extends GrailsUser {
     Integer storeId
     String usersName
     PriceBand priceBand
+    Range range
     Retailer retailer
 
     public WonderLaneUserDetails(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired,

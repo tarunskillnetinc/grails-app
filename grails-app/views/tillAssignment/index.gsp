@@ -6,6 +6,9 @@
 
     <title>Till Assignment</title>
 
+    <asset:javascript src="co-utils.js"/>
+    <asset:javascript src="validators/input-validator.js"/>
+
     <script type="text/javascript">
 
         var getTillsUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSearchForTills')}"
@@ -146,6 +149,10 @@
                         showBtns();
                         $("#addTillContent").html(resp);
                     }
+                },
+                error: function (resp) {
+                    showBtns();
+                    $("#addTillContent").html(resp.responseText);
                 }
             });
         }
@@ -212,25 +219,8 @@
         }
 
         function applyListeners() {
-            intListener("tillIdFilter");
-            intListener("tillId");
-        }
-
-        function intListener(elementId) {
-            var element = document.getElementById(elementId)
-            var maxLength = 10
-            var maxValue = 2147483647
-
-            if (element != null) {
-                element.addEventListener("input", function () {
-                    if (element.value.length > maxLength) {
-                        element.value = element.value.slice(0, maxLength)
-                    }
-                    if (element.value > maxValue) {
-                        element.value = maxValue
-                    }
-                });
-            }
+            intListener("tillIdFilter", 10, 2147483647);
+            intListener("tillId", 10, 2147483647);
         }
 
         function showBtns() {
@@ -297,9 +287,9 @@
                                               disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                                 </div>
 
-                                <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till ID</label>
+                                <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till Number</label>
                                 <div class="col-4">
-                                        <g:field id="tillIdFilter" type="number" min="0" max="2147483647" name="tillIdFilter" value="${tillId}" class="form-control bottom-border" />
+                                        <g:field id="tillIdFilter" type="number" min="0" max="2147483647" name="tillIdFilter" value="${tillId}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                                 </div>
                             </div>
 

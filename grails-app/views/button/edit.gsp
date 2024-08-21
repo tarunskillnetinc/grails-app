@@ -1,23 +1,45 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
 <!doctype html>
 <html>
 <head>
     <meta name="layout" content="main" />
 
     <title>Button Grids</title>
-
+    <asset:javascript src="money-mask.js" />
     <asset:javascript src="button.js" />
+
     <script type="text/javascript">
-        $(function() {
-            if ($("#image")[0].files.length <= 0 ) {
-                    var displayTextCheck = $("input[id*=textDisplayInput]");
-                    displayTextCheck.prop("checked", true);
-                    displayTextCheck.prop("value", true);
-                    displayTextCheck.attr("disabled", true);
-            }
-            
+        $(function($) {
             if ("${button?.imageDisplay}" === "false") {
-                $("input[id*=displayTextInput]").attr("disabled", true)
+                const displayTextCheck = $("input[id*=textDisplayInput]");
+                displayTextCheck.attr("checked", true);
+                displayTextCheck.attr("value", true);
+                displayTextCheck.attr("disabled", true);
             }
+
+            const tenderTypeInput = $("#tenderTypeInput");
+
+            const exactInputDiv = $("#exactEntryDiv");
+            const manualInputDiv = $("#manualEntryDiv");
+
+            const exactInput = $("input[id*=exactInput]");
+            const manualInput = $("input[id*=manualInput]");
+            const amountInput = $("input[id*=amountInput]");
+
+            if ('${previousImage}' === 'true') {
+                const image = $('.button-image').first()
+                fetch(image.attr('src'))
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'previous.png', blob)
+                        let container = new DataTransfer()
+                        container.items.add(file)
+                        document.querySelector('#image').files = container.files
+                    })
+            }
+
+            $(".mask-money").maskMoney({ allowZero: true, allowEmpty: true });
+            $(".mask-money").maskMoney('mask');
 
             $("#image").on("change", function() {
                 if (this.files[0].size < 1048576 /* 1MB */) { // max size should match number value in SaveButtonFormCommand.groovy
@@ -64,7 +86,7 @@
                 $("#removeImage").val(true);
                 $("div[id*=imageRemoveBtn]").attr("disabled", true);
                 $("#textDisplay").val(true);
-            })
+            });
 
             $("input[id*=textDisplayInput]").on("change", function () {
                 $("#textDisplay").val(this.checked);
@@ -76,25 +98,25 @@
                     $(".button-example-text").attr("hidden", true)
                     $("div[id*=imageRemoveBtn]").attr("disabled", true);
                 }
-            })
+            });
 
             $("input[id*=descriptionInput]").on("change", function() {
                 $("input[id*=descriptionInput]").val(this.value);
                 $("#description").val($(this).val());
-            })
+            });
 
             $("input[id*=quantityInput]").on("change", function() {
                 $("#quantity").val($(this).val());
-            })
+            });
 
             $("select[id*=subPageIdInput]").on("change", function() {
                 $("#subPageId").val($(this).val());
-            })
+            });
 
             $("input[id*=percentageInput]").on("input", function() {
                 formatValue()
                 $("#quantity").val($(this).val());
-            })
+            });
 
             $("select[id*=processInput]").on("change", function() {
                 $("#process").val($(this).val());
@@ -106,15 +128,91 @@
                     $("#percentageEntryHolder").hide()
                     $("#quantity").val(null);
                 }
-            })
+            });
+
+            tenderTypeInput.on("change", function() {
+                $("#tenderType").val($(this).val());
+
+                exactInput.prop("checked", false);
+                manualInput.prop("checked", false);
+                $("#exact").val("false");
+                $("#manual").val("false");
+
+                if (tenderTypeInput.val() === "") {
+                    amountInput.val("");
+                    $("#amount").val("");
+                    amountInput.attr("disabled", true);
+
+                    exactInputDiv.hide();
+                    manualInputDiv.hide();
+                } else if (tenderTypeInput.val() === "CASH") {
+                    amountInput.val("0.00");
+                    $("#amount").val("0.00");
+                    amountInput.attr("disabled", false);
+
+                    exactInputDiv.show();
+                    manualInputDiv.show();
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                } else {
+                    amountInput.val("0.00");
+                    $("#amount").val("0.00");
+                    amountInput.attr("disabled", false);
+
+                    exactInputDiv.hide();
+                    manualInputDiv.show();
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
+
+            exactInput.on("change", function() {
+                if (this.checked) {
+                    manualInput.prop("checked", false);
+
+                    amountInput.attr("disabled", true);
+                    amountInput.prop("value", "");
+
+                    $("#amount").val("");
+                    $("#exact").val("true");
+                    $("#manual").val("false");
+                } else {
+                    amountInput.attr("disabled", false);
+
+                    $("#amount").val("");
+                    $("#exact").val("false");
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
+
+            manualInput.on("change", function() {
+                if (this.checked) {
+                    exactInput.prop("checked", false);
+
+                    amountInput.attr("disabled", true);
+                    amountInput.prop("value", "");
+
+                    $("#amount").val("");
+                    $("#exact").val("false");
+                    $("#manual").val("true");
+                } else {
+                    amountInput.attr("disabled", false);
+
+                    $("#amount").val("");
+                    $("#manual").val("false");
+
+                    $(".mask-money").maskMoney({ allowZero: true });
+                    $(".mask-money").maskMoney('mask');
+                }
+            });
 
             $("input[id*=amountInput]").on("change", function() {
                 $("#amount").val($(this).val());
-            })
-
-            $("select[id*=tenderTypeInput]").on("change", function() {
-                $("#tenderType").val($(this).val());
-            })
+            });
 
             $(".button-example").css("backgroundColor", $("#bgColour").val());
             $(".button-example").css("color", $("#textColour").val());
@@ -123,13 +221,61 @@
                 $("input[id*=bgColourInput]").val(this.value);
                 $("#bgColour").val(this.value);
                 $(".button-example").css("backgroundColor", this.value);
-            })
+            });
+
             $("input[id*=textColourInput]").on('change', function () {
                 $("input[id*=textColourInput]").val(this.value);
                 $("#textColour").val(this.value);
                 $(".button-example").css("color", this.value);
-            })
-        })
+            });
+        });
+
+        function formatDecimal(input) {
+            // Get the entered value
+            let enteredValue = input.value;
+
+            // Remove non-numeric characters and leading zeros
+            let numericValue = enteredValue.replace(/[^0-9.]/g, '').replace(/^0+/g, '');
+
+            // Convert to a floating-point number
+            let floatValue = parseFloat(numericValue);
+
+            // Format with two decimal places
+            // Update the input value with the formatted result
+            input.value = floatValue.toFixed(2);
+        }
+
+        function showHideExact(tenderTypeInputValue, amountInput, exactInputDiv, exactInput) {
+            amountInput.val("");
+
+            if (tenderTypeInputValue === "CASH") {
+                exactInputDiv.show();
+            } else {
+                exactInputDiv.hide();
+
+                if (exactInput.is(":checked")) {
+                    amountInput.attr("disabled", false)
+                    amountInput.prop("value", false)
+                    exactInput.prop("checked", false)
+                    $("#amount").val("");
+                }
+            }
+        }
+
+        function showHideManual(tenderTypeInputValue, amountInput, manualInputDiv, manualInput) {
+            if (tenderTypeInputValue === "CASH") {
+                manualInputDiv.show();
+            } else {
+                manualInputDiv.hide();
+
+                if (manualInput.is(":checked")) {
+                    amountInput.attr("disabled", false)
+                    amountInput.prop("value", false)
+                    manualInput.prop("checked", false)
+                    $("#amount").val("");
+                }
+            }
+        }
 
         function formatValue() {
             var element = document.getElementById("percentageInput")
@@ -343,48 +489,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Action/process button. -->
-                <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
-                    <div class="card-header pointer" id="actionButton" data-toggle="collapse" data-target="#collapseActionButton" aria-expanded="true" aria-controls="collapseActionButton" onclick="onTypeChange('PROCESS')">
-                        <div class="row">
-                            <div class="col-10 font-weight-bold">Action Button</div>
-                            <div class="col-2 text-right">
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="collapseActionButton" class="collapse ${button?.type?.name() == 'PROCESS' ? 'show' : ''}" aria-labelledby="actionButton" data-parent="#accordion">
-                        <div class="card-body py-5">
-                            <div class="form-group row">
-                                <label for="description" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
-                                <div class="col-8 col-sm-6 col-lg-4">
-                                    <g:textField name="descriptionInput" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="process" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Action</label>
-                                <div class="col-8 col-sm-5 col-lg-3">
-                                    <g:select name="processInput" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
-                                </div>
-                            </div>
-
-                            <div class="form-group row" style="display: ${button?.process?.name() == 'SIMPLE_DISCOUNT' ? 'show' : 'none'}" id="percentageEntryHolder">
-                                <label for="percentageInput" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Percentage Discount</label>
-                                <div class="col-8 col-sm-6 col-lg-4">
-                                    <g:field name="percentageInput" type="number" min="1" max="100" step="1" required="true" value="${button?.quantity != null ? button?.quantity : 1}" class="form-control bottom-border"/>
-                                </div>
-                            </div>
-
-                            <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
-                            <g:render template="saveCancelButtons" model="${[button: button]}" />
-                        </div>
-                    </div>
-                </div>
             </g:if>
 
             <g:if test="${button.buttonGrid?.type?.name() == 'TENDER'}">
@@ -411,26 +515,81 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
-                                <div class="col-4 col-sm-2">
-                                    <g:field name="amountInput" type="number" min="0" max="9999" step=".01" value="${button.amount}" class="form-control bottom-border" />
+                                <label for="tenderType" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
+                                <div class="col-6 col-sm-2">
+                                    <g:select name="tenderTypeInput" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'Please select']" class="form-control select-border" />
                                 </div>
-                                <div class="col-4 col-sm-4" style="margin-top: 7px;"><small class="text-muted">Leave blank for manual entry.</small></div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="tenderType" class="col-4 col-sm-2 offset-sm-2 col-form-label">Tender type:</label>
-                                <div class="col-6 col-sm-4">
-                                    <g:select name="tenderTypeInput" from="${availableTenderTypes}" valueMessagePrefix="TenderType" value="${button.tenderType}" noSelection="['':'']" class="form-control select-border" />
+                                <label for="amount" class="col-4 col-sm-2 offset-sm-2 col-form-label">Amount</label>
+                                <div class="col-4 col-sm-2">
+                                    <g:textField name="amountInput" max="9999" value="${button.amount ?: form?.amount}" class="form-control bottom-border mask-money" disabled="${!button.tenderType || form?.manual || form?.exact || (!form && button.amount == BigDecimal.ZERO) || (!form && button.amount == null)}" />
+                                </div>
+
+                                <div class="form-group col-4 col-sm-2 offset-sm-1 form-check">
+                                    <div id="manualEntryDiv" class="col-3 col-form-label text-right pr-4 pt-0 pb-0" style="display: ${displayManualOption ? 'block' : 'none'};">
+                                        <label id="manualLabel" for="manualInput" class="col-form-label text-right wl-label">Manual Entry</label>
+                                        <g:checkBox name="manualInput" class="col-1 form-check-input wl-checkbox" checked="${form?.manual || (!form && button.tenderType && button.amount == null)}" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-4 col-sm-2 form-check">
+                                    <div id="exactEntryDiv" class="col-3 col-form-label text-right pr-4 pt-0 pb-0" style="display: ${displayExactOption ? 'block' : 'none'};">
+                                        <label id="exactLabel" for="exactInput" class="col-form-label text-right wl-label">Exact</label>
+                                        <g:checkBox name="exactInput" class="col-1 form-check-input wl-checkbox" checked="${form?.exact || (!form && button.tenderType && button.amount == BigDecimal.ZERO)}" />
+                                    </div>
                                 </div>
                             </div>
 
-                            <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
+                            <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]" />
                             <g:render template="saveCancelButtons" model="${[button: button]}" />
                         </div>
                     </div>
                 </div>
             </g:if>
+
+        <!-- Action/process button. -->
+            <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
+                <div class="card-header pointer" id="actionButton" data-toggle="collapse" data-target="#collapseActionButton" aria-expanded="true" aria-controls="collapseActionButton" onclick="onTypeChange('PROCESS')">
+                    <div class="row">
+                        <div class="col-10 font-weight-bold">Action Button</div>
+                        <div class="col-2 text-right">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="collapseActionButton" class="collapse ${button?.type?.name() == 'PROCESS' ? 'show' : ''}" aria-labelledby="actionButton" data-parent="#accordion">
+                    <div class="card-body py-5">
+                        <div class="form-group row">
+                            <label for="description" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Description</label>
+                            <div class="col-8 col-sm-6 col-lg-4">
+                                <g:textField name="descriptionInput" maxlength="50" value="${button?.description}" class="form-control bottom-border" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="process" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Action</label>
+                            <div class="col-8 col-sm-5 col-lg-3">
+                                <g:select name="processInput" from="${availableProcesses}" valueMessagePrefix="ProcessType" value="${button.process}" noSelection="['':'']" class="form-control select-border" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row" style="display: ${button?.process?.name() == 'SIMPLE_DISCOUNT' ? 'show' : 'none'}" id="percentageEntryHolder">
+                            <label for="percentageInput" class="col-4 col-sm-2 offset-sm-2 col-lg-3 offset-lg-1 col-form-label text-right pr-4">Percentage Discount</label>
+                            <div class="col-8 col-sm-6 col-lg-4">
+                                <g:field name="percentageInput" type="number" min="1" max="100" step="1" required="true" value="${button?.quantity != null ? button?.quantity : 1}" class="form-control bottom-border"/>
+                            </div>
+                        </div>
+
+                        <g:render template="buttonVisualControls" model="[button: button, buttonImage: buttonImage, notFixed: true]"/>
+                        <g:render template="saveCancelButtons" model="${[button: button]}" />
+                    </div>
+                </div>
+            </div>
 
             <!-- Blank button. -->
             <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -493,6 +652,8 @@
                 <g:hiddenField id="btnStoreId" name="storeId" value="${button?.storeId}" />
                 <g:hiddenField id="overrideId" name="overrideId" value="${button?.overrideId}" />
                 <g:hiddenField name="removeImage" value=""/>
+                <g:hiddenField name="exact" value="${form?.exact || (!form && button.amount == BigDecimal.ZERO)}" />
+                <g:hiddenField name="manual" value="${form?.manual || (!form && button.amount == null)}" />
 
                 <input id="image" name="image" type="file" accept="image/png" hidden/>
             </g:uploadForm>

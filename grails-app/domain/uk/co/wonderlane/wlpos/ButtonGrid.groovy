@@ -37,7 +37,11 @@ class ButtonGrid {
                 return false; // Description is not nullable for sub pages.
             }
         }
-        rows nullable: false, min: 1, max: 4
+        rows nullable: false, min: 1, max: 4, validator: {val, obj ->
+            if (obj.type == ButtonGridType.SALES && val > 1) {
+                return 'error.ButtonGrid.saleGridRowCountError'
+            }
+        }
         columns nullable: false, min: 1, max: 4
         buttons nullable: true
     }

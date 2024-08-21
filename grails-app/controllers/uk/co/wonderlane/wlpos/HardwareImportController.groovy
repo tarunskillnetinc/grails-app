@@ -66,6 +66,9 @@ class HardwareImportController {
                             } else if (serialsInStock.contains(row.serialNumber?.trim()) || serialsInStock.contains(row.serialNumber)) {
                                 row.validRow = false
                                 row.errorRow = "Invalid - Serial number already exists"
+                            } else if (!validRegexSerial(row.getSerialNumber())) {
+                                row.validRow = false
+                                row.errorRow = "Invalid - Serial number cannot contain special characters or spaces"
                             } else {
                                 validSerialNumbersInFile.add(row.serialNumber?.trim())
                             }
@@ -89,14 +92,18 @@ class HardwareImportController {
         response.setHeader("Content-Type", "text/csv;")
 
         StringBuilder stringBuilder = new StringBuilder()
-        stringBuilder.append("SerialNumber, Model, Valid Row\n")
+        stringBuilder.append("Serial Number,Model,Valid to Import\n")
         var rows = session.ROWS
         rows?.each {
             stringBuilder.append(it.serialNumber)
             stringBuilder.append(",")
             stringBuilder.append(it.model)
             stringBuilder.append(",")
-            stringBuilder.append(it.validRow)
+            stringBuilder.append(
+                    it.validRow ? "Valid"
+                            : it.errorRow != null && it.errorRow != "" ? it.errorRow
+                            : "Invalid"
+            )
             stringBuilder.append("\n")
         }
 
@@ -142,6 +149,10 @@ class HardwareImportController {
         }
 
         return null
+    }
+
+    private static boolean validRegexSerial(String s) {
+        return s ==~ /[a-zA-Z0-9\-\\/\\]+/
     }
 }
 

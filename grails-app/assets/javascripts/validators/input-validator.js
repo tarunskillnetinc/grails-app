@@ -15,3 +15,20 @@ function preventOverflowValue(obj) {
         obj.value = Math.pow(2, 31) -1;
     }
 }
+
+function acceptNumeric(e) {
+    if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9')) {
+        return;
+    }
+    e.preventDefault();
+}
+
+function validateInput(input){
+    // Remove leading minus sign if present
+    input.value = input.value.replace(/^-/, '');
+
+    // Ensure the value is greater than or equal to 0
+    if (parseInt(input.value, 10) < 0 || input.value === '-') {
+        input.value = 0;
+    }
+}

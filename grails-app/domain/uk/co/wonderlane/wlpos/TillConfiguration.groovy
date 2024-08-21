@@ -4,9 +4,11 @@ import org.joda.time.DateTime
 
 class TillConfiguration {
 
+    def storeService
+
     int id
     int retailerId
-    int storeId
+    int storeId // Actually store number.
     int tillId
     String serialNumber
     String description
@@ -15,7 +17,7 @@ class TillConfiguration {
     boolean pposAdmin
     boolean pposRefund
     boolean pposSmartToken
-    int pin
+    Integer pin
     DateTime pinExpiry
     DateTime dateTimeCreated
     DateTime dateTimeUpdated
@@ -53,5 +55,10 @@ class TillConfiguration {
         pposControlBar maxSize: 100
         serialNumber nullable: true
         pin nullable: true
+        description nullable: true
+    }
+
+    Store getStore() {
+        return storeService.getStoreByStoreNumber(retailerId, storeId)
     }
 }

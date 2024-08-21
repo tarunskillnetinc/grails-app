@@ -122,7 +122,7 @@
 
                                 <div class="col-6 text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm();">Reset Filters</button>
-                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Filter</button>
+                                    <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="filterReport();">Search</button>
                                 </div>
                             </div>
                         </g:form>
@@ -130,7 +130,11 @@
                 </div>
             </div>
 
-            <div class="col-2 offset-5">
+            <div class="col-4 offset-1 text-right" style="margin-top: 8px; ">
+                <button id="export-to-csv" class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
+            </div>
+
+            <div class="col-2">
                 <div class="card bg-light border-wl">
                     <div id="columns-collapse" class="card-header pointer" data-toggle="collapse" data-target="#columnsCollapse" aria-expanded="false" aria-controls="columnsCollapse">
                         <div class="row">
@@ -149,7 +153,7 @@
                                 <label class="form-check-label" for="columnsTimestamp">Timestamp</label>
                             </div>
                             <div class="form-group form-check">
-                                <g:checkBox name="columns" id="columnsStore" class="form-check-input" value="store" checked="${!userColumns || userColumns?.columns?.find { it.column == 'store' }?.enabled}" />
+                                <g:checkBox name="columns" id="columnsStore" class="form-check-input" value="storeId" checked="${!userColumns || userColumns?.columns?.find { it.column == 'storeId' }?.enabled}" />
                                 <label class="form-check-label" for="columnsStore">Store</label>
                             </div>
                             <div class="form-group form-check">

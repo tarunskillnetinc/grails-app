@@ -29,10 +29,21 @@ class ProductListController {
         [productList: productList]
     }
 
-    def ajaxGetCentralCounts(String searchTerm) {
-        def productLists = productListService.getCentralCounts(searchTerm)
+    def ajaxGetCentralCounts(String searchTerm, String searchBy) {
 
-        render(template: "centralCountSearchResults", model: [productLists: productLists, searchTerm: searchTerm])
+        def productLists = productListService.getCentralCounts(
+                searchTerm, searchBy,
+                params.offset ? Integer.parseInt(params.offset) : 0,
+                params.max ? Integer.parseInt(params.max) : 50
+        )
+
+        render(template: "centralCountSearchResults", model: [
+                productLists: productLists,
+                searchTerm: searchTerm,
+                searchBy: searchBy,
+                offset: params.offset ?: 0,
+                max: params.max ?: 50
+        ])
     }
 
     def addCentralCount() {
@@ -64,6 +75,10 @@ class ProductListController {
             productList.userId = springSecurityService.principal.id
             productList.retailerId = springSecurityService.principal.retailerId
             productList.store = storeSettings
+
+            if (productList.startDate == productList.endDate) {
+                productList.endDate = productList.endDate.plusDays(1)
+            }
 
             if (cmd.productVariantId) {
                 cmd.productVariantId.each {

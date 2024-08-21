@@ -5,6 +5,35 @@
     <title>Store Settings</title>
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
+
+    <script type="text/javascript">
+
+
+        function updateColorIndicator(color, indicatorId) {
+            var colorPickerElement = document.getElementById(indicatorId);
+            colorPickerElement.value = "#" + color; // Prepend "#" to the color value
+        }
+
+    </script>
+
+    <style>
+        .tooltip-trigger {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            width: 25px; /* Adjust size as needed */
+            height: 25px; /* Adjust size as needed */
+            border-radius: 50%; /* Makes it round */
+            background-color: lightblue; /* Light blue background color */
+            text-align: center; /* Centers the '?' mark */
+            line-height: 25px; /* Vertically centers the '?' mark */
+        }
+
+        .tooltip-trigger:hover .tooltip-content {
+            display: inline-block;
+        }
+    </style>
+
 </head>
 <body>
     <section id="breadcrumb-container" class="container-fluid">
@@ -233,6 +262,27 @@
                                         </sec:ifNotGranted>
                                     </div>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label for="config.website" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Website</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="config.website" maxlength="40" value="${storeSettings?.config?.website}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="config.companyNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Company Number</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="config.companyNumber" maxlength="10" value="${storeSettings?.config?.companyNumber}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="config.returnsMessage" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Returns Message</label>
+                                    <div class="col-7 col-lg-4">
+                                        <g:textField name="config.returnsMessage" maxlength="200" value="${storeSettings?.config?.returnsMessage}" class="form-control bottom-border" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -254,22 +304,6 @@
                     <div id="collapseInventoryManagement" class="collapse" aria-labelledby="inventoryManagement" data-parent="#accordion">
                         <div class="card-body py-5">
                             <div class="col-12">
-                                <div class="form-group row">
-                                    <label for="config.varianceQuantity" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Quantity Threshold</label>
-                                    <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0" max="9999" maxlength="3" name="config.varianceQuantity" value="${storeSettings?.config?.varianceQuantity}" class="form-control bottom-border" />
-                                    </div>
-                                    <small id="varianceQuantityHelp" class="form-text text-muted">Adjustments of this quantity will trigger a variance report.</small>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label for="config.varianceValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Variance Value Threshold</label>
-                                    <div class="col-7 col-lg-4 col-xl-3">
-                                        <g:field type="number" min="0" max="99999" maxlength="4" step=".01" name="config.varianceValue" value="${storeSettings?.config?.varianceValue}" class="form-control bottom-border" />
-                                    </div>
-                                    <small id="varianceValueHelp" class="form-text text-muted">Adjustments of this value will trigger a variance report.</small>
-                                </div>
-
                                 <div class="form-group form-check row">
                                     <div class="col-12 col-lg-8 offset-lg-5">
                                         <g:checkBox name="config.pickListForceZeroCount" value="${storeSettings?.config?.pickListForceZeroCount}" class="form-check-input" />
@@ -319,7 +353,7 @@
                                             <g:select name="parentStoreId" from="${availableParentStores}"
                                                       noSelection="['': 'None']"
                                                       value="${storeSettings?.parentStoreId}"
-                                                      optionValue="config.storeName" optionKey="id"
+                                                      optionValue="${{it?.config?.storeName}}" optionKey="id"
                                                       class="form-control select-border"/>
                                         </div>
                                     </div>
@@ -353,110 +387,163 @@
                                 <div class="col-12">
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour</label>
-
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Background Color">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
                                         <div class="col-7 col-lg-4 col-xl-3">
                                             <g:textField name="config.primaryColour" id="primaryColour" maxlength="6"
                                                          value="${storeSettings?.config?.primaryColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'primaryColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'primaryColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.primaryColourPicker')"/>
                                         </div>
 
                                         <div>
                                             <input type="color" id="config.primaryColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.primaryColour}"
+                                                   value="#${storeSettings?.config?.primaryColour ? storeSettings?.config?.primaryColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'primaryColour');">
                                         </div>
                                     </div>
 
+
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Secondary Background Color">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.secondaryColour" maxlength="6"
+                                            <g:textField name="config.secondaryColour" id="secondaryColour" maxlength="6"
                                                          value="${storeSettings?.config?.secondaryColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.secondaryColourPicker')"/>
                                         </div>
 
                                         <div>
                                             <input type="color" id="config.secondaryColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.secondaryColour}"
+                                                   value="#${storeSettings?.config?.secondaryColour ? storeSettings?.config?.secondaryColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'secondaryColour');">
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Accent Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.accentColour" maxlength="6"
+                                            <g:textField name="config.accentColour" id="accentColour" maxlength="6"
                                                          value="${storeSettings?.config?.accentColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'accentColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.accentColourPicker')"/>
                                         </div>
 
                                         <div>
                                             <input type="color" id="config.accentColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.accentColour}"
+                                                   value="#${storeSettings?.config?.accentColour ? storeSettings?.config?.accentColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentColour');">
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Primary Text Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top" title="Inventory Management App Text Header Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.primaryTextColour" maxlength="6"
+                                            <g:textField name="config.primaryTextColour" id="primaryTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.primaryTextColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'primaryTextColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.primaryTextColourPicker')"/>
                                         </div>
 
                                         <div>
                                             <input type="color" id="config.primaryTextColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.primaryTextColour}"
+                                                   value="#${storeSettings?.config?.primaryTextColour ? storeSettings?.config?.primaryTextColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'primaryTextColour');">
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Secondary Text Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Message Body Text Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.secondaryTextColour" maxlength="6"
+                                            <g:textField name="config.secondaryTextColour" id="secondaryTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.secondaryTextColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'secondaryTextColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.secondaryTextColourPicker')"/>
                                         </div>
 
                                         <div>
                                             <input type="color" id="config.secondaryTextColourPicker"
                                                    name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.secondaryTextColour}"
+                                                   value="#${storeSettings?.config?.secondaryTextColour ? storeSettings?.config?.secondaryTextColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'secondaryTextColour');">
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
                                         <label for="uiSetting"
-                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour</label>
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Accent Text Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Accent Text Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
 
                                         <div class="col-7 col-lg-4 col-xl-3">
-                                            <g:textField name="config.accentTextColour" maxlength="6"
+                                            <g:textField name="config.accentTextColour" id="accentTextColour" maxlength="6"
                                                          value="${storeSettings?.config?.accentTextColour}"
                                                          class="form-control bottom-border"
-                                                         onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"/>
+                                                         onBlur="onTextFieldChange(event, this.value, 'accentTextColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.accentTextColourPicker')"/>
                                         </div>
 
                                         <div>
                                             <input type="color" id="config.accentTextColourPicker" name="config.primaryColourPicker"
-                                                   value="#${storeSettings?.config?.accentTextColour}"
+                                                   value="#${storeSettings?.config?.accentTextColour ? storeSettings?.config?.accentTextColour : "000000"}"
                                                    onchange="onColorPickerValueChange(event, this.value, 'accentTextColour');">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label for="uiSetting"
+                                               class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Background Colour
+                                            <span class="tooltip-container" data-toggle="tooltip" data-placement="top"  title="Inventory Management App Login Background Colour">
+                                                <span class="tooltip-trigger">?</span>
+                                            </span>
+                                        </label>
+
+                                        <div class="col-7 col-lg-4 col-xl-3">
+                                            <g:textField name="config.backgroundColour" id="backgroundColour" maxlength="6"
+                                                         value="${storeSettings?.config?.backgroundColour}"
+                                                         class="form-control bottom-border"
+                                                         onBlur="onTextFieldChange(event, this.value, 'backgroundColourPicker')"
+                                                         onInput="updateColorIndicator(this.value, 'config.backgroundColourPicker')"/>
+                                        </div>
+
+                                        <div>
+                                            <input type="color" id="config.backgroundColourPicker" name="config.primaryColourPicker"
+                                                   value="#${storeSettings?.config?.backgroundColour ? storeSettings?.config?.backgroundColour : "000000"}"
+                                                   onchange="onColorPickerValueChange(event, this.value, 'backgroundColour');">
                                         </div>
                                     </div>
                                 </div>

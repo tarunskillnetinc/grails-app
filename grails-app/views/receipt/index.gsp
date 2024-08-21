@@ -8,6 +8,7 @@
         <asset:stylesheet src="receipt.css" />
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
+        <asset:javascript src="validators/input-validator.js" />
 
         <script type='text/javascript'>
             var getReceiptsUrl = "${createLink(controller: 'receipt', action: 'ajaxGetReceipts')}";
@@ -68,6 +69,10 @@
                     data: { startDate: startDate, endDate: endDate, sort: sort, order: order, offset: offset, max: max, tillId: tillId, transactionId: transactionId },
                     success: function(resp) {
                         $("#results-container").html(resp);
+                        $("#errors-container").html('');
+                    }, error: function(xhr, exception) {
+                        $("#errors-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert"><ul>' +xhr.responseText+ '</ul></div>');
+                        $("#loading-indicator").hide();
                     }
                 });
             }
@@ -98,10 +103,39 @@
                 document.getElementById('tillId').value = null;
                 document.getElementById('transactionId').value = null;
             }
-        </script>
+
+            function limitInputLength(input, maxLength) {
+                if (input.value.length > maxLength) {
+                    input.value = input.value.slice(0, maxLength);
+                }
+            }
+
+            function printReceipt() {
+                var mywindow = window.open("", "PRINT", "height=800,width=426");
+
+                mywindow.document.write("<html><head>");
+                mywindow.document.write("<link rel='stylesheet' href='${asset.assetPath(src: "receipt.css")}' type='text/css' />");
+                mywindow.document.write("<link rel='stylesheet' href='${asset.assetPath(src: "receiptprint.css")}' type='text/css' />");
+                mywindow.document.write("<\/head>");
+                mywindow.document.write('<body style="max-width:423px;">');
+                mywindow.document.write($("#receiptModalContent").html());
+                mywindow.document.write("</body></html>");
+
+                mywindow.document.close(); // necessary for IE >= 10
+                mywindow.focus(); // necessary for IE >= 10*/
+
+                // Running this after a short delay because I assume the CSS hasn't properly rendered before the print dialog kicks in so the printed document isn't styled correctly.
+                setTimeout(() => {
+                    mywindow.print();
+                    mywindow.close();
+                }, 300);
+
+                return true;
+            }
+    </script>
     </head>
 
-    <body>
+<body>
         <section id="breadcrumb-container" class="container-fluid">
             <nav aria-label="breadcrumb">
                 <div class="row mt-4">
@@ -115,11 +149,16 @@
             </nav>
         </section>
 
-        <section id="shifts-container" class="container-fluid">
+        <section id="header-container" class="container-fluid">
             <div class="header-wl mt-3">
                 <h2 id="page-title" class="mx-auto">Receipt Viewer</h2>
             </div>
+        </section>
 
+        <section id="errors-container" class="container-fluid">
+        </section>
+
+        <section id="shifts-container" class="container-fluid">
             <div class="row mt-4">
                 <div class="col-5">
                     <div class="card bg-light border-wl">
@@ -150,12 +189,12 @@
                                 <div class="form-group row">
                                     <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="tillId" step="1" min="0" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field type="number" name="tillId" step="1" min="1" max="999999999" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);" oninput="limitInputLength(this,9); validateInput(this);"/>
                                     </div>
 
                                     <label for="transactionId" class="col-2 col-form-label-sm text-right">Transaction Number</label>
                                     <div class="col-4">
-                                        <g:field type="number" name="transactionId" step="1" min="0" class="form-control bottom-border" autocomplete="off" />
+                                        <g:field type="number" name="transactionId" step="1" min="1" max="999999999" class="form-control bottom-border" autocomplete="off" onkeydown="acceptNumeric(event);" oninput="limitInputLength(this,9);"/>
                                     </div>
                                 </div>
 
@@ -188,6 +227,7 @@
                         <div id="receiptModalContent"></div>
 
                         <div class="modal-footer">
+                            <button type="button" id="printReceiptButton" class="btn btn-info mr-auto" onclick="printReceipt();">Print</button>
                             <button type="button" id="closeReceiptModalButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
                     </div>
