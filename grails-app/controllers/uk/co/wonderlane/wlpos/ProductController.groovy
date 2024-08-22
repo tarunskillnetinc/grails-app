@@ -873,6 +873,72 @@ class ProductController extends BaseController {
         }
     }
 
+    private void checkPackForBarcodeChanges(def product, def existingPack, def editedPack, DateTime effectiveDate) {
+        editedPack.barcodez?.each { editedBarcode ->
+            def existingBarcode = existingPack.barcodez?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+
+            if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
+                Barcode barcode = new Barcode()
+                barcode.packId = existingPack.id
+                barcode.retailerId = springSecurityService.principal.retailerId
+                barcode.barcode = editedBarcode.barcode
+                barcode.effectiveDate = effectiveDate
+                barcode.recordStatus = 'C'
+
+                existingPack.barcodez.add(barcode)
+
+                if (!isValidBarcode(barcode)) {
+                    product.errors.reject(
+                            'product.barcodes.notUnique',
+                            [barcode.barcode] as Object[],
+                            'Barcode {0} already exists on another SKU.')
+                }
+            } else { // If barcode do exists change update existing values
+
+                //Only update if user has changed barcode value or else skip
+                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+
+                    //Mark current barcode to delete this will insert new mark delete entry to DB
+                    existingBarcode.delete = true
+                    existingBarcode.effectiveDeleteDate = effectiveDate
+                    //New effective date needed to be set as effective date of mark delete entry
+
+                    //Add new barcode to replacing existing
+                    Barcode futureBarcode = new Barcode()
+                    futureBarcode.sku = existingPack.sku
+                    futureBarcode.retailerId = springSecurityService.principal.retailerId
+                    futureBarcode.barcode = editedBarcode.barcode
+                    futureBarcode.effectiveDate = effectiveDate
+                    futureBarcode.recordStatus = 'C'
+
+                    if (!isValidBarcode(futureBarcode)) {
+                        product.errors.reject(
+                                'product.barcodes.notUnique',
+                                [futureBarcode.barcode] as Object[],
+                                'Barcode {0} already exists on another SKU.')
+                    } else {
+                        //Add mark deleted barcode and newly updated barcode to add into DB
+                        existingPack.barcodez.add(existingBarcode)
+                        existingPack.barcodez.add(futureBarcode)
+                    }
+
+                }
+            }
+        }
+
+        // Mark any barcodes which no longer exist as deleted.
+        existingPack.barcodes?.each { existingBarcode ->
+            def editedBarcode = editedPack.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+
+            if (!editedBarcode) {
+                existingBarcode.delete = true
+                existingBarcode.effectiveDeleteDate = effectiveDate
+                //New effective date needed to be set as effective date of mark delete entry
+                existingPack.barcodez.add(existingBarcode)
+            }
+        }
+    }
+
     private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now, boolean newVariant) {
         if (product.hasErrors()) {
             return
@@ -881,6 +947,8 @@ class ProductController extends BaseController {
         if (newVariant) {
             editedVariant.packs?.each { editedPac ->
                 Pack newPack = new Pack()
+                newPack.barcodez = editedPac.barcodez
+                // TODO add changes for retailerID and effective date inside barcodes
                 updatePack(newPack, editedPac, now)
                 existingVariant.addToPacks(newPack)
             }
@@ -898,6 +966,8 @@ class ProductController extends BaseController {
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
             }
+            checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
+
         }
 
         // Remove any packs which no longer exist.
@@ -971,12 +1041,13 @@ class ProductController extends BaseController {
      * @return
      */
     def packChanged(def newPack, def existingPack) {
-        return newPack.barcode != existingPack.barcode ||
+        return
+        newPack.barcodez != existingPack.barcodez ||
                 !newPack.supplier.equals(existingPack.supplier) ||
                 newPack.quantity != existingPack.quantity ||
                 newPack.price != existingPack.price ||
                 newPack.orderCode != existingPack.orderCode ||
-                newPack.barcode != existingPack.barcode ||
+//                newPack.barcodez != existingPack.barcodez ||
                 newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice ||
                 newPack.status != existingPack.status ||
                 newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
@@ -1000,7 +1071,7 @@ class ProductController extends BaseController {
         packToBeUpdated.quantity = editedPack.quantity
         packToBeUpdated.price = editedPack.price
         packToBeUpdated.orderCode = editedPack.orderCode
-        packToBeUpdated.barcode = editedPack.barcode
+        packToBeUpdated.barcodez = editedPack.barcodez
         packToBeUpdated.recommendedRetailPrice = editedPack.recommendedRetailPrice
         packToBeUpdated.effectiveDate = now
         packToBeUpdated.effectiveEndDate = editedPack.effectiveEndDate
@@ -1170,7 +1241,7 @@ class ProductController extends BaseController {
         builder.compare("packQuantity", oldPack.quantity, pack.quantity)
         builder.compare("packPrice", oldPack.price, pack.price)
         builder.compare("packOrderCode", oldPack.orderCode, pack.orderCode)
-        builder.compare("packBarcode", oldPack.barcode, pack.barcode)
+        builder.compare("packBarcodez", oldPack.barcodez, pack.barcodez)
         builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
@@ -1317,8 +1388,8 @@ class ProductController extends BaseController {
         render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value])
     }
 
-    def ajaxAddBarcode(int index) {
-        render(template: "addBarcode", model: [index: index])
+    def ajaxAddBarcode(int index, String selector) {
+        render(template: "addBarcode", model: [index: index, selector: selector])
     }
 
     def ajaxSaveVariant(AddVariantCommand cmd) {
@@ -1354,7 +1425,7 @@ class ProductController extends BaseController {
             }
         }
 
-        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, defaultSuppliers: defaultSuppliers, existingPackIds: existingPackIds])
+        render(template: "suppliers", model: [suppliers: suppliers, statuses: PackStatus.values(), variant: cmd, variantIndex: cmd.index, defaultSupplier: params.defaultSupplier, defaultSuppliers: defaultSuppliers, existingPackIds: existingPackIds, retailerId: springSecurityService.principal.retailerId])
     }
 
     def ajaxLocations(LocationsCommand cmd) {
@@ -1701,7 +1772,6 @@ class AddPackCommand implements Validateable {
     BigDecimal quantity
     BigDecimal price
     String orderCode
-    String barcode
     BigDecimal recommendedRetailPrice
     DateTime effectiveDate
     DateTime effectiveEndDate
@@ -1711,6 +1781,7 @@ class AddPackCommand implements Validateable {
     boolean isNewPack = false
     boolean isWeighted = false
     Integer productVariantId
+    List<AddBarcodeCommand> barcodez
 
     static constraints = {
         importFrom Pack
@@ -1884,7 +1955,7 @@ class PackCommand {
     BigDecimal quantity
     BigDecimal price
     String orderCode
-    String barcode
+    List<AddBarcodeCommand> barcodez
     BigDecimal recommendedRetailPrice
     DateTime effectiveDate
     DateTime effectiveEndDate
@@ -1904,6 +1975,7 @@ class BarcodeCommand {
     String barcode
     DateTime effectiveDate
     char recordStatus
+    Integer packId
 }
 
 class SavePriceChangesCommand {

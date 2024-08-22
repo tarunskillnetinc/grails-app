@@ -484,8 +484,8 @@
             }
 
             // Add barcode button was clicked, this just adds a new empty textbox.
-            function addBarcode() {
-                var lastBarcodeContainer = $("#addBarcodesContainer > div:last-child");
+            function addBarcode(selector) {
+                var lastBarcodeContainer = $(selector +" > div:last-child");
 
                 if (lastBarcodeContainer.length > 0) {
                     index = parseInt(lastBarcodeContainer[0].id.substring(10)) + 1;
@@ -493,19 +493,19 @@
                     index = 0;
                 }
 
-                var params = { index: index };
+                var params = { index: index, selector: selector };
 
                 $.ajax({
                     url: addBarcodeUrl,
                     method: "POST",
                     data: params,
                     success: function(resp) {
-                        var barcodeContainer = $("#addBarcodesContainer > #addBarcode" +index);
+                        var barcodeContainer = $(selector + " > #addBarcode" +index);
 
                         if (barcodeContainer.length === 0) {
-                            $("#addBarcodesContainer").append("<div id=\"addBarcode" +index +"\" class=\"input-group py-1\"></div>");
+                            $(selector).append("<div id=\"addBarcode" +index +"\" class=\"input-group py-1\"></div>");
 
-                            barcodeContainer = $("#addBarcodesContainer > #addBarcode" +index);
+                            barcodeContainer = $(selector + " > #addBarcode" +index);
                         }
 
                         barcodeContainer.html(resp);
@@ -521,12 +521,12 @@
             }
 
             // Delete barcode button was clicked, we just remove the div.
-            function deleteBarcode(index) {
+            function deleteBarcode(index, selector) {
                 if (!confirm("This barcode will be deleted.")) {
                     return;
                 }
 
-                $("#addBarcodesContainer > #addBarcode" +index).remove();
+                $(selector + " > #addBarcode" +index).remove();
             }
 
             // Delete location button was clicked, we just remove the div.
@@ -565,13 +565,22 @@
                     params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
                     params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
                     params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();
-                    params["packs[" +loopIndex +"].barcode"] = $(packSelector +"\\.barcode").val();
                     params["packs[" +loopIndex +"].recommendedRetailPrice"] = $(packSelector +"\\.recommendedRetailPrice").val();
                     params["packs[" +loopIndex +"].effectiveDate"] = $(packSelector +"\\.effectiveDate").val();
                     params["packs[" +loopIndex +"].effectiveEndDate"] = $(packSelector +"\\.effectiveEndDate").val();
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+
+                    var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
+                    barcodeContainers.each(function(BarcodeLoopIndex) {
+                        var barcodeIndex = parseInt($(this).attr("id").substring(16));
+                        // TODO get jquery right so it grabs the right barcodes
+                        params["packs[" +loopIndex +"].barcodez[" +BarcodeLoopIndex +"].id"] = $( packSelector + "\\.barcodez\\[" + barcodeIndex + "\\]\\.id").val();
+                        params["packs[" +loopIndex +"].barcodez[" +BarcodeLoopIndex +"].barcode"] = $( packSelector + "\\.barcodez\\[" + barcodeIndex + "\\]\\.barcode").val();
+                        params["packs[" +loopIndex +"].barcodez[" +BarcodeLoopIndex +"].effectiveDate"] = $( packSelector + "\\.barcodez\\[" + barcodeIndex + "\\]\\.effectiveDate").val();
+                        params["packs[" +loopIndex +"].barcodez[" +BarcodeLoopIndex +"].recordStatus"] = $( packSelector + "\\.barcodez\\[" + barcodeIndex + "\\]\\.recordStatus").val();
+                    });
                 });
 
                 $.ajax({
@@ -727,7 +736,7 @@
                     params["packs[" +loopIndex +"].quantity"] = $(packSelector +"\\.quantity").val();
                     params["packs[" +loopIndex +"].price"] = $(packSelector +"\\.price").val();
                     params["packs[" +loopIndex +"].orderCode"] = $(packSelector +"\\.orderCode").val();
-                    params["packs[" +loopIndex +"].barcode"] = $(packSelector +"\\.barcode").val();
+                    // params["packs[" +loopIndex +"].barcode"] = $(packSelector +"\\.barcode").val();
                     params["packs[" +loopIndex +"].recommendedRetailPrice"] = $(packSelector +"\\.recommendedRetailPrice").val();
                     params["packs[" +loopIndex +"].effectiveDate"] = $(packSelector +"\\.effectiveDate").val();
                     params["packs[" +loopIndex +"].effectiveEndDate"] = $(packSelector +"\\.effectiveEndDate").val();
@@ -736,6 +745,27 @@
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
+
+                    var addBarcodeContainers = $("#addBarcodesContainer" + packIndex + " > div");
+
+                    var barcodeValues = []; // To store the barcode values for validation
+                    var error = false;
+
+                    addBarcodeContainers.each(function(innerLoopIndex) {
+                        var barcodeIndex = $(this).attr("id").substring(10);
+                        var barcode = $(this).children("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
+
+                        if(barcodeValues.includes(barcode)){
+                            $("#addVariantContent").prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
+                            error = true
+                        } else {
+                            params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
+                            params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].barcode"] = barcode;
+                            params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
+                            params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
+                            barcodeValues.push(barcode)
+                        }
+                    });
                 });
                     $.ajax({
                         url: savePackUrl,
