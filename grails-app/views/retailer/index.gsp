@@ -148,7 +148,6 @@
         </section>
     </g:if>
 
-
     <section id="addProduct-section" class="container-fluid mt-4">
         <g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
             <div id="accordion">
@@ -231,6 +230,13 @@
                                     <label for="qrCodeScanningEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">QR Code Scanning Enabled</label>
                                     <div class="col-7 col-lg-4">
                                         <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="qrCodeScanningEnabled" id="qrCodeScanningEnabled" ${retailer?.config?.qrCodeScanningEnabled ? 'checked' : ''} />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="sendStockUpdates" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Send Stock Updates To Export Service</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="sendStockUpdates" id="sendStockUpdates" ${retailer?.config?.sendStockUpdates() ? 'checked' : ''} />
                                     </div>
                                 </div>
 

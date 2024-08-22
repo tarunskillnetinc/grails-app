@@ -567,7 +567,6 @@ class ProductController extends BaseController {
                 return product
             }
 
-
             if (builder && builder.productHistories) {
                 productService.saveProductHistories(builder.productHistories)
             }
@@ -960,8 +959,8 @@ class ProductController extends BaseController {
             productService.saveProductHistories(builder.productHistories)
         }
 
-        for (int i = 0; i < deleteLocations.size(); i++) {
-            deleteLocations.get(i).delete()
+        deleteLocations.each{ location ->
+            location.deleted = true
         }
     }
 

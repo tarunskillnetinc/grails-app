@@ -21,12 +21,12 @@ class Promotion {
     DateTime updateDatetime
     Integer retailerPromotionId
     Collection<PromotionGroup> groups = new ArrayList<>()
-    Collection<PromotionStore> stores = new ArrayList<>()
+    Collection<Store> stores = new ArrayList<>()
     String rpidAsString
 
-    static hasMany = [groups: PromotionGroup, stores: PromotionStore]
+    static hasMany = [groups: PromotionGroup, stores: Store]
 
-    static hasOne = [symbolGroupPromotion : SymbolGroupPromotion]
+    static hasOne = [symbolGroupPromotion: SymbolGroupPromotion]
 
     static mapping = {
         table "promotion"
@@ -46,6 +46,8 @@ class Promotion {
         updateDatetime column: "updateDatetime", sqlType: "datetime"
         retailerPromotionId column: "retailerPromotionId"
         rpidAsString formula: "cast(retailerPromotionId as CHAR(50))"
+        groups cascade: "all-delete-orphan"
+        stores joinTable: [name: 'promotionstore', key: 'promotionId', column: 'storeId']
     }
 
     static constraints = {
@@ -91,9 +93,12 @@ class Promotion {
     }
 
     Collection<Integer> getStoreIds() {
-        Collection<Integer> result = new ArrayList<>();
-        stores.each {result.add(it.storeId)}
-        return result;
+        return stores?.collect { it.storeId }
+    }
+
+    // Avoiding data binding due to the same name.
+    def getStorez() {
+        return stores
     }
 
     public uk.co.wonderlane.wlpos.entities.Promotion getPromotion() {
@@ -121,5 +126,13 @@ class Promotion {
         }
 
         return promotion
+    }
+
+    Collection<PromotionGroup> getRequiredGroups() {
+        return groups?.findAll { it.type == PromotionGroupType.REQUIRED }
+    }
+
+    Collection<PromotionGroup> getOfferGroups() {
+        return groups?.findAll { it.type == PromotionGroupType.OFFER }
     }
 }
