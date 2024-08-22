@@ -598,7 +598,7 @@
                             <div class="form-group row">
                                 <label for="cfdMaxImageUpload" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Customer Facing Display Max Image Upload</label>
                                 <div class="col-7 col-lg-4">
-                                    <g:field type="number" id="cfdMaxImageUpload" name="cfdMaxImageUploadValue" value="${retailer?.config?.cfdMaxImageUpload}" class="form-control bottom-border" oninput="validateInput(this);" min="1" max="999999999" onkeydown="acceptMaxNumberValue(event, 999999999);" />
+                                    <g:field type="number" id="cfdMaxImageUpload" name="cfdMaxImageUpload" value="${retailer?.config?.cfdMaxImageUpload}" class="form-control bottom-border" oninput="validateInput(this);" min="1" max="999999999" onkeydown="acceptMaxNumberValue(event, 999999999);" />
                                 </div>
                                 <div class="form-group row">
                                     <div class="btn btn-danger" id="reset-cfdMaxImageUpload" onclick="$('#cfdMaxImageUpload').val('')">Reset</div>
@@ -607,7 +607,7 @@
                             <div class="form-group row">
                                 <label for="cfdMaxProfiles" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Customer Facing Display Max Profiles</label>
                                 <div class="col-7 col-lg-4">
-                                    <g:field type="number" id="cfdMaxProfiles" name="cfdMaxProfilesValue" value="${retailer?.config?.cfdMaxProfiles}" class="form-control bottom-border" oninput="validateInput(this);" min="1" max="50" onkeydown="acceptMaxNumberValue(event, 50);" />
+                                    <g:field type="number" id="cfdMaxProfiles" name="cfdMaxProfiles" value="${retailer?.config?.cfdMaxProfiles}" class="form-control bottom-border" oninput="validateInput(this);" min="1" max="50" onkeydown="acceptMaxNumberValue(event, 50);" />
                                 </div>
                                 <div class="form-group row">
                                     <div class="btn btn-danger" id="reset-cfdMaxProfiles" onclick="$('#cfdMaxProfiles').val('')">Reset</div>
@@ -616,7 +616,7 @@
                             <div class="form-group row">
                                 <label for="cfdProfileImageCount" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Customer Facing Display Profile Image Count</label>
                                 <div class="col-7 col-lg-4">
-                                    <g:field type="number" id="cfdProfileImageCount" name="cfdProfileImageCountValue" value="${retailer?.config?.cfdProfileImageCount}" class="form-control bottom-border" oninput="validateInput(this);" min="1" max="999999999" onkeydown="acceptMaxNumberValue(event, 999999999);" />
+                                    <g:field type="number" id="cfdProfileImageCount" name="cfdProfileImageCount" value="${retailer?.config?.cfdProfileImageCount}" class="form-control bottom-border" oninput="validateInput(this);" min="1" max="999999999" onkeydown="acceptMaxNumberValue(event, 999999999);" />
                                 </div>
                                 <div class="form-group row">
                                     <div class="btn btn-danger" id="reset-cfdProfileImageCount" onclick="$('#cfdProfileImageCount').val('15')">Reset</div>
