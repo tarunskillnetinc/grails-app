@@ -352,6 +352,33 @@ class EposTagLib {
         }
     }
 
+    def promotionTypeAmountLabel = { attrs, body ->
+        def promotionType = attrs.type
+
+        if (promotionType) {
+            switch ((PromotionType)promotionType) {
+                case PromotionType.BOGOF:
+                    out << ""
+                    break;
+                case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                    out << "Discount Amount"
+                    break;
+                case PromotionType.PERCENTAGE_DISCOUNT:
+                    out << "Discount Percentage"
+                    break;
+                case PromotionType.X_FOR_Y:
+                    out << "display: none;"
+                    break;
+                case PromotionType.FIXED_PRICE:
+                    out << "Fixed Price"
+                    break;
+            }
+        } else {
+            // New promotion, type will be null.
+            out << "display: none;"
+        }
+    }
+
     def promotionTypeRequiredGroupsDisplay = { attrs, body ->
         def promotionType = attrs.type
 
