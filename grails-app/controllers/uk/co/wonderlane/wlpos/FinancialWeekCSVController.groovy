@@ -1,11 +1,21 @@
 package uk.co.wonderlane.wlpos
 
 import com.opencsv.bean.CsvToBeanBuilder
+import grails.gorm.transactions.Transactional
 import grails.validation.ValidationException
 import org.apache.commons.io.input.XmlStreamReader
+import org.joda.time.DateTime
 import org.springframework.security.access.annotation.Secured
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
+
+import java.text.DateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 import static uk.co.wonderlane.wlpos.saveFinancialWeekCommand.*
 
@@ -37,7 +47,10 @@ class saveFinancialWeekCommand {
 @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class FinancialWeekCSVController extends BaseController {
     def springSecurityService
+    DatabaseCredentials databaseCredentials
     def csvService
+    def financialWeekService
+
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() { }
@@ -48,6 +61,7 @@ class FinancialWeekCSVController extends BaseController {
         return null
     }
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    @Transactional
     def ajaxCSVFinancialWeekImport() {
 
         System.out.println "hit ajaxCSVFinancialWeekImport"
@@ -84,12 +98,25 @@ class FinancialWeekCSVController extends BaseController {
                                 def startDate = columns[0]?.trim()   // e.g., 2024/08/03
                                 def financialYear = columns[1]?.trim()   // e.g., 2024/25
                                 def weekNumber = columns[2]?.trim()  // e.g., 18
+                                String result = startDate.replace('/', '-');
                                 System.out.println 'test' + startDate
 
-                                new saveFinancialWeekCommand(startDate: startDate, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId).save()
+
+                                String inputDate = new String(startDate);
+
+                                // Define the pattern of the input date string
+
+                                // Define the pattern of the input date string (date only)
+                                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+                                // Parse the string into a LocalDate
+                                LocalDate date = LocalDate.parse(inputDate, dateFormatter);
+
+                                // Convert LocalDate to LocalDateTime by appending a default time (00:00)
+                                LocalDateTime dateTime = date.atStartOfDay();
+
                                 // Save to database
-                                FinancialWeek financialWeek = new FinancialWeek(retailerId: retailerId, startDate: startDate, financialYear: financialYear, weekNumber: weekNumber)
-                               financialWeek.save();
+                                financialWeekService.saveFinancialWeek(dateTime, financialYear, weekNumber, retailerId)
                             }
                         }
                     }

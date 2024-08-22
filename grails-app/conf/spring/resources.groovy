@@ -183,7 +183,15 @@ beans = {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
     }
-
+    financialWeekService(FinancialWeekService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+                    grailsApplication.config.getProperty('mysql.wlpos.username'),
+                    grailsApplication.config.getProperty('mysql.wlpos.password'),
+                    grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+    }
     gsonProvider(GsonProvider)
 
     Environment.executeForCurrentEnvironment {
