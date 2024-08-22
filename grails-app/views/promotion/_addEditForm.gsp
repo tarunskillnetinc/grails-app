@@ -77,7 +77,7 @@
 
                     <div class="row" id="amount-div" style="<g:promotionTypeAmountDisplay type='${promotion?.type}' />">
                         <div class="row form-group col-12 col-md-6 mx-0">
-                            <label id="amount-label" for="amount" class="col-4 col-form-label text-right pr-4">Fixed Price</label>
+                            <label id="amount-label" for="amount" class="col-4 col-form-label text-right pr-4"><g:promotionTypeAmountLabel type='${promotion?.type}' /></label>
                             <g:textField name="amount" class="col-6 form-control bottom-border mask-money" value="${promotion?.amount }" />
                         </div>
                     </div>
