@@ -199,7 +199,16 @@
   <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
   <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
 </section>
+<g:form>
+  <label for="category">Category:</label>
+  <select name="category" id="category">
+    <g:each in="${financialWeeks}" var="financialWeek">
+      <option value="${financialWeeks.weekNumber}">${financialWeek.weekNumber}</option>
+    </g:each>
+  </select>
 
+  <input type="submit" value="Submit"/>
+</g:form>
 <section id="uploadResultsSection" class="container-fluid">
   <div id="uploadResults">
 

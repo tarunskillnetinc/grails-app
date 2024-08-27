@@ -53,7 +53,13 @@ class FinancialWeekCSVController extends BaseController {
 
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def index() { }
+    def index() {
+            // Fetch categories from the service
+            List<FinancialWeek> financialWeeks = financialWeekService.getAllFinancialWeeks()
+            // Pass categories to the GSP view
+            render(view: 'index', model: [financialWeeks: financialWeeks])
+
+    }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     @Override

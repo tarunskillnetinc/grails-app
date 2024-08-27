@@ -19,6 +19,7 @@ class FinancialWeekService extends MySqlDal {
 
     protected FinancialWeekService(DatabaseCredentials databaseCredentials) throws SQLException {
         super(databaseCredentials)
+        Session session = sessionFactory.openSession()
     }
 
 
@@ -36,5 +37,12 @@ class FinancialWeekService extends MySqlDal {
 
         transaction.commit()
         session.close()
+    }
+
+    @Transactional
+    List<FinancialWeek> getAllFinancialWeeks() {
+
+        Transaction transaction = session.beginTransaction()
+        return FinancialWeek.list()
     }
 }

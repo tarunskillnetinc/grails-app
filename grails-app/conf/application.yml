@@ -211,6 +211,14 @@ environments:
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 database: transactions
+            reporting:
+                host: localhost
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                database: reporting
         wlpos:
             defaultImageBucket: "retail-platform-default-images-test"
             cfdImageBucket: "retail-platform-customer-display-images-test"
