@@ -5,6 +5,51 @@
     <title>Retailer Settings</title>
 
     <asset:javascript src="validators/input-validator.js" />
+    <asset:javascript src="popper.min.js" />
+    <asset:javascript src="multi-select-checks.js" />
+    <style>
+        .multiselect-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .multiselect-display {
+            width: 100%;
+            height: 40px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: #fff;
+        }
+        .dropdown-arrow {
+            margin-left: 10px;
+        }
+        .multiselect-items {
+            display: none;
+            position: absolute;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1;
+        }
+        .multiselect-items .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+        .multiselect-items .dropdown-item input {
+            margin-right: 10px;
+        }
+        .multiselect-items.show {
+            display: block;
+        }
+    </style>
     <script type='text/javascript'>
         %{--var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";--}%
         %{--var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";--}%
@@ -18,48 +63,75 @@
         %{--    }--}%
         %{--}--}%
 
-        %{--$(document).ready(function () {--}%
-        %{--    $('input[name=brandLogo]').change(function() {--}%
-        %{--        const error = validateImg(this);--}%
-        %{--        if (error) {--}%
-        %{--            $('input[name=brandLogo]').val(null);--}%
-        %{--            alert(error);--}%
-        %{--            return--}%
-        %{--        }--}%
+        $(document).ready(function () {
+            // $('input[name=brandLogo]').change(function() {
+            //     const error = validateImg(this);
+            //     if (error) {
+            //         $('input[name=brandLogo]').val(null);
+            //         alert(error);
+            //         return
+            //     }
+            //
+            //     const fileData = this.files[0];
+            //     if (FileReader && fileData) {
+            //         const urlFileReader = new FileReader();
+            //         urlFileReader.onload = function () {
+            //             const brandingImage = $(".branding-image");
+            //             brandingImage.attr("src", urlFileReader.result);
+            //             brandingImage.removeAttr("hidden");
+            //         }
+            //         urlFileReader.readAsDataURL(fileData);
+            //     }
+            // });
+            //
+            // $.ajax({
+            //     url: getBrandLogoUrl,
+            //     success: function(resp) {
+            //         if (resp === '') {
+            //             var brandingImage = $(".branding-image");
+            //             brandingImage.attr("src", "");
+            //             brandingImage.attr("hidden", "");
+            //         } else {
+            //             var brandingImage = $(".branding-image");
+            //             brandingImage.attr("src", "data:image/png;base64," + resp);
+            //             brandingImage.removeAttr("hidden");
+            //         }
+            //         // Iterate over each element with the class "item-label" and update its content
+            //         $(".item-label").each(function() {
+            //             const item = $(this).text(); // Get the text content of the current div
+            //             const readableItem = camelToReadable(item); // Convert to readable format
+            //             $(this).text(readableItem); // Update the div's content
+            //         });
+            //     }
+            // });
+            $('#selectedItemsDisplay').click(function() {
+                $('#weekdayDropdown').toggleClass('show');
+            });
 
-        %{--        const fileData = this.files[0];--}%
-        %{--        if (FileReader && fileData) {--}%
-        %{--            const urlFileReader = new FileReader();--}%
-        %{--            urlFileReader.onload = function () {--}%
-        %{--                const brandingImage = $(".branding-image");--}%
-        %{--                brandingImage.attr("src", urlFileReader.result);--}%
-        %{--                brandingImage.removeAttr("hidden");--}%
-        %{--            }--}%
-        %{--            urlFileReader.readAsDataURL(fileData);--}%
-        %{--        }--}%
-        %{--    });--}%
+            $('.weekday-checkbox').change(function() {
+                updateSelectedItems();
+            });
 
-        %{--    $.ajax({--}%
-        %{--        url: getBrandLogoUrl,--}%
-        %{--        success: function(resp) {--}%
-        %{--            if (resp === '') {--}%
-        %{--                var brandingImage = $(".branding-image");--}%
-        %{--                brandingImage.attr("src", "");--}%
-        %{--                brandingImage.attr("hidden", "");--}%
-        %{--            } else {--}%
-        %{--                var brandingImage = $(".branding-image");--}%
-        %{--                brandingImage.attr("src", "data:image/png;base64," + resp);--}%
-        %{--                brandingImage.removeAttr("hidden");--}%
-        %{--            }--}%
-        %{--            // Iterate over each element with the class "item-label" and update its content--}%
-        %{--            $(".item-label").each(function() {--}%
-        %{--                const item = $(this).text(); // Get the text content of the current div--}%
-        %{--                const readableItem = camelToReadable(item); // Convert to readable format--}%
-        %{--                $(this).text(readableItem); // Update the div's content--}%
-        %{--            });--}%
-        %{--        }--}%
-        %{--    });--}%
-        %{--});--}%
+            function updateSelectedItems() {
+                var selectedItems = [];
+                $('.weekday-checkbox:checked').each(function() {
+                    selectedItems.push($(this).val());
+                });
+                $('#selectedItemsDisplay > span:first-child').html(selectedItems.join(', ') || 'Select Weekdays');
+            }
+
+            $(document).click(function(event) {
+                if(!$(event.target).closest('.multiselect-container').length) {
+                    if($('#weekdayDropdown').hasClass('show')) {
+                        $('#weekdayDropdown').removeClass('show');
+                    }
+                }
+            });
+
+            const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            createMultiSelectorChecks('automaticCloseDaysSelector', 'automaticCloseDays', weekdays, "Select Days");
+            createMultiSelectorChecks('tillAutoSnapshotDaysSelector', 'tillAutoSnapshotDays', weekdays, "Select Days");
+        });
 
         %{--function resetBrandLogo() {--}%
         %{--    if (confirm("This will reset your brand logo to Trust retail default.")) {--}%
@@ -169,159 +241,115 @@
                 <div id="collapseGeneralDetails" class="collapse show" aria-labelledby="generalDetails" data-parent="#accordion">
                     <div class="card-body py-5">
                         <div class="col-12">
-                            <h5 class="text-center">Location Type</h5>
-                            <div class="form-group row justify-content-center">
-                                <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
-                                    <label for="productLookupVisibilityEnabled" class="form-check-label">None</label>
-                                    <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeNone" value="NONE" ${retailer?.config?.locationsType.toString() === 'NONE' ? 'checked' : '' }/>
-                                </div>
-
-                                <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
-                                    <label for="productLookupVisibilityDisabled" class="form-check-label">Simple</label>
-                                    <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeSimple" value="SIMPLE" ${retailer?.config?.locationsType.toString() === 'SIMPLE' ? 'checked' : '' }/>
-                                </div>
-
-                                <div class="col-10 col-lg-2 form-check form-check-inline justify-content-center">
-                                    <label for="productLookupVisibilityInvisible" class="form-check-label">Advanced</label>
-                                    <input type="radio" class="form-check-input wl-radio ml-2" name="locationsType" id="locationTypeAdvanvced" value="ADVANCED" ${retailer?.config?.locationsType.toString() === 'ADVANCED' ? 'checked' : '' }/>
-                                </div>
-                            </div>
-
+                            <h5 class="text-center">Till Shifts</h5>
                             <div class="form-group row">
-                                <g:hasErrors bean="${config}" field="locationsType">
-                                    <span class="text-danger">${g.message(error: 'default.required.message', default: 'Field is required')}</span>
-                                </g:hasErrors>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="headOfficeProductMaintenance" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Head Office Product Maintenance</label>
+                                <label for="isManualOpen" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Manual Open</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="headOfficeProductMaintenance" id="headOfficeProductMaintenance" ${retailer?.config?.headOfficeProductMaintenance ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualOpen" id="isManualOpen" ${cashManagement?.config?.isManualOpen ? 'checked' : ''} />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="isManualClose" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Manual Close</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualClose" id="isManualClose" ${cashManagement?.config?.isManualClose ? 'checked' : ''} />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="automaticCloseDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Automatic Close Days</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="hidden" id="automaticCloseDays" name="automaticCloseDays"/>
+                                    <div id="automaticCloseDaysSelector"></div>
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="snappyShopperEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Snappy Shopper Enabled</label>
+                                <label for="automaticCloseTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Automatic Close Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="snappyShopperEnabled" id="snappyShopperEnabled" ${retailer?.config?.snappyShopperEnabled ? 'checked' : ''} />
+                                    <input type="text" class="col-5 form-control bottom-border" name="automaticCloseTime" id="automaticCloseTime" value="${cashManagement?.config?.automaticCloseTime}" placeholder="HH:MM"/>
                                 </div>
                             </div>
 
+                            <h5 class="text-center mt-5">Rolling Float</h5>
                             <div class="form-group row">
-                                <label for="twoStageSel" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Two-Stage SEL</label>
+                                <label for="isRollingFloatEnable" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Rolling Float Enable</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="twoStageSel" id="twoStageSel" ${retailer?.config?.twoStageSel ? 'checked' : ''} />
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="averyEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Avery Enabled</label>
-                                <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="averyEnabled" id="averyEnabled" ${retailer?.config?.averyEnabled ? 'checked' : ''} />
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="2DBarcodesEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">2D Barcodes Enabled</label>
-                                <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="twoDimensionalBarcodesEnabled" id="2DBarcodesEnabled" ${retailer?.config?.twoDimensionalBarcodesEnabled ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isRollingFloatEnable" id="isRollingFloatEnable" ${cashManagement?.config?.isRollingFloatEnable ? 'checked' : ''} />
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="scoEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">SCO Enabled</label>
+                                <label for="rollingFloatValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Rolling Float Value</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="scoEnabled" id="scoEnabled" ${retailer?.config?.scoEnabled ? 'checked' : ''} />
+                                    <input type="number" class="col-5 form-control bottom-border" name="rollingFloatValue" id="rollingFloatValue" step="0.01" value="${cashManagement?.config?.rollingFloatValue}" placeholder="0.00"/>
                                 </div>
                             </div>
 
+                            <h5 class="text-center mt-5">Reconciliation</h5>
                             <div class="form-group row">
-                                <label for="rabbitMqSslEnabled" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ SSL Enabled</label>
+                                <label for="tillShiftRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="rabbitMqSslEnabled" id="rabbitMqSslEnabled" ${retailer?.config?.rabbitMqSslEnabled ? 'checked' : ''} />
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${cashManagement?.config?.tillShiftRecountLimit}"/>
                                 </div>
                             </div>
-
                             <div class="form-group row">
-                                <label for="rabbitMqUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ URL</label>
+                                <label for="tillShiftVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="rabbitMqUrl" id="rabbitMqUrl" value="${retailer?.config?.rabbitMqUrl}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-url-button" onclick="$('#rabbitMqUrl').val('')">Reset</div>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftVarianceLimit" id="tillShiftVarianceLimit" value="${cashManagement?.config?.tillShiftVarianceLimit}" step="0.01" placeholder="0.00"/>
                                 </div>
                             </div>
-
                             <div class="form-group row">
-                                <label for="rabbitMqPort" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Port</label>
+                                <label for="safeRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="rabbitMqPort" id="rabbitMqPort" value="${retailer?.config?.rabbitMqPort}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-port-button" onclick="$('#rabbitMqPort').val('')">Reset</div>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${cashManagement?.config?.safeRecountLimit}"/>
                                 </div>
                             </div>
-
                             <div class="form-group row">
-                                <label for="rabbitMqVirtualHost" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Virtual Host</label>
+                                <label for="safeVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="rabbitMqVirtualHost" id="rabbitMqVirtualHost" value="${retailer?.config?.rabbitMqVirtualHost}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-vhost-button" onclick="$('#rabbitMqVirtualHost').val('')">Reset</div>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeVarianceLimit" id="safeVarianceLimit" value="${cashManagement?.config?.safeVarianceLimit}" step="0.01" placeholder="0.00"/>
                                 </div>
                             </div>
-
                             <div class="form-group row">
-                                <label for="rabbitMqUsername" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Username</label>
+                                <label for="isOpenShiftWithoutFloat" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Open Shift Without Float</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="rabbitMqUsername" id="rabbitMqUsername" value="${retailer?.config?.rabbitMqUsername}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-username-button" onclick="$('#rabbitMqUsername').val('')">Reset</div>
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isOpenShiftWithoutFloat" id="isOpenShiftWithoutFloat" ${cashManagement?.config?.isOpenShiftWithoutFloat ? 'checked' : ''} />
                                 </div>
                             </div>
 
+                            <h5 class="text-center mt-5">Snapshots</h5>
                             <div class="form-group row">
-                                <label for="rabbitMqPassword" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Password</label>
+                                <label for="tillAutoSnapshotDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Auto Snapshot Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="password" class="col-5 form-control bottom-border" name="rabbitMqPassword" id="rabbitMqPassword" value="${retailer?.config?.rabbitMqPassword}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-password-button" onclick="$('#rabbitMqPassword').val('')">Reset</div>
+                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays"/>
+                                    <div id="tillAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
-
                             <div class="form-group row">
-                                <label for="rabbitMqTransactionsExchange" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Transactions Exchange</label>
+                                <label for="tillAutoSnapshotTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Auto Snapshot Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="rabbitMqTransactionsExchange" id="rabbitMqTransactionsExchange" value="${retailer?.config?.rabbitMqTransactionsExchange}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-transactions-exchange-button" onclick="$('#rabbitMqTransactionsExchange').val('')">Reset</div>
+                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${cashManagement?.config?.tillAutoSnapshotTime}" placeholder="HH:MM"/>
                                 </div>
                             </div>
-
                             <div class="form-group row">
-                                <label for="rabbitMqDataSyncExchange" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Data Sync Exchange</label>
+                                <label for="safeAutoSnapshotDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Auto Snapshot Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="rabbitMqDataSyncExchange" id="rabbitMqDataSyncExchange" value="${retailer?.config?.rabbitMqDataSyncExchange}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-data-sync-exchange-button" onclick="$('#rabbitMqDataSyncExchange').val('')">Reset</div>
+                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays"/>
+                                    <div id="safeAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
-
-
                             <div class="form-group row">
-                                <label for="rabbitMqReceiptsExchange" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">RabbitMQ Receipts Exchange</label>
+                                <label for="safeAutoSnapshotTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Auto Snapshot Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="rabbitMqReceiptsExchange" id="rabbitMqReceiptsExchange" value="${retailer?.config?.rabbitMqReceiptsExchange}" />
-                                </div>
-                                <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-rabbitmq-receipts-exchange-button" onclick="$('#rabbitMqReceiptsExchange').val('')">Reset</div>
+                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${cashManagement?.config?.safeAutoSnapshotTime}" placeholder="HH:MM"/>
                                 </div>
                             </div>
 
+                            <h5 class="text-center mt-5">Holding Limit</h5>
+                            <div class="form-group row">
+                                <label for="tillCashHoldingLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Cash Holding Limit</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillCashHoldingLimit" id="tillCashHoldingLimit" value="${cashManagement?.config?.tillCashHoldingLimit}" step="0.01" placeholder="0.00"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
