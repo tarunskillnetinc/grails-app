@@ -184,6 +184,8 @@ beans = {
         sessionFactory = ref('sessionFactory')
     }
 
+    cashManagementService(CashManagementService)
+
     gsonProvider(GsonProvider)
 
     Environment.executeForCurrentEnvironment {
