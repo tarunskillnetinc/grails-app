@@ -4,106 +4,15 @@
     <meta name="layout" content="main" />
     <title>Retailer Settings</title>
 
+    <asset:stylesheet src="multi-select-checks.css" />
+
     <asset:javascript src="validators/input-validator.js" />
     <asset:javascript src="popper.min.js" />
     <asset:javascript src="multi-select-checks.js" />
-    <style>
-        .multiselect-container {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-        .multiselect-display {
-            width: 100%;
-            height: 40px;
-            padding: 8px;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            background-color: #fff;
-        }
-        .dropdown-arrow {
-            margin-left: 10px;
-        }
-        .multiselect-items {
-            display: none;
-            position: absolute;
-            width: 100%;
-            background-color: #fff;
-            border: 1px solid #ced4da;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1;
-        }
-        .multiselect-items .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-        }
-        .multiselect-items .dropdown-item input {
-            margin-right: 10px;
-        }
-        .multiselect-items.show {
-            display: block;
-        }
-    </style>
-    <script type='text/javascript'>
-        %{--var getBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxGetBrandLogo')}";--}%
-        %{--var resetBrandLogoUrl = "${createLink(controller: 'retailer', action: 'ajaxResetBrandLogo')}";--}%
 
-        %{--function validateImg(input) {--}%
-        %{--    if (input.files[0].size >= 1048576 /* 1MB */) {--}%
-        %{--        return '${message(code:'retailer.logo.maxsize', default:"Image file size too large")}'--}%
-        %{--    }--}%
-        %{--    if (input.files[0].type !== "image/png") {--}%
-        %{--        return '${message(code:'button.error.incompatible.message', default:"Image incorrect file type. Please use .png.")}'--}%
-        %{--    }--}%
-        %{--}--}%
+    <script type='text/javascript'>
 
         $(document).ready(function () {
-            // $('input[name=brandLogo]').change(function() {
-            //     const error = validateImg(this);
-            //     if (error) {
-            //         $('input[name=brandLogo]').val(null);
-            //         alert(error);
-            //         return
-            //     }
-            //
-            //     const fileData = this.files[0];
-            //     if (FileReader && fileData) {
-            //         const urlFileReader = new FileReader();
-            //         urlFileReader.onload = function () {
-            //             const brandingImage = $(".branding-image");
-            //             brandingImage.attr("src", urlFileReader.result);
-            //             brandingImage.removeAttr("hidden");
-            //         }
-            //         urlFileReader.readAsDataURL(fileData);
-            //     }
-            // });
-            //
-            // $.ajax({
-            //     url: getBrandLogoUrl,
-            //     success: function(resp) {
-            //         if (resp === '') {
-            //             var brandingImage = $(".branding-image");
-            //             brandingImage.attr("src", "");
-            //             brandingImage.attr("hidden", "");
-            //         } else {
-            //             var brandingImage = $(".branding-image");
-            //             brandingImage.attr("src", "data:image/png;base64," + resp);
-            //             brandingImage.removeAttr("hidden");
-            //         }
-            //         // Iterate over each element with the class "item-label" and update its content
-            //         $(".item-label").each(function() {
-            //             const item = $(this).text(); // Get the text content of the current div
-            //             const readableItem = camelToReadable(item); // Convert to readable format
-            //             $(this).text(readableItem); // Update the div's content
-            //         });
-            //     }
-            // });
             $('#selectedItemsDisplay').click(function() {
                 $('#weekdayDropdown').toggleClass('show');
             });
@@ -131,38 +40,14 @@
             const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             createMultiSelectorChecks('automaticCloseDaysSelector', 'automaticCloseDays', weekdays, "Select Days");
             createMultiSelectorChecks('tillAutoSnapshotDaysSelector', 'tillAutoSnapshotDays', weekdays, "Select Days");
+            createMultiSelectorChecks('safeAutoSnapshotDaysSelector', 'safeAutoSnapshotDays', weekdays, "Select Days");
         });
-
-        %{--function resetBrandLogo() {--}%
-        %{--    if (confirm("This will reset your brand logo to Trust retail default.")) {--}%
-        %{--        $.ajax({--}%
-        %{--            url: resetBrandLogoUrl,--}%
-        %{--            success: function (resp) {--}%
-        %{--                var brandingImage = $(".branding-image");--}%
-        %{--                brandingImage.attr("src", "");--}%
-        %{--                brandingImage.attr("hidden", "");--}%
-        %{--            }--}%
-        %{--        });--}%
-        %{--    }--}%
-        %{--}--}%
-        %{--function camelToReadable(camelCaseString) {--}%
-        %{--    // Use a regular expression to split the string at capital letters--}%
-        %{--    const words = splitCamelCaseString(camelCaseString);--}%
-        %{--    // Capitalize the first letter of each word and join with spaces--}%
-        %{--    const readableString = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');--}%
-        %{--    return readableString;--}%
-        %{--}--}%
-
-        %{--function renameBottomButtonName(camelCaseString) {--}%
-        %{--    const words = splitCamelCaseString(camelCaseString);--}%
-        %{--    words[1].charAt(0).toUpperCase();--}%
-        %{--    return words[1];--}%
-        %{--}--}%
-
-        %{--function splitCamelCaseString(camelCaseString) {--}%
-        %{--    return camelCaseString.split(/(?=[A-Z])/);--}%
-        %{--}--}%
     </script>
+    <style>
+        h5 {
+            margin-left: -220px;
+        }
+    </style>
 </head>
 <body>
 <section id="breadcrumb-container" class="container-fluid">

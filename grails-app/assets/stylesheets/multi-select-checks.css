@@ -1,0 +1,41 @@
+.multiselect-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+.multiselect-display {
+    width: 100%;
+    height: 40px;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background-color: #fff;
+}
+.dropdown-arrow {
+    margin-left: 10px;
+}
+.multiselect-items {
+    display: none;
+    position: absolute;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1;
+}
+.multiselect-items .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+.multiselect-items .dropdown-item input {
+    margin-right: 10px;
+}
+.multiselect-items.show {
+    display: block;
+}
