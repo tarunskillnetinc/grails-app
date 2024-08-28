@@ -1057,14 +1057,14 @@ class ProductController extends BaseController {
      * @return
      */
     def packChanged(def newPack, def existingPack) {
-        return newPack.barcodez != existingPack.barcodez ||
-                newPack.supplier != existingPack.supplier ||
-                newPack.quantity != existingPack.quantity ||
-                newPack.price != existingPack.price ||
-                newPack.orderCode != existingPack.orderCode ||
-                newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice ||
-                newPack.status != existingPack.status ||
-                newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
+        return newPack.barcodez != existingPack.barcodez
+                || newPack.supplier != existingPack.supplier 
+                || newPack.quantity != existingPack.quantity
+                || newPack.price != existingPack.price
+                || newPack.orderCode != existingPack.orderCode
+                || newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice
+                || newPack.status != existingPack.status
+                || newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
     }
 
     def locationChanged(def newLocation, def existingLocation) {
