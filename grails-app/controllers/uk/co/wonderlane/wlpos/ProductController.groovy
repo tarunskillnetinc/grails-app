@@ -1058,9 +1058,8 @@ class ProductController extends BaseController {
      * @return
      */
     def packChanged(def newPack, def existingPack) {
-        return
-        newPack.barcodez != existingPack.barcodez ||
-                !newPack.supplier.equals(existingPack.supplier) ||
+        return newPack.barcodez != existingPack.barcodez ||
+                newPack.supplier != existingPack.supplier ||
                 newPack.quantity != existingPack.quantity ||
                 newPack.price != existingPack.price ||
                 newPack.orderCode != existingPack.orderCode ||
@@ -1082,7 +1081,7 @@ class ProductController extends BaseController {
                 newLocation.locationNumber != existingLocation.locationNumber
     }
 
-    private void updatePack(def packToBeUpdated, def editedPack, def now) {
+    private static void updatePack(def packToBeUpdated, def editedPack, def now) {
         packToBeUpdated.supplier = editedPack.supplier
         packToBeUpdated.quantity = editedPack.quantity
         packToBeUpdated.price = editedPack.price
