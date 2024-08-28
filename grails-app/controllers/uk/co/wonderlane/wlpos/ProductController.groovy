@@ -382,7 +382,7 @@ class ProductController extends BaseController {
 
         productService.saveRangeProducts(newlyRangedProducts)
         productService.deleteRangeProducts(noLongerRangedProducts)
-        if (productHistories != null && productHistories.size() > 0){
+        if (productHistories != null && productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
 
@@ -542,7 +542,7 @@ class ProductController extends BaseController {
             product.errors.reject('error.Product.badEffectiveDate')
         }
 
-        if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct) ) {
+        if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct)) {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
@@ -573,7 +573,7 @@ class ProductController extends BaseController {
                     priceChanges.addAll(it.priceChanges)
                 }
 
-                savePriceUpdates(product.currentVariants, product,  priceChanges, effectiveDate)
+                savePriceUpdates(product.currentVariants, product, priceChanges, effectiveDate)
                 if (product.hasErrors()) {
                     return product
                 }
@@ -613,15 +613,17 @@ class ProductController extends BaseController {
             // productVariantsList is only the new variants so addAll works here
             product.variants.addAll(productVariantsList)
             product.variants.forEach {
-                variant -> {
-                    editedProduct.variants.forEach {
-                        editedVariant -> {
-                            if (variant.sku == editedVariant.sku) {
-                                variant.locationz = editedVariant.locationz ?: variant.locations
-                            }
+                variant ->
+                    {
+                        editedProduct.variants.forEach {
+                            editedVariant ->
+                                {
+                                    if (variant.sku == editedVariant.sku) {
+                                        variant.locationz = editedVariant.locationz ?: variant.locations
+                                    }
+                                }
                         }
                     }
-                }
             }
         }
     }
@@ -946,7 +948,7 @@ class ProductController extends BaseController {
         if (newVariant) {
             editedVariant.packs?.each { editedPack ->
                 Pack newPack = new Pack()
-                editedPack.barcodez.each {barcode ->
+                editedPack.barcodez.each { barcode ->
                     Barcode newBarcode = new Barcode()
                     newBarcode.retailerId = springSecurityService.principal.retailerId
                     newBarcode.effectiveDate = effectiveDate
@@ -954,7 +956,7 @@ class ProductController extends BaseController {
                     newBarcode.barcode = barcode
                     newBarcode.recordStatus = 'C'
                     newPack.barcodez.add(newBarcode)
-                };
+                }
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
             }
@@ -970,7 +972,7 @@ class ProductController extends BaseController {
                 checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
             } else if (!existingPack) {
                 Pack newPack = new Pack()
-                editedPack.barcodez.each {barcode ->
+                editedPack.barcodez.each { barcode ->
                     Barcode newBarcode = new Barcode()
                     newBarcode.retailerId = springSecurityService.principal.retailerId
                     newBarcode.effectiveDate = effectiveDate
@@ -1046,7 +1048,7 @@ class ProductController extends BaseController {
             productService.saveProductHistories(builder.productHistories)
         }
 
-        deleteLocations.each{ location ->
+        deleteLocations.each { location ->
             location.deleted = true
         }
     }
@@ -1165,8 +1167,8 @@ class ProductController extends BaseController {
             })
         })
 
-        product?.variants?.stream().filter ({v -> v.effectiveDate == editedProduct.effectiveDate}).each { existingVariants ->
-            def editedVariant = editedProduct?.variants?.find {editedVariant -> editedVariant.id == existingVariants.id}
+        product?.variants?.stream().filter({ v -> v.effectiveDate == editedProduct.effectiveDate }).each { existingVariants ->
+            def editedVariant = editedProduct?.variants?.find { editedVariant -> editedVariant.id == existingVariants.id }
             if (!editedVariant) {
                 // Variant deleted
                 doVariantComparison(builder, existingVariants.id, existingVariants, new ProductVariantCommand(), deletedBarcodes)
@@ -1185,7 +1187,7 @@ class ProductController extends BaseController {
         if ((oldVariant.retailPrice == null && variant.retailPrice != null) || (oldVariant.retailPrice != null && variant.retailPrice != null)) {
             builder.compare(id, "retailPrice", oldVariant.retailPrice ?: BigDecimal.ZERO, variant.retailPrice ?: BigDecimal.ZERO)
         }
-        if (oldVariant.costPrice != null && variant.costPrice!= null) {
+        if (oldVariant.costPrice != null && variant.costPrice != null) {
             builder.compare(id, "costPrice", oldVariant.costPrice ?: BigDecimal.ZERO, variant.costPrice ?: BigDecimal.ZERO)
         }
         builder.compare(id, "size", oldVariant.size, variant.size)
@@ -1205,7 +1207,7 @@ class ProductController extends BaseController {
         // loop over edited variant barcodes to find out if barcode been edited or newly added
         variant?.barcodez?.each { editedBarcode ->
             // Can't set barcode to null so this shouldn't appear in change history (means something else has changed)
-            if(editedBarcode == null || (editedBarcode.barcode == null && editedBarcode.recordStatus != 'D')) {
+            if (editedBarcode == null || (editedBarcode.barcode == null && editedBarcode.recordStatus != 'D')) {
                 return
             }
             def existingBarcode = oldVariant?.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
@@ -1221,7 +1223,8 @@ class ProductController extends BaseController {
         oldVariant?.barcodes?.each { existingBarcode ->
             def editedBarcode = variant?.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
 
-            if (!editedBarcode && !deletedBarcodes.contains(existingBarcode.barcode)) { //if edited barcode not exists means old barcode has been deleted
+            if (!editedBarcode && !deletedBarcodes.contains(existingBarcode.barcode)) {
+                //if edited barcode not exists means old barcode has been deleted
                 deletedBarcodes.add(existingBarcode.barcode);
                 builder.compare("barcode", existingBarcode.barcode, null)
             }
@@ -1250,7 +1253,7 @@ class ProductController extends BaseController {
         }
     }
 
-    void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack){
+    void comparePackFields(ProductHistoryBuilder builder, Pack oldPack, PackCommand pack) {
         builder.compare("packSupplier", oldPack.supplier, pack.supplier)
         builder.compare("packQuantity", oldPack.quantity, pack.quantity)
         builder.compare("packPrice", oldPack.price, pack.price)
@@ -1348,7 +1351,7 @@ class ProductController extends BaseController {
         }
 
         // delete all ranges that have been unselected, except those already soft-deleted
-        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories)}
+        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories) }
         if (productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
@@ -1378,7 +1381,7 @@ class ProductController extends BaseController {
 
         ProductHistory productHistory =
                 new ProductHistory(retailerId: springSecurityService.principal.retailerId, productId: rangeProduct.getProductId(),
-                        fromValue: null, toValue: rangeProduct.getRange()!= null ? rangeProduct.getRange().getDescription() : -1,
+                        fromValue: null, toValue: rangeProduct.getRange() != null ? rangeProduct.getRange().getDescription() : -1,
                         productHistoryType: productHistoryType,
                         storeId: springSecurityService.principal.storeId, userId: springSecurityService.principal.id, usersName: springSecurityService.principal?.usersName,
                         effectiveDate: effectiveDate, updateDate: now)
