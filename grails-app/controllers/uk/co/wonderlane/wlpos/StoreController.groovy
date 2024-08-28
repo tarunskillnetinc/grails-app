@@ -100,6 +100,7 @@ class StoreController {
         [storeTypes: storeTypes, parentStores: parentStores, priceBands: priceBands, ranges: ranges]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def config() {
         def store
         boolean viewingOwnStore = true

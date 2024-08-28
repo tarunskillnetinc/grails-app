@@ -176,11 +176,11 @@
 
                                     <div class="dropdown-divider"></div>
                                 </g:if>
-                            </sec:ifAnyGranted>
 
-                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
-                            </g:if>
+                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
+                                </g:if>
+                            </sec:ifAnyGranted>
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
 
