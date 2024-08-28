@@ -1064,7 +1064,6 @@ class ProductController extends BaseController {
                 newPack.quantity != existingPack.quantity ||
                 newPack.price != existingPack.price ||
                 newPack.orderCode != existingPack.orderCode ||
-//                newPack.barcodez != existingPack.barcodez ||
                 newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice ||
                 newPack.status != existingPack.status ||
                 newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
@@ -1088,7 +1087,6 @@ class ProductController extends BaseController {
         packToBeUpdated.quantity = editedPack.quantity
         packToBeUpdated.price = editedPack.price
         packToBeUpdated.orderCode = editedPack.orderCode
-//        packToBeUpdated.barcodez = editedPack.barcodez
         packToBeUpdated.recommendedRetailPrice = editedPack.recommendedRetailPrice
         packToBeUpdated.effectiveDate = now
         packToBeUpdated.effectiveEndDate = editedPack.effectiveEndDate

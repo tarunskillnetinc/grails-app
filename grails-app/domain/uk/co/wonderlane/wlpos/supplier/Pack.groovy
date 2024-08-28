@@ -11,8 +11,8 @@ import uk.co.wonderlane.wlpos.enums.PackStatus
 import java.util.stream.Collectors
 
 class Pack implements Serializable {
-    def springSecurityService
 
+    def springSecurityService
 
     static belongsTo = [ productVariant: ProductVariant ]
 
@@ -34,7 +34,11 @@ class Pack implements Serializable {
 
     static transients = ['barcodez']
 
+    // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
+    public Pack() { }
+
     static mapping = {
+        autowire true
         table "pack"
         version false
 
@@ -120,7 +124,7 @@ class Pack implements Serializable {
     public List<Barcode> getBarcodes() {
         // Load all barcodes based on sku.
         def barcodesOnPackId = Barcode.findAllByPackAndRetailerIdAndEffectiveDateLessThanEquals(
-                load(id), 3, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"]) // TODO change this retailer ID just here for testing
+                load(id), springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"]) // TODO change this retailer ID just here for testing
 
         // Declare list to populate displaying barcodes.
         def barcodesToShow = new ArrayList<Barcode>()
