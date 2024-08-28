@@ -894,35 +894,32 @@ class ProductController extends BaseController {
                             [barcode.barcode] as Object[],
                             'Barcode {0} already exists on another SKU.')
                 }
-            } else { // If barcode do exists change update existing values
 
-                //Only update if user has changed barcode value or else skip
-                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+            } else if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+                // If barcode do exists change update existing values
+                // Only update if user has changed barcode value or else skip
+                //Mark current barcode to delete this will insert new mark delete entry to DB
+                existingBarcode.delete = true
+                existingBarcode.effectiveDeleteDate = effectiveDate
+                //New effective date needed to be set as effective date of mark delete entry
 
-                    //Mark current barcode to delete this will insert new mark delete entry to DB
-                    existingBarcode.delete = true
-                    existingBarcode.effectiveDeleteDate = effectiveDate
-                    //New effective date needed to be set as effective date of mark delete entry
+                //Add new barcode to replacing existing
+                Barcode futureBarcode = new Barcode()
+                futureBarcode.pack = existingPack
+                futureBarcode.retailerId = springSecurityService.principal.retailerId
+                futureBarcode.barcode = editedBarcode.barcode
+                futureBarcode.effectiveDate = effectiveDate
+                futureBarcode.recordStatus = 'C'
 
-                    //Add new barcode to replacing existing
-                    Barcode futureBarcode = new Barcode()
-                    futureBarcode.pack = existingPack
-                    futureBarcode.retailerId = springSecurityService.principal.retailerId
-                    futureBarcode.barcode = editedBarcode.barcode
-                    futureBarcode.effectiveDate = effectiveDate
-                    futureBarcode.recordStatus = 'C'
-
-                    if (!isValidBarcode(futureBarcode)) {
-                        product.errors.reject(
-                                'product.barcodes.notUnique',
-                                [futureBarcode.barcode] as Object[],
-                                'Barcode {0} already exists on another SKU.')
-                    } else {
-                        //Add mark deleted barcode and newly updated barcode to add into DB
-                        existingPack.barcodez.add(existingBarcode)
-                        existingPack.barcodez.add(futureBarcode)
-                    }
-
+                if (!isValidBarcode(futureBarcode)) {
+                    product.errors.reject(
+                            'product.barcodes.notUnique',
+                            [futureBarcode.barcode] as Object[],
+                            'Barcode {0} already exists on another SKU.')
+                } else {
+                    //Add mark deleted barcode and newly updated barcode to add into DB
+                    existingPack.barcodez.add(existingBarcode)
+                    existingPack.barcodez.add(futureBarcode)
                 }
             }
         }
