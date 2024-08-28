@@ -11,7 +11,7 @@ class Barcode {
     String barcode
     DateTime effectiveDate
     char recordStatus
-    Integer packId
+    Pack pack
 
     boolean delete
     DateTime effectiveDeleteDate
@@ -27,13 +27,13 @@ class Barcode {
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"
-        packId column: "packId"
+        pack column: "packId"
 
     }
 
     static constraints = {
         sku nullable: true
-        packId nullable: true
+        pack nullable: true
         retailerId nullable: false
         barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
             //Initially set barcode value is available for use

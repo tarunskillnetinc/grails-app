@@ -119,8 +119,8 @@ class Pack implements Serializable {
 
     public List<Barcode> getBarcodes() {
         // Load all barcodes based on sku.
-        def barcodesOnPackId = Barcode.findAllByPackIdAndRetailerIdAndEffectiveDateLessThanEquals(
-                id, 3, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"]) // TODO change this retailer ID just here for testing
+        def barcodesOnPackId = Barcode.findAllByPackAndRetailerIdAndEffectiveDateLessThanEquals(
+                load(id), 3, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"]) // TODO change this retailer ID just here for testing
 
         // Declare list to populate displaying barcodes.
         def barcodesToShow = new ArrayList<Barcode>()
@@ -152,6 +152,6 @@ class Pack implements Serializable {
     }
 
     public List<Barcode> getAllBarcodes() {
-        return Barcode.findAllByPackIdAndRetailerId(id, springSecurityService.principal.retailerId)
+        return Barcode.findAllByPackAndRetailerId(load(id), springSecurityService.principal.retailerId)
     }
 }

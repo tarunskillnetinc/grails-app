@@ -18,8 +18,8 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].allowSubstitutes" value="${pack.allowSubstitutes}" />
 
             <div id="variants[${variantIndex}].packs[${packIndex}].barcodesContainer" class="col-2 my-auto">
-%{--            // TODO look into why this is failing--}%
-                <g:each in="${pack.barcodez? pack.barcodez : pack.hasProperty("barcodes") ? pack.barcodes : ""}" var="barcode" status="barcodeIndex">
+            <g:each in="${pack.barcodez ? pack.barcodez : pack.hasProperty("barcodes") ? pack.barcodes : ""}"
+                    var="barcode" status="barcodeIndex">
                     <div id="barcodeContainer${barcodeIndex}">
                         <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].id"
                                        value="${barcode.id}"/>

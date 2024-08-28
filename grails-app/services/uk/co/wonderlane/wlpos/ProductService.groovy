@@ -141,7 +141,7 @@ class ProductService extends MySqlDal {
                 pack.barcodez.each { barcode ->
                     if (barcode.hasProperty('delete') && barcode.delete) {
                         Barcode deletedBarcode = new Barcode()
-                        deletedBarcode.packId = barcode.packId
+                        deletedBarcode.pack = barcode.pack
                         deletedBarcode.retailerId = barcode.retailerId
                         deletedBarcode.barcode = barcode.barcode
                         deletedBarcode.effectiveDate = barcode.effectiveDeleteDate
@@ -385,7 +385,7 @@ class ProductService extends MySqlDal {
             //Group barcodes to map of sku --> {1 : [111(C) , 111 (D), 1114(C) ,1115(C), 1117(C)], 2:[1119(C)]}
             def skuMap = barcodes?.findAll{it.sku != null}?.groupBy { it.sku }
 
-            def packMap = barcodes?.findAll{it.packId != null}?.groupBy { it.packId }
+            def packMap = barcodes?.findAll{it.pack != null}?.groupBy { it.pack }
 
 
             findActiveBarcodes(skuMap, validBarcodeSkus)

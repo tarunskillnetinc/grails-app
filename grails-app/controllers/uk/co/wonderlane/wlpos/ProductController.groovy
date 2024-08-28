@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos
 import com.opencsv.bean.CsvBindByName
 import com.opencsv.bean.CsvToBeanBuilder
 import grails.converters.JSON
-import grails.databinding.BindingFormat
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import org.apache.commons.lang3.StringUtils
@@ -879,7 +878,7 @@ class ProductController extends BaseController {
 
             if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
                 Barcode barcode = new Barcode()
-                barcode.packId = existingPack.id
+                barcode.pack = existingPack
                 barcode.retailerId = springSecurityService.principal.retailerId
                 barcode.barcode = editedBarcode.barcode
                 barcode.effectiveDate = effectiveDate
@@ -905,7 +904,7 @@ class ProductController extends BaseController {
 
                     //Add new barcode to replacing existing
                     Barcode futureBarcode = new Barcode()
-                    futureBarcode.sku = existingPack.sku
+                    futureBarcode.pack = existingPack
                     futureBarcode.retailerId = springSecurityService.principal.retailerId
                     futureBarcode.barcode = editedBarcode.barcode
                     futureBarcode.effectiveDate = effectiveDate
@@ -928,7 +927,7 @@ class ProductController extends BaseController {
 
         // Mark any barcodes which no longer exist as deleted.
         existingPack.barcodes?.each { existingBarcode ->
-            def editedBarcode = editedPack.barcodez?.find { editedBarcode -> editedBarcode.id == existingBarcode.id }
+            def editedBarcode = editedPack.barcodez?.find { editedBarcode -> editedBarcode.barcode == existingBarcode.barcode }
 
             if (!editedBarcode) {
                 existingBarcode.delete = true
@@ -945,11 +944,18 @@ class ProductController extends BaseController {
         }
 
         if (newVariant) {
-            editedVariant.packs?.each { editedPac ->
+            editedVariant.packs?.each { editedPack ->
                 Pack newPack = new Pack()
-                newPack.barcodez = editedPac.barcodez
-                // TODO add changes for retailerID and effective date inside barcodes
-                updatePack(newPack, editedPac, now)
+                editedPack.barcodez.each {barcode ->
+                    Barcode newBarcode = new Barcode()
+                    newBarcode.retailerId = springSecurityService.principal.retailerId
+                    newBarcode.effectiveDate = effectiveDate
+                    newBarcode.pack = newPack
+                    newBarcode.barcode = barcode
+                    newBarcode.recordStatus = 'C'
+                    newPack.barcodez.add(newBarcode)
+                };
+                updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
             }
 
@@ -961,13 +967,24 @@ class ProductController extends BaseController {
 
             if (existingPack && packChanged(editedPack, existingPack)) {
                 updatePack(existingPack, editedPack, now)
+                checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
             } else if (!existingPack) {
                 Pack newPack = new Pack()
+                editedPack.barcodez.each {barcode ->
+                    Barcode newBarcode = new Barcode()
+                    newBarcode.retailerId = springSecurityService.principal.retailerId
+                    newBarcode.effectiveDate = effectiveDate
+                    newBarcode.pack = newPack
+                    newBarcode.barcode = barcode.barcode
+                    newBarcode.recordStatus = 'C'
+                    newPack.barcodez.add(newBarcode)
+                };
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
+                checkPackForBarcodeChanges(product, newPack, editedPack, effectiveDate)
+            } else {
+                checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
             }
-            checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
-
         }
 
         // Remove any packs which no longer exist.
@@ -1071,7 +1088,7 @@ class ProductController extends BaseController {
         packToBeUpdated.quantity = editedPack.quantity
         packToBeUpdated.price = editedPack.price
         packToBeUpdated.orderCode = editedPack.orderCode
-        packToBeUpdated.barcodez = editedPack.barcodez
+//        packToBeUpdated.barcodez = editedPack.barcodez
         packToBeUpdated.recommendedRetailPrice = editedPack.recommendedRetailPrice
         packToBeUpdated.effectiveDate = now
         packToBeUpdated.effectiveEndDate = editedPack.effectiveEndDate
