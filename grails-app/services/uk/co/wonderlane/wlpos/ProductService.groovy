@@ -137,6 +137,21 @@ class ProductService extends MySqlDal {
                     barcode.save()
                 }
             }
+            variant.packs.each {pack ->
+                pack.barcodez.each { barcode ->
+                    if (barcode.hasProperty('delete') && barcode.delete) {
+                        Barcode deletedBarcode = new Barcode()
+                        deletedBarcode.pack = barcode.pack
+                        deletedBarcode.retailerId = barcode.retailerId
+                        deletedBarcode.barcode = barcode.barcode
+                        deletedBarcode.effectiveDate = barcode.effectiveDeleteDate
+                        deletedBarcode.recordStatus = 'D'
+                        deletedBarcode.save()
+                    } else if (barcode instanceof Barcode) {
+                        barcode.save()
+                    }
+                }
+            }
         }
     }
 
@@ -356,46 +371,28 @@ class ProductService extends MySqlDal {
         def now = DateTime.now(DateTimeZone.UTC)
 
         def barcodeSkus = []
+        def barcodePacks = []
 
         searchTerm = searchTerm ? searchTerm.trim() : ""
 
         if ((searchBy == "everything" || searchBy == "barcode") && searchTerm?.length() > 2) {
             def validBarcodeSkus = [] //Declare valid barcode sku list
+            def validBarcodePacks = [] //Declare valid barcode pack list
 
             //Get all barcodes which like search term (Ex : search term - 111 )
             def barcodes = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)
 
             //Group barcodes to map of sku --> {1 : [111(C) , 111 (D), 1114(C) ,1115(C), 1117(C)], 2:[1119(C)]}
-            def skuMap = barcodes?.groupBy { it.sku }
+            def skuMap = barcodes?.findAll{it.sku != null}?.groupBy { it.sku }
 
-            for (Map.Entry<Long, List<Barcode>> skuListEntry : skuMap?.entrySet()) {
+            def packMap = barcodes?.findAll{it.pack != null}?.groupBy { it.pack }
 
-                //Group sku list int map of barcode
-                def barcodeMap = skuListEntry.getValue()?.groupBy { it.barcode }
 
-                //Then loop over map of barcode to find out all active sku values
-                for (Map.Entry<String, List<Barcode>> barcodeListEntry : barcodeMap?.entrySet()) {
-                    int deletedBarcodeCount = 0
-                    int activeBarcodeCount = 0
-
-                    //For barcode belonging to particular sku check occurrence of active and deleted
-                    barcodeListEntry.value?.forEach({ barcode ->
-                        if (barcode.recordStatus == ('D' as char)) {
-                            deletedBarcodeCount++
-                        } else {
-                            activeBarcodeCount++
-                        }
-                    })
-
-                    //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we can assume that barcode is active
-                    if (activeBarcodeCount > deletedBarcodeCount) {
-                        validBarcodeSkus.add(skuListEntry.getKey())
-                        break
-                    }
-                }
-            }
+            findActiveBarcodes(skuMap, validBarcodeSkus)
+            findActiveBarcodes(packMap, validBarcodePacks)
 
             barcodeSkus = validBarcodeSkus?.unique()
+            barcodePacks = validBarcodePacks?.unique()
         }
 
         def queryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now, max: maxResults, offset: startIndex]
@@ -439,14 +436,16 @@ class ProductService extends MySqlDal {
 
         if (searchBy == "everything") {
             queryParams.barcodeSkus = barcodeSkus
+            queryParams.barcodePacks = barcodePacks
             queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.barcodeSkus = barcodeSkus
+            countQueryParams.barcodePacks = barcodePacks
             countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
+                                   OR pk.id IN (:barcodePacks)
                                    OR p.itemCode LIKE :searchTerm
-                                   OR p.description LIKE :searchTerm
-                                   OR pk.barcode LIKE :searchTerm """
+                                   OR p.description LIKE :searchTerm """
 
             if (searchTerm.isNumber()) {
                 queryParams.searchTermLong = Long.parseLong(searchTerm)
@@ -477,12 +476,14 @@ class ProductService extends MySqlDal {
             searchQuery += """AND p.description LIKE :searchTerm """
         } else if (searchBy == "barcode") {
             queryParams.barcodeSkus = barcodeSkus
+            queryParams.barcodePacks = barcodePacks
             queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.barcodeSkus = barcodeSkus
+            countQueryParams.barcodePacks = barcodePacks
             countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
-                                    OR pk.barcode LIKE :searchTerm) """
+                                     OR pk.id IN (:barcodePacks)) """
         }
 
         if (sortColumn == "id" || sortColumn == "description") {
@@ -496,6 +497,35 @@ class ProductService extends MySqlDal {
         results.totalCount = Product.executeQuery(countQuerySelect + searchQuery, countQueryParams)?.get(0) ?: 0
 
         return results
+    }
+
+    private static void findActiveBarcodes(Map<Long, List<Barcode>> idToBarcodeMap, ArrayList validBarcodes) {
+        for (Map.Entry<Long, List<Barcode>> entry : idToBarcodeMap?.entrySet()) {
+
+            //Group sku list int map of barcode
+            def barcodeMap = entry.getValue()?.groupBy { it.barcode }
+
+            //Then loop over map of barcode to find out all active sku values
+            for (Map.Entry<String, List<Barcode>> barcodeListEntry : barcodeMap?.entrySet()) {
+                int deletedBarcodeCount = 0
+                int activeBarcodeCount = 0
+
+                //For barcode belonging to particular sku check occurrence of active and deleted
+                barcodeListEntry.value?.forEach({ barcode ->
+                    if (barcode.recordStatus == ('D' as char)) {
+                        deletedBarcodeCount++
+                    } else {
+                        activeBarcodeCount++
+                    }
+                })
+
+                //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we can assume that barcode is active
+                if (activeBarcodeCount > deletedBarcodeCount) {
+                    validBarcodes.add(entry.getKey())
+                    break
+                }
+            }
+        }
     }
 
     def searchProductPrices(String searchTerm, Integer categoryId, Integer tagId) {

@@ -1,3 +1,4 @@
+<%@ page import="org.joda.time.DateTime; uk.co.wonderlane.wlpos.Barcode" %>
 <div class="modal-header">
     <h2>Suppliers &amp; Packs</h2>
 </div>
@@ -40,7 +41,6 @@
         <div class="col-2 font-weight-bold">Pack Quantity</div>
         <div class="col-2 font-weight-bold">Cost Price</div>
         <div class="col-2 font-weight-bold">Order Code</div>
-        <div class="col-2 font-weight-bold">Outer Barcode</div>
         <div class="col-1 font-weight-bold">&nbsp;</div>
     </div>
 

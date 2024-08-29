@@ -16,8 +16,25 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].status" value="${pack.status}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].maximumOrderQuantity" value="${pack.maximumOrderQuantity}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].allowSubstitutes" value="${pack.allowSubstitutes}" />
-            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcode" value="${pack.barcode}" />
 
+            <div id="variants[${variantIndex}].packs[${packIndex}].barcodesContainer" class="col-2 my-auto">
+            <g:each in="${pack.barcodez ? pack.barcodez : pack.hasProperty("barcodes") ? pack.barcodes : ""}"
+                    var="barcode" status="barcodeIndex">
+                    <div id="barcodeContainer${barcodeIndex}">
+                        <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].id"
+                                       value="${barcode.id}"/>
+                        <g:hiddenField
+                                name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].barcode"
+                                value="${barcode.barcode}"/>
+                        <g:hiddenField
+                                name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].effectiveDate"
+                                value="${barcode.effectiveDate}"/>
+                        <g:hiddenField
+                                name="variants[${variantIndex}].packs[${packIndex}].barcodez[${barcodeIndex}].recordStatus"
+                                value="${barcode.recordStatus}"/>
+                    </div>
+                </g:each>
+            </div>
             <div class="text-truncate" id="variants[${variantIndex}].packs[${packIndex}].packText">${pack.quantity} @ <g:formatNumber number="${pack.price}" type="currency" /> (${pack.supplier.name})</div>
         </div>
     </g:if>

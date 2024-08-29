@@ -1,12 +1,18 @@
 package uk.co.wonderlane.wlpos.supplier
 
+import org.grails.web.util.WebUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.Barcode
 import uk.co.wonderlane.wlpos.ProductVariant
 import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
 
-class Pack {
+import java.util.stream.Collectors
+
+class Pack implements Serializable {
+
+    def springSecurityService
 
     static belongsTo = [ productVariant: ProductVariant ]
 
@@ -15,7 +21,6 @@ class Pack {
     BigDecimal quantity
     BigDecimal price
     String orderCode
-    String barcode
     BigDecimal recommendedRetailPrice
     DateTime effectiveDate
     DateTime effectiveEndDate
@@ -25,8 +30,15 @@ class Pack {
     boolean priceMarked
     boolean primaryCase
     DateTime updateDatetime
+    Collection<Barcode> barcodez = new ArrayList<>()
+
+    static transients = ['barcodez']
+
+    // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
+    public Pack() { }
 
     static mapping = {
+        autowire true
         table "pack"
         version false
 
@@ -35,7 +47,6 @@ class Pack {
         quantity column: "quantity"
         price column: "price"
         orderCode column: "orderCode"
-        barcode column: "barcode"
         recommendedRetailPrice column: "recommendedRetailPrice"
         effectiveDate column: "effectiveDate"
         effectiveEndDate column: "effectiveEndDate"
@@ -67,22 +78,6 @@ class Pack {
         quantity nullable: false, blank: false, min: 0.00 as BigDecimal, max: 2147483647.000 as BigDecimal
         price nullable: false, blank: false, min: 0.00 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
         orderCode nullable: true, size: 1..20
-        barcode nullable: true, size: 1..20, validator: { val, obj ->
-            if (val) {
-                def supplierVar = Supplier.findAllById(obj.supplier.id)
-                def existingPacks = Pack.findAllBySupplierAndBarcode(supplierVar[0], val)
-                existingPacks.remove(obj)
-                // Check if the barcode exists on another SKU
-                existingPacks.each {
-                    if (obj.hasProperty("productVariant") && it.productVariant.sku != obj.productVariant.sku) {
-                        return ['pack.barcodes.notUnique', val]
-                    }
-                }
-                return true
-            } else {
-                return true
-            }
-        }
         recommendedRetailPrice nullable: true, max: 9999.99 as BigDecimal, scale: 2
         effectiveDate nullable: true
         effectiveEndDate nullable: true
@@ -92,6 +87,7 @@ class Pack {
         priceMarked nullable: false
         primaryCase nullable: false
         updateDatetime nullable: false
+        barcodez bindable: true
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Pack getPack() {
@@ -103,7 +99,6 @@ class Pack {
         pack.setQuantity(quantity)
         pack.setPrice(price)
         pack.setOrderCode(orderCode)
-        pack.setBarcode(barcode)
         pack.setRecommendedRetailPrice(recommendedRetailPrice)
         pack.setEffectiveDate(effectiveDate)
         pack.setEffectiveEndDate(effectiveEndDate)
@@ -114,6 +109,53 @@ class Pack {
         pack.setPrimaryCase(primaryCase)
         pack.setUpdateDate(updateDatetime)
 
+        getBarcodes()?.each {
+            pack.getBarcodes().add(it.barcode)
+        }
+
         return pack
+    }
+    public DateTime getSessionEffectiveDate() {
+        def sessionEffectiveDate = WebUtils.retrieveGrailsWebRequest().session.getAttribute("effectiveDate")
+
+        return sessionEffectiveDate != null && sessionEffectiveDate.size() > 0 ? sessionEffectiveDate[1] : DateTime.now(DateTimeZone.UTC)
+    }
+
+    public List<Barcode> getBarcodes() {
+        // Load all barcodes based on sku.
+        def barcodesOnPackId = Barcode.findAllByPackAndRetailerIdAndEffectiveDateLessThanEquals(
+                load(id), springSecurityService.principal.retailerId, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])
+
+        // Declare list to populate displaying barcodes.
+        def barcodesToShow = new ArrayList<Barcode>()
+
+        // Sort the list by id in descending order in case if barcode deleted in same date as created list might not be in
+        def sortedBarcodes = barcodesOnPackId.stream()
+                .sorted((b1, b2) -> {
+                    int compareEffectiveDate = b2.getEffectiveDate().compareTo(b1.getEffectiveDate())
+                    if (compareEffectiveDate != 0) {
+                        return compareEffectiveDate
+                    }
+                    return b2.getId().compareTo(b1.getId())
+                })
+                .collect(Collectors.toList())
+
+        // Group by barcode, ensuring each group is sorted by id in descending order
+        // Collect into linkedHashMap to ensure the map maintains insertion order
+        def groupedByBarcodeValue = sortedBarcodes.stream().collect(Collectors.groupingBy({it.barcode},
+                {-> new LinkedHashMap<>()}, Collectors.toList()))
+
+        // They're already sorted in effective date, so if the first is valid then display it, if not then it's deleted and shouldn't be displayed.
+        groupedByBarcodeValue?.each {
+            if (it.value?.first()?.recordStatus == ('C' as char)) {
+                barcodesToShow.add(it.value?.first())
+            }
+        }
+
+        return barcodesToShow
+    }
+
+    public List<Barcode> getAllBarcodes() {
+        return Barcode.findAllByPackAndRetailerId(load(id), springSecurityService.principal.retailerId)
     }
 }

@@ -3,7 +3,7 @@
 <g:hiddenField name="addVariantBarcodes[${index}].recordStatus" value="${barcode?.recordStatus ?: 'C'}" />
 
 <g:textField name="addVariantBarcodes[${index}].barcode" value="${barcode?.barcode}" class="form-control bottom-border" onkeyup="toggleDisable(${index})"/>
-<a href="#" id="barcode-disable-btn-${index}" onclick="event.stopPropagation(); deleteBarcode(${index});" class="input-group-append btn btn-danger">Delete Barcode</a>
+<a href="#" id="barcode-disable-btn-${index}" onclick="event.stopPropagation(); deleteBarcode(${index}, '${selector}');" class="input-group-append btn btn-danger">Delete Barcode</a>
 
 <script>
     $(toggleDisable(${index}));
