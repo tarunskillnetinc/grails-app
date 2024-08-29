@@ -156,14 +156,6 @@
     </div>
 </section>
 
-%{--<g:hasErrors bean="${retailer}">--}%
-%{--    <section id="errors-container" class="container-fluid">--}%
-%{--        <div class="alert alert-danger alert-wl mx-0" role="alert">--}%
-%{--            <g:renderErrors bean="${retailer}" as="list"/>--}%
-%{--        </div>--}%
-%{--    </section>--}%
-%{--</g:hasErrors>--}%
-
 <g:if test="${flash.error}">
     <section id="errors-container2" class="container-fluid">
         <div class="alert alert-danger alert-wl mx-0" role="alert">
@@ -244,7 +236,7 @@
                             <div class="form-group row">
                                 <label for="rollingFloatValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Rolling Float Value</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="rollingFloatValue" id="rollingFloatValue" value="${config?.rollingFloatValue}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="rollingFloatValue" id="rollingFloatValue" value="${config?.rollingFloatValue}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
                                 </div>
                             </div>
 
@@ -252,25 +244,25 @@
                             <div class="form-group row">
                                 <label for="tillShiftRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${config?.tillShiftRecountLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="tillShiftVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftVarianceLimit" id="tillShiftVarianceLimit" value="${config?.tillShiftVarianceLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftVarianceLimit" id="tillShiftVarianceLimit" value="${config?.tillShiftVarianceLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${config?.tillShiftRecountLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeVarianceLimit" id="safeVarianceLimit" value="${config?.safeVarianceLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeVarianceLimit" id="safeVarianceLimit" value="${config?.safeVarianceLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -312,7 +304,7 @@
                             <div class="form-group row">
                                 <label for="tillCashHoldingLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Cash Holding Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillCashHoldingLimit" id="tillCashHoldingLimit" value="${config?.tillsCashHoldingLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillCashHoldingLimit" id="tillCashHoldingLimit" value="${config?.tillsCashHoldingLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
                                 </div>
                             </div>
                         </div>
