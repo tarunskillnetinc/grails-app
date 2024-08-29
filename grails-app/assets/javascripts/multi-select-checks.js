@@ -17,7 +17,7 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
     items.forEach(item => {
         const itemElement = document.createElement('div');
         itemElement.classList.add('dropdown-item');
-        itemElement.innerHTML = `<input type="checkbox" class="item-checkbox" value="${item}"> ${item}`;
+        itemElement.innerHTML = `<input type="checkbox" class="item-checkbox" value="${items.indexOf(item) + 1}"> ${item}`;
         itemsContainer.appendChild(itemElement);
     });
 
@@ -37,13 +37,15 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
 
     function updateSelectedItems() {
         const selectedItems = [];
+        const selectedItemsDisplay = [];
         checkboxes.forEach(checkbox => {
             if (checkbox.checked) {
                 selectedItems.push(checkbox.value);
+                selectedItemsDisplay.push(items[parseInt(checkbox.value)])
             }
         });
-        display.querySelector('span:first-child').textContent = selectedItems.join(', ') || placeholder;
-        hiddenInput.value = selectedItems.join(','); // Update hidden input value
+        display.querySelector('span:first-child').textContent = selectedItemsDisplay.join(', ') || placeholder;
+        hiddenInput.value = selectedItems.join(''); // Update hidden input value
     }
 
     document.addEventListener('click', function(event) {
@@ -51,4 +53,15 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
             itemsContainer.classList.remove('show');
         }
     });
+
+    if ($(hiddenInput).val() !== "") {
+        const selectedItems = $(hiddenInput).val().split("")
+        const selectedItemsDisplay = [];
+        selectedItems.forEach(day => {
+            selectedItemsDisplay.push(items[parseInt(day)])
+            checkboxes[parseInt(day) - 1].checked = true
+        });
+        display.querySelector('span:first-child').textContent = selectedItemsDisplay.join(', ') || placeholder;;
+    }
+
 }

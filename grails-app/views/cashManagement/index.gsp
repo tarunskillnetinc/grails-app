@@ -84,27 +84,27 @@
 %{--    </section>--}%
 %{--</g:hasErrors>--}%
 
-%{--<g:if test="${flash.error}">--}%
-%{--    <section id="errors-container2" class="container-fluid">--}%
-%{--        <div class="alert alert-danger alert-wl mx-0" role="alert">--}%
-%{--            <ul>--}%
-%{--                <g:each in="${flash.error}" var="error" status="i">--}%
-%{--                    <li>${error}</li>--}%
-%{--                </g:each>--}%
-%{--            </ul>--}%
-%{--        </div>--}%
-%{--    </section>--}%
-%{--</g:if>--}%
+<g:if test="${flash.error}">
+    <section id="errors-container2" class="container-fluid">
+        <div class="alert alert-danger alert-wl mx-0" role="alert">
+            <ul>
+                <g:each in="${flash.error}" var="error" status="i">
+                    <li>${error}</li>
+                </g:each>
+            </ul>
+        </div>
+    </section>
+</g:if>
 
-%{--<g:if test="${flash.message}">--}%
-%{--    <section id="errors-container2" class="container-fluid">--}%
-%{--        <div class="alert alert-success alert-wl mx-0" role="alert">--}%
-%{--            <g:each in="${flash.message}" var="message" status="i">--}%
-%{--                ${message}<br/>--}%
-%{--            </g:each>--}%
-%{--        </div>--}%
-%{--    </section>--}%
-%{--</g:if>--}%
+<g:if test="${flash.message}">
+    <section id="errors-container2" class="container-fluid">
+        <div class="alert alert-success alert-wl mx-0" role="alert">
+            <g:each in="${flash.message}" var="message" status="i">
+                ${message}<br/>
+            </g:each>
+        </div>
+    </section>
+</g:if>
 
 
 <section id="addProduct-section" class="container-fluid mt-4">
@@ -130,19 +130,19 @@
                             <div class="form-group row">
                                 <label for="isManualOpen" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Manual Open</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualOpen" id="isManualOpen" ${cashManagement?.config?.isManualOpen ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualOpen" id="isManualOpen" ${config?.tillShiftsManualOpen ? 'checked' : ''} />
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="isManualClose" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Manual Close</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualClose" id="isManualClose" ${cashManagement?.config?.isManualClose ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualClose" id="isManualClose" ${config?.tillShiftsManualClose ? 'checked' : ''} />
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="automaticCloseDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Automatic Close Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="hidden" id="automaticCloseDays" name="automaticCloseDays"/>
+                                    <input type="hidden" id="automaticCloseDays" name="automaticCloseDays" value="${config?.automaticCloseDaysFormatted ? config?.automaticCloseDaysFormatted : ''}"/>
                                     <div id="automaticCloseDaysSelector"></div>
                                 </div>
                             </div>
@@ -150,7 +150,7 @@
                             <div class="form-group row">
                                 <label for="automaticCloseTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Automatic Close Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="automaticCloseTime" id="automaticCloseTime" value="${cashManagement?.config?.automaticCloseTime}" placeholder="HH:MM"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="automaticCloseTime" id="automaticCloseTime" value="${config?.tillShiftsAutoCloseTime}" placeholder="HH:MM"/>
                                 </div>
                             </div>
 
@@ -158,13 +158,13 @@
                             <div class="form-group row">
                                 <label for="isRollingFloatEnable" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Rolling Float Enable</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isRollingFloatEnable" id="isRollingFloatEnable" ${cashManagement?.config?.isRollingFloatEnable ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isRollingFloatEnable" id="isRollingFloatEnable" ${config?.rollingFloatEnabled ? 'checked' : ''} />
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="rollingFloatValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Rolling Float Value</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="rollingFloatValue" id="rollingFloatValue" step="0.01" value="${cashManagement?.config?.rollingFloatValue}" placeholder="0.00"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="rollingFloatValue" id="rollingFloatValue" value="${config?.rollingFloatValue}" placeholder="0.00"/>
                                 </div>
                             </div>
 
@@ -172,31 +172,31 @@
                             <div class="form-group row">
                                 <label for="tillShiftRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${cashManagement?.config?.tillShiftRecountLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${config?.tillShiftRecountLimit}"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="tillShiftVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftVarianceLimit" id="tillShiftVarianceLimit" value="${cashManagement?.config?.tillShiftVarianceLimit}" step="0.01" placeholder="0.00"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftVarianceLimit" id="tillShiftVarianceLimit" value="${config?.tillShiftVarianceLimit}" step="0.01" placeholder="0.00"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${cashManagement?.config?.safeRecountLimit}"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${config?.tillShiftRecountLimit}"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeVarianceLimit" id="safeVarianceLimit" value="${cashManagement?.config?.safeVarianceLimit}" step="0.01" placeholder="0.00"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeVarianceLimit" id="safeVarianceLimit" value="${config?.safeVarianceLimit}"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="isOpenShiftWithoutFloat" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Open Shift Without Float</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isOpenShiftWithoutFloat" id="isOpenShiftWithoutFloat" ${cashManagement?.config?.isOpenShiftWithoutFloat ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isOpenShiftWithoutFloat" id="isOpenShiftWithoutFloat" ${config?.openShiftWithoutFloat ? 'checked' : ''} />
                                 </div>
                             </div>
 
@@ -204,27 +204,27 @@
                             <div class="form-group row">
                                 <label for="tillAutoSnapshotDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Auto Snapshot Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays"/>
+                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays" value="${config?.tillAutoSnapshotDaysFormatted}"/>
                                     <div id="tillAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="tillAutoSnapshotTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Auto Snapshot Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${cashManagement?.config?.tillAutoSnapshotTime}" placeholder="HH:MM"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${config?.tillAutoSnapshotTime}" placeholder="HH:MM"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeAutoSnapshotDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Auto Snapshot Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays"/>
+                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays" value="${config?.safeAutoSnapshotDaysFormatted}"/>
                                     <div id="safeAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeAutoSnapshotTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Auto Snapshot Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${cashManagement?.config?.safeAutoSnapshotTime}" placeholder="HH:MM"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${config?.safeAutoSnapshotTime}" placeholder="HH:MM"/>
                                 </div>
                             </div>
 
@@ -232,7 +232,7 @@
                             <div class="form-group row">
                                 <label for="tillCashHoldingLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Cash Holding Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillCashHoldingLimit" id="tillCashHoldingLimit" value="${cashManagement?.config?.tillCashHoldingLimit}" step="0.01" placeholder="0.00"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillCashHoldingLimit" id="tillCashHoldingLimit" value="${config?.tillsCashHoldingLimit}"/>
                                 </div>
                             </div>
                         </div>

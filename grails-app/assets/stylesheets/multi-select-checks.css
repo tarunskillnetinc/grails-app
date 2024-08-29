@@ -15,6 +15,9 @@
     cursor: pointer;
     background-color: #fff;
 }
+.multiselect-display span{
+    font-size: small;
+}
 .dropdown-arrow {
     margin-left: 10px;
 }
