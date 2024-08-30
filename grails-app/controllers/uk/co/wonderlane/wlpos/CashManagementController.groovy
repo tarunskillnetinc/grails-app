@@ -3,12 +3,8 @@ package uk.co.wonderlane.wlpos
 import com.google.gson.GsonBuilder
 import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
-import org.joda.time.LocalTime
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
-import uk.co.wonderlane.wlpos.utils.DateTimeUtils
-
-import java.util.regex.Pattern
 
 class CashManagementController {
 
