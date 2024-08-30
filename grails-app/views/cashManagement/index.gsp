@@ -178,7 +178,7 @@
         </div>
 
         <div class="col-2 text-right">
-            <g:link elementId="cancel-btn" controller="retailer" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+            <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
             <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
         </div>
     </div>
