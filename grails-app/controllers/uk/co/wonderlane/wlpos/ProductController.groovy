@@ -787,7 +787,7 @@ class ProductController extends BaseController {
         return productVariantList
     }
 
-    private static DateTime getEffectiveDate(def effectiveDate) {
+    private DateTime getEffectiveDate(def effectiveDate) {
         try {
             if (effectiveDate) {
                 DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
