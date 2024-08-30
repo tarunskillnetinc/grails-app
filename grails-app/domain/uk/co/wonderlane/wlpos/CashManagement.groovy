@@ -25,8 +25,8 @@ class CashManagement implements Serializable {
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
-        storeId column: "`storeId`", sqlType: "smallint"
-        config column: "`config`", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        storeId column: "storeId", sqlType: "smallint"
+        config column: "config", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
     }
 
 
