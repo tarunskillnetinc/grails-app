@@ -72,10 +72,6 @@ class ProductListController {
             productList.userId = springSecurityService.principal.id
             productList.retailerId = springSecurityService.principal.retailerId
 
-            if (productList.startDate == productList.endDate) {
-                productList.endDate = productList.endDate.plusDays(1)
-            }
-
             productList.setEndDate(productList.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
 
             if (cmd.productVariantId) {
