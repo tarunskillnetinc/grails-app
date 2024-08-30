@@ -9,6 +9,7 @@
     <asset:javascript src="validators/input-validator.js" />
     <asset:javascript src="popper.min.js" />
     <asset:javascript src="multi-select-checks.js" />
+    <asset:javascript src="money-mask.js" />
 
     <script type='text/javascript'>
 
@@ -45,6 +46,31 @@
             validateTimeInputs('automaticCloseTime');
             validateTimeInputs('tillAutoSnapshotTime');
             validateTimeInputs('safeAutoSnapshotTime');
+
+
+            $('.mask-money').maskMoney({
+                prefix: '',
+                allowNegative: false,
+                thousands: ',',
+                decimal: '.',
+                affixesStay: true,
+                precision: 2
+            });
+
+            $('.mask-money').on('keydown', function(e) {
+                // Allow navigation keys, backspace, delete, tab, enter keys
+                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight']) !== -1) {
+                    return;
+                }
+
+                var currentValue = $(this).val();
+                currentValue = currentValue.replace(",", "").replace(".","") + e.key
+
+                if (parseFloat(currentValue) > 150000) {
+                    e.preventDefault();
+                }
+            });
+
         });
 
         function validateTimeInputs(inputId) {
@@ -122,6 +148,8 @@
             });
 
         }
+
+
     </script>
     <style>
         h5 {
@@ -236,7 +264,7 @@
                             <div class="form-group row">
                                 <label for="rollingFloatValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Rolling Float Value</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="rollingFloatValue" id="rollingFloatValue" value="${config?.rollingFloatValue}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                                    <g:render template="priceView" model='[inputId:"rollingFloatValue", inputName:"rollingFloatValue", fieldValue:config?.rollingFloatValue]'/>
                                 </div>
                             </div>
 
@@ -244,25 +272,25 @@
                             <div class="form-group row">
                                 <label for="tillShiftRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="tillShiftVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftVarianceLimit" id="tillShiftVarianceLimit" value="${config?.tillShiftVarianceLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                                    <g:render template="priceView" model='[inputId:"tillShiftVarianceLimit", inputName:"tillShiftVarianceLimit", fieldValue:config?.tillShiftVarianceLimit]'/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeVarianceLimit" id="safeVarianceLimit" value="${config?.safeVarianceLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                                    <g:render template="priceView" model='[inputId:"safeVarianceLimit", inputName:"safeVarianceLimit", fieldValue:config?.safeVarianceLimit]'/>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -304,7 +332,7 @@
                             <div class="form-group row">
                                 <label for="tillCashHoldingLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Cash Holding Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillCashHoldingLimit" id="tillCashHoldingLimit" value="${config?.tillsCashHoldingLimit}" oninput="validateInput(this);" onkeydown="acceptNumeric(event);"/>
+                                    <g:render template="priceView" model='[inputId:"tillCashHoldingLimit", inputName:"tillCashHoldingLimit", fieldValue:config?.tillsCashHoldingLimit]'/>
                                 </div>
                             </div>
                         </div>

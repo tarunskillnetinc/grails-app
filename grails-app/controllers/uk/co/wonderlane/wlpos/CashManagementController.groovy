@@ -21,11 +21,14 @@ class CashManagementController {
     def index() {
         CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                 springSecurityService.principal.storeId)
-        CashManagementConfigViewAdapter cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),
-                CashManagementConfigViewAdapter.class)
-        cashManagementConfigViewAdapter.setTillAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getTillAutoSnapshotDays())
-        cashManagementConfigViewAdapter.setSafeAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getSafeAutoSnapshotDays())
-        cashManagementConfigViewAdapter.setTillShiftsAutoCloseDaysFormat(cashManagementConfigViewAdapter.getTillShiftsAutoCloseDays())
+        CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null;
+        if (cashManagement != null) {
+            cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),
+                    CashManagementConfigViewAdapter.class)
+            cashManagementConfigViewAdapter.setTillAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getTillAutoSnapshotDays())
+            cashManagementConfigViewAdapter.setSafeAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getSafeAutoSnapshotDays())
+            cashManagementConfigViewAdapter.setTillShiftsAutoCloseDaysFormat(cashManagementConfigViewAdapter.getTillShiftsAutoCloseDays())
+        }
         [config: cashManagementConfigViewAdapter]
     }
 
@@ -46,17 +49,17 @@ class CashManagementFormData implements Validateable {
     String automaticCloseDays
     String automaticCloseTime
     Boolean isRollingFloatEnable
-    Integer rollingFloatValue
+    Double rollingFloatValue
     Integer tillShiftRecountLimit
-    Integer tillShiftVarianceLimit
+    Double tillShiftVarianceLimit
     Integer safeRecountLimit
-    Integer safeVarianceLimit
+    Double safeVarianceLimit
     Boolean isOpenShiftWithoutFloat
     String tillAutoSnapshotDays
     String tillAutoSnapshotTime
     String safeAutoSnapshotDays
     String safeAutoSnapshotTime
-    Integer tillCashHoldingLimit
+    Double tillCashHoldingLimit
 
     public CashManagementConfig toConfig() {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
@@ -65,12 +68,12 @@ class CashManagementFormData implements Validateable {
         cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null ? automaticCloseDays: "1234567").toCharArray())
         cashManagementConfig.setTillShiftsAutoCloseTime(automaticCloseTime != null ? automaticCloseTime : "22:00")
         cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnable != null ? isRollingFloatEnable : false)
-        cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue : 0)
-        cashManagementConfig.setTillsCashHoldingLimit(tillCashHoldingLimit != null ? tillCashHoldingLimit : 150000)
-        cashManagementConfig.setTillShiftVarianceLimit(tillShiftVarianceLimit != null ? tillShiftVarianceLimit : 500)
-        cashManagementConfig.setTillShiftRecountLimit(tillShiftRecountLimit != null ? tillShiftRecountLimit : 3)
-        cashManagementConfig.setSafeRecountLimit(safeRecountLimit != null ? safeRecountLimit : 3)
-        cashManagementConfig.setSafeVarianceLimit(safeVarianceLimit != null ? safeVarianceLimit : 500)
+        cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue*100 as int : 0)
+        cashManagementConfig.setTillsCashHoldingLimit(tillCashHoldingLimit != null && tillCashHoldingLimit != 0 ? tillCashHoldingLimit * 100 as int : 150000)
+        cashManagementConfig.setTillShiftVarianceLimit(tillShiftVarianceLimit != null && tillShiftVarianceLimit != 0 ? tillShiftVarianceLimit * 100 as int: 500)
+        cashManagementConfig.setTillShiftRecountLimit(tillShiftRecountLimit != null && tillShiftRecountLimit != 0 ? tillShiftRecountLimit : 3)
+        cashManagementConfig.setSafeRecountLimit(safeRecountLimit != null && safeRecountLimit != 0 ? safeRecountLimit : 3)
+        cashManagementConfig.setSafeVarianceLimit(safeVarianceLimit != null && safeVarianceLimit != 0 ? safeVarianceLimit * 100 as int : 500)
         cashManagementConfig.setOpenShiftWithoutFloat(isOpenShiftWithoutFloat != null ? isOpenShiftWithoutFloat : true)
         cashManagementConfig.setTillAutoSnapshotDays((tillAutoSnapshotDays != null ? tillAutoSnapshotDays : "1234567").toCharArray())
         cashManagementConfig.setTillAutoSnapshotTime(tillAutoSnapshotTime != null ? tillAutoSnapshotTime : "22:00")
