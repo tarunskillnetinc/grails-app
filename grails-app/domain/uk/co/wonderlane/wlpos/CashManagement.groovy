@@ -1,10 +1,8 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.GsonBuilder
-import org.joda.time.LocalTime
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
-import uk.co.wonderlane.wlpos.usertypes.LocalTimeHHmmSerializer
 
 class CashManagement implements Serializable {
     int id
