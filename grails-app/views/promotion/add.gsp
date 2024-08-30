@@ -58,7 +58,14 @@
 
                 enableOrDisablePromotionGroupButtons("required");
                 enableOrDisablePromotionGroupButtons("offer");
+
+                viewOptionForLoyaltyEnable()
+
             });
+
+            function viewOptionForLoyaltyEnable(){
+                $("#loyalty").attr("disabled", !${loyaltyEnable});
+            }
 
             function resetTempSelectedStoreIds() {
                 tempSelectedStoreIds = []
