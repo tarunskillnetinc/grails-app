@@ -15,7 +15,6 @@ class CashManagementController {
             .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
             .create()
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                 springSecurityService.principal.storeId)
@@ -30,7 +29,6 @@ class CashManagementController {
         [config: cashManagementConfigViewAdapter]
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def save(CashManagementFormData cashManagementFormData) {
         def errorMessages = []
 
