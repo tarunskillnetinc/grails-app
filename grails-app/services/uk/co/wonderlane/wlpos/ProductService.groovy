@@ -137,7 +137,7 @@ class ProductService extends MySqlDal {
                     barcode.save()
                 }
             }
-            variant.packs.each {pack ->
+            variant.packs.each { pack ->
                 pack.barcodez.each { barcode ->
                     if (barcode.hasProperty('delete') && barcode.delete) {
                         Barcode deletedBarcode = new Barcode()
@@ -176,7 +176,7 @@ class ProductService extends MySqlDal {
                     def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == location.id }
                     if (existingLocation && existingLocation.id > 0) {
                         updateLocation(existingLocation, location, location.sku)
-                    } else{
+                    } else {
                         location.save()
                     }
                 }
@@ -184,13 +184,11 @@ class ProductService extends MySqlDal {
         }
     }
 
-    boolean isLocationValid(Product product, ProductCommand editedProduct){
-        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
-        List selectedHierarchy = new ArrayList()
+    boolean isLocationValid(Product product) {
         def isValid = true
 
-        for (ProductVariant pv : product?.variants){
-            for (Location location : pv.locationz){
+        for (ProductVariant pv : product?.variants) {
+            for (Location location : pv.locationz) {
                 if (!location.validate()) {
                     product.errors.reject('product.location.validation.error', [String.valueOf(pv.sku)] as Object[],
                             'product.location.validation.error.default')
@@ -215,8 +213,8 @@ class ProductService extends MySqlDal {
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (!productPrice.validate()) {
-                    if (productPrice.price.compareTo(BigDecimal.ZERO) <= 0 || productPrice.price.compareTo(BigDecimal.valueOf(99999.99)) >= 0){
-                        product.errors.reject('productPrice.price.range.error', ['0.01', '99,999.99', String.valueOf(productPrice.price)] as Object[] ,
+                    if (productPrice.price.compareTo(BigDecimal.ZERO) <= 0 || productPrice.price.compareTo(BigDecimal.valueOf(99999.99)) >= 0) {
+                        product.errors.reject('productPrice.price.range.error', ['0.01', '99,999.99', String.valueOf(productPrice.price)] as Object[],
                                 'productPrice.price.range.default.error')
                     }
 
@@ -383,10 +381,8 @@ class ProductService extends MySqlDal {
             def barcodes = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)
 
             //Group barcodes to map of sku --> {1 : [111(C) , 111 (D), 1114(C) ,1115(C), 1117(C)], 2:[1119(C)]}
-            def skuMap = barcodes?.findAll{it.sku != null}?.groupBy { it.sku }
-
-            def packMap = barcodes?.findAll{it.pack != null}?.groupBy { it.pack }
-
+            def skuMap = barcodes?.findAll { it.sku != null }?.groupBy { it.sku }
+            def packMap = barcodes?.findAll { it.pack != null }?.groupBy { it.pack.id }
 
             findActiveBarcodes(skuMap, validBarcodeSkus)
             findActiveBarcodes(packMap, validBarcodePacks)
@@ -477,10 +473,8 @@ class ProductService extends MySqlDal {
         } else if (searchBy == "barcode") {
             queryParams.barcodeSkus = barcodeSkus
             queryParams.barcodePacks = barcodePacks
-            queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.barcodeSkus = barcodeSkus
             countQueryParams.barcodePacks = barcodePacks
-            countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
                                      OR pk.id IN (:barcodePacks)) """
@@ -748,11 +742,13 @@ class ProductService extends MySqlDal {
         if (product.isZeroPrice()) {
             return product.getVariants() // already retrieved using a store id so is fine to return the whole list
         }
-        return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
-                && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
+        return product.variants.findAll {
+            (it.storeId == null || it.storeId == storeId)
+                    && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO
+        }
     }
 
-    public Location deepCopyExistingLocation(Location existingLocation){
+    Location deepCopyExistingLocation(Location existingLocation) {
         Location newLocation = new Location()
         newLocation.id = existingLocation.id
         newLocation.storeId = existingLocation.storeId
@@ -790,7 +786,7 @@ class ProductService extends MySqlDal {
         locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }
 
-    private uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
+    private static uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
         uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
 
         productVariant.setId(resultSet.getInt("id"))
@@ -810,17 +806,17 @@ class ProductService extends MySqlDal {
 
         productVariant.setSize(resultSet.getString("size"))
         if (resultSet.wasNull()) {
-            productVariant.setSize(null);
+            productVariant.setSize(null)
         }
 
         productVariant.setColour(resultSet.getString("colour"))
         if (resultSet.wasNull()) {
-            productVariant.setColour(null);
+            productVariant.setColour(null)
         }
         productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
         productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
 
-        return productVariant;
+        return productVariant
     }
 }

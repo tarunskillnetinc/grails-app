@@ -411,11 +411,7 @@ class ProductController extends BaseController {
         boolean changeAffectsSel = false
         boolean duplicateItemCode = false
 
-        if (isRequest ? paramsMap.id && Integer.parseInt(paramsMap.id) > 0 : editedProduct.id && editedProduct.id > 0) {
-            newProduct = false
-        } else {
-            newProduct = true
-        }
+        newProduct = !(isRequest ? paramsMap.id && Integer.parseInt(paramsMap.id) > 0 : editedProduct.id && editedProduct.id > 0)
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
         List<ProductVariant> productVariantsList = new ArrayList<>()
@@ -542,7 +538,7 @@ class ProductController extends BaseController {
             product.errors.reject('error.Product.badEffectiveDate')
         }
 
-        if (!product.hasErrors() && product.validate() && productService.isLocationValid(product, editedProduct)) {
+        if (!product.hasErrors() && product.validate() && productService.isLocationValid(product)) {
             // Restrictions are validated as part of product.validate()
             restrictionsService.saveRestrictions(product.restrictions)
 
@@ -784,14 +780,14 @@ class ProductController extends BaseController {
                         }
                 })
 
-                productVariantList.add(newVariant);
+                productVariantList.add(newVariant)
             }
         }
 
-        return productVariantList;
+        return productVariantList
     }
 
-    private DateTime getEffectiveDate(def effectiveDate) {
+    private static DateTime getEffectiveDate(def effectiveDate) {
         try {
             if (effectiveDate) {
                 DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZone(DateTimeZone.UTC)
@@ -977,7 +973,7 @@ class ProductController extends BaseController {
                     newBarcode.barcode = barcode.barcode
                     newBarcode.recordStatus = 'C'
                     newPack.barcodez.add(newBarcode)
-                };
+                }
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
                 checkPackForBarcodeChanges(product, newPack, editedPack, effectiveDate)
@@ -1025,7 +1021,7 @@ class ProductController extends BaseController {
             }
         }
 
-        ArrayList<Location> deleteLocations = new ArrayList<>();
+        ArrayList<Location> deleteLocations = new ArrayList<>()
         // Remove any locations which no longer exist.
         variantLocations?.each { existingLocation ->
             // If the ID is not set then this must be a new location added as part of this save, so don't remove it!
@@ -1151,7 +1147,7 @@ class ProductController extends BaseController {
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
-        List<String> deletedBarcodes = new ArrayList<>();
+        List<String> deletedBarcodes = new ArrayList<>()
         editedProduct.variants.stream().filter({ variant -> variant != null }).forEach({ variant ->
             product.variants.stream().filter({ v -> v.id == variant.id }).findAny().ifPresentOrElse({ oldVariant ->
                 if (variant.delete) {
@@ -1164,7 +1160,7 @@ class ProductController extends BaseController {
             })
         })
 
-        product?.variants?.stream().filter({ v -> v.effectiveDate == editedProduct.effectiveDate }).each { existingVariants ->
+        product?.variants?.stream()?.filter({ v -> v.effectiveDate == editedProduct.effectiveDate })?.each { existingVariants ->
             def editedVariant = editedProduct?.variants?.find { editedVariant -> editedVariant.id == existingVariants.id }
             if (!editedVariant) {
                 // Variant deleted
@@ -1222,7 +1218,7 @@ class ProductController extends BaseController {
 
             if (!editedBarcode && !deletedBarcodes.contains(existingBarcode.barcode)) {
                 //if edited barcode not exists means old barcode has been deleted
-                deletedBarcodes.add(existingBarcode.barcode);
+                deletedBarcodes.add(existingBarcode.barcode)
                 builder.compare("barcode", existingBarcode.barcode, null)
             }
         }
@@ -1555,7 +1551,7 @@ class ProductController extends BaseController {
         render(view: "/product/_productHistory", model: [productHistoryMap: productHistoryMap])
     }
 
-    private boolean checkChangeAffectsSel(boolean changeAffectsSel, Object left, Object right) {
+    private static boolean checkChangeAffectsSel(boolean changeAffectsSel, Object left, Object right) {
         if (changeAffectsSel) {
             return true
         }
@@ -1565,7 +1561,7 @@ class ProductController extends BaseController {
         return true
     }
 
-    private boolean isRestrictionsChanged(RestrictionsCommand first, Restrictions second) {
+    private static boolean isRestrictionsChanged(RestrictionsCommand first, Restrictions second) {
         return first.minOpenPrice != second.minOpenPrice ||
                 first.maxOpenPrice != second.maxOpenPrice ||
                 first.buyerIdRequired != second.buyerIdRequired ||
@@ -1582,7 +1578,7 @@ class ProductController extends BaseController {
                 first.receiptPrintForced != second.receiptPrintForced
     }
 
-    private void copyRestrictions(RestrictionsCommand from, Restrictions to) {
+    private static void copyRestrictions(RestrictionsCommand from, Restrictions to) {
         to.minOpenPrice = from.minOpenPrice
         to.maxOpenPrice = from.maxOpenPrice
         to.buyerIdRequired = from.buyerIdRequired
@@ -1624,8 +1620,8 @@ class ProductController extends BaseController {
     }
 
     private void copyProductVariants(ProductCommand from, Product to) {
-        List<ProductVariant> variants = new ArrayList<>();
-        Map<Long, ProductVariant> existingVariants = new HashMap<>();
+        List<ProductVariant> variants = new ArrayList<>()
+        Map<Long, ProductVariant> existingVariants = new HashMap<>()
 
         if (to.variants && !to.variants.isEmpty()) {
             to.variants.forEach({ variant ->
@@ -1650,8 +1646,8 @@ class ProductController extends BaseController {
             productVariant.minimumDisplayQuantity = variant.minimumDisplayQuantity
             productVariant.setProduct(to)
 
-            List<Barcode> barcodes = new ArrayList<>();
-            Map<String, Barcode> existingBarcodes = new HashMap<>();
+            List<Barcode> barcodes = new ArrayList<>()
+            Map<String, Barcode> existingBarcodes = new HashMap<>()
             if (productVariant.barcodez && !productVariant.barcodez.isEmpty()) {
                 productVariant.barcodez.forEach({ barcode ->
                     existingBarcodes.put(barcode.barcode, barcode)
@@ -2087,7 +2083,7 @@ class CSVUploadProduct {
     String zeroPrice
 
     ProductCommand getProduct(Integer retailerId, DateTime effectiveDate) {
-        ProductCommand productCommand = new ProductCommand();
+        ProductCommand productCommand = new ProductCommand()
         productCommand.setId(this.id)
         productCommand.setItemCode(this.pluItemCode)
         productCommand.setDescription(this.productDescription)
@@ -2106,7 +2102,7 @@ class CSVUploadProduct {
             productCommand.setVatPercentageOverride(new BigDecimal(this.getVatOverride()))
         }
 
-        Restrictions categoryRestrictions = category.restrictions;
+        Restrictions categoryRestrictions = category.restrictions
         RestrictionsCommand restrictionsCommand = new RestrictionsCommand()
         InvokerHelper.setProperties(restrictionsCommand, categoryRestrictions.properties)
         productCommand.setRestrictions(restrictionsCommand)
@@ -2137,7 +2133,7 @@ class CSVUploadProduct {
 
         productCommand.setVariants(new ArrayList<>(List.of(productVariantCommand)))
 
-        String priceBands = this.getPriceBands();
+        String priceBands = this.getPriceBands()
         String[] bands = priceBands != null ? priceBands.split("\\|") : []
         List<PriceChangeCommand> priceChanges = new ArrayList<>()
         for (String band : bands) {
