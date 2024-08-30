@@ -8,6 +8,8 @@ import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
 import uk.co.wonderlane.wlpos.utils.DateTimeUtils
 
+import java.util.regex.Pattern
+
 class CashManagementController {
 
     def springSecurityService
@@ -34,10 +36,51 @@ class CashManagementController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def save(CashManagementFormData cashManagementFormData) {
-        cashManagementService.saveCashManagement(cashManagementFormData.toConfig())
+        def errorMessages = []
 
-        flash.message = ["Cash Management saved successfully."]
-        redirect(action: "index")
+        def patternDays = /^(1?2?3?4?5?6?7?)$/
+        def patternTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/
+
+        if (cashManagementFormData.automaticCloseDays != null && !(cashManagementFormData.automaticCloseDays ==~ patternDays)) {
+            errorMessages << "Automatic close days format incorrect."
+        }
+        if (cashManagementFormData.automaticCloseTime != null && !(cashManagementFormData.automaticCloseTime ==~ patternTime)) {
+            errorMessages << "Automatic close time format incorrect."
+        }
+        if (cashManagementFormData.rollingFloatValue != null &&  cashManagementFormData.rollingFloatValue > 1500.00) {
+            errorMessages << "Rolling float value cannot be exceeded 1500.00"
+        }
+        if (cashManagementFormData.tillShiftVarianceLimit != null &&  cashManagementFormData.tillShiftVarianceLimit > 1500.00) {
+            errorMessages << "Till shift variance limit cannot be exceeded 1500.00"
+        }
+        if (cashManagementFormData.safeVarianceLimit != null &&  cashManagementFormData.safeVarianceLimit > 1500.00) {
+            errorMessages << "Safe variance limit cannot be exceeded 1500.00"
+        }
+        if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
+            errorMessages << "Till auto snapshot days format incorrect."
+        }
+        if (cashManagementFormData.tillAutoSnapshotTime != null && !(cashManagementFormData.tillAutoSnapshotTime ==~ patternTime)) {
+            errorMessages << "Till auto snapshot time format incorrect."
+        }
+        if (cashManagementFormData.safeAutoSnapshotDays != null && !(cashManagementFormData.safeAutoSnapshotDays ==~ patternDays)) {
+            errorMessages << "Safe auto snapshot days format incorrect."
+        }
+        if (cashManagementFormData.safeAutoSnapshotTime != null && !(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
+            errorMessages << "Safe auto snapshot time format incorrect."
+        }
+        if (cashManagementFormData.tillCashHoldingLimit != null &&  cashManagementFormData.tillCashHoldingLimit > 1500.00) {
+            errorMessages << "Till cash holding limit cannot be exceeded 1500.00"
+        }
+
+        if (errorMessages != null && !errorMessages.isEmpty()) {
+            flash.error = errorMessages
+            redirect(action: "index")
+        } else {
+            cashManagementService.saveCashManagement(cashManagementFormData.toConfig())
+
+            flash.message = ["Cash Management saved successfully."]
+            redirect(action: "index")
+        }
     }
 
 }
@@ -65,7 +108,7 @@ class CashManagementFormData implements Validateable {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
         cashManagementConfig.setTillShiftsManualOpen(isManualOpen != null ? isManualOpen : false)
         cashManagementConfig.setTillShiftsManualClose(isManualClose != null ? isManualClose : false)
-        cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null ? automaticCloseDays: "1234567").toCharArray())
+        cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null && !automaticCloseDays.isEmpty()? automaticCloseDays: "1234567").toCharArray())
         cashManagementConfig.setTillShiftsAutoCloseTime(automaticCloseTime != null ? automaticCloseTime : "22:00")
         cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnable != null ? isRollingFloatEnable : false)
         cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue*100 as int : 0)
