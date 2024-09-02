@@ -73,13 +73,13 @@
             <div id="addBarcodesContainer" class="col-6 mr-0">
                 <g:if test="${!variant.barcodez}">
                     <div id="addBarcode0" class="input-group py-1">
-                        <g:render template="addBarcode" model="[index: 0, barcode: null]" />
+                        <g:render template="addBarcode" model="[index: 0, barcode: null, selector: '#addBarcodesContainer']" />
                     </div>
                 </g:if>
 
                 <g:each in="${variant.barcodez}" var="barcode" status="i">
                     <div id="addBarcode${i}" class="input-group py-1">
-                        <g:render template="addBarcode" model="[index: i, barcode: barcode]" />
+                        <g:render template="addBarcode" model="[index: i, barcode: barcode,  selector: '#addBarcodesContainer']" />
                     </div>
                 </g:each>
             </div>
@@ -87,7 +87,7 @@
 
         <div class="row form-group mb-4">
             <div class="col-4 offset-4">
-                <a href="#" onclick="addBarcode();" class="btn btn-wl">Add Barcode</a>
+                <a href="#" onclick="addBarcode('#addBarcodesContainer');" class="btn btn-wl">Add Barcode</a>
             </div>
         </div>
     </g:form>
