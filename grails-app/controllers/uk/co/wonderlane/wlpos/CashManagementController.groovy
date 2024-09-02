@@ -17,7 +17,7 @@ class CashManagementController {
 
     def index() {
         CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
-                springSecurityService.principal.storeId)
+                null) //TODO: storeId is null here but this will be change with requirement of STMP-68 (store level config)
         CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null;
         if (cashManagement != null) {
             cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),

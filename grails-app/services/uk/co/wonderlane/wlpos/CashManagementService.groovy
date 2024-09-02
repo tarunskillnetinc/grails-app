@@ -34,6 +34,7 @@ class CashManagementService extends MySqlDal{
 
         try {
             cstmt.setInt(1, springSecurityService.principal.retailerId)
+            //TODO: this logic here will modified in the store level(STMP-68) but this is working for retailer level
             if (springSecurityService.principal.storeId) {
                 cstmt.setInt(2, springSecurityService.principal.storeId)
             } else {
