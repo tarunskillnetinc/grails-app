@@ -97,11 +97,15 @@ class ReportingController {
                     productUnitSize: ""
             )
 
+            groupedSale.quantity = BigDecimal.ZERO
+            groupedSale.refundQuantity = BigDecimal.ZERO
+
             salesGroup.value.each {
+                Product product = Product.findById(it?.productId)
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity -= it.quantity
+                    groupedSale.refundQuantity -= product.weightedItem ? -1 : it?.quantity.intValue()
                 } else {
-                    groupedSale.quantity += it.quantity
+                    groupedSale.quantity += product.weightedItem ? 1 : it?.quantity.intValue()
                 }
             }
 
@@ -196,15 +200,15 @@ class ReportingController {
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
-                    int initQuantity = groupedProductSale.value[0].quantity
+                    BigDecimal initQuantity = groupedProductSale.value[0].quantity
 
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
 
-                    groupedProductSale.value[0].quantity = 0
-                    groupedProductSale.value[0].refundQuantity = 0
+                    groupedProductSale.value[0].quantity = BigDecimal.ZERO
+                    groupedProductSale.value[0].refundQuantity = BigDecimal.ZERO
 
                     groupedProductSale.value.each {
                         if (it.quantity < 0) {
@@ -225,7 +229,9 @@ class ReportingController {
                             vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
                             margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
-                            productUnitSize: ""
+                            productUnitSize: "",
+                            "refundQuantity": BigDecimal.ZERO,
+                            "quantity": BigDecimal.ZERO
                     )
 
                     salesGroup.value.each {
@@ -327,7 +333,8 @@ class ReportingController {
                                                             startDate   : startDate,
                                                             endDate     : endDate,
                                                             totalResults: totalResults,
-                                                            userTimeZone: DateTimeZone.forID("Europe/London")])
+                                                            userTimeZone: DateTimeZone.forID("Europe/London"),
+                                                            isWeighted  : Product.findById(productId)?.weightedItem])
         }
     }
 
@@ -421,11 +428,15 @@ class ReportingController {
                     productUnitSize: ""
             )
 
+            groupedSale.refundQuantity = BigDecimal.ZERO
+            groupedSale.quantity = BigDecimal.ZERO
+
             salesGroup.value.each {
+                Product product = Product.findById(it?.productId)
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity -= it.quantity
+                    groupedSale.refundQuantity -= product.weightedItem ? -1 : it?.quantity.intValue()
                 } else {
-                    groupedSale.quantity += it.quantity
+                    groupedSale.quantity += product.weightedItem ? 1 : it?.quantity.intValue()
                 }
             }
 
@@ -1187,6 +1198,7 @@ class ReportingController {
         // Head office or correct store level can accept this delivery.
         if (springSecurityService.principal.storeId == null || (springSecurityService.principal.storeId == productList?.store?.id)) {
             productListService.acceptDelivery(productListId)
+            productListService.sendProductListExportRequest(productListId)
         }
 
         response.status = 200
@@ -1227,15 +1239,6 @@ class ReportingController {
         def productListItem = productListService.getProductListItem(productListItemId)
 
         def packLines = productListItem?.packLines
-
-        int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity?.multiply(BigDecimal.valueOf(it.pack?.quantity ?: 0)) ?: BigDecimal.ZERO } ?: 0
-        int totalSingles = (productListItem.quantity ?: productListItem.fillQuantity) - totalQuantityFromPacks
-
-        if (totalSingles > 0) {
-            def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
-
-            packLines.add([pack: dummyPack, quantity: totalSingles, productListItem: productListItem, totalQuantity: totalSingles, totalValue: productListItem?.productVariant?.currentPrice?.multiply(BigDecimal.valueOf(totalSingles)) ?: BigDecimal.ZERO])
-        }
 
         if (productListItem) {
             switch (sortParams.sortColumn) {
@@ -1799,12 +1802,27 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.productListItem?.productVariant?.product?.description)
             stringBuilder.append(",")
-            stringBuilder.append(it.pack?.quantity.multiply(it.quantity))
+
+            BigDecimal orderedQuantity
+            BigDecimal packQuantity
+            BigDecimal lineValue
+            if (it?.pack) {
+                // (pack line)
+                orderedQuantity = it.pack?.quantity?.multiply(it.quantity)
+                packQuantity = it.pack?.quantity
+                lineValue = it.pack?.price?.multiply(it.quantity)
+            } else {
+                // (singles line)
+                orderedQuantity = it.quantity
+                packQuantity = 1
+                lineValue = (it?.productListItem?.productVariant?.costPrice ?: BigDecimal.ZERO) * (it?.quantity ?: BigDecimal.ZERO)
+            }
+
+            stringBuilder.append(orderedQuantity)
             stringBuilder.append(",")
-            stringBuilder.append(it.pack?.quantity)
+            stringBuilder.append(packQuantity)
             stringBuilder.append(",")
-            //in reports line value represent in dollars ($)
-            stringBuilder.append("£" + (it.pack?.price?.multiply(it.quantity)))
+            stringBuilder.append("£" + lineValue)
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()

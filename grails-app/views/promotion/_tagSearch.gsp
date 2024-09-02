@@ -49,9 +49,8 @@
     }
 
     function tagSearch() {
-        var URL = "${createLink(controller: 'promotion', action: 'tagSearch')}";
+        var URL = "${createLink(controller: 'promotion', action: 'ajaxSearchTags')}";
         var searchTerm = $('#tagSearchTerm').val();
-        var searchBy = $('#tagSearchBy').val();
 
         $('#tag-search-results').html("<div class=\"d-flex justify-content-center\">\n" +
             "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -61,7 +60,7 @@
 
         $.ajax({
             url: URL,
-            data: { searchTerm: searchTerm, searchBy: searchBy },
+            data: { searchTerm: searchTerm },
             success: function(resp) {
                 $('#tag-search-results').html(resp);
                 $('#tagSearchTerm').data('prev',$('#tagSearchTerm').val())

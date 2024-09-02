@@ -45,9 +45,9 @@
     </g:if>
 
     <g:each in="${items}" var="item" status="i">
+        <g:set var="isWeighted" value="${item?.productVariant?.product?.weightedItem ?: false}"/>
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" style="cursor: pointer;" title="Click to view"
              onclick="document.location.href='${createLink(action:'deliveryPackLines', params: [productListId: item.productList.id, productListItemId: item.id, storeId: storeId, supplierId: supplierId, descriptionFilter: descriptionFilter, startDate: startDate?.toString("dd/MM/yyyy"), endDate: endDate?.toString("dd/MM/yyyy")])}';">
-
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
                 <div id="sku-${i + 1}" class="col-2 my-auto">${item?.productVariant?.sku}</div>
             </g:if>
@@ -55,7 +55,10 @@
                 <div id="description-${i + 1}" class="col-6 my-auto">${item?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemQuantity" }?.enabled}">
-                <div id="item-quantity-${i + 1}" class="col-2 my-auto">${item.quantity ?: item.fillQuantity}</div>
+                <div id="item-quantity-${i + 1}" class="col-2 my-auto">
+                    ${(item.quantity ?: item.fillQuantity)?.setScale(isWeighted ? 3 : 0)}
+                    ${isWeighted ? " kg" : " ea (each)"}
+                </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "totalCost" }?.enabled}">
                 <div id="total-cost-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${item.totalCost}" type="currency" /></div>
