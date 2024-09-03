@@ -400,7 +400,7 @@ class LoyaltyController {
         int defaultPagination = 20
         int defaultOffSet = 0
         try {
-            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : defaultPagination,
+            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.status, params.max ? Integer.parseInt(params.max) : defaultPagination,
                     params.offset ? Integer.parseInt(params.offset) : defaultOffSet, "id", "asc")
 
             render(template: "loyaltySegmentSearchResults", model: [segments              : segment?.segments,

@@ -6,8 +6,8 @@ import org.joda.time.DateTimeZone
 import org.springframework.validation.Errors
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
+import uk.co.wonderlane.wlpos.enums.SegmentStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
-
 import javax.xml.bind.ValidationException
 
 @Transactional("loyalty")
@@ -17,14 +17,19 @@ class LoyaltyService{
     def messageSource
     def rabbitService
 
-    def getSegment(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder) {
+    def getSegment(String searchTerm, String searchBy, String segmentStatus, int max, int offset, String sortColumn, String sortOrder) {
         def segments = Segment.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
+
+            if (segmentStatus != "") {
+                eq ("status", SegmentStatus.valueOf(segmentStatus))
+            }
+
             or {
-                if (searchBy == 'Description') {
+                if (searchBy == 'Name') {
+                    ilike("name", "%$searchTerm%")
+                } else if (searchBy == 'Description') {
                     ilike("description", "%$searchTerm%")
-                } else if (searchBy == 'ID') {
-                    sqlRestriction "cast(id AS char(256)) like '%$searchTerm%'"
                 }
             }
         }
@@ -214,6 +219,5 @@ class LoyaltyService{
             log.error("Failed to update current customer count in loyalty offer table,  Exception " + ex)
             throw new RuntimeException("Failed to update current customer count in loyalty offer table,  Exception " + ex.getMessage())
         }
-
     }
 }
