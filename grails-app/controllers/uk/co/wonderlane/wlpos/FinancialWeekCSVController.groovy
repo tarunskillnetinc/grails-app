@@ -5,17 +5,22 @@ import grails.gorm.transactions.Transactional
 import grails.validation.ValidationException
 import org.apache.commons.io.input.XmlStreamReader
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
 import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 import static uk.co.wonderlane.wlpos.saveFinancialWeekCommand.*
 
@@ -29,7 +34,7 @@ class saveFinancialWeekCommand {
 
     static constraints = {
         startDate nullable: false
-        financialYear  nullable: false
+        financialYear nullable: false
         weekNumber nullable: false
         retailerId nullable: false
     }
@@ -54,11 +59,7 @@ class FinancialWeekCSVController extends BaseController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-            // Fetch categories from the service
-            List<FinancialWeek> financialWeeks = financialWeekService.getAllFinancialWeeks()
-            // Pass categories to the GSP view
-            render(view: 'index', model: [financialWeeks: financialWeeks])
-
+        [financialWeeks: financialWeekService.getAllFinancialWeeks()]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -66,12 +67,10 @@ class FinancialWeekCSVController extends BaseController {
     def getColumns() {
         return null
     }
+
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     @Transactional
     def ajaxCSVFinancialWeekImport() {
-
-        System.out.println "hit ajaxCSVFinancialWeekImport"
-
         def retailerId = Retailer.get(springSecurityService.principal.retailerId).id
         def file = request.getFile('file')
         byte[] fileBytes = file.getBytes()
@@ -82,57 +81,124 @@ class FinancialWeekCSVController extends BaseController {
 
         // Check if the file is UTF-8 encoded
 
-            // Check if the file is UTF-8 encoded with BOM
+        // Check if the file is UTF-8 encoded with BOM
 
-                // File is UTF-8 encoded correctly without BOM proceed with upload
-                def inputStream = file.inputStream
+        // File is UTF-8 encoded correctly without BOM proceed with upload
+        def inputStream = file.inputStream
 
-                try {
-                    // No validation errors, can continue with the import preparation
-                    if (!importError) {
-                        System.out.println "hit input area"
+        try {
+            // No validation errors, can continue with the import preparation
+            if (!importError) {
 
-                        inputStream.withReader('UTF-8') { reader ->
-                            reader.eachLine { line, lineNumber ->
-                                // Skip the header row if present
-                                if (lineNumber == 1 && line.startsWith("header_column_name")) return
+                inputStream.withReader('UTF-8') { reader ->
+                    reader.eachLine { line, lineNumber ->
+                        // Skip the header row if present
+                        if (lineNumber == 1 && line.startsWith("header_column_name")) return
 
-                                // Split the line by commas
-                                def columns = line.split(",")
+                        // Split the line by commas
+                        def columns = line.split(",")
 
-                                // Assign each split part to a variable
-                                def startDate = columns[0]?.trim()   // e.g., 2024/08/03
-                                def financialYear = columns[1]?.trim()   // e.g., 2024/25
-                                def weekNumber = columns[2]?.trim()  // e.g., 18
-                                String result = startDate.replace('/', '-');
-                                System.out.println 'test' + startDate
+                        // Assign each split part to a variable
+                        def startDate = columns[0]?.trim()   // e.g., 2024/08/03
+                        def financialYear = columns[1]?.trim()   // e.g., 2024/25
+                        def weekNumber = columns[2]?.trim()  // e.g., 18
+
+                        String inputDate = new String(startDate);
+                        boolean isDateAppended
+                        SimpleDateFormat dateFormatWithTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                        dateFormatWithTime.setLenient(false);
+
+                        try {
+                            dateFormatWithTime.parse(inputDate);
+                            isDateAppended = true
+                        } catch (ParseException e) {
+                            isDateAppended = false
+                        }
 
 
-                                String inputDate = new String(startDate);
+                        if (isDateAppended) {
+                            DateTime dateTime = new DateTime(inputDate);
+                            if (financialWeekService.saveFinancialWeek(dateTime, financialYear, weekNumber, retailerId)) {
+                                flash.message = "File processed and data saved successfully!"
+                            } else {
+                                importError = "Error occurred during saving of file to database"
+                                response.status = 409
+                            }
+                        } else {
+                            inputDate = convertDateFormat(inputDate)
+                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                            LocalDate date = LocalDate.parse(inputDate, dateFormatter);
+                            LocalDateTime dateTime = date.atStartOfDay();
+                            ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.systemDefault());
+                            long instantMillis = zonedDateTime.toInstant().toEpochMilli();
+                            DateTime jodaDateTime = new DateTime(instantMillis, org.joda.time.DateTimeZone.forID(ZoneId.systemDefault().getId()));
 
-                                // Define the pattern of the input date string
-
-                                // Define the pattern of the input date string (date only)
-                                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-
-                                // Parse the string into a LocalDate
-                                LocalDate date = LocalDate.parse(inputDate, dateFormatter);
-
-                                // Convert LocalDate to LocalDateTime by appending a default time (00:00)
-                                LocalDateTime dateTime = date.atStartOfDay();
-
-                                // Save to database
-                                financialWeekService.saveFinancialWeek(dateTime, financialYear, weekNumber, retailerId)
+                            if (financialWeekService.saveFinancialWeek(jodaDateTime, financialYear, weekNumber, retailerId)) {
+                                flash.message = "File processed and data saved successfully!"
+                            } else {
+                                importError = "Error occurred during saving of file to database"
+                                response.status = 409
                             }
                         }
                     }
-                    flash.message = "File processed and data saved successfully!"
-                } catch (Exception e) {
-                    e.printStackTrace()
-                    importError = "Error occurred during saving of file to database"
                 }
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+            importError = "Error occurred during saving of file to database"
+        }
 
+    }
 
-        redirect(action: "index")
+    def confirmImport() {
+        render(action: "index")
+    }
+
+    def downloadCsv() {
+        def financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect)
+        // Replace with your domain class and query
+        def csvContent = generateCsvContent(financialWeeks)
+
+        // Send the file directly to the response
+        response.setHeader("Content-disposition", "attachment; filename=financialWeeks.csv")
+        response.contentType = "text/csv"
+        response.outputStream << csvContent.bytes
+        response.outputStream.flush()
+    }
+
+    private String generateCsvContent(records) {
+        StringBuilder sb = new StringBuilder()
+
+        // Add header row // Replace with your actual column names
+
+        // Add data rows
+        records.each { record ->
+            sb.append("${record.startDate},${record.financialYear},${record.weekNumber}\n")
+        }
+
+        return sb.toString()
+    }
+
+    private String convertDateFormat(String inputDate) {
+        inputDate = inputDate.trim()
+        inputDate = inputDate.replaceAll("[^\\x20-\\x7E]", "")
+        // Regular expressions to check the date format
+        def dashPattern = /^\d{4}-\d{2}-\d{2}$/
+        def slashPattern = /^\d{4}\/\d{2}\/\d{2}$/
+
+        // Check if the inputDate is in YYYY-MM-DD format
+        if (inputDate ==~ dashPattern) {
+            // Replace dashes with slashes
+            return inputDate.replaceAll('-', '/')
+        }
+        // Check if the inputDate is in YYYY/MM/DD format
+        else if (inputDate ==~ slashPattern) {
+            // Return the date as is
+            return inputDate
+        }
+        // If the date format is unknown
+        else {
+            return "Unknown format"
+        }
     }
 }

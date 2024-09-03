@@ -6,6 +6,7 @@ import org.hibernate.Transaction
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.labelling.LabelTemplate
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
 import java.sql.SQLException
@@ -21,27 +22,40 @@ class FinancialWeekService extends MySqlDal {
         super(databaseCredentials)
     }
 
+    @Transactional('reporting')
+    boolean saveFinancialWeek(DateTime startDate, String financialYear, String weekNumber, Integer retailerId) {
 
-    def saveFinancialWeek(LocalDateTime startDate, String financialYear, String weekNumber, Integer retailerId) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
 
-        FinancialWeek financialWeek = new FinancialWeek(retailerId: retailerId, startDate: startDate, financialYear: financialYear, weekNumber: weekNumber)
-        session.save(financialWeek);
-            // Clear the session for speed purposes.
-            if (index.mod(500) == 0) {
-                session.flush()
-                session.clear()
-            }
-
+        FinancialWeek existingFinancialWeek = FinancialWeek.findByStartDate(startDate)
+        if (existingFinancialWeek) {
+            return false
+        }
+        def financialWeek = new FinancialWeek(retailerId: retailerId, startDate: startDate, financialYear: financialYear, weekNumber: weekNumber)
+        if (financialWeek.save(flush: true)) {
+            println "Person saved successfully."
+            return true
+        } else {
+            println "Failed to save person."
+            return false
+        }
         transaction.commit()
         session.close()
     }
 
-    @Transactional
+    @Transactional('reporting')
     List<FinancialWeek> getAllFinancialWeeks() {
+        def financialWeeks = FinancialWeek.list()
+        return financialWeeks.unique { it.financialYear }
+    }
 
-        Transaction transaction = session.beginTransaction()
-        return FinancialWeek.list()
+    @Transactional('reporting')
+    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear) {
+        def criteria = FinancialWeek.createCriteria()
+
+        return criteria.list {
+            eq("financialYear", financialYear)
+        }
     }
 }

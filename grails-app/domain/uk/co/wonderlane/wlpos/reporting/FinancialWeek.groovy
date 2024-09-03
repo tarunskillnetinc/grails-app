@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos.reporting
 
 import grails.gorm.annotation.Entity
+import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.PriceBand
 
 import javax.persistence.Id
@@ -11,7 +12,7 @@ class FinancialWeek {
     @Id
     int id
     int retailerId
-    String startDate
+    DateTime startDate
     String financialYear
     Integer weekNumber
 

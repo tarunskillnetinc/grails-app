@@ -1,222 +1,230 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-  <meta name="layout" content="main" />
+    <meta name="layout" content="main"/>
 
-  <title>Wonderlane Financial Week Import</title>
+    <title>Financial Week</title>
 
-  <asset:javascript src="jquery-ui.js" />
-  <asset:stylesheet src="jquery-ui.css" />
+    <asset:javascript src="jquery-ui.js"/>
+    <asset:stylesheet src="jquery-ui.css"/>
 
-  <asset:stylesheet src="bootstrap-datepicker3.min.css" />
-  <asset:javascript src="bootstrap-datepicker.min.js" />
-  <asset:javascript src="moment-with-locales.min.js"/>
+    <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
+    <asset:javascript src="bootstrap-datepicker.min.js"/>
+    <asset:javascript src="moment-with-locales.min.js"/>
 
-  <script type="application/javascript">
-    function selectFinancialWeekUploadFile() {
-      $("#csvFileUploadInput").trigger('click');
-    }
-
-    function setPreventWindowNavigation(value) {
-      window.onbeforeunload = function() {
-        return value;
-      };
-    }
-
-    function resetMessages() {
-      $('#successMessage').hide();
-      $('#failureMessage').hide();
-    }
-
-    function uploadFinancialWeekImportFile() {
-      setPreventWindowNavigation(true)
-      resetMessages();
-      $("#uploadResults").html("<div class=\"modal-body\">"
-              + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait uploading file...</h3></div></div>"
-              + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-
-      const uploadButton = document.getElementById('uploadFinancialWeekBtn');
-      uploadButton.disabled = true;
-      uploadButton.innerHTML = "Uploading...";
-      let url = "${createLink(controller: 'FinancialWeekCSV', action: 'ajaxCSVFinancialWeekImport')}";
-
-      const file = $('#csvFileUploadInput').get(0).files[0]
-
-      if (!file) {
-        handleUploadError(uploadButton, "No file selected. Please choose a file.");
-        return;
-      }
-
-      const fileName = file.name;
-      const fileExtension = fileName.split('.').pop().toLowerCase();
-
-      if (fileExtension !== 'csv') {
-        handleUploadError(uploadButton, "Incorrect file format. Please upload a valid .csv file.");
-        return;
-      }
-
-      let jForm = new FormData();
-      jForm.append("file", file);
-
-      $.ajax({
-        url: url,
-        type: "POST",
-        data: jForm,
-        mimeType: "multipart/form-data",
-        contentType: false,
-        cache: false,
-        processData: false,
-        success: function(resp) {
-          $("#uploadResults").html(resp);
-          uploadButton.disabled = false
-          uploadButton.innerHTML = "Upload Financial Week"
-          bindUploadButtons()
-          resetFileUploadInput();
-          setPreventWindowNavigation(null);
-        },
-        error: function (resp) {
-          if (resp.status === 413) {
-            handleUploadError(uploadButton, "File size too large. Please try again.")
-          } else {
-            handleUploadError(uploadButton, "There was an error completing the import. Please ensure the file is valid."+ resp.status)
-          }
+    <script type="application/javascript">
+        function selectFinancialWeekUploadFile() {
+            $("#csvFileUploadInput").trigger('click');
         }
-      });
-    }
 
-    function handleUploadError(uploadButton, msg) {
-      $("#uploadResults").html("");
-      uploadButton.disabled = false
-      uploadButton.innerHTML = "Upload Financial Week"
-      showErrorAlert(msg)
-      resetFileUploadInput();
-      setPreventWindowNavigation(null);
-    }
+        function setPreventWindowNavigation(value) {
+            window.onbeforeunload = function () {
+                return value;
+            };
+        }
 
-    function showErrorAlert(msg) {
-      $('#failureMessage').show();
-      $('#failureMessage').text(msg)
-    }
+        function resetMessages() {
+            $('#successMessage').hide();
+            $('#failureMessage').hide();
+        }
 
-    function showSuccessAlert() {
-      $('#successMessage').show();
-      $('#successMessage').text("Financial Week import completed successfully");
-    }
-
-    function resetFileUploadInput() {
-      $('#csvFileUploadInput').get(0).value = null
-    }
-
-    function bindUploadButtons() {
-      $("#uploadSave").click(function () {
-        $("#uploadResults").html("<div class=\"modal-body\">"
-                + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait importing results...</h3></div></div>"
+        function uploadFinancialWeekImportFile() {
+            setPreventWindowNavigation(true)
+            resetMessages();
+            $("#uploadResults").html("<div class=\"modal-body\">"
+                + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait uploading file...</h3></div></div>"
                 + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
-        let url = "${createLink(controller: 'FinancialWeekCSV', action:'confirmImport')}";
-        const uploadButton = document.getElementById('uploadFinancialWeekBtn');
-        $.ajax({
-          url: url,
-          type: "POST",
-          mimeType: "multipart/form-data",
-          contentType: false,
-          cache: false,
-          processData: false,
-          success: function (resp) {
-            $("#uploadResults").html("");// Stop spinner as it has finished
-            uploadButton.disabled = false
-            uploadButton.innerHTML = "Upload Financial Week"
-            showSuccessAlert()
-            resetFileUploadInput();
-            setPreventWindowNavigation(null);
-          },
-          error: function (data) {
-            if (data.status === 413) {
-              $("#uploadResults").html(""); // Stop spinner as it has errored
-              const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
-              uploadButton.disabled = false
-              uploadButton.innerHTML = "Upload Financial Week"
-              showErrorAlert("File size too large. Please try again.")
-              resetFileUploadInput();
-              setPreventWindowNavigation(null);
-            } else if (!data.status === 504) {
-              $("#uploadResults").html(""); // Stop spinner as it has errored
-              const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
-              uploadButton.disabled = false
-              uploadButton.innerHTML = "Upload Financial Week"
-              showErrorAlert("There was an error completing the import. Please try again.")
-              resetFileUploadInput();
-              setPreventWindowNavigation(null);
-            } else {
-              $("#uploadResults").html(""); // Stop spinner as it has errored
-              uploadButton.disabled = false
-              uploadButton.innerHTML = "Upload Financial Week"
-              showErrorAlert("Server Timeout")
-              resetFileUploadInput();
-              setPreventWindowNavigation(null);
+
+            const uploadButton = document.getElementById('uploadFinancialWeekBtn');
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = "Uploading...";
+            let url = "${createLink(controller: 'FinancialWeekCSV', action: 'ajaxCSVFinancialWeekImport')}";
+
+            const file = $('#csvFileUploadInput').get(0).files[0]
+
+            if (!file) {
+                handleUploadError(uploadButton, "No file selected. Please choose a file.");
+                return;
             }
 
-          }
-        });
-      });
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
 
-      $("#uploadCancel").click(function () {
-        resetMessages();
-        $("#uploadResults").html("");
-      });
-    }
-  </script>
+            if (fileExtension !== 'csv') {
+                handleUploadError(uploadButton, "Incorrect file format. Please upload a valid .csv file.");
+                return;
+            }
+
+            let jForm = new FormData();
+            jForm.append("file", file);
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: jForm,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (resp) {
+                    $("#uploadResults").html(resp);
+                    uploadButton.disabled = false
+                    uploadButton.innerHTML = "Upload Financial Week"
+                    bindUploadButtons()
+                    resetFileUploadInput();
+                    setPreventWindowNavigation(null);
+                    showSuccessAlert();
+                },
+                error: function (resp) {
+                    if (resp.status === 413) {
+                        handleUploadError(uploadButton, "File size too large. Please try again.")
+                    } else if (resp.status === 409) {
+                        handleUploadError(uploadButton, "Duplicate financial weeks in file. Upload aborted.")
+                    } else {
+                        handleUploadError(uploadButton, resp.responseText.message + resp.status)
+                    }
+                }
+            });
+        }
+
+        function handleUploadError(uploadButton, msg) {
+            $("#uploadResults").html("");
+            uploadButton.disabled = false
+            uploadButton.innerHTML = "Upload Financial Week"
+            showErrorAlert(msg)
+            resetFileUploadInput();
+            setPreventWindowNavigation(null);
+        }
+
+        function showErrorAlert(msg) {
+            $('#failureMessage').show();
+            $('#failureMessage').text(msg)
+        }
+
+        function showSuccessAlert() {
+            $('#successMessage').show();
+            $('#successMessage').text("Financial Week import completed successfully");
+        }
+
+        function resetFileUploadInput() {
+            $('#csvFileUploadInput').get(0).value = null
+        }
+
+        function bindUploadButtons() {
+            $("#uploadSave").click(function () {
+                $("#uploadResults").html("<div class=\"modal-body\">"
+                    + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait importing results...</h3></div></div>"
+                    + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+                let url = "${createLink(controller: 'FinancialWeekCSV', action:'confirmImport')}";
+                const uploadButton = document.getElementById('uploadFinancialWeekBtn');
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    mimeType: "multipart/form-data",
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (resp) {
+                        $("#uploadResults").html("");// Stop spinner as it has finished
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Financial Week"
+                        showSuccessAlert()
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                    },
+                    error: function (data) {
+                        if (data.status === 413) {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Financial Week"
+                            showErrorAlert("File size too large. Please try again.")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        } else if (!data.status === 504) {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Financial Week"
+                            showErrorAlert("There was an error completing the import. Please try again.")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        } else {
+                            $("#uploadResults").html(""); // Stop spinner as it has errored
+                            uploadButton.disabled = false
+                            uploadButton.innerHTML = "Upload Financial Week"
+                            showErrorAlert("Server Timeout")
+                            resetFileUploadInput();
+                            setPreventWindowNavigation(null);
+                        }
+
+                    }
+                });
+            });
+
+            $("#uploadCancel").click(function () {
+                resetMessages();
+                $("#uploadResults").html("");
+            });
+        }
+
+
+    </script>
 </head>
 
 <body>
+
 <section id="breadcrumb-container" class="container-fluid">
-  <nav aria-label="breadcrumb">
-    <div class="row mt-4">
-      <div class="col">
-        <ol class="breadcrumb">
-          <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-          <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Financial Week Import</li>
-        </ol>
-      </div>
-    </div>
-  </nav>
+    <nav aria-label="breadcrumb">
+        <div class="row mt-4">
+            <div class="col">
+                <ol class="breadcrumb">
+                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Financial Week</li>
+                </ol>
+            </div>
+        </div>
+    </nav>
 </section>
 
 <section id="FinancialWeekUpload" class="container-fluid">
-  <div class="row header-wl mt-3">
-    <div class="col-8 offset-2">
-      <h2 id="page-title" class="mx-auto my-auto">Financial Week Import</h2>
-    </div>
-    <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
+    <div class="row header-wl mt-3">
+        <div class="col-8 offset-2">
+            <h2 id="page-title" class="mx-auto my-auto">Financial Week</h2>
+        </div>
 
-      <button class="btn btn-wl p-2 ml-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Financialc Week</button>
-      <input type="file" name="file" accept=".csv,.CSV"
-             id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFinancialWeekInput()">
+        <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
+
+            <button class="btn btn-wl p-2 ml-2" onclick="selectFinancialWeekUploadFile()"
+                    id="uploadFinancialWeekBtn">Upload Financial Week</button>
+            <input type="file" name="file" accept=".csv,.CSV"
+                   id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()"
+                   oncancel="resetFinancialWeekInput()">
+        </div>
     </div>
-  </div>
 </section>
 
 <section id="alerts-container" class="container-fluid">
-  <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
-  <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
-</section>
-<g:form>
-  <label for="category">Category:</label>
-  <select name="category" id="category">
-    <g:each in="${financialWeeks}" var="financialWeek">
-      <option value="${financialWeeks.weekNumber}">${financialWeek.weekNumber}</option>
-    </g:each>
-  </select>
+    <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
 
-  <input type="submit" value="Submit"/>
+    <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
+</section>
+<g:form controller="financialWeekCSV" action="downloadCsv" method="GET">
+
+    <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialWeeks.financialYear}"/>
+
+
+    <button class="btn btn-wl p-2 ml-2" type="submit">Download Financial Week CSV</button>
 </g:form>
 <section id="uploadResultsSection" class="container-fluid">
-  <div id="uploadResults">
+    <div id="uploadResults">
 
-  </div>
+    </div>
 </section>
 
 <div id="dialog-csv-upload-error" style="display:none; max-height: 80%">
-  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error uploading Financial Week </p>
+    <p><span class="ui-icon ui-icon-alert"
+             style="float:left; margin:12px 12px 20px 0;"></span>Error uploading Financial Week</p>
 </div>
 </body>
 </html>
