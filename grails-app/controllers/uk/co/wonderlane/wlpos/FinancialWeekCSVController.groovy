@@ -1,53 +1,19 @@
 package uk.co.wonderlane.wlpos
 
-import com.opencsv.bean.CsvToBeanBuilder
+
 import grails.gorm.transactions.Transactional
-import grails.validation.ValidationException
 import org.apache.commons.io.input.XmlStreamReader
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
-import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
-import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-
-import static uk.co.wonderlane.wlpos.saveFinancialWeekCommand.*
-
-@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-class saveFinancialWeekCommand {
-
-    String startDate
-    String financialYear
-    Integer weekNumber
-    Integer retailerId
-
-    static constraints = {
-        startDate nullable: false
-        financialYear nullable: false
-        weekNumber nullable: false
-        retailerId nullable: false
-    }
-
-    static mapping = {
-        table 'financialweek '  // Define your actual table name
-        id generator: 'id'
-        startDate column: 'startDate'
-        financialYear column: 'financialYear'
-        weekNumber column: 'weekNumber'
-        retailerId column: 'retailerId'
-    }
-}
 
 @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class FinancialWeekCSVController extends BaseController {
@@ -200,5 +166,30 @@ class FinancialWeekCSVController extends BaseController {
         else {
             return "Unknown format"
         }
+    }
+}
+
+@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+class saveFinancialWeekCommand {
+
+    String startDate
+    String financialYear
+    Integer weekNumber
+    Integer retailerId
+
+    static constraints = {
+        startDate nullable: false
+        financialYear nullable: false
+        weekNumber nullable: false
+        retailerId nullable: false
+    }
+
+    static mapping = {
+        table 'financialweek '  // Define your actual table name
+        id generator: 'id'
+        startDate column: 'startDate'
+        financialYear column: 'financialYear'
+        weekNumber column: 'weekNumber'
+        retailerId column: 'retailerId'
     }
 }

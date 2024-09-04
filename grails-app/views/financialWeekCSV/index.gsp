@@ -189,42 +189,46 @@
 
 <section id="FinancialWeekUpload" class="container-fluid">
     <div class="row header-wl mt-3">
-        <div class="col-8 offset-2">
+        <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFinancialWeekInput()">
+        <div class="col-8 offset-2 text-center">
             <h2 id="page-title" class="mx-auto my-auto">Financial Week</h2>
         </div>
-
         <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
-
-            <button class="btn btn-wl p-2 ml-2" onclick="selectFinancialWeekUploadFile()"
-                    id="uploadFinancialWeekBtn">Upload Financial Week</button>
-            <input type="file" name="file" accept=".csv,.CSV"
-                   id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()"
-                   oncancel="resetFinancialWeekInput()">
+            <button class="btn btn-wl p-2 ml-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn" style="min-width: 200px; white-space: nowrap;">Upload Financial Week</button>
+            <button class="btn btn-wl p-2 ml-2" type="submit" style="min-width: 200px; white-space: nowrap;">Download Financial Week CSV</button>
         </div>
     </div>
+
+    <div class="row mt-5 justify-content-center"> <!-- Increased the margin-top to 5 -->
+        <div class="col-6 d-flex align-items-center justify-content-center">
+            <span class="font-weight-bold" style="font-size: 1.25rem; margin-right: 15px;">Select financial year:</span>
+            <g:form controller="financialWeekCSV" action="downloadCsv" method="GET" class="d-inline">
+                <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialWeeks.financialYear}" style="width: 250px;"/>
+            </g:form>
+        </div>
+    </div>
+
 </section>
+
+
+
+
 
 <section id="alerts-container" class="container-fluid">
     <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
 
     <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
 </section>
-<g:form controller="financialWeekCSV" action="downloadCsv" method="GET">
-
-    <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialWeeks.financialYear}"/>
 
 
-    <button class="btn btn-wl p-2 ml-2" type="submit">Download Financial Week CSV</button>
-</g:form>
+
 <section id="uploadResultsSection" class="container-fluid">
-    <div id="uploadResults">
-
-    </div>
+    <div id="uploadResults"></div>
 </section>
 
 <div id="dialog-csv-upload-error" style="display:none; max-height: 80%">
-    <p><span class="ui-icon ui-icon-alert"
-             style="float:left; margin:12px 12px 20px 0;"></span>Error uploading Financial Week</p>
+    <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Error uploading Financial Week</p>
 </div>
+
 </body>
 </html>
