@@ -19,6 +19,7 @@ class Supplier {
     String addressCountry
     String addressPostCode
     SymbolGroup symbolGroup
+    String retailerSupplierId;
     boolean deleted
 
     static mapping = {
@@ -41,6 +42,7 @@ class Supplier {
         addressCountry column: "addressCountry"
         addressPostCode column: "addressPostCode"
         symbolGroup column: "symbolGroupId"
+        retailerSupplierId column: "retailerSupplierId"
         deleted column: "deleted"
     }
 
@@ -60,6 +62,7 @@ class Supplier {
         addressCountry nullable: true, maxSize: 45
         addressPostCode nullable: true, maxSize: 10
         symbolGroup nullable: true
+        retailerSupplierId nullable: true, maxSize: 15, formula: "cast(retailerSupplierId as CHAR(15))"
         deleted nullable: false
     }
 

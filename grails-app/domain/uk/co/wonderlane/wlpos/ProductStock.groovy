@@ -5,9 +5,9 @@ class ProductStock implements Serializable {
     int id
     long sku
     int storeId
-    int quantityInStock
-    int quantityOnOrder
-    int quantityDelivered
+    BigDecimal quantityInStock
+    BigDecimal quantityOnOrder
+    BigDecimal quantityDelivered
 
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public ProductStock() { }

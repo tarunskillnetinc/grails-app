@@ -51,7 +51,7 @@
     }
 
     function categorySearch() {
-        var URL = "${createLink(controller: 'promotion', action: 'categorySearch')}";
+        var URL = "${createLink(controller: 'promotion', action: 'ajaxSearchCategories')}";
         var searchTerm = $('#categorySearchTerm').val();
         var searchBy = $('#categorySearchBy').val();
 

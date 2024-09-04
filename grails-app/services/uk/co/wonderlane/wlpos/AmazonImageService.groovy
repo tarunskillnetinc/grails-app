@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.services.s3.model.S3Exception
 
 import java.nio.ByteBuffer
 
@@ -28,9 +29,12 @@ class AmazonImageService implements IImageService {
                 ne.printStackTrace()
             } catch (NoSuchKeyException ke) {
                 ke.printStackTrace()
+            } catch (S3Exception ignored) {
+                return null
             }
         }
         return new byte[]{}
+
     }
 
     @Override
