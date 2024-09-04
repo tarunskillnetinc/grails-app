@@ -40,7 +40,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
         Segment.metaClass.static.createCriteria = { return mockCriteria }
 
         when: 'Get segment action is executed'
-        def segmentReturned  = service.getSegment("Segment", searchBy,
+        def segmentReturned  = service.getSegment("Segment", searchBy, "",
                 20, 0, "id", "asc")
 
         then: 'successfully return segment details'
@@ -207,7 +207,6 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
         segment.id = id
         segment.retailerId = retailerId
         segment.description = description
-        segment.segmentSql = "Segment SQL"
         segment.count = 1
         return segment
     }

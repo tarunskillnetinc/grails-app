@@ -25,13 +25,15 @@
 
         function resetForm() {
             document.getElementById('loyaltySegmentTerm').value = null;
-            document.getElementById('loyaltySegmentSearchBy').value = 'ID';
+            document.getElementById('loyaltySegmentSearchBy').value = 'Name';
+            document.getElementById('statusFilter').value = '';
         }
 
         function search() {
             var url = "${createLink(controller: 'loyalty', action: 'ajaxSearchLoyaltySegment')}";
             var searchTerm = $('#loyaltySegmentTerm').val();
             var searchBy = $('#loyaltySegmentSearchBy').val();
+            var status = $('#statusFilter').val();
             $("#loading-indicator").show();
 
             $('#search-results').html("<div class=\"d-flex justify-content-center\">\n" +
@@ -42,7 +44,7 @@
 
             $.ajax({
                 url: url,
-                data: { searchTerm: searchTerm, searchBy: searchBy, max:20, offset:0 },
+                data: { searchTerm: searchTerm, searchBy: searchBy, status: status, max:20, offset:0 },
                 statusCode: {
                     500: function (response) {
                         $('#search-results').html("<div class=\"d-flex justify-content-center\"><span class=\"text-muted\">No results found.</span></div>");
@@ -91,7 +93,6 @@
             $('#loyaltySegmentModal').modal('hide');
             $('#search-results').html("<div class=\"d-flex justify-content-center\"><span class=\"text-muted\">No results found.</span></div>");
         }
-
     </script>
 </head>
 
@@ -139,10 +140,18 @@
                             <div class="col-10 input-group">
                                 <g:textField id="loyaltySegmentTerm" name="loyaltySegmentTerm" maxlength="100" value="${session.PRODUCT_SEARCH_TERM}" class="form-control" aria-describedby="select-addon2" />
                                 <div class="input-group-append">
-                                    <g:select id="loyaltySegmentSearchBy" name="loyaltySegmentSearchBy" from="${['ID', 'Description']}" value="everything" valueMessagePrefix="loyaltySegmentSearchBy" class="form-control select-border" style="z-index: 0;" />
+                                    <g:select id="loyaltySegmentSearchBy" name="loyaltySegmentSearchBy" from="${['Name', 'Description']}" value="everything" valueMessagePrefix="loyaltySegmentSearchBy" class="form-control select-border" style="z-index: 0;" />
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-group row">
+                            <label for="status" class="col-2 col-form-label-sm text-right">Status</label>
+                            <div class="col-4">
+                                <g:select name="status" id="statusFilter" from="${['', 'ACTIVE', 'INACTIVE']}" valueMessagePrefix="loyaltySegmentStatus" value="1" class="form-control select-border"/>
+                            </div>
+                        </div>
+
                         <div class="form-group row">
                             <div class="col-sm-8 col-xl-6 offset-sm-4 offset-xl-6 text-right">
                                 <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>

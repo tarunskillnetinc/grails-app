@@ -10,15 +10,18 @@
 
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-4 font-weight-bold">ID</div>
-    <div class="col-4 font-weight-bold">Description</div>
-    <div class="col-4 font-weight-bold">Member Count</div>
+    <div class="col-1 font-weight-bold">Segment ID</div>
+    <div class="col-2 font-weight-bold">Segment Name</div>
+    <div class="col-3 font-weight-bold">Segment Description</div>
+    <div class="col-2 font-weight-bold">Segment Value</div>
+    <div class="col-2 font-weight-bold">Members Count</div>
+    <div class="col-1 font-weight-bold">Status</div>
 </div>
 
 <div id="search-results">
     <g:if test="${segments == null}">
         <div class="row ml-0 mr-0 text-center">
-            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search criteria to recall segment data.</div>
+            <div class="col pt-2 pb-2 text-center my-auto wl-striped0">Please enter search term to get Loyalty segments</div>
         </div>
     </g:if>
 
@@ -30,9 +33,12 @@
 
     <g:each in="${segments}" var="segment" status="i">
         <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;">
-            <div id="id-${i + 1}" class="col-4">${segment.id}</div>
-            <div id="description-${i + 1}" class="col-4">${segment.description}</div>
-            <div id="count-${i + 1}" class="col-4">${segment.count}</div>
+            <div id="id-${i + 1}" class="col-1">${segment.id}</div>
+            <div id="name-${i + 1}" class="col-2">${segment.name}</div>
+            <div id="description-${i + 1}" class="col-3">${segment.description}</div>
+            <div id="value-${i + 1}" class="col-2"></div>
+            <div id="count-${i + 1}" class="col-2">${segment.count}</div>
+            <div id="status-${i + 1}" class="col-1">${segment.status}</div>
         </div>
     </g:each>
 </div>

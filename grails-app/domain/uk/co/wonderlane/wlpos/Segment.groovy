@@ -1,13 +1,19 @@
 package uk.co.wonderlane.wlpos
 
-class Segment {
+import uk.co.wonderlane.wlpos.enums.SegmentStatus
+import uk.co.wonderlane.wlpos.enums.SegmentType
 
+class Segment {
 
     Integer id
     int retailerId
     String description
-    String segmentSql
     int count
+    String name
+    SegmentType type = SegmentType.SPEND
+    BigDecimal min = BigDecimal.ZERO
+    BigDecimal max = BigDecimal.ZERO
+    SegmentStatus status = SegmentStatus.ACTIVE
 
     static constraints = {
     }
@@ -21,7 +27,11 @@ class Segment {
         id column: "id", sqlType: "int"
         retailerId column: "retailer_id"
         description column: "description"
-        segmentSql column: "segment_sql"
         count column: "count"
+        name column: "name"
+        type column: "type", sqlType: "enum", enumType: 'string'
+        min column: "min"
+        max column: "max"
+        status column: "status", sqlType: "enum", enumType: 'string'
     }
 }
