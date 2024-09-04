@@ -15,10 +15,16 @@ class CashManagementController {
             .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
             .create()
 
-    def index() {
-        CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
-                null) //TODO: storeId is null here but this will be change with requirement of STMP-68 (store level config)
-        CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null;
+    def index(Integer storeId) {
+        CashManagement cashManagement = null;
+        cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
+                storeId)
+        def storeLevelExist = storeId != null && cashManagement != null;
+        if (storeId != null && cashManagement == null) {
+            cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
+                    null)
+        }
+        CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null
         if (cashManagement != null) {
             cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),
                     CashManagementConfigViewAdapter.class)
@@ -26,7 +32,12 @@ class CashManagementController {
             cashManagementConfigViewAdapter.setSafeAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getSafeAutoSnapshotDays())
             cashManagementConfigViewAdapter.setTillShiftsAutoCloseDaysFormat(cashManagementConfigViewAdapter.getTillShiftsAutoCloseDays())
         }
-        [config: cashManagementConfigViewAdapter]
+        if (storeId != null) {
+            // Render the example template when storeLevelExist is false
+            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false])
+        } else {
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: storeId == null]
+        }
     }
 
     def save(CashManagementFormData cashManagementFormData) {
@@ -70,7 +81,7 @@ class CashManagementController {
             flash.error = errorMessages
             redirect(action: "index")
         } else {
-            cashManagementService.saveCashManagement(cashManagementFormData.toConfig())
+            cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
             flash.message = ["Cash Management saved successfully."]
             redirect(action: "index")
@@ -81,6 +92,7 @@ class CashManagementController {
 
 class CashManagementFormData implements Validateable {
 
+    Integer storeId;
     Boolean isManualOpen
     Boolean isManualClose
     String automaticCloseDays
