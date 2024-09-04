@@ -354,7 +354,7 @@ environments:
                     <<: *databaseDefaultProperties
 
         rabbitmq:
-            host: RetailPlatform-RabbitMQ-NLB-eb3da2d65e5322cd.elb.eu-west-1.amazonaws.com
+            host: rabbitmq.trustretail-test.com
             port: 5671
             apiProtocol: https
             apiPort: 443
