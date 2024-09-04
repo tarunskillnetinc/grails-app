@@ -98,21 +98,18 @@ class ProductList {
                     it.totalValue
                 }
             } else {
-                return productListItem?.packLines?.sum {
-                    //If pack line is singles then get cost price for product variant
-                    BigDecimal price = it?.productListItem?.productVariant?.costPrice ?: BigDecimal.ZERO
-                    if (it.pack){ //If pack exists mean pack line is non singles
-                        price = it.pack?.price ?: BigDecimal.ZERO
-                    }
-                    price.multiply(it.quantity) ?: BigDecimal.ZERO.setScale(2)
+                return productListItems?.sum {
+                    it.totalCost
                 }
             }
-        }
+        } ?: BigDecimal.ZERO.setScale(2)
     }
 
     def getTotalQuantity() {
-        return productListItems?.sum { ProductListItem productListItem ->
-            if (type == ProductListType.DELIVERY) {
+        return (productListItems?.sum { ProductListItem productListItem ->
+            if (isWeightedItem(productListItem)) {
+                BigDecimal.ONE
+            } else if (type == ProductListType.DELIVERY) {
                 // If product list item has quantity then only consider it if not consider fill quantity
                 if (productListItem?.quantity){
                     productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
@@ -122,13 +119,13 @@ class ProductList {
             } else {
                 productListItem?.quantity ?: BigDecimal.ZERO.setScale(2)
             }
-        }
+        } as BigDecimal ?: BigDecimal.ZERO).intValue()
     }
 
     def getTotalPackLines() {
         ArrayList<PackLine> packLines = new ArrayList<>()
-        for (int i = 0; i < productListItems.size(); i++) {
-            packLines.addAll(productListItems.getAt(i)?.packLines)
+        productListItems.each { item ->
+            packLines.addAll(item?.packLines)
         }
         return packLines
     }
@@ -141,6 +138,10 @@ class ProductList {
         return productListItems?.sum {
             it.getTotalCost()
         }
+    }
+
+    private static def isWeightedItem(ProductListItem item) {
+        return item?.getProductVariant()?.getProduct()?.isWeightedItem()
     }
 
     boolean equals(that) {

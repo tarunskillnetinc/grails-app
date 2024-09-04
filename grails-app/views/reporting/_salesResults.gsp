@@ -44,7 +44,10 @@
                 </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div id="total-quantity-${i + 1}" class="col-1 my-auto">${sale.quantity + sale.refundQuantity} (${sale.refundQuantity} refunds)</div>
+                <div id="total-quantity-${i + 1}" class="col-1 my-auto">
+                    <g:set var="saleQuantity" value="${(BigDecimal)(sale.quantity + sale.refundQuantity)}"/>
+                    ${saleQuantity.remainder(BigDecimal.ONE) == BigDecimal.ZERO ? saleQuantity.setScale(0) : saleQuantity} (${sale.refundQuantity.remainder(BigDecimal.ONE) == BigDecimal.ZERO ? sale.refundQuantity.setScale(0) : sale.refundQuantity} refunds)
+                </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "avgCostPrice" }?.enabled}">
                 <div id="avg-cost-price-${i + 1}" class="col my-auto">&pound;${sale.avgCostPrice}</div>

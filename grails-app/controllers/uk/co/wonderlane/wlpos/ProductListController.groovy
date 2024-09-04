@@ -31,6 +31,8 @@ class ProductListController {
 
     def ajaxGetCentralCounts(String searchTerm, String searchBy) {
 
+        session.CENTRAL_COUNT_SEARCH_TERM = searchTerm
+
         def productLists = productListService.getCentralCounts(
                 searchTerm, searchBy,
                 params.offset ? Integer.parseInt(params.offset) : 0,
@@ -48,7 +50,7 @@ class ProductListController {
 
     def addCentralCount() {
         def retailerId = springSecurityService.principal.retailerId
-        availableStores = storeService.getStores(retailerId)
+        availableStores = storeService.getActiveStores(retailerId)
 
         [availableStores: availableStores]
     }
@@ -64,23 +66,20 @@ class ProductListController {
         }
 
         def productListsToBeSaved = new ArrayList()
-
-        for (int storeId : cmd.storeIdList) {
-            def storeSettings = storeService.getStoreByStoreNumber(springSecurityService.principal.retailerId, storeId)
-
             def productList = new ProductList()
-
             productList.properties = cmd.properties
 
             productList.userId = springSecurityService.principal.id
             productList.retailerId = springSecurityService.principal.retailerId
-            productList.store = storeSettings
 
             if (productList.startDate == productList.endDate) {
                 productList.endDate = productList.endDate.plusDays(1)
             }
 
+            productList.setEndDate(productList.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
+
             if (cmd.productVariantId) {
+                // Loop over each product variant
                 cmd.productVariantId.each {
                     def productVariant = productService.getProductVariant(it)
 
@@ -89,6 +88,7 @@ class ProductListController {
                         productListItem.productVariant = productVariant
                         productListItem.fillQuantity = 0
                         productListItem.productList = productList
+                        productListItem.productQuantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
                         productList.productListItems.add(productListItem)
                     }
                 }
@@ -100,11 +100,23 @@ class ProductListController {
             }
 
             productListsToBeSaved.add(productList)
-        }
-
+        
         try {
             productListService.saveProductLists(productListsToBeSaved)
-            flash.message = "Central count saved successfully."
+            if (productListsToBeSaved.size() > 0) {
+                flash.message = "Central count saved successfully."
+            }
+
+            def productListStoresToBeSaved = new ArrayList()
+
+            for (int storeId : cmd.storeIdList) {
+                ProductListStore productListStore = new ProductListStore()
+                productListStore.productList = productList
+                productListStore.store = Store.load(storeId)
+                productListStoresToBeSaved.add(productListStore)
+            }
+            productListService.saveProductListStores(productListStoresToBeSaved)
+
             redirect(action: "listCentralCounts")
         } catch (Exception e) {
             e.printStackTrace()
@@ -120,6 +132,8 @@ class ProductListController {
                 productList.errors.rejectValue("productListItems", code)
             } else if (field == "storeIdList") {
                 productList.errors.reject("productList.centralCount.noStoreSelected")
+            } else if (field == "productListItems") {
+                productList.errors.reject("productList.centralCount.noProductSelected")
             } else {
                 productList.errors.rejectValue(field, code)
             }

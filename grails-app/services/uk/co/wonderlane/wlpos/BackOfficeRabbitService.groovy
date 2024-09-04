@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.exceptions.RabbitServiceException
 import uk.co.wonderlane.wlpos.monitoring.RabbitQueue
 
 import javax.xml.bind.DatatypeConverter
@@ -25,12 +26,14 @@ class BackOfficeRabbitService extends RabbitService {
 
     private String apiUrl
     private String apiAuthorization
+    private String senderExchange
 
     def rabbitMqDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
-    BackOfficeRabbitService(String host, int port, String apiProtocol, int apiPort, String username, String password, boolean useSsl) {
+    BackOfficeRabbitService(String host, int port, String apiProtocol, int apiPort, String username, String password, boolean useSsl, String senderExchange) {
         super(host, port, username, password, useSsl, null, null, new BackOfficeLogger()) // TODO Implement an actual BackOfficeLogger?
 
+        this.senderExchange = senderExchange
         apiUrl = "${apiProtocol}://${host}:${apiPort}/api/"
         apiAuthorization = DatatypeConverter.printBase64Binary("${username}:${password}".getBytes())
 
@@ -54,6 +57,7 @@ class BackOfficeRabbitService extends RabbitService {
 
     private void initVirtualHost(String virtualHost) {
         setVirtualHost(virtualHost)
+        close() // close old connection before opening a new one (WAIT-585)
         init()
 
         if (channel == null || !channel.isOpen()) {
@@ -168,5 +172,14 @@ class BackOfficeRabbitService extends RabbitService {
 
             sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         }
+    }
+
+    void sendSenderExchangeMessage(String json) throws IOException, RabbitServiceException {
+        if (channel.isOpen()) {
+            sendExchangeMessage(senderExchange, json);
+        } else {
+            throw new RabbitServiceException(0, "Error sending rabbit message " + senderExchange + ": " + json);
+        }
+        logger.logInfo("Sending rabbit message " + senderExchange + ": ", json);
     }
 }

@@ -19,15 +19,14 @@ before_script:
 
 default_build:
     stage: default
-    except:
-        - /^develop$/
-        - /^release.*$/
-        - /^[0-9.]+$/
     script:
         - apk update
         - apk upgrade
         - apk add zip curl bash
         - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
+    rules:
+         - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_MESSAGE =~ /^Merge branch/ || $CI_COMMIT_REF_NAME =~ /^(sprint|feature)/'
+
 
 build_develop_branch:
     stage: develop

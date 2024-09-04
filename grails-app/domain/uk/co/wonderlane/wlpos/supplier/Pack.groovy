@@ -12,7 +12,7 @@ class Pack {
 
     int id
     Supplier supplier
-    Integer quantity
+    BigDecimal quantity
     BigDecimal price
     String orderCode
     String barcode
@@ -64,7 +64,7 @@ class Pack {
     static constraints = {
         productVariant nullable: true
         supplier nullable: false, blank: false
-        quantity nullable: false, blank: false, min: 0 as Integer, max: 2147483647 as Integer
+        quantity nullable: false, blank: false, min: 0.00 as BigDecimal, max: 2147483647.000 as BigDecimal
         price nullable: false, blank: false, min: 0.00 as BigDecimal, max: 9999.99 as BigDecimal, scale: 2
         orderCode nullable: true, size: 1..20
         barcode nullable: true, size: 1..20, validator: { val, obj ->

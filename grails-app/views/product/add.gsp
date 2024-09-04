@@ -246,6 +246,7 @@
                     params["shelfCapacity"] = $(selector + "shelfCapacity").val();
                     params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
                     params["zeroPrice"] = $("#zeroPrice").prop("checked");
+                    params["effectiveDate"] = $(selector + "effectiveDate").val();
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -296,6 +297,7 @@
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
                 var shelfCapacity = $("#addVariantShelfCapacity").val();
                 var minimumDisplayQuantity = $("#addVariantMinimumDisplayQuantity").val();
+                var effectiveDate = $("#addEffectiveDate").val();
                 var defaultSupplierId = $("#variants\\[" + index + "\\]\\.defaultSupplierId").val();
 
                 if (sku === "") {
@@ -303,7 +305,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodeValues = []; // To store the barcode values for validation
@@ -511,6 +513,13 @@
                 });
             }
 
+            function saveButtonClicked() {
+                $('#add-product-form').submit();
+                $('#add-product-form').submit(function () {
+                    return false;
+                });
+            }
+
             // Delete barcode button was clicked, we just remove the div.
             function deleteBarcode(index) {
                 if (!confirm("This barcode will be deleted.")) {
@@ -525,32 +534,8 @@
                 if (!confirm("This location will be deleted.\nAre you sure you want to delete this location?")) {
                     return;
                 }
-                var deletedHierarchyValue = 0
-                var locationSelector = $("#addLocationFieldsContainer-"+ variantIndex + "-" + locationIndex)
-                var locationHierarchy = locationSelector.find("[name='addLocation[" + locationIndex + "].locationHierarchy']").val();
-                if (locationHierarchy !== null) {
-                    deletedHierarchyValue = parseInt(locationHierarchy)
-                }
-                deletedHierarchyValue = parseInt(locationHierarchy)
-                var addLocationContainers = $("#addLocationsContainer-" +variantIndex +" > div");
+
                 $("#addLocationContainer-"+ variantIndex + "-" + locationIndex).remove()
-                if(deletedHierarchyValue >= 1){
-                    addLocationContainers.each(function() {
-                        var valueToBeSetReOrder = 0;
-                        var locationIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
-                        var locationSelector = "#addLocation\\[" +locationIndex +"\\]";
-                        var hierarchySelector = $(locationSelector + "\\.locationHierarchy")
-                        var hierarchyToBeReOrder = hierarchySelector.val()
-                        if(hierarchyToBeReOrder !== null){
-                            valueToBeSetReOrder = parseInt(hierarchyToBeReOrder)
-                        }
-
-                        if(deletedHierarchyValue < valueToBeSetReOrder ){
-                            hierarchySelector.val(valueToBeSetReOrder -1);
-                        }
-
-                    });
-                }
             }
 
             // The suppliers button was clicked, we display the suppliers modal for this variant.
@@ -727,6 +712,8 @@
                 params["defaultSupplier"] = filterValues["defaultSupplier"];
                 params["productVariantId"] = variantId;
 
+                const isWeighted = isWeightedItem();
+
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
@@ -748,6 +735,7 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
+                    params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
                 });
                     $.ajax({
                         url: savePackUrl,
@@ -763,6 +751,12 @@
                         }
                     });
             }
+
+            function isWeightedItem() {
+                const weightedBox = $("#weightedItem");
+                return weightedBox && weightedBox.prop("checked");
+            }
+
 
             // The "Ok" button was clicked on the locations modal, this adds all of those values back onto the form ready for saving as part of the overall page save.
             function saveLocations(variantIndex, locationsType) {
@@ -795,14 +789,9 @@
                         var shelf = $(locationSelector + "\\.shelf").val();
                         var position = $(locationSelector + "\\.position").val();
                         var locationHierarchy = $(locationSelector + "\\.locationHierarchy").val();
-                        if(locationHierarchy === ''){
-                            locationHierarchy =  parseInt(currentMaxHierarchy) + 1;
-                            currentMaxHierarchy = currentMaxHierarchy + 1
-                        } else {
-                            locationHierarchy =  parseInt(locationHierarchy)
-                            currentMaxHierarchy = Math.max(locationHierarchy, currentMaxHierarchy);
+                        if (locationHierarchy === '') {
+                            locationHierarchy = 1
                         }
-
 
                         if (aisle === '' && bay === '' && shelf === '' && position === '') {
                             errorString += "Please enter at least one of aisle, bay, shelf or position.\n"
@@ -961,7 +950,7 @@
 
                 <div class="col-2 text-right">
                     <g:link elementId="product-maintenance-cancel" action="index" role="button" class="btn btn-wl">Cancel</g:link>
-                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="$('#add-product-form').submit();">Save</button>
+                    <button id="add-product-save-btn" class="btn btn-success" name="save" onclick="saveButtonClicked()">Save</button>
                 </div>
             </div>
         </section>

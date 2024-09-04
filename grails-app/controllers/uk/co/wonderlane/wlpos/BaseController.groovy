@@ -71,6 +71,9 @@ abstract class BaseController {
 
     protected void addCategoriesHierarchy(List topCategories, List productCategoryList, Category category) {
         if (category.parentCategory) {
+            if (category.parentCategory.id == category.id) {
+                return
+            }
             productCategoryList.add(category.parentCategory.id)
             addCategoriesHierarchy(topCategories, productCategoryList, category.parentCategory)
         } else {
