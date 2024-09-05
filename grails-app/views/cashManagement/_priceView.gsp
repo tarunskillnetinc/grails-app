@@ -6,5 +6,5 @@
             fieldValue = fieldValue ? fieldValue : 0
             def fieldValeModified =  String.format("%.2f", fieldValue/Math.pow(10, 2))
         %>
-    <g:textField id="${inputId}" name="${inputName}" value="${fieldValeModified}" class="form-control mask-money" max="1500"/>
+    <g:textField id="${inputId}" name="${inputName}" value="${fieldValeModified}" class="form-control mask-money"/>
 </div>

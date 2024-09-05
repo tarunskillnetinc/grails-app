@@ -41,14 +41,18 @@ class CashManagementController {
         if (cashManagementFormData.automaticCloseTime != null && !(cashManagementFormData.automaticCloseTime ==~ patternTime)) {
             errorMessages << "Automatic close time format incorrect."
         }
-        if (cashManagementFormData.rollingFloatValue != null &&  cashManagementFormData.rollingFloatValue > 1500.00) {
-            errorMessages << "Rolling float value cannot be exceeded 1500.00"
+
+        if (cashManagementFormData.rollingFloatValue == null) {
+            errorMessages << "Rolling float value cannot be empty."
+        } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.00) {
+            errorMessages << "Rolling float value must have a value between 1.00 and 999.00."
         }
-        if (cashManagementFormData.tillShiftVarianceLimit != null &&  cashManagementFormData.tillShiftVarianceLimit > 1500.00) {
-            errorMessages << "Till shift variance limit cannot be exceeded 1500.00"
+        if (cashManagementFormData.tillShiftVarianceLimit != null &&  (cashManagementFormData.tillShiftVarianceLimit < 0
+                || cashManagementFormData.tillShiftVarianceLimit > 999.00)) {
+            errorMessages << "Till shift variance limit must have a value between 0.00 and 999.00."
         }
-        if (cashManagementFormData.safeVarianceLimit != null &&  cashManagementFormData.safeVarianceLimit > 1500.00) {
-            errorMessages << "Safe variance limit cannot be exceeded 1500.00"
+        if (cashManagementFormData.safeVarianceLimit != null &&  (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.00)) {
+            errorMessages << "Safe variance limit must have a value between 0.00 and 999.00."
         }
         if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
             errorMessages << "Till auto snapshot days format incorrect."
@@ -59,11 +63,23 @@ class CashManagementController {
         if (cashManagementFormData.safeAutoSnapshotDays != null && !(cashManagementFormData.safeAutoSnapshotDays ==~ patternDays)) {
             errorMessages << "Safe auto snapshot days format incorrect."
         }
-        if (cashManagementFormData.safeAutoSnapshotTime != null && !(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
+        if (cashManagementFormData.safeAutoSnapshotTime == null || cashManagementFormData.safeAutoSnapshotTime.isEmpty()) {
+            errorMessages << "Safe auto snapshot time cannot be empty."
+        } else if (!(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
             errorMessages << "Safe auto snapshot time format incorrect."
         }
-        if (cashManagementFormData.tillCashHoldingLimit != null &&  cashManagementFormData.tillCashHoldingLimit > 1500.00) {
-            errorMessages << "Till cash holding limit cannot be exceeded 1500.00"
+        if (cashManagementFormData.tillCashHoldingLimit != null &&  (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.00)) {
+            errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.00."
+        }
+        if (cashManagementFormData.tillShiftRecountLimit == null) {
+            errorMessages << "Till shift recount limit cannot be empty."
+        } else if (cashManagementFormData.tillShiftRecountLimit < 0 || cashManagementFormData.tillShiftRecountLimit > 99) {
+            errorMessages << "The till shift recount limit must have a value between 0 and 99."
+        }
+        if (cashManagementFormData.safeRecountLimit == null) {
+            errorMessages << "Safe recount limit cannot be empty."
+        } else if (cashManagementFormData.safeRecountLimit < 0 || cashManagementFormData.safeRecountLimit > 99) {
+            errorMessages << "Safe recount limit must have a value between 0 and 99."
         }
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
@@ -102,20 +118,19 @@ class CashManagementFormData implements Validateable {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
         cashManagementConfig.setTillShiftsManualOpen(isManualOpen != null ? isManualOpen : false)
         cashManagementConfig.setTillShiftsManualClose(isManualClose != null ? isManualClose : false)
-        cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null && !automaticCloseDays.isEmpty()? automaticCloseDays: "1234567").toCharArray())
-        cashManagementConfig.setTillShiftsAutoCloseTime(automaticCloseTime != null ? automaticCloseTime : "22:00")
+        cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null ? automaticCloseDays: "").toCharArray())
         cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnable != null ? isRollingFloatEnable : false)
         cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue*100 as int : 0)
-        cashManagementConfig.setTillsCashHoldingLimit(tillCashHoldingLimit != null && tillCashHoldingLimit != 0 ? tillCashHoldingLimit * 100 as int : 150000)
-        cashManagementConfig.setTillShiftVarianceLimit(tillShiftVarianceLimit != null && tillShiftVarianceLimit != 0 ? tillShiftVarianceLimit * 100 as int: 500)
-        cashManagementConfig.setTillShiftRecountLimit(tillShiftRecountLimit != null && tillShiftRecountLimit != 0 ? tillShiftRecountLimit : 3)
-        cashManagementConfig.setSafeRecountLimit(safeRecountLimit != null && safeRecountLimit != 0 ? safeRecountLimit : 3)
-        cashManagementConfig.setSafeVarianceLimit(safeVarianceLimit != null && safeVarianceLimit != 0 ? safeVarianceLimit * 100 as int : 500)
-        cashManagementConfig.setOpenShiftWithoutFloat(isOpenShiftWithoutFloat != null ? isOpenShiftWithoutFloat : true)
-        cashManagementConfig.setTillAutoSnapshotDays((tillAutoSnapshotDays != null ? tillAutoSnapshotDays : "1234567").toCharArray())
-        cashManagementConfig.setTillAutoSnapshotTime(tillAutoSnapshotTime != null ? tillAutoSnapshotTime : "22:00")
-        cashManagementConfig.setSafeAutoSnapshotDays((safeAutoSnapshotDays != null ? safeAutoSnapshotDays :"1234567").toCharArray())
-        cashManagementConfig.setSafeAutoSnapshotTime(safeAutoSnapshotTime != null ? safeAutoSnapshotTime : "22:00")
+        cashManagementConfig.setTillsCashHoldingLimit(tillCashHoldingLimit != null  ? tillCashHoldingLimit * 100 as int : 0)
+        cashManagementConfig.setTillShiftVarianceLimit(tillShiftVarianceLimit != null ? tillShiftVarianceLimit * 100 as int: 0)
+        cashManagementConfig.setTillShiftRecountLimit(tillShiftRecountLimit != null ? tillShiftRecountLimit : 0)
+        cashManagementConfig.setSafeRecountLimit(safeRecountLimit != null ? safeRecountLimit : 0)
+        cashManagementConfig.setSafeVarianceLimit(safeVarianceLimit != null ? safeVarianceLimit * 100 as int : 0)
+        cashManagementConfig.setOpenShiftWithoutFloat(isOpenShiftWithoutFloat != null ? isOpenShiftWithoutFloat : false)
+        cashManagementConfig.setTillAutoSnapshotDays(tillAutoSnapshotDays != null ? tillAutoSnapshotDays.toCharArray() : new char[]{''})
+        cashManagementConfig.setTillAutoSnapshotTime(tillAutoSnapshotTime != null ? tillAutoSnapshotTime : "")
+        cashManagementConfig.setSafeAutoSnapshotDays(safeAutoSnapshotDays != null ? safeAutoSnapshotDays.toCharArray() : new char[]{''})
+        cashManagementConfig.setSafeAutoSnapshotTime(safeAutoSnapshotTime != null ? safeAutoSnapshotTime : "")
         return cashManagementConfig
     }
 }
