@@ -67,6 +67,7 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
         });
         display.querySelector('span:first-child').textContent = selectedItemsDisplay.join(', ') || placeholder;
         hiddenInput.value = selectedItems.join(''); // Update hidden input value
+        $(hiddenInput).trigger('change');
     }
 
     // Update the state of the "Select All" checkbox based on individual checkbox states

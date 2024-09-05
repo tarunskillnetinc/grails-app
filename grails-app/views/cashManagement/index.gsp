@@ -47,6 +47,10 @@
             validateTimeInputs('tillAutoSnapshotTime');
             validateTimeInputs('safeAutoSnapshotTime');
 
+            boundTimeInputToDaysSelection('automaticCloseDays', 'automaticCloseTime');
+            boundTimeInputToDaysSelection('tillAutoSnapshotDays', 'tillAutoSnapshotTime');
+            boundTimeInputToDaysSelection('safeAutoSnapshotDays', 'safeAutoSnapshotTime');
+
             $('.mask-money').maskMoney({
                 prefix: '',
                 allowNegative: false,
@@ -79,6 +83,8 @@
                 }
             });
         });
+
+
 
         function validateTimeInputs(inputId) {
             $('#' + inputId).on('keydown', function(event) {
@@ -156,6 +162,25 @@
 
         }
 
+        function boundTimeInputToDaysSelection(daysSelectionId, timeSelectionId) {
+            if ($('#' + daysSelectionId).val() === "") {
+                $('#'+timeSelectionId).prop('disabled', true);
+                $('#'+timeSelectionId).data('cachedValue', $('#'+timeSelectionId).val())
+            }
+            $('#' + daysSelectionId).on('change', function(){
+                if ($('#' + daysSelectionId).val() !== "") {
+                    $('#'+timeSelectionId).prop('disabled', false);
+                    $('#'+timeSelectionId).val($('#'+timeSelectionId).data('cachedValue'));
+                } else {
+                    $('#'+timeSelectionId).prop('disabled', true);
+                    $('#'+timeSelectionId).data('cachedValue', $('#'+timeSelectionId).val());
+                    $('#'+timeSelectionId).val('');
+                }
+            });
+            $('#'+timeSelectionId).on('change', function (){
+                $(this).data('cachedValue', $(this).val());
+            });
+        }
 
     </script>
     <style>
