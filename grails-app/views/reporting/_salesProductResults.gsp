@@ -45,7 +45,9 @@
                 <div id="description-${i + 1}" class="col-3 my-auto">${sale.productItemCode} - ${sale.productDescription} - ${sale.productUnitSize}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "quantity" }?.enabled}">
-                <div id="quantity-${i + 1}" class="col-1 my-auto">${sale.quantity}</div>
+                <div id="quantity-${i + 1}" class="col-1 my-auto">
+                    ${(sale.quantity.remainder(BigDecimal.ONE) == BigDecimal.ZERO ? sale.quantity.setScale(0) : sale.quantity) + (isWeighted ? " kg" : " ea (each)")}
+                </div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "costPrice" }?.enabled}">
                 <div id="cost-price-${i + 1}" class="col my-auto">&pound;${sale.costPrice}</div>

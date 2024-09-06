@@ -149,6 +149,10 @@
                         showBtns();
                         $("#addTillContent").html(resp);
                     }
+                },
+                error: function (resp) {
+                    showBtns();
+                    $("#addTillContent").html(resp.responseText);
                 }
             });
         }
@@ -283,7 +287,7 @@
                                               disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
                                 </div>
 
-                                <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till ID</label>
+                                <label for="tillIdFilter" class="col-2 col-form-label-sm text-right">Till Number</label>
                                 <div class="col-4">
                                         <g:field id="tillIdFilter" type="number" min="0" max="2147483647" name="tillIdFilter" value="${tillId}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" />
                                 </div>

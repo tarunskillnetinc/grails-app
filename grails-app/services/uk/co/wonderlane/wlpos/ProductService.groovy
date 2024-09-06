@@ -12,11 +12,10 @@ import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
+import uk.co.wonderlane.wlpos.utils.QuantityHelper
 
-import java.sql.CallableStatement
-import java.sql.Connection
-import java.sql.ResultSet
-import java.sql.Types
+import java.sql.*
+import java.util.Date
 import java.util.stream.Collectors
 
 @Transactional
@@ -41,7 +40,7 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }?.first() ?: null
+        }?.find()
     }
 
     def getProductVariant(long sku) {
@@ -55,7 +54,30 @@ class ProductService extends MySqlDal {
             product {
                 eq("retailerId", springSecurityService.principal.retailerId)
             }
-        }?.first() ?: null
+        }?.find()
+    }
+
+    uk.co.wonderlane.wlpos.entities.ProductVariant getProductVariant(int storeId, int productVariantId) throws SQLException {
+        Connection conn
+        CallableStatement cstmt
+        try {
+            conn = getConnection()
+            cstmt = conn.prepareCall("{ call getProductVariant(?, ?) }")
+            cstmt.setInt(1, storeId)
+            cstmt.setInt(2, productVariantId)
+            ResultSet rs = cstmt.executeQuery()
+            if (rs.next()) {
+                return mapProductVariant(rs)
+            }
+            return null
+        } catch (Exception ex) {
+            log.error("Order create exception found when retrieving product variant from DB, Exception " + ex.getMessage())
+            throw ex
+        } finally {
+            if (connection != null) {
+                connection.close()
+            }
+        }
     }
 
     // TODO make this method only return the current effective date. Currently it will return any which exist (sorted so that the active one is first (unless the description has changed)).
@@ -147,47 +169,23 @@ class ProductService extends MySqlDal {
         }
     }
 
-   boolean isLocationValid(Product product, ProductCommand editedProduct){
-       def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
-       List selectedHierarchy = new ArrayList()
-       def isValid = true
+    boolean isLocationValid(Product product, ProductCommand editedProduct){
+        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
+        List selectedHierarchy = new ArrayList()
+        def isValid = true
 
-       for (ProductVariant pv : product?.variants){
-           for (Location location : pv.locationz){
-               if (!location.validate()) {
-                   product.errors.reject('product.location.validation.error', [String.valueOf(pv.sku)] as Object[],
-                           'product.location.validation.error.default')
-                   isValid = false
-                   break
-               }
-           }
-       }
+        for (ProductVariant pv : product?.variants){
+            for (Location location : pv.locationz){
+                if (!location.validate()) {
+                    product.errors.reject('product.location.validation.error', [String.valueOf(pv.sku)] as Object[],
+                            'product.location.validation.error.default')
+                    isValid = false
+                    break
+                }
+            }
+        }
 
-       if (locationsType ==  LocationsType.ADVANCED.name()) {
-           for (ProductVariantCommand pv : editedProduct?.variants) {
-               for (LocationCommand location : pv.locationz){
-                   //Validate entered value for location number is numeric or not -> Only numeric allowed
-                   if (location.getLocationNumber() != null && !location.getLocationNumber().isEmpty() && !location.getLocationNumber().matches("-?\\d+(\\.\\d+)?(?:\\s*\\d+(\\.\\d+)?)?")){
-                       product.errors.reject('product.location.number.validation.error', [location.getLocationNumber(), String.valueOf(pv.sku)] as Object[],
-                               'product.location.number.validation.error.default')
-                       isValid = false
-                       break
-                   }
-                   selectedHierarchy.add(location.locationHierarchy)
-               }
-           }
-       }
-
-       // If there is an error loop over to add previously db saved entries into response product
-       if (!isValid){
-           product.variants.forEach {
-               variant -> {
-                   variant.locationz =
-                           editedProduct?.variants?.find(it -> it.id = variant.id)?.locationz ?: variant.locations
-               }
-           }
-       }
-       return isValid;
+        return isValid
     }
 
 
@@ -198,7 +196,7 @@ class ProductService extends MySqlDal {
     def saveProductPrices(Product product, List<ProductPrice> productPrices, List<ProductHistory> productHistories) {
         Session session = sessionFactory.openSession()
         Transaction transaction = session.beginTransaction()
-        
+
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (!productPrice.validate()) {
@@ -721,7 +719,7 @@ class ProductService extends MySqlDal {
             return product.getVariants() // already retrieved using a store id so is fine to return the whole list
         }
         return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
-                    && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
+                && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
     }
 
     public Location deepCopyExistingLocation(Location existingLocation){
@@ -760,5 +758,39 @@ class ProductService extends MySqlDal {
         }
         locationToBeUpdated.shelfCapacity = editedLocation.shelfCapacity
         locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
+    }
+
+    private uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
+        uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
+
+        productVariant.setId(resultSet.getInt("id"))
+        productVariant.setProductId(resultSet.getInt("productId"))
+        productVariant.setStoreId(resultSet.getInt("storeId"))
+        productVariant.setSku(resultSet.getLong("sku"))
+
+        productVariant.setRetailPrice(resultSet.getBigDecimal("price"))
+        if (resultSet.wasNull()) {
+            productVariant.setRetailPrice(null)
+        }
+
+        productVariant.setCostPrice(resultSet.getBigDecimal("costPrice"))
+        if (resultSet.wasNull()) {
+            productVariant.setCostPrice(null)
+        }
+
+        productVariant.setSize(resultSet.getString("size"))
+        if (resultSet.wasNull()) {
+            productVariant.setSize(null);
+        }
+
+        productVariant.setColour(resultSet.getString("colour"))
+        if (resultSet.wasNull()) {
+            productVariant.setColour(null);
+        }
+        productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
+        productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
+        productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
+
+        return productVariant;
     }
 }
