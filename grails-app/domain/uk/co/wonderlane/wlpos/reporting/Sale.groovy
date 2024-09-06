@@ -10,7 +10,7 @@ class Sale {
     int retailerId
     int storeId
     int tillId
-    Integer quantity
+    BigDecimal quantity
     BigDecimal costPrice
     BigDecimal retailPrice
     BigDecimal vatAmount
