@@ -321,7 +321,7 @@
                         params["barcodez[" + loopIndex + "].barcode"] = barcode;
                         params["barcodez[" + loopIndex + "].effectiveDate"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.effectiveDate").val();
                         params["barcodez[" + loopIndex + "].recordStatus"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.recordStatus").val();
-                        barcodes.push(barcode)
+                        barcodes.push(removeWhitespace(barcode))
                     } else {
                         error = true
                     }
@@ -396,15 +396,19 @@
             }
 
             function barcodeValid(barcode, barcodes, content) {
-                if (barcode != null && !barcode.trim()) {
+                if (barcode == null || !barcode.trim()) {
                     $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`)
                     return false
-                } else if(barcodes.includes(barcode)){
+                } else if (barcodes.includes(removeWhitespace(barcode))){
                     $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
                     return false
                 }
 
                 return true
+            }
+
+            function removeWhitespace(string) {
+                return string.replaceAll(" ", "")
             }
 
             function saveTempLocations(index) {
