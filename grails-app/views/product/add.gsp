@@ -308,22 +308,22 @@
                 var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
-                var barcodeValues = []; // To store the barcode values for validation
+                var barcodes = []; // To store the barcode values for validation
                 var error = false;
+                $("#addVariantContent .alert-wl").remove();
 
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
                     var barcode = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
 
-                    if(barcodeValues.includes(barcode)){
-                        $("#addVariantContent").prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
-                        error = true
+                    if (singleBarcodeEmpty(barcodeIndex, addBarcodeContainers, barcode) || barcodeValid(barcode, barcodes, "#addVariantContent")) {
+                        params["barcodez[" + loopIndex + "].id"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.id").val();
+                        params["barcodez[" + loopIndex + "].barcode"] = barcode;
+                        params["barcodez[" + loopIndex + "].effectiveDate"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.effectiveDate").val();
+                        params["barcodez[" + loopIndex + "].recordStatus"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.recordStatus").val();
+                        barcodes.push(barcode)
                     } else {
-                        params["barcodez[" +loopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
-                        params["barcodez[" +loopIndex +"].barcode"] = barcode;
-                        params["barcodez[" +loopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
-                        params["barcodez[" +loopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
-                        barcodeValues.push(barcode)
+                        error = true
                     }
                 });
 
@@ -389,9 +389,22 @@
                         $('#addVariantModal').modal("hide");
                     }
                 });}
+            }
 
+            function singleBarcodeEmpty(barcodeIndex, addBarcodeContainers, barcode) {
+                return barcodeIndex === "0" && addBarcodeContainers.length < 2 && barcode.length === 0
+            }
 
+            function barcodeValid(barcode, barcodes, content) {
+                if (barcode != null && !barcode.trim()) {
+                    $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`)
+                    return false
+                } else if(barcodes.includes(barcode)){
+                    $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
+                    return false
+                }
 
+                return true
             }
 
             function saveTempLocations(index) {
@@ -722,6 +735,7 @@
                 params["productVariantId"] = variantId;
 
                 const isWeighted = isWeightedItem();
+                var error = false;
 
                 var addPackContainers = $("#addPacksContainer-" +variantIndex +" > div");
                 addPackContainers.each(function(loopIndex) {
@@ -747,26 +761,26 @@
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
 
                     var addBarcodeContainers = $("#addBarcodesContainer" + packIndex + " > div");
-
-                    var barcodeValues = []; // To store the barcode values for validation
-                    var error = false;
+                    var barcodes = []; // To store the barcode values for validation
+                    $("#suppliersContent .alert-wl").remove();
 
                     addBarcodeContainers.each(function(innerLoopIndex) {
                         var barcodeIndex = $(this).attr("id").substring(10);
                         var barcode = $(this).children("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
 
-                        if(barcodeValues.includes(barcode)){
-                            $("#addVariantContent").prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
-                            error = true
-                        } else {
+                        if (barcodeValid(barcode, barcodes, "#suppliersContent")) {
                             params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
                             params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].barcode"] = barcode;
                             params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].effectiveDate"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.effectiveDate").val();
                             params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].recordStatus"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.recordStatus").val();
-                            barcodeValues.push(barcode)
+                            barcodes.push(barcode)
+                        } else {
+                            error = true
                         }
                     });
                 });
+
+                if (!error) {
                     $.ajax({
                         url: savePackUrl,
                         method: "POST",
@@ -780,6 +794,7 @@
                             $("#suppliersContent").html(xhr.responseText);
                         }
                     });
+                }
             }
 
             function isWeightedItem() {
