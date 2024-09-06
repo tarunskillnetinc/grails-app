@@ -37,6 +37,7 @@ class ReportingController {
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
     private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "storeId", "fromLocation", "toLocation", "amount", "type", "reason", "userName"]
+    private static final CHARITY_DONATION_REPORT_SORT_COLUMNS = ["storeNumber", "tillId", "transactionId", "basketTotal", "donationTotal", "dateCreated"]
 
     def index() {
 
@@ -2120,5 +2121,95 @@ class ReportingController {
         }
 
         return Integer.parseInt(paramValue)
+    }
+
+    def charityDonations() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1).minusMillis(1)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+        def promotionSales = reportingService.getCharityDonations(startDate, endDate, null, 50, 0, "storeId", "asc")
+
+        [reportType : ReportType.CHARITY_DONATIONS,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.CHARITY_DONATIONS),
+         stores     : stores]
+    }
+
+    def ajaxCharityDonations(SortParams sortParams) {
+        sortParams.validateParams(CHARITY_DONATION_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName
+            def donations = reportingService.getCharityDonations(startDate, endDate, storeId, Integer.MAX_VALUE, 0, sortParams.sortColumn, sortParams.sortOrder)
+
+            if (storeId == null) {
+                fileName = "CharityDonation-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            } else {
+                def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+                def store = stores.find { it.id == storeId }
+                def storeNumber = store.config.storeNumber
+
+                fileName = "CharityDonation-" + storeNumber + "-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            }
+
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getCharityDonationsCsv(donations)
+        } else {
+            // Find all charity donations in the date range
+            def donations = reportingService.getCharityDonations(startDate, endDate, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+            donations.sort { it."${sortParams.sortColumn}" }
+
+            if (sortParams.sortOrder == "desc") {
+                donations = donations.reverse()
+            }
+
+            int totalResults = donations.size()
+            donations = sortParams.offset < donations.size() ? donations.subList(sortParams.offset, (sortParams.offset + sortParams.max < donations.size() ? sortParams.offset + sortParams.max : donations.size())) : []
+
+            render(template: "charityDonationsResults", model: [donations    : donations,
+                                                               userColumns   : reportingService.getReportColumns(ReportType.CHARITY_DONATIONS),
+                                                               startDate     : startDate,
+                                                               endDate       : endDate,
+                                                               sortParams    : sortParams,
+                                                               totalResults  : totalResults])
+        }
+    }
+
+    private String getCharityDonationsCsv(List<CharitySale> charityDonations) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Store,Till Number,Transaction ID,Basket Total,Donation Amount,Date\n")
+        charityDonations?.each {
+            stringBuilder.append(it.storeNumber)
+            stringBuilder.append(",")
+            stringBuilder.append(it.tillId)
+            stringBuilder.append(",")
+            stringBuilder.append(it.transactionId)
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.basketTotal?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.donationTotal?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append(it.dateCreated?.toString("dd/MM/yyyy HH:mm"))
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
     }
 }

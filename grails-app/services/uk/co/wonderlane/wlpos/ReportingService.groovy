@@ -288,6 +288,23 @@ class ReportingService {
     }
 
     @ReadOnly('reportingReadOnly')
+    def getCharityDonations(DateTime startDate, DateTime endDate, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def charityDonationsCriteria = CharitySale.withTransaction { CharitySale.createCriteria() }
+
+        def results = charityDonationsCriteria.list() {
+            eq("retailerId", springSecurityService.principal.retailerId)
+
+            if (storeId != null) {
+                eq("storeId", storeId)
+            }
+
+            between("dateCreated", startDate, endDate)
+        }
+
+        return results
+    }
+
+    @ReadOnly('reportingReadOnly')
     def getTenderMovements(DateTime startDate, DateTime endDate, TenderMovementType tenderMovementType, TenderType tenderType, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
         def tenderMovementCriteria = TenderMovement.withTransaction { TenderMovement.createCriteria() }
 

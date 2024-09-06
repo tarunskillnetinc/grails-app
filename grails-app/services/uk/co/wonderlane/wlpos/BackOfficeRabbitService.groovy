@@ -74,7 +74,7 @@ class BackOfficeRabbitService extends RabbitService {
                     rabbitQueues.add(it)
                 }
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             System.println("Error found when loading existing queues, Error " + ex)
             log.error("Error found when loading existing queues, Error " + ex)
         }
@@ -108,10 +108,10 @@ class BackOfficeRabbitService extends RabbitService {
             def responseJson = urlConnection.inputStream.text
 
             // Convert the response JSON into a list of RabbitQueue objects.
-            Type listType = new TypeToken<ArrayList<RabbitQueue>>(){}.getType()
+            Type listType = new TypeToken<ArrayList<RabbitQueue>>() {}.getType()
 
             return gson.fromJson(responseJson, listType)
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             System.println("Error found when loading existing queues, Error " + ex)
             log.error("Exception when creating till connection")
         }
@@ -165,6 +165,12 @@ class BackOfficeRabbitService extends RabbitService {
 
             sendExchangeMessage(exchangeName, gson.toJson(syncMessage))
         }
+    }
+
+    void sendOfferAllocationMessage(String exchange, SyncMessage loyaltyOfferSyncMessage){
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
+        declareExchange(exchange)
+        sendExchangeMessage(exchange, gson.toJson(loyaltyOfferSyncMessage))
     }
 
     void sendSenderExchangeMessage(String json) throws IOException, RabbitServiceException {
