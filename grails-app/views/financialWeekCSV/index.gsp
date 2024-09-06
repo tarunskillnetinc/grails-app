@@ -66,22 +66,23 @@
                 contentType: false,
                 cache: false,
                 processData: false,
-                success: function (resp) {
-                    $("#uploadResults").html(resp);
-                    uploadButton.disabled = false
-                    uploadButton.innerHTML = "Upload Financial Week"
-                    bindUploadButtons()
-                    resetFileUploadInput();
-                    setPreventWindowNavigation(null);
-                    showSuccessAlert();
-                },
-                error: function (resp) {
-                    if (resp.status === 413) {
-                        handleUploadError(uploadButton, "File size too large. Please try again.")
-                    } else if (resp.status === 409) {
-                        handleUploadError(uploadButton, "Duplicate financial weeks in file. Upload aborted.")
-                    } else {
-                        handleUploadError(uploadButton, resp.responseText.message + resp.status)
+                dataType: 'json',  // Ensure that the response is expected as JSON
+                statusCode: {
+                    500: function (response) {
+                        $("#uploadResults").html("");
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Financial Week"
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                        errorMessageDisplay(response)
+                    },
+                    200: function (response) {
+                        $("#uploadResults").html("");
+                        uploadButton.disabled = false
+                        uploadButton.innerHTML = "Upload Financial Week"
+                        resetFileUploadInput();
+                        setPreventWindowNavigation(null);
+                        showSuccessAlert();
                     }
                 }
             });
@@ -124,41 +125,63 @@
                     contentType: false,
                     cache: false,
                     processData: false,
-                    success: function (resp) {
-                        $("#uploadResults").html("");// Stop spinner as it has finished
-                        uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Financial Week"
-                        showSuccessAlert()
-                        resetFileUploadInput();
-                        setPreventWindowNavigation(null);
-                    },
-                    error: function (data) {
-                        if (data.status === 413) {
+                    statusCode: {
+                        500: function (response) {
+                            alert("hiiiii 500")
                             $("#uploadResults").html(""); // Stop spinner as it has errored
-                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
                             uploadButton.disabled = false
                             uploadButton.innerHTML = "Upload Financial Week"
-                            showErrorAlert("File size too large. Please try again.")
+                            errorMessageDisplay(data)
                             resetFileUploadInput();
                             setPreventWindowNavigation(null);
-                        } else if (!data.status === 504) {
-                            $("#uploadResults").html(""); // Stop spinner as it has errored
-                            const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                        },
+                        200: function (response) {
+                            $("#uploadResults").html("");// Stop spinner as it has finished
                             uploadButton.disabled = false
                             uploadButton.innerHTML = "Upload Financial Week"
-                            showErrorAlert("There was an error completing the import. Please try again.")
-                            resetFileUploadInput();
-                            setPreventWindowNavigation(null);
-                        } else {
-                            $("#uploadResults").html(""); // Stop spinner as it has errored
-                            uploadButton.disabled = false
-                            uploadButton.innerHTML = "Upload Financial Week"
-                            showErrorAlert("Server Timeout")
+                            showSuccessAlert()
                             resetFileUploadInput();
                             setPreventWindowNavigation(null);
                         }
-
                     }
+                    // success: function (resp) {
+                    //     $("#uploadResults").html("");// Stop spinner as it has finished
+                    //     uploadButton.disabled = false
+                    //     uploadButton.innerHTML = "Upload Financial Week"
+                    //     showSuccessAlert()
+                    //     resetFileUploadInput();
+                    //     setPreventWindowNavigation(null);
+                    // },
+                    // error: function (data) {
+                    //     console.log("hiii console  " + data.status)
+                    //     if (data.status === 413) {
+                    //         $("#uploadResults").html(""); // Stop spinner as it has errored
+                    //         const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                    //         uploadButton.disabled = false
+                    //         uploadButton.innerHTML = "Upload Financial Week"
+                    //         showErrorAlert("File size too large. Please try again.")
+                    //         resetFileUploadInput();
+                    //         setPreventWindowNavigation(null);
+                    //     } else if (!data.status === 504) {
+                    //         alert("hiiiii 504")
+                    //         $("#uploadResults").html(""); // Stop spinner as it has errored
+                    //         const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string
+                    //         uploadButton.disabled = false
+                    //         uploadButton.innerHTML = "Upload Financial Week"
+                    //         showErrorAlert("There was an error completing the import. Please try again.")
+                    //         resetFileUploadInput();
+                    //         setPreventWindowNavigation(null);
+                    //     } else {
+                    //         alert("hiiiii 500")
+                    //         $("#uploadResults").html(""); // Stop spinner as it has errored
+                    //         uploadButton.disabled = false
+                    //         uploadButton.innerHTML = "Upload Financial Week"
+                    //         errorMessageDisplay(data)
+                    //         resetFileUploadInput();
+                    //         setPreventWindowNavigation(null);
+                    //     }
+                    //
+                    // }
                 });
             });
 
@@ -166,6 +189,38 @@
                 resetMessages();
                 $("#uploadResults").html("");
             });
+        }
+
+
+        function errorMessageDisplay(response){
+            console.log("I'm back at error page")
+            var errorList = response.responseJSON.error;
+            if (errorList && errorList.length > 0) {
+                var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+
+                errorList.forEach(function(errorMessage) {
+                    var errorMessageSpan = $('<span>' + errorMessage + '</span>');
+                    errorDiv.append(errorMessageSpan);
+                    errorDiv.append($('<br>'));
+                });
+
+                var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
+
+                closeIcon.click(function () {
+                    errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
+                });
+
+                errorDiv.append(closeIcon);
+                $('#errors-container').html(errorDiv);
+
+                // Adjust icon position to top-right corner
+                closeIcon.css({
+                    "position": "absolute",
+                    "top": "-10px",
+                    "right": "1px",
+                    "margin": "0.5rem"
+                });
+            }
         }
 
 
@@ -199,6 +254,8 @@
         </div>
     </div>
 
+    <section id="errors-container" class="container-fluid mb-20"></section>
+
     <div class="row mt-5 justify-content-center"> <!-- Increased the margin-top to 5 -->
         <div class="col-6 d-flex align-items-center justify-content-center">
             <span class="font-weight-bold" style="font-size: 1.25rem; margin-right: 15px;">Select financial year:</span>
@@ -214,11 +271,11 @@
 
 
 
-<section id="alerts-container" class="container-fluid">
-    <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>
+%{--<section id="alerts-container" class="container-fluid">--}%
+%{--    <div class="alert alert-success alert-wl mx-0" role="alert" id="successMessage" style="display: none"></div>--}%
 
-    <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>
-</section>
+%{--    <div class="alert alert-danger alert-wl mx-0" role="alert" id="failureMessage" style="display: none"></div>--}%
+%{--</section>--}%
 
 
 

@@ -1,25 +1,17 @@
 package uk.co.wonderlane.wlpos
 
-
-import grails.gorm.transactions.Transactional
-import org.apache.commons.io.input.XmlStreamReader
+import groovy.json.JsonOutput
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.springframework.security.access.annotation.Secured
-import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
 class FinancialWeekCSVController extends BaseController {
     def springSecurityService
-    DatabaseCredentials databaseCredentials
-    def csvService
     def financialWeekService
 
 
@@ -35,85 +27,51 @@ class FinancialWeekCSVController extends BaseController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    @Transactional
     def ajaxCSVFinancialWeekImport() {
         def retailerId = Retailer.get(springSecurityService.principal.retailerId).id
         def file = request.getFile('file')
-        byte[] fileBytes = file.getBytes()
-        String importError
-
-        XmlStreamReader xmlStreamReader = new XmlStreamReader(new ByteArrayInputStream(fileBytes))
-        String detectedEncoding = xmlStreamReader.getEncoding()
-
-        // Check if the file is UTF-8 encoded
-
-        // Check if the file is UTF-8 encoded with BOM
-
-        // File is UTF-8 encoded correctly without BOM proceed with upload
-        def inputStream = file.inputStream
-
+        List<String> responseErrors = []
         try {
-            // No validation errors, can continue with the import preparation
-            if (!importError) {
+            List<FinancialWeek> financialWeeks = []
+            List<String> errors = []
+            int maxErrors = 10
 
-                inputStream.withReader('UTF-8') { reader ->
-                    reader.eachLine { line, lineNumber ->
-                        // Skip the header row if present
-                        if (lineNumber == 1 && line.startsWith("header_column_name")) return
+            //Read imported csv and return all rows (max = 53)
+            List<String[]> rows = financialWeekService.readCsvFile(file)
 
-                        // Split the line by commas
-                        def columns = line.split(",")
+            //This method will validate each row
+            // 1 -> Do row level validation
+            // 2 -> If no error prepare Grom entity
+            // 3 -> If any errors then put them into list
+            financialWeeks =  financialWeekService.processCsvDataRows(rows, errors)
 
-                        // Assign each split part to a variable
-                        def startDate = columns[0]?.trim()   // e.g., 2024/08/03
-                        def financialYear = columns[1]?.trim()   // e.g., 2024/25
-                        def weekNumber = columns[2]?.trim()  // e.g., 18
+            //Once processing all rows validate return financial week list
+            financialWeekService.validateFinancialWeekList(financialWeeks, errors);
 
-                        String inputDate = new String(startDate);
-                        boolean isDateAppended
-                        SimpleDateFormat dateFormatWithTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-                        dateFormatWithTime.setLenient(false);
-
-                        try {
-                            dateFormatWithTime.parse(inputDate);
-                            isDateAppended = true
-                        } catch (ParseException e) {
-                            isDateAppended = false
-                        }
-
-
-                        if (isDateAppended) {
-                            DateTime dateTime = new DateTime(inputDate);
-                            if (financialWeekService.saveFinancialWeek(dateTime, financialYear, weekNumber, retailerId)) {
-                                flash.message = "File processed and data saved successfully!"
-                            } else {
-                                importError = "Error occurred during saving of file to database"
-                                response.status = 409
-                            }
-                        } else {
-                            inputDate = convertDateFormat(inputDate)
-                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-                            LocalDate date = LocalDate.parse(inputDate, dateFormatter);
-                            LocalDateTime dateTime = date.atStartOfDay();
-                            ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.systemDefault());
-                            long instantMillis = zonedDateTime.toInstant().toEpochMilli();
-                            DateTime jodaDateTime = new DateTime(instantMillis, org.joda.time.DateTimeZone.forID(ZoneId.systemDefault().getId()));
-
-                            if (financialWeekService.saveFinancialWeek(jodaDateTime, financialYear, weekNumber, retailerId)) {
-                                flash.message = "File processed and data saved successfully!"
-                            } else {
-                                importError = "Error occurred during saving of file to database"
-                                response.status = 409
-                            }
-                        }
-                    }
+            if (errors.isEmpty()) {  // If no validation errors, save to database as batch
+                //Persist all successful entries as batch insert
+                financialWeekService.saveFinancialWeeksInBatches(financialWeeks)
+                flash.message = "File processed and data saved successfully!"
+                log.info("Successfully process financial week csv file..... ")
+                render(action: "index")
+            } else { // Show all errors and rollback
+                //Handle failures
+                log.error("Errors found processing financial week csv file  ")
+                if (errors.size() > maxErrors) { // Limit errors to maxErrors and add a message if there are more
+                    errors = errors.take(maxErrors)
+                    errors << "More errors found, please validate the CSV file again."
                 }
+                responseErrors << "Import failed with the following errors:\n" + errors.join("\n")
+                response.setStatus(500)
+                render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: responseErrors])
             }
-        } catch (Exception e) {
-            e.printStackTrace()
-            importError = "Error occurred during saving of file to database"
-        }
 
+        } catch (Exception e) {
+            log.error("Errors found processing financial week csv file  ")
+            responseErrors << "Unexpected error occurred during file processing."
+            response.setStatus(500)
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: responseErrors])
+        }
     }
 
     def confirmImport() {
@@ -141,55 +99,7 @@ class FinancialWeekCSVController extends BaseController {
         records.each { record ->
             sb.append("${record.startDate},${record.financialYear},${record.weekNumber}\n")
         }
-
         return sb.toString()
     }
 
-    private String convertDateFormat(String inputDate) {
-        inputDate = inputDate.trim()
-        inputDate = inputDate.replaceAll("[^\\x20-\\x7E]", "")
-        // Regular expressions to check the date format
-        def dashPattern = /^\d{4}-\d{2}-\d{2}$/
-        def slashPattern = /^\d{4}\/\d{2}\/\d{2}$/
-
-        // Check if the inputDate is in YYYY-MM-DD format
-        if (inputDate ==~ dashPattern) {
-            // Replace dashes with slashes
-            return inputDate.replaceAll('-', '/')
-        }
-        // Check if the inputDate is in YYYY/MM/DD format
-        else if (inputDate ==~ slashPattern) {
-            // Return the date as is
-            return inputDate
-        }
-        // If the date format is unknown
-        else {
-            return "Unknown format"
-        }
-    }
-}
-
-@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-class saveFinancialWeekCommand {
-
-    String startDate
-    String financialYear
-    Integer weekNumber
-    Integer retailerId
-
-    static constraints = {
-        startDate nullable: false
-        financialYear nullable: false
-        weekNumber nullable: false
-        retailerId nullable: false
-    }
-
-    static mapping = {
-        table 'financialweek '  // Define your actual table name
-        id generator: 'id'
-        startDate column: 'startDate'
-        financialYear column: 'financialYear'
-        weekNumber column: 'weekNumber'
-        retailerId column: 'retailerId'
-    }
 }
