@@ -2,8 +2,6 @@ package uk.co.wonderlane.wlpos
 
 import com.opencsv.CSVReader
 import grails.gorm.transactions.Transactional
-import org.hibernate.Session
-import org.hibernate.Transaction
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.web.multipart.MultipartFile
@@ -28,44 +26,7 @@ class FinancialWeekService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    @Transactional('reporting')
-    boolean saveFinancialWeek(DateTime startDate, String financialYear, String weekNumber, Integer retailerId) {
-
-        Session session = sessionFactory.openSession()
-        Transaction transaction = session.beginTransaction()
-
-        FinancialWeek existingFinancialWeek = FinancialWeek.findByStartDate(startDate)
-        if (existingFinancialWeek) {
-            return false
-        }
-        def financialWeek = new FinancialWeek(retailerId: retailerId, startDate: startDate, financialYear: financialYear, weekNumber: weekNumber)
-        if (financialWeek.save(flush: true)) {
-            println "Person saved successfully."
-            return true
-        } else {
-            println "Failed to save person."
-            return false
-        }
-        transaction.commit()
-        session.close()
-    }
-
-    @Transactional('reporting')
-    List<FinancialWeek> getAllFinancialWeeks() {
-        def financialWeeks = FinancialWeek.list()
-        return financialWeeks.unique { it.financialYear }
-    }
-
-    @Transactional('reporting')
-    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear) {
-        def criteria = FinancialWeek.createCriteria()
-
-        return criteria.list {
-            eq("financialYear", financialYear)
-        }
-    }
-
-    @Transactional('reporting')
+   @Transactional('reporting')
    saveFinancialWeeksInBatches(List<FinancialWeek> financialWeeks) {
         try {
             FinancialWeek.saveAll(financialWeeks)// Save all financial weeks in this batch
@@ -78,7 +39,28 @@ class FinancialWeekService extends MySqlDal {
             log.error("Error saving batch of FinancialWeeks, exception $ex")
             throw ex
         }
+    }
 
+    @Transactional('reporting')
+    List<FinancialWeek> getAllFinancialWeeks() {
+        def financialWeeks = FinancialWeek.list()
+        return financialWeeks.unique { it.financialYear }
+    }
+
+    @Transactional('reporting')
+    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear) {
+        def criteria = FinancialWeek.createCriteria()
+        return criteria.list {
+            eq("financialYear", financialYear)
+        }
+    }
+
+    boolean isFinancialYearExists(String financialYear){
+        List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear)
+        if (existingWeeksForFinancialYear!= null && !existingWeeksForFinancialYear.isEmpty()){
+            return true;
+        }
+        return false;
     }
 
     List<String[]> readCsvFile(MultipartFile file){
@@ -94,7 +76,7 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    List<FinancialWeek> processCsvDataRows(List<String[]> rows, List<String> errors) {
+    List<FinancialWeek> processCsvDataRows(List<String[]> rows, List<String> errors, int retailerId) {
         List<FinancialWeek> financialWeeks = []
         try{
             if (rows == null || rows.isEmpty()) { // Check if there was an error during file read
@@ -116,7 +98,7 @@ class FinancialWeekService extends MySqlDal {
                         Date convertedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
                         DateTime dateTime = new DateTime(convertedDate).withZone(DateTimeZone.UTC);
                         int weekNumber = weekNumberStr as int
-                        financialWeeks << new FinancialWeek(startDate: dateTime, financialYear: financialYear, weekNumber: weekNumber)
+                        financialWeeks << new FinancialWeek(startDate: dateTime, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
                     } else{
                         errors.addAll(lineErrors)
                     }
@@ -132,10 +114,44 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
+    void financialYearPreValidation(List<String[]> rows, List<String> errors){
+        Set<String> financialYears = rows.collect { it[1] } as Set // Extract the financial years
+        if (financialYears.size() > 1) {
+            errors << "Financial year should be unique within the CSV file. Found: $financialYears"
+            throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+        }
+
+        if (financialYears.size() < 0){
+            errors << "Financial year should be unique within the CSV file. Found: $financialYears"
+            throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+        }
+
+        String financialYear = financialYears.first()
+        if (isFinancialYearExists(financialYear)){
+            errors << "Financial year already exists. Found: $financialYears"
+            throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+        }
+
+    }
+
     void validateFinancialWeekList(List<FinancialWeek> financialWeeks, List<String> errors){
         if (!financialWeeks.isEmpty() && financialWeeks.size() > 0){
             errors.addAll(validateFinancialWeekSequence(financialWeeks))
         }
+    }
+
+    List<String> prepareErrorResponse(List<String> errors, int maxErrors){
+        List<String> errorResponseMessages = []
+        if (errors.size() > 0){
+            if (errors.size() > maxErrors) { // Limit errors to maxErrors and add a message if there are more
+                errors = errors.take(maxErrors)
+                errors << "More errors found, please validate the CSV file again."
+            }
+            errorResponseMessages.addAll(errors)
+        } else {
+            errorResponseMessages.add("Unexpected error occurred during file processing.")
+        }
+        return errorResponseMessages;
     }
 
     private List<String> validateCsvDataRow(int lineNumber, String startDate, String weekNumberStr, String financialYear, List<FinancialWeek> financialWeeks){
@@ -169,10 +185,12 @@ class FinancialWeekService extends MySqlDal {
             try { // If parsing fails, try the second format
                 return LocalDate.parse(dateStr, formatterMM_DD_YYYY)
             } catch (DateTimeParseException ex) {
-                throw new IllegalArgumentException("Invalid date format: " + dateStr);  // If both formats fail, throw an exception
+                throw new DateTimeParseException("Invalid date format: " + dateStr, dateStr, 0);  // If both formats fail, throw an exception
             }
+        } catch (DateTimeParseException ex) {
+            throw new DateTimeParseException("Financial week date parsing error: " + dateStr, dateStr, 0);
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Date parsing error: " + dateStr);
+            throw new IllegalArgumentException("Financial week date parsing unexpected error: " + dateStr);
         }
     }
 
@@ -215,8 +233,10 @@ class FinancialWeekService extends MySqlDal {
         List<String> errors = []
         try {
             parseDate(dateStr)
-        } catch (ParseException e) {
+        } catch (DateTimeParseException ex) {
             errors << "Line $lineNumber: Invalid date format in '$dateStr'"
+        } catch (Exception ex){
+            errors << "Line $lineNumber: unexpcted date parsing error '$dateStr'"
         }
         return errors
     }
