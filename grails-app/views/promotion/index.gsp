@@ -122,11 +122,17 @@
             </nav>
         </section>
 
-        <section id="alerts-container" class="container-fluid">
-            <g:if test="${flash.message}">
+        <g:if test="${flash.message}">
+            <section id="alerts-container" class="container-fluid">
                 <div id="alerts-container-message" class="alert alert-success" role="alert">${flash.message}</div>
-            </g:if>
-        </section>
+            </section>
+        </g:if>
+
+        <g:if test="${flash.error}">
+            <section id="alerts-error-container" class="container-fluid">
+                <div id="alerts-error-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+            </section>
+        </g:if>
 
         <section id="promo-maintenance-search" class="container-fluid">
             <div class="row header-wl mt-3">

@@ -8,6 +8,7 @@ import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.enums.TillControlEventType
+import uk.co.wonderlane.wlpos.reporting.CharitySale
 import uk.co.wonderlane.wlpos.reporting.PayPointSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSale
 import uk.co.wonderlane.wlpos.reporting.PromotionSaleProduct
@@ -292,6 +293,23 @@ class ReportingService {
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
         int totalCount = PayPointSale.withTransaction { results.totalCount }
+        return results
+    }
+
+    @ReadOnly('reportingReadOnly')
+    def getCharityDonations(DateTime startDate, DateTime endDate, Integer storeId, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+        def charityDonationsCriteria = CharitySale.withTransaction { CharitySale.createCriteria() }
+
+        def results = charityDonationsCriteria.list() {
+            eq("retailerId", springSecurityService.principal.retailerId)
+
+            if (storeId != null) {
+                eq("storeId", storeId)
+            }
+
+            between("dateCreated", startDate, endDate)
+        }
+
         return results
     }
 

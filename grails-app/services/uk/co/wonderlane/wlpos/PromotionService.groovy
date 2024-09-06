@@ -66,7 +66,7 @@ class PromotionService {
             }
             if (springSecurityService.principal.storeId) {
                 stores {
-                    inList("storeId", springSecurityService.principal.storeId)
+                    inList("id", springSecurityService.principal.storeId)
                 }
             }
         }
@@ -150,7 +150,7 @@ class PromotionService {
 
             if (springSecurityService.principal.storeId) {
                 stores {
-                    inList("storeId", springSecurityService.principal.storeId)
+                    inList("id", springSecurityService.principal.storeId)
                 }
             }
         }

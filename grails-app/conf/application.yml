@@ -207,6 +207,8 @@ environments:
             username: rabbituser
             password: Pa**W0rd01
             useSsl: false
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
@@ -310,6 +312,8 @@ environments:
             username: retailplatform
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
@@ -408,6 +412,8 @@ environments:
             username: retailplatform
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
@@ -500,6 +506,8 @@ environments:
             username: retailplatform
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
@@ -587,6 +595,8 @@ environments:
             username: retailplatform
             password: twP0KDKRsXJt6eQ7F8vy
             useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
@@ -678,6 +688,8 @@ environments:
             username: cloudoffice
             password: BIirEAt0dC89whYZgJZE
             useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
@@ -775,6 +787,8 @@ environments:
             username: cloudoffice
             password: Y3mzLq2vROAwiPaExC6O
             useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
 
         mysql:
             wlpos:
