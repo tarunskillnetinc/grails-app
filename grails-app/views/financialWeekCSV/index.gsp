@@ -140,90 +140,10 @@
             $('#csvFileUploadInput').get(0).value = null
         }
 
-        %{--function bindUploadButtons() {--}%
-        %{--    $("#uploadSave").click(function () {--}%
-        %{--        $("#uploadResults").html("<div class=\"modal-body\">"--}%
-        %{--            + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait importing results...</h3></div></div>"--}%
-        %{--            + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");--}%
-        %{--        let url = "${createLink(controller: 'FinancialWeekCSV', action:'confirmImport')}";--}%
-        %{--        const uploadButton = document.getElementById('uploadFinancialWeekBtn');--}%
-        %{--        $.ajax({--}%
-        %{--            url: url,--}%
-        %{--            type: "POST",--}%
-        %{--            mimeType: "multipart/form-data",--}%
-        %{--            contentType: false,--}%
-        %{--            cache: false,--}%
-        %{--            processData: false,--}%
-        %{--            statusCode: {--}%
-        %{--                500: function (response) {--}%
-        %{--                    $("#uploadResults").html(""); // Stop spinner as it has errored--}%
-        %{--                    uploadButton.disabled = false--}%
-        %{--                    uploadButton.innerHTML = "Upload Financial Week"--}%
-        %{--                    errorMessageDisplay(data)--}%
-        %{--                    resetFileUploadInput();--}%
-        %{--                    setPreventWindowNavigation(null);--}%
-        %{--                },--}%
-        %{--                200: function (response) {--}%
-        %{--                    $("#uploadResults").html("");// Stop spinner as it has finished--}%
-        %{--                    uploadButton.disabled = false--}%
-        %{--                    uploadButton.innerHTML = "Upload Financial Week"--}%
-        %{--                    showSuccessAlert()--}%
-        %{--                    resetFileUploadInput();--}%
-        %{--                    setPreventWindowNavigation(null);--}%
-        %{--                }--}%
-        %{--            }--}%
-        %{--            // success: function (resp) {--}%
-        %{--            //     $("#uploadResults").html("");// Stop spinner as it has finished--}%
-        %{--            //     uploadButton.disabled = false--}%
-        %{--            //     uploadButton.innerHTML = "Upload Financial Week"--}%
-        %{--            //     showSuccessAlert()--}%
-        %{--            //     resetFileUploadInput();--}%
-        %{--            //     setPreventWindowNavigation(null);--}%
-        %{--            // },--}%
-        %{--            // error: function (data) {--}%
-        %{--            //     console.log("hiii console  " + data.status)--}%
-        %{--            //     if (data.status === 413) {--}%
-        %{--            //         $("#uploadResults").html(""); // Stop spinner as it has errored--}%
-        %{--            //         const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string--}%
-        %{--            //         uploadButton.disabled = false--}%
-        %{--            //         uploadButton.innerHTML = "Upload Financial Week"--}%
-        %{--            //         showErrorAlert("File size too large. Please try again.")--}%
-        %{--            //         resetFileUploadInput();--}%
-        %{--            //         setPreventWindowNavigation(null);--}%
-        %{--            //     } else if (!data.status === 504) {--}%
-        %{--            //         alert("hiiiii 504")--}%
-        %{--            //         $("#uploadResults").html(""); // Stop spinner as it has errored--}%
-        %{--            //         const response = JSON.parse(data) // when timing out this fails to parse JSON data as data is not a parsable JSON string--}%
-        %{--            //         uploadButton.disabled = false--}%
-        %{--            //         uploadButton.innerHTML = "Upload Financial Week"--}%
-        %{--            //         showErrorAlert("There was an error completing the import. Please try again.")--}%
-        %{--            //         resetFileUploadInput();--}%
-        %{--            //         setPreventWindowNavigation(null);--}%
-        %{--            //     } else {--}%
-        %{--            //         alert("hiiiii 500")--}%
-        %{--            //         $("#uploadResults").html(""); // Stop spinner as it has errored--}%
-        %{--            //         uploadButton.disabled = false--}%
-        %{--            //         uploadButton.innerHTML = "Upload Financial Week"--}%
-        %{--            //         errorMessageDisplay(data)--}%
-        %{--            //         resetFileUploadInput();--}%
-        %{--            //         setPreventWindowNavigation(null);--}%
-        %{--            //     }--}%
-        %{--            //--}%
-        %{--            // }--}%
-        %{--        });--}%
-        %{--    });--}%
-
-        %{--    $("#uploadCancel").click(function () {--}%
-        %{--        resetMessages();--}%
-        %{--        $("#uploadResults").html("");--}%
-        %{--    });--}%
-        %{--}--}%
-
-
         function messageDisplay(response, isError){
             var divClass = null
             var messageDiv = null
-            if (isError){
+            if (isError){ //Display error messages
                 var messageList = response.responseJSON.response;
                 if (messageList && messageList.length > 0) {
                     divClass = 'alert alert-danger alert-wl mx-0';
@@ -236,7 +156,7 @@
                         messageDiv .append($('<br>'));
                     });
                 }
-            } else {
+            } else { // Display success messages
                 divClass = 'alert alert-success alert-wl mx-0';
                 messageDiv = $('<div class="' + divClass + '" role="alert"></div>');
                 var messageSpan = $('<span>' + 'Financial Week import completed successfully' + '</span>');
