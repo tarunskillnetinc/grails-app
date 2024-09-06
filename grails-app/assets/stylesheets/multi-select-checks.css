@@ -42,3 +42,14 @@
 .multiselect-items.show {
     display: block;
 }
+.multiselect-display.disabled {
+    background-color: #e9ecef; /* Light gray background */
+    color: #6c757d; /* Gray text color */
+    cursor: not-allowed; /* Change cursor to indicate it's disabled */
+    opacity: 0.65; /* Slightly transparent */
+}
+
+.multiselect-items input:disabled {
+    background-color: #e9ecef; /* Light gray background for disabled checkboxes */
+    cursor: not-allowed; /* Change cursor for disabled checkboxes */
+}

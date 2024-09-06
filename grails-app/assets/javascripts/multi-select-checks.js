@@ -5,8 +5,9 @@
  @param {string} hiddenInputId The ID of the hidden input field that can be used from outside the multi-select field, useful for submitting form data of the selected options.
  @param {string[]} items The array of strings that contain the display text for the multi-select options.
  @param {string} placeholder The text that displays on the top element when no item is selected.
+ @param {boolean} isDisabled Selection box can be disabled with this boolean
  */
-function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholder = 'Select Items') {
+function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholder = 'Select Items', isDisabled = false) {
     const container = document.getElementById(containerId);
     const hiddenInput = document.getElementById(hiddenInputId);
 
@@ -16,6 +17,12 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
     const display = document.createElement('div');
     display.classList.add('multiselect-display');
     display.innerHTML = `<span>${placeholder}</span><span class="dropdown-arrow">&#9662;</span>`;
+
+    // Apply disabled styles if `isDisabled` is true
+    if (isDisabled) {
+        display.classList.add('disabled');
+    }
+
     multiselectContainer.appendChild(display);
 
     const itemsContainer = document.createElement('div');
@@ -25,14 +32,14 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
     // Add "Select All" option
     const selectAllElement = document.createElement('div');
     selectAllElement.classList.add('dropdown-item');
-    selectAllElement.innerHTML = `<input type="checkbox" class="select-all-checkbox"> Select All`;
+    selectAllElement.innerHTML = `<input type="checkbox" class="select-all-checkbox" ${isDisabled ? 'disabled' : ''}> Select All`;
     itemsContainer.appendChild(selectAllElement);
 
     // Add individual items
     items.forEach(item => {
         const itemElement = document.createElement('div');
         itemElement.classList.add('dropdown-item');
-        itemElement.innerHTML = `<input type="checkbox" class="item-checkbox" value="${items.indexOf(item) + 1}"> ${item}`;
+        itemElement.innerHTML = `<input type="checkbox" class="item-checkbox" value="${items.indexOf(item) + 1}" ${isDisabled ? 'disabled' : ''}> ${item}`;
         itemsContainer.appendChild(itemElement);
     });
 
@@ -41,9 +48,11 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
     const checkboxes = itemsContainer.querySelectorAll('.item-checkbox');
     const selectAllCheckbox = itemsContainer.querySelector('.select-all-checkbox');
 
-    // Event handling for displaying the dropdown
+    // Event handling for displaying the dropdown (disabled if isDisabled is true)
     display.addEventListener('click', function() {
-        itemsContainer.classList.toggle('show');
+        if (!isDisabled) {
+            itemsContainer.classList.toggle('show');
+        }
     });
 
     // Handle individual checkbox changes
