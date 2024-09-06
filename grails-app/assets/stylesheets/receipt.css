@@ -4,6 +4,9 @@
     margin: 25px;
     padding: 25px;
     border: 1px solid black;
+    overflow-x: auto;
+    overflow-y: auto;
+    overflow-wrap: break-word;
 }
 
 .receipt img {
@@ -19,9 +22,9 @@
 }
 
 .receipt .header {
-    line-height: 0.5;
+    line-height: 1.2;
     text-align: center;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     margin-top: 15px;
 }

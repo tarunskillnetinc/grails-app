@@ -9,8 +9,9 @@
 </script>
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-1 font-weight-bold text-center">Store ID</div>
-    <div class="col-1 font-weight-bold text-center">Till ID</div>
+    <div class="col-2 font-weight-bold text-center">Store</div>
+    <div class="col-1 font-weight-bold text-center">Till Number</div>
+    <div class="col-2 font-weight-bold text-center">Description</div>
     <div class="col-2 font-weight-bold text-center">Serial Number</div>
 </div>
 

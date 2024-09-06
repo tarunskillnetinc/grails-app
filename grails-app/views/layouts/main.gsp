@@ -146,6 +146,11 @@
                                 </g:if>
                             </sec:ifAnyGranted>
                             <g:link elementId="promotional-sales-dropdown" controller="reporting" action="promotionsGrouped" class="dropdown-item">Promotional Sales</g:link>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:link elementId="charity-donations-dropdown" controller="reporting" action="charityDonations" class="dropdown-item">Charity Donations</g:link>
+                                </g:if>
+                            </sec:ifAnyGranted>
 
                             <div class="dropdown-divider"></div>
 
