@@ -1,3 +1,11 @@
+/**
+ The function that generates a UI element that enables multi-select based on checkbox selection options.
+ The top element is for displaying the selected options.
+ @param {string} containerId The ID of the div element that will hold the generated multi-select elements.
+ @param {string} hiddenInputId The ID of the hidden input field that can be used from outside the multi-select field, useful for submitting form data of the selected options.
+ @param {string[]} items The array of strings that contain the display text for the multi-select options.
+ @param {string} placeholder The text that displays on the top element when no item is selected.
+ */
 function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholder = 'Select Items') {
     const container = document.getElementById(containerId);
     const hiddenInput = document.getElementById(hiddenInputId);
