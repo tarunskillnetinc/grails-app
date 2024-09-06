@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import com.opencsv.CSVWriter
+
 import groovy.json.JsonOutput
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
@@ -59,55 +59,16 @@ class FinancialWeekCSVController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def downloadCsv() {
         try {
-
-//        def financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect)
-//        // Replace with your domain class and query
-//        def csvContent = generateCsvContent(financialWeeks)
-//
-//        // Send the file directly to the response
-//        response.setHeader("Content-disposition", "attachment; filename=financialWeeks.csv")
-//        response.contentType = "text/csv"
-//        response.outputStream << csvContent.bytes
-//        response.outputStream.flush()
-//
             def financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect)
-
             response.setHeader("Content-disposition", "attachment; filename=financialWeeks.csv")
             response.contentType = "text/csv"
-
-            // Use OpenCSV to write CSV data to the response's output stream
-            response.outputStream.withWriter('UTF-8') { writer ->
-                CSVWriter csvWriter = new CSVWriter(writer)
-
-                // Write CSV header
-                String[] header = ["StartDate", "FinancialYear", "WeekNumber"]
-                csvWriter.writeNext(header)
-
-                // Write CSV rows (replace this with your actual financialWeeks data)
-                financialWeeks.each { week ->
-                    String[] row = [week.startDate.toString(), week.financialYear, week.weekNumber.toString()]
-                    csvWriter.writeNext(row)
-                }
-
-                csvWriter.flush()
-            }
-
+            financialWeekService.populateCsvDownloadFile(financialWeeks, response.outputStream)
             response.outputStream.flush()
         } catch (Exception ex) {
             log.error("Errors donwloading financial weekly report, exception $ex ")
+            List<String> errorResponseMessages = ["Financial week csv file generation failed"]
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([response: errorResponseMessages])
         }
-    }
-
-    private String generateCsvContent(records) {
-        StringBuilder sb = new StringBuilder()
-
-        // Add header row // Replace with your actual column names
-
-        // Add data rows
-        records.each { record ->
-            sb.append("${record.startDate},${record.financialYear},${record.weekNumber}\n")
-        }
-        return sb.toString()
     }
 
 }

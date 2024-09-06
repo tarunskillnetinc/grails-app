@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import com.opencsv.CSVReader
+import com.opencsv.CSVWriter
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -111,6 +112,28 @@ class FinancialWeekService extends MySqlDal {
         } catch (Exception ex) {
             log.error("Unexpected error when processing CSV file rows , Exception " , ex)
             return []
+        }
+    }
+
+    void populateCsvDownloadFile(List<FinancialWeek> financialWeeks, OutputStream outputStream){
+        try {
+            outputStream.withWriter('UTF-8') { writer ->
+                CSVWriter csvWriter = new CSVWriter(writer)
+
+                // Write CSV header
+                String[] header = ["StartDate", "FinancialYear", "WeekNumber"]
+                csvWriter.writeNext(header)
+
+                // Write CSV rows (replace this with your actual financialWeeks data)
+                financialWeeks.each { week ->
+                    String[] row = [week.startDate.toString(), week.financialYear, week.weekNumber.toString()]
+                    csvWriter.writeNext(row)
+                }
+
+                csvWriter.flush()
+            }
+        } catch (Exception ex) {
+            log.error("Weekly financial csv generation error ,Exception $ex" , ex)
         }
     }
 

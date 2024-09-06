@@ -75,7 +75,7 @@
                         uploadButton.innerHTML = "Upload Financial Week"
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
-                        messageDisplay(response, true);
+                        messageDisplay(response, true, "CSV file import error, Please try again", null);
                     },
                     200: function (response) {
                         $("#uploadResults").html("");
@@ -84,7 +84,7 @@
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
                         showSuccessAlert();
-                        messageDisplay(response, false);
+                        messageDisplay(response, false, null, "Financial Week import completed successfully");
                     }
                 }
             });
@@ -102,18 +102,18 @@
                     contentType: false,
                     cache: false,
                     processData: false,
-                    dataType: 'json',  // Ensure that the response is expected as JSON
+                    dataType: 'json',// Ensure that the response is expected as JSON
                     statusCode: {
                         500: function (response) {
-
+                            messageDisplay(response, true, "CSV file generation error, please try again", null); //Error generating csv weekly financial file
                         },
                         200: function (response) {
-
+                            messageDisplay(response, true, "CSV file successfully generated", null); //Successfully generated csv file
                         }
                     }
                 });
             } else {
-                alert('Please select a financial year before downloading.');
+                messageDisplay(null, true, "Please select a financial year before downloading", null); //Error generating csv weekly financial file
             }
         }
 
@@ -140,21 +140,23 @@
             $('#csvFileUploadInput').get(0).value = null
         }
 
-        function messageDisplay(response, isError){
+        function messageDisplay(response, isError, defaultErrorMessage, defaultSuccessMessage){
             var divClass = null
             var messageDiv = null
             if (isError){ //Display error messages
-                var messageList = response.responseJSON.response;
+                divClass = 'alert alert-danger alert-wl mx-0';
+                messageDiv = $('<div class="' + divClass + '" role="alert"></div>');
+                var messageList = response?.responseJSON?.response;
                 if (messageList && messageList.length > 0) {
-                    divClass = 'alert alert-danger alert-wl mx-0';
-                    messageDiv = $('<div class="' + divClass + '" role="alert"></div>');
-
-
                     messageList.forEach(function(message) {
                         var messageSpan = $('<span>' + message + '</span>');
                         messageDiv .append(messageSpan);
                         messageDiv .append($('<br>'));
                     });
+                } else {
+                    var messageSpan = $('<span>' + defaultErrorMessage + '</span>');
+                    messageDiv .append(messageSpan);
+                    messageDiv .append($('<br>'));
                 }
             } else { // Display success messages
                 divClass = 'alert alert-success alert-wl mx-0';
