@@ -22,6 +22,13 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
     itemsContainer.classList.add('multiselect-items');
     multiselectContainer.appendChild(itemsContainer);
 
+    // Add "Select All" option
+    const selectAllElement = document.createElement('div');
+    selectAllElement.classList.add('dropdown-item');
+    selectAllElement.innerHTML = `<input type="checkbox" class="select-all-checkbox"> Select All`;
+    itemsContainer.appendChild(selectAllElement);
+
+    // Add individual items
     items.forEach(item => {
         const itemElement = document.createElement('div');
         itemElement.classList.add('dropdown-item');
@@ -31,45 +38,71 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
 
     container.appendChild(multiselectContainer);
 
-    // Event handling
+    const checkboxes = itemsContainer.querySelectorAll('.item-checkbox');
+    const selectAllCheckbox = itemsContainer.querySelector('.select-all-checkbox');
+
+    // Event handling for displaying the dropdown
     display.addEventListener('click', function() {
         itemsContainer.classList.toggle('show');
     });
 
-    const checkboxes = itemsContainer.querySelectorAll('.item-checkbox');
+    // Handle individual checkbox changes
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateSelectedItems();
+            updateSelectAllState();
         });
     });
 
+    // Handle "Select All" checkbox change
+    selectAllCheckbox.addEventListener('change', function() {
+        const isChecked = selectAllCheckbox.checked;
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+        updateSelectedItems();
+    });
+
+    // Update the hidden input and display text based on selected items
     function updateSelectedItems() {
         const selectedItems = [];
         const selectedItemsDisplay = [];
         checkboxes.forEach(checkbox => {
             if (checkbox.checked) {
                 selectedItems.push(checkbox.value);
-                selectedItemsDisplay.push(items[parseInt(checkbox.value)])
+                selectedItemsDisplay.push(items[parseInt(checkbox.value) - 1]);
             }
         });
         display.querySelector('span:first-child').textContent = selectedItemsDisplay.join(', ') || placeholder;
         hiddenInput.value = selectedItems.join(''); // Update hidden input value
+        $(hiddenInput).trigger('change');
     }
 
+    // Update the state of the "Select All" checkbox based on individual checkbox states
+    function updateSelectAllState() {
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        selectAllCheckbox.checked = allChecked;
+    }
+
+    // Close the dropdown when clicking outside
     document.addEventListener('click', function(event) {
         if (!multiselectContainer.contains(event.target)) {
             itemsContainer.classList.remove('show');
         }
     });
 
+    // Pre-populate selected items if hidden input has values
     if ($(hiddenInput).val() !== "") {
-        const selectedItems = $(hiddenInput).val().split("")
+        const selectedItems = $(hiddenInput).val().split("");
         const selectedItemsDisplay = [];
         selectedItems.forEach(day => {
-            selectedItemsDisplay.push(items[parseInt(day)])
-            checkboxes[parseInt(day) - 1].checked = true
+            selectedItemsDisplay.push(items[parseInt(day) - 1]);
+            checkboxes[parseInt(day) - 1].checked = true;
         });
-        display.querySelector('span:first-child').textContent = selectedItemsDisplay.join(', ') || placeholder;;
+        display.querySelector('span:first-child').textContent = selectedItemsDisplay.join(', ') || placeholder;
+        updateSelectAllState(); // Ensure the "Select All" checkbox state is accurate
+    } else {
+        // Ensure "Select All" is unchecked by default
+        selectAllCheckbox.checked = false;
     }
-
 }

@@ -47,6 +47,9 @@
             validateTimeInputs('tillAutoSnapshotTime');
             validateTimeInputs('safeAutoSnapshotTime');
 
+            boundTimeInputToDaysSelection('automaticCloseDays', 'automaticCloseTime');
+            boundTimeInputToDaysSelection('tillAutoSnapshotDays', 'tillAutoSnapshotTime');
+            boundTimeInputToDaysSelection('safeAutoSnapshotDays', 'safeAutoSnapshotTime');
 
             $('.mask-money').maskMoney({
                 prefix: '',
@@ -54,7 +57,7 @@
                 thousands: ',',
                 decimal: '.',
                 affixesStay: true,
-                precision: 2
+                precision: 2,
             });
 
             $('.mask-money').on('keydown', function(e) {
@@ -66,12 +69,22 @@
                 var currentValue = $(this).val();
                 currentValue = currentValue.replace(",", "").replace(".","") + e.key
 
-                if (parseFloat(currentValue) > 150000) {
+                if (
+                    ((this.id +'') === "rollingFloatValue" ||
+                    (this.id +'') === "tillShiftVarianceLimit" ||
+                    (this.id +'') === "safeVarianceLimit"
+                    )
+                    && parseFloat(currentValue) > 99900) {
+                    e.preventDefault();
+                } else if( (this.id +'') === 'tillCashHoldingLimit' && parseFloat(currentValue) > 999900) {
+                    e.preventDefault();
+                } else if (parseFloat(currentValue) > 150000) {
                     e.preventDefault();
                 }
             });
-
         });
+
+
 
         function validateTimeInputs(inputId) {
             $('#' + inputId).on('keydown', function(event) {
@@ -149,6 +162,25 @@
 
         }
 
+        function boundTimeInputToDaysSelection(daysSelectionId, timeSelectionId) {
+            if ($('#' + daysSelectionId).val() === "") {
+                $('#'+timeSelectionId).prop('disabled', true);
+                $('#'+timeSelectionId).data('cachedValue', $('#'+timeSelectionId).val())
+            }
+            $('#' + daysSelectionId).on('change', function(){
+                if ($('#' + daysSelectionId).val() !== "") {
+                    $('#'+timeSelectionId).prop('disabled', false);
+                    $('#'+timeSelectionId).val($('#'+timeSelectionId).data('cachedValue'));
+                } else {
+                    $('#'+timeSelectionId).prop('disabled', true);
+                    $('#'+timeSelectionId).data('cachedValue', $('#'+timeSelectionId).val());
+                    $('#'+timeSelectionId).val('');
+                }
+            });
+            $('#'+timeSelectionId).on('change', function (){
+                $(this).data('cachedValue', $(this).val());
+            });
+        }
 
     </script>
     <style>
@@ -228,15 +260,29 @@
                         <div class="col-12">
                             <h5 class="text-center">Till Shifts</h5>
                             <div class="form-group row">
-                                <label for="isManualOpen" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Manual Open</label>
+                                <label for="isManualOpen" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Open Type</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualOpen" id="isManualOpen" ${config?.tillShiftsManualOpen ? 'checked' : ''} />
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" class="form-check-input" name="isManualOpen" id="manualOpen" value="manual" ${config?.tillShiftsManualOpen ? 'checked' : ''} />
+                                        <label class="form-check-label" for="manualOpen">Manual</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" class="form-check-input" name="isManualOpen" id="autoOpen" value="auto" ${!config?.tillShiftsManualOpen ? 'checked' : ''} />
+                                        <label class="form-check-label" for="autoOpen">Auto</label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="isManualClose" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Manual Close</label>
+                                <label for="isManualClose" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Close Type</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isManualClose" id="isManualClose" ${config?.tillShiftsManualClose ? 'checked' : ''} />
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" class="form-check-input" name="isManualClose" id="manualClose" value="manual" ${config ? config?.tillShiftsManualClose ? 'checked' : '':'checked'} />
+                                        <label class="form-check-label" for="manualClose">Manual</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" class="form-check-input" name="isManualClose" id="autoClose" value="auto" ${config ? !config?.tillShiftsManualClose ? 'checked' : '' : ''} />
+                                        <label class="form-check-label" for="autoClose">Auto</label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -272,31 +318,34 @@
                             <div class="form-group row">
                                 <label for="tillShiftRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit"
+                                           value="${config?config.tillShiftRecountLimit? config.tillShiftRecountLimit:'' : 3}" oninput="validateInput(this);"
+                                           onkeydown="acceptMinMaxNumberValue(event, 0, 99);" min="0" max="99"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="tillShiftVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Shift Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <g:render template="priceView" model='[inputId:"tillShiftVarianceLimit", inputName:"tillShiftVarianceLimit", fieldValue:config?.tillShiftVarianceLimit]'/>
+                                    <g:render template="priceView" model='[inputId:"tillShiftVarianceLimit", inputName:"tillShiftVarianceLimit", fieldValue:config?config.tillShiftVarianceLimit?config.tillShiftVarianceLimit:0:500]'/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeRecountLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Recount Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit" value="${config?.tillShiftRecountLimit}" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);"/>
+                                    <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit"
+                                              value="${config?config.tillShiftRecountLimit?config.tillShiftRecountLimit:'':3}" onkeydown="acceptMinMaxNumberValue(event, 0, 99);" min="0" max="99"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeVarianceLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Variance Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <g:render template="priceView" model='[inputId:"safeVarianceLimit", inputName:"safeVarianceLimit", fieldValue:config?.safeVarianceLimit]'/>
+                                    <g:render template="priceView" model='[inputId:"safeVarianceLimit", inputName:"safeVarianceLimit", fieldValue:config?config.safeVarianceLimit?config.safeVarianceLimit:0:500]'/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="isOpenShiftWithoutFloat" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Open Shift Without Float</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isOpenShiftWithoutFloat" id="isOpenShiftWithoutFloat" ${config?.openShiftWithoutFloat ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="isOpenShiftWithoutFloat" id="isOpenShiftWithoutFloat" ${config?config.openShiftWithoutFloat ? 'checked' : '':'checked'} />
                                 </div>
                             </div>
 
@@ -304,27 +353,27 @@
                             <div class="form-group row">
                                 <label for="tillAutoSnapshotDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Auto Snapshot Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays" value="${config?.tillAutoSnapshotDaysFormatted}"/>
+                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays" value="${config?config.tillAutoSnapshotDaysFormatted?config.tillAutoSnapshotDaysFormatted:'':'1234567'}"/>
                                     <div id="tillAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="tillAutoSnapshotTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Auto Snapshot Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${config?.tillAutoSnapshotTime}" placeholder="HH:mm"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${config?config.tillAutoSnapshotTime?config.tillAutoSnapshotTime:'':'10:00'}" placeholder="HH:mm"/>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeAutoSnapshotDays" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Auto Snapshot Days</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays" value="${config?.safeAutoSnapshotDaysFormatted}"/>
+                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays" value="${config?config.safeAutoSnapshotDaysFormatted?config.safeAutoSnapshotDaysFormatted:'':'1234567'}"/>
                                     <div id="safeAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="safeAutoSnapshotTime" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Safe Auto Snapshot Time</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${config?.safeAutoSnapshotTime}" placeholder="HH:mm"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${config?config.safeAutoSnapshotTime?config.safeAutoSnapshotTime:'':'10:00'}" placeholder="HH:mm"/>
                                 </div>
                             </div>
 
@@ -332,7 +381,7 @@
                             <div class="form-group row">
                                 <label for="tillCashHoldingLimit" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Till Cash Holding Limit</label>
                                 <div class="col-7 col-lg-4">
-                                    <g:render template="priceView" model='[inputId:"tillCashHoldingLimit", inputName:"tillCashHoldingLimit", fieldValue:config?.tillsCashHoldingLimit]'/>
+                                    <g:render template="priceView" model='[inputId:"tillCashHoldingLimit", inputName:"tillCashHoldingLimit", fieldValue:config?config.tillsCashHoldingLimit?config.tillsCashHoldingLimit:0:150000]'/>
                                 </div>
                             </div>
                         </div>
