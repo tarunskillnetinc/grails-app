@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.entities.RetailerConfig
 import uk.co.wonderlane.wlpos.entities.RetailerFunctionConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyConfig
 import uk.co.wonderlane.wlpos.entities.RetailerTerminologyLocationsTableConfig
+import uk.co.wonderlane.wlpos.entities.loyalty.LoyaltyRetailerConfig
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.Visibility
 
@@ -18,6 +19,7 @@ class RetailerController {
     def springSecurityService
     def brandAssetsService
     def retailerConfigService
+    def retailerProvider
 
     final int MAX_LOGO_SIZE = 1048576
 
@@ -61,6 +63,7 @@ class RetailerController {
         RetailerTerminologyConfig terminologyConfig = new RetailerTerminologyConfig()
         RetailerTerminologyLocationsTableConfig locationsTableConfig = new RetailerTerminologyLocationsTableConfig()
         RetailerFunctionConfig functionConfig = new RetailerFunctionConfig()
+        LoyaltyRetailerConfig loyaltyRetailerConfig = new LoyaltyRetailerConfig()
 
         if (retailerCommand?.retailerTerminologyConfig == null) {
             retailerCommand.retailerTerminologyConfig = new RetailerTerminologyCommand()
@@ -73,7 +76,6 @@ class RetailerController {
         if (retailerCommand?.retailerTerminologyConfig?.productTerm == "" || retailerCommand?.retailerTerminologyConfig?.productTerm == null) {
             errorMessages << "Product Term is empty. Should not be null."
         }
-
         if (retailerCommand?.retailerTerminologyConfig?.packTerm == "" || retailerCommand?.retailerTerminologyConfig?.packTerm == null) {
             errorMessages << "Pack is empty. Should not be null."
         }
@@ -172,14 +174,16 @@ class RetailerController {
             bindData(terminologyConfig, retailerCommand.retailerTerminologyConfig)
             bindData(functionConfig, retailerCommand.retailerFunctionConfig)
             bindData(retailerConfig, retailerCommand)
+            bindData(loyaltyRetailerConfig, retailerCommand.loyaltyConfig)
 
             // Set those objects to the retailer config object
             terminologyConfig.locationsTableConfig = locationsTableConfig
             retailerConfig.retailerTerminologyConfig = terminologyConfig
             retailerConfig.retailerFunctionConfig = functionConfig
+            retailerConfig.loyaltyRetailerConfig = loyaltyRetailerConfig
 
             retailerConfigService.saveRetailerConfig(retailerConfig)
-
+            springSecurityService.principal.retailer = retailerProvider.getRetailer(springSecurityService.principal.retailerId)
             flash.message = ["Retailer saved successfully."]
 
             redirect(action: "index")
@@ -233,6 +237,8 @@ class RetailerCommand implements Validateable {
     RetailerFunctionCommand retailerFunctionConfig
 
     RetailerTerminologyCommand retailerTerminologyConfig
+
+    LoyaltyConfigCommand loyaltyConfig
 
     MenuItemDetailsCommand menuItemDetails
 
@@ -294,4 +300,11 @@ class FunctionToggleCommand {
     Boolean enabled
 
 
+}
+
+class LoyaltyConfigCommand {
+    boolean isLoyaltyEnable
+    String loyaltyUrl
+    String loyaltyIIN
+    Double loyaltyPointValue
 }

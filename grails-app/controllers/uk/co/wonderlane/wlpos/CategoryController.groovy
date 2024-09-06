@@ -45,10 +45,10 @@ class CategoryController extends BaseController {
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
-    def ajaxSearchMaintenanceCategories(String searchTerm, boolean triggerOnCategoryChange, int level) {
+    def ajaxSearchMaintenanceCategories(String searchTerm, boolean triggerOnCategoryChange, int level, int selectedCategoryId) {
         def searchResults = baseSearchCategories(searchTerm)
         boolean isSearch = searchTerm?.length() > 0
-        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: null, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
+        render(template: "/product/categorySelectInputs", model: [categories: searchResults.aValue.unique(), level: isSearch ? level : 1, productCategoryList: searchResults.bValue, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange, isSearch: isSearch])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -75,8 +75,10 @@ class CategoryController extends BaseController {
         blankCategory.restrictions.discountAllowed = true
         blankCategory.restrictions.creditPaymentAllowed = true
         blankCategory.restrictions.quantityChangeAllowed = true
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
 
-        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories()])
+
+        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnable: loyaltyEnable])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -208,7 +210,9 @@ class CategoryController extends BaseController {
             tempCategory = tempCategory.parentCategory
         }
 
-        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories()])
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ?true : false
+
+        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnable: loyaltyEnable])
     }
 
     private boolean isValidParentCategory(int childId, Category parentCategory) {

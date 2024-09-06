@@ -44,17 +44,21 @@ class PromotionController {
     }
 
     def add() {
-        [promotionTypes: PromotionType.values(), canEdit: true]
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+        [promotionTypes: PromotionType.values(), canEdit: true, loyaltyEnable: loyaltyEnable]
+
     }
 
     def edit(int id) {
         def promotion = promotionService.getPromotion(id)
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
 
         if (!promotion) {
             flash.error = "Promotion not found"
             redirect (action: "index")
             return
         }
+
 
         def canEdit = true
         // If we're logged in at store level and promotion has stores
@@ -76,7 +80,7 @@ class PromotionController {
         session.addedStores = promotion?.stores
 
 
-        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit])
+        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit, loyaltyEnable: loyaltyEnable])
     }
 
     def ajaxSearchTags(String searchTerm) {
@@ -351,7 +355,7 @@ class PromotionController {
 
         render(template: "/promotion/productSearchResults", model: [products: products.products, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: products.totalCount])
     }
-
+    
     def categorySearch() {
         def categories
         def totalResults
@@ -383,6 +387,7 @@ class PromotionController {
         Integer offset
         String sortColumn
         String sortOrder
+        Boolean loyalty
 
         try {
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
@@ -395,6 +400,7 @@ class PromotionController {
             offset = params.offset ? Integer.parseInt(params.offset) : null
             sortColumn = validateSortColumn(params.sortColumn)
             sortOrder = validateSortOrder(params.sortOrder)
+            loyalty = params.loyalty ? params.loyalty == 'true': false
         } catch (Exception e) {
             e.printStackTrace()
 
@@ -411,7 +417,7 @@ class PromotionController {
         }
 
         def promotions = promotionService.searchPromotions(validDate, updatedSince, type, params.searchTerm, params.searchBy == "description",
-                max, offset, sortColumn, sortOrder, supplierId, params.status)
+                max, offset, sortColumn, sortOrder, supplierId, params.status, loyalty)
 
         int totalCount = promotions.totalCount
 
@@ -442,6 +448,7 @@ class PromotionController {
                                                                       sortColumn  : params.sortColumn,
                                                                       supplier    : params.supplier,
                                                                       status      : params.status,
+                                                                      loyalty     : params.loyalty,
                                                                       totalResults: totalCount])
     }
 
@@ -513,7 +520,6 @@ class PromotionController {
         if (session.addedStores) {
             def addedStores = session.addedStores
             def addedStoreIds = []
-
             // Loop over addesStores and add the Ids to an array
             addedStores.each { store ->
                 addedStoreIds.add(store.id)
@@ -564,7 +570,7 @@ class PromotionController {
     }
 
     private String validateSortColumn(String sortColumn) {
-        def availableColumns = [ "retailerPromotionId", "description", "updateDatetime", "startDate", "endDate", "active", "type", "amount", "supplierName" ]
+        def availableColumns = [ "retailerPromotionId", "description", "updateDatetime", "startDate", "endDate", "active", "loyalty", "type", "amount", "supplierName" ]
 
         if (!sortColumn) {
             return null
@@ -598,6 +604,7 @@ class PromotionCommand implements Validateable {
     DateTime endDate
     BigDecimal amount
     boolean active
+    boolean loyalty
     Integer retailerPromotionId
     Collection<PromotionGroupCommand> requiredGroups = new ArrayList<>()
     Collection<PromotionGroupCommand> offerGroups = new ArrayList<>()
@@ -639,6 +646,7 @@ class PromotionCommand implements Validateable {
             }
         }
         active nullable: false
+        loyalty nullable: false
         retailerPromotionId nullable: true, range: 0..999999999
         requiredGroups validator: { val, obj ->
             // Only X for Y has a separate required group.
