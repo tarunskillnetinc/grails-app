@@ -24,13 +24,12 @@
                 var selectedTab = $(e.target).attr('id');  // Get the ID of the selected tab
                 console.log("Selected tab: " + selectedTab);
 
-                // Do something with the selected tab
-                // For example, set a hidden field value or make an AJAX call to update `tabType`
             });
 
-            $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeSettings?.id}, function(data) {
+            $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeSettings?.id} + "&onlyRetailerLevel=false", function(data) {
                 $('#cash-container').html(data);
             });
+
         });
     </script>
 

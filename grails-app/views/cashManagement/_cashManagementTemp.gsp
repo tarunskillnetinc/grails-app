@@ -8,6 +8,10 @@
 <script type='text/javascript'>
 
     $(document).ready(function () {
+        initializePage();
+    });
+
+    function initializePage() {
         $('#selectedItemsDisplay').click(function() {
             $('#weekdayDropdown').toggleClass('show');
         });
@@ -78,9 +82,30 @@
                 e.preventDefault();
             }
         });
-    });
+        $('#save-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
 
+            var formData = new FormData(this); // Create a FormData object for file upload
 
+            $.ajax({
+                url: $(this).attr('action'), // Get the action URL from the form's action attribute
+                type: 'POST',
+                data: formData,
+                processData: false,  // Prevent jQuery from converting the data into a query string
+                contentType: false,  // Required for file uploads
+                success: function(response) {
+                    setTimeout(function() {
+                        initializePage(); // Manually trigger the initialization after a short delay
+                    }, 0);//0 is not a problem to initiate all page initiation
+                    $('html').html(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    alert('An error occurred: ' + error);
+                }
+            });
+        });
+    }
 
     function validateTimeInputs(inputId) {
         $('#' + inputId).on('keydown', function(event) {
@@ -193,7 +218,7 @@ h5 {
 
         <div class="col-2 text-right">
             <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
-            <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-button').submit();">Save</button>
+            <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-form').submit();">Save</button>
         </div>
     </div>
 </section>
@@ -222,7 +247,9 @@ h5 {
 
 
 <section id="addProduct-section" class="container-fluid mt-4">
-<g:uploadForm name="save-button" action="save" method="POST" enctype="multipart/form-data">
+<g:uploadForm id="save-form" name="save-form" action="save" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="modelOnlyRetailerLevel" value="${onlyRetailerLevel}">
+    <input type="hidden" name="modelStoreLevelExist" value="${storeLevelExist}">
     <div id="accordion">
         <!-- General information. -->
         <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">

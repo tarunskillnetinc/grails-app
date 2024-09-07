@@ -16,10 +16,16 @@ class CashManagementController {
             .create()
 
     def index(Integer storeId) {
-        CashManagement cashManagement = null;
-        cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
+        CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                 storeId)
-        def storeLevelExist = storeId != null && cashManagement != null;
+        def storeLevelExist = storeId != null && cashManagement != null
+        def onlyRetailerLevel = storeId == null;
+        if (params.onlyRetailerLevel) {
+            onlyRetailerLevel = Boolean.parseBoolean(params.onlyRetailerLevel)
+        }
+        if (params.storeLevelExist) {
+            storeLevelExist = Boolean.parseBoolean(params.storeLevelExist)
+        }
         if (storeId != null && cashManagement == null) {
             cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                     null)
@@ -36,7 +42,7 @@ class CashManagementController {
             // Render the example template when storeLevelExist is false
             render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false])
         } else {
-            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: storeId == null]
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel]
         }
     }
 
@@ -95,12 +101,12 @@ class CashManagementController {
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
             flash.error = errorMessages
-            redirect(action: "index")
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist])
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
             flash.message = ["Cash Management saved successfully."]
-            redirect(action: "index")
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist])
         }
     }
 
@@ -125,6 +131,8 @@ class CashManagementFormData implements Validateable {
     String safeAutoSnapshotDays
     String safeAutoSnapshotTime
     Double tillCashHoldingLimit
+    boolean modelOnlyRetailerLevel
+    boolean modelStoreLevelExist
 
     public CashManagementConfig toConfig() {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
