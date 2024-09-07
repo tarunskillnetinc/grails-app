@@ -26,6 +26,9 @@ class CashManagementController {
         if (params.storeLevelExist) {
             storeLevelExist = Boolean.parseBoolean(params.storeLevelExist)
         }
+        if (params.storeId) {
+            storeId = Integer.parseInt(params.storeId)
+        }
         if (storeId != null && cashManagement == null) {
             cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                     null)
@@ -40,7 +43,7 @@ class CashManagementController {
         }
         if (storeId != null) {
             // Render the example template when storeLevelExist is false
-            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false])
+            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId])
         } else {
             [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel]
         }
@@ -101,12 +104,12 @@ class CashManagementController {
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
             flash.error = errorMessages
-            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist])
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist, storeId:cashManagementFormData.storeId])
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
             flash.message = ["Cash Management saved successfully."]
-            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist])
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId])
         }
     }
 
@@ -115,8 +118,8 @@ class CashManagementController {
 class CashManagementFormData implements Validateable {
 
     Integer storeId;
-    Boolean isManualOpen
-    Boolean isManualClose
+    String manualOrAutoOpen
+    String manualOrAutoClose
     String automaticCloseDays
     String automaticCloseTime
     Boolean isRollingFloatEnable
@@ -136,8 +139,8 @@ class CashManagementFormData implements Validateable {
 
     public CashManagementConfig toConfig() {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
-        cashManagementConfig.setTillShiftsManualOpen(isManualOpen != null ? isManualOpen : false)
-        cashManagementConfig.setTillShiftsManualClose(isManualClose != null ? isManualClose : false)
+        cashManagementConfig.setTillShiftsManualOpen(manualOrAutoOpen == "manual")
+        cashManagementConfig.setTillShiftsManualClose(manualOrAutoClose == "manual")
         cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null ? automaticCloseDays: "").toCharArray())
         cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnable != null ? isRollingFloatEnable : false)
         cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue*100 as int : 0)

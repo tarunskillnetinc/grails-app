@@ -7,10 +7,6 @@
 
 <script type='text/javascript'>
 
-    $(document).ready(function () {
-        initializePage();
-    });
-
     function initializePage() {
         $('#selectedItemsDisplay').click(function() {
             $('#weekdayDropdown').toggleClass('show');
@@ -36,12 +32,16 @@
             }
         });
 
-        const isDisabledMultiSelect = ${!onlyRetailerLevel && !storeLevelExist};
+        let isDisabledInputs = false;
+        if ($('#manualOpen').prop('disabled')) {
+            isDisabledInputs = true;
+        }
+        const onlyRetailerLevel = ${onlyRetailerLevel};
 
         const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        createMultiSelectorChecks('automaticCloseDaysSelector', 'automaticCloseDays', weekdays, "Select Days", isDisabledMultiSelect);
-        createMultiSelectorChecks('tillAutoSnapshotDaysSelector', 'tillAutoSnapshotDays', weekdays, "Select Days", isDisabledMultiSelect);
-        createMultiSelectorChecks('safeAutoSnapshotDaysSelector', 'safeAutoSnapshotDays', weekdays, "Select Days", isDisabledMultiSelect);
+        createMultiSelectorChecks('automaticCloseDaysSelector', 'automaticCloseDays', weekdays, "Select Days", isDisabledInputs);
+        createMultiSelectorChecks('tillAutoSnapshotDaysSelector', 'tillAutoSnapshotDays', weekdays, "Select Days", isDisabledInputs);
+        createMultiSelectorChecks('safeAutoSnapshotDaysSelector', 'safeAutoSnapshotDays', weekdays, "Select Days", isDisabledInputs);
 
         validateTimeInputs('automaticCloseTime');
         validateTimeInputs('tillAutoSnapshotTime');
@@ -85,7 +85,18 @@
         $('#save-form').on('submit', function(e) {
             e.preventDefault(); // Prevent default form submission
 
-            var formData = new FormData(this); // Create a FormData object for file upload
+            if (isDisabledInputs) {
+                // Get the form element
+                var $form = $(this);
+
+                // Temporarily enable all disabled fields
+                $form.find(':disabled').each(function() {
+                    $(this).data('disabled', true); // Store that this field was disabled
+                    $(this).prop('disabled', false); // Enable it
+                });
+            }
+
+            const formData = new FormData(this); // Create a FormData object for file upload
 
             $.ajax({
                 url: $(this).attr('action'), // Get the action URL from the form's action attribute
@@ -94,10 +105,15 @@
                 processData: false,  // Prevent jQuery from converting the data into a query string
                 contentType: false,  // Required for file uploads
                 success: function(response) {
-                    setTimeout(function() {
-                        initializePage(); // Manually trigger the initialization after a short delay
-                    }, 0);//0 is not a problem to initiate all page initiation
-                    $('html').html(response);
+                    if (onlyRetailerLevel) {
+                        setTimeout(function() {
+                            initializePage(); // Manually trigger the initialization after a short delay
+                        }, 0);//0 is not a problem to initiate all page initiation
+                        $('html').html(response);
+                    } else {
+                        $('#cash-container').html(response);
+                        initializePage();
+                    }
                 },
                 error: function(xhr, status, error) {
                     // Handle error
@@ -250,6 +266,7 @@ h5 {
 <g:uploadForm id="save-form" name="save-form" action="save" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="modelOnlyRetailerLevel" value="${onlyRetailerLevel}">
     <input type="hidden" name="modelStoreLevelExist" value="${storeLevelExist}">
+    <input type="hidden" name="storeId" value="${storeId}">
     <div id="accordion">
         <!-- General information. -->
         <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
@@ -272,11 +289,11 @@ h5 {
                             <label for="isManualOpen" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Open Type</label>
                             <div class="col-7 col-lg-4">
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="isManualOpen" id="manualOpen" value="manual" ${config?.tillShiftsManualOpen ? 'checked' : ''}  ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="radio" class="form-check-input" name="manualOrAutoOpen" id="manualOpen" value="manual" ${config?.tillShiftsManualOpen ? 'checked' : ''}  ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
                                     <label class="form-check-label" for="manualOpen">Manual</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="isManualOpen" id="autoOpen" value="auto" ${!config?.tillShiftsManualOpen ? 'checked' : ''}  ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="radio" class="form-check-input" name="manualOrAutoOpen" id="autoOpen" value="auto" ${!config?.tillShiftsManualOpen ? 'checked' : ''}  ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
                                     <label class="form-check-label" for="autoOpen">Auto</label>
                                 </div>
                             </div>
@@ -285,11 +302,11 @@ h5 {
                             <label for="isManualClose" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Close Type</label>
                             <div class="col-7 col-lg-4">
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="isManualClose" id="manualClose" value="manual" ${config ? config?.tillShiftsManualClose ? 'checked' : '':'checked'} ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="radio" class="form-check-input" name="manualOrAutoClose" id="manualClose" value="manual" ${config ? config?.tillShiftsManualClose ? 'checked' : '':'checked'} ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
                                     <label class="form-check-label" for="manualClose">Manual</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="isManualClose" id="autoClose" value="auto" ${config ? !config?.tillShiftsManualClose ? 'checked' : '' : ''} ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="radio" class="form-check-input" name="manualOrAutoClose" id="autoClose" value="auto" ${config ? !config?.tillShiftsManualClose ? 'checked' : '' : ''} ${!onlyRetailerLevel && !storeLevelExist? "disabled" : ""}/>
                                     <label class="form-check-label" for="autoClose">Auto</label>
                                 </div>
                             </div>
@@ -400,3 +417,6 @@ h5 {
     </div>
 </g:uploadForm>
 </section>
+<script>
+    initializePage();
+</script>

@@ -43,7 +43,7 @@ function createMultiSelectorChecks(containerId, hiddenInputId, items, placeholde
         itemsContainer.appendChild(itemElement);
     });
 
-    container.appendChild(multiselectContainer);
+    $(container).replaceWith(multiselectContainer);
 
     const checkboxes = itemsContainer.querySelectorAll('.item-checkbox');
     const selectAllCheckbox = itemsContainer.querySelector('.select-all-checkbox');
