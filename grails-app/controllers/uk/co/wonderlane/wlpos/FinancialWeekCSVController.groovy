@@ -12,7 +12,15 @@ class FinancialWeekCSVController {
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
-        [financialWeeks: financialWeekService.getAllFinancialWeeks()]
+        try {
+            List<String> financialYears = financialWeekService.loadFinancialYears()
+            boolean enableCsvDownload = financialYears != null && !financialYears.isEmpty()
+            render(view: 'index', model: [financialYears: financialYears, success: true, enableCsvDownload : enableCsvDownload])
+        } catch (Exception ex){
+            log.error("Error loading financial weeks: $ex.message", ex)
+            render(view: 'index', model: [financialWeeks: [], success: false, errorMessage: "Failed to load financial weeks. Please try again."])
+        }
+
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -40,9 +48,9 @@ class FinancialWeekCSVController {
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert
                 financialWeekService.saveFinancialWeeksInBatches(financialWeeks)
-                flash.message = "File processed and data saved successfully!"
+                List<String> financialYears = financialWeekService.loadFinancialYears()
                 log.info("Successfully process financial week csv file..... ")
-                redirect(action: "index")
+                render status: 200, contentType: 'application/json', text: JsonOutput.toJson([financialYears: financialYears])
             } else { // Show all errors and rollback
                 //Handle failures
                 log.error("Validation errors found processing financial week csv file  ")
@@ -52,7 +60,7 @@ class FinancialWeekCSVController {
             log.error("Errors found processing financial week csv file, exception $ex ")
             List<String> errorResponseMessages = financialWeekService.prepareErrorResponse(errors, maxErrors)
             response.setStatus(500)
-            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([response: errorResponseMessages])
+            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([errorsList: errorResponseMessages])
         }
     }
 

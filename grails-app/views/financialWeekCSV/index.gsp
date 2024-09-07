@@ -14,24 +14,27 @@
 
     <script type="application/javascript">
 
-        function selectFinancialWeekUploadFile() {
-            $("#csvFileUploadInput").trigger('click');
-        }
+        $(document).ready(function() {
+            var success = '${success}';  // This will be 'true' or 'false' based on the backend response
+            var errorMessage = '${errorMessage}';  // Error message from the backend, if any
 
-        function setPreventWindowNavigation(value) {
-            window.onbeforeunload = function () {
-                return value;
-            };
-        }
+            if (success === 'false') { //Display error when loading index page if any error occur
+                // Display error message using messageDisplay function
+                var defaultErrorMessage = "An error occurred while loading financial weeks.";
+                messageDisplay({ responseJSON: { response: [errorMessage] } }, true, defaultErrorMessage, null);
+            }
 
-        function resetMessages() {
-            $('#successMessage').hide();
-            $('#failureMessage').hide();
-        }
+
+            //Handle csv file download button enable/disable status on view boot
+            var enableDownloadButton = '${enableCsvDownload}'
+            if (enableDownloadButton === 'false') {
+                const downloadButton = document.getElementById('downloadFinancialWeekBtn');
+                downloadButton.disabled = true
+            }
+        });
 
         function uploadFinancialWeekImportFile() {
             setPreventWindowNavigation(true)
-            resetMessages();
             $("#uploadResults").html("<div class=\"modal-body\">"
                 + "<div class=\"row mb-4\"><div class=\"col-12\"><h3 class=\"text-center\">Please wait uploading file...</h3></div></div>"
                 + "<div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
@@ -83,8 +86,8 @@
                         uploadButton.innerHTML = "Upload Financial Week"
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
-                        showSuccessAlert();
                         messageDisplay(response, false, null, "Financial Week import completed successfully");
+                        updateDropDown(response)
                     }
                 }
             });
@@ -94,7 +97,7 @@
             var selectedYear = $('#yearSelect').val();
             if (selectedYear) {
                 // Construct the download URL with the selected financial year as a query parameter
-                var downloadUrl = "${createLink(controller: 'financialWeekCSV', action: 'downloadCsv')}?yearSelect=" + encodeURIComponent(selectedYear);
+                var downloadUrl = "${createLink(controller: 'FinancialWeekCSV', action: 'downloadCsv')}?yearSelect=" + encodeURIComponent(selectedYear);
                 $.ajax({
                     url: downloadUrl,
                     type: "GET",
@@ -108,13 +111,42 @@
                             messageDisplay(response, true, "CSV file generation error, please try again", null); //Error generating csv weekly financial file
                         },
                         200: function (response) {
-                            messageDisplay(response, true, "CSV file successfully generated", null); //Successfully generated csv file
+                            messageDisplay(response, false, null, "CSV file successfully generated"); //Successfully generated csv file
                         }
                     }
                 });
             } else {
                 messageDisplay(null, true, "Please select a financial year before downloading", null); //Error generating csv weekly financial file
             }
+        }
+
+        function selectFinancialWeekUploadFile() {
+            $("#csvFileUploadInput").trigger('click');
+        }
+
+        function setPreventWindowNavigation(value) {
+            window.onbeforeunload = function () {
+                return value;
+            };
+        }
+
+        function updateDropDown(response){
+           // console.log(response?.responseJSON?.response)
+            var financialYears = response?.financialYears;
+            if (Array.isArray(financialYears) && financialYears.length > 0) {
+                var $dropdown = $('#yearSelect');
+                $dropdown.empty();  // Clear the existing options
+
+                // Populate the dropdown with the updated financial years
+                $.each(financialYears, function(index, year) {
+                    $dropdown.append($('<option></option>').val(year).text(year));
+                });
+
+                //If there are available financial years then enable download button
+                const downloadButton = document.getElementById('downloadFinancialWeekBtn');
+                downloadButton.disabled = false
+            }
+
         }
 
         function handleUploadError(uploadButton, msg) {
@@ -126,14 +158,8 @@
             setPreventWindowNavigation(null);
         }
 
-        function showErrorAlert(msg) {
-            $('#failureMessage').show();
-            $('#failureMessage').text(msg)
-        }
-
-        function showSuccessAlert() {
-            $('#successMessage').show();
-            $('#successMessage').text("Financial Week import completed successfully");
+        function resetFileUploadInput() {
+            $('#csvFileUploadInput').get(0).value = null
         }
 
         function resetFileUploadInput() {
@@ -146,7 +172,7 @@
             if (isError){ //Display error messages
                 divClass = 'alert alert-danger alert-wl mx-0';
                 messageDiv = $('<div class="' + divClass + '" role="alert"></div>');
-                var messageList = response?.responseJSON?.response;
+                var messageList = response?.responseJSON?.errorsList;
                 if (messageList && messageList.length > 0) {
                     messageList.forEach(function(message) {
                         var messageSpan = $('<span>' + message + '</span>');
@@ -161,7 +187,7 @@
             } else { // Display success messages
                 divClass = 'alert alert-success alert-wl mx-0';
                 messageDiv = $('<div class="' + divClass + '" role="alert"></div>');
-                var messageSpan = $('<span>' + 'Financial Week import completed successfully' + '</span>');
+                var messageSpan = $('<span>' + defaultSuccessMessage + '</span>');
                 messageDiv .append(messageSpan);
                 messageDiv .append($('<br>'));
             }
@@ -206,13 +232,13 @@
     <section id="errors-container" class="container-fluid mb-20"></section>
 
     <div class="row header-wl mt-3">
-        <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFinancialWeekInput()">
+        <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFileUploadInput()">
         <div class="col-8 offset-2 text-center">
             <h2 id="page-title" class="mx-auto my-auto">Financial Week</h2>
         </div>
         <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
             <button class="btn btn-wl p-2 ml-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn" style="min-width: 200px; white-space: nowrap;">Upload Financial Week</button>
-            <button class="btn btn-wl p-2 ml-2" onclick="downloadFinancialWeekUploadFile()" style="min-width: 200px; white-space: nowrap;">Download Financial Week CSV</button>
+            <button class="btn btn-wl p-2 ml-2" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn" style="min-width: 200px; white-space: nowrap;">Download Financial Week CSV</button>
         </div>
     </div>
 
@@ -221,7 +247,7 @@
         <div class="col-6 d-flex align-items-center justify-content-center">
             <span class="font-weight-bold" style="font-size: 1.25rem; margin-right: 15px;">Select financial year:</span>
             <g:form controller="financialWeekCSV" action="downloadCsv" method="GET" class="d-inline">
-                <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialWeeks.financialYear}" style="width: 250px;"/>
+                <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialYears}" style="width: 250px;"/>
             </g:form>
         </div>
     </div>

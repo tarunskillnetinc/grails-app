@@ -115,6 +115,16 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
+    List<String> loadFinancialYears(){
+        try {
+            def financialWeeks = getAllFinancialWeeks()
+            return financialWeeks?.collect { it.financialYear }?.unique()
+        } catch (Exception ex) {
+            log.error("Error loading weekly financial years , Exception " , ex)
+            throw new RuntimeException("Error loading weekly financial years")
+        }
+    }
+
     void populateCsvDownloadFile(List<FinancialWeek> financialWeeks, OutputStream outputStream){
         try {
             outputStream.withWriter('UTF-8') { writer ->
@@ -138,21 +148,26 @@ class FinancialWeekService extends MySqlDal {
     }
 
     void financialYearPreValidation(List<String[]> rows, List<String> errors){
-        Set<String> financialYears = rows.collect { it[1] } as Set // Extract the financial years
-        if (financialYears.size() > 1) {
-            errors << "Financial year should be unique within the CSV file. Found: $financialYears"
-            throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
-        }
+        try {
+            Set<String> financialYears = rows.collect { it[1] } as Set // Extract the financial years
+            if (financialYears.size() > 1) {
+                errors << "Financial year should be unique within the CSV file. Found: $financialYears"
+                throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+            }
 
-        if (financialYears.size() < 0){
-            errors << "Financial year should be unique within the CSV file. Found: $financialYears"
-            throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
-        }
+            if (financialYears.size() < 0){
+                errors << "Financial year should be provided in the CSV file. Found: $financialYears"
+                throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+            }
 
-        String financialYear = financialYears.first()
-        if (isFinancialYearExists(financialYear)){
-            errors << "Financial year already exists. Found: $financialYears"
-            throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+            String financialYear = financialYears.first()
+            if (isFinancialYearExists(financialYear)){
+                errors << "Financial year already exists. Found: $financialYears"
+                throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+            }
+        } catch (Exception ex) {
+            log.error("Weekly financial year validation error detected ,Exception $ex" , ex)
+            throw new RuntimeException("Financial year validation exception.")
         }
 
     }
@@ -219,11 +234,8 @@ class FinancialWeekService extends MySqlDal {
 
     private List<String> validateFinancialWeekSequence(List<FinancialWeek> financialWeeks) {
         List<String> errors = []
-        // Sort weeks by start date
-        financialWeeks.sort { it.startDate }
-
-        // Check for sequence gaps
-        financialWeeks.eachWithIndex { week, index ->
+        financialWeeks.sort { it.startDate } // Sort weeks by start date
+        financialWeeks.eachWithIndex { week, index ->  // Check for sequence gaps
             if (index > 0) { // Skip the first element
                 def previousWeek = financialWeeks[index - 1]
                 if (week.startDate.isAfter(previousWeek.startDate.plusDays(7))) {
@@ -231,7 +243,6 @@ class FinancialWeekService extends MySqlDal {
                 }
             }
         }
-
         return errors
     }
 
@@ -294,12 +305,6 @@ class FinancialWeekService extends MySqlDal {
         }
         return errors
     }
-
-
-
-
-
-
 
 
 }
