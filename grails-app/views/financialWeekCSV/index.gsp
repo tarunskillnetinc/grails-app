@@ -162,10 +162,6 @@
             $('#csvFileUploadInput').get(0).value = null
         }
 
-        function resetFileUploadInput() {
-            $('#csvFileUploadInput').get(0).value = null
-        }
-
         function messageDisplay(response, isError, defaultErrorMessage, defaultSuccessMessage){
             var divClass = null
             var messageDiv = null
