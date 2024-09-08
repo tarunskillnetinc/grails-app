@@ -179,6 +179,7 @@
 
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
+                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true]"  class="dropdown-item">Cash Managment</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
 

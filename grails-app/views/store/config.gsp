@@ -70,29 +70,33 @@
             </div>
         </nav>
     </section>
-    <section id="tab-container" class="container-fluid">
-        <div class="row mt-0">
-            <div class="col-4">
-                <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
-                    <li class="nav-item">
-                        <a id="store-tab" data-toggle="tab" href="#store-container" aria-selected="true" role="tab" aria-controls="store-container" class="nav-link ${ tabType.equals('store' ? 'active' : 'disabled')}">Store Config</a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="cash-tab" data-toggle="tab" href="#cash-container" role="tab" aria-controls="cash-container" class="nav-link ${tabType.equals('cash' ? 'active' : 'disabled')}">Cash Management</a>
-                    </li>
-                </ul>
+    <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+        <section id="tab-container" class="container-fluid">
+            <div class="row mt-0">
+                <div class="col-4">
+                    <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
+                        <li class="nav-item">
+                            <a id="store-tab" data-toggle="tab" href="#store-container" aria-selected="true" role="tab" aria-controls="store-container" class="nav-link ${ tabType.equals('store' ? 'active' : 'disabled')}">Store Config</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="cash-tab" data-toggle="tab" href="#cash-container" role="tab" aria-controls="cash-container" class="nav-link ${tabType.equals('cash' ? 'active' : 'disabled')}">Cash Management</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <div class="ui-menu-divider w-100"/>
-        <div class="tab-content">
-            <div id="store-container" class="tab-pane ${tabType.equals('store') ? 'active' : ''}">
-                <g:render template="storeConfig" model='${pageScope}'/>
-            </div>
-            <div id="cash-container" class="tab-pane ${tabType.equals('cash') ? 'active' : ''}">
+            <div class="ui-menu-divider w-100"/>
+            <div class="tab-content">
+                <div id="store-container" class="tab-pane ${tabType.equals('store') ? 'active' : ''}">
+                    <g:render template="storeConfig" model='${pageScope}'/>
+                </div>
+                <div id="cash-container" class="tab-pane ${tabType.equals('cash') ? 'active' : ''}">
 
+                </div>
             </div>
-        </div>
-    </section>
-
+        </section>
+    </g:if>
+    <g:else>
+        <g:render template="storeConfig" model='${pageScope}'/>
+    </g:else>
 </body>
 </html>

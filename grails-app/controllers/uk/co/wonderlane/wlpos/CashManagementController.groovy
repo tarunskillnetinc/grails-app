@@ -20,6 +20,7 @@ class CashManagementController {
                 storeId)
         def storeLevelExist = storeId != null && cashManagement != null
         def onlyRetailerLevel = storeId == null;
+        def isStoreLevelLogin = null;
         if (params.onlyRetailerLevel) {
             onlyRetailerLevel = Boolean.parseBoolean(params.onlyRetailerLevel)
         }
@@ -28,6 +29,9 @@ class CashManagementController {
         }
         if (params.storeId) {
             storeId = Integer.parseInt(params.storeId)
+        }
+        if (params.isStoreLevelLogin) {
+            isStoreLevelLogin = Boolean.parseBoolean(params.isStoreLevelLogin)
         }
         if (storeId != null && cashManagement == null) {
             cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
@@ -41,11 +45,11 @@ class CashManagementController {
             cashManagementConfigViewAdapter.setSafeAutoSnapshotDaysFormat(cashManagementConfigViewAdapter.getSafeAutoSnapshotDays())
             cashManagementConfigViewAdapter.setTillShiftsAutoCloseDaysFormat(cashManagementConfigViewAdapter.getTillShiftsAutoCloseDays())
         }
-        if (storeId != null) {
+        if (storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
             // Render the example template when storeLevelExist is false
             render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId])
         } else {
-            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel]
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId]
         }
     }
 
@@ -104,12 +108,12 @@ class CashManagementController {
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
             flash.error = errorMessages
-            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist, storeId:cashManagementFormData.storeId])
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.modelStoreLevelExist, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
             flash.message = ["Cash Management saved successfully."]
-            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId])
+            redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         }
     }
 
@@ -136,12 +140,14 @@ class CashManagementFormData implements Validateable {
     Double tillCashHoldingLimit
     boolean modelOnlyRetailerLevel
     boolean modelStoreLevelExist
+    boolean modelIsStoreLevelLogin
 
     public CashManagementConfig toConfig() {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
         cashManagementConfig.setTillShiftsManualOpen(manualOrAutoOpen == "manual")
         cashManagementConfig.setTillShiftsManualClose(manualOrAutoClose == "manual")
         cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null ? automaticCloseDays: "").toCharArray())
+        cashManagementConfig.setTillShiftsAutoCloseTime(automaticCloseTime != null ? automaticCloseTime : "")
         cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnable != null ? isRollingFloatEnable : false)
         cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue*100 as int : 0)
         cashManagementConfig.setTillsCashHoldingLimit(tillCashHoldingLimit != null  ? tillCashHoldingLimit * 100 as int : 0)
