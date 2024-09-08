@@ -127,6 +127,14 @@
             $('#errors-container1').remove();
             $('#errors-container2').remove();
         });
+
+        if ($('#cancel-btn-store-level').length) {
+            $('#cancel-btn-store-level').on('click', function () {
+                $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeId} + "&onlyRetailerLevel=false", function(data) {
+                    $('#cash-container').html(data);
+                });
+            });
+        }
     }
 
     function validateTimeInputs(inputId) {
@@ -228,13 +236,21 @@
 </script>
 
 <section id="header-container" class="container-fluid">
-    <div class="row header-wl mt-3">
+    <div class="row header-wl mt-0">
         <div class="col-8 offset-2">
             <h2 id="page-title" class="mx-auto my-auto">Cash Management</h2>
         </div>
 
-        <div class="col-2 text-right">
-            <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+        <div class="col-2 text-right mt-3">
+            <g:if test="${onlyRetailerLevel && isStoreLevelLogin==null}">
+                <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+            </g:if>
+            <g:if test="${isStoreLevelLogin?isStoreLevelLogin:false}">
+                <g:link elementId="cancel-btn" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true]" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
+            </g:if>
+            <g:if test="${isStoreLevelLogin == null && storeId != null}">
+                <button id="cancel-btn-store-level" class="btn btn-wl" name="save">Cancel</button>
+            </g:if>
             <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-form').submit();">Save</button>
         </div>
     </div>
@@ -271,7 +287,7 @@
         <input type="hidden" name="modelIsStoreLevelLogin" value="${isStoreLevelLogin}">
         <div id="accordion">
             <!-- General information. -->
-            <div class="card bg-light border-wl accordion-card col-12 col-lg-8 offset-lg-2 px-0"> <!-- Center the card -->
+            <div class="card bg-light border-wl accordion-card col-12 col-lg-8 offset-lg-2 px-0 mt-0"> <!-- Center the card -->
                 <div class="card-header pointer" id="generalDetails" data-toggle="collapse" data-target="#collapseGeneralDetails" aria-expanded="true" aria-controls="collapseGeneralDetails">
                     <div class="row">
                         <div class="col-10 font-weight-bold">Cash Management</div>

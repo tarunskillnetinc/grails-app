@@ -49,6 +49,12 @@
         .tooltip-trigger:hover .tooltip-content {
             display: inline-block;
         }
+        #cash-container {
+            background: whitesmoke;
+        }
+        #store-container {
+            background: whitesmoke;
+        }
     </style>
 
 </head>
@@ -72,8 +78,8 @@
     </section>
     <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
         <section id="tab-container" class="container-fluid">
-            <div class="row mt-0">
-                <div class="col-4">
+            <div class="row pl-0">
+                <div class="col-4 pl-0">
                     <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
                         <li class="nav-item">
                             <a id="store-tab" data-toggle="tab" href="#store-container" aria-selected="true" role="tab" aria-controls="store-container" class="nav-link ${ tabType.equals('store' ? 'active' : 'disabled')}">Store Config</a>
@@ -84,8 +90,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="ui-menu-divider w-100"/>
-            <div class="tab-content">
+            <div class="tab-content mt-0">
                 <div id="store-container" class="tab-pane ${tabType.equals('store') ? 'active' : ''}">
                     <g:render template="storeConfig" model='${pageScope}'/>
                 </div>

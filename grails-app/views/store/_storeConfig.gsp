@@ -1,10 +1,10 @@
 <section id="header-container" class="container-fluid">
-    <div class="row header-wl mt-3">
+    <div class="row header-wl mt-0">
         <div class="col-8 offset-2">
             <h2 id="page-title" class="mx-auto my-auto">Store ${storeSettings?.config?.storeNumber} Configuration</h2>
         </div>
 
-        <div class="col-2 text-right">
+        <div class="col-2 text-right mt-3">
             <sec:ifAnyGranted roles="ROLE_ENGINEER, ROLE_HEAD_OFFICE">
                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                     <g:link elementId="cancel-btn" controller="store" action="index" tabindex="-1" role="button" class="btn btn-wl" params="[storeNumberFilter: storeNumberFilter, storeNameFilter: storeNameFilter, showDeletedFilter: showDeletedFilter, max: max, offset: offset, sort: sort, order: order]">Cancel</g:link>
