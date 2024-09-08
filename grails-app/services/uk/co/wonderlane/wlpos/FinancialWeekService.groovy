@@ -39,15 +39,15 @@ class FinancialWeekService extends MySqlDal {
                 session.clear()
             }
         } catch (ConstraintViolationException ex){
-            log.error("Unique key violation occurred: ${ex.message}")
+            log.error("Weekly financial - Entries persisting unique key violation occurred: ${ex.message}", ex)
             errors.add("Data conflicts, please verify content and check the logs for more details")
             throw ex
         } catch (SQLIntegrityConstraintViolationException ex){
-            log.error("SQL integrity constraint violation: ${ex.message}")
+            log.error("Weekly financial - Entries persisting sql integrity constraint violation: ${ex.message}", ex)
             errors.add("Data conflicts, please verify content and check the logs for more details")
             throw ex
         } catch (Exception ex) {
-            log.error("Error saving batch of FinancialWeeks, exception $ex")
+            log.error("Weekly financial - Entries persisting unexpected errors : ${ex.message}", ex)
             errors.add("Unexpected database persistence error, please verify content and check the logs for more details")
             throw ex
         }
@@ -68,11 +68,15 @@ class FinancialWeekService extends MySqlDal {
     }
 
     boolean isFinancialYearExists(String financialYear){
-        List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear)
-        if (existingWeeksForFinancialYear!= null && !existingWeeksForFinancialYear.isEmpty()){
-            return true;
+        try {
+            List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear)
+            if (existingWeeksForFinancialYear!= null && !existingWeeksForFinancialYear.isEmpty()){
+                return true
+            }
+        } catch (Exception ex) {
+            log.error("Weekly financial - Error loading existing financial years : ${ex.message} ", ex)
+            throw new RuntimeException("Weekly financial - Error loading existing financial years : ${ex.message} ", ex)
         }
-        return false;
     }
 
     List<String[]> readCsvFile(MultipartFile file){
@@ -83,8 +87,8 @@ class FinancialWeekService extends MySqlDal {
                 return csvReader.readAll()
             }
         } catch (Exception ex) {
-            log.error("Error when reading financial week csv file, Exception  $ex ")
-            return null // Indicate a read failure by returning null
+            log.error("Weekly financial - Error reading financial week csv file, ${ex.message} ", ex)
+            throw new RuntimeException("Weekly financial - Error reading financial week csv file, ${ex.message} ", ex)
         }
     }
 
@@ -115,14 +119,14 @@ class FinancialWeekService extends MySqlDal {
                         errors.addAll(lineErrors)
                     }
                 } catch (Exception ex) {
-                    log.error("Error when attempting to process line number $lineNumber , Exception  $ex ")
+                    log.error("Weekly financial - Error attempting to process line number $lineNumber : ${ex.message} ", ex)
                     errors << "Unexpected error processing line number $lineNumber "
                 }
             }
             return financialWeeks
         } catch (Exception ex) {
-            log.error("Unexpected error when processing CSV file rows , Exception " , ex)
-            return []
+            log.error("Weekly financial - Unexpected error processing CSV file : ${ex.message} " , ex)
+            throw new RuntimeException("Weekly financial - Unexpected error processing CSV file : ${ex.message} " , ex)
         }
     }
 
@@ -131,8 +135,8 @@ class FinancialWeekService extends MySqlDal {
             def financialWeeks = getAllFinancialWeeks()
             return financialWeeks?.collect { it.financialYear }?.unique()
         } catch (Exception ex) {
-            log.error("Error loading weekly financial years , Exception " , ex)
-            throw new RuntimeException("Error loading weekly financial years")
+            log.error("Weekly financial - Error loading financial years : ${ex.message} " , ex)
+            throw new RuntimeException("Weekly financial - Error loading financial years : ${ex.message} " , ex)
         }
     }
 
@@ -154,8 +158,8 @@ class FinancialWeekService extends MySqlDal {
                 csvWriter.flush()
             }
         } catch (Exception ex) {
-            log.error("Weekly financial csv generation error ,Exception $ex" , ex)
-            throw new RuntimeException("Weekly financial csv generation error ,Exception $ex.getMessage()", ex)
+            log.error("Weekly financial - CSV generation error : ${ex.message} " , ex)
+            throw new RuntimeException("Weekly financial - CSV generation error : ${ex.message} " , ex)
         }
     }
 
@@ -164,42 +168,42 @@ class FinancialWeekService extends MySqlDal {
             Set<String> financialYears = rows.collect { it[1] } as Set // Extract the financial years
             if (financialYears.size() > 1) {
                 errors << "Financial year should be unique within the CSV file. Found: $financialYears"
-                throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+                throw new IllegalArgumentException("Weekly financial - Financial year should be unique within the CSV file. Found: $financialYears")
             }
 
             if (financialYears.size() < 0){
                 errors << "Financial year should be provided in the CSV file. Found: $financialYears"
-                throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+                throw new IllegalArgumentException("Weekly financial - Financial year should be provided in the CSV file. Found: $financialYears")
             }
 
             String financialYear = financialYears.first()
             if (isFinancialYearExists(financialYear)){
                 errors << "Financial year already exists. Found: $financialYears"
-                throw new IllegalArgumentException("Financial year should be unique within the CSV file. Found: $financialYears")
+                throw new IllegalArgumentException("Weekly financial - Financial year already existed. Found: $financialYears")
             }
         } catch (Exception ex) {
-            log.error("Weekly financial year validation error detected ,Exception $ex" , ex)
-            throw new RuntimeException("Financial year validation exception.")
+            log.error("Weekly financial - Financial year pre validation error detected ,Exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - Financial year validation exception.")
         }
 
     }
 
     void validateFinancialWeekList(List<FinancialWeek> financialWeeks, List<String> errors){
-        if (!financialWeeks.isEmpty() && financialWeeks.size() > 0){
+        if (financialWeeks != null && !financialWeeks.isEmpty()){
             errors.addAll(validateFinancialWeekSequence(financialWeeks))
         }
     }
 
     List<String> prepareErrorResponse(List<String> errors, int maxErrors){
         List<String> errorResponseMessages = []
-        if (errors.size() > 0){
+        if (errors!= null && !errors.isEmpty()){
             if (errors.size() > maxErrors) { // Limit errors to maxErrors and add a message if there are more
                 errors = errors.take(maxErrors)
                 errors << "More errors found, please validate the CSV file again."
             }
             errorResponseMessages.addAll(errors)
         } else {
-            errorResponseMessages.add("Unexpected error occurred during file processing.")
+            errorResponseMessages.add("Unexpected error occurred during file processing.Please check the logs for more details")
         }
         return errorResponseMessages;
     }
@@ -246,33 +250,48 @@ class FinancialWeekService extends MySqlDal {
 
     private List<String> validateFinancialWeekSequence(List<FinancialWeek> financialWeeks) {
         List<String> errors = []
-        financialWeeks.sort { it.startDate } // Sort weeks by start date
-        financialWeeks.eachWithIndex { week, index ->  // Check for sequence gaps
-            if (index > 0) { // Skip the first element
-                def previousWeek = financialWeeks[index - 1]
-                if (week.startDate.isAfter(previousWeek.startDate.plusDays(7))) {
-                    errors << "Gap found between week starting on ${previousWeek.startDate} and week starting on ${week.startDate}."
+        try {
+            financialWeeks.sort { it.startDate } // Sort weeks by start date
+            financialWeeks.eachWithIndex { week, index ->  // Check for sequence gaps
+                if (index > 0) { // Skip the first element
+                    def previousWeek = financialWeeks[index - 1]
+                    if (week.startDate.isAfter(previousWeek.startDate.plusDays(7))) {
+                        errors << "Gap found between week starting on ${previousWeek.startDate} and week starting on ${week.startDate}."
+                    }
                 }
             }
+            return errors
+        } catch (Exception ex) {
+            log.error("Weekly financial - week sequence validation error detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - week sequence validation error detected, exception $ex" , ex)
         }
-        return errors
     }
 
 
     private List<String> validateStartDateBlank(String startDate, int lineNumber) {
-        List<String> errors = []
-        if (!startDate?.trim()) {
-            errors << "Line $lineNumber: Start date is blank. Please provide a valid start date."
+        try {
+            List<String> errors = []
+            if (!startDate?.trim()) {
+                errors << "Line $lineNumber: Start date is blank. Please provide a valid start date."
+            }
+            return errors
+        } catch (Exception ex) {
+            log.error("Weekly financial - start date blank validation error detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - start date blank validation error detected, exception $ex" , ex)
         }
-        return errors
     }
 
     private List<String> validateWeekNumberBlank(String weekNumberStr, int lineNumber) {
-        List<String> errors = []
-        if (!weekNumberStr?.trim()) {
-            errors << "Line $lineNumber: Week number is blank. Please provide a valid week number."
+        try {
+            List<String> errors = []
+            if (!weekNumberStr?.trim()) {
+                errors << "Line $lineNumber: Week number is blank. Please provide a valid week number."
+            }
+            return errors
+        } catch (Exception ex) {
+            log.error("Weekly financial - week number blank validation error detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - week number blank validation error detected, exception $ex" , ex)
         }
-        return errors
     }
 
     private List<String> validateDate(String dateStr, int lineNumber) {
@@ -280,20 +299,27 @@ class FinancialWeekService extends MySqlDal {
         try {
             parseDate(dateStr)
         } catch (DateTimeParseException ex) {
+            log.error("Weekly financial - date parsing error detected , exception $ex" , ex)
             errors << "Line $lineNumber: Invalid date format in '$dateStr'"
         } catch (Exception ex){
+            log.error("Weekly financial - date parsing unexpected error detected , exception $ex" , ex)
             errors << "Line $lineNumber: unexpcted date parsing error '$dateStr'"
         }
         return errors
     }
 
     private List<String> validateFinancialYear(String financialYear, int lineNumber) {
-        List<String> errors = []
-        // Check that the financial year matches the format YYYY/YY
-        if (!financialYear.matches("\\d{4}/\\d{2}")) {
-            errors << "Line $lineNumber: Invalid financial year format in '$financialYear'. Please use YYYY/YY format."
+        try {
+            List<String> errors = []
+            // Check that the financial year matches the format YYYY/YY
+            if (!financialYear.matches("\\d{4}/\\d{2}")) {
+                errors << "Line $lineNumber: Invalid financial year format in '$financialYear'. Please use YYYY/YY format."
+            }
+            return errors
+        } catch (Exception ex) {
+            log.error("Weekly financial - financial year format validation error detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - financial year format validation error detected, exception $ex" , ex)
         }
-        return errors
     }
 
     private List<String> validateWeekNumber(String weekNumberStr, int lineNumber) {
@@ -305,17 +331,25 @@ class FinancialWeekService extends MySqlDal {
             }
         } catch (NumberFormatException e) {
             errors << "Line $lineNumber: Week number is not an integer in '$weekNumberStr'"
+        } catch (Exception ex) {
+            log.error("Weekly financial - week number validation unexpected error detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - week number validation unexpected error detected, exception $ex" , ex)
         }
         return errors
     }
 
     private List<String> validateDuplicateWeekNumber(String weekNumberStr, List<FinancialWeek> financialWeeks, int lineNumber) {
-        List<String> errors = []
-        int weekNumber = weekNumberStr as int
-        if (financialWeeks.any { it.weekNumber == weekNumber }) {
-            errors << "Line $lineNumber: Duplicate week number found in '$weekNumberStr'"
+        try {
+            List<String> errors = []
+            int weekNumber = weekNumberStr as int
+            if (financialWeeks.any { it.weekNumber == weekNumber }) {
+                errors << "Line $lineNumber: Duplicate week number found in '$weekNumberStr'"
+            }
+            return errors
+        } catch (Exception ex) {
+            log.error("Weekly financial - duplicate week number detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - duplicate week number detected, exception $ex" , ex)
         }
-        return errors
     }
 
 
