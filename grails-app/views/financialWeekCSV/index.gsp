@@ -12,6 +12,43 @@
     <asset:javascript src="bootstrap-datepicker.min.js"/>
     <asset:javascript src="moment-with-locales.min.js"/>
 
+    <style>
+    @media (max-width: 768px) {
+        #page-title {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        #uploadFinancialWeekBtn, #downloadFinancialWeekBtn {
+            width: 100%; /* Full width for buttons on smaller screens */
+            margin-bottom: 10px;
+        }
+    }
+
+    @media (min-width: 769px) {
+        #uploadFinancialWeekBtn, #downloadFinancialWeekBtn {
+            min-width: 200px; /* Fixed width for larger screens */
+        }
+    }
+
+    /* General styles for centering content */
+    .header-wl {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px; /* Adds spacing between the buttons */
+        margin-top: 20px;
+    }
+    </style>
+
     <script type="application/javascript">
 
         $(document).ready(function() {
@@ -114,7 +151,7 @@
         }
 
         function updateDropDown(response){
-           // console.log(response?.responseJSON?.response)
+            // console.log(response?.responseJSON?.response)
             var financialYears = response?.financialYears;
             if (Array.isArray(financialYears) && financialYears.length > 0) {
                 var $dropdown = $('#yearSelect');
@@ -178,7 +215,7 @@
             });
 
             messageDiv.append(closeIcon);
-            $('#errors-container').html(messageDiv);
+            $('#message-container').html(messageDiv);
 
             // Adjust icon position to top-right corner
             closeIcon.css({
@@ -190,6 +227,7 @@
         }
 
     </script>
+
 </head>
 <body>
 
@@ -208,25 +246,27 @@
 
 <section id="FinancialWeekUpload" class="container-fluid">
 
-    <section id="errors-container" class="container-fluid mb-20"></section>
+    <section id="message-container" class="container-fluid mb-20"></section>
 
-    <div class="row header-wl mt-3">
-        <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFileUploadInput()">
-        <div class="col-8 offset-2 text-center">
-            <h2 id="page-title" class="mx-auto my-auto">Financial Week</h2>
-        </div>
-        <div class="col-2 text-right d-inline-flex flex-row justify-content-end">
-            <button class="btn btn-wl p-2 ml-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn" style="min-width: 200px; white-space: nowrap;">Upload Financial Week</button>
-            <button class="btn btn-wl p-2 ml-2" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn" style="min-width: 200px; white-space: nowrap;">Download Financial Week CSV</button>
+    <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFileUploadInput()">
+
+    <!-- Header with title and buttons -->
+    <div class="header-wl">
+        <h2 id="page-title">Financial Week</h2>
+
+        <!-- Buttons aligned below the title -->
+        <div class="buttons-container">
+            <button class="btn btn-wl p-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload File</button>
+            <button class="btn btn-wl p-2" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn">Download File</button>
         </div>
     </div>
 
-
-    <div class="row mt-5 justify-content-center"> <!-- Increased the margin-top to 5 -->
-        <div class="col-6 d-flex align-items-center justify-content-center">
-            <span class="font-weight-bold" style="font-size: 1.25rem; margin-right: 15px;">Select financial year:</span>
+    <!-- Select financial year section -->
+    <div class="row mt-5 justify-content-center">
+        <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
+            <span class="font-weight-bold mr-3" style="font-size: 1.25rem;">Select financial year:</span>
             <g:form controller="financialWeekCSV" action="downloadCsv" method="GET" class="d-inline">
-                <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialYears}" style="width: 250px;"/>
+                <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialYears}" style="width: 100%; max-width: 250px;"/>
             </g:form>
         </div>
     </div>
