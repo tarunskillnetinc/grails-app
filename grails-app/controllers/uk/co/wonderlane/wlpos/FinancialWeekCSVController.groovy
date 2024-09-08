@@ -41,17 +41,14 @@ class FinancialWeekCSVController {
             //Read imported csv and return all rows (max = 53)
             List<String[]> rows = financialWeekService.readCsvFile(file)
 
-            //Validate existing financial years
+            //Validate existing financial years --> check against database
             financialWeekService.financialYearPreValidation(rows, errors)
 
             //This method will validate each row
             // 1 -> Do row level validation
             // 2 -> If no error prepare Grom entity
-            // 3 -> If any errors then put them into list
+            // 3 -> If any errors then put them into error list
             List<FinancialWeek> financialWeeks =  financialWeekService.processCsvDataRows(rows, errors, retailerId)
-
-            //Once processing all rows validate return financial week list
-            //financialWeekService.validateFinancialWeekList(financialWeeks, errors)
 
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert

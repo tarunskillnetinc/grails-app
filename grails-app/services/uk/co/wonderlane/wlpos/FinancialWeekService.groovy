@@ -3,8 +3,6 @@ package uk.co.wonderlane.wlpos
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import grails.gorm.transactions.Transactional
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import org.springframework.web.multipart.MultipartFile
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
@@ -16,7 +14,6 @@ import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 import java.text.ParseException
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -108,6 +105,7 @@ class FinancialWeekService extends MySqlDal {
                     def weekNumberStr = row[2]?.trim() // e.g., 18
 
                     // Collect errors for this line
+                    // This will validate row data for any validation failures
                     List<String> lineErrors = validateCsvDataRow(lineNumber, startDate, weekNumberStr, financialYear, financialWeeks)
 
                     if (lineErrors.isEmpty()) {
@@ -189,12 +187,6 @@ class FinancialWeekService extends MySqlDal {
 
     }
 
-    void validateFinancialWeekList(List<FinancialWeek> financialWeeks, List<String> errors){
-        if (financialWeeks != null && !financialWeeks.isEmpty()){
-            errors.addAll(validateFinancialWeekSequence(financialWeeks))
-        }
-    }
-
     List<String> prepareErrorResponse(List<String> errors, int maxErrors){
         List<String> errorResponseMessages = []
         if (errors!= null && !errors.isEmpty()){
@@ -212,23 +204,13 @@ class FinancialWeekService extends MySqlDal {
     private List<String> validateCsvDataRow(int lineNumber, String startDate, String weekNumberStr, String financialYear, List<FinancialWeek> financialWeeks){
         List<String> lineErrors = []
         lineErrors.addAll(validateStartDateBlank(startDate, lineNumber))
-        lineErrors.addAll(validateWeekNumberBlank(startDate, lineNumber))
         lineErrors.addAll(validateDate(startDate, lineNumber))
-        lineErrors.addAll(validateFinancialYear(financialYear, lineNumber))
-        lineErrors.addAll(validateWeekNumber(weekNumberStr, lineNumber))
+        lineErrors.addAll(validateDuplicateStartDate(startDate, financialWeeks, lineNumber))
+        lineErrors.addAll(validateWeekNumberBlank(startDate, lineNumber))
+        lineErrors.addAll(validateWeekNumber(weekNumberStr, lineNumber, financialWeeks))
         lineErrors.addAll(validateDuplicateWeekNumber(weekNumberStr, financialWeeks, lineNumber))
+        lineErrors.addAll(validateFinancialYear(financialYear, lineNumber))
         return lineErrors
-    }
-
-    List<String> checkDateRangeOverlap(List<FinancialWeek> financialWeeks, Long retailerId) {
-        List<String> errors = []
-        financialWeeks.each { week ->
-            def existingWeeks = findOverlappingWeeks(week.startDate, retailerId)
-            if (existingWeeks) {
-                errors << "Date overlap found for week starting on ${week.date}."
-            }
-        }
-        return errors
     }
 
     private LocalDate parseDate(String dateStr) throws ParseException {
@@ -248,26 +230,6 @@ class FinancialWeekService extends MySqlDal {
             throw new IllegalArgumentException("Financial week date parsing unexpected error: " + dateStr);
         }
     }
-
-    private List<String> validateFinancialWeekSequence(List<FinancialWeek> financialWeeks) {
-        List<String> errors = []
-        try {
-            financialWeeks.sort { it.startDate } // Sort weeks by start date
-            financialWeeks.eachWithIndex { week, index ->  // Check for sequence gaps
-                if (index > 0) { // Skip the first element
-                    def previousWeek = financialWeeks[index - 1]
-                    if (week.startDate.isAfter(previousWeek.startDate.plusDays(7))) {
-                        errors << "Gap found between week starting on ${previousWeek.startDate} and week starting on ${week.startDate}."
-                    }
-                }
-            }
-            return errors
-        } catch (Exception ex) {
-            log.error("Weekly financial - week sequence validation error detected , exception $ex" , ex)
-            throw new RuntimeException("Weekly financial - week sequence validation error detected, exception $ex" , ex)
-        }
-    }
-
 
     private List<String> validateStartDateBlank(String startDate, int lineNumber) {
         try {
@@ -323,12 +285,18 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    private List<String> validateWeekNumber(String weekNumberStr, int lineNumber) {
+    private List<String> validateWeekNumber(String weekNumberStr, int lineNumber, List<FinancialWeek> financialWeeks) {
         List<String> errors = []
         try {
+
             int weekNumber = weekNumberStr as int
             if (weekNumber < 1 || weekNumber > 53) {
                 errors << "Line $lineNumber: Week number must be between 1 and 53 in '$weekNumberStr'"
+            } else {
+                int expectedNextWeekNumber = financialWeeks[-1].weekNumber + 1
+                if (weekNumber != expectedNextWeekNumber) {
+                    errors << "Line $lineNumber: Week number $weekNumber is not in the expected sequential order. Expected $expectedNextWeekNumber."
+                }
             }
         } catch (NumberFormatException e) {
             errors << "Line $lineNumber: Week number is not an integer in '$weekNumberStr'"
@@ -350,6 +318,19 @@ class FinancialWeekService extends MySqlDal {
         } catch (Exception ex) {
             log.error("Weekly financial - duplicate week number detected , exception $ex" , ex)
             throw new RuntimeException("Weekly financial - duplicate week number detected, exception $ex" , ex)
+        }
+    }
+
+    private List<String> validateDuplicateStartDate(String startDate, List<FinancialWeek> financialWeeks, int lineNumber) {
+        try {
+            List<String> errors = []
+            if (financialWeeks.any { it.startDate == startDate }) {
+                errors << "Line $lineNumber: Duplicate start date found in '$startDate'"
+            }
+            return errors
+        } catch (Exception ex) {
+            log.error("Weekly financial - duplicate start date detected , exception $ex" , ex)
+            throw new RuntimeException("Weekly financial - duplicate start date detected, exception $ex" , ex)
         }
     }
 
