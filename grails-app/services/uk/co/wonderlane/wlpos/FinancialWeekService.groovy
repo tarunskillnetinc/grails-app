@@ -10,7 +10,9 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
+import javax.validation.ConstraintViolationException
 import java.sql.SQLException
+import java.sql.SQLIntegrityConstraintViolationException
 import java.text.ParseException
 import java.time.LocalDate
 import java.time.ZoneId
@@ -28,7 +30,7 @@ class FinancialWeekService extends MySqlDal {
     }
 
    @Transactional('reporting')
-   saveFinancialWeeksInBatches(List<FinancialWeek> financialWeeks) {
+   saveFinancialWeeksInBatches(List<FinancialWeek> financialWeeks, List<String> errors) {
         try {
             FinancialWeek.saveAll(financialWeeks)// Save all financial weeks in this batch
             // Flush the session to write changes to the database
@@ -36,8 +38,17 @@ class FinancialWeekService extends MySqlDal {
                 session.flush()
                 session.clear()
             }
+        } catch (ConstraintViolationException ex){
+            log.error("Unique key violation occurred: ${ex.message}")
+            errors.add("Data conflicts, please verify content and check the logs for more details")
+            throw ex
+        } catch (SQLIntegrityConstraintViolationException ex){
+            log.error("SQL integrity constraint violation: ${ex.message}")
+            errors.add("Data conflicts, please verify content and check the logs for more details")
+            throw ex
         } catch (Exception ex) {
             log.error("Error saving batch of FinancialWeeks, exception $ex")
+            errors.add("Unexpected database persistence error, please verify content and check the logs for more details")
             throw ex
         }
     }
@@ -144,6 +155,7 @@ class FinancialWeekService extends MySqlDal {
             }
         } catch (Exception ex) {
             log.error("Weekly financial csv generation error ,Exception $ex" , ex)
+            throw new RuntimeException("Weekly financial csv generation error ,Exception $ex.getMessage()", ex)
         }
     }
 

@@ -47,7 +47,7 @@ class FinancialWeekCSVController {
 
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert
-                financialWeekService.saveFinancialWeeksInBatches(financialWeeks)
+                financialWeekService.saveFinancialWeeksInBatches(financialWeeks, errors)
                 List<String> financialYears = financialWeekService.loadFinancialYears()
                 log.info("Successfully process financial week csv file..... ")
                 render status: 200, contentType: 'application/json', text: JsonOutput.toJson([financialYears: financialYears])
