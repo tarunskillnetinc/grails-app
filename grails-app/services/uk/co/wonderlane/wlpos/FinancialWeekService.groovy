@@ -11,6 +11,7 @@ import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
 import javax.validation.ConstraintViolationException
+import java.sql.Date
 import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 import java.text.ParseException
@@ -111,10 +112,9 @@ class FinancialWeekService extends MySqlDal {
 
                     if (lineErrors.isEmpty()) {
                         LocalDate date = parseDate(startDate)
-                        Date convertedDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                        DateTime dateTime = new DateTime(convertedDate).withZone(DateTimeZone.UTC);
+                        Date convertedDate = Date.valueOf(date)
                         int weekNumber = weekNumberStr as int
-                        financialWeeks << new FinancialWeek(startDate: dateTime, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
+                        financialWeeks << new FinancialWeek(startDate: convertedDate, financialYear: financialYear, weekNumber: weekNumber, retailerId: retailerId)
                     } else{
                         errors.addAll(lineErrors)
                     }
@@ -125,6 +125,7 @@ class FinancialWeekService extends MySqlDal {
             }
             return financialWeeks
         } catch (Exception ex) {
+            errors << "Unexpected error processing csv data row"
             log.error("Weekly financial - Unexpected error processing CSV file : ${ex.message} " , ex)
             throw new RuntimeException("Weekly financial - Unexpected error processing CSV file : ${ex.message} " , ex)
         }

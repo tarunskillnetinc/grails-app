@@ -13,14 +13,22 @@ class FinancialWeekCSVController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def index() {
         try {
+            var actionSuccess = true
+            var message = null
             List<String> financialYears = financialWeekService.loadFinancialYears()
             boolean enableCsvDownload = financialYears != null && !financialYears.isEmpty()
-            render(view: 'index', model: [financialYears: financialYears, success: true, enableCsvDownload : enableCsvDownload])
+            if (params?.status) {
+                actionSuccess = params?.status
+            }
+
+            if (params?.message) {
+                message = params?.message
+            }
+            render(view: 'index', model: [financialYears: financialYears, actionSuccess: actionSuccess, enableCsvDownload : enableCsvDownload, message: message])
         } catch (Exception ex){
             log.error("Error loading financial weeks: $ex.message", ex)
-            render(view: 'index', model: [financialWeeks: [], success: false, errorMessage: "Failed to load financial weeks. Please try again."])
+            render(view: 'index', model: [financialWeeks: [], success: false, message: "Failed to load financial weeks. Please try again."])
         }
-
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -43,7 +51,7 @@ class FinancialWeekCSVController {
             List<FinancialWeek> financialWeeks =  financialWeekService.processCsvDataRows(rows, errors, retailerId)
 
             //Once processing all rows validate return financial week list
-            financialWeekService.validateFinancialWeekList(financialWeeks, errors)
+            //financialWeekService.validateFinancialWeekList(financialWeeks, errors)
 
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert
@@ -74,8 +82,8 @@ class FinancialWeekCSVController {
             response.outputStream.flush()
         } catch (Exception ex) {
             log.error("Errors donwloading financial weekly report, exception $ex ")
-            List<String> errorResponseMessages = ["Financial week csv file generation failed"]
-            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([response: errorResponseMessages])
+            def errorMessage = "Financial week CSV file generation failed ${params.yearSelect}"
+            redirect(action: 'index', params: [status: false, message: errorMessage]) // Custom error page or action
         }
     }
 

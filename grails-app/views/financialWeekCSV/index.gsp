@@ -15,13 +15,12 @@
     <script type="application/javascript">
 
         $(document).ready(function() {
-            var success = '${success}';  // This will be 'true' or 'false' based on the backend response
-            var errorMessage = '${errorMessage}';  // Error message from the backend, if any
-
-            if (success === 'false') { //Display error when loading index page if any error occur
+            var actionSuccess = '${actionSuccess}';  // This will be 'true' or 'false' based on the backend response
+            if (actionSuccess === 'false') { //Display error when loading index page if any error occur
                 // Display error message using messageDisplay function
-                var defaultErrorMessage = "An error occurred while loading financial weeks.";
-                messageDisplay({ responseJSON: { response: [errorMessage] } }, true, defaultErrorMessage, null);
+                var errorMessage = '${message}';  // Error message from the backend, if any
+                var defaultErrorMessage = "An unexpected error while processing the request.";
+                messageDisplay({ responseJSON: { errorsList: [errorMessage] } }, true, defaultErrorMessage, null);
             }
 
 
@@ -98,23 +97,7 @@
             if (selectedYear) {
                 // Construct the download URL with the selected financial year as a query parameter
                 var downloadUrl = "${createLink(controller: 'FinancialWeekCSV', action: 'downloadCsv')}?yearSelect=" + encodeURIComponent(selectedYear);
-                $.ajax({
-                    url: downloadUrl,
-                    type: "GET",
-                    mimeType: "multipart/form-data",
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    dataType: 'json',// Ensure that the response is expected as JSON
-                    statusCode: {
-                        500: function (response) {
-                            messageDisplay(response, true, "CSV file generation error, please try again", null); //Error generating csv weekly financial file
-                        },
-                        200: function (response) {
-                            messageDisplay(response, false, null, "CSV file successfully generated"); //Successfully generated csv file
-                        }
-                    }
-                });
+                window.location.href = downloadUrl;
             } else {
                 messageDisplay(null, true, "Please select a financial year before downloading", null); //Error generating csv weekly financial file
             }
