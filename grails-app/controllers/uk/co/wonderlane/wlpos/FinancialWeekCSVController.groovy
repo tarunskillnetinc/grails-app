@@ -5,7 +5,7 @@ import groovy.json.JsonOutput
 import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
-@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+@Secured(['ROLE_ENGINEER'])
 class FinancialWeekCSVController {
     def springSecurityService
     def financialWeekService
