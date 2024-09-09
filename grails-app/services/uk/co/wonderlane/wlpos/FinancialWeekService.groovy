@@ -27,7 +27,7 @@ class FinancialWeekService extends MySqlDal {
         super(databaseCredentials)
     }
 
-   @Transactional('reporting')
+   @Transactional('transactions')
    saveFinancialWeeksInBatches(List<FinancialWeek> financialWeeks, List<String> errors) {
         try {
             FinancialWeek.saveAll(financialWeeks)// Save all financial weeks in this batch
@@ -51,13 +51,13 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    @Transactional('reporting')
+    @Transactional('transactions')
     List<FinancialWeek> getAllFinancialWeeks() {
         def financialWeeks = FinancialWeek.list()
         return financialWeeks.unique { it.financialYear }
     }
 
-    @Transactional('reporting')
+    @Transactional('transactions')
     List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear) {
         def criteria = FinancialWeek.createCriteria()
         return criteria.list {
@@ -106,7 +106,7 @@ class FinancialWeekService extends MySqlDal {
 
                     // Collect errors for this line
                     // This will validate row data for any validation failures
-                    List<String> lineErrors = validateCsvDataRow(lineNumber, startDate, weekNumberStr, financialYear, financialWeeks)
+                    List<String> lineErrors = validateCsvDataRow(lineNumber, startDate, weekNumberStr, financialYear)
 
                     if (lineErrors.isEmpty()) {
                         LocalDate date = parseDate(startDate)
@@ -121,7 +121,7 @@ class FinancialWeekService extends MySqlDal {
                     errors << "Unexpected error processing line number $lineNumber "
                 }
             }
-            return financialWeeks
+            return (errors != null && errors.isEmpty()) ? financialWeeks : []
         } catch (Exception ex) {
             errors << "Unexpected error processing csv data row"
             log.error("Financial week - Unexpected error processing CSV file : ${ex.message} " , ex)
@@ -164,20 +164,20 @@ class FinancialWeekService extends MySqlDal {
 
     void financialYearPreValidation(List<String[]> rows, List<String> errors){
         try {
-            Set<String> financialYears = rows.collect { it[1] } as Set // Extract the financial years
+            Set<String> financialYears = rows?.collect { it[1] } as Set // Extract the financial years
             if (financialYears.size() > 1) {
-                errors << "Financial year should be unique within the CSV file. Found: $financialYears"
+                errors << "Financial year should be unique within the CSV file. Found: $financialYears is duplicating."
                 throw new IllegalArgumentException("Financial week - Financial year should be unique within the CSV file. Found: $financialYears")
             }
 
             if (financialYears.size() < 0){
-                errors << "Financial year should be provided in the CSV file. Found: $financialYears"
+                errors << "Financial year should be provided in the CSV file."
                 throw new IllegalArgumentException("Financial week - Financial year should be provided in the CSV file. Found: $financialYears")
             }
 
             String financialYear = financialYears.first()
             if (isFinancialYearExists(financialYear)){
-                errors << "Financial year already exists. Found: $financialYears"
+                errors << "Financial year already exists. Found: $financialYears in records."
                 throw new IllegalArgumentException("Financial week - Financial year already existed. Found: $financialYears")
             }
         } catch (Exception ex) {
@@ -185,6 +185,27 @@ class FinancialWeekService extends MySqlDal {
             throw new RuntimeException("Financial week - Financial year validation exception.")
         }
 
+    }
+
+    void csvFinancialStartDatePostValidation(List<FinancialWeek> financialWeeks, List<String> errors){
+        if (financialWeeks != null && !financialWeeks.isEmpty()){
+            financialWeeks.eachWithIndex { financialWeek, index ->
+                Date startDate = financialWeek.startDate // Convert Date to String if needed
+                int lineNumber = index + 1 // Line number, assuming index starts from 0
+                errors.addAll(validateDuplicateStartDate(startDate, financialWeeks, lineNumber, index))
+                errors.addAll(validateStartDateOverlap(startDate, financialWeeks, lineNumber, index))
+            }
+        }
+    }
+
+    void csvFinancialWeekPostValidation(List<FinancialWeek> financialWeeks, List<String> errors){
+        if (financialWeeks != null && !financialWeeks.isEmpty()){
+            financialWeeks.eachWithIndex { financialWeek, index ->
+                String weekNumber = financialWeek.weekNumber // Convert Date to String if needed
+                int lineNumber = index + 1 // Line number, assuming index starts from 0
+                errors.addAll(validateDuplicateWeekNumber(weekNumber, financialWeeks, lineNumber, index))
+            }
+        }
     }
 
     List<String> prepareErrorResponse(List<String> errors, int maxErrors){
@@ -201,60 +222,83 @@ class FinancialWeekService extends MySqlDal {
         return errorResponseMessages;
     }
 
-    private List<String> validateCsvDataRow(int lineNumber, String startDate, String weekNumberStr, String financialYear, List<FinancialWeek> financialWeeks){
+    private List<String> validateCsvDataRow(int lineNumber, String startDate, String weekNumberStr, String financialYear){
         List<String> lineErrors = []
-        lineErrors.addAll(validateStartDateBlank(startDate, lineNumber))
-        lineErrors.addAll(validateDate(startDate, lineNumber))
-        lineErrors.addAll(validateDuplicateStartDate(startDate, financialWeeks, lineNumber))
-        lineErrors.addAll(validateWeekNumberBlank(startDate, lineNumber))
-        lineErrors.addAll(validateWeekNumber(weekNumberStr, lineNumber, financialWeeks))
-        lineErrors.addAll(validateDuplicateWeekNumber(weekNumberStr, financialWeeks, lineNumber))
-        lineErrors.addAll(validateFinancialYear(financialYear, lineNumber))
+        lineErrors.addAll(processCsvStartDateValidations(lineNumber, startDate))// Validate start date
+        lineErrors.addAll(processCsvWeekValidations(lineNumber, weekNumberStr))// Validate week number
+        lineErrors.addAll(processCsvFinancialYearValidations(lineNumber, financialYear))// Validate financial year
         return lineErrors
     }
 
+    private List<String> processCsvStartDateValidations(int lineNumber, String startDate){
+        List<String> errors = []
+
+        // Step 1: Validate if the start date is blank
+        errors.addAll(validateStartDateBlank(startDate, lineNumber))
+
+        // Step 2: If the start date is not blank, validate the date format
+        if (errors.isEmpty()) {
+            errors.addAll(validateDate(startDate, lineNumber))
+        }
+
+        return errors
+    }
+
+    private List<String> processCsvWeekValidations(int lineNumber,String weekNumberStr){
+        List<String> errors = []
+
+        // Step 1: Validate if the week is blank
+        errors.addAll(validateWeekNumberBlank(weekNumberStr, lineNumber))
+
+        // Step 2: If the week is not blank, validate the week number
+        if (errors.isEmpty()) {
+            errors.addAll(validateWeekNumber(weekNumberStr, lineNumber))
+        }
+
+        // Step 2: If the week number validation pass, validate the week number sequence order
+        if (errors.isEmpty()) {
+            errors.addAll(validateFinancialWeekSequence(weekNumberStr, lineNumber))
+        }
+
+        return errors
+    }
+
+    private List<String> processCsvFinancialYearValidations(int lineNumber,String financialYear){
+        List<String> errors = []
+        // Step 1: Validate financial year format
+        errors.addAll(validateFinancialYear(financialYear, lineNumber))
+        return errors
+    }
+
     private LocalDate parseDate(String dateStr) throws ParseException {
-        DateTimeFormatter formatterYYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        DateTimeFormatter formatterMM_DD_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        DateTimeFormatter formatter_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         try { // Try to parse the date with the "dd/MM/yyyy" format
-            return LocalDate.parse(dateStr, formatterYYYY_MM_DD)
+            return LocalDate.parse(dateStr, formatter_YYYY_MM_DD)
         } catch (DateTimeParseException e) {
             try { // If parsing fails, try the second format
-                return LocalDate.parse(dateStr, formatterMM_DD_YYYY)
+                return LocalDate.parse(dateStr, formatter_DD_MM_YYYY)
             } catch (DateTimeParseException ex) {
-                throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0);  // If both formats fail, throw an exception
+                throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0)  // If both formats fail, throw an exception
             }
         } catch (DateTimeParseException ex) {
-            throw new DateTimeParseException("Financial week - Date parsing error: " + dateStr, dateStr, 0);
+            throw new DateTimeParseException("Financial week - Date parsing error: " + dateStr, dateStr, 0)
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Financial week - date parsing unexpected error: " + dateStr);
+            throw new IllegalArgumentException("Financial week - date parsing unexpected error: " + dateStr)
         }
     }
 
     private List<String> validateStartDateBlank(String startDate, int lineNumber) {
+        List<String> errors = []
         try {
-            List<String> errors = []
             if (!startDate?.trim()) {
                 errors << "Line $lineNumber: Start date is blank, please correct before upload"
             }
-            return errors
         } catch (Exception ex) {
-            log.error("Financial week - start date blank validation error detected , exception $ex" , ex)
-            throw new RuntimeException("Financial week - start date blank validation error detected, exception $ex" , ex)
+            log.error("Financial week - unexpected error while validating start date, $ex" , ex)
+            errors << "Line $lineNumber: Unexpected error while validating start date, please check the data and logs"
         }
-    }
-
-    private List<String> validateWeekNumberBlank(String weekNumberStr, int lineNumber) {
-        try {
-            List<String> errors = []
-            if (!weekNumberStr?.trim()) {
-                errors << "Line $lineNumber: Financial week number is blank, please correct before upload."
-            }
-            return errors
-        } catch (Exception ex) {
-            log.error("Financial week - week number blank validation error detected , exception $ex" , ex)
-            throw new RuntimeException("Financial week - week number blank validation error detected, exception $ex" , ex)
-        }
+        return errors
     }
 
     private List<String> validateDate(String dateStr, int lineNumber) {
@@ -262,79 +306,124 @@ class FinancialWeekService extends MySqlDal {
         try {
             parseDate(dateStr)
         } catch (DateTimeParseException ex) {
-            log.error("Financial week - date parsing error detected , exception $ex" , ex)
-            errors << "Line $lineNumber: Incorrect financial week date format."
+            log.error("Financial week - date parsing error detected , exception ${ex.message}" , ex)
+            errors << "Line $lineNumber: Incorrect financial week date format, please check date format"
         } catch (Exception ex){
-            log.error("Financial week - date parsing unexpected error detected , exception $ex" , ex)
-            errors << "Line $lineNumber: Unexpcted financial week date parsing error. Please check format"
+            log.error("Financial week - date parsing unexpected error detected , exception ${ex.message}" , ex)
+            errors << "Line $lineNumber: Unexpcted error while parsing start date, please check date format"
         }
         return errors
     }
 
-    private List<String> validateFinancialYear(String financialYear, int lineNumber) {
+    private List<String> validateDuplicateStartDate(Date startDate, List<FinancialWeek> financialWeeks, int lineNumber, int index) {
+        List<String> errors = []
         try {
-            List<String> errors = []
-            // Check that the financial year matches the format YYYY/YY
-            if (!financialYear.matches("\\d{4}/\\d{2}")) {
-                errors << "Line $lineNumber: Incorrect financial year format. Please use YYYY/YY format."
+            if (financialWeeks.take(index).any { it.startDate == startDate }) {
+                errors << "Line $lineNumber: Duplicate start date, please correct before upload"
             }
-            return errors
         } catch (Exception ex) {
-            log.error("Financial week - financial year format validation error detected , exception $ex" , ex)
-            throw new RuntimeException("Financial week - financial year format validation error detected, exception $ex" , ex)
+            log.error("Financial week - duplicate start date detected , exception $ex" , ex)
+            errors << "Line $lineNumber: Unexpected error while validating duplicate start date, please check the data and logs"
         }
+        return errors
     }
 
-    private List<String> validateWeekNumber(String weekNumberStr, int lineNumber, List<FinancialWeek> financialWeeks) {
+    private List<String> validateStartDateOverlap(Date startDate, List<FinancialWeek> financialWeeks, int lineNumber, int index){
+        List<String> errors = []
+        try {
+            if (index > 0) { // Skip validation for the first item
+                FinancialWeek financialWeekFileStart = financialWeeks[0] as FinancialWeek
+                Date financialWeekStartDate = financialWeekFileStart.startDate
+                LocalDate currentStartDate = toLocalDate(startDate)
+                LocalDate previousStartDate = toLocalDate(financialWeekStartDate)
+                if (!currentStartDate.isEqual(previousStartDate.plusWeeks(index))) {
+                    errors << "Line $lineNumber: The start date $startDate must be ${index} weeks after the weekly file start date ${financialWeekStartDate}."
+                }
+            }
+        } catch (Exception ex) {
+            log.error("Financial week - Unexpected error while validating start date overlapping , exception ${ex.message}" , ex)
+            errors << "Line $lineNumber: Unexpected error while validating start date overlapping, please check date format"
+        }
+        return errors;
+    }
+
+    private List<String> validateWeekNumberBlank(String weekNumberStr, int lineNumber) {
+        List<String> errors = []
+        try {
+            if (!weekNumberStr?.trim()) {
+                errors << "Line $lineNumber: Financial week number is blank,please correct before upload."
+            }
+        } catch (Exception ex) {
+            log.error("Financial week - week number blank validation error detected , exception $ex" , ex)
+            errors << "Line $lineNumber: Unexpcted error while validating week number, please correct before upload"
+        }
+        return errors
+    }
+
+    private List<String> validateWeekNumber(String weekNumberStr, int lineNumber) {
         List<String> errors = []
         try {
 
             int weekNumber = weekNumberStr as int
+
             if (weekNumber < 1) {
                 errors << "Line $lineNumber: Min financial weeks shouldn't be less than 1 weeks."
             } else if (weekNumber > 53) {
                 errors << "Line $lineNumber: Max financial weeks shouldn't be greater than 53 weeks."
-            } else {
-                int expectedNextWeekNumber = (financialWeeks ? financialWeeks[-1]?.weekNumber : 0) + 1
-                if (weekNumber != expectedNextWeekNumber) {
-                    errors << "Line $lineNumber: Week number $weekNumber is not in the expected sequential order. Expected $expectedNextWeekNumber."
-                }
             }
         } catch (NumberFormatException e) {
             errors << "Line $lineNumber: Week number is not an integer in '$weekNumberStr'"
         } catch (Exception ex) {
             log.error("Financial week - week number validation unexpected error detected , exception $ex" , ex)
-            throw new RuntimeException("Financial week - week number validation unexpected error detected, exception $ex" , ex)
+            errors << "Line $lineNumber: Unexpcted error while validating week number range, please correct before upload"
         }
         return errors
     }
 
-    private List<String> validateDuplicateWeekNumber(String weekNumberStr, List<FinancialWeek> financialWeeks, int lineNumber) {
+    private List<String> validateFinancialWeekSequence(String weekNumberStr, int lineNumber){
+        List<String> errors = []
         try {
-            List<String> errors = []
+            int currentWeekNumber = weekNumberStr as int
+            int expectedWeekNumber = lineNumber + 1
+            if (currentWeekNumber != expectedWeekNumber) {
+                errors << "Line $lineNumber: Week number $weekNumberStr is not in the expected sequential order. Expected $expectedWeekNumber."
+            }
+        } catch (Exception ex) {
+            log.error("Financial week - Unexpected error while validating week number sequential order ${ex.message}" , ex)
+            errors << "Line $lineNumber: Unexpcted error while validating week number sequential order, please correct before upload"
+        }
+        return errors
+    }
+
+    private List<String> validateDuplicateWeekNumber(String weekNumberStr, List<FinancialWeek> financialWeeks, int lineNumber, int index) {
+        List<String> errors = []
+        try {
             int weekNumber = weekNumberStr as int
-            if (financialWeeks.any { it.weekNumber == weekNumber }) {
+            if (financialWeeks.take(index).any { it.weekNumber == weekNumber }) {
                 errors << "Line $lineNumber: Duplicate financial week number, please correct before upload."
             }
-            return errors
         } catch (Exception ex) {
             log.error("Financial week - duplicate week number detected , exception $ex" , ex)
-            throw new RuntimeException("Financial week - duplicate week number detected, exception $ex" , ex)
+            errors << "Line $lineNumber: Unexpcted error while validating duplicate week number, please correct before upload"
         }
+        return errors
     }
 
-    private List<String> validateDuplicateStartDate(String startDate, List<FinancialWeek> financialWeeks, int lineNumber) {
+    private List<String> validateFinancialYear(String financialYear, int lineNumber) {
+        List<String> errors = []
         try {
-            List<String> errors = []
-            if (financialWeeks.any { it.startDate == startDate }) {
-                errors << "Line $lineNumber: Duplicate start date, please correct before upload"
+            if (!financialYear.matches("\\d{4}/\\d{2}")) { // Check that the financial year matches the format YYYY/YY
+                errors << "Line $lineNumber: Incorrect financial year format. Please use YYYY/YY format."
             }
-            return errors
         } catch (Exception ex) {
-            log.error("Financial week - duplicate start date detected , exception $ex" , ex)
-            throw new RuntimeException("Financial week - duplicate start date detected, exception $ex" , ex)
+            log.error("Financial week - financial year format validation error detected , exception $ex" , ex)
+            errors << "Line $lineNumber: Unexpcted error while validating financial year format, please correct before upload"
         }
+        return errors
     }
 
+    private LocalDate toLocalDate(Date date) {
+        return date.toLocalDate()
+    }
 
 }

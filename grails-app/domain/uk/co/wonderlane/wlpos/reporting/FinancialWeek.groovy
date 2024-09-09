@@ -19,7 +19,7 @@ class FinancialWeek {
     }
 
     static mapping = {
-        datasources(["reporting"])
+        datasources(["transactions"])
 
         table "financialweek"
         version false

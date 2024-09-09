@@ -111,7 +111,7 @@
                     500: function (response) {
                         $("#uploadResults").html("");
                         uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Financial Week"
+                        uploadButton.innerHTML = "Upload Financial Week File"
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
                         messageDisplay(response, true, "CSV file import error, Please try again", null);
@@ -119,7 +119,7 @@
                     200: function (response) {
                         $("#uploadResults").html("");
                         uploadButton.disabled = false
-                        uploadButton.innerHTML = "Upload Financial Week"
+                        uploadButton.innerHTML = "Upload Financial Week File"
                         resetFileUploadInput();
                         setPreventWindowNavigation(null);
                         messageDisplay(response, false, null, "Financial Week import completed successfully");
@@ -172,7 +172,7 @@
         function handleUploadError(uploadButton, msg) {
             $("#uploadResults").html("");
             uploadButton.disabled = false
-            uploadButton.innerHTML = "Upload Financial Week"
+            uploadButton.innerHTML = "Upload Financial Week File"
             showErrorAlert(msg)
             resetFileUploadInput();
             setPreventWindowNavigation(null);
@@ -237,7 +237,7 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Financial Week</li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Financial Weeks</li>
                 </ol>
             </div>
         </div>
@@ -256,21 +256,32 @@
 
         <!-- Buttons aligned below the title -->
         <div class="buttons-container">
-            <button class="btn btn-wl p-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload File</button>
-            <button class="btn btn-wl p-2" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn">Download File</button>
+            <button class="btn btn-wl p-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload Financial Week File</button>
+            <button class="btn btn-wl p-2" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn">Download Financial Week File</button>
         </div>
     </div>
 
-    <!-- Select financial year section -->
     <div class="row mt-5 justify-content-center">
         <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
-            <span class="font-weight-bold mr-3" style="font-size: 1.25rem;">Select financial year:</span>
+            <span class="font-weight-bold mr-3" style="font-size: 1.5rem;">Select financial year:</span>
             <g:form controller="financialWeekCSV" action="downloadCsv" method="GET" class="d-inline">
-                <g:select class="form-control select-border" id="yearSelect" name="yearSelect" from="${financialYears}" style="width: 100%; max-width: 250px;"/>
+                <g:select
+                        class="form-control select-border"
+                        id="yearSelect"
+                        name="yearSelect"
+                        from="${financialYears}"
+                        style="width: 100%; max-width: 300px; min-width: 250px; padding: 0.5rem 1rem; font-size: 1.125rem;"
+                        title="${financialYears?.isEmpty() ? 'No options available' : 'Select a financial year'}"
+                />
             </g:form>
         </div>
     </div>
 
+
+</section>
+
+<section id="uploadResultsSection" class="container-fluid">
+    <div id="uploadResults"></div>
 </section>
 
 </body>

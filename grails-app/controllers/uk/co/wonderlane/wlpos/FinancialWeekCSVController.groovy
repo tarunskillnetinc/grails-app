@@ -27,7 +27,7 @@ class FinancialWeekCSVController {
             render(view: 'index', model: [financialYears: financialYears, actionSuccess: actionSuccess, enableCsvDownload : enableCsvDownload, message: message])
         } catch (Exception ex){
             log.error("Error loading financial weeks: $ex.message", ex)
-            render(view: 'index', model: [financialWeeks: [], success: false, message: "Failed to load financial weeks. Please try again."])
+            render(view: 'index', model: [financialWeeks: [], actionSuccess: false, message: "Failed to load financial weeks. Please try again."])
         }
     }
 
@@ -49,6 +49,15 @@ class FinancialWeekCSVController {
             // 2 -> If no error prepare Grom entity
             // 3 -> If any errors then put them into error list
             List<FinancialWeek> financialWeeks =  financialWeekService.processCsvDataRows(rows, errors, retailerId)
+
+            //This is financial week csv start date post validations (This include validations after basic date validations)
+            // 1 -> Validate duplicate date
+            // 2 -> Validate overlapping date
+            financialWeekService.csvFinancialStartDatePostValidation(financialWeeks, errors)
+
+            //This is financial week csv week post validations (This include validations after basic week validations)
+            // 1 -> Validate duplicate week
+            financialWeekService.csvFinancialWeekPostValidation(financialWeeks, errors)
 
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert
@@ -73,7 +82,8 @@ class FinancialWeekCSVController {
     def downloadCsv() {
         try {
             def financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect)
-            response.setHeader("Content-disposition", "attachment; filename=financialWeeks.csv")
+            String csvFileName = "financialWeeks${params.yearSelect}.csv"
+            response.setHeader("Content-disposition", "attachment; filename=${csvFileName}")
             response.contentType = "text/csv"
             financialWeekService.populateCsvDownloadFile(financialWeeks, response.outputStream)
             response.outputStream.flush()
