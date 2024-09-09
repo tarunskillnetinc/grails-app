@@ -45,7 +45,7 @@ class FinancialWeekService extends MySqlDal {
             errors.add("Data conflicts, please verify content and check the logs for more details")
             throw ex
         } catch (Exception ex) {
-            log.error("Financial week - Entries persisting unexpected errors : ${ex.message}", ex)
+            log.error("Financial week - Unexpected database persistence error : ${ex.message}", ex)
             errors.add("Unexpected database persistence error, please verify content and check the logs for more details")
             throw ex
         }
@@ -85,8 +85,8 @@ class FinancialWeekService extends MySqlDal {
                 return csvReader.readAll()
             }
         } catch (Exception ex) {
-            log.error("Financial week - Error reading financial week csv file, ${ex.message} ", ex)
-            throw new RuntimeException("Financial week - Error reading financial week csv file, ${ex.message} ", ex)
+            log.error("Financial week - Error reading financial week csv file: ${ex.message} ", ex)
+            throw new RuntimeException("Financial week - Error reading financial week csv file: ${ex.message} ", ex)
         }
     }
 
@@ -94,12 +94,11 @@ class FinancialWeekService extends MySqlDal {
         List<FinancialWeek> financialWeeks = []
         try{
             if (rows == null || rows.isEmpty()) { // Check if there was an error during file read
-                errors << "CSV file read error. Please check the file format and try again."
+                errors << "Csv file read error. Please check the file format and try again."
             }
-            rows?.eachWithIndex { row, lineNumber ->
+            rows?.eachWithIndex { row, index ->
+                int lineNumber = index + 1
                 try {
-                    if (lineNumber == 0 && rows[0][0].startsWith("header_column_name")) return
-
                     def startDate = row[0]?.trim() // e.g., 2024/08/03
                     def financialYear = row[1]?.trim() // e.g., 2024/25
                     def weekNumberStr = row[2]?.trim() // e.g., 18
@@ -117,15 +116,15 @@ class FinancialWeekService extends MySqlDal {
                         errors.addAll(lineErrors)
                     }
                 } catch (Exception ex) {
-                    log.error("Financial week - Error attempting to process line number $lineNumber : ${ex.message} ", ex)
-                    errors << "Unexpected error processing line number $lineNumber "
+                    log.error("Financial week - Unexpected processing error for line number $lineNumber : ${ex.message} ", ex)
+                    errors << "Line $lineNumber: Unexpected processing error"
                 }
             }
             return (errors != null && errors.isEmpty()) ? financialWeeks : []
         } catch (Exception ex) {
-            errors << "Unexpected error processing csv data row"
-            log.error("Financial week - Unexpected error processing CSV file : ${ex.message} " , ex)
-            throw new RuntimeException("Financial week - Unexpected error processing CSV file : ${ex.message} " , ex)
+            errors << "Unexpected error processing csv data rows"
+            log.error("Financial week - Unexpected error processing csv data rows: ${ex.message} " , ex)
+            throw new RuntimeException("Financial week - Unexpected error processing csv data rows: ${ex.message} " , ex)
         }
     }
 
@@ -143,10 +142,6 @@ class FinancialWeekService extends MySqlDal {
         try {
             outputStream.withWriter('UTF-8') { writer ->
                 CSVWriter csvWriter = new CSVWriter(writer)
-
-                // Write CSV header
-                String[] header = ["StartDate", "FinancialYear", "WeekNumber"]
-                csvWriter.writeNext(header)
 
                 // Write CSV rows (replace this with your actual financialWeeks data)
                 financialWeeks.each { week ->
@@ -181,7 +176,7 @@ class FinancialWeekService extends MySqlDal {
                 throw new IllegalArgumentException("Financial week - Financial year already existed. Found: $financialYears")
             }
         } catch (Exception ex) {
-            log.error("Financial week - Financial year pre validation error detected ,Exception $ex" , ex)
+            log.error("Financial week - Financial year pre validation error detected ,Exception ${ex.message}" , ex)
             throw new RuntimeException("Financial week - Financial year validation exception.")
         }
 
@@ -213,11 +208,11 @@ class FinancialWeekService extends MySqlDal {
         if (errors!= null && !errors.isEmpty()){
             if (errors.size() > maxErrors) { // Limit errors to maxErrors and add a message if there are more
                 errors = errors.take(maxErrors)
-                errors << "More errors found, please validate the CSV file again."
+                errors << "More errors found, please check the logs for more details and validate the csv file again."
             }
             errorResponseMessages.addAll(errors)
         } else {
-            errorResponseMessages.add("Unexpected error occurred during file processing.Please check the logs for more details")
+            errorResponseMessages.add("Unexpected error while file processing, please check the logs for more details")
         }
         return errorResponseMessages;
     }
@@ -270,24 +265,6 @@ class FinancialWeekService extends MySqlDal {
         return errors
     }
 
-    private LocalDate parseDate(String dateStr) throws ParseException {
-        DateTimeFormatter formatter_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        DateTimeFormatter formatter_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        try { // Try to parse the date with the "dd/MM/yyyy" format
-            return LocalDate.parse(dateStr, formatter_YYYY_MM_DD)
-        } catch (DateTimeParseException e) {
-            try { // If parsing fails, try the second format
-                return LocalDate.parse(dateStr, formatter_DD_MM_YYYY)
-            } catch (DateTimeParseException ex) {
-                throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0)  // If both formats fail, throw an exception
-            }
-        } catch (DateTimeParseException ex) {
-            throw new DateTimeParseException("Financial week - Date parsing error: " + dateStr, dateStr, 0)
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("Financial week - date parsing unexpected error: " + dateStr)
-        }
-    }
-
     private List<String> validateStartDateBlank(String startDate, int lineNumber) {
         List<String> errors = []
         try {
@@ -296,7 +273,7 @@ class FinancialWeekService extends MySqlDal {
             }
         } catch (Exception ex) {
             log.error("Financial week - unexpected error while validating start date, $ex" , ex)
-            errors << "Line $lineNumber: Unexpected error while validating start date, please check the data and logs"
+            errors << "Line $lineNumber: Unexpected error while validating start date, please check the data and logs."
         }
         return errors
     }
@@ -310,7 +287,7 @@ class FinancialWeekService extends MySqlDal {
             errors << "Line $lineNumber: Incorrect financial week date format, please check date format"
         } catch (Exception ex){
             log.error("Financial week - date parsing unexpected error detected , exception ${ex.message}" , ex)
-            errors << "Line $lineNumber: Unexpcted error while parsing start date, please check date format"
+            errors << "Line $lineNumber: Unexpcted error while parsing start date, please check date format and logs."
         }
         return errors
     }
@@ -384,7 +361,7 @@ class FinancialWeekService extends MySqlDal {
         List<String> errors = []
         try {
             int currentWeekNumber = weekNumberStr as int
-            int expectedWeekNumber = lineNumber + 1
+            int expectedWeekNumber = lineNumber
             if (currentWeekNumber != expectedWeekNumber) {
                 errors << "Line $lineNumber: Week number $weekNumberStr is not in the expected sequential order. Expected $expectedWeekNumber."
             }
@@ -420,6 +397,24 @@ class FinancialWeekService extends MySqlDal {
             errors << "Line $lineNumber: Unexpcted error while validating financial year format, please correct before upload"
         }
         return errors
+    }
+
+    private LocalDate parseDate(String dateStr) throws ParseException {
+        DateTimeFormatter formatter_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        DateTimeFormatter formatter_DD_MM_YYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try { // Try to parse the date with the "dd/MM/yyyy" format
+            return LocalDate.parse(dateStr, formatter_YYYY_MM_DD)
+        } catch (DateTimeParseException e) {
+            try { // If parsing fails, try the second format
+                return LocalDate.parse(dateStr, formatter_DD_MM_YYYY)
+            } catch (DateTimeParseException ex) {
+                throw new DateTimeParseException("Financial week - Invalid date format: " + dateStr, dateStr, 0)  // If both formats fail, throw an exception
+            }
+        } catch (DateTimeParseException ex) {
+            throw new DateTimeParseException("Financial week - Date parsing error: " + dateStr, dateStr, 0)
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Financial week - date parsing unexpected error: " + dateStr)
+        }
     }
 
     private LocalDate toLocalDate(Date date) {
