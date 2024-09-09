@@ -252,7 +252,7 @@
 
     <!-- Header with title and buttons -->
     <div class="header-wl">
-        <h2 id="page-title">Financial Week</h2>
+        <h2 id="page-title">Financial Weeks</h2>
 
         <!-- Buttons aligned below the title -->
         <div class="buttons-container">
