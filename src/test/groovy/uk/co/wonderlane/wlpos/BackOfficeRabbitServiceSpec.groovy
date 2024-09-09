@@ -8,7 +8,6 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.helpers.BackOfficeRabbitServiceHelper
 import uk.co.wonderlane.wlpos.helpers.RabbitMQMockChannel
-
 import uk.co.wonderlane.wlpos.monitoring.RabbitQueue
 
 class BackOfficeRabbitServiceSpec extends Specification implements ServiceUnitTest<BackOfficeRabbitServiceHelper>, DataTest{

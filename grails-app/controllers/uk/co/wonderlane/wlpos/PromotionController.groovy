@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import org.apache.commons.lang3.RegExUtils
 import grails.validation.Validateable
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -8,8 +9,8 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
-import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 
 class PromotionController {
 

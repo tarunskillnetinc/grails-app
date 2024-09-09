@@ -7,9 +7,6 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
-import uk.co.wonderlane.wlpos.helpers.ProductListServiceHelperService
-
-import java.sql.Connection
 
 class HardwareServiceSpec extends Specification implements ServiceUnitTest<HardwareService>, DataTest {
     DatabaseCredentials databaseCredentials

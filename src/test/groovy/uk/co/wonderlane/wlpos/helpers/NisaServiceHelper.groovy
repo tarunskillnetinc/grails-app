@@ -1,11 +1,9 @@
 package uk.co.wonderlane.wlpos.helpers
 
 
-import uk.co.wonderlane.wlpos.NisaService
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 
 import java.sql.Connection
-import java.sql.SQLException
 
 class NisaServiceHelper extends NisaServiceNetworkTestHelper {
 

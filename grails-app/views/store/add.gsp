@@ -113,14 +113,14 @@
                                 <div class="form-group row">
                                     <label for="storeNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Number*</label>
                                     <div class="col-7 col-lg-2">
-                                        <g:field type="number" min="0" max="999999999" maxlength="9" name="storeNumber" value="${store?.storeNumber}" class="form-control bottom-border" />
+                                        <g:field type="number" min="0" max="999999999" maxlength="9" name="storeNumber" value="${store?.storeNumber}"  class="form-control bottom-border" onkeydown="acceptMaxNumberValue(event, 999999999);" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="storeName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Store Name*</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="storeName" maxlength="45" value="${store?.storeName}" class="form-control bottom-border" />
+                                        <g:textField name="storeName" maxlength="30" value="${store?.storeName}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
@@ -158,56 +158,56 @@
                                 <div class="form-group row mt-5">
                                     <label for="addressBuildingNumberOrName" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Building Name / Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressBuildingNumberOrName" maxlength="45" value="${store?.addressBuildingNumberOrName}" class="form-control bottom-border" />
+                                        <g:textField name="addressBuildingNumberOrName" maxlength="30" value="${store?.addressBuildingNumberOrName}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="addressLine1" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 1</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressLine1" maxlength="45" value="${store?.addressLine1}" class="form-control bottom-border" />
+                                        <g:textField name="addressLine1" maxlength="20" value="${store?.addressLine1}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="addressLine2" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Address Line 2</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressLine2" maxlength="45" value="${store?.addressLine2}" class="form-control bottom-border" />
+                                        <g:textField name="addressLine2" maxlength="20" value="${store?.addressLine2}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="addressTown" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Town / City</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressTown" maxlength="45" value="${store?.addressTown}" class="form-control bottom-border" />
+                                        <g:textField name="addressTown" maxlength="20" value="${store?.addressTown}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="addressCounty" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">County</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressCounty" maxlength="45" value="${store?.addressCounty}" class="form-control bottom-border" />
+                                        <g:textField name="addressCounty" maxlength="20" value="${store?.addressCounty}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="addressCountry" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Country</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressCountry" maxlength="45" value="${store?.addressCountry}" class="form-control bottom-border" />
+                                        <g:textField name="addressCountry" maxlength="20" value="${store?.addressCountry}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="addressPostCode" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Post Code</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="addressPostCode" maxlength="45" value="${store?.addressPostCode}" class="form-control bottom-border" />
+                                        <g:textField name="addressPostCode" maxlength="8" value="${store?.addressPostCode}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label for="phoneNumber" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Phone Number</label>
                                     <div class="col-7 col-lg-4">
-                                        <g:textField name="phoneNumber" maxlength="45" value="${store?.phoneNumber}" class="form-control bottom-border" />
+                                        <g:textField name="phoneNumber" maxlength="12" value="${store?.phoneNumber}" class="form-control bottom-border" />
                                     </div>
                                 </div>
 
@@ -219,7 +219,7 @@
                                                   from="${parentStores}"
                                                   noSelection="['': 'None']"
                                                   value="${store?.parentStoreId}"
-                                                  optionValue="${{it?.config?.storeName}}"
+                                                  optionValue="${{it?.config?.storeNumber + ' - ' +it?.config?.storeName}}"
                                                   optionKey="id"
                                                   class="form-control select-border" />
                                     </div>

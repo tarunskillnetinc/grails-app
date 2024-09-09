@@ -7,7 +7,6 @@ import org.springframework.web.servlet.support.RequestContextUtils as RCU
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
-import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 import static groovy.json.JsonOutput.toJson
 

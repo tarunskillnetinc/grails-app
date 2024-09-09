@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import grails.converters.JSON
+
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus

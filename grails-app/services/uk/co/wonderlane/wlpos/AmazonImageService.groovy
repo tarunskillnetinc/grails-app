@@ -2,10 +2,10 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import software.amazon.awssdk.core.sync.RequestBody
-import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.S3Exception
 
@@ -14,60 +14,66 @@ import java.nio.ByteBuffer
 @Transactional
 class AmazonImageService implements IImageService {
 
-    def springSecurityService
+    def s3Client
+    def config
 
-    private final String customerDisplayImagesBucket
-    private final String receiptImagesBucket
-    private final String buttonImagesBucket
+    @Override
+    def getImage(ImageRecord imageRecord) throws Exception {
+        if (imageRecord != null) {
+            String bucketName = generateBucketName(imageRecord)
+            try {
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageRecord.getStorageKey()).build()
 
-    private final S3Client s3Client
+                return s3Client.getObjectAsBytes(getObjectRequest).asByteArray()
+            } catch (NoSuchBucketException ne) {
+                ne.printStackTrace()
+            } catch (NoSuchKeyException ke) {
+                ke.printStackTrace()
+            } catch (S3Exception ignored) {
+                return null
+            }
+        }
+        return new byte[]{}
 
-    AmazonImageService(String customerDisplayImagesBucket, String receiptImagesBucket, String buttonImagesBucket) {
-        this.customerDisplayImagesBucket = customerDisplayImagesBucket
-        this.receiptImagesBucket = receiptImagesBucket
-        this.buttonImagesBucket = buttonImagesBucket
-
-        s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
     }
 
     @Override
-    def getButtonImage(int buttonId) throws Exception {
-        try {
-            String key = "${springSecurityService.principal.retailerId}/${buttonId}.png"
+    def saveImage(ImageRecord imageRecord, byte[] imageBytes) throws Exception {
+        if (imageRecord != null) {
+            String bucketName = generateBucketName(imageRecord)
+            try {
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(imageRecord.getStorageKey()).build()
 
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(buttonImagesBucket).key(key).build()
-
-            return s3Client.getObjectAsBytes(getObjectRequest).asByteArray()
-        } catch (S3Exception ignored) {
-            return null
+                s3Client.putObject(putObjectRequest, RequestBody.fromByteBuffer(ByteBuffer.wrap(imageBytes)))
+            } catch (NoSuchBucketException ne) {
+                ne.printStackTrace()
+            } catch (NoSuchKeyException ke) {
+                ke.printStackTrace()
+            }
         }
     }
 
     @Override
-    def saveButtonImage(int buttonId, byte[] imageBytes) throws Exception {
-        String key = "${springSecurityService.principal.retailerId}/${buttonId}.png"
+    def deleteImage(ImageRecord imageRecord) throws Exception {
+        if (imageRecord != null) {
+            String bucketName = generateBucketName(imageRecord)
+            try {
+                DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(imageRecord.getStorageKey()).build()
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(buttonImagesBucket).key(key).build()
-
-        s3Client.putObject(putObjectRequest, RequestBody.fromByteBuffer(ByteBuffer.wrap(imageBytes)))
+                s3Client.deleteObject(deleteObjectRequest)
+            } catch (NoSuchBucketException ne) {
+                ne.printStackTrace()
+            } catch (NoSuchKeyException ke) {
+                ke.printStackTrace()
+            }
+        }
     }
 
-    @Override
-    def deleteButtonImage(int buttonId) throws Exception {
-        String key = "${springSecurityService.principal.retailerId}/${buttonId}.png"
-
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(buttonImagesBucket).key(key).build()
-
-        s3Client.deleteObject(deleteObjectRequest)
-    }
-
-    @Override
-    def getCustomerDisplayImages() throws Exception {
-        return null
-    }
-
-    @Override
-    def getReceiptImage() throws Exception {
-        return null
+    def generateBucketName(ImageRecord imageRecord) {
+        String bucketName = config.getProperty("wlpos.${imageRecord.getType().toLowerCase()}ImageBucket")
+        if (bucketName == null || bucketName.isEmpty()) {
+            bucketName = config.getProperty("wlpos.defaultImageBucket")
+        }
+        return bucketName;
     }
 }

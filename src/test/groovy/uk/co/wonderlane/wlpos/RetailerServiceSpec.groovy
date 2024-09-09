@@ -4,7 +4,6 @@ import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.gorm.DataTest
 import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
-import uk.co.wonderlane.wlpos.enums.PrintReceiptOption
 
 class RetailerServiceSpec extends Specification implements ServiceUnitTest<RetailerService>, DataTest{
 
