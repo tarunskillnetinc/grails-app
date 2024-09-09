@@ -10,7 +10,7 @@ class FinancialWeekCSVController {
     def springSecurityService
     def financialWeekService
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    @Secured(['ROLE_ENGINEER'])
     def index() {
         try {
             var actionSuccess = true
@@ -31,7 +31,7 @@ class FinancialWeekCSVController {
         }
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    @Secured(['ROLE_ENGINEER'])
     def ajaxCSVFinancialWeekImport() {
         def retailerId = Retailer.get(springSecurityService.principal.retailerId).id
         def file = request.getFile('file')
@@ -78,7 +78,7 @@ class FinancialWeekCSVController {
         }
     }
 
-    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
+    @Secured(['ROLE_ENGINEER'])
     def downloadCsv() {
         try {
             def financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect)

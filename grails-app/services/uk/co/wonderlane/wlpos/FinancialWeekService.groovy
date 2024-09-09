@@ -62,6 +62,7 @@ class FinancialWeekService extends MySqlDal {
         def criteria = FinancialWeek.createCriteria()
         return criteria.list {
             eq("financialYear", financialYear)
+            order("startDate", "asc")
         }
     }
 
