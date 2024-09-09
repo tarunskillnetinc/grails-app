@@ -1709,6 +1709,10 @@ class ProductController extends BaseController {
         }
     }
 
+    def isValidBarcode(Barcode barcode) {
+        barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+    }
+
 
     def ajaxCSVProductUpload() {
         def file = request.getFile('file')
