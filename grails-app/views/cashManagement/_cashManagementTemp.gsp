@@ -135,6 +135,28 @@
                 });
             });
         }
+
+        $('#revert-store-level-btn').click(function(e) {
+            e.preventDefault(); // Prevent the default button action
+
+            var storeId = ${storeId}; // Replace this with actual storeId you want to send
+
+            $.ajax({
+                type: 'POST',
+                url: '${createLink(controller: "cashManagement", action: "deleteStoreLevelConfig")}', // API endpoint
+                data: {
+                    storeId: storeId,
+                    isStoreLevelLogin: isStoreLevelLogin
+                },
+                success: function(response) {
+                    $('#cash-container').html(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    alert("Error occurred: " + error);
+                }
+            });
+        });
     }
 
     function validateTimeInputs(inputId) {
@@ -250,6 +272,12 @@
             </g:if>
             <g:if test="${isStoreLevelLogin == null && storeId != null}">
                 <button id="cancel-btn-store-level" class="btn btn-wl" name="save">Cancel</button>
+            </g:if>
+            <g:if test="${(isStoreLevelLogin?isStoreLevelLogin:false) && storeLevelExist}">
+                <g:link elementId="revert-btn" controller="cashManagement" action="deleteStoreLevelConfig" params="[storeId:storeId,isStoreLevelLogin:true]" tabindex="-1" role="button" class="btn btn-danger">Revert</g:link>
+            </g:if>
+            <g:if test="${(isStoreLevelLogin == null && storeId != null) && storeLevelExist}">
+                <button id="revert-store-level-btn" class="btn btn-danger" name="revert">Revert</button>
             </g:if>
             <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-form').submit();">Save</button>
         </div>

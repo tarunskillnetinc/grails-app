@@ -117,6 +117,16 @@ class CashManagementController {
         }
     }
 
+    def deleteStoreLevelConfig(Integer storeId) {
+        if (params.storeId) {
+            storeId = Integer.parseInt(params.storeId)
+        }
+        def isStoreLevelLogin = params.isStoreLevelLogin
+        cashManagementService.deleteStoreLevelConfig(storeId)
+        flash.message = ["Successfully revert to retailer level."]
+        redirect(action: "index", params:[isStoreLevelLogin:isStoreLevelLogin, storeId: storeId])
+    }
+
 }
 
 class CashManagementFormData implements Validateable {

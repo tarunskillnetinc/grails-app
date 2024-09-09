@@ -34,13 +34,26 @@ class CashManagementService extends MySqlDal{
 
         try {
             cstmt.setInt(1, springSecurityService.principal.retailerId)
-            //TODO: this logic here will modified in the store level(STMP-68) but this is working for retailer level
             if (storeId) {
                 cstmt.setInt(2, storeId)
             } else {
                 cstmt.setNull(2, Types.INTEGER)
             }
             cstmt.setString(3, gsonProvider.gson.toJson(config))
+            cstmt.executeUpdate()
+        } finally {
+            cstmt.close()
+            conn.close()
+        }
+    }
+
+    def deleteStoreLevelConfig(int storeId) {
+        Connection conn = getConnection()
+        CallableStatement cstmt = conn.prepareCall("{ call deleteStoreLevelCashManagement(?, ?) }")
+
+        try {
+            cstmt.setInt(1, springSecurityService.principal.retailerId)
+            cstmt.setInt(2, storeId)
             cstmt.executeUpdate()
         } finally {
             cstmt.close()
