@@ -554,11 +554,12 @@ class ProductListService extends MySqlDal {
     }
 
     def sendProductListExportRequest(uk.co.wonderlane.wlpos.entities.wlim.ProductList productList) {
-        String retailerStoreId = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).retailerStoreId
+        Integer storeId = Integer.parseInt(productList.storeId)
+        String retailerStoreId = storeService.getStore(springSecurityService.principal.retailerId, storeId).retailerStoreId
         ProductListStockTransaction productListExportRequest = new ProductListStockTransaction()
 
         setProductListExportFields(productList, retailerStoreId, productListExportRequest)
-        productListExportRequest.getProductList().setProductListItems(addUnitSizeToProduct(springSecurityService.principal.storeId, productListExportRequest.getProductList().getProductListItems()))
+        productListExportRequest.getProductList().setProductListItems(addUnitSizeToProduct(storeId, productListExportRequest.getProductList().getProductListItems()))
 
         String stockTransactionJson = gsonProvider.gson.toJson(productListExportRequest, StockTransaction.class)
         rabbitService.sendSenderExchangeMessage(stockTransactionJson)

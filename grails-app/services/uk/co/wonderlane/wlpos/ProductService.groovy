@@ -137,6 +137,21 @@ class ProductService extends MySqlDal {
                     barcode.save()
                 }
             }
+            variant.packs.each { pack ->
+                pack.barcodez.each { barcode ->
+                    if (barcode.hasProperty('delete') && barcode.delete) {
+                        Barcode deletedBarcode = new Barcode()
+                        deletedBarcode.pack = barcode.pack
+                        deletedBarcode.retailerId = barcode.retailerId
+                        deletedBarcode.barcode = barcode.barcode
+                        deletedBarcode.effectiveDate = barcode.effectiveDeleteDate
+                        deletedBarcode.recordStatus = 'D'
+                        deletedBarcode.save()
+                    } else if (barcode instanceof Barcode) {
+                        barcode.save()
+                    }
+                }
+            }
         }
     }
 
@@ -161,7 +176,7 @@ class ProductService extends MySqlDal {
                     def existingLocation = variantLocations?.find { existingLocation -> existingLocation.id == location.id }
                     if (existingLocation && existingLocation.id > 0) {
                         updateLocation(existingLocation, location, location.sku)
-                    } else{
+                    } else {
                         location.save()
                     }
                 }
@@ -169,13 +184,11 @@ class ProductService extends MySqlDal {
         }
     }
 
-    boolean isLocationValid(Product product, ProductCommand editedProduct){
-        def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
-        List selectedHierarchy = new ArrayList()
+    boolean isLocationValid(Product product) {
         def isValid = true
 
-        for (ProductVariant pv : product?.variants){
-            for (Location location : pv.locationz){
+        for (ProductVariant pv : product?.variants) {
+            for (Location location : pv.locationz) {
                 if (!location.validate()) {
                     product.errors.reject('product.location.validation.error', [String.valueOf(pv.sku)] as Object[],
                             'product.location.validation.error.default')
@@ -200,8 +213,8 @@ class ProductService extends MySqlDal {
         productPrices.eachWithIndex { productPrice, index ->
             if (productPrice?.price != null && productPrice.price.compareTo(BigDecimal.ZERO) >= 0) {
                 if (!productPrice.validate()) {
-                    if (productPrice.price.compareTo(BigDecimal.ZERO) <= 0 || productPrice.price.compareTo(BigDecimal.valueOf(99999.99)) >= 0){
-                        product.errors.reject('productPrice.price.range.error', ['0.01', '99,999.99', String.valueOf(productPrice.price)] as Object[] ,
+                    if (productPrice.price.compareTo(BigDecimal.ZERO) <= 0 || productPrice.price.compareTo(BigDecimal.valueOf(99999.99)) >= 0) {
+                        product.errors.reject('productPrice.price.range.error', ['0.01', '99,999.99', String.valueOf(productPrice.price)] as Object[],
                                 'productPrice.price.range.default.error')
                     }
 
@@ -356,46 +369,26 @@ class ProductService extends MySqlDal {
         def now = DateTime.now(DateTimeZone.UTC)
 
         def barcodeSkus = []
+        def barcodePacks = []
 
         searchTerm = searchTerm ? searchTerm.trim() : ""
 
         if ((searchBy == "everything" || searchBy == "barcode") && searchTerm?.length() > 2) {
             def validBarcodeSkus = [] //Declare valid barcode sku list
+            def validBarcodePacks = [] //Declare valid barcode pack list
 
             //Get all barcodes which like search term (Ex : search term - 111 )
             def barcodes = Barcode.findAllByBarcodeLikeAndRetailerIdAndEffectiveDateLessThanEquals("%$searchTerm%", springSecurityService.principal.retailerId, now)
 
             //Group barcodes to map of sku --> {1 : [111(C) , 111 (D), 1114(C) ,1115(C), 1117(C)], 2:[1119(C)]}
-            def skuMap = barcodes?.groupBy { it.sku }
+            def skuMap = barcodes?.findAll { it.sku != null }?.groupBy { it.sku }
+            def packMap = barcodes?.findAll { it.pack != null }?.groupBy { it.pack.id }
 
-            for (Map.Entry<Long, List<Barcode>> skuListEntry : skuMap?.entrySet()) {
-
-                //Group sku list int map of barcode
-                def barcodeMap = skuListEntry.getValue()?.groupBy { it.barcode }
-
-                //Then loop over map of barcode to find out all active sku values
-                for (Map.Entry<String, List<Barcode>> barcodeListEntry : barcodeMap?.entrySet()) {
-                    int deletedBarcodeCount = 0
-                    int activeBarcodeCount = 0
-
-                    //For barcode belonging to particular sku check occurrence of active and deleted
-                    barcodeListEntry.value?.forEach({ barcode ->
-                        if (barcode.recordStatus == ('D' as char)) {
-                            deletedBarcodeCount++
-                        } else {
-                            activeBarcodeCount++
-                        }
-                    })
-
-                    //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we can assume that barcode is active
-                    if (activeBarcodeCount > deletedBarcodeCount) {
-                        validBarcodeSkus.add(skuListEntry.getKey())
-                        break
-                    }
-                }
-            }
+            findActiveBarcodes(skuMap, validBarcodeSkus)
+            findActiveBarcodes(packMap, validBarcodePacks)
 
             barcodeSkus = validBarcodeSkus?.unique()
+            barcodePacks = validBarcodePacks?.unique()
         }
 
         def queryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now, max: maxResults, offset: startIndex]
@@ -439,14 +432,16 @@ class ProductService extends MySqlDal {
 
         if (searchBy == "everything") {
             queryParams.barcodeSkus = barcodeSkus
+            queryParams.barcodePacks = barcodePacks
             queryParams.searchTerm = "%${searchTerm}%"
             countQueryParams.barcodeSkus = barcodeSkus
+            countQueryParams.barcodePacks = barcodePacks
             countQueryParams.searchTerm = "%${searchTerm}%"
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
+                                   OR pk.id IN (:barcodePacks)
                                    OR p.itemCode LIKE :searchTerm
-                                   OR p.description LIKE :searchTerm
-                                   OR pk.barcode LIKE :searchTerm """
+                                   OR p.description LIKE :searchTerm """
 
             if (searchTerm.isNumber()) {
                 queryParams.searchTermLong = Long.parseLong(searchTerm)
@@ -477,12 +472,12 @@ class ProductService extends MySqlDal {
             searchQuery += """AND p.description LIKE :searchTerm """
         } else if (searchBy == "barcode") {
             queryParams.barcodeSkus = barcodeSkus
-            queryParams.searchTerm = "%${searchTerm}%"
+            queryParams.barcodePacks = barcodePacks
             countQueryParams.barcodeSkus = barcodeSkus
-            countQueryParams.searchTerm = "%${searchTerm}%"
+            countQueryParams.barcodePacks = barcodePacks
 
             searchQuery += """AND (pv.sku IN (:barcodeSkus)
-                                    OR pk.barcode LIKE :searchTerm) """
+                                     OR pk.id IN (:barcodePacks)) """
         }
 
         if (sortColumn == "id" || sortColumn == "description") {
@@ -496,6 +491,35 @@ class ProductService extends MySqlDal {
         results.totalCount = Product.executeQuery(countQuerySelect + searchQuery, countQueryParams)?.get(0) ?: 0
 
         return results
+    }
+
+    private static void findActiveBarcodes(Map<Long, List<Barcode>> idToBarcodeMap, ArrayList validBarcodes) {
+        for (Map.Entry<Long, List<Barcode>> entry : idToBarcodeMap?.entrySet()) {
+
+            //Group sku list int map of barcode
+            def barcodeMap = entry.getValue()?.groupBy { it.barcode }
+
+            //Then loop over map of barcode to find out all active sku values
+            for (Map.Entry<String, List<Barcode>> barcodeListEntry : barcodeMap?.entrySet()) {
+                int deletedBarcodeCount = 0
+                int activeBarcodeCount = 0
+
+                //For barcode belonging to particular sku check occurrence of active and deleted
+                barcodeListEntry.value?.forEach({ barcode ->
+                    if (barcode.recordStatus == ('D' as char)) {
+                        deletedBarcodeCount++
+                    } else {
+                        activeBarcodeCount++
+                    }
+                })
+
+                //If active barcode count (Status = 'C') greater than of barcode count for deleted (Status = 'D') then we can assume that barcode is active
+                if (activeBarcodeCount > deletedBarcodeCount) {
+                    validBarcodes.add(entry.getKey())
+                    break
+                }
+            }
+        }
     }
 
     def searchProductPrices(String searchTerm, Integer categoryId, Integer tagId) {
@@ -718,11 +742,13 @@ class ProductService extends MySqlDal {
         if (product.isZeroPrice()) {
             return product.getVariants() // already retrieved using a store id so is fine to return the whole list
         }
-        return product.variants.findAll {(it.storeId == null || it.storeId == storeId)
-                && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO }
+        return product.variants.findAll {
+            (it.storeId == null || it.storeId == storeId)
+                    && it.getRetailPrice() != null && it.getRetailPrice() > BigDecimal.ZERO
+        }
     }
 
-    public Location deepCopyExistingLocation(Location existingLocation){
+    Location deepCopyExistingLocation(Location existingLocation) {
         Location newLocation = new Location()
         newLocation.id = existingLocation.id
         newLocation.storeId = existingLocation.storeId
@@ -760,7 +786,7 @@ class ProductService extends MySqlDal {
         locationToBeUpdated.minimumDisplayQuantity = editedLocation.minimumDisplayQuantity
     }
 
-    private uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
+    private static uk.co.wonderlane.wlpos.entities.ProductVariant mapProductVariant(ResultSet resultSet) throws SQLException {
         uk.co.wonderlane.wlpos.entities.ProductVariant productVariant = new uk.co.wonderlane.wlpos.entities.ProductVariant()
 
         productVariant.setId(resultSet.getInt("id"))
@@ -780,17 +806,17 @@ class ProductService extends MySqlDal {
 
         productVariant.setSize(resultSet.getString("size"))
         if (resultSet.wasNull()) {
-            productVariant.setSize(null);
+            productVariant.setSize(null)
         }
 
         productVariant.setColour(resultSet.getString("colour"))
         if (resultSet.wasNull()) {
-            productVariant.setColour(null);
+            productVariant.setColour(null)
         }
         productVariant.setQuantityOnOrder(QuantityHelper.quantityOrDefault(resultSet, "quantityOnOrder", BigDecimal.ZERO))
         productVariant.setMinimumStockLevel(resultSet.getInt("minimumStockLevel"))
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
 
-        return productVariant;
+        return productVariant
     }
 }
