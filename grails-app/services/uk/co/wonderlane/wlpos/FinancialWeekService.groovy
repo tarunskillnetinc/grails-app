@@ -161,13 +161,13 @@ class FinancialWeekService extends MySqlDal {
         try {
             Set<String> financialYears = rows?.collect { it[1] } as Set // Extract the financial years
             if (financialYears.size() > 1) {
-                errors << "Financial year should be unique within the CSV file. Found: $financialYears is duplicating."
-                throw new IllegalArgumentException("Financial week - Financial year should be unique within the CSV file. Found: $financialYears")
+                errors << "Financial year should be unique within for the csv file. Found more than one : $financialYears"
+                throw new IllegalArgumentException("Financial week - Financial year should be unique within the csv file. Found: $financialYears")
             }
 
             if (financialYears.size() < 0){
-                errors << "Financial year should be provided in the CSV file."
-                throw new IllegalArgumentException("Financial week - Financial year should be provided in the CSV file. Found: $financialYears")
+                errors << "Financial year should be provided in the csv file."
+                throw new IllegalArgumentException("Financial week - Financial year should be provided in the csv file. Found: $financialYears")
             }
 
             String financialYear = financialYears.first()
@@ -314,12 +314,13 @@ class FinancialWeekService extends MySqlDal {
                 LocalDate currentStartDate = toLocalDate(startDate)
                 LocalDate previousStartDate = toLocalDate(financialWeekStartDate)
                 if (!currentStartDate.isEqual(previousStartDate.plusWeeks(index))) {
-                    errors << "Line $lineNumber: The start date $startDate must be ${index} weeks after the weekly file start date ${financialWeekStartDate}."
+                    log.error("Financial week - The start date $startDate must be ${index} weeks after the weekly file start date ${financialWeekStartDate}")
+                    errors << "Line $lineNumber: Invalid start week date, please correct before upload."
                 }
             }
         } catch (Exception ex) {
             log.error("Financial week - Unexpected error while validating start date overlapping , exception ${ex.message}" , ex)
-            errors << "Line $lineNumber: Unexpected error while validating start date overlapping, please check date format"
+            errors << "Line $lineNumber: Unexpected error while validating start week date, please check date format"
         }
         return errors;
     }
@@ -351,8 +352,8 @@ class FinancialWeekService extends MySqlDal {
         } catch (NumberFormatException e) {
             errors << "Line $lineNumber: Week number is not an integer in '$weekNumberStr'"
         } catch (Exception ex) {
-            log.error("Financial week - week number validation unexpected error detected , exception $ex" , ex)
-            errors << "Line $lineNumber: Unexpcted error while validating week number range, please correct before upload"
+            log.error("Financial week - Unexpected error while validating week number: ${ex.message}" , ex)
+            errors << "Line $lineNumber: Unexpcted error while validating week number, please correct before upload"
         }
         return errors
     }
@@ -363,7 +364,8 @@ class FinancialWeekService extends MySqlDal {
             int currentWeekNumber = weekNumberStr as int
             int expectedWeekNumber = lineNumber
             if (currentWeekNumber != expectedWeekNumber) {
-                errors << "Line $lineNumber: Week number $weekNumberStr is not in the expected sequential order. Expected $expectedWeekNumber."
+                log.error("Financial week - Week number $weekNumberStr is not in the expected sequential order. Expected $expectedWeekNumber.")
+                errors << "Line $lineNumber: Invalid financial week sequence, please correct before upload."
             }
         } catch (Exception ex) {
             log.error("Financial week - Unexpected error while validating week number sequential order ${ex.message}" , ex)
