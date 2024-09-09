@@ -50,6 +50,82 @@ function acceptMaxNumberValue(e, maxValue) {
         e.preventDefault(); // Prevent non-digit characters
     }
 }
+
+function acceptMinMaxNumberValue(e, minValue, maxValue) {
+    // Allow digits, backspace, and arrow keys without further checks
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+        return;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+    }
+
+    // Check if the key pressed is a digit
+    if (e.key >= '0' && e.key <= '9') {
+        // Construct the potential new value by adding the typed digit
+        const newValue = parseInt(e.target.value + e.key, 10);
+
+        // Check if the new value exceeds the maximum allowed value
+        if (newValue > maxValue || newValue < minValue) {
+            e.preventDefault(); // Prevent the key press if it exceeds the maximum value
+        }
+    } else {
+        e.preventDefault(); // Prevent non-digit characters
+    }
+}
+
+function validateIntQuantity(input, min, max) {
+    let inputValue = parseInt(input.value);
+    if (isNaN(inputValue) || inputValue < min) {
+        input.value = min;
+    } else if (inputValue > max) {
+        input.value = max;
+    }
+}
+
+function acceptFloat(e) {
+    if (typeof e.key !== 'string' || e.key.length !== 1 || (e.key >= '0' && e.key <= '9') || e.key === '.') {
+        return;
+    }
+    e.preventDefault();
+}
+
+function validateFloatQuantity(input, min, max) {
+    const splits = input.value.split('.');
+    if (splits.length > 2) {
+        input.value = splits[0] + '.' + splits[1];
+        return;
+    } else if (splits.length === 2 && splits[1].length > 3) {
+        input.value = splits[0] + '.' + splits[1].substring(0, 3);
+    }
+
+    const val = parseFloat(input.value);
+    if (isNaN(val)) {
+        return;
+    }
+
+    if (val < min) {
+        input.value = min;
+    } else if (val > max) {
+        input.value = max;
+    }
+}
+
+function acceptQuantity(event, weighted) {
+    if (weighted) {
+        acceptFloat(event);
+        return;
+    }
+    acceptNumeric(event);
+}
+
+function validateQuantity(input, min, max, weighted) {
+    if (weighted) {
+        validateFloatQuantity(input, min, max);
+        return;
+    }
+    validateIntQuantity(input, min, max);
+}
+
 function validateInput(input){
     // Remove leading minus sign if present
     input.value = input.value.replace(/^-/, '');

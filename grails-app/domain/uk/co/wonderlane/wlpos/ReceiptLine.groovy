@@ -28,4 +28,13 @@ class ReceiptLine {
     static constraints = {
 
     }
+
+    uk.co.wonderlane.wlpos.entities.ReceiptLine toReceiptLine() {
+        return new uk.co.wonderlane.wlpos.entities.ReceiptLine(
+                type,
+                quantity,
+                text,
+                total
+        )
+    }
 }

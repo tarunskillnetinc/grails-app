@@ -14,7 +14,7 @@ import uk.co.wonderlane.wlpos.reporting.*
 
 class ReportingServiceSpec extends Specification implements ServiceUnitTest<ReportingService>, DataTest {
     Class<?>[] getDomainClassesToMock() {
-        [Sale, SaleCategory, PromotionSale, TillControlEvent, PayPointSale, ReportColumns] as Class<?>[]
+        [Sale, SaleCategory, PromotionSale, TillControlEvent, PayPointSale, ReportColumns, CharitySale] as Class<?>[]
     }
 
     def setup() {
@@ -52,6 +52,27 @@ class ReportingServiceSpec extends Specification implements ServiceUnitTest<Repo
         storeId | _
         1       | _
         null    | _
+    }
+
+    def "Should get charity sales successfully"() {
+        given:
+        List<CharitySale> charitySalesResults = new TestPagedResultList(List.of(
+            getMockCharitySale(2, 105, 2, 7, 375, 3.99, 0.09, new DateTime()),
+            getMockCharitySale(2, 105, 2, 7, 376, 9.99, 0.50, new DateTime()))
+        )
+
+        HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
+        mockCriteria.getResponses().add(charitySalesResults)
+        BuildableCriteria defaultCriteria = CharitySale.createCriteria()
+        CharitySale.metaClass.static.createCriteria = { return mockCriteria }
+
+        when:
+        def serviceResponse = service.getCharityDonations(new DateTime(), new DateTime(), 2, Integer.MAX_VALUE, 0, "storeNumber", "desc")
+        CharitySale.metaClass.static.createCriteria = { return defaultCriteria }
+
+        then:
+        serviceResponse
+        serviceResponse[0].size() == 2
     }
 
 //     TODO: [YH] executeQuery are currently not supported in this implementation of GORM
@@ -350,6 +371,21 @@ class ReportingServiceSpec extends Specification implements ServiceUnitTest<Repo
         payPointSale.setTransactionDate(new DateTime())
 
         return payPointSale
+    }
+
+    private CharitySale getMockCharitySale(int storeId, int storeNumber, int retailerId, int tillId, int transactionId, BigDecimal basketTotal, BigDecimal donationTotal, DateTime dateCreated) {
+        CharitySale charitySale = new CharitySale()
+
+        charitySale.setStoreId(storeId)
+        charitySale.setStoreNumber(storeNumber)
+        charitySale.setRetailerId(retailerId)
+        charitySale.setTillId(tillId)
+        charitySale.setTransactionId(transactionId)
+        charitySale.setBasketTotal(basketTotal)
+        charitySale.setDonationTotal(donationTotal)
+        charitySale.setDateCreated(dateCreated)
+
+        return charitySale
     }
 
     private ReportColumns getMockReportColumns(int id, int userId, ReportType reportType) {

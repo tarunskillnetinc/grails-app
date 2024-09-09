@@ -10,7 +10,7 @@ class Sale {
     int retailerId
     int storeId
     int tillId
-    int quantity
+    BigDecimal quantity
     BigDecimal costPrice
     BigDecimal retailPrice
     BigDecimal vatAmount
@@ -26,7 +26,7 @@ class Sale {
     String usersName
     DateTime dateCreated
 
-    int refundQuantity
+    BigDecimal refundQuantity
     BigDecimal avgCostPrice // Calculated value, marked transient below.
     BigDecimal avgRetailPrice // Calculated value, marked transient below.
     BigDecimal avgMargin // Calculated value, marked transient below.

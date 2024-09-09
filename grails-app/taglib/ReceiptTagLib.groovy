@@ -1,8 +1,10 @@
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.oned.Code128Writer
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.client.j2se.MatrixToImageWriter
+import uk.co.wonderlane.wlpos.ReceiptLine
 import uk.co.wonderlane.wlpos.enums.ReceiptLineType
+import uk.co.wonderlane.wlpos.receipts.ReceiptLineHelper
 
 import java.math.RoundingMode
 import java.text.NumberFormat
@@ -14,6 +16,9 @@ class ReceiptTagLib {
     def BASKET_ITEM_LENGTH = 35
     def RECEIPT_BARCODE_WIDTH = 450
     def RECEIPT_BARCODE_HEIGHT = 75
+
+    final static int QTY_WIDTH = 8
+    final static String EMPTY_QTY_COL = "&nbsp;".repeat(QTY_WIDTH)
 
     def currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK)
 
@@ -67,63 +72,24 @@ class ReceiptTagLib {
                 } else if (receiptLine.text.contains("-")) {
                     out << """<hr class="dotted" />"""
                 } else {
-                    out << """<div><span class="qty">QTY</span><span class="desc">DESC</span><span class="total">UNIT"""
-
-                    for (int i = 0 ; i < Math.max(attrs.maxTotalLength - 3, 1) ; i++) {
-                        out << """&nbsp;"""
-                    }
-
-                    out << """TOTAL</span></div>"""
+                    out << """<div><span class="qty">QTY${"&nbsp;".repeat(5)}</span><span class="desc">DESC</span><span class="total">UNIT"""
+                        << """${"&nbsp;".repeat(Math.max(attrs.maxTotalLength - 3, 1))}"""
+                        << """TOTAL</span></div>"""
                 }
-
                 break
             case ReceiptLineType.BASKET_ITEM:
-                out << """<div><span class="qty">"""
-
-                if (receiptLine.quantity != null) {
-                    BigDecimal quantity = receiptLine.quantity
-
-                    if (quantity.movePointRight(3).intValue() % 1000 == 0) {
-                        quantity = quantity.setScale(0)
-                    }
-
-                    int spaces = 3 - quantity.toString().length()
-                    while (spaces > 0) {
-                        out << """&nbsp;"""
-                        spaces--
-                    }
-
-                    out << """${quantity.toString()}</span>"""
-                } else {
-                    out << """&nbsp;&nbsp;&nbsp;"""
-                }
-
-                out << """<span class="desc">${receiptLine.text.substring(0, Math.min(BASKET_ITEM_LENGTH - currencyFormatter.format(receiptLine.getTotal()).length(), receiptLine.getText().length()))}</span>"""
-                out << """<span class="total">"""
-
-                if (receiptLine.quantity && receiptLine.total) {
-                    out << """${currencyFormatter.format(receiptLine.total.divide(receiptLine.quantity, 2, RoundingMode.HALF_UP))}"""
-
-                    for (int i = 0 ; i < Math.max(attrs.maxTotalLength - receiptLine.total.toString().length() + 1, 1) ; i++) {
-                        out << """&nbsp;"""
-                    }
-                }
-
-                if (receiptLine.total) {
-                    out << """${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}"""
-                }
-
-                out << """</span></div>"""
-
+            case ReceiptLineType.BASKET_ITEM_KG:
+            case ReceiptLineType.BASKET_ITEM_100G:
+                out << makeBasketItemLine(receiptLine as ReceiptLine, attrs.maxTotalLength as Integer ?: 0)
                 break
             case ReceiptLineType.TENDER_ITEM:
-                out << """<div><span class="qty">&nbsp;&nbsp;&nbsp;</span></span>"""
+                out << """<div><span class="qty">${EMPTY_QTY_COL}</span></span>"""
                 out << """<span class="desc">${receiptLine.text.substring(0, Math.min(BASKET_ITEM_LENGTH - (receiptLine.total ? currencyFormatter.format(receiptLine.total).length() : 0), receiptLine.getText().length()))}</span>"""
                 out << """<span class="total">${receiptLine.total ? currencyFormatter.format(receiptLine.total) : ""}</span></div>"""
                 break
             case ReceiptLineType.TENDER_HEADING:
             case ReceiptLineType.TOTAL:
-                out << """<div class="tenderHeading"><spanclass="qty">&nbsp;&nbsp;&nbsp;</span><span class="desc">${receiptLine.text}</span><span class="total">${currencyFormatter.format(receiptLine.total ?: BigDecimal.ZERO)}</span></div>"""
+                out << """<div class="tenderHeading"><spanclass="qty">${EMPTY_QTY_COL}</span><span class="desc">${receiptLine.text}</span><span class="total">${currencyFormatter.format(receiptLine.total ?: BigDecimal.ZERO)}</span></div>"""
 
                 break
             case ReceiptLineType.MESSAGE:
@@ -197,7 +163,7 @@ class ReceiptTagLib {
             case ReceiptLineType.VAT_ITEM:
                 out << """<div><span class="qty">${receiptLine.text}</span><span class="total">${currencyFormatter.format(receiptLine.quantity.setScale(2, RoundingMode.HALF_UP))}"""
 
-                for (int i = 0 ; i < Math.max(attrs.maxVatLength - receiptLine.total.toString().length() + 1, 1) ; i++) {
+                for (int i = 0; i < Math.max(attrs.maxVatLength - receiptLine.total.toString().length() + 1, 1); i++) {
                     out << """&nbsp;"""
                 }
 
@@ -207,7 +173,7 @@ class ReceiptTagLib {
             case ReceiptLineType.VAT_HEADINGS:
                 out << """<div><span class="qty">DESCRIPTION</span><span class="total">TOTAL"""
 
-                for (int i = 0 ; i < Math.max(attrs.maxVatLength - 1, 1) ; i++) {
+                for (int i = 0; i < Math.max(attrs.maxVatLength - 1, 1); i++) {
                     out << """&nbsp;"""
                 }
 
@@ -239,6 +205,15 @@ class ReceiptTagLib {
 
                 break
         }
+    }
+
+    private String makeBasketItemLine(ReceiptLine line, int maxLen) {
+        ReceiptLineHelper.ReceiptLineColumns cols = ReceiptLineHelper.generateBasketItemLineHtml(line.toReceiptLine(), BASKET_ITEM_LENGTH, maxLen)
+        return """<div>""" +
+                """<span class="qty">${cols.col1}</span>""" +
+                """<span class="desc">${cols.col2}</span>""" +
+                """<span class="total">${cols.col3}</span>""" +
+                """</div>"""
     }
 
     private static byte[] hexStringToByteArray(String s) {

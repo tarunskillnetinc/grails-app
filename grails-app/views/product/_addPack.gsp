@@ -5,7 +5,6 @@
     <div id="add-pack-${variantIndex+1}-${packIndex+1}-quantity" class="col-2 my-auto">${pack?.quantity}</div>
     <div id="add-pack-${variantIndex+1}-${packIndex+1}-price" class="col-2 my-auto"><g:formatNumber number="${pack?.price}" type="currency" /></div>
     <div id="add-pack-${variantIndex+1}-${packIndex+1}-order-code" class="col-2 my-auto text-truncate">${pack?.orderCode}</div>
-    <div id="add-pack-${variantIndex+1}-${packIndex+1}-barcode" class="col-2 my-auto text-truncate">${pack?.barcode}</div>
     <div class="col-1 my-auto">
         <g:if test="${pack?.supplier?.symbolGroupId > 0}">
             <button id="add-pack-${variantIndex+1}-${packIndex+1}-edit-btn" class="btn btn-wl disabled" title="You cannot edit packs from this supplier." disabled>Edit</button>
@@ -24,6 +23,8 @@
     <g:hiddenField name="addPack[${packIndex}].allowSubstitutes" value="${pack?.allowSubstitutes}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.name" value="${pack?.supplier?.name}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.symbolGroupId" value="${pack?.supplier?.symbolGroupId}" />
+    <g:hiddenField name="addPack[${packIndex}].barcodes" value="${barcodes}" />
+
 
     <g:if test="${pack?.supplier?.symbolGroupId}">
         <g:hiddenField name="addPack[${packIndex}].supplier.id" value="${pack?.supplier?.id}" />
@@ -36,7 +37,7 @@
             </g:if>
         </div>
         <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeypress="return preventNegativeInteger(event);" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;" onkeyup="preventOverflowValue(this)"/>
+            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeydown="acceptQuantity(event, isWeightedItem())" oninput="validateQuantity(this, 0, Math.pow(2, 31) -1, isWeightedItem())" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;"/>
         </div>
         <div class="input-group col-2 my-auto">
             <div class="input-group-prepend">
@@ -47,11 +48,6 @@
         <div class="col-2 my-auto">
             <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" maxlength="20" onkeypress="return preventNegativeInteger(event);" />
         </div>
-        <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].barcode" value="${pack?.barcode}" maxlength="20"
-                          onkeypress="return preventNegativeInteger(event)"
-                          class="form-control bottom-border"/>
-         </div>
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
@@ -79,6 +75,33 @@
                          value="${pack?.maximumOrderQuantity}" class="form-control select-border" min="0"
                          onkeypress="return preventNegativeInteger(event);" ondrop="return false;"
                          onpaste="return false;" oncontextmenu="return false;"/>
+        </div>
+    </div>
+
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-3 my-auto font-weight-bold">Barcodes</div>
+    </div>
+
+    <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
+        <div id="addBarcodesContainer${packIndex}" class="col-6 mr-0">
+            <g:if test="${pack?.barcodez?.empty}">
+                <div id="addBarcode0" class="input-group py-1">
+                    <g:render template="addBarcode" model="[index: 0, barcode: null, selector: '#addBarcodesContainer' + packIndex]"/>
+                </div>
+            </g:if>
+
+            <g:each in="${pack?.barcodez}" var="barcode" status="i">
+                <div id="addBarcode${i}" class="input-group py-1">
+                    <g:render template="addBarcode" model="[index: i, barcode: barcode, selector: '#addBarcodesContainer' + packIndex]"/>
+                </div>
+            </g:each>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-4 offset-4">
+            <a href="#" onclick="addBarcode('#addBarcodesContainer${packIndex}');" class="btn btn-wl">Add Barcode</a>
         </div>
     </div>
 

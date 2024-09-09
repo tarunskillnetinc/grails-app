@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.enums.PromotionGroupType
 import uk.co.wonderlane.wlpos.enums.PromotionType
@@ -16,15 +17,16 @@ class Promotion {
     BigDecimal amount
     Integer lossCategoryId
     boolean active
+    boolean loyalty
     DateTime updateDatetime
     Integer retailerPromotionId
     Collection<PromotionGroup> groups = new ArrayList<>()
-    Collection<PromotionStore> stores = new ArrayList<>()
+    Collection<Store> stores = new ArrayList<>()
     String rpidAsString
 
-    static hasMany = [groups: PromotionGroup, stores: PromotionStore]
+    static hasMany = [groups: PromotionGroup, stores: Store]
 
-    static hasOne = [symbolGroupPromotion : SymbolGroupPromotion]
+    static hasOne = [symbolGroupPromotion: SymbolGroupPromotion]
 
     static mapping = {
         table "promotion"
@@ -40,9 +42,12 @@ class Promotion {
         amount column: "amount"
         lossCategoryId column: "lossCategoryId"
         active column: "active"
+        loyalty column: "loyalty"
         updateDatetime column: "updateDatetime", sqlType: "datetime"
         retailerPromotionId column: "retailerPromotionId"
         rpidAsString formula: "cast(retailerPromotionId as CHAR(50))"
+        groups cascade: "all-delete-orphan"
+        stores joinTable: [name: 'promotionstore', key: 'promotionId', column: 'storeId']
     }
 
     static constraints = {
@@ -81,15 +86,19 @@ class Promotion {
         }
         lossCategoryId nullable: true
         active nullable: false
+        loyalty nullable: false
         updateDatetime nullable: false
         retailerPromotionId nullable: true, range: 0..999999999
         symbolGroupPromotion nullable: true
     }
 
     Collection<Integer> getStoreIds() {
-        Collection<Integer> result = new ArrayList<>();
-        stores.each {result.add(it.storeId)}
-        return result;
+        return stores?.collect { it.storeId }
+    }
+
+    // Avoiding data binding due to the same name.
+    def getStorez() {
+        return stores
     }
 
     public uk.co.wonderlane.wlpos.entities.Promotion getPromotion() {
@@ -105,6 +114,7 @@ class Promotion {
         promotion.setAmount(amount)
         promotion.setLossCategoryId(lossCategoryId)
         promotion.setActive(active)
+        promotion.setLoyalty(loyalty)
         promotion.setUpdateDatetime(new DateTime(updateDatetime))
         promotion.setRetailerPromotionId(retailerPromotionId)
         groups.each {
@@ -116,5 +126,13 @@ class Promotion {
         }
 
         return promotion
+    }
+
+    Collection<PromotionGroup> getRequiredGroups() {
+        return groups?.findAll { it.type == PromotionGroupType.REQUIRED }
+    }
+
+    Collection<PromotionGroup> getOfferGroups() {
+        return groups?.findAll { it.type == PromotionGroupType.OFFER }
     }
 }

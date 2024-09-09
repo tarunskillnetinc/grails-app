@@ -21,6 +21,10 @@ class UserService {
         return User.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
+    def getUserByUsername(String username) {
+        return User.findByUsernameAndRetailerId(username, springSecurityService.principal.retailerId)
+    }
+
     def saveUser(User user) {
         user.save()
 

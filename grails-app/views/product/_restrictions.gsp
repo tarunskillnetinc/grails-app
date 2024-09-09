@@ -46,15 +46,15 @@
                     <g:textField name="restrictions.maxOpenPrice" value="${restrictions?.maxOpenPrice ?: '99999.99'}" class="form-control mask-money open-price"  readonly="${!productOpenPrice}" />
                 </div>
             </div>
-        </div>
-
-        <div class="col-12 col-lg-6">
             <div class="row form-group form-check pl-0">
                 <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
                     <label for="restrictions.refundAllowed" class="col-form-label text-right wl-label">Allow Refunds</label>
                     <g:checkBox name="restrictions.refundAllowed" class="form-check-input wl-checkbox" checked="${isNewProduct || restrictions?.refundAllowed == null || restrictions?.refundAllowed}" />
                 </div>
             </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
             <div class="row form-group form-check pl-0">
                 <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
                     <label for="restrictions.discountAllowed" class="col-form-label text-right wl-label">Allow Discounts</label>
@@ -89,6 +89,12 @@
                 <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
                     <label for="restrictions.receiptPrintForced" class="col-form-label text-right wl-label">Force Receipt Print</label>
                     <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.receiptPrintForced}" />
+                </div>
+            </div>
+            <div class="row form-group form-check pl-0">
+                <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
+                    <label for="restrictions.receiptPrintForced" class="col-form-label text-right wl-label">Allows Loyalty Points Collection</label>
+                    <g:checkBox name="restrictions.allowsLoyaltyPointsCollection" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.allowsLoyaltyPointsCollection}"/>
                 </div>
             </div>
         </div>

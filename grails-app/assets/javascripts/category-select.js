@@ -72,7 +72,7 @@ function setRadioClickAction(selector) {
     })
 }
 
-function searchCategories(e, level, triggerOnCategoryChange, searchTerm) {
+function searchCategories(e, level, triggerOnCategoryChange, searchTerm, selectedCategoryId) {
     // Since all keyup events trigger this, here are a couple of standard keys to be ignored..
     if (e.keyCode === 16 || e.keyCode === 17 || e.keyCode === 20) {
         return;
@@ -95,6 +95,7 @@ function searchCategories(e, level, triggerOnCategoryChange, searchTerm) {
         params["level"] = level;
         params["triggerOnCategoryChange"] = triggerOnCategoryChange;
         params["searchTerm"] = searchTerm;
+        params["selectedCategoryId"] = selectedCategoryId;
 
         $.ajax({
             url: categorySearchUrl,

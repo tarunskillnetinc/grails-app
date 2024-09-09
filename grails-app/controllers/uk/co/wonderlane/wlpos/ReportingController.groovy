@@ -37,6 +37,7 @@ class ReportingController {
     private static final PRODUCT_LISTS_REPORT_SORT_COLUMNS = ["productListId", "storeId", "type", "status", "startDate", "numberOfItems"]
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
     private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "storeId", "fromLocation", "toLocation", "amount", "type", "reason", "userName"]
+    private static final CHARITY_DONATION_REPORT_SORT_COLUMNS = ["storeNumber", "tillId", "transactionId", "basketTotal", "donationTotal", "dateCreated"]
 
     def index() {
 
@@ -97,11 +98,15 @@ class ReportingController {
                     productUnitSize: ""
             )
 
+            groupedSale.quantity = BigDecimal.ZERO
+            groupedSale.refundQuantity = BigDecimal.ZERO
+
             salesGroup.value.each {
+                Product product = Product.findById(it?.productId)
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity -= it.quantity
+                    groupedSale.refundQuantity -= product.weightedItem ? -1 : it?.quantity.intValue()
                 } else {
-                    groupedSale.quantity += it.quantity
+                    groupedSale.quantity += product.weightedItem ? 1 : it?.quantity.intValue()
                 }
             }
 
@@ -196,15 +201,15 @@ class ReportingController {
                 def filteredGroupedProductSales = filteredProductSales?.groupBy { it.productId }
 
                 filteredGroupedProductSales?.each { groupedProductSale ->
-                    int initQuantity = groupedProductSale.value[0].quantity
+                    BigDecimal initQuantity = groupedProductSale.value[0].quantity
 
                     groupedProductSale.value[0].costPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.costPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].retailPrice = groupedProductSale.value.sum { it.quantity > 0 ? it.retailPrice : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].vatAmount = groupedProductSale.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2)
                     groupedProductSale.value[0].margin = groupedProductSale.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2)
 
-                    groupedProductSale.value[0].quantity = 0
-                    groupedProductSale.value[0].refundQuantity = 0
+                    groupedProductSale.value[0].quantity = BigDecimal.ZERO
+                    groupedProductSale.value[0].refundQuantity = BigDecimal.ZERO
 
                     groupedProductSale.value.each {
                         if (it.quantity < 0) {
@@ -225,7 +230,9 @@ class ReportingController {
                             vatAmount: salesGroup.value.sum { it.quantity > 0 ? it.vatAmount : BigDecimal.ZERO }.setScale(2),
                             margin: salesGroup.value.sum { it.quantity > 0 ? it.margin : BigDecimal.ZERO }.setScale(2),
                             productDescription: salesGroup.value[0].salesCategories.find { sc -> sc.categoryId == salesGroup.key }.categoryDescription,
-                            productUnitSize: ""
+                            productUnitSize: "",
+                            "refundQuantity": BigDecimal.ZERO,
+                            "quantity": BigDecimal.ZERO
                     )
 
                     salesGroup.value.each {
@@ -327,7 +334,8 @@ class ReportingController {
                                                             startDate   : startDate,
                                                             endDate     : endDate,
                                                             totalResults: totalResults,
-                                                            userTimeZone: DateTimeZone.forID("Europe/London")])
+                                                            userTimeZone: DateTimeZone.forID("Europe/London"),
+                                                            isWeighted  : Product.findById(productId)?.weightedItem])
         }
     }
 
@@ -421,11 +429,15 @@ class ReportingController {
                     productUnitSize: ""
             )
 
+            groupedSale.refundQuantity = BigDecimal.ZERO
+            groupedSale.quantity = BigDecimal.ZERO
+
             salesGroup.value.each {
+                Product product = Product.findById(it?.productId)
                 if (it.quantity < 0) {
-                    groupedSale.refundQuantity -= it.quantity
+                    groupedSale.refundQuantity -= product.weightedItem ? -1 : it?.quantity.intValue()
                 } else {
-                    groupedSale.quantity += it.quantity
+                    groupedSale.quantity += product.weightedItem ? 1 : it?.quantity.intValue()
                 }
             }
 
@@ -1187,6 +1199,7 @@ class ReportingController {
         // Head office or correct store level can accept this delivery.
         if (springSecurityService.principal.storeId == null || (springSecurityService.principal.storeId == productList?.store?.id)) {
             productListService.acceptDelivery(productListId)
+            productListService.sendProductListExportRequest(productListId)
         }
 
         response.status = 200
@@ -1227,15 +1240,6 @@ class ReportingController {
         def productListItem = productListService.getProductListItem(productListItemId)
 
         def packLines = productListItem?.packLines
-
-        int totalQuantityFromPacks = productListItem.packLines?.sum { it.quantity?.multiply(BigDecimal.valueOf(it.pack?.quantity ?: 0)) ?: BigDecimal.ZERO } ?: 0
-        int totalSingles = (productListItem.quantity ?: productListItem.fillQuantity) - totalQuantityFromPacks
-
-        if (totalSingles > 0) {
-            def dummyPack = [quantity: 1, price: productListItem?.productVariant?.costPrice]
-
-            packLines.add([pack: dummyPack, quantity: totalSingles, productListItem: productListItem, totalQuantity: totalSingles, totalValue: productListItem?.productVariant?.currentPrice?.multiply(BigDecimal.valueOf(totalSingles)) ?: BigDecimal.ZERO])
-        }
 
         if (productListItem) {
             switch (sortParams.sortColumn) {
@@ -1799,12 +1803,27 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.productListItem?.productVariant?.product?.description)
             stringBuilder.append(",")
-            stringBuilder.append(it.pack?.quantity.multiply(it.quantity))
+
+            BigDecimal orderedQuantity
+            BigDecimal packQuantity
+            BigDecimal lineValue
+            if (it?.pack) {
+                // (pack line)
+                orderedQuantity = it.pack?.quantity?.multiply(it.quantity)
+                packQuantity = it.pack?.quantity
+                lineValue = it.pack?.price?.multiply(it.quantity)
+            } else {
+                // (singles line)
+                orderedQuantity = it.quantity
+                packQuantity = 1
+                lineValue = (it?.productListItem?.productVariant?.costPrice ?: BigDecimal.ZERO) * (it?.quantity ?: BigDecimal.ZERO)
+            }
+
+            stringBuilder.append(orderedQuantity)
             stringBuilder.append(",")
-            stringBuilder.append(it.pack?.quantity)
+            stringBuilder.append(packQuantity)
             stringBuilder.append(",")
-            //in reports line value represent in dollars ($)
-            stringBuilder.append("£" + (it.pack?.price?.multiply(it.quantity)))
+            stringBuilder.append("£" + lineValue)
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
@@ -2102,5 +2121,95 @@ class ReportingController {
         }
 
         return Integer.parseInt(paramValue)
+    }
+
+    def charityDonations() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1).minusMillis(1)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+        def promotionSales = reportingService.getCharityDonations(startDate, endDate, null, 50, 0, "storeId", "asc")
+
+        [reportType : ReportType.CHARITY_DONATIONS,
+         startDate  : startDate,
+         endDate    : endDate,
+         userColumns: reportingService.getReportColumns(ReportType.CHARITY_DONATIONS),
+         stores     : stores]
+    }
+
+    def ajaxCharityDonations(SortParams sortParams) {
+        sortParams.validateParams(CHARITY_DONATION_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        Integer storeId
+        if (springSecurityService.principal.storeId) {
+            storeId = springSecurityService.principal.storeId
+        } else {
+            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        }
+
+        if (params.csv != null && params.csv == "true") {
+            def fileName
+            def donations = reportingService.getCharityDonations(startDate, endDate, storeId, Integer.MAX_VALUE, 0, sortParams.sortColumn, sortParams.sortOrder)
+
+            if (storeId == null) {
+                fileName = "CharityDonation-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            } else {
+                def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+                def store = stores.find { it.id == storeId }
+                def storeNumber = store.config.storeNumber
+
+                fileName = "CharityDonation-" + storeNumber + "-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+            }
+
+            response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
+            response.setHeader("Content-Type", "text/csv;")
+
+            render getCharityDonationsCsv(donations)
+        } else {
+            // Find all charity donations in the date range
+            def donations = reportingService.getCharityDonations(startDate, endDate, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
+
+            donations.sort { it."${sortParams.sortColumn}" }
+
+            if (sortParams.sortOrder == "desc") {
+                donations = donations.reverse()
+            }
+
+            int totalResults = donations.size()
+            donations = sortParams.offset < donations.size() ? donations.subList(sortParams.offset, (sortParams.offset + sortParams.max < donations.size() ? sortParams.offset + sortParams.max : donations.size())) : []
+
+            render(template: "charityDonationsResults", model: [donations    : donations,
+                                                               userColumns   : reportingService.getReportColumns(ReportType.CHARITY_DONATIONS),
+                                                               startDate     : startDate,
+                                                               endDate       : endDate,
+                                                               sortParams    : sortParams,
+                                                               totalResults  : totalResults])
+        }
+    }
+
+    private String getCharityDonationsCsv(List<CharitySale> charityDonations) {
+        StringBuilder stringBuilder = new StringBuilder()
+        stringBuilder.append("Store,Till Number,Transaction ID,Basket Total,Donation Amount,Date\n")
+        charityDonations?.each {
+            stringBuilder.append(it.storeNumber)
+            stringBuilder.append(",")
+            stringBuilder.append(it.tillId)
+            stringBuilder.append(",")
+            stringBuilder.append(it.transactionId)
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.basketTotal?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append("£" + it.donationTotal?.setScale(2))
+            stringBuilder.append(",")
+            stringBuilder.append(it.dateCreated?.toString("dd/MM/yyyy HH:mm"))
+            stringBuilder.append("\n")
+        }
+        return stringBuilder.toString()
     }
 }

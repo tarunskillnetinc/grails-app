@@ -3,16 +3,20 @@ import uk.co.wonderlane.wlpos.Group
 import uk.co.wonderlane.wlpos.ImageRecord
 import uk.co.wonderlane.wlpos.enums.ImageType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
+import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.reporting.ReportType
 
 import java.math.RoundingMode
 
 class EposTagLib {
 
+    static returnObjectForTags = ['showQuantityField', 'showValueField']
+
     def springSecurityService
     def reportingService
     def buttonService
     def categoryService
+    def tagService
     def productService
     def promotionService
     def imageService
@@ -322,6 +326,173 @@ class EposTagLib {
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
+        }
+    }
+
+    def promotionTypeAmountDisplay = { attrs, body ->
+        def promotionType = attrs.type
+
+        if (promotionType) {
+            switch ((PromotionType)promotionType) {
+                case PromotionType.BOGOF:
+                    out << "display: none;"
+                    break;
+                case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                    out << "display: block;"
+                    break;
+                case PromotionType.PERCENTAGE_DISCOUNT:
+                    out << "display: block;"
+                    break;
+                case PromotionType.X_FOR_Y:
+                    out << "display: none;"
+                    break;
+                case PromotionType.FIXED_PRICE:
+                    out << "display: block;"
+                    break;
+            }
+        } else {
+            // New promotion, type will be null.
+            out << "display: none;"
+        }
+    }
+
+    def promotionTypeAmountLabel = { attrs, body ->
+        def promotionType = attrs.type
+
+        if (promotionType) {
+            switch ((PromotionType)promotionType) {
+                case PromotionType.BOGOF:
+                    out << ""
+                    break;
+                case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                    out << "Discount Amount"
+                    break;
+                case PromotionType.PERCENTAGE_DISCOUNT:
+                    out << "Discount Percentage"
+                    break;
+                case PromotionType.X_FOR_Y:
+                    out << "display: none;"
+                    break;
+                case PromotionType.FIXED_PRICE:
+                    out << "Fixed Price"
+                    break;
+            }
+        } else {
+            // New promotion, type will be null.
+            out << "display: none;"
+        }
+    }
+
+    def promotionTypeRequiredGroupsDisplay = { attrs, body ->
+        def promotionType = attrs.type
+
+        if (promotionType) {
+            switch ((PromotionType)promotionType) {
+                case PromotionType.BOGOF:
+                    out << "display: none;"
+                    break;
+                case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                    out << "display: none;"
+                    break;
+                case PromotionType.PERCENTAGE_DISCOUNT:
+                    out << "display: none;"
+                    break;
+                case PromotionType.X_FOR_Y:
+                    out << "display: block;"
+                    break;
+                case PromotionType.FIXED_PRICE:
+                    out << "display: none;"
+                    break;
+            }
+        } else {
+            // New promotion, type will be null.
+            out << "display: none;"
+        }
+    }
+
+    def promotionTypeRequiredGroupsHeading = { attrs, body ->
+        def promotionType = attrs.type
+
+        if (promotionType) {
+            switch ((PromotionType)promotionType) {
+                case PromotionType.BOGOF:
+                    out << "Required Groups"
+                    break;
+                case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                    out << "Required Groups"
+                    break;
+                case PromotionType.PERCENTAGE_DISCOUNT:
+                    out << "Required Groups"
+                    break;
+                case PromotionType.X_FOR_Y:
+                    out << "Customer Buys"
+                    break;
+                case PromotionType.FIXED_PRICE:
+                    out << "Required Groups"
+                    break;
+            }
+        } else {
+            // New promotion, type will be null (can't happen).
+            out << "Customer Buys"
+        }
+    }
+
+    def promotionTypeOfferGroupsHeading = { attrs, body ->
+        def promotionType = attrs.type
+
+        if (promotionType) {
+            switch ((PromotionType)promotionType) {
+                case PromotionType.BOGOF:
+                    out << "Customer Buys & Receives One Free"
+                    break;
+                case PromotionType.FIXED_AMOUNT_DISCOUNT:
+                    out << "Customer Buys & Receives Amount Off"
+                    break;
+                case PromotionType.PERCENTAGE_DISCOUNT:
+                    out << "Customer Buys & Receives % Off"
+                    break;
+                case PromotionType.X_FOR_Y:
+                    out << "Customer Receives Free"
+                    break;
+                case PromotionType.FIXED_PRICE:
+                    out << "Customer Buys For Amount"
+                    break;
+            }
+        } else {
+            // New promotion, type may be null?
+            out << "Customer Buys & Receives One Free"
+        }
+    }
+
+    def showQuantityField = { attrs, body ->
+        if (attrs.promotionType == PromotionType.BOGOF) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    def showValueField = { attrs, body ->
+        if (attrs.promotionType == PromotionType.FIXED_AMOUNT_DISCOUNT) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    def promotionGroupHeader = { attrs, body ->
+        if (attrs.promotionGroup.sku) {
+            def productVariant = productService.getProductVariant(attrs.promotionGroup.sku)
+
+            out << productVariant?.product?.description
+        } else if (attrs.promotionGroup.categoryId) {
+            def category = categoryService.getCategory(attrs.promotionGroup.categoryId)
+
+            out << category?.description
+        } else if (attrs.promotionGroup.tagId) {
+            def tag = tagService.getTag(attrs.promotionGroup.tagId)
+
+            out << tag?.description
         }
     }
     

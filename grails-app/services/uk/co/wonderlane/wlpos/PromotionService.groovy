@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.PromotionType
 
 @Transactional
@@ -65,7 +66,7 @@ class PromotionService {
             }
             if (springSecurityService.principal.storeId) {
                 stores {
-                    inList("storeId", springSecurityService.principal.storeId)
+                    inList("id", springSecurityService.principal.storeId)
                 }
             }
         }
@@ -88,7 +89,7 @@ class PromotionService {
     }
 
     def searchPromotions(DateTime validDate, DateTime updatedSince, PromotionType promotionType, String searchTerm, boolean descriptionSearch,
-                         Integer max, Integer offset, String sortColumn, String sortOrder, Integer supplierId, String status) {
+                         Integer max, Integer offset, String sortColumn, String sortOrder, Integer supplierId, String status, boolean loyaltyOnly) {
 
         max = max ?: 50
         offset = offset ?: 0
@@ -128,6 +129,10 @@ class PromotionService {
                 eq("active", status == "ACTIVE")
             }
 
+            if (loyaltyOnly) {
+                eq("loyalty", true)
+            }
+
             if (searchTerm != null && searchTerm != "") {
                 if (descriptionSearch) {
                     like("description", "%$searchTerm%")
@@ -145,11 +150,15 @@ class PromotionService {
 
             if (springSecurityService.principal.storeId) {
                 stores {
-                    inList("storeId", springSecurityService.principal.storeId)
+                    inList("id", springSecurityService.principal.storeId)
                 }
             }
         }
 
         return promotions
+    }
+
+    List<Promotion> getPromotionForRetailer(int retailerId) {
+        return Promotion.findAllByRetailerIdAndLoyaltyAndActive(retailerId, true, true)
     }
 }

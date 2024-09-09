@@ -88,3 +88,11 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="form-group row col-12 col-sm-6 offset-sm-1 form-check">
+        <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
+            <label for="restrictions.allowsLoyaltyPointsCollection" class="col-form-label text-right wl-label">Allows Loyalty Points Collection</label>
+            <g:checkBox name="restrictions.allowsLoyaltyPointsCollection" class="col-1 form-check-input wl-checkbox" checked="${category?.restrictions?.allowsLoyaltyPointsCollection}" />
+        </div>
+    </div>
+</div>
