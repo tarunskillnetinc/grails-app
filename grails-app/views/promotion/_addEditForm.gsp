@@ -26,10 +26,14 @@
 
             <div id="collapsePromotionDetails" class="collapse show" aria-labelledby="promotionDetails" data-parent="#accordion">
                 <div class="card-body py-5">
-                    <div class="row mb-4">
+                    <div class="row">
                         <div class="row form-group col-12 col-md-6 mx-0">
                             <label for="type" class="col-4 col-form-label text-right pr-4">Promotion Type</label>
                             <g:select from="${promotionTypes}" name="type" value="${promotion?.type}" valueMessagePrefix="PromotionType" class="col-6 form-control select-border" />
+                        </div>
+                        <div class="row form-group form-check col-12 col-md-6 mx-0" style="padding-left: 15px !important;">
+                            <label for="active" class="col-4 col-form-label text-right pr-4">Loyalty promotion</label>
+                            <g:checkBox name="loyalty" class="col-1 form-check-input wl-checkbox mx-0" checked="${promotion ? promotion?.loyalty : false}" />
                         </div>
                     </div>
 

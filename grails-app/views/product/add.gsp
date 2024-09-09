@@ -59,7 +59,8 @@
                 });
 
                 $("#restrictions\\.buyerIdRequired").change(function() {
-                    $("#restrictions\\.buyerIdForced").prop("checked", false);
+                    $("#restrictions\\.buyerIdForced").prop("" +
+                        "", false);
                     $("#restrictions\\.buyerIdForced").attr("disabled", !this.checked);
                     $("#restrictions\\.buyerAgeRestriction").val("");
                     $("#restrictions\\.buyerAgeRestriction").attr("readonly", !this.checked);
@@ -161,6 +162,10 @@
                     }
                     $('.add-product-receiptDesc').removeClass("is-invalid");
                 });
+
+                $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnable});
+
+
             }
 
             // Automatically populate the first SKU with the main product item code since it's mostly a 1-1 relationship.
