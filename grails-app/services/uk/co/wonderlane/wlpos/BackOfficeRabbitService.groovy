@@ -174,6 +174,8 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     void sendSenderExchangeMessage(String json) throws IOException, RabbitServiceException {
+        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
+
         if (channel.isOpen()) {
             sendExchangeMessage(senderExchange, json);
         } else {

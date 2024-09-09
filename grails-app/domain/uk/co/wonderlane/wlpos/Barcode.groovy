@@ -1,15 +1,17 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.supplier.Pack
 
 class Barcode {
 
     int id
-    long sku
+    Long sku
     int retailerId
     String barcode
     DateTime effectiveDate
     char recordStatus
+    Pack pack
 
     boolean delete
     DateTime effectiveDeleteDate
@@ -25,10 +27,13 @@ class Barcode {
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"
+        pack column: "packId"
+
     }
 
     static constraints = {
-        sku nullable: false
+        sku nullable: true
+        pack nullable: true
         retailerId nullable: false
         barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
             if (!obj.isBarcodeNonProductType(obj.retailerId)) {
