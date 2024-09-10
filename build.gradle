@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.14.59-SNAPSHOT"
+version "1.14.60-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
