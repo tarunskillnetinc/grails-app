@@ -139,7 +139,7 @@
         $('#revert-store-level-btn').click(function(e) {
             e.preventDefault(); // Prevent the default button action
 
-            var storeId = ${storeId}; // Replace this with actual storeId you want to send
+            var storeId = ${storeId?storeId:-1}; // Replace this with actual storeId you want to send
 
             $.ajax({
                 type: 'POST',
@@ -238,20 +238,13 @@
     function boundTimeInputToDaysSelection(daysSelectionId, timeSelectionId) {
         if ($('#' + daysSelectionId).val() === "") {
             $('#'+timeSelectionId).prop('disabled', true);
-            $('#'+timeSelectionId).data('cachedValue', $('#'+timeSelectionId).val())
         }
         $('#' + daysSelectionId).on('change', function(){
             if ($('#' + daysSelectionId).val() !== "") {
                 $('#'+timeSelectionId).prop('disabled', false);
-                $('#'+timeSelectionId).val($('#'+timeSelectionId).data('cachedValue'));
             } else {
                 $('#'+timeSelectionId).prop('disabled', true);
-                $('#'+timeSelectionId).data('cachedValue', $('#'+timeSelectionId).val());
-                $('#'+timeSelectionId).val('');
             }
-        });
-        $('#'+timeSelectionId).on('change', function (){
-            $(this).data('cachedValue', $(this).val());
         });
     }
 

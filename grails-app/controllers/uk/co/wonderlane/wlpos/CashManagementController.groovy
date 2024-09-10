@@ -150,7 +150,7 @@ class CashManagementFormData implements Validateable {
     Double tillCashHoldingLimit
     boolean modelOnlyRetailerLevel
     boolean modelStoreLevelExist
-    boolean modelIsStoreLevelLogin
+    Boolean modelIsStoreLevelLogin
 
     public CashManagementConfig toConfig() {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
