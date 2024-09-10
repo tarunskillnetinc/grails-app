@@ -94,21 +94,19 @@ class Barcode {
         for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
             if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
                 if (barcode.length() != barcodeSignifier.getLength()) {
-                    continue;
+                    continue
                 }
             }
 
-            int startIndex = barcodeSignifier.getStartIndex() != null ? barcodeSignifier.getStartIndex() : 0;
-
-            if (startIndex > barcode.length() || barcode.length() < startIndex + barcodeSignifier.getPattern().length()) {
-                continue;
+            if (barcode.length() < barcodeSignifier.getPattern().length()) {
+                continue
             }
 
-            String sub = barcode.substring(startIndex, startIndex + barcodeSignifier.getPattern().length());
+            String sub = barcode.substring(0, barcodeSignifier.getPattern().length());
             if (sub.equals(barcodeSignifier.getPattern())) {
                 return barcodeSignifier.getType()
             }
         }
-        return null;
+        return null
     }
 }
