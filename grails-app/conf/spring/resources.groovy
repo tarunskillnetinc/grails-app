@@ -193,7 +193,15 @@ beans = {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
     }
-
+    financialWeekService(FinancialWeekService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
+        springSecurityService = ref('springSecurityService')
+        sessionFactory = ref('sessionFactory')
+    }
     cashManagementService(CashManagementService, new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
             Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
             grailsApplication.config.getProperty('mysql.wlpos.username'),
