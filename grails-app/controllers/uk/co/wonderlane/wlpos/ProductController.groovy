@@ -873,7 +873,7 @@ class ProductController extends BaseController {
 
     private void checkPackForBarcodeChanges(def product, def existingPack, def editedPack, DateTime effectiveDate) {
         editedPack.barcodez?.each { editedBarcode ->
-            def existingBarcode = existingPack.barcodez?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+            def existingBarcode = existingPack.barcodes?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
 
             if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
                 Barcode barcode = new Barcode()
