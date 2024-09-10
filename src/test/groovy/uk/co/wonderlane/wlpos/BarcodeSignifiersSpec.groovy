@@ -3,7 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Specification
 
-class BarcodeSignifiersSpec extends Specification implements DomainUnitTest<BarcodeSignifiers> {
+class BarcodeSignifiersSpec extends Specification implements DomainUnitTest<BarcodeSignifier> {
 
     def setup() {
     }
