@@ -83,7 +83,12 @@ class FinancialWeekService extends MySqlDal {
             file.inputStream.withReader('UTF-8') { reader ->
                 CSVReader csvReader = new CSVReader(reader)
                 // Reads all rows at once --? Max row count is 53 so keep in memory should not impact on application
-                return csvReader.readAll()
+                List<String[]> allRows = csvReader.readAll()
+
+                return allRows.findAll { row -> // Filter out empty rows
+                    // Check if the row contains at least one non-empty value
+                    row.any { cell -> cell?.trim() } // trims the cell and checks if it's not empty/null
+                }
             }
         } catch (Exception ex) {
             log.error("Financial week - Error reading financial week csv file: ${ex.message} ", ex)
