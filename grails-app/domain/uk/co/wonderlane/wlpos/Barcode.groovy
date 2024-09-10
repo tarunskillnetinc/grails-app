@@ -89,9 +89,9 @@ class Barcode {
     }
 
     private String barcodeSignifiersType(int retailerId){
-        ArrayList<BarcodeSignifiers> barcodeSignifiers = BarcodeSignifiers.findAllByRetailerId(retailerId)
+        ArrayList<BarcodeSignifier> barcodeSignifiers = BarcodeSignifier.findAllByRetailerId(retailerId)
 
-        for (BarcodeSignifiers barcodeSignifier : barcodeSignifiers) {
+        for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
             if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
                 if (barcode.length() != barcodeSignifier.getLength()) {
                     continue;
