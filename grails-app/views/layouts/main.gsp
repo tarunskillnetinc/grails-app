@@ -227,7 +227,7 @@
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
 
-                                <g:link elementId="user-groups-dropdown" controller="financialWeekCSV" class="dropdown-item">Financial Weeks</g:link>
+                                <g:link elementId="user-groups-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <div class="dropdown-divider"></div>
 

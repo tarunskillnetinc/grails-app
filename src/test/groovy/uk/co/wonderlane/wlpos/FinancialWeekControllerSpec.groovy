@@ -3,7 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.testing.web.controllers.ControllerUnitTest
 import spock.lang.Specification
 
-class FinancialWeekCSVControllerSpec extends Specification implements ControllerUnitTest<FinancialWeekCSVController> {
+class FinancialWeekControllerSpec extends Specification implements ControllerUnitTest<FinancialWeekController> {
 
     def setup() {
     }

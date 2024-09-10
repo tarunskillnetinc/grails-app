@@ -6,7 +6,7 @@ import org.springframework.security.access.annotation.Secured
 import uk.co.wonderlane.wlpos.reporting.FinancialWeek
 
 @Secured(['ROLE_ENGINEER'])
-class FinancialWeekCSVController {
+class FinancialWeekController {
     def springSecurityService
     def financialWeekService
 

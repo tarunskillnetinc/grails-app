@@ -78,7 +78,7 @@
             const uploadButton = document.getElementById('uploadFinancialWeekBtn');
             uploadButton.disabled = true;
             uploadButton.innerHTML = "Uploading...";
-            let url = "${createLink(controller: 'FinancialWeekCSV', action: 'ajaxCSVFinancialWeekImport')}";
+            let url = "${createLink(controller: 'FinancialWeek', action: 'ajaxCSVFinancialWeekImport')}";
 
             const file = $('#csvFileUploadInput').get(0).files[0]
 
@@ -133,7 +133,7 @@
             var selectedYear = $('#yearSelect').val();
             if (selectedYear) {
                 // Construct the download URL with the selected financial year as a query parameter
-                var downloadUrl = "${createLink(controller: 'FinancialWeekCSV', action: 'downloadCsv')}?yearSelect=" + encodeURIComponent(selectedYear);
+                var downloadUrl = "${createLink(controller: 'FinancialWeek', action: 'downloadCsv')}?yearSelect=" + encodeURIComponent(selectedYear);
                 window.location.href = downloadUrl;
             } else {
                 messageDisplay(null, true, "Please select a financial year before downloading", null); //Error generating csv weekly financial file
@@ -264,7 +264,7 @@
     <div class="row mt-5 justify-content-center">
         <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
             <span class="font-weight-bold mr-3" style="font-size: 1.5rem;">Select financial year:</span>
-            <g:form controller="financialWeekCSV" action="downloadCsv" method="GET" class="d-inline">
+            <g:form controller="financialWeek" action="downloadCsv" method="GET" class="d-inline">
                 <g:select
                         class="form-control select-border"
                         id="yearSelect"
