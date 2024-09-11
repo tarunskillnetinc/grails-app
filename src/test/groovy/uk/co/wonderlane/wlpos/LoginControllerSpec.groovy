@@ -3,11 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.gorm.DataTest
 import grails.testing.web.controllers.ControllerUnitTest
-import org.springframework.security.authentication.AccountExpiredException
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.authentication.CredentialsExpiredException
-import org.springframework.security.authentication.DisabledException
-import org.springframework.security.authentication.LockedException
+import org.springframework.security.authentication.*
 import org.springframework.security.web.WebAttributes
 import org.springframework.security.web.authentication.session.SessionAuthenticationException
 import spock.lang.Specification

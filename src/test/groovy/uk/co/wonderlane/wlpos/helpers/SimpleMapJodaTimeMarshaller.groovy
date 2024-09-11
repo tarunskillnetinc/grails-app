@@ -5,7 +5,6 @@ import org.grails.datastore.mapping.model.PersistentProperty
 import org.grails.datastore.mapping.simple.query.SimpleMapResultList
 import org.joda.time.*
 
-
 import javax.management.Query
 
 class SimpleMapJodaTimeMarshaller<T> extends AbstractMappingAwareCustomTypeMarshaller<T, Map, SimpleMapResultList> {

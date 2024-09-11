@@ -182,11 +182,13 @@
                 <label for="type" class="col-3 offset-1 col-form-label-mandatory text-right" >Type:</label>
                 <select name="type" id="type" class="col-4 form-control select-border" onchange="updateAdditionalFuncSection();">
                     <option value="PAID_OUT" <g:if test="${type == "PAID_OUT"}">selected</g:if>>Paid Out</option>
+                    <option value="PAID_IN" <g:if test="${type == "PAID_IN"}">selected</g:if>>Paid In</option>
                     <option value="CUSTOMER_REFUSAL" <g:if test="${type == "CUSTOMER_REFUSAL"}">selected</g:if>>Customer Refusal</option>
                     <option value="LINE_VOID" <g:if test="${type == "LINE_VOID"}">selected</g:if>>Line Void</option>
                     <option value="MARKDOWN" <g:if test="${type == "MARKDOWN"}">selected</g:if>>Markdown</option>
                     <option value="REFUND" <g:if test="${type == "REFUND"}">selected</g:if>>Refund</option>
                     <option value="TENDER_RECONCILIATION_VARIANCE" <g:if test="${type == "TENDER_RECONCILIATION_VARIANCE"}">selected</g:if>>Tender Reconciliation Variance</option>
+                    <option value="TENDER_RECONCILIATION_SAFE_VARIANCE" <g:if test="${type == "TENDER_RECONCILIATION_SAFE_VARIANCE"}">selected</g:if>>Tender Reconciliation Safe Variance</option>
                     <option value="PRODUCT_LIST" <g:if test="${type == "PRODUCT_LIST"}">selected</g:if>>Product List</option>
                 </select>
             </div>

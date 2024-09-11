@@ -247,9 +247,11 @@
                                     <option value="LINE_VOID">Line Void</option>
                                     <option value="MARKDOWN">Markdown</option>
                                     <option value="PAID_OUT">Paid Out</option>
+                                    <option value="PAID_IN">Paid In</option>
                                     <option value="PRODUCT_LIST">Product List</option>
                                     <option value="REFUND">Refund</option>
                                     <option value="TENDER_RECONCILIATION_VARIANCE">Tender Reconciliation Variance</option>
+                                    <option value="TENDER_RECONCILIATION_SAFE_VARIANCE">Tender Reconciliation Safe Variance</option>
                                 </select>
                             </div>
                         </div>

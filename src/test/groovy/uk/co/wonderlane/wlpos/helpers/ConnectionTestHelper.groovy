@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos.helpers
 
-import org.mockito.Mockito
 
 import java.sql.*
 import java.util.concurrent.Executor

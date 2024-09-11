@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import grails.gorm.PagedResultList
+
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.testing.web.controllers.ControllerUnitTest
 import uk.co.wonderlane.wlpos.enums.TillControlEventType

@@ -1,15 +1,17 @@
 package uk.co.wonderlane.wlpos
 
 import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.supplier.Pack
 
 class Barcode {
 
     int id
-    long sku
+    Long sku
     int retailerId
     String barcode
     DateTime effectiveDate
     char recordStatus
+    Pack pack
 
     boolean delete
     DateTime effectiveDeleteDate
@@ -25,10 +27,13 @@ class Barcode {
         barcode column: "barcode"
         effectiveDate column: "effectiveDate"
         recordStatus column: "recordStatus"
+        pack column: "packId"
+
     }
 
     static constraints = {
-        sku nullable: false
+        sku nullable: true
+        pack nullable: true
         retailerId nullable: false
         barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
             if (!obj.isBarcodeNonProductType(obj.retailerId)) {
@@ -84,26 +89,24 @@ class Barcode {
     }
 
     private String barcodeSignifiersType(int retailerId){
-        ArrayList<BarcodeSignifiers> barcodeSignifiers = BarcodeSignifiers.findAllByRetailerId(retailerId)
+        ArrayList<BarcodeSignifier> barcodeSignifiers = BarcodeSignifier.findAllByRetailerId(retailerId)
 
-        for (BarcodeSignifiers barcodeSignifier : barcodeSignifiers) {
+        for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
             if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
                 if (barcode.length() != barcodeSignifier.getLength()) {
-                    continue;
+                    continue
                 }
             }
 
-            int startIndex = barcodeSignifier.getStartIndex() != null ? barcodeSignifier.getStartIndex() : 0;
-
-            if (startIndex > barcode.length() || barcode.length() < startIndex + barcodeSignifier.getPattern().length()) {
-                continue;
+            if (barcode.length() < barcodeSignifier.getPattern().length()) {
+                continue
             }
 
-            String sub = barcode.substring(startIndex, startIndex + barcodeSignifier.getPattern().length());
+            String sub = barcode.substring(0, barcodeSignifier.getPattern().length());
             if (sub.equals(barcodeSignifier.getPattern())) {
                 return barcodeSignifier.getType()
             }
         }
-        return null;
+        return null
     }
 }
