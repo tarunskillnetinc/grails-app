@@ -39,6 +39,29 @@ class LoyaltyService{
         return [totalCount: totalCount, segments: segments]
     }
 
+    List<Segment> getLoyaltySegmentForRetailer(int retailerId){
+        return Segment.findAllByRetailerIdAndStatus(retailerId, SegmentStatus.ACTIVE)
+    }
+
+    def getSegmentById(int id) {
+        return Segment.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
+    }
+
+    def checkIfSegmentExists(int id, String name) {
+        def nameExists = true
+
+        if (Segment.findByRetailerIdAndNameAndIdNotEqual(springSecurityService.principal.retailerId, name, id) == null) {
+            nameExists = false
+        }
+
+        return nameExists
+    }
+
+    def saveSegment(Segment segment) {
+        if (segment.validate()) {
+            segment.save(flush: true)
+        }
+    }
 
     def getLoyaltyOffers(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder){
         def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max]) {
@@ -60,10 +83,6 @@ class LoyaltyService{
         int totalCount = LoyaltyOffer.withTransaction { offers.totalCount }
 
         return [totalCount: totalCount, offers: offers]
-    }
-
-    List<Segment> getLoyaltySegmentForRetailer(int retailerId){
-        return Segment.findAllByRetailerId(retailerId)
     }
 
     def getLoyaltyOfferById(int id){
