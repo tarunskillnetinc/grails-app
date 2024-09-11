@@ -6,15 +6,6 @@
   <title>Edit Segment</title>
 
   <script type='text/javascript'>
-    /*window.onload = function() {
-      var numericField = document.querySelector('.numeric-field');
-      numericField.addEventListener('input', function(event) {
-        if (!/^\d*$/.test(event.target.value)) {
-          event.target.value = event.target.value.replace(/[^\d]/g, '');
-        }
-      });
-    };*/
-
     window.onload = function() {
       var numericFields = document.querySelectorAll('.numeric-field');
       numericFields.forEach(function(field) {
@@ -39,13 +30,11 @@
           if (!regex.test(value)) {
             // Remove any invalid characters
             value = value.replace(/[^a-zA-Z0-9]/g, '');
-
             event.target.value = value;
           }
         });
       });
     };
-
 
     function validateEditedFields() {
       let error = false;
