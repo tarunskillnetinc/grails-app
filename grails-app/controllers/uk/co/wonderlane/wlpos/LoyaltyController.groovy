@@ -11,6 +11,8 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
+import uk.co.wonderlane.wlpos.enums.SegmentStatus
+import uk.co.wonderlane.wlpos.enums.SegmentType
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.reporting.SortParams
 import groovy.json.JsonOutput
@@ -73,6 +75,11 @@ class LoyaltyController {
     def offerDetails(String cardNumber, Integer id) {
         def offer = loyaltyMemberService.getMemberOffer(id)
         render (view: "memberOfferDetails", model: [cardNumber: cardNumber, offer: offer])
+    }
+
+    def segmentDetails(Integer id, Boolean edit) {
+        def segment = loyaltyService.getSegmentById(id)
+        render (view: "segmentDetails", model: [segment: segment, edit: edit])
     }
 
     def transactionDetails(String cardNumber, String memberId, String id) {
@@ -156,6 +163,85 @@ class LoyaltyController {
         }
 
         redirect(action: "offers", params: [cardNumber: cardNumber])
+    }
+
+    def updateLoyaltySegment() {
+        int segmentId
+        String segmentName
+        String segmentDescription
+        SegmentType type
+        BigDecimal min
+        BigDecimal max
+        SegmentStatus status
+        Boolean updated = false
+        Boolean updateRequired = false
+
+        try {
+            segmentId = params.id ? Integer.parseInt(params.id) : null
+            segmentName = params.name ? params.name : ""
+            segmentDescription = params.description ? params.description : ""
+            type = params.type ? SegmentType.valueOf(params.type) : null
+            min = params.min ?  BigDecimal.valueOf(Double.parseDouble(params.min)) : 0
+            max = params.max ?  BigDecimal.valueOf(Double.parseDouble(params.max)) : 0
+            status = params.status ? SegmentStatus.valueOf(params.status) : null
+        }
+        catch (Exception e) {
+            log.error("Error when attempting to update loyalty segment, Exception " + e)
+            response.status = 400
+            return
+        }
+
+        /* Get the segment that is being edited */
+        def currentSegment = loyaltyService.getSegmentById(segmentId)
+
+        if (!loyaltyService.checkIfSegmentExists(segmentId, segmentName)) {
+            if (currentSegment.name != segmentName) {
+                currentSegment.name = segmentName
+                updateRequired = true
+            }
+
+            if (currentSegment.description != segmentDescription) {
+                currentSegment.description = segmentDescription
+                updateRequired = true
+            }
+
+            if (currentSegment.type != type) {
+                currentSegment.type = type
+                updateRequired = true
+            }
+
+            if (currentSegment.min != min) {
+                currentSegment.min = min
+                updateRequired = true
+            }
+
+            if (currentSegment.max != max) {
+                currentSegment.max = max
+                updateRequired = true
+            }
+
+            if (currentSegment.status != status) {
+                currentSegment.status = status
+                updateRequired = true
+            }
+
+            if (updateRequired) {
+                currentSegment.dateModified = DateTime.now(DateTimeZone.UTC)
+
+                loyaltyService.saveSegment(currentSegment)
+                updated = true
+            } else {
+                flash.message = "No changes were made to the segment, so there was nothing to update"
+            }
+        } else {
+            flash.error = "A segment with this name already exists, a unique name is required. No updates were completed."
+        }
+
+        if (updated) {
+            flash.message = "Loyalty Segment updated successfully"
+        }
+
+        redirect(action: "loyaltySegment")
     }
 
     def memberOfferUpdate() {
