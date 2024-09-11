@@ -170,8 +170,8 @@ class LoyaltyController {
         String segmentName
         String segmentDescription
         SegmentType type
-        BigDecimal min
-        BigDecimal max
+        Integer min
+        Integer max
         SegmentStatus status
         Boolean updated = false
         Boolean updateRequired = false
@@ -181,8 +181,8 @@ class LoyaltyController {
             segmentName = params.name ? params.name : ""
             segmentDescription = params.description ? params.description : ""
             type = params.type ? SegmentType.valueOf(params.type) : null
-            min = params.min ?  BigDecimal.valueOf(Double.parseDouble(params.min)) : 0
-            max = params.max ?  BigDecimal.valueOf(Double.parseDouble(params.max)) : 0
+            min = params.min ?  Integer.parseInt(params.min) : 0
+            max = params.max ?  Integer.parseInt(params.max) : 0
             status = params.status ? SegmentStatus.valueOf(params.status) : null
         }
         catch (Exception e) {
