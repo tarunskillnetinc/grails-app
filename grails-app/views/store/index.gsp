@@ -114,7 +114,7 @@
             </div>
 
             <div class="col-3 text-right">
-                <g:link id="addStoreButton" action="add" class="btn btn-wl mt-1">Add Store</g:link>
+                <button id="addStoreButton" type="button" class="btn btn-wl mt-1" onclick="window.location.href='/store/add/addStoreButton'">Add Store</button>
             </div>
         </div>
     </section>
