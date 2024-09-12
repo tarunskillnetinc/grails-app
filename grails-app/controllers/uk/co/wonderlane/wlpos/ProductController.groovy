@@ -871,7 +871,7 @@ class ProductController extends BaseController {
         }
     }
 
-    private void checkPackForBarcodeChanges(def packs, def product, def existingPack, def editedPack, DateTime effectiveDate) {
+    private void checkPackForBarcodeChanges(def packs, def product, def existingPack, def editedPack, DateTime effectiveDate, int variantId) {
         editedPack.barcodez?.each { editedBarcode ->
             def existingBarcode = existingPack.barcodes?.find { existingBarcode -> existingBarcode.barcode == editedBarcode.barcode }
 
@@ -886,8 +886,8 @@ class ProductController extends BaseController {
 
                 if (!isValidBarcode(barcode)) {
                     rejectProduct(product, barcode.barcode, 'product.barcodes.notUnique', 'Barcode {0} already exists on another SKU.')
-                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs)) {
-                    rejectProduct(product, barcode.barcode, 'pack.barcodes.notUnique', 'Barcode {0} already exists on another pack.')
+                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs, variantId)) {
+                    rejectProductByPackBarcode(product, barcode.barcode)
                 } else {
                     existingPack.barcodez.add(barcode)
                 }
@@ -913,7 +913,7 @@ class ProductController extends BaseController {
                             [futureBarcode.barcode] as Object[],
                             'Barcode {0} already exists on another SKU.')
                 } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(futureBarcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs)) {
-                    rejectProduct(product, futureBarcode.barcode, 'pack.barcodes.notUnique', 'Barcode {0} already exists on another pack.')
+                    rejectProductByPackBarcode(product, futureBarcode.barcode)
                 } else {
                     //Add mark deleted barcode and newly updated barcode to add into DB
                     existingPack.barcodez.add(existingBarcode)
@@ -931,25 +931,31 @@ class ProductController extends BaseController {
                 existingBarcode.effectiveDeleteDate = effectiveDate
                 //New effective date needed to be set as effective date of mark delete entry
                 existingPack.barcodez.add(existingBarcode)
+            } else if (doesBarcodeExistForSupplier(editedBarcode.barcode, existingPack.id, editedPack.supplier.id, packs, variantId)) {
+                rejectProductByPackBarcode(product, editedBarcode.barcode)
             }
         }
     }
 
-    private boolean doesBarcodeExistForSupplier(String barcode, def packId, int supplierId, def packs) {
+    private rejectProductByPackBarcode(def product, String barcode) {
+        rejectProduct(product, barcode, 'pack.barcodes.notUnique', 'Barcode {0} already exists on another pack.')
+    }
+
+    private boolean doesBarcodeExistForSupplier(String barcode, def packId, int supplierId, def packs, int variantId) {
         boolean existsInPacks = packs.any { pack ->
-            if (pack.id != packId) {
+            if (pack.id != packId && pack.supplier.id == supplierId) {
                 pack.barcodez.any { packBarcode ->
-                    if (packBarcode.barcode == barcode && pack.supplier.id == supplierId) {
+                    if (packBarcode.barcode == barcode) {
                         return true
                     }
                 }
             }
         }
 
-        return existsInPacks || !productService.getBarcodes(barcode, (int) packId, supplierId).isEmpty()
+        return existsInPacks || !productService.getBarcodes(barcode, supplierId, packId, variantId).isEmpty()
     }
 
-    private static void rejectProduct(def product, String barcode, String errorCode, String defaultMessage) {
+    private static void rejectProduct(def product, String barcode, String  errorCode, String defaultMessage) {
         product.errors.reject(
                 errorCode,
                 barcode as Object[],
@@ -985,7 +991,7 @@ class ProductController extends BaseController {
 
             if (existingPack && packChanged(editedPack, existingPack)) {
                 updatePack(existingPack, editedPack, now)
-                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate)
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             } else if (!existingPack) {
                 Pack newPack = new Pack()
                 editedPack.barcodez.each { barcode ->
@@ -999,9 +1005,9 @@ class ProductController extends BaseController {
                 }
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
-                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate)
+                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
             } else {
-                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate)
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
 
@@ -1077,7 +1083,7 @@ class ProductController extends BaseController {
      */
     def packChanged(def newPack, def existingPack) {
         return newPack.barcodez != existingPack.barcodez
-                || newPack.supplier != existingPack.supplier 
+                || newPack.supplier != existingPack.supplier
                 || newPack.quantity != existingPack.quantity
                 || newPack.price != existingPack.price
                 || newPack.orderCode != existingPack.orderCode

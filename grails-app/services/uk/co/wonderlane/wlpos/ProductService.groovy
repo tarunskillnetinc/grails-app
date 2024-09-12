@@ -110,16 +110,25 @@ class ProductService extends MySqlDal {
         return product
     }
 
-    List<Barcode> getBarcodes(String barcode, int packId, int supplierId) {
+    List<Barcode> getBarcodes(String barcode, int supplierId, int excludedPackId, Integer excludedVariantId) {
         return Barcode.createCriteria().list {
             eq('barcode', barcode)
             eq('retailerId', springSecurityService.principal.retailerId)
             pack {
                 not {
-                    eq('id', packId)
+                    eq('id', excludedPackId)
                 }
+
                 supplier {
                     eq('id', supplierId)
+                }
+
+                if (excludedVariantId != null) {
+                    productVariant {
+                        not {
+                            eq('id', excludedVariantId)
+                        }
+                    }
                 }
             }
         } as List<Barcode>
