@@ -886,7 +886,7 @@ class ProductController extends BaseController {
 
                 if (!isValidBarcode(barcode)) {
                     rejectProduct(product, barcode.barcode, 'product.barcodes.notUnique', 'Barcode {0} already exists on another SKU.')
-                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(existingPack.id, barcode.barcode, (int) existingPack.supplier.id, packs)) {
+                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs)) {
                     rejectProduct(product, barcode.barcode, 'pack.barcodes.notUnique', 'Barcode {0} already exists on another pack.')
                 } else {
                     existingPack.barcodez.add(barcode)
@@ -912,7 +912,7 @@ class ProductController extends BaseController {
                             'product.barcodes.notUnique',
                             [futureBarcode.barcode] as Object[],
                             'Barcode {0} already exists on another SKU.')
-                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(existingPack.id, futureBarcode.barcode, (int) existingPack.supplier.id, packs)) {
+                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(futureBarcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs)) {
                     rejectProduct(product, futureBarcode.barcode, 'pack.barcodes.notUnique', 'Barcode {0} already exists on another pack.')
                 } else {
                     //Add mark deleted barcode and newly updated barcode to add into DB
@@ -935,7 +935,7 @@ class ProductController extends BaseController {
         }
     }
 
-    private boolean doesBarcodeExistForSupplier(def packId, String barcode, int supplierId, def packs) {
+    private boolean doesBarcodeExistForSupplier(String barcode, def packId, int supplierId, def packs) {
         boolean existsInPacks = packs.any { pack ->
             if (pack.id != packId) {
                 pack.barcodez.any { packBarcode ->
@@ -946,7 +946,7 @@ class ProductController extends BaseController {
             }
         }
 
-        return existsInPacks || !productService.getBarcodes(barcode, supplierId, (int) packId).isEmpty()
+        return existsInPacks || !productService.getBarcodes(barcode, (int) packId, supplierId).isEmpty()
     }
 
     private static void rejectProduct(def product, String barcode, String errorCode, String defaultMessage) {
