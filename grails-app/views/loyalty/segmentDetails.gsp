@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta name="layout" content="main" />
-  <title>Edit Segment</title>
+  <title>${session.edit ? "Edit" : "Add"} Segment</title>
 
   <script type='text/javascript'>
     window.onload = function() {
@@ -110,7 +110,7 @@
 
 <section>
 
-  <g:form method="post" action="updateLoyaltySegment" class="mt-4" name="segmentDetails">
+  <g:form method="post" action="${session.edit ? 'updateLoyaltySegment' : 'addLoyaltySegment'}" class="mt-4" name="segmentDetails">
     <g:hiddenField name="id" value="${segment?.id}" />
 
     <div class="row form-group mb-4">

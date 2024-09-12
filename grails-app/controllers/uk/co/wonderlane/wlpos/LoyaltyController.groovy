@@ -27,7 +27,17 @@ class LoyaltyController {
 
     def index() {}
     def loyaltyMembers() {}
-    def loyaltySegment() {}
+
+    def loyaltySegment() {
+        def segmentCount = 0
+        def currentSegments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
+
+        if (currentSegments != null && currentSegments.size() > 0) {
+            segmentCount = currentSegments.size()
+        }
+
+        render(view: "loyaltySegment", model: [segmentCount: segmentCount])
+    }
 
     def transactions(String cardNumber) {
         render(view: "transactions", model: [cardNumber: cardNumber])
@@ -77,9 +87,14 @@ class LoyaltyController {
         render (view: "memberOfferDetails", model: [cardNumber: cardNumber, offer: offer])
     }
 
-    def segmentDetails(Integer id, Boolean edit) {
+    def segmentDetails(Integer id) {
         def segment = loyaltyService.getSegmentById(id)
-        render (view: "segmentDetails", model: [segment: segment, edit: edit])
+        render (view: "segmentDetails", model: [segment: segment])
+    }
+
+    def updateSegmentDetails(Integer id, Boolean edit) {
+        session.edit = edit
+        redirect(action: "segmentDetails", params: [id: id])
     }
 
     def transactionDetails(String cardNumber, String memberId, String id) {
@@ -165,8 +180,48 @@ class LoyaltyController {
         redirect(action: "offers", params: [cardNumber: cardNumber])
     }
 
+    def addLoyaltySegment() {
+        String segmentName
+        String segmentDescription
+        SegmentType type
+        Integer min
+        Integer max
+        SegmentStatus status
+        Boolean updated = false
+
+        try {
+            segmentName = params.name ? params.name : ""
+            segmentDescription = params.description ? params.description : ""
+            type = params.type ? SegmentType.valueOf(params.type) : null
+            min = params.min ?  Integer.parseInt(params.min) : 0
+            max = params.max ?  Integer.parseInt(params.max) : 0
+            status = params.status ? SegmentStatus.valueOf(params.status) : null
+        }
+        catch (Exception e) {
+            log.error("Error when attempting to add a loyalty segment, Exception " + e)
+            response.status = 400
+            return
+        }
+
+        if (!loyaltyService.checkIfSegmentExists(0, segmentName)) {
+            def segment = new Segment(retailerId: springSecurityService.principal.retailerId, name: segmentName, description: segmentDescription,
+                                        type: type, count: 0, min: min, max: max, status: status)
+            loyaltyService.saveSegment(segment)
+
+            updated = true
+        } else {
+            flash.error = "A segment with this name already exists, a unique name is required."
+        }
+
+        if (updated) {
+            flash.message = "Loyalty Segment created successfully"
+        }
+
+        redirect(action: "loyaltySegment")
+    }
+
     def updateLoyaltySegment() {
-        int segmentId
+        Integer segmentId
         String segmentName
         String segmentDescription
         SegmentType type
@@ -177,7 +232,9 @@ class LoyaltyController {
         Boolean updateRequired = false
 
         try {
-            segmentId = params.id ? Integer.parseInt(params.id) : null
+            if (params.id != null && params.id.length() > 0) {
+                segmentId = Integer.parseInt(params.id)
+            }
             segmentName = params.name ? params.name : ""
             segmentDescription = params.description ? params.description : ""
             type = params.type ? SegmentType.valueOf(params.type) : null
@@ -558,7 +615,7 @@ class LoyaltyController {
             promotions?.each {promotion -> promotionEntityList.add(promotion.getPromotion())}
 
             //load all segments for retailer
-            List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
+            List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId, SegmentStatus.ACTIVE)
 
             // Serialize promotions list into JSON string
             ObjectMapper objectMapper = new ObjectMapper()
