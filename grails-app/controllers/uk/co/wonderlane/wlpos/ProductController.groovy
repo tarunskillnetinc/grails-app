@@ -1010,6 +1010,7 @@ class ProductController extends BaseController {
                 checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
+        def packsToRemove = []
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
@@ -1019,10 +1020,14 @@ class ProductController extends BaseController {
                     def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
 
                     if (!editedPack) {
-                        existingVariant.removeFromPacks(existingPack)
+                        packsToRemove << existingPack
                     }
                 }
             }
+        }
+
+        packsToRemove.each { packToRemove ->
+            existingVariant.removeFromPacks(packToRemove)
         }
     }
 
