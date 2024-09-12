@@ -40,10 +40,14 @@ class LoyaltyService{
     }
 
     List<Segment> getLoyaltySegmentForRetailer(int retailerId){
-        return Segment.findAllByRetailerIdAndStatus(retailerId, SegmentStatus.ACTIVE)
+        return Segment.findAllByRetailerId(retailerId)
     }
 
-    def getSegmentById(int id) {
+    List<Segment> getLoyaltySegmentForRetailer(int retailerId, SegmentStatus status){
+        return Segment.findAllByRetailerIdAndStatus(retailerId, status)
+    }
+
+    def getSegmentById(Integer id) {
         return Segment.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 

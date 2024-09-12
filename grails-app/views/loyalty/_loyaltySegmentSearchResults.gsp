@@ -32,7 +32,7 @@
     </g:if>
 
     <g:each in="${segments}" var="segment" status="i">
-        <div id="segment-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'segmentDetails', params:[id: segment.id, edit: true])}';">
+        <div id="segment-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'updateSegmentDetails', params:[id: segment.id, edit: true])}';">
             <div id="segment-id-${i + 1}" class="col-1">${segment.id}</div>
             <div id="segment-name-${i + 1}" class="col-2">${segment.name}</div>
             <div id="segment-description-${i + 1}" class="col-3">${segment.description}</div>
