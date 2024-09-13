@@ -986,6 +986,8 @@ class ProductController extends BaseController {
             return
         }
 
+        List<Integer> newPacksIds = new ArrayList<>()
+
         editedVariant.packs?.each { editedPack ->
             def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
 
@@ -1006,6 +1008,10 @@ class ProductController extends BaseController {
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
                 checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
+                if (newPack.id > 0) {
+                    // New pack id got set when retrieving barcodes from DB
+                    newPacksIds.add(newPack.id)
+                }
             } else {
                 checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
@@ -1016,7 +1022,7 @@ class ProductController extends BaseController {
         existingVariant.packs?.each { existingPack ->
             if (existingPack.isActive()) {
                 // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
-                if (existingPack.id > 0) {
+                if (existingPack.id > 0 && !newPacksIds.contains(existingPack.id)) {
                     def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
 
                     if (!editedPack) {
