@@ -290,7 +290,7 @@
         <div class="download-container mt-8">
 
             <!-- Upload button centered below the header -->
-            <button class="btn btn-info p-2 mt-8" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload Financial Week File</button>
+            <button class="btn btn-info p-3 px-5 mt-8" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload Financial Week File</button>
 
             <label style="font-size: 1.5rem; font-weight: bold;" for="yearSelect">Select financial year for download:</label>
             <g:form controller="financialWeek" action="downloadCsv" method="GET" class="d-inline">
