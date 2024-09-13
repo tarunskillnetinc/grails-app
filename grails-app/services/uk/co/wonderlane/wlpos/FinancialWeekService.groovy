@@ -13,6 +13,7 @@ import java.sql.Date
 import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -147,11 +148,17 @@ class FinancialWeekService extends MySqlDal {
     void populateCsvDownloadFile(List<FinancialWeek> financialWeeks, OutputStream outputStream){
         try {
             outputStream.withWriter('UTF-8') { writer ->
-                CSVWriter csvWriter = new CSVWriter(writer)
+                CSVWriter csvWriter = new CSVWriter(writer,
+                        CSVWriter.DEFAULT_SEPARATOR,
+                        CSVWriter.NO_QUOTE_CHARACTER,
+                        CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                        CSVWriter.DEFAULT_LINE_END)
 
-                // Write CSV rows (replace this with your actual financialWeeks data)
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy")
+
+                // Write CSV rows
                 financialWeeks.each { week ->
-                    String[] row = [week.startDate.toString(), week.financialYear, week.weekNumber.toString()]
+                    String[] row = [dateFormat.format(week.startDate), week.financialYear.toString(), week.weekNumber.toString()]
                     csvWriter.writeNext(row)
                 }
 
