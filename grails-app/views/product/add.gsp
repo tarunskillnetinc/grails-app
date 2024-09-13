@@ -320,13 +320,14 @@
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
                     var barcode = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
+                    var barcodeWithoutWhitespace = removeWhitespace(barcode)
 
-                    if (singleBarcodeEmpty(barcodeIndex, addBarcodeContainers, barcode) || barcodeValid(barcode, barcodes, "#addVariantContent")) {
+                    if (singleBarcodeEmpty(barcodeIndex, addBarcodeContainers, barcode) || barcodeValid(barcodeWithoutWhitespace, barcodes, "#addVariantContent")) {
                         params["barcodez[" + loopIndex + "].id"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.id").val();
                         params["barcodez[" + loopIndex + "].barcode"] = barcode;
                         params["barcodez[" + loopIndex + "].effectiveDate"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.effectiveDate").val();
                         params["barcodez[" + loopIndex + "].recordStatus"] = $("#addVariantBarcodes\\[" + barcodeIndex + "\\]\\.recordStatus").val();
-                        barcodes.push(removeWhitespace(barcode))
+                        barcodes.push(barcodeWithoutWhitespace)
                     } else {
                         error = true
                     }
@@ -401,10 +402,10 @@
             }
 
             function barcodeValid(barcode, barcodes, content) {
-                if (barcode == null || !barcode.trim()) {
+                if (barcode == null || barcode === "") {
                     $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`)
                     return false
-                } else if (barcodes.includes(removeWhitespace(barcode))){
+                } else if (barcodes.includes(barcode)){
                     $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
                     return false
                 }
@@ -736,6 +737,7 @@
                 $("#defaultSupplierForm select").each(function () {
                     filterValues[$(this).attr("name")] = $(this).find(":selected").val();
                 }).get();
+                $("#suppliersContent .alert-wl").remove();
 
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
@@ -771,11 +773,11 @@
 
                     var addBarcodeContainers = $("#addBarcodesContainer" + packIndex + " > div");
                     var barcodes = []; // To store the barcode values for validation
-                    $("#suppliersContent .alert-wl").remove();
 
                     addBarcodeContainers.each(function(innerLoopIndex) {
                         var barcodeIndex = $(this).attr("id").substring(10);
                         var barcode = $(this).children("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.barcode").val()
+                        barcode = removeWhitespace(barcode)
 
                         if (barcodeValid(barcode, barcodes, "#suppliersContent")) {
                             params["packs[" +loopIndex +"].barcodez[" +innerLoopIndex +"].id"] = $("#addVariantBarcodes\\[" +barcodeIndex +"\\]\\.id").val();
