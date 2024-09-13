@@ -14,30 +14,33 @@
 
     <style>
     @media (max-width: 768px) {
-        #page-title {
-            font-size: 1.5rem;
-            text-align: center;
-        }
-
         #uploadFinancialWeekBtn, #downloadFinancialWeekBtn {
             width: 100%; /* Full width for buttons on smaller screens */
+            margin-bottom: 10px;
+        }
+
+        #yearSelect, #downloadFinancialWeekBtn {
+            width: 100%; /* Full width for dropdown and button on smaller screens */
             margin-bottom: 10px;
         }
     }
 
     @media (min-width: 769px) {
-        #uploadFinancialWeekBtn, #downloadFinancialWeekBtn {
-            min-width: 200px; /* Fixed width for larger screens */
+        #uploadFinancialWeekBtn {
+            min-width: 200px; /* Fixed width for upload button on larger screens */
+            display: block;
+            margin: 20px auto; /* Center the button */
         }
-    }
 
-    /* General styles for centering content */
-    .header-wl {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        margin-top: 30px;
+        #yearSelect, #downloadFinancialWeekBtn {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .download-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     }
 
     .buttons-container {
@@ -46,6 +49,27 @@
         flex-wrap: wrap;
         gap: 10px; /* Adds spacing between the buttons */
         margin-top: 20px;
+    }
+
+    /* Styles for the download section */
+    .download-container label {
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .download-container .form-control {
+        display: inline-block;
+        max-width: 300px;
+        min-width: 250px;
+        padding: 0.5rem 1rem;
+        font-size: 1.125rem;
+    }
+
+    .section-gap {
+        margin-bottom: 3rem;
     }
     </style>
 
@@ -150,23 +174,31 @@
             };
         }
 
-        function updateDropDown(response){
-            // console.log(response?.responseJSON?.response)
+        function updateDropDown(response) {
             var financialYears = response?.financialYears;
+            var $dropdown = $('#yearSelect');
             if (Array.isArray(financialYears) && financialYears.length > 0) {
-                var $dropdown = $('#yearSelect');
                 $dropdown.empty();  // Clear the existing options
+
+                // Re-add the placeholder option
+                $dropdown.append($('<option></option>').val("").text("Select a financial year").prop('disabled', true).prop('selected', true));
 
                 // Populate the dropdown with the updated financial years
                 $.each(financialYears, function(index, year) {
                     $dropdown.append($('<option></option>').val(year).text(year));
                 });
 
-                //If there are available financial years then enable download button
+                // Enable the download button if there are financial years
                 const downloadButton = document.getElementById('downloadFinancialWeekBtn');
-                downloadButton.disabled = false
-            }
+                downloadButton.disabled = false;
+            } else {
+                // If there are no financial years, add the placeholder option and disable the download button
+                $dropdown.empty();  // Clear the existing options
+                $dropdown.append($('<option></option>').val("").text("No financial years available").prop('disabled', true).prop('selected', true));
 
+                const downloadButton = document.getElementById('downloadFinancialWeekBtn');
+                downloadButton.disabled = true;
+            }
         }
 
         function handleUploadError(uploadButton, msg) {
@@ -231,58 +263,53 @@
 </head>
 <body>
 
-<section id="breadcrumb-container" class="container-fluid">
-    <nav aria-label="breadcrumb">
-        <div class="row mt-4">
-            <div class="col">
-                <ol class="breadcrumb">
-                    <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Financial Weeks</li>
-                </ol>
+    <section id="breadcrumb-container" class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <div class="row mt-4">
+                <div class="col">
+                    <ol class="breadcrumb">
+                        <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Financial Weeks</li>
+                    </ol>
+                </div>
             </div>
+        </nav>
+    </section>
+
+    <section id="FinancialWeekUpload" class="container-fluid">
+
+        <section id="message-container" class="container-fluid mb-20"></section>
+        <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFileUploadInput()">
+
+        <!-- Header with title -->
+        <div class="header-wl mb-8 section-gap">
+            <h2 id="page-title" class="mx-auto my-auto">Financial Weeks</h2>
         </div>
-    </nav>
-</section>
 
-<section id="FinancialWeekUpload" class="container-fluid">
+        <!-- Download section with label, dropdown, and button aligned closely together -->
+        <div class="download-container mt-8">
 
-    <section id="message-container" class="container-fluid mb-20"></section>
+            <!-- Upload button centered below the header -->
+            <button class="btn btn-wl btn-primary p-2 mt-8" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload Financial Week File</button>
 
-    <input type="file" name="file" accept=".csv,.CSV" id="csvFileUploadInput" style="display:none" oninput="uploadFinancialWeekImportFile()" oncancel="resetFileUploadInput()">
-
-    <!-- Header with title and buttons -->
-    <div class="header-wl">
-        <h2 id="page-title">Financial Weeks</h2>
-
-        <!-- Buttons aligned below the title -->
-        <div class="buttons-container">
-            <button class="btn btn-wl p-2" onclick="selectFinancialWeekUploadFile()" id="uploadFinancialWeekBtn">Upload Financial Week File</button>
-            <button class="btn btn-wl p-2" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn">Download Financial Week File</button>
-        </div>
-    </div>
-
-    <div class="row mt-5 justify-content-center">
-        <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
-            <span class="font-weight-bold mr-3" style="font-size: 1.5rem;">Select financial year:</span>
+            <label style="font-size: 1.5rem; font-weight: bold;" for="yearSelect">Select financial year for download:</label>
             <g:form controller="financialWeek" action="downloadCsv" method="GET" class="d-inline">
-                <g:select
-                        class="form-control select-border"
-                        id="yearSelect"
-                        name="yearSelect"
-                        from="${financialYears}"
-                        style="width: 100%; max-width: 300px; min-width: 250px; padding: 0.5rem 1rem; font-size: 1.125rem;"
-                        title="${financialYears?.isEmpty() ? 'No options available' : 'Select a financial year'}"
-                />
+                <select class="form-control select-border" id="yearSelect" name="yearSelect">
+                    <option value="" disabled selected>Select a financial year</option> <!-- Placeholder option -->
+                    <g:each in="${financialYears}" var="year">
+                        <option value="${year}">${year}</option> <!-- Render each financial year -->
+                    </g:each>
+                </select>
             </g:form>
+            <button class="btn btn-wl btn-primary p-2 ml-3" onclick="downloadFinancialWeekUploadFile()" id="downloadFinancialWeekBtn">Download Financial Week File</button>
+
         </div>
-    </div>
 
+    </section>
 
-</section>
-
-<section id="uploadResultsSection" class="container-fluid">
-    <div id="uploadResults"></div>
-</section>
+    <section id="uploadResultsSection" class="container-fluid">
+        <div id="uploadResults"></div>
+    </section>
 
 </body>
 </html>
