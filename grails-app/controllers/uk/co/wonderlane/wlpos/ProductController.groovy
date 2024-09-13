@@ -945,9 +945,7 @@ class ProductController extends BaseController {
         boolean existsInPacks = packs.any { pack ->
             if (pack.id != packId && pack.supplier.id == supplierId) {
                 pack.barcodez.any { packBarcode ->
-                    if (packBarcode.barcode == barcode) {
-                        return true
-                    }
+                    return packBarcode.barcode == barcode
                 }
             }
         }
