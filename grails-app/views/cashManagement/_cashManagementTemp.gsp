@@ -76,9 +76,9 @@
                     (this.id +'') === "tillShiftVarianceLimit" ||
                     (this.id +'') === "safeVarianceLimit"
                 )
-                && parseFloat(currentValue) > 99900) {
+                && parseFloat(currentValue) > 99999) {
                 e.preventDefault();
-            } else if( (this.id +'') === 'tillCashHoldingLimit' && parseFloat(currentValue) > 999900) {
+            } else if( (this.id +'') === 'tillCashHoldingLimit' && parseFloat(currentValue) > 999999) {
                 e.preventDefault();
             } else if (parseFloat(currentValue) > 150000) {
                 e.preventDefault();
@@ -375,11 +375,11 @@
 
                             <h5 class="text-center mt-5">Rolling Float</h5>
 
-                            <!-- Rolling Float Enable Field -->
+                            <!-- Rolling Float Enabled Field -->
                             <div class="form-group row">
-                                <label for="isRollingFloatEnable" class="col-12 col-lg-4 text-right align-self-center">Rolling Float Enable</label>
+                                <label for="isRollingFloatEnabled" class="col-12 col-lg-4 text-right align-self-center">Rolling Float Enabled</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox ml-0" name="isRollingFloatEnable" id="isRollingFloatEnable" ${config?.rollingFloatEnabled ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox ml-0" name="isRollingFloatEnabled" id="isRollingFloatEnabled" ${config?.rollingFloatEnabled ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
                                 </div>
                             </div>
 
@@ -407,7 +407,7 @@
                             <div class="form-group row">
                                 <label for="tillShiftVarianceLimit" class="col-12 col-lg-4 text-right align-self-center">Till Shift Variance Limit</label>
                                 <div class="col-12 col-lg-6 pl-0">
-                                    <g:render template="priceView" model='[inputId:"tillShiftVarianceLimit", inputName:"tillShiftVarianceLimit", fieldValue:config?config.tillShiftVarianceLimit?config.tillShiftVarianceLimit:0:500]'/>
+                                    <g:render template="priceView" model='[inputId:"tillShiftVarianceLimit", inputName:"tillShiftVarianceLimit", fieldValue:config?config.tillShiftVarianceLimit?config.tillShiftVarianceLimit:0:999.99]'/>
                                 </div>
                             </div>
 
@@ -424,7 +424,7 @@
                             <div class="form-group row">
                                 <label for="safeVarianceLimit" class="col-12 col-lg-4 text-right align-self-center">Safe Variance Limit</label>
                                 <div class="col-12 col-lg-6 pl-0">
-                                    <g:render template="priceView" model='[inputId:"safeVarianceLimit", inputName:"safeVarianceLimit", fieldValue:config?config.safeVarianceLimit?config.safeVarianceLimit:0:500]'/>
+                                    <g:render template="priceView" model='[inputId:"safeVarianceLimit", inputName:"safeVarianceLimit", fieldValue:config?config.safeVarianceLimit?config.safeVarianceLimit:0:999.99]'/>
                                 </div>
                             </div>
 

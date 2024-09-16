@@ -68,15 +68,15 @@ class CashManagementController {
 
         if (cashManagementFormData.rollingFloatValue == null) {
             errorMessages << "Rolling float value cannot be empty."
-        } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.00) {
-            errorMessages << "Rolling float value must have a value between 1.00 and 999.00."
+        } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.99) {
+            errorMessages << "Rolling float value must have a value between 1.00 and 999.99."
         }
         if (cashManagementFormData.tillShiftVarianceLimit != null &&  (cashManagementFormData.tillShiftVarianceLimit < 0
-                || cashManagementFormData.tillShiftVarianceLimit > 999.00)) {
-            errorMessages << "Till shift variance limit must have a value between 0.00 and 999.00."
+                || cashManagementFormData.tillShiftVarianceLimit > 999.99)) {
+            errorMessages << "Till shift variance limit must have a value between 0.00 and 999.99."
         }
-        if (cashManagementFormData.safeVarianceLimit != null &&  (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.00)) {
-            errorMessages << "Safe variance limit must have a value between 0.00 and 999.00."
+        if (cashManagementFormData.safeVarianceLimit != null &&  (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.99)) {
+            errorMessages << "Safe variance limit must have a value between 0.00 and 999.99."
         }
         if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
             errorMessages << "Till auto snapshot days format incorrect."
@@ -92,8 +92,8 @@ class CashManagementController {
         } else if (!(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
             errorMessages << "Safe auto snapshot time format incorrect."
         }
-        if (cashManagementFormData.tillCashHoldingLimit != null &&  (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.00)) {
-            errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.00."
+        if (cashManagementFormData.tillCashHoldingLimit != null &&  (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
+            errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.99."
         }
         if (cashManagementFormData.tillShiftRecountLimit == null) {
             errorMessages << "Till shift recount limit cannot be empty."
