@@ -540,28 +540,39 @@ class LoyaltyController {
     def loyaltyOffers() {}
 
     def ajaxSearchLoyaltySegment() {
-        int defaultPagination = 20
-        int defaultOffSet = 0
+        String searchTerm
+        String searchBy
+        String status
+        Integer max
+        Integer offset
+        String sortColumn
+        String sortOrder
+
         try {
-            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.status, params.max ? Integer.parseInt(params.max) : defaultPagination,
-                    params.offset ? Integer.parseInt(params.offset) : defaultOffSet, "id", "asc")
-
-            render(template: "loyaltySegmentSearchResults", model: [segments              : segment?.segments,
-                                                                    loyaltySegmentTerm    : params.loyaltySegmentTerm,
-                                                                    loyaltySegmentSearchBy: params.loyaltySegmentSearchBy,
-                                                                    max                   : params.max ?: defaultPagination,
-                                                                    offset                : params.offset ?: defaultOffSet,
-                                                                    totalCount            : segment?.totalCount
-            ])
-        } catch (Exception ex) {
-            List<String> errorList = new ArrayList<>()
-            log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
-            errorList.add("Failed to load loyalty segments")
-            response.setStatus(500)
-            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
+            searchTerm = params.searchTerm ? params.searchTerm : ""
+            searchBy = params.searchBy ? params.searchBy : ""
+            status = params.status ? params.status : ""
+            max = params.max ? Integer.parseInt(params.max) : 20
+            offset = params.offset ? Integer.parseInt(params.offset) : 0
+            sortColumn = params.sortColumn ?: "id"
+            sortOrder = params.sortOrder ?: "desc"
+        } catch (Exception e) {
+            log.error("Error when searching for loyalty segments, Exception " + e)
+            response.status = 400
+            return
         }
-    }
 
+        def segment = loyaltyService.getSegment(searchTerm, searchBy, status, max, offset, sortColumn, sortOrder)
+
+        render(template: "loyaltySegmentSearchResults", model: [segments        : segment?.segments,
+                                                                searchTerm      : searchTerm,
+                                                                searchBy        : searchBy,
+                                                                max             : max,
+                                                                offset          : offset,
+                                                                sortColumn      : sortColumn,
+                                                                sortOrder       : sortOrder,
+                                                                totalCount      : segment?.totalCount])
+    }
 
     def ajaxSearchLoyaltyOffers(SortParams sortParams) {
         int defaultPagination = 20
