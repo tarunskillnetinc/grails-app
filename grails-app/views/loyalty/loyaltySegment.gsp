@@ -20,7 +20,7 @@
 
         function searchButtonClicked() {
             $('#offset').val(0);
-            search();
+            searchSegments();
         }
 
         function resetForm() {
@@ -29,7 +29,7 @@
             document.getElementById('statusFilter').value = '';
         }
 
-        function search() {
+        function searchSegments(sortParams) {
             var url = "${createLink(controller: 'loyalty', action: 'ajaxSearchLoyaltySegment')}";
             var searchTerm = $('#loyaltySegmentTerm').val();
             var searchBy = $('#loyaltySegmentSearchBy').val();
@@ -44,7 +44,15 @@
 
             $.ajax({
                 url: url,
-                data: { searchTerm: searchTerm, searchBy: searchBy, status: status, max:20, offset:0 },
+                data: {
+                    searchTerm: searchTerm,
+                    searchBy: searchBy,
+                    status: status,
+                    max: sortParams ? sortParams.max : null,
+                    offset: sortParams ? sortParams.offset : null,
+                    sortColumn: sortParams ? sortParams.sortColumn : null,
+                    sortOrder: sortParams ? sortParams.sortOrder : null
+                },
                 statusCode: {
                     500: function (response) {
                         $('#search-results').html("<div class=\"d-flex justify-content-center\"><span class=\"text-muted\">No results found.</span></div>");
@@ -122,6 +130,12 @@
         </g:if>
     </section>
 
+    <section id="alerts-container" class="container-fluid">
+        <g:if test="${segmentCount >= 10}">
+            <div id="alerts-container-message" class="alert alert-warning" role="alert">Max. segments reached</div>
+        </g:if>
+    </section>
+
     <section id="reasonCodeMaintenance" class="container-fluid">
 
         <div class="row header-wl mt-3">
@@ -130,7 +144,7 @@
             </div>
             <div class="col text-right d-inline-flex flex-row justify-content-end">
                 <!--Limit the amount of segments that can be added currently to a maximum of 10-->
-                <g:if test="${segmentCount <= 10}">
+                <g:if test="${segmentCount < 10}">
                     <g:link elementId="add-offer-btn" class="btn btn-wl p-2 ml-2" action="updateSegmentDetails" params="[id: null, edit: false]">Add Segment</g:link>
                 </g:if>
             </div>

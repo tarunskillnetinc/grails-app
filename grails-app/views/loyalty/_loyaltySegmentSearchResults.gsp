@@ -10,12 +10,18 @@
 
 
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-1 font-weight-bold">Segment ID</div>
-    <div class="col-2 font-weight-bold">Segment Name</div>
-    <div class="col-3 font-weight-bold">Segment Description</div>
-    <div class="col-2 font-weight-bold">Segment Value</div>
-    <div class="col-2 font-weight-bold">Members Count</div>
-    <div class="col-1 font-weight-bold">Status</div>
+    <div class="col-1 font-weight-bold"><a href="#" onclick="searchSegments({max: '${max}', offset: '${offset}', sortColumn: 'id',
+        sortOrder: ${sortColumn == 'id' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Segment ID</a></div>
+    <div class="col-2 font-weight-bold"><a href="#" onclick="searchSegments({max: '${max}', offset: '${offset}', sortColumn: 'name',
+        sortOrder: ${sortColumn == 'name' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Segment Name</a></div>
+    <div class="col-3 font-weight-bold"><a href="#" onclick="searchSegments({max: '${max}', offset: '${offset}', sortColumn: 'description',
+        sortOrder: ${sortColumn == 'description' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Segment Description</a></div>
+    <div class="col-2 font-weight-bold"><a href="#" onclick="searchSegments({max: '${max}', offset: '${offset}', sortColumn: 'max',
+        sortOrder: ${sortColumn == 'max' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Segment Value</a></div>
+    <div class="col-2 font-weight-bold"><a href="#" onclick="searchSegments({max: '${max}', offset: '${offset}', sortColumn: 'count',
+        sortOrder: ${sortColumn == 'count' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Members Count</a></div>
+    <div class="col-1 font-weight-bold"><a href="#" onclick="searchSegments({max: '${max}', offset: '${offset}', sortColumn: 'status',
+        sortOrder: ${sortColumn == 'status' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} })">Status</a></div>
 </div>
 
 <div id="search-results">
@@ -44,5 +50,8 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxSearchLoyaltySegment" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[loyaltySegmentTerm: loyaltySegmentTerm, loyaltySegmentSearchBy: loyaltySegmentSearchBy]" />
+    <util:remotePaginate action="ajaxSearchLoyaltySegment" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: searchTerm,
+                                                                                                                                                                     searchBy: searchBy,
+                                                                                                                                                                     sortColumn: sortColumn,
+                                                                                                                                                                     sortOrder: sortOrder]" />
 </div>
