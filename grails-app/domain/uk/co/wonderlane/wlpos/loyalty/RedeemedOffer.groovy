@@ -1,7 +1,5 @@
 package uk.co.wonderlane.wlpos.loyalty
 
-import uk.co.wonderlane.wlpos.LoyaltyOffer
-
 class RedeemedOffer {
 
     int id
@@ -10,9 +8,9 @@ class RedeemedOffer {
     Double awardValue
     Date dateCreated
     Date dateModified
-    LoyaltyOffer loyaltyOffer
+    Offer loyaltyOffer
 
-    static belongsTo = [memberTransaction: MemberTransaction, loyaltyOffer: LoyaltyOffer]
+    static belongsTo = [memberTransaction: MemberTransaction, loyaltyOffer: Offer]
 
     static mapping = {
         datasources(["loyalty"])
