@@ -54,14 +54,14 @@
                                 <label for="startDate" class="col-4 col-form-label text-left">Start Date</label>
 
                                 <g:textField name="startDate" type="text" class="col-8 form-control bottom-border"
-                                             value="${g.formatDate(format: "dd/MM/yyyy", date: productList?.startDate?.withZone(DateTimeZone.forID("Europe/London"))?.toDate())}"
+                                             value="${g.formatDate(format: "dd/MM/yyyy", date: productList?.startDate?.toDate())}"
                                              autocomplete="off"/>
                             </div>
 
                             <div class="form-group row mt-4">
                                 <label for="endDate" class="col-4 col-form-label text-left">End Date</label>
                                 <g:textField name="endDate" class="col-8 form-control bottom-border"
-                                             value="${g.formatDate(format: "dd/MM/yyyy", date: productList?.endDate?.withZone(DateTimeZone.forID("Europe/London"))?.toDate())}"
+                                             value="${g.formatDate(format: "dd/MM/yyyy", date: productList?.endDate?.toDate())}"
                                              autocomplete="off"/>
                             </div>
 
