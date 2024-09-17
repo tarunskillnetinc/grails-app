@@ -23,33 +23,11 @@ class ProductListController {
     def listCentralCounts() {
         def productLists = productListService.getCentralCounts()
 
-        for (productList in productLists) {
-            if (productList !instanceof ProductList) {
-                continue
-            }
-
-            productList.setStartDate(
-                    productList.getStartDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-            )
-            productList.setEndDate(
-                    productList.getEndDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-            )
-        }
-
         [productLists: productLists]
     }
 
     def showCentralCount(int id) {
         def productList = productListService.getProductList(id, springSecurityService.principal.retailerId)
-
-        if (productList instanceof ProductList) {
-            productList.setStartDate(
-                    productList.getStartDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-            )
-            productList.setEndDate(
-                    productList.getEndDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-            )
-        }
 
         [productList: productList]
     }
