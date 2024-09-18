@@ -128,6 +128,13 @@
     </div>
 
     <div class="row form-group mb-4">
+      <label class="col-3 offset-1 col-form-label text-right">Segment Type</label>
+      <div class="input-group col-2">
+        <g:select id="type" name="type" from="${['AGE', 'POINTS', 'SPEND']}" value="${segment?.type}"  class="form-control select-border"/>
+      </div>
+    </div>
+
+    <div class="row form-group mb-4">
       <label class="col-3 offset-1 col-form-label text-right">Segment Minimum</label>
       <div class="input-group col-2">
         <g:textField id="min" name="min" value="${segment?.min}" class="form-control bottom-border numeric-field" maxLength="9" />
@@ -138,13 +145,6 @@
       <label class="col-3 offset-1 col-form-label text-right">Segment maximum</label>
       <div class="input-group col-2">
         <g:textField id="max" name="max" value="${segment?.max}" class="form-control bottom-border numeric-field"  maxLength="9" />
-      </div>
-    </div>
-
-    <div class="row form-group mb-4">
-      <label class="col-3 offset-1 col-form-label text-right">Segment Type</label>
-      <div class="input-group col-2">
-        <g:select id="type" name="type" from="${['AGE', 'POINTS', 'SPEND']}" value="${segment?.type}"  class="form-control select-border"/>
       </div>
     </div>
 
