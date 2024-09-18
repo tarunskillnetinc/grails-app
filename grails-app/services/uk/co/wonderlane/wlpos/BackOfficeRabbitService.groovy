@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
+import grails.util.Holders
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -174,7 +175,8 @@ class BackOfficeRabbitService extends RabbitService {
     }
 
     void sendSenderExchangeMessage(String json) throws IOException, RabbitServiceException {
-        initVirtualHost(springSecurityService.principal.retailer.config.rabbitMqVirtualHost)
+        String defaultVirtualHost = Holders.grailsApplication.config.getProperty('rabbitmq.virtualHost') ?: '/'
+        initVirtualHost(defaultVirtualHost)
 
         if (channel.isOpen()) {
             sendExchangeMessage(senderExchange, json);
