@@ -13,6 +13,8 @@ import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 import uk.co.wonderlane.wlpos.enums.SegmentStatus
 import uk.co.wonderlane.wlpos.enums.SegmentType
+import uk.co.wonderlane.wlpos.loyalty.Offer
+import uk.co.wonderlane.wlpos.loyalty.OfferSegment
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.reporting.SortParams
 import groovy.json.JsonOutput
@@ -600,7 +602,7 @@ class LoyaltyController {
     def showLoyaltyOffer(){
         try {
             boolean isUpdate = false
-            LoyaltyOffer originalLoyaltyOffer = null
+            Offer originalLoyaltyOffer = null
             List<Integer> selectedSegmentIds = new ArrayList<>()
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
@@ -660,18 +662,18 @@ class LoyaltyController {
     }
 
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
-        LoyaltyOffer updatedLoyaltyOffer
+        Offer updatedLoyaltyOffer
         List<String> errorList = new ArrayList<>()
         try {
             if (loyaltyOfferCommand != null){
-                LoyaltyOffer originalLoyaltyOffer = null
+                Offer originalLoyaltyOffer = null
                 originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId()) //Load current loyalty offer value if exists
                 if (originalLoyaltyOffer == null){ //If no current loyalty exists create new one
-                    originalLoyaltyOffer = new LoyaltyOffer()
+                    originalLoyaltyOffer = new Offer()
                 }
-                List<LoyaltyOfferSegment> originalLoyaltyOfferSegments = loyaltyService.getLoyaltyOfferSegmentsById(originalLoyaltyOffer.id) //Load current loyalty offer segments
+                List<OfferSegment> originalLoyaltyOfferSegments = loyaltyService.getLoyaltyOfferSegmentsById(originalLoyaltyOffer.id) //Load current loyalty offer segments
                 updatedLoyaltyOffer = loyaltyService.populateUpdatedOffer(originalLoyaltyOffer, loyaltyOfferCommand) //Populate updated loyalty offer values
-                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(originalLoyaltyOfferSegments,
+                List<OfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(originalLoyaltyOfferSegments,
                         originalLoyaltyOffer.getLoyaltyOfferSegments()) //Get updated loyalty segments
                 //Save loyalty offers + loyalty offer segments + push saved loyalty offer into rabbitMQ
                 loyaltyService.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltySegments)
@@ -702,6 +704,8 @@ class LoyaltyController {
 class LoyaltyOfferCommand {
     int id
     String offerDescription
+    String offerMarketingText
+    String offerTermsText
     int retailerOfferId
     int retailerId
     LoyaltyOfferStatus status

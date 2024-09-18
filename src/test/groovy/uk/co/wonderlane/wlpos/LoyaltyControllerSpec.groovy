@@ -6,6 +6,7 @@ import grails.testing.web.controllers.ControllerUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
+import uk.co.wonderlane.wlpos.loyalty.Offer
 import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 import uk.co.wonderlane.wlpos.reporting.SortParams
@@ -40,7 +41,7 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
     def "should return the add member offer view when requested"() {
         given:
         controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
-            searchForAvailableOffersForMember(_, _) >> [new LoyaltyOffer()]
+            searchForAvailableOffersForMember(_, _) >> [new Offer()]
         }
 
         when:
@@ -96,7 +97,7 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
         }
 
         controller.loyaltyService = Stub(LoyaltyService) {
-            getLoyaltyOfferById(_) >> new LoyaltyOffer()
+            getLoyaltyOfferById(_) >> new Offer()
         }
 
         when:

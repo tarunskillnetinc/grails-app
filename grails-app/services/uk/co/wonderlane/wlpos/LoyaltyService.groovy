@@ -8,6 +8,9 @@ import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.SegmentStatus
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.loyalty.Offer
+import uk.co.wonderlane.wlpos.loyalty.OfferSegment
+
 import javax.xml.bind.ValidationException
 
 @Transactional("loyalty")
@@ -68,7 +71,7 @@ class LoyaltyService{
     }
 
     def getLoyaltyOffers(String searchTerm, String searchBy, int max, int offset, String sortColumn, String sortOrder){
-        def offers = LoyaltyOffer.createCriteria().list([offset: offset, max: max]) {
+        def offers = Offer.createCriteria().list([offset: offset, max: max]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             or {
                 if (searchBy == 'Description') {
@@ -84,24 +87,26 @@ class LoyaltyService{
             }
         }
 
-        int totalCount = LoyaltyOffer.withTransaction { offers.totalCount }
+        int totalCount = Offer.withTransaction { offers.totalCount }
 
         return [totalCount: totalCount, offers: offers]
     }
 
     def getLoyaltyOfferById(int id){
-        return LoyaltyOffer.findById(id)
+        return Offer.findById(id)
     }
 
-    List<LoyaltyOfferSegment> getLoyaltyOfferSegmentsById(int offerId){
-        return LoyaltyOfferSegment.withCriteria {
+    List<OfferSegment> getLoyaltyOfferSegmentsById(int offerId){
+        return OfferSegment.withCriteria {
             eq ("offerId", offerId)
         }
     }
 
-    protected LoyaltyOffer populateUpdatedOffer(LoyaltyOffer originalLoyaltyOffer, LoyaltyOfferCommand loyaltyOfferCommand) {
+    protected Offer populateUpdatedOffer(Offer originalLoyaltyOffer, LoyaltyOfferCommand loyaltyOfferCommand) {
         originalLoyaltyOffer.id = loyaltyOfferCommand.id
         originalLoyaltyOffer.offerDescription = loyaltyOfferCommand.offerDescription
+        originalLoyaltyOffer.marketingText = loyaltyOfferCommand.offerMarketingText
+        originalLoyaltyOffer.termsText = loyaltyOfferCommand.offerTermsText
         originalLoyaltyOffer.retailerOfferId = loyaltyOfferCommand.retailerOfferId
         originalLoyaltyOffer.retailerId = springSecurityService.principal.retailerId
         originalLoyaltyOffer.status = loyaltyOfferCommand.status
@@ -118,7 +123,7 @@ class LoyaltyService{
         loyaltyOfferCommand.loyaltyOfferSegments.each {
             offerSegment ->
                 {
-                    LoyaltyOfferSegment loyaltyOfferSegment = new LoyaltyOfferSegment()
+                    OfferSegment loyaltyOfferSegment = new OfferSegment()
                     loyaltyOfferSegment.id = offerSegment.id
                     loyaltyOfferSegment.offerId = offerSegment.offerId
                     loyaltyOfferSegment.segmentId = offerSegment.segmentId
@@ -130,8 +135,8 @@ class LoyaltyService{
         return originalLoyaltyOffer
     }
 
-    protected List<LoyaltyOfferSegment> updateLoyaltySegments(List<LoyaltyOfferSegment> originalLoyaltyOfferSegments, List<LoyaltyOfferSegment> updatedLoyaltyOfferSegments){
-        List<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
+    protected List<OfferSegment> updateLoyaltySegments(List<OfferSegment> originalLoyaltyOfferSegments, List<OfferSegment> updatedLoyaltyOfferSegments){
+        List<OfferSegment> loyaltyOfferSegments = new ArrayList<>()
 
         //Loop over existing loyalty segments to identify deleted segments
         originalLoyaltyOfferSegments?.each {
@@ -161,9 +166,9 @@ class LoyaltyService{
     }
 
     @Transactional("loyalty")
-    def loyaltyOfferSave(LoyaltyOffer updatedOffer, List<LoyaltyOfferSegment> loyaltyOfferSegmentList){
+    def loyaltyOfferSave(Offer updatedOffer, List<OfferSegment> loyaltyOfferSegmentList){
         try {
-            LoyaltyOffer insertedOffer = saveLoyaltyOffer(updatedOffer)
+            Offer insertedOffer = saveLoyaltyOffer(updatedOffer)
             saveLoyaltySegments(loyaltyOfferSegmentList, insertedOffer)
             pushLoyaltyOfferIntoRabbitMQ(updatedOffer)
         }catch(Exception ex){
@@ -172,7 +177,7 @@ class LoyaltyService{
         }
     }
 
-    private pushLoyaltyOfferIntoRabbitMQ(LoyaltyOffer updatedOffer){
+    private pushLoyaltyOfferIntoRabbitMQ(Offer updatedOffer){
         try {
             SyncMessage loyaltyOfferSyncMessage = new SyncMessage(SyncMessageType.LOYALTY_OFFER, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
             loyaltyOfferSyncMessage.setInsert(true)
@@ -184,7 +189,7 @@ class LoyaltyService{
         }
     }
 
-    private LoyaltyOffer saveLoyaltyOffer(LoyaltyOffer updatedOffer){
+    private Offer saveLoyaltyOffer(Offer updatedOffer){
         try {
             updatedOffer.validate()
             if (updatedOffer.hasErrors()) {
@@ -200,9 +205,9 @@ class LoyaltyService{
         }
     }
 
-    private saveLoyaltySegments(List<LoyaltyOfferSegment> loyaltyOfferSegmentList, LoyaltyOffer insertedOffer){
+    private saveLoyaltySegments(List<OfferSegment> loyaltyOfferSegmentList, Offer insertedOffer){
         try {
-            for (LoyaltyOfferSegment loyaltyOfferSegment : loyaltyOfferSegmentList){
+            for (OfferSegment loyaltyOfferSegment : loyaltyOfferSegmentList){
                 loyaltyOfferSegment.validate()
                 if (loyaltyOfferSegment.hasErrors()){
                     throw new ValidationException("updatedOffer.errors") // Throw an exception with the Errors object
@@ -235,7 +240,7 @@ class LoyaltyService{
 
     def updatedLoyaltyOfferCustomerCount(Integer offerId){
         try {
-            LoyaltyOffer loyaltyOffer = getLoyaltyOfferById(offerId)
+            Offer loyaltyOffer = getLoyaltyOfferById(offerId)
             loyaltyOffer.setCurrentCustomers(loyaltyOffer.getCurrentCustomers() + 1)
             saveLoyaltyOffer(loyaltyOffer)
         } catch (Exception ex) {

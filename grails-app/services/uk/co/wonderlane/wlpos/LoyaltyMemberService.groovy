@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.transaction.annotation.Propagation
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
+import uk.co.wonderlane.wlpos.loyalty.Offer
 import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 
@@ -186,7 +187,7 @@ class LoyaltyMemberService {
         def currentDateTime = new DateTime()
 
         // Filter LoyaltyOffer objects by status and date range
-        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "${offerDescription}%")
+        def activeOffers = Offer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "${offerDescription}%")
 
         // Get the offers that are not linked to the member
         def offersNotLinkedToMember = activeOffers.findAll { offer ->
@@ -204,7 +205,7 @@ class LoyaltyMemberService {
         def result = false
         try {
             def member = Member.get(memberId)
-            def offer = LoyaltyOffer.get(offerId)
+            def offer = Offer.get(offerId)
 
             memberOffer.member = member
             memberOffer.offer = offer

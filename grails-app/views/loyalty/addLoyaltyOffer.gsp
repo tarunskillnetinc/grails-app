@@ -280,6 +280,8 @@
 
             var offerId = $('#offerId').val();
             var offerDescription = $('#offerDescriptionId').val();
+            var offerMarketingText = $('#offerMarketingTextId').val();
+            var offerTermsText = $('#offerTermsTextId').val();
             var offerStartDate = $('#offerStartDateId').val();
             var offerEndDate = $('#offerEndDateId').val();
             var offerMaxRedemption = $('#offerMaxRedemptionsId').val();
@@ -297,6 +299,8 @@
             var params = {
                 id: offerId,
                 offerDescription: offerDescription,
+                offerMarketingText: offerMarketingText,
+                offerTermsText: offerTermsText,
                 startDate: offerStartDate,
                 endDate: offerEndDate,
                 maxBudget: offerMaxBudget,
@@ -446,7 +450,7 @@
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                         <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="loyalty" action="loyaltyOffers">Loyalty Offer Management</g:link></li>
-                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Add Loyalty Offer</li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${isUpdate ? 'Edit' : 'Add'} Loyalty Offer</li>
                     </ol>
                 </div>
             </div>
@@ -456,7 +460,7 @@
     <section id="add-loyalty-offer-section" class="container-fluid">
         <div class="row header-wl mt-3" id="add-loyalty-offer-header">
             <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Add Loyalty Offer</h2>
+                <h2 class="mx-auto my-auto">${isUpdate ? 'Edit' : 'Add'} Loyalty Offer</h2>
             </div>
 
             <div class="col-2 text-right">
@@ -471,42 +475,53 @@
             <g:hiddenField name="offerId" value="${loyaltyOffer?.id ?: 0}" />
 
             <div class="row mt-5 mb-3">
-                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerDescription" for="offerDescription" class="col-4 col-form-label text-right pr-4">Offer Description</label>
-                    <g:textField name="offerDescription" id="offerDescriptionId" class="col-5 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" autocomplete="off" />
+                    <g:textField name="offerDescription" id="offerDescriptionId" class="col-6 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" autocomplete="off" />
                 </div>
-                <div class="form-group row col-12 col-sm-5">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="role" for="role" class="col-4 col-form-label text-right pr-4">Status</label>
-                    <g:select name="role" id="offerStatusId" class="col-3 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status ? loyaltyOffer?.status : defaultStatus}" valueMessagePrefix="Role" />
+                    <g:select name="role" id="offerStatusId" class="col-6 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status ? loyaltyOffer?.status : defaultStatus}" valueMessagePrefix="Role" />
                 </div>
             </div>
 
             <div class="row mt-2 mb-3">
-                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerStartDate" for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
-                    <g:textField name="offerStartDate" id="offerStartDateId" class="col-5 form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" readonly="false"/>
+                    <g:textField name="offerStartDate" id="offerStartDateId" class="col-6 form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" readonly="false"/>
                 </div>
-                <div class="form-group row col-12 col-sm-5">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerEndDate" for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
-                    <g:textField name="offerEndDate" id="offerEndDateId" class="col-5 form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" readonly="false"/>
+                    <g:textField name="offerEndDate" id="offerEndDateId" class="col-6 form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" readonly="false"/>
                 </div>
             </div>
 
             <div class="row mt-2 mb-5">
-                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerMaxRedemptions" for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
-                    <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-5 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
+                    <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-6 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
                 </div>
-                <div class="form-group row col-12 col-sm-5">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerMaxBudget" for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
-                    <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-5 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxBudget}" autocomplete="off" />
+                    <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-6 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxBudget}" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="row mt-2 mb-5">
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerMarketingText" for="offerMarketingText" class="col-4 col-form-label text-right pr-4">Marketing Text</label>
+                    <g:textArea name="offerMarketingText" id="offerMarketingTextId" class="col-6 form-control select-border" value="${loyaltyOffer?.marketingText}" rows="5" />
+                </div>
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerTermsText" for="offerTermsText" class="col-4 col-form-label text-right pr-4">Terms &amp; Conditions</label>
+                    <g:textArea name="offerTermsText" id="offerTermsTextId" class="col-6 form-control select-border" value="${loyaltyOffer?.termsText}" rows="5" />
                 </div>
             </div>
 
             <div class="row mt-5 mb-3">
-                <div class="form-group row col-12 col-sm-6 offset-sm-1">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerPromotionAssigned" for="offerPromotionAssigned" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
-                    <div class="dropdown-content col-5">
+                    <div class="dropdown-content col-6">
                         <div class="input-group-append">
                             <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput"
                                    oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
@@ -520,9 +535,9 @@
                     </div>
                 </div>
 
-                <div class="form-group row col-12 col-12 col-sm-5">
+                <div class="form-group row col-12 col-sm-6">
                     <label id="offerSegmentAssigned" for="offerSegmentAssigned" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
-                    <div class="dropdown-content col-5">
+                    <div class="dropdown-content col-6">
                         <div class="input-group-append">
                             <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput"
                                 oninput="filterDropdown('offerSegmentAssignedInput', 'offerSegmentAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
