@@ -896,7 +896,7 @@
                             <div class="form-group row">
                                 <label for="loyaltyEnableFlag" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Enable</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="loyaltyEnableFlag" name="loyaltyConfig.isLoyaltyEnable"  ${retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="loyaltyEnableFlag" name="loyaltyConfig.isLoyaltyEnabled"  ${retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? 'checked' : ''} />
                                 </div>
                             </div>
 
