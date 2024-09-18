@@ -703,8 +703,18 @@ class PromotionGroupCommand implements Validateable {
         tagId nullable: true, validator: { val, obj ->
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
-        requiredQuantity nullable: true, range:1..999999999
-        requiredValue nullable: true, min: 0.02, max:9999.99, scale: 2
+        requiredQuantity nullable: true, range:1..999999999, validator: { val, obj ->
+            if (val != null && obj.requiredValue != null) {
+                return 'error.Promotion.requiredQuantityAndRequiredValueBothSet'
+            }
+            (val != null && obj.requiredValue == null) || (val == null && obj.requiredValue != null)
+        }
+        requiredValue nullable:true, min: 0.02, max:9999.99, scale: 2, validator: {val, obj ->
+            if (val != null && obj.requiredQuantity != null) {
+                return 'error.Promotion.requiredQuantityAndRequiredValueBothSet'
+            }
+            (val != null && obj.requiredQuantity == null) || (val == null && obj.requiredQuantity != null)
+        }
     }
 }
 
