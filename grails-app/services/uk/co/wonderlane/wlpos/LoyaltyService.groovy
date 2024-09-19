@@ -4,40 +4,76 @@ import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.validation.Errors
+import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
+import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.SegmentStatus
+import uk.co.wonderlane.wlpos.enums.SegmentType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.loyalty.Offer
 import uk.co.wonderlane.wlpos.loyalty.OfferSegment
 
 import javax.xml.bind.ValidationException
+import java.sql.CallableStatement
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.Types
 
 @Transactional("loyalty")
-class LoyaltyService{
+class LoyaltyService extends MySqlDal {
 
     def springSecurityService
     def messageSource
     def rabbitService
 
+    LoyaltyService(DatabaseCredentials databaseCredentials) {
+        super(databaseCredentials)
+    }
+
     def getSegment(String searchTerm, String searchBy, String segmentStatus, int max, int offset, String sortColumn, String sortOrder) {
-        def segments = Segment.createCriteria().list([offset: offset, max: max, sort: sortColumn, order: sortOrder]) {
-            eq ("retailerId", springSecurityService.principal.retailerId)
+        def conn = getConnection()
+        def getSegmentsStatement = conn.prepareCall("{ call getSegments(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
-            if (segmentStatus != "") {
-                eq ("status", SegmentStatus.valueOf(segmentStatus))
-            }
+        def segments = []
+        int totalCount = 0
 
-            or {
-                if (searchBy == 'Name') {
-                    ilike("name", "%$searchTerm%")
-                } else if (searchBy == 'Description') {
-                    ilike("description", "%$searchTerm%")
+        try {
+            getSegmentsStatement.setInt(1, springSecurityService.principal.retailerId)
+            getSegmentsStatement.setString(2, searchTerm)
+            getSegmentsStatement.setString(3, searchBy)
+            getSegmentsStatement.setString(4, segmentStatus)
+            getSegmentsStatement.setString(5, sortColumn)
+            getSegmentsStatement.setString(6, sortOrder)
+            getSegmentsStatement.setInt(7, max)
+            getSegmentsStatement.setInt(8, offset)
+            getSegmentsStatement.registerOutParameter(9, java.sql.Types.INTEGER)
+
+            def resultSet = getSegmentsStatement.executeQuery()
+
+            try {
+                while (resultSet.next()) {
+                    segments.add(new Segment(
+                        resultSet.getInt("id"),
+                        resultSet.getInt("retailer_id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("description"),
+                        SegmentType.valueOf(resultSet.getString("type")),
+                        resultSet.getInt("min"),
+                        resultSet.getInt("max"),
+                        resultSet.getLong("count") as int,
+                        SegmentStatus.valueOf(resultSet.getString("status"))
+                    ))
                 }
-            }
-        }
 
-        int totalCount = Segment.withTransaction { segments.totalCount }
+                totalCount = getSegmentsStatement.getInt(9);
+            } finally {
+                resultSet.close()
+            }
+        } finally {
+            getSegmentsStatement.close()
+            conn.close();
+        }
 
         return [totalCount: totalCount, segments: segments]
     }

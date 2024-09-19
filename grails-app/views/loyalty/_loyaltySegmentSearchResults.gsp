@@ -50,7 +50,7 @@
 </div>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="ajaxSearchLoyaltySegment" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: searchTerm,
+    <util:remotePaginate action="ajaxSearchLoyaltySegment" total="${totalCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 20}" params="[searchTerm: searchTerm,
                                                                                                                                                                      searchBy: searchBy,
                                                                                                                                                                      sortColumn: sortColumn,
                                                                                                                                                                      sortOrder: sortOrder]" />
