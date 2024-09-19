@@ -45,14 +45,14 @@ class PromotionController {
     }
 
     def add() {
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
-        [promotionTypes: PromotionType.values(), canEdit: true, loyaltyEnable: loyaltyEnable]
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        [promotionTypes: PromotionType.values(), canEdit: true, loyaltyEnabled: loyaltyEnabled]
 
     }
 
     def edit(int id) {
         def promotion = promotionService.getPromotion(id)
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         if (!promotion) {
             flash.error = "Promotion not found"
@@ -81,7 +81,7 @@ class PromotionController {
         session.addedStores = promotion?.stores
 
 
-        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit, loyaltyEnable: loyaltyEnable])
+        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit, loyaltyEnabled: loyaltyEnabled])
     }
 
     def ajaxSearchTags(String searchTerm) {

@@ -75,10 +75,10 @@ class CategoryController extends BaseController {
         blankCategory.restrictions.discountAllowed = true
         blankCategory.restrictions.creditPaymentAllowed = true
         blankCategory.restrictions.quantityChangeAllowed = true
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
 
-        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnable: loyaltyEnable])
+        render(view: "maintenance", model: [category: blankCategory, addCategory: true, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled])
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
@@ -210,9 +210,9 @@ class CategoryController extends BaseController {
             tempCategory = tempCategory.parentCategory
         }
 
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ?true : false
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ?true : false
 
-        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnable: loyaltyEnable])
+        render(view: "maintenance", model: [category: category, addCategory: false, categoryList: categoryList, topLevelCategories: categoryService.getTopLevelCategories(), loyaltyEnabled: loyaltyEnabled])
     }
 
     private boolean isValidParentCategory(int childId, Category parentCategory) {

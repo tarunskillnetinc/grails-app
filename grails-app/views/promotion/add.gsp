@@ -64,7 +64,7 @@
             });
 
             function viewOptionForLoyaltyEnable(){
-                $("#loyalty").attr("disabled", !${loyaltyEnable});
+                $("#loyalty").attr("disabled", !${loyaltyEnabled});
             }
 
             function resetTempSelectedStoreIds() {
