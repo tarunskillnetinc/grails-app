@@ -9,7 +9,7 @@ class Segment {
     Integer id
     int retailerId
     String description
-    int count
+    transient int count
     String name
     SegmentType type = SegmentType.SPEND
     Integer min = 0
@@ -17,10 +17,21 @@ class Segment {
     SegmentStatus status = SegmentStatus.ACTIVE
     DateTime dateModified
 
+    public Segment(Integer id, int retailerId, String name, String description, SegmentType type, Integer min, Integer max, int count, SegmentStatus status) {
+        this.id = id
+        this.retailerId = retailerId
+        this.name = name
+        this.description = description
+        this.type = type
+        this.min = min
+        this.max = max
+        this.count = count
+        this.status = status
+    }
+
     static constraints = {
         retailerId nullable: false
         description nullable: false
-        count nullable: false
         name nullable: false
         type nullable: false
         min nullable: false
@@ -38,7 +49,6 @@ class Segment {
         id column: "id", sqlType: "int"
         retailerId column: "retailer_id"
         description column: "description"
-        count column: "count"
         name column: "name"
         type column: "type", sqlType: "enum", enumType: 'string'
         min column: "min"
@@ -54,7 +64,7 @@ class Segment {
                 value = "Age group ${min} to ${max}"
                 break
             case SegmentType.POINTS:
-                    value = "Loyalty Points ${min} - ${max}"
+                value = "Loyalty Points ${min} - ${max}"
                 break
             case SegmentType.SPEND:
                 value = "Amount in £${min} - £${max}"
