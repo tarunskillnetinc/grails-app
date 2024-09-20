@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.GsonBuilder
-import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
@@ -56,14 +55,40 @@ class CashManagementController {
     def save(CashManagementFormData cashManagementFormData) {
         def errorMessages = []
 
+        def onlyRetailerLevel = cashManagementFormData.modelOnlyRetailerLevel
+
         def patternDays = /^(1?2?3?4?5?6?7?)$/
         def patternTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/
 
-        if (cashManagementFormData.automaticCloseDays != null && !(cashManagementFormData.automaticCloseDays ==~ patternDays)) {
-            errorMessages << "Automatic close days format incorrect."
-        }
-        if (cashManagementFormData.automaticCloseTime != null && !(cashManagementFormData.automaticCloseTime ==~ patternTime)) {
-            errorMessages << "Automatic close time format incorrect."
+        if (onlyRetailerLevel) {
+            if (cashManagementFormData.automaticCloseDays != null && !(cashManagementFormData.automaticCloseDays ==~ patternDays)) {
+                errorMessages << "Automatic close days format incorrect."
+            }
+            if (cashManagementFormData.automaticCloseTime != null && !(cashManagementFormData.automaticCloseTime ==~ patternTime)) {
+                errorMessages << "Automatic close time format incorrect."
+            }
+            if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
+                errorMessages << "Till auto snapshot days format incorrect."
+            }
+            if (cashManagementFormData.tillAutoSnapshotTime != null && !(cashManagementFormData.tillAutoSnapshotTime ==~ patternTime)) {
+                errorMessages << "Till auto snapshot time format incorrect."
+            }
+            if (cashManagementFormData.safeAutoSnapshotDays != null && !(cashManagementFormData.safeAutoSnapshotDays ==~ patternDays)) {
+                errorMessages << "Safe auto snapshot days format incorrect."
+            }
+            if (cashManagementFormData.safeAutoSnapshotTime == null || cashManagementFormData.safeAutoSnapshotTime.isEmpty()) {
+                errorMessages << "Safe auto snapshot time cannot be empty."
+            } else if (!(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
+                errorMessages << "Safe auto snapshot time format incorrect."
+            }
+        } else {
+            CashManagement retailerLevelCashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,null)
+            if (retailerLevelCashManagement == null || retailerLevelCashManagement.getConfig() == null) {
+                errorMessages << "Retailer level Cash Management not configured yet."
+            } else {
+                //Restricted fields are not allowed to modify.
+                preventRestrictedFieldModifications(retailerLevelCashManagement, cashManagementFormData)
+            }
         }
 
         if (cashManagementFormData.rollingFloatValue == null) {
@@ -77,20 +102,6 @@ class CashManagementController {
         }
         if (cashManagementFormData.safeVarianceLimit != null &&  (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.99)) {
             errorMessages << "Safe variance limit must have a value between 0.00 and 999.99."
-        }
-        if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
-            errorMessages << "Till auto snapshot days format incorrect."
-        }
-        if (cashManagementFormData.tillAutoSnapshotTime != null && !(cashManagementFormData.tillAutoSnapshotTime ==~ patternTime)) {
-            errorMessages << "Till auto snapshot time format incorrect."
-        }
-        if (cashManagementFormData.safeAutoSnapshotDays != null && !(cashManagementFormData.safeAutoSnapshotDays ==~ patternDays)) {
-            errorMessages << "Safe auto snapshot days format incorrect."
-        }
-        if (cashManagementFormData.safeAutoSnapshotTime == null || cashManagementFormData.safeAutoSnapshotTime.isEmpty()) {
-            errorMessages << "Safe auto snapshot time cannot be empty."
-        } else if (!(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
-            errorMessages << "Safe auto snapshot time format incorrect."
         }
         if (cashManagementFormData.tillCashHoldingLimit != null &&  (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
             errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.99."
@@ -112,9 +123,36 @@ class CashManagementController {
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
-            flash.message = ["Cash Management saved successfully."]
+            flash.message = ["Configurations saved successfully."]
             redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         }
+    }
+
+    /**
+     * Restricted fields are not allowed to modify.
+     */
+    private void preventRestrictedFieldModifications(CashManagement retailerLevelCashManagement, CashManagementFormData cashManagementFormData) {
+        CashManagementConfig cashManagementConfig = retailerLevelCashManagement.getConfig()
+        cashManagementFormData.manualOrAutoOpen = cashManagementConfig.isTillShiftsManualOpen()
+        cashManagementFormData.manualOrAutoClose = cashManagementConfig.isTillShiftsManualClose()
+        if (cashManagementConfig.getTillShiftsAutoCloseDays() != null && cashManagementConfig.getTillShiftsAutoCloseDays().size() > 0) {
+            cashManagementFormData.automaticCloseDays = new String(cashManagementConfig.getTillShiftsAutoCloseDays())
+        } else {
+            cashManagementFormData.automaticCloseDays = ""
+        }
+        cashManagementFormData.automaticCloseTime = cashManagementConfig.getTillShiftsAutoCloseTime()
+        if (cashManagementConfig.getTillAutoSnapshotDays() != null && cashManagementConfig.getTillAutoSnapshotDays().size() > 0) {
+            cashManagementFormData.tillAutoSnapshotDays = new String(cashManagementConfig.getTillAutoSnapshotDays())
+        } else {
+            cashManagementFormData.tillAutoSnapshotDays = ""
+        }
+        cashManagementFormData.tillAutoSnapshotTime = cashManagementConfig.getTillAutoSnapshotTime()
+        if (cashManagementConfig.getSafeAutoSnapshotDays() != null && cashManagementConfig.getSafeAutoSnapshotDays().size() > 0) {
+            cashManagementFormData.safeAutoSnapshotDays = new String(cashManagementConfig.getSafeAutoSnapshotDays())
+        } else {
+            cashManagementFormData.safeAutoSnapshotDays = ""
+        }
+        cashManagementFormData.safeAutoSnapshotTime = cashManagementConfig.getSafeAutoSnapshotTime()
     }
 
     def deleteStoreLevelConfig(Integer storeId) {
@@ -123,7 +161,7 @@ class CashManagementController {
         }
         def isStoreLevelLogin = params.isStoreLevelLogin
         cashManagementService.deleteStoreLevelConfig(storeId)
-        flash.message = ["Successfully revert to retailer level."]
+        flash.message = ["Successfully reverted to retailer level."]
         redirect(action: "index", params:[isStoreLevelLogin:isStoreLevelLogin, storeId: storeId])
     }
 

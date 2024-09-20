@@ -1,9 +1,3 @@
-<asset:stylesheet src="multi-select-checks.css" />
-
-<asset:javascript src="validators/input-validator.js" />
-<asset:javascript src="popper.min.js" />
-<asset:javascript src="multi-select-checks.js" />
-<asset:javascript src="money-mask.js" />
 
 <script type='text/javascript'>
 
@@ -141,20 +135,22 @@
 
             var storeId = ${storeId?storeId:-1}; // Replace this with actual storeId you want to send
 
-            $.ajax({
-                type: 'POST',
-                url: '${createLink(controller: "cashManagement", action: "deleteStoreLevelConfig")}', // API endpoint
-                data: {
-                    storeId: storeId,
-                    isStoreLevelLogin: isStoreLevelLogin
-                },
-                success: function(response) {
-                    $('#cash-container').html(response);
-                },
-                error: function(xhr, status, error) {
-                    // Handle error
-                    alert("Error occurred: " + error);
-                }
+            confirmAndSubmit('Are you sure you want to revert to the default config?', function(){
+                $.ajax({
+                    type: 'POST',
+                    url: '${createLink(controller: "cashManagement", action: "deleteStoreLevelConfig")}', // API endpoint
+                    data: {
+                        storeId: storeId,
+                        isStoreLevelLogin: isStoreLevelLogin
+                    },
+                    success: function(response) {
+                        $('#cash-container').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error
+                        alert("Error occurred: " + error);
+                    }
+                });
             });
         });
     }
@@ -248,6 +244,17 @@
         });
     }
 
+    function confirmAndSubmit(message, yesCallBack) {
+        let result = confirm(message);
+        if (result) {
+            yesCallBack();
+        }
+    }
+
+    function submitForm() {
+        $('#save-form').submit();
+    }
+
 </script>
 
 <section id="header-container" class="container-fluid">
@@ -256,23 +263,30 @@
             <h2 id="page-title" class="mx-auto my-auto">Cash Management</h2>
         </div>
 
-        <div class="col-2 text-right mt-3">
-            <g:if test="${onlyRetailerLevel && isStoreLevelLogin==null}">
-                <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
-            </g:if>
-            <g:if test="${isStoreLevelLogin?isStoreLevelLogin:false}">
-                <g:link elementId="cancel-btn" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true]" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
-            </g:if>
-            <g:if test="${isStoreLevelLogin == null && storeId != null}">
-                <button id="cancel-btn-store-level" class="btn btn-wl" name="save">Cancel</button>
-            </g:if>
-            <g:if test="${(isStoreLevelLogin?isStoreLevelLogin:false) && storeLevelExist}">
-                <g:link elementId="revert-btn" controller="cashManagement" action="deleteStoreLevelConfig" params="[storeId:storeId,isStoreLevelLogin:true]" tabindex="-1" role="button" class="btn btn-danger">Revert</g:link>
-            </g:if>
-            <g:if test="${(isStoreLevelLogin == null && storeId != null) && storeLevelExist}">
-                <button id="revert-store-level-btn" class="btn btn-danger" name="revert">Revert</button>
-            </g:if>
-            <button id="save-btn" class="btn btn-success" name="save" onclick="$('#save-form').submit();">Save</button>
+        <div class="col-12 text-right mt-3">
+            <div class="d-flex justify-content-end align-items-center">
+                <g:if test="${onlyRetailerLevel && isStoreLevelLogin==null}">
+                    <g:link elementId="cancel-btn" controller="cashManagement" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
+                </g:if>
+                <g:if test="${isStoreLevelLogin?isStoreLevelLogin:false}">
+                    <g:link elementId="cancel-btn" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true]" action="index" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
+                </g:if>
+                <g:if test="${isStoreLevelLogin == null && storeId != null}">
+                    <button id="cancel-btn-store-level" class="btn btn-wl ml-1" name="save">Cancel</button>
+                </g:if>
+                <g:if test="${(isStoreLevelLogin?isStoreLevelLogin:false) && storeLevelExist}">
+                    <g:link elementId="revert-btn" controller="cashManagement" action="deleteStoreLevelConfig" params="[storeId:storeId,isStoreLevelLogin:true]" tabindex="-1" role="button" class="btn btn-danger ml-1">Use Default Config</g:link>
+                </g:if>
+                <g:if test="${(isStoreLevelLogin == null && storeId != null) && storeLevelExist}">
+                    <button id="revert-store-level-btn" class="btn btn-danger ml-1" name="revert">Use Default Config</button>
+                </g:if>
+                <g:if test="${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist}">
+                    <button id="save-btn" class="btn btn-success ml-1" name="save" onclick="confirmAndSubmit('Are you sure you want to override the default config?', submitForm);">Override Default Config</button>
+                </g:if>
+                <g:else>
+                    <button id="save-btn" class="btn btn-success ml-1" name="save" onclick="submitForm();">Save</button>
+                </g:else>
+            </div>
         </div>
     </div>
 </section>
@@ -331,11 +345,11 @@
                                 <label for="isManualOpen" class="col-12 col-lg-4 text-right align-self-center">Open Type</label>
                                 <div class="col-12 col-lg-6">
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" name="manualOrAutoOpen" id="manualOpen" value="manual" ${config?.tillShiftsManualOpen ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                        <input type="radio" class="form-check-input" name="manualOrAutoOpen" id="manualOpen" value="manual" ${config?.tillShiftsManualOpen ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                         <label class="form-check-label" for="manualOpen">Manual</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" name="manualOrAutoOpen" id="autoOpen" value="auto" ${!config?.tillShiftsManualOpen ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                        <input type="radio" class="form-check-input" name="manualOrAutoOpen" id="autoOpen" value="auto" ${!config?.tillShiftsManualOpen ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                         <label class="form-check-label" for="autoOpen">Auto</label>
                                     </div>
                                 </div>
@@ -346,11 +360,11 @@
                                 <label for="isManualClose" class="col-12 col-lg-4 text-right align-self-center">Close Type</label>
                                 <div class="col-12 col-lg-6">
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" name="manualOrAutoClose" id="manualClose" value="manual" ${config ? config?.tillShiftsManualClose ? 'checked' : '':'checked'} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                        <input type="radio" class="form-check-input" name="manualOrAutoClose" id="manualClose" value="manual" ${config ? config?.tillShiftsManualClose ? 'checked' : '':'checked'} ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                         <label class="form-check-label" for="manualClose">Manual</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" name="manualOrAutoClose" id="autoClose" value="auto" ${config ? !config?.tillShiftsManualClose ? 'checked' : '' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                        <input type="radio" class="form-check-input" name="manualOrAutoClose" id="autoClose" value="auto" ${config ? !config?.tillShiftsManualClose ? 'checked' : '' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                         <label class="form-check-label" for="autoClose">Auto</label>
                                     </div>
                                 </div>
@@ -442,7 +456,7 @@
                             <div class="form-group row">
                                 <label for="tillAutoSnapshotDays" class="col-12 col-lg-4 text-right align-self-center">Till Auto Snapshot Days</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays" value="${config?config.tillAutoSnapshotDaysFormatted?config.tillAutoSnapshotDaysFormatted:'':'1234567'}" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="hidden" id="tillAutoSnapshotDays" name="tillAutoSnapshotDays" value="${config?config.tillAutoSnapshotDaysFormatted?config.tillAutoSnapshotDaysFormatted:'':'1234567'}" ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                     <div id="tillAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
@@ -451,7 +465,7 @@
                             <div class="form-group row">
                                 <label for="tillAutoSnapshotTime" class="col-12 col-lg-4 text-right align-self-center">Till Auto Snapshot Time</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${config?config.tillAutoSnapshotTime?config.tillAutoSnapshotTime:'':'10:00'}" placeholder="HH:mm" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="tillAutoSnapshotTime" id="tillAutoSnapshotTime" value="${config?config.tillAutoSnapshotTime?config.tillAutoSnapshotTime:'':'10:00'}" placeholder="HH:mm" ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                 </div>
                             </div>
 
@@ -459,7 +473,7 @@
                             <div class="form-group row">
                                 <label for="safeAutoSnapshotDays" class="col-12 col-lg-4 text-right align-self-center">Safe Auto Snapshot Days</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays" value="${config?config.safeAutoSnapshotDaysFormatted?config.safeAutoSnapshotDaysFormatted:'':'1234567'}" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="hidden" id="safeAutoSnapshotDays" name="safeAutoSnapshotDays" value="${config?config.safeAutoSnapshotDaysFormatted?config.safeAutoSnapshotDaysFormatted:'':'1234567'}" ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                     <div id="safeAutoSnapshotDaysSelector"></div>
                                 </div>
                             </div>
@@ -468,7 +482,7 @@
                             <div class="form-group row">
                                 <label for="safeAutoSnapshotTime" class="col-12 col-lg-4 text-right align-self-center">Safe Auto Snapshot Time</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${config?config.safeAutoSnapshotTime?config.safeAutoSnapshotTime:'':'10:00'}" placeholder="HH:mm" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="safeAutoSnapshotTime" id="safeAutoSnapshotTime" value="${config?config.safeAutoSnapshotTime?config.safeAutoSnapshotTime:'':'10:00'}" placeholder="HH:mm" ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                 </div>
                             </div>
 
