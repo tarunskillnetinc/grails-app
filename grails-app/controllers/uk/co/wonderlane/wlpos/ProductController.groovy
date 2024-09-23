@@ -873,9 +873,14 @@ class ProductController extends BaseController {
 
     private void checkPackForBarcodeChanges(def packs, def product, def existingPack, def editedPack, DateTime effectiveDate, int variantId) {
         editedPack.barcodez?.each { editedBarcode ->
-            def existingBarcode = existingPack.barcodes?.find { existingBarcode -> existingBarcode.barcode == editedBarcode.barcode }
+            def existingDbBarcode = existingPack.barcodes?.find { existingBarcode ->
+                existingBarcode.barcode == editedBarcode.barcode
+            }
+            def existingLocalBarcode = existingPack.barcodez?.find { existingBarcode ->
+                existingBarcode.barcode == editedBarcode.barcode
+            }
 
-            if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
+            if (!existingDbBarcode) {  // If no existing barcode then treat as newly added barcodes.
                 Barcode barcode = new Barcode()
                 barcode.pack = existingPack
                 barcode.retailerId = springSecurityService.principal.retailerId
@@ -886,17 +891,17 @@ class ProductController extends BaseController {
 
                 if (!isValidBarcode(barcode)) {
                     rejectProduct(product, barcode.barcode, 'product.barcodes.notUnique', 'Barcode {0} already exists on another SKU.')
-                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs, variantId)) {
+                } else if (existingPack.supplier != null && !existingLocalBarcode && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs, variantId)) {
                     rejectProductByPackBarcode(product, barcode.barcode)
-                } else {
+                } else if (!existingLocalBarcode) {
                     existingPack.barcodez.add(barcode)
                 }
-            } else if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+            } else if (existingDbBarcode.barcode != null && existingDbBarcode.barcode != editedBarcode.barcode) {
                 // If barcode do exists change update existing values
                 // Only update if user has changed barcode value or else skip
                 //Mark current barcode to delete this will insert new mark delete entry to DB
-                existingBarcode.delete = true
-                existingBarcode.effectiveDeleteDate = effectiveDate
+                existingDbBarcode.delete = true
+                existingDbBarcode.effectiveDeleteDate = effectiveDate
                 //New effective date needed to be set as effective date of mark delete entry
 
                 //Add new barcode to replacing existing
@@ -916,7 +921,7 @@ class ProductController extends BaseController {
                     rejectProductByPackBarcode(product, futureBarcode.barcode)
                 } else {
                     //Add mark deleted barcode and newly updated barcode to add into DB
-                    existingPack.barcodez.add(existingBarcode)
+                    existingPack.barcodez.add(existingDbBarcode)
                     existingPack.barcodez.add(futureBarcode)
                 }
             }
