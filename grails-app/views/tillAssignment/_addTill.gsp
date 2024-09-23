@@ -68,10 +68,17 @@
             </div>
         </div>
 
-        <div id="registration-code-holder" class="border-top" style="display: none;">
-            <div id="registration-code" class="text-center mt-4 mb-5">Registration Code</div>
-            <div id="registration-code-value" class="text-center mt-4 mb-5"></div>
+        <div class="row form-group mb-4">
+            <label for="enableCashManagement" class="col-6 offset-1 col-form-label text-right">Enable Cash Management</label>
+            <div class="input-group col-1">
+                <input type="checkbox" class="form-control form-check-input wl-checkbox" name="enableCashManagement" id="enableCashManagement" ${enableCashManagement == null || enableCashManagement ? 'checked' : ''}/>
+            </div>
         </div>
+
+       <div id="registration-code-holder" class="border-top" style="display: none;">
+           <div id="registration-code" class="text-center mt-4 mb-5">Registration Code</div>
+           <div id="registration-code-value" class="text-center mt-4 mb-5"></div>
+       </div>
 
     </g:form>
 </div>

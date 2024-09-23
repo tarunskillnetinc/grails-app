@@ -247,6 +247,7 @@ class AddEditTillCommand implements Validateable {
     int storeId // Actually store number.
     String description
     String serialNumber
+    boolean enableCashManagement
 
     static constraints = {
         id nullable: true
@@ -263,6 +264,7 @@ class AddEditTillCommand implements Validateable {
         }
         storeId nullable: false, min: 1 // Actually store number.
         description nullable: true
+        enableCashManagement nullable:false
         serialNumber nullable: true, validator: { val, obj ->
             if (val) {
                 def existingTills = TillConfiguration.findAllByRetailerIdAndSerialNumber(obj.springSecurityService.principal.retailerId, val)
