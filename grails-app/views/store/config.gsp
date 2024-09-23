@@ -32,7 +32,7 @@
 
             });
 
-            $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeSettings?.id} + "&onlyRetailerLevel=false", function(data) {
+            $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeSettings?.id} + "&onlyRetailerLevel=false&storeNumber=${storeSettings?.config?.storeNumber}&storeName=${storeSettings?.config?.storeName}", function(data) {
                 $('#cash-container').html(data);
             });
 

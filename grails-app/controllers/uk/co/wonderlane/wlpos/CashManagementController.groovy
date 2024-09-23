@@ -9,12 +9,13 @@ class CashManagementController {
 
     def springSecurityService
     def cashManagementService
+    def storeService
 
     def gson = new GsonBuilder()
             .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
             .create()
 
-    def index(Integer storeId) {
+    def index(Integer storeId, String storeNumber, String storeName) {
         CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                 storeId)
         def storeLevelExist = storeId != null && cashManagement != null
@@ -36,6 +37,11 @@ class CashManagementController {
             cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                     null)
         }
+        if (storeId != null && storeNumber == null) {
+            def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+            storeNumber = store?.config?.storeNumber
+            storeName = store?.config?.storeName
+        }
         CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null
         if (cashManagement != null) {
             cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),
@@ -46,9 +52,9 @@ class CashManagementController {
         }
         if (storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
             // Render the example template when storeLevelExist is false
-            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId])
+            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId, storeNumber:storeNumber, storeName:storeName])
         } else {
-            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId]
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId, storeNumber:storeNumber, storeName:storeName]
         }
     }
 
@@ -137,8 +143,8 @@ class CashManagementController {
      */
     private void preventRestrictedFieldModifications(CashManagement retailerLevelCashManagement, CashManagementFormData cashManagementFormData) {
         CashManagementConfig cashManagementConfig = retailerLevelCashManagement.getConfig()
-        cashManagementFormData.manualOrAutoOpen = cashManagementConfig.isTillShiftsManualOpen()
-        cashManagementFormData.manualOrAutoClose = cashManagementConfig.isTillShiftsManualClose()
+        cashManagementFormData.manualOrAutoOpen = cashManagementConfig.isTillShiftsManualOpen() ? "manual" : "auto"
+        cashManagementFormData.manualOrAutoClose = cashManagementConfig.isTillShiftsManualClose() ? "manual" : "auto"
         if (cashManagementConfig.getTillShiftsAutoCloseDays() != null && cashManagementConfig.getTillShiftsAutoCloseDays().size() > 0) {
             cashManagementFormData.automaticCloseDays = new String(cashManagementConfig.getTillShiftsAutoCloseDays())
         } else {
@@ -163,7 +169,10 @@ class CashManagementController {
         if (params.storeId) {
             storeId = Integer.parseInt(params.storeId)
         }
-        def isStoreLevelLogin = params.isStoreLevelLogin
+        Boolean isStoreLevelLogin = null;
+        if (params.isStoreLevelLogin) {
+            isStoreLevelLogin = Boolean.parseBoolean(params.isStoreLevelLogin)
+        }
         cashManagementService.deleteStoreLevelConfig(storeId)
         flash.message = ["Successfully reverted to retailer level."]
         redirect(action: "index", params:[isStoreLevelLogin:isStoreLevelLogin, storeId: storeId])
