@@ -314,7 +314,7 @@
 </g:if>
 
 
-<section id="addProduct-section" class="container-fluid mt-4">
+<section id="cashManagement-section" class="container-fluid mt-4">
     <g:uploadForm id="save-form" name="save-form" action="save" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="modelOnlyRetailerLevel" value="${onlyRetailerLevel}">
         <input type="hidden" name="modelStoreLevelExist" value="${storeLevelExist}">
@@ -335,7 +335,17 @@
                 </div>
 
                 <div id="collapseGeneralDetails" class="collapse show" aria-labelledby="generalDetails" data-parent="#accordion">
-                    <div class="card-body py-5">
+                    <div class="card-body py-1">
+                        <g:if test="${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist}">
+                            <div class="message alert-wl text-sm-center p-1">
+                                Your store is currently using the default config, please select the override option at the top of the page to update the config specifically for this store. Please note that some config options are not overridable and will remain disabled.
+                            </div>
+                        </g:if>
+                        <g:if test="${(!onlyRetailerLevel || isStoreLevelLogin) && storeLevelExist}">
+                            <div class="message alert-wl text-sm-center p-1">
+                                    Your store is currently overriding the default config, to reset to the default please select the ‘Use Default Config’ option at the top of the page. Please note that some config options are not overridable and will remain disabled.
+                            </div>
+                        </g:if>
                         <div class="col-12">
 
                             <h5 class="text-center">Till Shifts</h5>
@@ -374,7 +384,7 @@
                             <div class="form-group row">
                                 <label for="automaticCloseDays" class="col-12 col-lg-4 text-right align-self-center">Automatic Close Days</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="hidden" id="automaticCloseDays" name="automaticCloseDays" value="${config?.automaticCloseDaysFormatted ? config?.automaticCloseDaysFormatted : ''}" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="hidden" id="automaticCloseDays" name="automaticCloseDays" value="${config?.automaticCloseDaysFormatted ? config?.automaticCloseDaysFormatted : ''}" ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                     <div id="automaticCloseDaysSelector"></div>
                                 </div>
                             </div>
@@ -383,7 +393,7 @@
                             <div class="form-group row">
                                 <label for="automaticCloseTime" class="col-12 col-lg-4 text-right align-self-center">Automatic Close Time</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="text" class="col-5 form-control bottom-border" name="automaticCloseTime" id="automaticCloseTime" value="${config?.tillShiftsAutoCloseTime}" placeholder="HH:mm" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="automaticCloseTime" id="automaticCloseTime" value="${config?.tillShiftsAutoCloseTime}" placeholder="HH:mm" ${(!onlyRetailerLevel || isStoreLevelLogin)? "disabled" : ""}/>
                                 </div>
                             </div>
 
