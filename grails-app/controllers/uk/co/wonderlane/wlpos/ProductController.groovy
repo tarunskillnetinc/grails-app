@@ -955,7 +955,34 @@ class ProductController extends BaseController {
             }
         }
 
-        return existsInPacks || !productService.getBarcodes(barcode, supplierId, packId, variantId).isEmpty()
+        def allMatchingBarcodesDeleted = checkBarcodesForSupplierDeleted(barcode, supplierId, packId, variantId)
+
+        return existsInPacks && !allMatchingBarcodesDeleted
+    }
+
+    private boolean checkBarcodesForSupplierDeleted(String barcode, int supplierId, packId, int variantId) {
+        def barcodes = productService.getBarcodes(barcode, supplierId, packId, variantId)
+        if (!barcodes.isEmpty()) {
+            LinkedHashMap<Long, Integer> createDeleteMap = [:]
+            for (barcodeEntry in barcodes) {
+                if (createDeleteMap[barcodeEntry.packId] == null) {
+                    createDeleteMap[barcodeEntry.packId] = 0
+                }
+
+                if (barcodeEntry.recordStatus == 'C') {
+                    createDeleteMap[barcodeEntry.packId] = createDeleteMap[barcodeEntry.packId] + 1
+                } else if (barcodeEntry.recordStatus == 'D') {
+                    createDeleteMap[barcodeEntry.packId] = createDeleteMap[barcodeEntry.packId] - 1
+                }
+            }
+
+            for (packEntry in createDeleteMap.values()) {
+                if (packEntry > 0) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 
     private static void rejectProduct(def product, String barcode, String  errorCode, String defaultMessage) {
