@@ -965,6 +965,11 @@ class ProductController extends BaseController {
         if (!barcodes.isEmpty()) {
             LinkedHashMap<Long, Integer> createDeleteMap = [:]
             for (barcodeEntry in barcodes) {
+                if (!checkBarcodePackIsActive(barcodeEntry)) {
+                    // Pack for this barcode is not active, we can ignore it
+                    continue
+                }
+
                 if (createDeleteMap[barcodeEntry.packId] == null) {
                     createDeleteMap[barcodeEntry.packId] = 0
                 }
@@ -983,6 +988,19 @@ class ProductController extends BaseController {
             }
         }
         return true
+    }
+
+    private boolean checkBarcodePackIsActive(Barcode barcode) {
+        if (barcode.pack != null) {
+            if (barcode.pack.status != PackStatus.ACTIVE) {
+                return false
+            }
+
+            if (barcode.pack.effectiveEndDate < DateTime.now()) {
+                return false
+            }
+        }
+        return true;
     }
 
     private static void rejectProduct(def product, String barcode, String  errorCode, String defaultMessage) {
