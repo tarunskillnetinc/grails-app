@@ -348,7 +348,7 @@
                         </g:if>
                         <div class="col-12">
 
-                            <h5 class="text-center">Till Shifts</h5>
+                            <h5 class="text-center mt-2">Till Shifts</h5>
 
                             <!-- Open Type Field -->
                             <div class="form-group row">
