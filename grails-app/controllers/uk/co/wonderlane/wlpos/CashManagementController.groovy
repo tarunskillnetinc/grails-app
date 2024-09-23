@@ -60,6 +60,7 @@ class CashManagementController {
         def patternDays = /^(1?2?3?4?5?6?7?)$/
         def patternTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/
 
+        def expectRetailerConfig = false
         if (onlyRetailerLevel) {
             if (cashManagementFormData.automaticCloseDays != null && !(cashManagementFormData.automaticCloseDays ==~ patternDays)) {
                 errorMessages << "Automatic close days format incorrect."
@@ -84,6 +85,7 @@ class CashManagementController {
         } else {
             CashManagement retailerLevelCashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,null)
             if (retailerLevelCashManagement == null || retailerLevelCashManagement.getConfig() == null) {
+                expectRetailerConfig = true
                 errorMessages << "Retailer level Cash Management not configured yet."
             } else {
                 //Restricted fields are not allowed to modify.
@@ -91,30 +93,32 @@ class CashManagementController {
             }
         }
 
-        if (cashManagementFormData.rollingFloatValue == null) {
-            errorMessages << "Rolling float value cannot be empty."
-        } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.99) {
-            errorMessages << "Rolling float value must have a value between 1.00 and 999.99."
-        }
-        if (cashManagementFormData.tillShiftVarianceLimit != null &&  (cashManagementFormData.tillShiftVarianceLimit < 0
-                || cashManagementFormData.tillShiftVarianceLimit > 999.99)) {
-            errorMessages << "Till shift variance limit must have a value between 0.00 and 999.99."
-        }
-        if (cashManagementFormData.safeVarianceLimit != null &&  (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.99)) {
-            errorMessages << "Safe variance limit must have a value between 0.00 and 999.99."
-        }
-        if (cashManagementFormData.tillCashHoldingLimit != null &&  (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
-            errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.99."
-        }
-        if (cashManagementFormData.tillShiftRecountLimit == null) {
-            errorMessages << "Till shift recount limit cannot be empty."
-        } else if (cashManagementFormData.tillShiftRecountLimit < 0 || cashManagementFormData.tillShiftRecountLimit > 99) {
-            errorMessages << "The till shift recount limit must have a value between 0 and 99."
-        }
-        if (cashManagementFormData.safeRecountLimit == null) {
-            errorMessages << "Safe recount limit cannot be empty."
-        } else if (cashManagementFormData.safeRecountLimit < 0 || cashManagementFormData.safeRecountLimit > 99) {
-            errorMessages << "Safe recount limit must have a value between 0 and 99."
+        if (!expectRetailerConfig) {
+            if (cashManagementFormData.rollingFloatValue == null) {
+                errorMessages << "Rolling float value cannot be empty."
+            } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.99) {
+                errorMessages << "Rolling float value must have a value between 1.00 and 999.99."
+            }
+            if (cashManagementFormData.tillShiftVarianceLimit != null && (cashManagementFormData.tillShiftVarianceLimit < 0
+                    || cashManagementFormData.tillShiftVarianceLimit > 999.99)) {
+                errorMessages << "Till shift variance limit must have a value between 0.00 and 999.99."
+            }
+            if (cashManagementFormData.safeVarianceLimit != null && (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.99)) {
+                errorMessages << "Safe variance limit must have a value between 0.00 and 999.99."
+            }
+            if (cashManagementFormData.tillCashHoldingLimit != null && (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
+                errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.99."
+            }
+            if (cashManagementFormData.tillShiftRecountLimit == null) {
+                errorMessages << "Till shift recount limit cannot be empty."
+            } else if (cashManagementFormData.tillShiftRecountLimit < 0 || cashManagementFormData.tillShiftRecountLimit > 99) {
+                errorMessages << "The till shift recount limit must have a value between 0 and 99."
+            }
+            if (cashManagementFormData.safeRecountLimit == null) {
+                errorMessages << "Safe recount limit cannot be empty."
+            } else if (cashManagementFormData.safeRecountLimit < 0 || cashManagementFormData.safeRecountLimit > 99) {
+                errorMessages << "Safe recount limit must have a value between 0 and 99."
+            }
         }
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
