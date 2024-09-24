@@ -316,7 +316,7 @@ class PromotionController {
         rabbitService.sendMessage(syncMessage)
     }
 
-    private boolean validateChildren(PromotionCommand promotionCommand) {
+    private static boolean validateChildren(PromotionCommand promotionCommand) {
         boolean valid = true
 
         promotionCommand?.requiredGroups?.eachWithIndex { obj, i ->
@@ -706,7 +706,12 @@ class PromotionGroupCommand implements Validateable {
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
         requiredQuantity nullable: true, range:1..999999999
-        requiredValue nullable: true, min: 0.02, max:9999.99, scale: 2
+        requiredValue nullable:true, min: 0.02, max:9999.99, scale: 2, validator: {val, obj ->
+            // Only one of these two fields needs a validator
+            if (val != null && obj.requiredQuantity != null) {
+                return 'error.Promotion.requiredQuantityAndRequiredValueBothSet'
+            }
+        }
     }
 }
 
