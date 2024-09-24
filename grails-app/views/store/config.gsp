@@ -3,8 +3,14 @@
 <head>
     <meta name="layout" content="main" />
     <title>Store Configuration</title>
+
+    <asset:stylesheet src="multi-select-checks.css" />
+
     <asset:javascript src="validators/input-validator.js"/>
     <asset:javascript src="store-settings/color-pick.js" />
+    <asset:javascript src="popper.min.js" />
+    <asset:javascript src="multi-select-checks.js" />
+    <asset:javascript src="money-mask.js" />
 
     <script type="text/javascript">
         function updateColorIndicator(color, indicatorId) {
@@ -26,7 +32,7 @@
 
             });
 
-            $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeSettings?.id} + "&onlyRetailerLevel=false", function(data) {
+            $.get("${createLink(controller: 'cashManagement', action: 'index')}?storeId=" + ${storeSettings?.id} + "&onlyRetailerLevel=false&storeNumber=${storeSettings?.config?.storeNumber}&storeName=${storeSettings?.config?.storeName}", function(data) {
                 $('#cash-container').html(data);
             });
 
@@ -49,11 +55,27 @@
         .tooltip-trigger:hover .tooltip-content {
             display: inline-block;
         }
-        #cash-container {
-            background: whitesmoke;
+
+        #fake-tab div{
+            border-bottom: 2px solid #575756;
+            width: 100%;
+            height: 100%;
+            margin-bottom: 2px;
         }
-        #store-container {
-            background: whitesmoke;
+        #tab-ul {
+            border-bottom-color: white !important;
+        }
+        #tab-ul.tabs-wl li a.active {
+            border-style: solid;
+            border-width: 2px 2px 0 2px;
+            border-color: #575756 !important;
+            border-bottom-color: white !important;
+            color: #575756 !important;
+            background-color: white !important;
+        }
+        #tab-ul.tabs-wl li a {
+            text-align: center;
+            width: 300px;
         }
     </style>
 
@@ -77,20 +99,23 @@
         </nav>
     </section>
     <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-        <section id="tab-container" class="container-fluid">
-            <div class="row pl-0">
-                <div class="col-4 pl-0">
-                    <ul class="nav nav-tabs nav-fill tabs-wl mx-4" role="tablist">
-                        <li class="nav-item">
+        <section id="tab-container" class="container-fluid m-0">
+            <div class="row m-0">
+                <div class="col-12 pl-0">
+                    <ul id="tab-ul" class="nav nav-tabs tabs-wl d-flex m-0" role="tablist">
+                        <li class="nav-item m-0">
                             <a id="store-tab" data-toggle="tab" href="#store-container" aria-selected="true" role="tab" aria-controls="store-container" class="nav-link ${ tabType.equals('store' ? 'active' : 'disabled')}">Store Config</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item m-0">
                             <a id="cash-tab" data-toggle="tab" href="#cash-container" role="tab" aria-controls="cash-container" class="nav-link ${tabType.equals('cash' ? 'active' : 'disabled')}">Cash Management</a>
+                        </li>
+                        <li id="fake-tab" class="nav-item flex-grow-1 m-0">
+                            <div></div>
                         </li>
                     </ul>
                 </div>
             </div>
-            <div class="tab-content mt-0">
+            <div class="tab-content mt-3">
                 <div id="store-container" class="tab-pane ${tabType.equals('store') ? 'active' : ''}">
                     <g:render template="storeConfig" model='${pageScope}'/>
                 </div>
