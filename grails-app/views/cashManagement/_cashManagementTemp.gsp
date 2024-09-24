@@ -1,6 +1,10 @@
 
 <script type='text/javascript'>
 
+    $(document).ready(function() {
+        initializePage();
+    });
+
     function initializePage() {
 
         $('#selectedItemsDisplay').click(function() {
@@ -102,10 +106,7 @@
                 contentType: false,  // Required for file uploads
                 success: function(response) {
                     if (onlyRetailerLevel || isStoreLevelLogin) {
-                        setTimeout(function() {
-                            initializePage(); // Manually trigger the initialization after a short delay
-                        }, 0);//0 is not a problem to initiate all page initiation
-                        $('html').html(response);
+                        updatePage(response);
                     } else {
                         $('#cash-container').html(response);
                     }
@@ -145,6 +146,29 @@
                     },
                     success: function(response) {
                         $('#cash-container').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error
+                        alert("Error occurred: " + error);
+                    }
+                });
+            });
+        });
+
+        $('#revert-btn-retailer').click(function (e){
+            e.preventDefault(); // Prevent the default button action
+
+            var storeId = ${storeId?storeId:-1}; // Replace this with actual storeId you want to send
+            confirmAndSubmit('Are you sure you want to revert to the default config?', function(){
+                $.ajax({
+                    type: 'POST',
+                    url: '${createLink(controller: "cashManagement", action: "deleteStoreLevelConfig")}', // API endpoint
+                    data: {
+                        storeId: storeId,
+                        isStoreLevelLogin: true
+                    },
+                    success: function(response) {
+                        updatePage(response);
                     },
                     error: function(xhr, status, error) {
                         // Handle error
@@ -255,6 +279,13 @@
         $('#save-form').submit();
     }
 
+    function updatePage(response) {
+        // Step 1: Replace the HTML content
+        document.open();
+        document.write(response);
+        document.close();
+    }
+
 </script>
 
 <section id="header-container" class="container-fluid">
@@ -275,7 +306,7 @@
                     <button id="cancel-btn-store-level" class="btn btn-wl ml-1" name="save">Cancel</button>
                 </g:if>
                 <g:if test="${(isStoreLevelLogin?isStoreLevelLogin:false) && storeLevelExist}">
-                    <g:link elementId="revert-btn" controller="cashManagement" action="deleteStoreLevelConfig" params="[storeId:storeId,isStoreLevelLogin:true]" tabindex="-1" role="button" class="btn btn-danger ml-1">Use Default Config</g:link>
+                    <button id="revert-btn-retailer" class="btn btn-danger ml-1" name="revert">Use Default Config</button>
                 </g:if>
                 <g:if test="${(isStoreLevelLogin == null && storeId != null) && storeLevelExist}">
                     <button id="revert-store-level-btn" class="btn btn-danger ml-1" name="revert">Use Default Config</button>
@@ -319,7 +350,7 @@
         <input type="hidden" name="modelOnlyRetailerLevel" value="${onlyRetailerLevel}">
         <input type="hidden" name="modelStoreLevelExist" value="${storeLevelExist}">
         <input type="hidden" name="storeId" value="${storeId}">
-        <input type="hidden" name="modelIsStoreLevelLogin" value="${isStoreLevelLogin}">
+        <input type="hidden" name="modelIsStoreLevelLogin" value="${isStoreLevelLogin?isStoreLevelLogin:false}">
         <div id="accordion">
             <!-- General information. -->
             <div class="card bg-light border-wl accordion-card col-12 col-lg-8 offset-lg-2 px-0 mt-0"> <!-- Center the card -->
@@ -337,13 +368,21 @@
                 <div id="collapseGeneralDetails" class="collapse show" aria-labelledby="generalDetails" data-parent="#accordion">
                     <div class="card-body py-1">
                         <g:if test="${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist}">
-                            <div class="message alert-wl text-sm-center p-1">
-                                Your store is currently using the default config, please select the override option at the top of the page to update the config specifically for this store. Please note that some config options are not overridable and will remain disabled.
+                            <div class="message alert-wl text-sm-center">
+                                <b>
+                                    Your store is currently using the default config.
+                                </b><br>
+                                Please select the override option at the top of the page to update the config specifically for this store <b>(${storeName}-${storeNumber})</b>.<br/>
+                                Please note that some config options are not overridable and will remain disabled.
                             </div>
                         </g:if>
                         <g:if test="${(!onlyRetailerLevel || isStoreLevelLogin) && storeLevelExist}">
-                            <div class="message alert-wl text-sm-center p-1">
-                                    Your store is currently overriding the default config, to reset to the default please select the ‘Use Default Config’ option at the top of the page. Please note that some config options are not overridable and will remain disabled.
+                            <div class="message alert-wl text-sm-center">
+                                <b>
+                                    Config changes here are applicable only to ${storeName} (${storeNumber}).
+                                </b><br>
+                                Click on the 'Use default config' option at the top of the page to roll back to Retailer level configs.<br/>
+                                Please note that some config options are not overridable and will remain disabled.
                             </div>
                         </g:if>
                         <div class="col-12">
@@ -512,6 +551,3 @@
         </div>
     </g:uploadForm>
 </section>
-<script>
-    initializePage();
-</script>
