@@ -69,9 +69,9 @@
         </div>
 
         <div class="row form-group mb-4">
-            <label for="enableCashManagement" class="col-6 offset-1 col-form-label text-right">Enable Cash Management</label>
+            <label for="cashManagementEnabled" class="col-6 offset-1 col-form-label text-right">Enable Cash Management</label>
             <div class="input-group col-1">
-                <input type="checkbox" class="form-control form-check-input wl-checkbox" name="enableCashManagement" id="enableCashManagement" ${enableCashManagement == null || enableCashManagement ? 'checked' : ''}/>
+                <input type="checkbox" class="form-control form-check-input wl-checkbox" name="cashManagementEnabled" id="cashManagementEnabled" ${till?.cashManagementEnabled == null || till?.cashManagementEnabled ? 'checked' : ''}/>
             </div>
         </div>
 

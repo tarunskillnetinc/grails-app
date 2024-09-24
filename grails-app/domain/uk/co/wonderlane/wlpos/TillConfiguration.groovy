@@ -23,6 +23,7 @@ class TillConfiguration {
     DateTime dateTimeUpdated
     int baudRate
     boolean printCardReceipts
+    boolean cashManagementEnabled
 
     TillConfiguration() { }
 
@@ -48,6 +49,7 @@ class TillConfiguration {
         dateTimeUpdated column: "dateTimeUpdated", sqlType: "datetime"
         baudRate column: "baudRate"
         printCardReceipts column: "printCardReceipts"
+        cashManagementEnabled column: "cashManagementEnabled", sqlType: "BIT(1)"
     }
 
     static constraints = {
@@ -56,6 +58,7 @@ class TillConfiguration {
         serialNumber nullable: true
         pin nullable: true
         description nullable: true
+        cashManagementEnabled: nullable: false
     }
 
     Store getStore() {
