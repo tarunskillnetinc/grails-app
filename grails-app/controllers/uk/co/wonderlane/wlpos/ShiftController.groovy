@@ -5,9 +5,11 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
+import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.LocationType
+import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
@@ -36,10 +38,6 @@ class ShiftController {
     }
 
     def ajaxGetShifts() {
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
-
-        DateTime startDate = DateTime.parse(params.startDate, dateFormatter)
-        DateTime endDate = DateTime.parse(params.endDate, dateFormatter)
         Integer tillId = null
         if (params.tillId) {
             try {
@@ -49,7 +47,20 @@ class ShiftController {
             }
         }
 
-        render(template: "shiftViewerResults", model: [shifts: shiftService.getShifts(startDate, endDate, tillId)])
+        List<Shift> shiftList = shiftService.getShifts(tillId)
+
+        boolean isFinancialWeekExists = shiftList.any { shift -> shift.financialWeek != null }
+
+        // Group shifts by tillId and sort each group by shiftNumber
+        def shiftMap = shiftList.groupBy { it.tillId }
+                .collectEntries { entryTillId, shifts ->
+                    [(entryTillId): shifts.sort { it.shiftNumber }]
+                }
+
+        // Sort the map by tillId
+        def sortedShiftMap = shiftMap.sort { it.key }
+
+        render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime()])
     }
 
     def ajaxGetCashDetails(int shiftId) {
