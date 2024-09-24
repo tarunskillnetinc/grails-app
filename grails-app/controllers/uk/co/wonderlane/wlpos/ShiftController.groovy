@@ -53,7 +53,7 @@ class ShiftController {
 
         // Group shifts by tillId and sort each group by shiftNumber
         def shiftMap = shiftList.groupBy { it.tillId }
-                .collectEntries { entryTillId, shifts ->
+                ?.collectEntries { entryTillId, shifts ->
                     [(entryTillId): shifts.sort { it.shiftNumber }]
                 }
 
