@@ -23,11 +23,11 @@ class ShiftService extends MySqlDal {
         super(databaseCredentials)
     }
 
-    def getShifts(DateTime fromDate, DateTime toDate, Integer tillId) {
+    def getShifts(Integer tillId) {
         List<Shift> shifts = new ArrayList<>()
 
         Connection conn = getConnection()
-        CallableStatement getShiftsStatement = conn.prepareCall("{ call getShifts(?, ?, ?, ?, ?) }")
+        CallableStatement getShiftsStatement = conn.prepareCall("{ call getActiveShifts(?, ?, ?) }")
 
         try {
             getShiftsStatement.setInt(1, springSecurityService.principal.retailerId)
@@ -42,9 +42,6 @@ class ShiftService extends MySqlDal {
             } else {
                 getShiftsStatement.setNull(3, Types.INTEGER)
             }
-
-            getShiftsStatement.setString(4, fromDate.toString(DATE_FORMAT))
-            getShiftsStatement.setString(5, toDate.toString(DATE_FORMAT))
 
             ResultSet rs = getShiftsStatement.executeQuery()
 
@@ -95,7 +92,7 @@ class ShiftService extends MySqlDal {
 
     def saveShift(Shift shift) {
         Connection conn = getConnection()
-        CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShift(?, ?) }")
+        CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShift(?, ?, ?) }")
 
         try {
             if (shift.id > 0) {

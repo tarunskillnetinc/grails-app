@@ -116,15 +116,8 @@
                         <div class="card-body collapse" id="filterCollapse">
                             <g:form name="filtersForm" id="filtersForm">
                                 <div class="form-group row">
-                                    <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
-                                    <div class="col-4">
-                                        <g:textField name="startDate" id="startDate" class="form-control bottom-border" value="${startDate}" onkeydown="return false" autocomplete="off" />
-                                    </div>
-
-                                    <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
-                                    <div class="col-4">
-                                        <g:textField name="endDate" id="endDate" class="form-control bottom-border" value="${endDate}" onkeydown="return false" autocomplete="off" />
-                                    </div>
+                                    <g:hiddenField name="startDate" id="startDate" value="${startDate}" />
+                                    <g:hiddenField name="endDate" id="endDate" value="${endDate}" />
                                 </div>
 
                                 <div class="form-group row">
