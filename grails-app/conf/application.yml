@@ -134,14 +134,11 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3306/cerberus-wlpos"
-            #url: "jdbc:mysql://localhost:5050/cerberus-wlpos"
+            url: "jdbc:mysql://localhost:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "root"
             password: "Pa**W0rd01"
-            #username: "cloudoffice"
-            #password: "CdtfudWdnGVS87IKs7dV"
             #username: "wonderlane"
             #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
             #type: "com.zaxxer.hikari.HikariDataSource"
@@ -152,14 +149,11 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/cerberus-reporting"
-                #url: "jdbc:mysql://localhost:5050/cerberus-reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
                 password: "Pa**W0rd01"
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 #type: "com.zaxxer.hikari.HikariDataSource"
@@ -169,28 +163,22 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/cerberus-reporting"
-                #url: "jdbc:mysql://localhost:5050/cerberus-reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
                 password: "Pa**W0rd01"
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 properties:
                     <<: *databaseDefaultProperties
 
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/cerberus-transactions"
-                #url: "jdbc:mysql://localhost:5050/cerberus-transactions"
+                url: "jdbc:mysql://localhost:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
                 password: "Pa**W0rd01"
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 #type: "com.zaxxer.hikari.HikariDataSource"
@@ -200,14 +188,11 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/cerberus-loyalty"
-                #url: "jdbc:mysql://localhost:5050/cerberus-loyalty"
+                url: "jdbc:mysql://localhost:3306/loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
                 password: "Pa**W0rd01"
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
                 #type: "com.zaxxer.hikari.HikariDataSource"
@@ -229,36 +214,27 @@ environments:
             wlpos:
                 host: localhost
                 port: 3306
-                #port: 5050
                 username: root
                 password: Pa**W0rd01
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: cerberus-wlpos
+                database: wlpos
             transactions:
                 host: localhost
                 port: 3306
-                #port: 5050
                 username: root
                 password: Pa**W0rd01
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: cerberus-transactions
+                database: transactions
             loyalty:
                 host: localhost
                 port: 3306
-                #port: 5050
                 username: root
                 password: Pa**W0rd01
-                #username: "cloudoffice"
-                #password: "CdtfudWdnGVS87IKs7dV"
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: cerberus-loyalty
+                database: loyalty
         wlpos:
             defaultImageBucket: "retail-platform-default-images-test"
             cfdImageBucket: "retail-platform-customer-display-images-test"
