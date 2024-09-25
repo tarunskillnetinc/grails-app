@@ -8,7 +8,7 @@ class BootStrap {
     def init = { servletContext ->
         switch (Environment.current.name) {
             case 'development':
-                TimeZone.setDefault(TimeZone.getTimeZone("Pacific/Kiritimati"))  // London time
+                TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"))  // London time
                 break
             case 'production':
                 TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"))  // London time
