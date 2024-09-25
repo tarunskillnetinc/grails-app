@@ -1,8 +1,8 @@
-package uk.co.wonderlane.wlpos
+package uk.co.wonderlane.wlpos.loyalty
 
-class LoyaltyOfferSegment implements Serializable {
+class OfferSegment implements Serializable {
 
-    static belongsTo = [loyaltyOffer: LoyaltyOffer]
+    static belongsTo = [loyaltyOffer: Offer]
 
     int id
     int offerId

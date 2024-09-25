@@ -1,8 +1,7 @@
 package uk.co.wonderlane.wlpos.loyalty;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import uk.co.wonderlane.wlpos.LoyaltyOffer
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 
 class MemberOffer {
@@ -20,9 +19,9 @@ class MemberOffer {
 
     Integer remainingRedemptions
 
-    LoyaltyOffer offer
+    Offer offer
     Member member
-    static belongsTo = [member: Member, offer: LoyaltyOffer]
+    static belongsTo = [member: Member, offer: Offer]
 
     static mapping = {
         datasources(["loyalty"])

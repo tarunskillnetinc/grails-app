@@ -2,8 +2,9 @@ package uk.co.wonderlane.wlpos
 
 import grails.testing.gorm.DomainUnitTest
 import spock.lang.Specification
+import uk.co.wonderlane.wlpos.loyalty.OfferSegment
 
-class LoyaltyOfferSegmentSpec extends Specification implements DomainUnitTest<LoyaltyOfferSegment> {
+class OfferSegmentSpec extends Specification implements DomainUnitTest<OfferSegment> {
 
     def setup() {
     }
