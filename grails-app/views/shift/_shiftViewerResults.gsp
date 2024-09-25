@@ -65,7 +65,7 @@
         <div class="col-2 text-center font-weight-bold">Shift Start</div>
         <div class="col-2 text-center font-weight-bold">Shift End</div>
         <div class="col-2 text-center font-weight-bold">Shift Status</div>
-        <div class="col-3 text-right font-weight-bold pr-4">Actions</div>
+        <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'} text-right font-weight-bold pr-4">Actions</div>
     </div>
 
     <div class="card">
@@ -93,7 +93,7 @@
                                 <g:formatStringDate date="${shift?.shiftCloseTime}" inputFormat="yyyy-MM-dd HH:mm" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
                             </div>
                             <div class="col-2 text-center">${shift.shiftStatus}</div>
-                            <div class="col-3">
+                            <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                                 <div class="button-container d-flex justify-content-end align-items-center">
                                     <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
                                         <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Close</button>
