@@ -81,10 +81,10 @@
                             <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                                 <div class="button-container d-flex justify-content-end align-items-center">
                                     <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
-                                        <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Close</button>
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Close</button>
                                     </g:if>
                                     <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
-                                        <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
                                     </g:if>
                                     <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
                                         <button class="btn btn-danger p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Recount</button>
