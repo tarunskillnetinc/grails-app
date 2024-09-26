@@ -514,18 +514,6 @@ class EposTagLib {
             out << ""
         }
     }
-
-    def formatTillId = { attrs ->
-        def tillId = attrs.tillId
-        if (tillId != null) {
-            // Convert to integer, format as 4-digit string, and append "-Till"
-            def formattedId = String.format("%04d-Till", tillId as Integer)
-            out << formattedId
-        } else {
-            out << ""
-        }
-    }
-
     
     private static String getLocationField(String field) {
         def formattedFieldArray = field?.split("(?=\\p{Upper})")
