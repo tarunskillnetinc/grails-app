@@ -14,6 +14,7 @@ class WonderLaneUserDetailsService implements GrailsUserDetailsService {
     static final List ENGINEER = [ new SimpleGrantedAuthority("ROLE_ENGINEER") ]
     static final List HEAD_OFFICE = [ new SimpleGrantedAuthority("ROLE_HEAD_OFFICE") ]
     static final List STORE_MANAGER = [ new SimpleGrantedAuthority("ROLE_STORE_MANAGER") ]
+    static final List SUPERVISOR = [ new SimpleGrantedAuthority("ROLE_SUPERVISOR") ]
     static final List NO_ROLE = [ new SimpleGrantedAuthority(SpringSecurityUtils.NO_ROLE) ]
 
     UserDetails loadUserByUsername(String username, boolean loadRoles) throws UsernameNotFoundException {
@@ -39,6 +40,8 @@ class WonderLaneUserDetailsService implements GrailsUserDetailsService {
                 return HEAD_OFFICE
             case Role.STORE_MANAGER:
                 return STORE_MANAGER
+            case Role.SUPERVISOR:
+                return SUPERVISOR
             default:
                 return NO_ROLE
         }

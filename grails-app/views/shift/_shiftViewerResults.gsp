@@ -24,33 +24,18 @@
         margin-top: 5px;
     }
 
-    .shift-info-container {
-        font-weight: bold;
-    }
-
-    .shift-info-container .btn {
-        font-weight: bold;
-    }
-
-    .shift-info-container .small {
-        font-weight: normal;
-    }
-
-    .shift-info-container h5 {
-        font-weight: bolder;
-    }
 
 </style>
 
 <div class="container-fluid mt-3 mb-3">
-    <div class="row justify-content-end">
-        <div class="col-auto">
+    <div class="row justify-content-end align-items-center">
+        <div class="col-auto pr-0">
             <div class="d-flex align-items-center">
-                <strong class="mr-2 h5 mb-0 font-weight-bold">Data retrieved at:</strong>
-                <span id="lastRefreshTime" class="mr-3 h5 mb-0 font-weight-bold"><g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${lastRefreshDate?.toDate() ?: new Date()}" timeZone="Europe/London"/></span>
-                <a href="#" id="refreshIcon" class="text-primary" onclick="getShifts(); return false;" style="font-size: 24px; text-decoration: none;">&#x21bb;</a>
+                <strong class="mr-2 h5 mb-0">Data retrieved at:</strong>
+                <span id="lastRefreshTime" class="h5 mb-0 mr-3"><g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${lastRefreshDate?.toDate() ?: new Date()}" timeZone="Europe/London"/></span>
             </div>
         </div>
+        <div class="col-auto pr-0"><a id="refresh" href="#" class="btn btn-wl" onclick="getShifts();">Refresh</a></div>
     </div>
 </div>
 
@@ -65,7 +50,7 @@
         <div class="col-2 text-center font-weight-bold">Shift Start</div>
         <div class="col-2 text-center font-weight-bold">Shift End</div>
         <div class="col-2 text-center font-weight-bold">Shift Status</div>
-        <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'} text-right font-weight-bold pr-4">Actions</div>
+        <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'} text-right font-weight-bold pr-4"></div>
     </div>
 
     <div class="card">
@@ -84,7 +69,7 @@
                             <g:if test="${isFinancialWeekExists}">
                                 <div class="col-1 text-center">${shift?.financialWeek?.id}</div>
                             </g:if>
-                            <div class="col-1 text-center"><g:formatTillId tillId="${shift.tillId}"/></div>
+                            <div class="col-1 text-center">${shift.tillId}</div>
                             <div class="col-1 text-center">${shift.shiftNumber}</div>
                             <div class="col-2 text-center">
                                 <g:formatStringDate date="${shift?.shiftOpenTime}" inputFormat="yyyy-MM-dd HH:mm:ss" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
