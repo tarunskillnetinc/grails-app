@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.hibernate.Session
 import org.hibernate.Transaction
+import org.hibernate.criterion.Projections
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
@@ -110,8 +111,13 @@ class ProductService extends MySqlDal {
         return product
     }
 
-    List<Barcode> getBarcodes(String barcode, int supplierId, int excludedPackId, Integer excludedVariantId) {
-        return Barcode.createCriteria().list {
+    List<Barcode> getBarcodesExists(String barcode, int supplierId, int excludedPackId, Integer excludedVariantId) {
+        return getBarcodes(barcode, supplierId, excludedPackId, excludedVariantId, true)
+    }
+
+    List<Barcode> getBarcodes(String barcode, int supplierId, int excludedPackId, Integer excludedVariantId, boolean checkOnlyExists) {
+        DateTime utcNow = DateTime.now(DateTimeZone.UTC);
+         return Barcode.createCriteria().list {
             eq('barcode', barcode)
             eq('retailerId', springSecurityService.principal.retailerId)
             pack {
@@ -129,6 +135,16 @@ class ProductService extends MySqlDal {
                             eq('id', excludedVariantId)
                         }
                     }
+                }
+            }
+            if (checkOnlyExists) {
+                le('effectiveDate', utcNow)
+
+                // Use projections to stop us getting everything when we're just checking if any exist
+                projections {
+                    Projections.property("packId")
+                    Projections.property("barcode")
+                    Projections.property("recordStatus")
                 }
             }
         } as List<Barcode>

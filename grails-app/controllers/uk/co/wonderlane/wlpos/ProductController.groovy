@@ -893,7 +893,7 @@ class ProductController extends BaseController {
                     rejectProduct(product, barcode.barcode, 'product.barcodes.notUnique', 'Barcode {0} already exists on another SKU.')
                 } else if (existingPack.supplier != null && !existingLocalBarcode && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs, variantId)) {
                     rejectProductByPackBarcode(product, barcode.barcode)
-                } else if (doesBarcodeExistForOtherProductsInSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, variantId)) {
+                } else if (doesBarcodeExistForOtherProductsInSupplier(barcode.barcode, (int) existingPack.supplier.id, existingPack.id, variantId)) {
                     rejectProductByProductVariantBarcode(product, barcode.barcode)
                 } else if (!existingLocalBarcode) {
                     existingPack.barcodez.add(barcode)
@@ -966,13 +966,24 @@ class ProductController extends BaseController {
         return existsInPacks && !allMatchingBarcodesDeleted
     }
 
-    private boolean doesBarcodeExistForOtherProductsInSupplier(String barcode, int supplierId, packId, int variantId) {
-        def barcodes = productService.getBarcodes(barcode, supplierId, packId, variantId)
-        return barcodes.isEmpty()
+    private boolean doesBarcodeExistForOtherProductsInSupplier(String barcode, int supplierId, int packId, int variantId) {
+        def barcodes = productService.getBarcodesExists(barcode, supplierId, packId, variantId)
+        Map<String, List<Barcode>> groupedBarcodes = barcodes.groupBy {[it.barcode, it.packId]}
+        boolean existingBarcode = false
+
+        // Need to check if more created records exist than deleted records for other barcodes (NOTE - this is subject to change as this isn't the original intention)
+        for (Map.Entry<String, List<Barcode>> barcodeGrouping in groupedBarcodes) {
+            if (barcodeGrouping.value.count({it.recordStatus =='C'}) > barcodeGrouping.value.count({it.recordStatus =='D'}))
+            {
+                existingBarcode = true
+                break
+            }
+        }
+        return existingBarcode
     }
 
-    private boolean checkBarcodesForSupplierDeleted(String barcode, int supplierId, packId, int variantId) {
-        def barcodes = productService.getBarcodes(barcode, supplierId, packId, variantId)
+    private boolean checkBarcodesForSupplierDeleted(String barcode, int supplierId, int packId, int variantId) {
+        def barcodes = productService.getBarcodes(barcode, supplierId, packId, variantId, false)
         if (!barcodes.isEmpty()) {
             LinkedHashMap<Long, Integer> createDeleteMap = [:]
             for (barcodeEntry in barcodes) {
@@ -1007,7 +1018,13 @@ class ProductController extends BaseController {
                 return false
             }
 
-            if (barcode.pack.effectiveEndDate < DateTime.now()) {
+            //Check if pack is not active yet
+            if (barcode.pack.effectiveDate != null && barcode.pack.effectiveDate > DateTime.now()) {
+                return false
+            }
+
+            // Check if pack is no longer active
+            if (barcode.pack.effectiveEndDate != null && barcode.pack.effectiveEndDate < DateTime.now()) {
                 return false
             }
         }
