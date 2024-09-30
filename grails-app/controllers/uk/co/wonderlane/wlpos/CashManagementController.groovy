@@ -187,7 +187,7 @@ class CashManagementFormData implements Validateable {
     String manualOrAutoClose
     String automaticCloseDays
     String automaticCloseTime
-    Boolean isRollingFloatEnable
+    Boolean isRollingFloatEnabled
     Double rollingFloatValue
     Integer tillShiftRecountLimit
     Double tillShiftVarianceLimit
