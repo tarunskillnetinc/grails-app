@@ -623,7 +623,6 @@ class ProductService extends MySqlDal {
                     result.productItemCode = rs.getString("productItemCode")
                     result.productDescription = rs.getString("productDescription")
                     result.rangeId = rs.getInt("rangeId")
-                    result.deleted = rs.getBoolean("deleted")
 
                     results.add(result)
                 }

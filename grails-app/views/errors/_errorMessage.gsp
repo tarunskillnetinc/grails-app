@@ -1,5 +1,11 @@
-<g:if test="${error && errorMessages.containsKey(errorKey)}">
-    <div class="alert alert-danger text-center mt-1 mb-1">
-        <span>${errorMessages[errorKey]}</span>
-    </div>
+<g:if test="${error && errorMessages}">
+    <section id="errors-container" class="container-fluid">
+        <div class="alert alert-danger alert-wl mx-0" role="alert">
+            <ul>
+                <g:each in="${errorMessages}" var="entry">
+                    <li>${entry.value}</li>
+                </g:each>
+            </ul>
+        </div>
+    </section>
 </g:if>
