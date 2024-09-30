@@ -440,9 +440,9 @@
 
                             <!-- Rolling Float Enabled Field -->
                             <div class="form-group row">
-                                <label for="isRollingFloatEnable" class="col-12 col-lg-4 text-right align-self-center">Rolling Float Enabled</label>
+                                <label for="isRollingFloatEnabled" class="col-12 col-lg-4 text-right align-self-center">Rolling Float Enabled</label>
                                 <div class="col-12 col-lg-6">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox ml-0" name="isRollingFloatEnable" id="isRollingFloatEnable" ${config?.rollingFloatEnabled ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox ml-0" name="isRollingFloatEnabled" id="isRollingFloatEnabled" ${config?.rollingFloatEnabled ? 'checked' : ''} ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
                                 </div>
                             </div>
 
