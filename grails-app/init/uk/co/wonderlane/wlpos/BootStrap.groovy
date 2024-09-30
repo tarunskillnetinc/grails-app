@@ -3,8 +3,6 @@ package uk.co.wonderlane.wlpos
 import grails.util.Environment
 
 class BootStrap {
-    def grailsApplication  // Inject Grails application config
-
     def init = { servletContext ->
         switch (Environment.current.name) {
             case 'development':
