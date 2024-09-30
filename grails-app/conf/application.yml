@@ -427,6 +427,12 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: persephone-transactions
+            loyalty:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: cerberus-loyalty
 
         wlpos:
             defaultImageBucket: "persephone-retail-platform-default-images"
@@ -530,7 +536,7 @@ environments:
                 database: cerberus-loyalty
 
         wlpos:
-            defaultImageBucket: "persephone-retail-platform-default-images"
+            defaultImageBucket: "cerberus-retail-platform-default-images"
             cfdImageBucket: "cerberus-retail-platform-customer-display-images"
             receiptImageBucket: "cerberus-retail-platform-receipt-images"
             buttonImageBucket: "cerberus-retail-platform-button-images"

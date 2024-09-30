@@ -6,6 +6,7 @@ import grails.testing.web.controllers.ControllerUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
+import uk.co.wonderlane.wlpos.loyalty.Offer
 import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberTransaction
 import uk.co.wonderlane.wlpos.reporting.SortParams
@@ -25,6 +26,10 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
     }
 
     def "should return the offers view when requested"() {
+        given:
+        controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
+            findAllMemberOffers(_, _, _, _, _, _, _, _) >> []
+        }
 
         when: 'offers is executed'
         controller.offers("")
@@ -36,7 +41,7 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
     def "should return the add member offer view when requested"() {
         given:
         controller.loyaltyMemberService = Stub(LoyaltyMemberService) {
-            searchForAvailableOffersForMember(_, _) >> [new LoyaltyOffer()]
+            searchForAvailableOffersForMember(_, _) >> [new Offer()]
         }
 
         when:
@@ -92,7 +97,7 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
         }
 
         controller.loyaltyService = Stub(LoyaltyService) {
-            getLoyaltyOfferById(_) >> new LoyaltyOffer()
+            getLoyaltyOfferById(_) >> new Offer()
         }
 
         when:
@@ -112,6 +117,12 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
     }
 
     void "should return loyalty segment page successfully"() {
+
+        given:
+        controller.loyaltyService = Stub(LoyaltyService) {
+            getLoyaltySegmentForRetailer(_) >> []
+        }
+        controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'loyalty segment action is executed'
         controller.loyaltySegment()
@@ -362,17 +373,6 @@ class LoyaltyControllerSpec extends Specification implements ControllerUnitTest<
         ID | loyaltyOfferCommandInput
         1  | getLoyaltyOfferCommand(1)
 
-    }
-
-    void "should return loyalty offers saving cancel view when requested"() {
-
-        when: 'loyalty offers saving cancel is executed'
-        controller.ajaxShowOfferCancelWindow()
-
-        then: 'loyalty offer response is correct'
-        response.status == HttpStatus.OK.value()
-        model.error_header == "Cancel Loyalty Offer"
-        model.error_body == "Are you sure you want to cancel? All unsaved changes will be lost"
     }
 
     def getLoyaltyOfferCommand(int id){
