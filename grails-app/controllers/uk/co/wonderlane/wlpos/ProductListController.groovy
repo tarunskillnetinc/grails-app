@@ -75,14 +75,10 @@ class ProductListController {
         productList.userId = springSecurityService.principal.id
         productList.retailerId = springSecurityService.principal.retailerId
 
-        productList.setStartDate(
-                productList.getStartDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-        )
-        productList.setEndDate(
-                productList.getEndDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-                        .plusHours(23)
-                        .plusMinutes(59)
-                        .plusSeconds(59)
+        productList.setEndDate(productList.getEndDate()
+                .plusHours(23)
+                .plusMinutes(59)
+                .plusSeconds(59)
         )
 
         if (cmd.productVariantId) {
