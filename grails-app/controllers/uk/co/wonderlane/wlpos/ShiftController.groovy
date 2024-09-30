@@ -76,7 +76,7 @@ class ShiftController {
         } catch (Exception ex) {
             log.error(String.format("Shift loading error for tillId: %d error: %s", tillId, ex.getMessage()), ex)
             if (errorMessage == null || errorMessage == ''){
-                errorMessage = "Unexpceted error loading tills"
+                errorMessage = "Unexpected error loading tills"
             }
             render(template: "shiftViewerResults", model: [errorMessage: errorMessage])
         }
