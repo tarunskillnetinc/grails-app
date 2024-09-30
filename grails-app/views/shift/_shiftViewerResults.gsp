@@ -1,12 +1,16 @@
 <script>
     var successMessage = "${successMessage}";
+    var errorMessage = "${errorMessage}";
 
     $(document).ready(function () {
         if(successMessage != null && successMessage !== ''){
             $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
+        } else if (errorMessage != null && errorMessage !== '') {
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         } else {
             $("#messages-container").html('');
         }
+
     });
 </script>
 

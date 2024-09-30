@@ -39,41 +39,47 @@ class ShiftController {
     }
 
     def ajaxGetShifts() {
-        def successMessage
-        if (params.successMessage){
-            successMessage = params.successMessage
-        }
-
-
+        def successMessage = params.successMessage
+        def errorMessage = params.errorMessage
         Integer tillId = null
-        if (params.tillId) {
-            try {
-                tillId = Integer.parseInt(params.tillId)
-            } catch (Exception ex) {
-                // Non-numeric input added, do nothing.
-            }
-        }
 
-        List<Shift> shiftList = shiftService.getShifts(tillId)
-
-        List<Shift> shiftNonExistsList = shiftService.getShiftsForNonExistingTills(shiftList)
-
-        if (shiftNonExistsList != null && !shiftNonExistsList.isEmpty()){
-            shiftList.addAll(shiftNonExistsList)
-        }
-
-        boolean isFinancialWeekExists = shiftList.any { shift -> shift.financialWeek != null }
-
-        // Group shifts by tillId and sort each group by shiftNumber
-        def shiftMap = shiftList.groupBy { it.tillId }
-                ?.collectEntries { entryTillId, shifts ->
-                    [(entryTillId): shifts.sort { it.shiftNumber }]
+        try {
+            if (params.tillId) {
+                try {
+                    tillId = Integer.parseInt(params.tillId)
+                } catch (Exception ex) {
+                    // Non-numeric input added, do nothing.
+                    log.error(String.format("Non numeric till number added for tillId: %d error: %s", tillId, ex.getMessage()), ex)
                 }
+            }
 
-        // Sort the map by tillId
-        def sortedShiftMap = shiftMap.sort { it.key }
+            List<Shift> shiftList = shiftService.getShifts(tillId)
 
-        render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage])
+            List<Shift> shiftNonExistsList = shiftService.getShiftsForNonExistingTills(shiftList)
+
+            if (shiftNonExistsList != null && !shiftNonExistsList.isEmpty()){
+                shiftList.addAll(shiftNonExistsList)
+            }
+
+            boolean isFinancialWeekExists = shiftList.any { shift -> shift.financialWeek != null }
+
+            // Group shifts by tillId and sort each group by shiftNumber
+            def shiftMap = shiftList.groupBy { it.tillId }
+                    ?.collectEntries { entryTillId, shifts ->
+                        [(entryTillId): shifts.sort { it.shiftNumber }]
+                    }
+
+            // Sort the map by tillId
+            def sortedShiftMap = shiftMap.sort { it.key }
+            render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage])
+
+        } catch (Exception ex) {
+            log.error(String.format("Shift loading error for tillId: %d error: %s", tillId, ex.getMessage()), ex)
+            if (errorMessage == null || errorMessage == ''){
+                errorMessage = "Unexpceted error loading tills"
+            }
+            render(template: "shiftViewerResults", model: [errorMessage: errorMessage])
+        }
     }
 
     def ajaxGetCashDetails(int shiftId) {
