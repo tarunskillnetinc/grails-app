@@ -11,6 +11,8 @@ import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferType
 import uk.co.wonderlane.wlpos.helpers.HibernateTestMockCriteria
 import uk.co.wonderlane.wlpos.helpers.TestPagedResultList
+import uk.co.wonderlane.wlpos.loyalty.Offer
+import uk.co.wonderlane.wlpos.loyalty.OfferSegment
 
 class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<LoyaltyService>, DataTest {
 
@@ -23,7 +25,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
     def cleanup() {}
 
     Class<?>[] getDomainClassesToMock() {
-        return [Segment, LoyaltyOffer, LoyaltyOfferSegment] as Class[]
+        return [Segment, Offer, OfferSegment] as Class[]
     }
 
     def 'Should successfully return segments when requested '() {
@@ -40,7 +42,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
         Segment.metaClass.static.createCriteria = { return mockCriteria }
 
         when: 'Get segment action is executed'
-        def segmentReturned  = service.getSegment("Segment", searchBy,
+        def segmentReturned  = service.getSegment("Segment", searchBy, "",
                 20, 0, "id", "asc")
 
         then: 'successfully return segment details'
@@ -55,7 +57,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
     def 'Should successfully return loyalty offers when requested '() {
         given:
-        List<LoyaltyOffer> segmentResultList = new TestPagedResultList(List.of(
+        List<Offer> segmentResultList = new TestPagedResultList(List.of(
                 getMockLoyaltyOffer(1, "Loyalty offer 1", 1),
                 getMockLoyaltyOffer(2, "Loyalty offer 2", 1),
                 getMockLoyaltyOffer(3, "Loyalty offer 3", 1)
@@ -63,8 +65,8 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
         HibernateTestMockCriteria mockCriteria = new HibernateTestMockCriteria()
         mockCriteria.getResponses().add(segmentResultList)
-        BuildableCriteria defaultCriteria = LoyaltyOffer.createCriteria()
-        LoyaltyOffer.metaClass.static.createCriteria = { return mockCriteria }
+        BuildableCriteria defaultCriteria = Offer.createCriteria()
+        Offer.metaClass.static.createCriteria = { return mockCriteria }
 
         when: 'Get segment action is executed'
         def segmentReturned  = service.getLoyaltyOffers("Segment", searchBy,
@@ -98,7 +100,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
     def 'Should successfully return loyalty offer for selected retailer '() {
         given:
-        LoyaltyOffer loyaltyOffer = getMockLoyaltyOffer(1, "Loyalty Offer 1", 1)
+        Offer loyaltyOffer = getMockLoyaltyOffer(1, "Loyalty Offer 1", 1)
         loyaltyOffer.save(flush:true)
 
 
@@ -111,12 +113,12 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
     def 'Should successfully return loyalty segments for selected offerId '() {
         given:
-        LoyaltyOffer loyaltyOffer = getMockLoyaltyOffer(id, "Loyalty Offer 1", 1)
+        Offer loyaltyOffer = getMockLoyaltyOffer(id, "Loyalty Offer 1", 1)
         loyaltyOffer.save(flush:true)
 
 
         when: 'Get loyalty offer segment action by offer id is executed'
-        List<LoyaltyOfferSegment> returnedLoyaltyOfferSegments  = service.getLoyaltyOfferSegmentsById(1)
+        List<OfferSegment> returnedLoyaltyOfferSegments  = service.getLoyaltyOfferSegmentsById(1)
 
         then: 'successfully return loyalty offer segments details'
         returnedLoyaltyOfferSegments.size() == 2
@@ -128,11 +130,11 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
     def 'Should successfully update loyalty offer bean by updated values'() {
         given:
-        LoyaltyOffer originalLoyaltyOffer = new LoyaltyOffer()
+        Offer originalLoyaltyOffer = new Offer()
         LoyaltyOfferCommand updatedRequestedLoyaltyOfferCommand = getMockLoyaltyOfferCommand(1, "Loyalty Offer 1", 1)
 
         when: 'Get loyalty offer segment action by offer id is executed'
-        LoyaltyOffer updatedLoyaltyOffer  = service.populateUpdatedOffer(originalLoyaltyOffer, updatedRequestedLoyaltyOfferCommand)
+        Offer updatedLoyaltyOffer  = service.populateUpdatedOffer(originalLoyaltyOffer, updatedRequestedLoyaltyOfferCommand)
 
         then: 'successfully return loyalty offer segments details'
         updatedLoyaltyOffer != null
@@ -142,13 +144,13 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
     def 'Should successfully update loyalty segments bean by updated values'() {
         given:
-        LoyaltyOffer loyaltyOffer = getMockLoyaltyOffer(offerId, "Loyalty Offer 1", 1)
-        List<LoyaltyOfferSegment> originalLoyaltyOffer = service.getLoyaltyOfferSegmentsById(offerId)
+        Offer loyaltyOffer = getMockLoyaltyOffer(offerId, "Loyalty Offer 1", 1)
+        List<OfferSegment> originalLoyaltyOffer = service.getLoyaltyOfferSegmentsById(offerId)
         LoyaltyOfferCommand updatedRequestedLoyaltyOfferCommand = getMockLoyaltyOfferCommand(offerId, "Loyalty Offer 1", 1)
-        LoyaltyOffer updatedLoyaltyOffer = service.populateUpdatedOffer(loyaltyOffer, updatedRequestedLoyaltyOfferCommand)
+        Offer updatedLoyaltyOffer = service.populateUpdatedOffer(loyaltyOffer, updatedRequestedLoyaltyOfferCommand)
 
         when: 'Get loyalty offer segment action by offer id is executed'
-        List<LoyaltyOfferSegment> updatedLoyaltyOfferSegment  = service.updateLoyaltySegments(originalLoyaltyOffer, updatedLoyaltyOffer.loyaltyOfferSegments)
+        List<OfferSegment> updatedLoyaltyOfferSegment  = service.updateLoyaltySegments(originalLoyaltyOffer, updatedLoyaltyOffer.loyaltyOfferSegments)
 
         then: 'successfully return loyalty offer segments details'
         updatedLoyaltyOfferSegment != null
@@ -161,11 +163,11 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
 
     def 'Should successfully save updated loyalty offer'() {
         given:
-        LoyaltyOffer loyaltyOffer = getMockLoyaltyOffer(offerId, "Loyalty Offer 1", 1)
-        List<LoyaltyOfferSegment> originalLoyaltyOffer = service.getLoyaltyOfferSegmentsById(offerId)
+        Offer loyaltyOffer = getMockLoyaltyOffer(offerId, "Loyalty Offer 1", 1)
+        List<OfferSegment> originalLoyaltyOffer = service.getLoyaltyOfferSegmentsById(offerId)
         LoyaltyOfferCommand updatedRequestedLoyaltyOfferCommand = getMockLoyaltyOfferCommand(offerId, "Loyalty Offer updated description 1", 1)
-        LoyaltyOffer updatedLoyaltyOffer = service.populateUpdatedOffer(loyaltyOffer, updatedRequestedLoyaltyOfferCommand)
-        List<LoyaltyOfferSegment> updatedLoyaltyOfferSegment  = service.updateLoyaltySegments(originalLoyaltyOffer, updatedLoyaltyOffer.loyaltyOfferSegments)
+        Offer updatedLoyaltyOffer = service.populateUpdatedOffer(loyaltyOffer, updatedRequestedLoyaltyOfferCommand)
+        List<OfferSegment> updatedLoyaltyOfferSegment  = service.updateLoyaltySegments(originalLoyaltyOffer, updatedLoyaltyOffer.loyaltyOfferSegments)
 
         when: 'Get loyalty offer segment action by offer id is executed'
         service.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltyOfferSegment)
@@ -207,13 +209,12 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
         segment.id = id
         segment.retailerId = retailerId
         segment.description = description
-        segment.segmentSql = "Segment SQL"
         segment.count = 1
         return segment
     }
 
-    def getMockLoyaltyOfferSegment(int id, int offerId, int segmentId, LoyaltyOffer loyaltyOffer){
-        LoyaltyOfferSegment loyaltyOfferSegment = new LoyaltyOfferSegment()
+    def getMockLoyaltyOfferSegment(int id, int offerId, int segmentId, Offer loyaltyOffer){
+        OfferSegment loyaltyOfferSegment = new OfferSegment()
         loyaltyOfferSegment.id = id
         loyaltyOfferSegment.offerId = offerId
         loyaltyOfferSegment.segmentId = segmentId
@@ -222,7 +223,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
     }
 
     def getMockLoyaltyOffer(int id, String description, int retailerId){
-        LoyaltyOffer loyaltyOffer = new LoyaltyOffer()
+        Offer loyaltyOffer = new Offer()
         loyaltyOffer.id = id
         loyaltyOffer.offerDescription = description
         loyaltyOffer.retailerId = retailerId
@@ -233,7 +234,7 @@ class LoyaltyServiceSpec extends Specification implements ServiceUnitTest<Loyalt
         loyaltyOffer.endDate = new Date()
         loyaltyOffer.dateCreated = DateTime.now(DateTimeZone.UTC)
         loyaltyOffer.dateModified = DateTime.now(DateTimeZone.UTC)
-        ArrayList<LoyaltyOfferSegment> loyaltyOfferSegmentArrayList = new ArrayList<>()
+        ArrayList<OfferSegment> loyaltyOfferSegmentArrayList = new ArrayList<>()
         loyaltyOfferSegmentArrayList.add(getMockLoyaltyOfferSegment(1, id,  1, loyaltyOffer))
         loyaltyOfferSegmentArrayList.add(getMockLoyaltyOfferSegment(2, id,2, loyaltyOffer))
         loyaltyOffer.loyaltyOfferSegments.addAll(loyaltyOfferSegmentArrayList)

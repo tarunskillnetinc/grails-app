@@ -3,12 +3,16 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.springframework.transaction.annotation.Propagation
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
+import uk.co.wonderlane.wlpos.loyalty.Offer
 import uk.co.wonderlane.wlpos.loyalty.Member
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 
 @Transactional("loyalty")
 class LoyaltyMemberService {
+
+    def loyaltyService
 
     /* Performs a search for a member by email address */
     def findByEmail(String emailAddress) {
@@ -183,7 +187,7 @@ class LoyaltyMemberService {
         def currentDateTime = new DateTime()
 
         // Filter LoyaltyOffer objects by status and date range
-        def activeOffers = LoyaltyOffer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "${offerDescription}%")
+        def activeOffers = Offer.findAllByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndOfferDescriptionLike("ACTIVE", currentDateTime, currentDateTime, "${offerDescription}%")
 
         // Get the offers that are not linked to the member
         def offersNotLinkedToMember = activeOffers.findAll { offer ->
@@ -199,18 +203,35 @@ class LoyaltyMemberService {
     /* Creates a new Member Offer in the database */
     def saveMemberOffer(MemberOffer memberOffer, Integer memberId, Integer offerId) {
         def result = false
+        try {
+            def member = Member.get(memberId)
+            def offer = Offer.get(offerId)
 
-        def member = Member.get(memberId)
-        def offer = LoyaltyOffer.get(offerId)
+            memberOffer.member = member
+            memberOffer.offer = offer
 
-        memberOffer.member = member
-        memberOffer.offer = offer
+            if (memberOffer.validate()) {
+                memberOffer.save(flush: true)
+                result = true
+            }
 
-        if (memberOffer.validate()) {
-            memberOffer.save(flush: true)
-            result = true
+        } catch (Exception ex) {
+            log.error("Failed to update member offer,  Exception " + ex)
+            throw new RuntimeException("Failed to update member offer,  Exception " + ex.getMessage())
+        }
+        return result
+    }
+
+    @Transactional(value = "loyalty", propagation = Propagation.REQUIRES_NEW)
+    def updateMemberOffer(MemberOffer memberOffer, Integer memberId, Integer offerId){
+        try {
+            saveMemberOffer(memberOffer,  memberId,  offerId)
+            loyaltyService.updatedLoyaltyOfferCustomerCount(offerId)
+            return true
+        } catch (Exception ex) {
+            log.error("Member offer update failed, Exception " + ex)
+            return false
         }
 
-        return result
     }
 }
