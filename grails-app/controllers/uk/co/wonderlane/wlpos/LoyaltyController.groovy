@@ -11,6 +11,10 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
+import uk.co.wonderlane.wlpos.enums.SegmentStatus
+import uk.co.wonderlane.wlpos.enums.SegmentType
+import uk.co.wonderlane.wlpos.loyalty.Offer
+import uk.co.wonderlane.wlpos.loyalty.OfferSegment
 import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.reporting.SortParams
 import groovy.json.JsonOutput
@@ -25,7 +29,17 @@ class LoyaltyController {
 
     def index() {}
     def loyaltyMembers() {}
-    def loyaltySegment() {}
+
+    def loyaltySegment() {
+        def segmentCount = 0
+        def currentSegments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
+
+        if (currentSegments != null && currentSegments.size() > 0) {
+            segmentCount = currentSegments.size()
+        }
+
+        render(view: "loyaltySegment", model: [segmentCount: segmentCount])
+    }
 
     def transactions(String cardNumber) {
         render(view: "transactions", model: [cardNumber: cardNumber])
@@ -73,6 +87,16 @@ class LoyaltyController {
     def offerDetails(String cardNumber, Integer id) {
         def offer = loyaltyMemberService.getMemberOffer(id)
         render (view: "memberOfferDetails", model: [cardNumber: cardNumber, offer: offer])
+    }
+
+    def segmentDetails(Integer id) {
+        def segment = loyaltyService.getSegmentById(id)
+        render (view: "segmentDetails", model: [segment: segment])
+    }
+
+    def updateSegmentDetails(Integer id, Boolean edit) {
+        session.edit = edit
+        redirect(action: "segmentDetails", params: [id: id])
     }
 
     def transactionDetails(String cardNumber, String memberId, String id) {
@@ -147,13 +171,136 @@ class LoyaltyController {
             dateModified: DateTime.now(DateTimeZone.UTC)
         )
 
-        def updated = loyaltyMemberService.saveMemberOffer(memberOffer, memberId, offerId)
+        def updated = loyaltyMemberService.updateMemberOffer(memberOffer, memberId, offerId)
 
         if (updated) {
             flash.message = "Member Offer created successfully"
+        } else {
+            flash.error = "Member Offer creation failed"
         }
 
         redirect(action: "offers", params: [cardNumber: cardNumber])
+    }
+
+    def addLoyaltySegment() {
+        String segmentName
+        String segmentDescription
+        SegmentType type
+        Integer min
+        Integer max
+        SegmentStatus status
+        Boolean updated = false
+
+        try {
+            segmentName = params.name ? params.name : ""
+            segmentDescription = params.description ? params.description : ""
+            type = params.type ? SegmentType.valueOf(params.type) : null
+            min = params.min ?  Integer.parseInt(params.min) : 0
+            max = params.max ?  Integer.parseInt(params.max) : 0
+            status = params.status ? SegmentStatus.valueOf(params.status) : null
+        }
+        catch (Exception e) {
+            log.error("Error when attempting to add a loyalty segment, Exception " + e)
+            response.status = 400
+            return
+        }
+
+        if (!loyaltyService.checkIfSegmentExists(0, segmentName)) {
+            def segment = new Segment(retailerId: springSecurityService.principal.retailerId, name: segmentName, description: segmentDescription,
+                                        type: type, count: 0, min: min, max: max, status: status)
+            loyaltyService.saveSegment(segment)
+
+            updated = true
+        } else {
+            flash.error = "A segment with this name already exists, a unique name is required."
+        }
+
+        if (updated) {
+            flash.message = "Loyalty Segment created successfully"
+        }
+
+        redirect(action: "loyaltySegment")
+    }
+
+    def updateLoyaltySegment() {
+        Integer segmentId
+        String segmentName
+        String segmentDescription
+        SegmentType type
+        Integer min
+        Integer max
+        SegmentStatus status
+        Boolean updated = false
+        Boolean updateRequired = false
+
+        try {
+            if (params.id != null && params.id.length() > 0) {
+                segmentId = Integer.parseInt(params.id)
+            }
+            segmentName = params.name ? params.name : ""
+            segmentDescription = params.description ? params.description : ""
+            type = params.type ? SegmentType.valueOf(params.type) : null
+            min = params.min ?  Integer.parseInt(params.min) : 0
+            max = params.max ?  Integer.parseInt(params.max) : 0
+            status = params.status ? SegmentStatus.valueOf(params.status) : null
+        }
+        catch (Exception e) {
+            log.error("Error when attempting to update loyalty segment, Exception " + e)
+            response.status = 400
+            return
+        }
+
+        /* Get the segment that is being edited */
+        def currentSegment = loyaltyService.getSegmentById(segmentId)
+
+        if (!loyaltyService.checkIfSegmentExists(segmentId, segmentName)) {
+            if (currentSegment.name != segmentName) {
+                currentSegment.name = segmentName
+                updateRequired = true
+            }
+
+            if (currentSegment.description != segmentDescription) {
+                currentSegment.description = segmentDescription
+                updateRequired = true
+            }
+
+            if (currentSegment.type != type) {
+                currentSegment.type = type
+                updateRequired = true
+            }
+
+            if (currentSegment.min != min) {
+                currentSegment.min = min
+                updateRequired = true
+            }
+
+            if (currentSegment.max != max) {
+                currentSegment.max = max
+                updateRequired = true
+            }
+
+            if (currentSegment.status != status) {
+                currentSegment.status = status
+                updateRequired = true
+            }
+
+            if (updateRequired) {
+                currentSegment.dateModified = DateTime.now(DateTimeZone.UTC)
+
+                loyaltyService.saveSegment(currentSegment)
+                updated = true
+            } else {
+                flash.message = "No changes were made to the segment, so there was nothing to update"
+            }
+        } else {
+            flash.error = "A segment with this name already exists, a unique name is required. No updates were completed."
+        }
+
+        if (updated) {
+            flash.message = "Loyalty Segment updated successfully"
+        }
+
+        redirect(action: "loyaltySegment")
     }
 
     def memberOfferUpdate() {
@@ -395,28 +542,39 @@ class LoyaltyController {
     def loyaltyOffers() {}
 
     def ajaxSearchLoyaltySegment() {
-        int defaultPagination = 20
-        int defaultOffSet = 0
+        String searchTerm
+        String searchBy
+        String status
+        Integer max
+        Integer offset
+        String sortColumn
+        String sortOrder
+
         try {
-            def segment = loyaltyService.getSegment(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : defaultPagination,
-                    params.offset ? Integer.parseInt(params.offset) : defaultOffSet, "id", "asc")
-
-            render(template: "loyaltySegmentSearchResults", model: [segments              : segment?.segments,
-                                                                    loyaltySegmentTerm    : params.loyaltySegmentTerm,
-                                                                    loyaltySegmentSearchBy: params.loyaltySegmentSearchBy,
-                                                                    max                   : params.max ?: defaultPagination,
-                                                                    offset                : params.offset ?: defaultOffSet,
-                                                                    totalCount            : segment?.totalCount
-            ])
-        } catch (Exception ex) {
-            List<String> errorList = new ArrayList<>()
-            log.error("Error when loading loyalty segment search results, Search by " + params.searchBy + " search term " + params.searchTerm + " Exception " + ex)
-            errorList.add("Failed to load loyalty segments")
-            response.setStatus(500)
-            render status: 500, contentType: 'application/json', text: JsonOutput.toJson([error: errorList])
+            searchTerm = params.searchTerm ? params.searchTerm : ""
+            searchBy = params.searchBy ? params.searchBy : ""
+            status = params.status ? params.status : ""
+            max = params.max ? Integer.parseInt(params.max) : 20
+            offset = params.offset ? Integer.parseInt(params.offset) : 0
+            sortColumn = params.sortColumn ?: "id"
+            sortOrder = params.sortOrder ?: "desc"
+        } catch (Exception e) {
+            log.error("Error when searching for loyalty segments, Exception " + e)
+            response.status = 400
+            return
         }
-    }
 
+        def segment = loyaltyService.getSegment(searchTerm, searchBy, status, max, offset, sortColumn, sortOrder)
+
+        render(template: "loyaltySegmentSearchResults", model: [segments        : segment?.segments,
+                                                                searchTerm      : searchTerm,
+                                                                searchBy        : searchBy,
+                                                                max             : max,
+                                                                offset          : offset,
+                                                                sortColumn      : sortColumn,
+                                                                sortOrder       : sortOrder,
+                                                                totalCount      : segment?.totalCount])
+    }
 
     def ajaxSearchLoyaltyOffers(SortParams sortParams) {
         int defaultPagination = 20
@@ -444,7 +602,7 @@ class LoyaltyController {
     def showLoyaltyOffer(){
         try {
             boolean isUpdate = false
-            LoyaltyOffer originalLoyaltyOffer = null
+            Offer originalLoyaltyOffer = null
             List<Integer> selectedSegmentIds = new ArrayList<>()
             DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
 
@@ -470,7 +628,7 @@ class LoyaltyController {
             promotions?.each {promotion -> promotionEntityList.add(promotion.getPromotion())}
 
             //load all segments for retailer
-            List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId)
+            List<Segment> segments = loyaltyService.getLoyaltySegmentForRetailer(springSecurityService.principal.retailerId, SegmentStatus.ACTIVE)
 
             // Serialize promotions list into JSON string
             ObjectMapper objectMapper = new ObjectMapper()
@@ -504,18 +662,18 @@ class LoyaltyController {
     }
 
     def ajaxSaveLoyaltyOffers(LoyaltyOfferCommand loyaltyOfferCommand) {
-        LoyaltyOffer updatedLoyaltyOffer
+        Offer updatedLoyaltyOffer
         List<String> errorList = new ArrayList<>()
         try {
             if (loyaltyOfferCommand != null){
-                LoyaltyOffer originalLoyaltyOffer = null
+                Offer originalLoyaltyOffer = null
                 originalLoyaltyOffer = loyaltyService.getLoyaltyOfferById(loyaltyOfferCommand.getId()) //Load current loyalty offer value if exists
                 if (originalLoyaltyOffer == null){ //If no current loyalty exists create new one
-                    originalLoyaltyOffer = new LoyaltyOffer()
+                    originalLoyaltyOffer = new Offer()
                 }
-                List<LoyaltyOfferSegment> originalLoyaltyOfferSegments = loyaltyService.getLoyaltyOfferSegmentsById(originalLoyaltyOffer.id) //Load current loyalty offer segments
+                List<OfferSegment> originalLoyaltyOfferSegments = loyaltyService.getLoyaltyOfferSegmentsById(originalLoyaltyOffer.id) //Load current loyalty offer segments
                 updatedLoyaltyOffer = loyaltyService.populateUpdatedOffer(originalLoyaltyOffer, loyaltyOfferCommand) //Populate updated loyalty offer values
-                List<LoyaltyOfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(originalLoyaltyOfferSegments,
+                List<OfferSegment> updatedLoyaltySegments = loyaltyService.updateLoyaltySegments(originalLoyaltyOfferSegments,
                         originalLoyaltyOffer.getLoyaltyOfferSegments()) //Get updated loyalty segments
                 //Save loyalty offers + loyalty offer segments + push saved loyalty offer into rabbitMQ
                 loyaltyService.loyaltyOfferSave(updatedLoyaltyOffer, updatedLoyaltySegments)
@@ -546,6 +704,8 @@ class LoyaltyController {
 class LoyaltyOfferCommand {
     int id
     String offerDescription
+    String offerMarketingText
+    String offerTermsText
     int retailerOfferId
     int retailerId
     LoyaltyOfferStatus status

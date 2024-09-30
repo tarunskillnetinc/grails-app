@@ -530,7 +530,7 @@ environments:
                 database: cerberus-loyalty
 
         wlpos:
-            defaultImageBucket: "persephone-retail-platform-default-images"
+            defaultImageBucket: "cerberus-retail-platform-default-images"
             cfdImageBucket: "cerberus-retail-platform-customer-display-images"
             receiptImageBucket: "cerberus-retail-platform-receipt-images"
             buttonImageBucket: "cerberus-retail-platform-button-images"

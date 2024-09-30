@@ -163,7 +163,7 @@
                     $('.add-product-receiptDesc').removeClass("is-invalid");
                 });
 
-                $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnable});
+                $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
 
 
             }
