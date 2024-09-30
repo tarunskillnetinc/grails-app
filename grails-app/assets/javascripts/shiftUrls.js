@@ -4,14 +4,15 @@ var ShiftUrls = ShiftUrls || (function () {
     var _changeCashUpTypeUrl;
     var _saveCashUrl;
     var _saveShiftUrl;
+    var _openShiftUrl;
 
     return {
-        init : function (getShiftsUrl, getCashDetailsUrl, changeCashUpTypeUrl, saveCashUrl, saveShiftUrl) {
+        init : function (getShiftsUrl, getCashDetailsUrl, changeCashUpTypeUrl, saveCashUrl, saveShiftUrl, openShiftUrl) {
             _getShiftsUrl = getShiftsUrl;
             _getCashDetailsUrl = getCashDetailsUrl;
             _changeCashUpTypeUrl = changeCashUpTypeUrl;
             _saveCashUrl = saveCashUrl;
-            _saveShiftUrl = saveShiftUrl;
+            _openShiftUrl = openShiftUrl;
         },
         getShiftsUrl : function () {
             return _getShiftsUrl;
@@ -27,6 +28,9 @@ var ShiftUrls = ShiftUrls || (function () {
         },
         saveShiftUrl : function() {
             return _saveShiftUrl;
+        },
+        openShiftUrl : function() {
+            return _openShiftUrl;
         }
     }
 } ());

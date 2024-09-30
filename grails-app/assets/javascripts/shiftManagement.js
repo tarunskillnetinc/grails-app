@@ -7,7 +7,9 @@ function getShifts() {
         url: ShiftUrls.getShiftsUrl(),
         method: "POST",
         data: { tillId: tillId },
+        // dataType: 'json',
         success: function(resp) {
+            console.log("yooooooooooooooooooooooooooooooooooooooooooooooooooooo")
             $("#results-container").html(resp);
         },
         error: function() {
@@ -238,4 +240,30 @@ function submitShift() {
             $("#modal-content").html(resp);
         }
     });
+}
+
+function openShifts(retailerId, storeId, tillId) {
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+
+    $.ajax({
+        url: ShiftUrls.openShiftUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId},
+        // dataType: 'json',
+        success: function(resp) {
+            $("#results-container").html(resp);
+
+        },
+        error: function() {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            const result = document.createElement('div');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
+                .html('No shifts found.');
+            $("#search-results").html(result);
+        },
+    });
+
 }

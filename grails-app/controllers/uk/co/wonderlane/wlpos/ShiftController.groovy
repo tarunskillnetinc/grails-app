@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.converters.JSON
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -38,16 +39,28 @@ class ShiftController {
     }
 
     def ajaxGetShifts() {
+        def successMessage
+        if (params.successMessage){
+            successMessage = params.successMessage
+        }
+
+
         Integer tillId = null
         if (params.tillId) {
             try {
                 tillId = Integer.parseInt(params.tillId)
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // Non-numeric input added, do nothing.
             }
         }
 
         List<Shift> shiftList = shiftService.getShifts(tillId)
+
+        List<Shift> shiftNonExistsList = shiftService.getShiftsForNonExistingTills(shiftList)
+
+        if (shiftNonExistsList != null && !shiftNonExistsList.isEmpty()){
+            shiftList.addAll(shiftNonExistsList)
+        }
 
         boolean isFinancialWeekExists = shiftList.any { shift -> shift.financialWeek != null }
 
@@ -60,7 +73,7 @@ class ShiftController {
         // Sort the map by tillId
         def sortedShiftMap = shiftMap.sort { it.key }
 
-        render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime()])
+        render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage])
     }
 
     def ajaxGetCashDetails(int shiftId) {
@@ -242,6 +255,24 @@ class ShiftController {
         }
 
         render(template: "cashUpSummaryModal", model: [ shift: shift ])
+    }
+
+    def ajaxOpenShift(){
+        int retailerId  = Integer.parseInt(params.retailerId)
+        int storeId  = Integer.parseInt(params.storeId)
+        int tillId  = Integer.parseInt(params.tillId)
+        try {
+            def shift = shiftService.getOpenShift(retailerId, storeId, tillId)
+            if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
+                shift = shiftService.createNewShift(retailerId, storeId, tillId, false)
+                flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getId(), tillId)
+            } else {
+                flash.message = String.format("Till %d’s shift was already open", tillId)
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Shift create error: %d store: %d tillId: %d error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
+        }
+        redirect(action: "ajaxGetShifts", params: [successMessage: flash.message])
     }
 }
 

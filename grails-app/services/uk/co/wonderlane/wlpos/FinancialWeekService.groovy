@@ -6,7 +6,7 @@ import grails.gorm.transactions.Transactional
 import org.springframework.web.multipart.MultipartFile
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
-import uk.co.wonderlane.wlpos.reporting.FinancialWeek
+import uk.co.wonderlane.wlpos.transactions.FinancialWeek
 
 import javax.validation.ConstraintViolationException
 import java.sql.Date
