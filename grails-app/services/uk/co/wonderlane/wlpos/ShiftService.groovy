@@ -170,8 +170,15 @@ class ShiftService extends MySqlDal {
                 List<TillConfiguration> tillConfigList = getAllActiveTills(storeNumber, tillId)
                 Set<Integer> shiftTillIds = shiftList.stream().map(Shift::getTillId).collect(Collectors.toSet())
 
+                Map<Integer, ShiftStatus> openTillsMap = shiftList.stream().filter(
+                        shift -> shift.getShiftStatus() == ShiftStatus.OPEN)
+                        .collect(Collectors.toMap(Shift::getTillId,
+                                shift -> ShiftStatus.OPEN,
+                                (existing, replacement) -> existing
+                        ));
+
                 nonExistingShiftList = tillConfigList.stream()
-                        .filter(tillConfig -> !shiftTillIds.contains(tillConfig.getTillId()))
+                        .filter(tillConfig -> !shiftTillIds.contains(tillConfig.getTillId()) || openTillsMap.get(tillConfig.getTillId()) == null)
                         .map(tillConfig -> {
                             Shift nonExistingShift = new Shift()
                             nonExistingShift.setId(0)

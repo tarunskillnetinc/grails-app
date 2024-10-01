@@ -67,14 +67,21 @@ class ShiftController {
             //Check any financial week available for shifts
             boolean isFinancialWeekExists = shiftList.any { shift -> shift.financialWeek != null }
 
-            // Group shifts by tillId and sort each group by shiftNumber
+            //Group shifts by tillId and sort each group by shiftNumber
+            //If shift number is null then push them into bottom of the list
             def shiftMap = shiftList.groupBy { it.tillId }
                     ?.collectEntries { entryTillId, shifts ->
-                        [(entryTillId): shifts.sort { it.shiftNumber }]
+                        [(entryTillId): shifts.sort { a, b ->
+                            if (a.shiftNumber == null && b.shiftNumber == null) return 0
+                            if (a.shiftNumber == null) return 1
+                            if (b.shiftNumber == null) return -1
+                            return a.shiftNumber <=> b.shiftNumber
+                        }]
                     }
 
             // Sort the map by tillId
             def sortedShiftMap = shiftMap.sort { it.key }
+
             render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage])
 
         } catch (Exception ex) {
