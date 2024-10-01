@@ -92,6 +92,8 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+        storeService = ref('storeService')
+        userService = ref('userService')
     }
 
     snapshotService(SnapshotService,

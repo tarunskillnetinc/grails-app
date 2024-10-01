@@ -7,9 +7,7 @@ function getShifts() {
         url: ShiftUrls.getShiftsUrl(),
         method: "POST",
         data: { tillId: tillId },
-        // dataType: 'json',
         success: function(resp) {
-            console.log("yooooooooooooooooooooooooooooooooooooooooooooooooooooo")
             $("#results-container").html(resp);
         },
         error: function() {
@@ -245,15 +243,13 @@ function submitShift() {
 function openShifts(retailerId, storeId, tillId) {
     $("#search-results").hide();
     $("#loading-indicator").show();
-
+    tillIdFilter = $("#tillId").val();
     $.ajax({
         url: ShiftUrls.openShiftUrl(),
         method: "POST",
-        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId},
-        // dataType: 'json',
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, tillIdFilter: tillIdFilter},
         success: function(resp) {
             $("#results-container").html(resp);
-
         },
         error: function() {
             $("#loading-indicator").hide();

@@ -38,13 +38,12 @@ class ShiftController {
         [startDate: params.startDate ?: startDate , endDate: params.endDate ?: endDate, tillId: params.tillId]
     }
 
-    def ajaxGetShifts() {
+    def ajaxGetShifts() { //Method to load all shifts
         def successMessage = params.successMessage
         def errorMessage = params.errorMessage
         Integer tillId = null
-
         try {
-            if (params.tillId) {
+            if (params.tillId) { //Check request contains till number and try to pass it
                 try {
                     tillId = Integer.parseInt(params.tillId)
                 } catch (Exception ex) {
@@ -53,14 +52,19 @@ class ShiftController {
                 }
             }
 
-            List<Shift> shiftList = shiftService.getShifts(tillId)
+            List<Shift> shiftList = shiftService.getShifts(tillId) //Load existing active shifts
 
-            List<Shift> shiftNonExistsList = shiftService.getShiftsForNonExistingTills(shiftList)
+            //This will load shifts for tills currently which do not have any existing tills on `shift` table
+            //1. This will load all tills in `tillConfiguration` table
+            //2. Then it will check any till is not having current shift
+            //3. Then return dummy shift list which do not have active shift
+            List<Shift> shiftNonExistsList = shiftService.getShiftsForNonExistingTills(shiftList, tillId)
 
+            //Add previously return dummy shift to existing list
             if (shiftNonExistsList != null && !shiftNonExistsList.isEmpty()){
                 shiftList.addAll(shiftNonExistsList)
             }
-
+            //Check any financial week available for shifts
             boolean isFinancialWeekExists = shiftList.any { shift -> shift.financialWeek != null }
 
             // Group shifts by tillId and sort each group by shiftNumber
@@ -263,22 +267,29 @@ class ShiftController {
         render(template: "cashUpSummaryModal", model: [ shift: shift ])
     }
 
-    def ajaxOpenShift(){
-        int retailerId  = Integer.parseInt(params.retailerId)
-        int storeId  = Integer.parseInt(params.storeId)
-        int tillId  = Integer.parseInt(params.tillId)
+
+    def ajaxOpenShift(){ // This is method to functioning action button of shift
+        Integer retailerId = null
+        Integer storeId = null
+        Integer tillId = null
+        Integer tillIdFilter = null //If any till id added into filter then pass it
         try {
-            def shift = shiftService.getOpenShift(retailerId, storeId, tillId)
-            if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
-                shift = shiftService.createNewShift(retailerId, storeId, tillId, false)
+            shiftService.validateParams(params)
+            retailerId  = Integer.parseInt(params.retailerId)
+            storeId  = Integer.parseInt(params.storeId)
+            tillId  = Integer.parseInt(params.tillId)
+            tillIdFilter  = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null //If any till id added into filter then pass it
+            def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing shift
+            if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) { // Check shift is null or not open if so then proceed to create new shift
+                shift = shiftService.createNewShift(retailerId, storeId, tillId, false) //call function to open shift
                 flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getId(), tillId)
             } else {
-                flash.message = String.format("Till %d’s shift was already open", tillId)
+                flash.message = String.format("Till %d's shift was already open", tillId)
             }
         } catch (Exception ex) {
             log.error(String.format("Shift create error: %d store: %d tillId: %d error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
         }
-        redirect(action: "ajaxGetShifts", params: [successMessage: flash.message])
+        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message]) //Once done redirect to process get shift action
     }
 }
 
