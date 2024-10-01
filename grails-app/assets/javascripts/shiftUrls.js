@@ -12,6 +12,7 @@ var ShiftUrls = ShiftUrls || (function () {
             _getCashDetailsUrl = getCashDetailsUrl;
             _changeCashUpTypeUrl = changeCashUpTypeUrl;
             _saveCashUrl = saveCashUrl;
+            _saveShiftUrl = saveShiftUrl;
             _openShiftUrl = openShiftUrl;
         },
         getShiftsUrl : function () {
