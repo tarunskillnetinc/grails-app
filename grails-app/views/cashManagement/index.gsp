@@ -3,6 +3,14 @@
 <head>
     <meta name="layout" content="main" />
     <title>Retailer Settings</title>
+
+    <asset:stylesheet src="multi-select-checks.css" />
+
+    <asset:javascript src="validators/input-validator.js" />
+    <asset:javascript src="popper.min.js" />
+    <asset:javascript src="multi-select-checks.js" />
+    <asset:javascript src="money-mask.js" />
+
 </head>
 <body>
 <section id="breadcrumb-container" class="container-fluid">
@@ -17,6 +25,6 @@
         </div>
     </nav>
 </section>
-<g:render template="cashManagementTemp" model='[config:config,onlyRetailerLevel:true]'/>
+<g:render template="cashManagementTemp" model='[config:config,onlyRetailerLevel:onlyRetailerLevel]'/>
 </body>
 </html>

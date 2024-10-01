@@ -9,30 +9,10 @@
 </script>
 
 <div class="row mt-1 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-2 font-weight-bold text-left"> <a id="sinifier-list-type" href="#" onclick="getSignifiers({
-        max: ${sortParams?.max},
-        offset: ${sortParams?.offset},
-        sort: 'type',
-        order: ${sortParams?.sort == 'type' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-    });">Type</a></div>
-    <div class="col-2 font-weight-bold text-center"> <a id="sinifier-list-pattern" href="#" onclick="getSignifiers({
-        max: ${sortParams?.max},
-        offset: ${sortParams?.offset},
-        sort: 'startIndex',
-        order: ${sortParams?.sort == 'startIndex' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-});">Start Index</a></div>
-    <div class="col-2 font-weight-bold text-center"> <a id="sinifier-list-length" href="#" onclick="getSignifiers({
-        max: ${sortParams?.max},
-        offset: ${sortParams?.offset},
-        sort: 'length',
-        order: ${sortParams?.sort == 'length' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-});">Length</a></div>
-    <div class="col-2 font-weight-bold text-center"> <a id="sinifier-list-description" href="#" onclick="getSignifiers({
-        max: ${sortParams?.max},
-        offset: ${sortParams?.offset},
-        sort: 'format',
-        order: ${sortParams?.sort == 'format' ? sortParams?.order == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''}
-    });">Format</a></div>
+    <div class="col-2 font-weight-bold text-left">Type</div>
+    <div class="col-2 font-weight-bold text-center"> Start Index</div>
+    <div class="col-2 font-weight-bold text-center">Length</div>
+    <div class="col-2 font-weight-bold text-center">Format</div>
     <div class="col-4 font-weight-bold text-center"></div>
 </div>
 

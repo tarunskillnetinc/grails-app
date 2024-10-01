@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.GsonBuilder
-import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.Validateable
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
@@ -10,12 +9,13 @@ class CashManagementController {
 
     def springSecurityService
     def cashManagementService
+    def storeService
 
     def gson = new GsonBuilder()
             .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
             .create()
 
-    def index(Integer storeId) {
+    def index(Integer storeId, String storeNumber, String storeName) {
         CashManagement cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                 storeId)
         def storeLevelExist = storeId != null && cashManagement != null
@@ -37,6 +37,11 @@ class CashManagementController {
             cashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,
                     null)
         }
+        if (storeId != null && storeNumber == null) {
+            def store = storeService.getStore(springSecurityService.principal.retailerId, storeId)
+            storeNumber = store?.config?.storeNumber
+            storeName = store?.config?.storeName
+        }
         CashManagementConfigViewAdapter cashManagementConfigViewAdapter = null
         if (cashManagement != null) {
             cashManagementConfigViewAdapter = gson.fromJson(gson.toJson(cashManagement.config),
@@ -47,63 +52,79 @@ class CashManagementController {
         }
         if (storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
             // Render the example template when storeLevelExist is false
-            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId])
+            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId, storeNumber:storeNumber, storeName:storeName])
         } else {
-            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId]
+            [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId, storeNumber:storeNumber, storeName:storeName]
         }
     }
 
     def save(CashManagementFormData cashManagementFormData) {
         def errorMessages = []
 
+        def onlyRetailerLevel = cashManagementFormData.modelOnlyRetailerLevel
+
         def patternDays = /^(1?2?3?4?5?6?7?)$/
         def patternTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/
 
-        if (cashManagementFormData.automaticCloseDays != null && !(cashManagementFormData.automaticCloseDays ==~ patternDays)) {
-            errorMessages << "Automatic close days format incorrect."
-        }
-        if (cashManagementFormData.automaticCloseTime != null && !(cashManagementFormData.automaticCloseTime ==~ patternTime)) {
-            errorMessages << "Automatic close time format incorrect."
+        def expectRetailerConfig = false
+        if (onlyRetailerLevel) {
+            if (cashManagementFormData.automaticCloseDays != null && !(cashManagementFormData.automaticCloseDays ==~ patternDays)) {
+                errorMessages << "Automatic close days format incorrect."
+            }
+            if (cashManagementFormData.automaticCloseTime != null && !(cashManagementFormData.automaticCloseTime ==~ patternTime)) {
+                errorMessages << "Automatic close time format incorrect."
+            }
+            if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
+                errorMessages << "Till auto snapshot days format incorrect."
+            }
+            if (cashManagementFormData.tillAutoSnapshotTime != null && !(cashManagementFormData.tillAutoSnapshotTime ==~ patternTime)) {
+                errorMessages << "Till auto snapshot time format incorrect."
+            }
+            if (cashManagementFormData.safeAutoSnapshotDays != null && !(cashManagementFormData.safeAutoSnapshotDays ==~ patternDays)) {
+                errorMessages << "Safe auto snapshot days format incorrect."
+            }
+            if (cashManagementFormData.safeAutoSnapshotTime == null || cashManagementFormData.safeAutoSnapshotTime.isEmpty()) {
+                errorMessages << "Safe auto snapshot time cannot be empty."
+            } else if (!(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
+                errorMessages << "Safe auto snapshot time format incorrect."
+            }
+        } else {
+            CashManagement retailerLevelCashManagement = cashManagementService.getCashManagement(springSecurityService.principal.retailerId,null)
+            if (retailerLevelCashManagement == null || retailerLevelCashManagement.getConfig() == null) {
+                expectRetailerConfig = true
+                errorMessages << "Retailer level Cash Management not configured yet."
+            } else {
+                //Restricted fields are not allowed to modify.
+                preventRestrictedFieldModifications(retailerLevelCashManagement, cashManagementFormData)
+            }
         }
 
-        if (cashManagementFormData.rollingFloatValue == null) {
-            errorMessages << "Rolling float value cannot be empty."
-        } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.00) {
-            errorMessages << "Rolling float value must have a value between 1.00 and 999.00."
-        }
-        if (cashManagementFormData.tillShiftVarianceLimit != null &&  (cashManagementFormData.tillShiftVarianceLimit < 0
-                || cashManagementFormData.tillShiftVarianceLimit > 999.00)) {
-            errorMessages << "Till shift variance limit must have a value between 0.00 and 999.00."
-        }
-        if (cashManagementFormData.safeVarianceLimit != null &&  (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.00)) {
-            errorMessages << "Safe variance limit must have a value between 0.00 and 999.00."
-        }
-        if (cashManagementFormData.tillAutoSnapshotDays != null && !(cashManagementFormData.tillAutoSnapshotDays ==~ patternDays)) {
-            errorMessages << "Till auto snapshot days format incorrect."
-        }
-        if (cashManagementFormData.tillAutoSnapshotTime != null && !(cashManagementFormData.tillAutoSnapshotTime ==~ patternTime)) {
-            errorMessages << "Till auto snapshot time format incorrect."
-        }
-        if (cashManagementFormData.safeAutoSnapshotDays != null && !(cashManagementFormData.safeAutoSnapshotDays ==~ patternDays)) {
-            errorMessages << "Safe auto snapshot days format incorrect."
-        }
-        if (cashManagementFormData.safeAutoSnapshotTime == null || cashManagementFormData.safeAutoSnapshotTime.isEmpty()) {
-            errorMessages << "Safe auto snapshot time cannot be empty."
-        } else if (!(cashManagementFormData.safeAutoSnapshotTime ==~ patternTime)) {
-            errorMessages << "Safe auto snapshot time format incorrect."
-        }
-        if (cashManagementFormData.tillCashHoldingLimit != null &&  (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.00)) {
-            errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.00."
-        }
-        if (cashManagementFormData.tillShiftRecountLimit == null) {
-            errorMessages << "Till shift recount limit cannot be empty."
-        } else if (cashManagementFormData.tillShiftRecountLimit < 0 || cashManagementFormData.tillShiftRecountLimit > 99) {
-            errorMessages << "The till shift recount limit must have a value between 0 and 99."
-        }
-        if (cashManagementFormData.safeRecountLimit == null) {
-            errorMessages << "Safe recount limit cannot be empty."
-        } else if (cashManagementFormData.safeRecountLimit < 0 || cashManagementFormData.safeRecountLimit > 99) {
-            errorMessages << "Safe recount limit must have a value between 0 and 99."
+        if (!expectRetailerConfig) {
+            if (cashManagementFormData.rollingFloatValue == null) {
+                errorMessages << "Rolling float value cannot be empty."
+            } else if (cashManagementFormData.rollingFloatValue < 1.00 || cashManagementFormData.rollingFloatValue > 999.99) {
+                errorMessages << "Rolling float value must have a value between 1.00 and 999.99."
+            }
+            if (cashManagementFormData.tillShiftVarianceLimit != null && (cashManagementFormData.tillShiftVarianceLimit < 0
+                    || cashManagementFormData.tillShiftVarianceLimit > 999.99)) {
+                errorMessages << "Till shift variance limit must have a value between 0.00 and 999.99."
+            }
+            if (cashManagementFormData.safeVarianceLimit != null && (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.99)) {
+                errorMessages << "Safe variance limit must have a value between 0.00 and 999.99."
+            }
+            if (cashManagementFormData.tillCashHoldingLimit != null && (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
+                errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.99."
+            }
+            if (cashManagementFormData.tillShiftRecountLimit == null) {
+                errorMessages << "Till shift recount limit cannot be empty."
+            } else if (cashManagementFormData.tillShiftRecountLimit < 0 || cashManagementFormData.tillShiftRecountLimit > 99) {
+                errorMessages << "The till shift recount limit must have a value between 0 and 99."
+            }
+            if (cashManagementFormData.safeRecountLimit == null) {
+                errorMessages << "Safe recount limit cannot be empty."
+            } else if (cashManagementFormData.safeRecountLimit < 0 || cashManagementFormData.safeRecountLimit > 99) {
+                errorMessages << "Safe recount limit must have a value between 0 and 99."
+            }
         }
 
         if (errorMessages != null && !errorMessages.isEmpty()) {
@@ -112,18 +133,48 @@ class CashManagementController {
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
-            flash.message = ["Cash Management saved successfully."]
+            flash.message = ["Configurations saved successfully."]
             redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         }
+    }
+
+    /**
+     * Restricted fields are not allowed to modify.
+     */
+    private void preventRestrictedFieldModifications(CashManagement retailerLevelCashManagement, CashManagementFormData cashManagementFormData) {
+        CashManagementConfig cashManagementConfig = retailerLevelCashManagement.getConfig()
+        cashManagementFormData.manualOrAutoOpen = cashManagementConfig.isTillShiftsManualOpen() ? "manual" : "auto"
+        cashManagementFormData.manualOrAutoClose = cashManagementConfig.isTillShiftsManualClose() ? "manual" : "auto"
+        if (cashManagementConfig.getTillShiftsAutoCloseDays() != null && cashManagementConfig.getTillShiftsAutoCloseDays().size() > 0) {
+            cashManagementFormData.automaticCloseDays = new String(cashManagementConfig.getTillShiftsAutoCloseDays())
+        } else {
+            cashManagementFormData.automaticCloseDays = ""
+        }
+        cashManagementFormData.automaticCloseTime = cashManagementConfig.getTillShiftsAutoCloseTime()
+        if (cashManagementConfig.getTillAutoSnapshotDays() != null && cashManagementConfig.getTillAutoSnapshotDays().size() > 0) {
+            cashManagementFormData.tillAutoSnapshotDays = new String(cashManagementConfig.getTillAutoSnapshotDays())
+        } else {
+            cashManagementFormData.tillAutoSnapshotDays = ""
+        }
+        cashManagementFormData.tillAutoSnapshotTime = cashManagementConfig.getTillAutoSnapshotTime()
+        if (cashManagementConfig.getSafeAutoSnapshotDays() != null && cashManagementConfig.getSafeAutoSnapshotDays().size() > 0) {
+            cashManagementFormData.safeAutoSnapshotDays = new String(cashManagementConfig.getSafeAutoSnapshotDays())
+        } else {
+            cashManagementFormData.safeAutoSnapshotDays = ""
+        }
+        cashManagementFormData.safeAutoSnapshotTime = cashManagementConfig.getSafeAutoSnapshotTime()
     }
 
     def deleteStoreLevelConfig(Integer storeId) {
         if (params.storeId) {
             storeId = Integer.parseInt(params.storeId)
         }
-        def isStoreLevelLogin = params.isStoreLevelLogin
+        Boolean isStoreLevelLogin = null;
+        if (params.isStoreLevelLogin) {
+            isStoreLevelLogin = Boolean.parseBoolean(params.isStoreLevelLogin)
+        }
         cashManagementService.deleteStoreLevelConfig(storeId)
-        flash.message = ["Successfully revert to retailer level."]
+        flash.message = ["Successfully reverted to retailer level."]
         redirect(action: "index", params:[isStoreLevelLogin:isStoreLevelLogin, storeId: storeId])
     }
 
@@ -136,7 +187,7 @@ class CashManagementFormData implements Validateable {
     String manualOrAutoClose
     String automaticCloseDays
     String automaticCloseTime
-    Boolean isRollingFloatEnable
+    Boolean isRollingFloatEnabled
     Double rollingFloatValue
     Integer tillShiftRecountLimit
     Double tillShiftVarianceLimit
@@ -150,7 +201,7 @@ class CashManagementFormData implements Validateable {
     Double tillCashHoldingLimit
     boolean modelOnlyRetailerLevel
     boolean modelStoreLevelExist
-    boolean modelIsStoreLevelLogin
+    Boolean modelIsStoreLevelLogin
 
     public CashManagementConfig toConfig() {
         CashManagementConfig cashManagementConfig = new CashManagementConfig()
