@@ -70,7 +70,7 @@ class ProductController extends BaseController {
 
         def locationsType = springSecurityService.principal.retailer.config.locationsType.name()
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
@@ -86,7 +86,7 @@ class ProductController extends BaseController {
                                     snappyEnabled      : springSecurityService.principal.retailer.config.snappyShopperEnabled,
                                     locationsEnabled   : locationsEnabled,
                                     locationsType      : locationsType,
-                                    loyaltyEnable      : loyaltyEnable])
+                                    loyaltyEnabled     : loyaltyEnabled])
     }
 
     private void setEffectiveDate() {
@@ -119,7 +119,7 @@ class ProductController extends BaseController {
         }
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -131,7 +131,7 @@ class ProductController extends BaseController {
                                     isNewProduct    : true,
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
-                                    loyaltyEnable      : loyaltyEnable])
+                                    loyaltyEnabled  : loyaltyEnabled])
     }
 
     def search() {
@@ -676,7 +676,7 @@ class ProductController extends BaseController {
 
             product.discard()
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
-            def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+            def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
@@ -691,7 +691,7 @@ class ProductController extends BaseController {
                                         vatValues          : vatValues,
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
-                                        loyaltyEnable      : loyaltyEnable])
+                                        loyaltyEnabled     : loyaltyEnabled])
         }
     }
 
@@ -871,11 +871,16 @@ class ProductController extends BaseController {
         }
     }
 
-    private void checkPackForBarcodeChanges(def product, def existingPack, def editedPack, DateTime effectiveDate) {
+    private void checkPackForBarcodeChanges(def packs, def product, def existingPack, def editedPack, DateTime effectiveDate, int variantId) {
         editedPack.barcodez?.each { editedBarcode ->
-            def existingBarcode = existingPack.barcodez?.find { existingBarcode -> existingBarcode.id == editedBarcode.id }
+            def existingDbBarcode = existingPack.barcodes?.find { existingBarcode ->
+                existingBarcode.barcode == editedBarcode.barcode
+            }
+            def existingLocalBarcode = existingPack.barcodez?.find { existingBarcode ->
+                existingBarcode.barcode == editedBarcode.barcode
+            }
 
-            if (!existingBarcode) {  // If no existing barcode then treat as newly added barcodes.
+            if (!existingDbBarcode) {  // If no existing barcode then treat as newly added barcodes.
                 Barcode barcode = new Barcode()
                 barcode.pack = existingPack
                 barcode.retailerId = springSecurityService.principal.retailerId
@@ -883,21 +888,22 @@ class ProductController extends BaseController {
                 barcode.effectiveDate = effectiveDate
                 barcode.recordStatus = 'C'
 
-                existingPack.barcodez.add(barcode)
 
                 if (!isValidBarcode(barcode)) {
-                    product.errors.reject(
-                            'product.barcodes.notUnique',
-                            [barcode.barcode] as Object[],
-                            'Barcode {0} already exists on another SKU.')
+                    rejectProduct(product, barcode.barcode, 'product.barcodes.notUnique', 'Barcode {0} already exists on another SKU.')
+                } else if (existingPack.supplier != null && !existingLocalBarcode && doesBarcodeExistForSupplier(barcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs, variantId)) {
+                    rejectProductByPackBarcode(product, barcode.barcode)
+                } else if (doesBarcodeExistForOtherProductsInSupplier(barcode.barcode, (int) existingPack.supplier.id, existingPack.id, variantId)) {
+                    rejectProductByProductVariantBarcode(product, barcode.barcode)
+                } else if (!existingLocalBarcode) {
+                    existingPack.barcodez.add(barcode)
                 }
-
-            } else if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+            } else if (existingDbBarcode.barcode != null && existingDbBarcode.barcode != editedBarcode.barcode) {
                 // If barcode do exists change update existing values
                 // Only update if user has changed barcode value or else skip
                 //Mark current barcode to delete this will insert new mark delete entry to DB
-                existingBarcode.delete = true
-                existingBarcode.effectiveDeleteDate = effectiveDate
+                existingDbBarcode.delete = true
+                existingDbBarcode.effectiveDeleteDate = effectiveDate
                 //New effective date needed to be set as effective date of mark delete entry
 
                 //Add new barcode to replacing existing
@@ -913,9 +919,11 @@ class ProductController extends BaseController {
                             'product.barcodes.notUnique',
                             [futureBarcode.barcode] as Object[],
                             'Barcode {0} already exists on another SKU.')
+                } else if (existingPack.supplier != null && doesBarcodeExistForSupplier(futureBarcode.barcode, existingPack.id, (int) existingPack.supplier.id, packs)) {
+                    rejectProductByPackBarcode(product, futureBarcode.barcode)
                 } else {
                     //Add mark deleted barcode and newly updated barcode to add into DB
-                    existingPack.barcodez.add(existingBarcode)
+                    existingPack.barcodez.add(existingDbBarcode)
                     existingPack.barcodez.add(futureBarcode)
                 }
             }
@@ -930,8 +938,104 @@ class ProductController extends BaseController {
                 existingBarcode.effectiveDeleteDate = effectiveDate
                 //New effective date needed to be set as effective date of mark delete entry
                 existingPack.barcodez.add(existingBarcode)
+            } else if (doesBarcodeExistForSupplier(editedBarcode.barcode, existingPack.id, editedPack.supplier.id, packs, variantId)) {
+                rejectProductByPackBarcode(product, editedBarcode.barcode)
             }
         }
+    }
+
+    private rejectProductByPackBarcode(def product, String barcode) {
+        rejectProduct(product, barcode, 'pack.barcodes.notUnique', 'Barcode {0} already exists on another pack.')
+    }
+
+    private rejectProductByProductVariantBarcode(def product, String barcode) {
+        rejectProduct(product, barcode, 'pack.barcodes.notUnique', 'Barcode {0} is used by another product.')
+    }
+
+    private boolean doesBarcodeExistForSupplier(String barcode, def packId, int supplierId, def packs, int variantId) {
+        boolean existsInPacks = packs.any { pack ->
+            if (pack.id != packId && pack.supplier.id == supplierId) {
+                pack.barcodez.any { packBarcode ->
+                    return packBarcode.barcode == barcode
+                }
+            }
+        }
+
+        def allMatchingBarcodesDeleted = checkBarcodesForSupplierDeleted(barcode, supplierId, packId, variantId)
+
+        return existsInPacks && !allMatchingBarcodesDeleted
+    }
+
+    private boolean doesBarcodeExistForOtherProductsInSupplier(String barcode, int supplierId, int packId, int variantId) {
+        def barcodes = productService.getBarcodesExists(barcode, supplierId, packId, variantId)
+        Map<String, List<Barcode>> groupedBarcodes = barcodes.groupBy {[it.barcode, it.packId]}
+        boolean existingBarcode = false
+
+        // Need to check if more created records exist than deleted records for other barcodes (NOTE - this is subject to change as this isn't the original intention)
+        for (Map.Entry<String, List<Barcode>> barcodeGrouping in groupedBarcodes) {
+            if (barcodeGrouping.value.count({it.recordStatus =='C'}) > barcodeGrouping.value.count({it.recordStatus =='D'}))
+            {
+                existingBarcode = true
+                break
+            }
+        }
+        return existingBarcode
+    }
+
+    private boolean checkBarcodesForSupplierDeleted(String barcode, int supplierId, int packId, int variantId) {
+        def barcodes = productService.getBarcodes(barcode, supplierId, packId, variantId, false)
+        if (!barcodes.isEmpty()) {
+            LinkedHashMap<Long, Integer> createDeleteMap = [:]
+            for (barcodeEntry in barcodes) {
+                if (!checkBarcodePackIsActive(barcodeEntry)) {
+                    // Pack for this barcode is not active, we can ignore it
+                    continue
+                }
+
+                if (createDeleteMap[barcodeEntry.packId] == null) {
+                    createDeleteMap[barcodeEntry.packId] = 0
+                }
+
+                if (barcodeEntry.recordStatus == 'C') {
+                    createDeleteMap[barcodeEntry.packId] = createDeleteMap[barcodeEntry.packId] + 1
+                } else if (barcodeEntry.recordStatus == 'D') {
+                    createDeleteMap[barcodeEntry.packId] = createDeleteMap[barcodeEntry.packId] - 1
+                }
+            }
+
+            for (packEntry in createDeleteMap.values()) {
+                if (packEntry > 0) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    private boolean checkBarcodePackIsActive(Barcode barcode) {
+        if (barcode.pack != null) {
+            if (barcode.pack.status != PackStatus.ACTIVE) {
+                return false
+            }
+
+            //Check if pack is not active yet
+            if (barcode.pack.effectiveDate != null && barcode.pack.effectiveDate > DateTime.now()) {
+                return false
+            }
+
+            // Check if pack is no longer active
+            if (barcode.pack.effectiveEndDate != null && barcode.pack.effectiveEndDate < DateTime.now()) {
+                return false
+            }
+        }
+        return true;
+    }
+
+    private static void rejectProduct(def product, String barcode, String  errorCode, String defaultMessage) {
+        product.errors.reject(
+                errorCode,
+                new Object[] { barcode },
+                defaultMessage)
     }
 
     private void checkProductVariantForPackChanges(def product, def existingVariant, def editedVariant, def now, boolean newVariant) {
@@ -958,12 +1062,14 @@ class ProductController extends BaseController {
             return
         }
 
+        List<Integer> newPacksIds = new ArrayList<>()
+
         editedVariant.packs?.each { editedPack ->
             def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
 
             if (existingPack && packChanged(editedPack, existingPack)) {
                 updatePack(existingPack, editedPack, now)
-                checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             } else if (!existingPack) {
                 Pack newPack = new Pack()
                 editedPack.barcodez.each { barcode ->
@@ -977,24 +1083,33 @@ class ProductController extends BaseController {
                 }
                 updatePack(newPack, editedPack, now)
                 existingVariant.addToPacks(newPack)
-                checkPackForBarcodeChanges(product, newPack, editedPack, effectiveDate)
+                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
+                if (newPack.id > 0) {
+                    // New pack id got set when retrieving barcodes from DB
+                    newPacksIds.add(newPack.id)
+                }
             } else {
-                checkPackForBarcodeChanges(product, existingPack, editedPack, effectiveDate)
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
+        def packsToRemove = []
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
             if (existingPack.isActive()) {
                 // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
-                if (existingPack.id > 0) {
+                if (existingPack.id > 0 && !newPacksIds.contains(existingPack.id)) {
                     def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
 
                     if (!editedPack) {
-                        existingVariant.removeFromPacks(existingPack)
+                        packsToRemove << existingPack
                     }
                 }
             }
+        }
+
+        packsToRemove.each { packToRemove ->
+            existingVariant.removeFromPacks(packToRemove)
         }
     }
 
@@ -1055,7 +1170,7 @@ class ProductController extends BaseController {
      */
     def packChanged(def newPack, def existingPack) {
         return newPack.barcodez != existingPack.barcodez
-                || newPack.supplier != existingPack.supplier 
+                || newPack.supplier != existingPack.supplier
                 || newPack.quantity != existingPack.quantity
                 || newPack.price != existingPack.price
                 || newPack.orderCode != existingPack.orderCode

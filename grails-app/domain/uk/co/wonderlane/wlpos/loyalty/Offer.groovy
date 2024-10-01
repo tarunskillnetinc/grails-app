@@ -1,16 +1,16 @@
-package uk.co.wonderlane.wlpos
+package uk.co.wonderlane.wlpos.loyalty
 
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import uk.co.wonderlane.wlpos.loyalty.MemberOffer
-import uk.co.wonderlane.wlpos.loyalty.RedeemedOffer
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferType
 
-class LoyaltyOffer {
+class Offer {
 
     int id
     String offerDescription
+    String marketingText
+    String termsText
     int retailerOfferId
     int retailerId
     LoyaltyOfferType type = LoyaltyOfferType.STANDARD
@@ -33,10 +33,10 @@ class LoyaltyOffer {
     String customAttributes
     DateTime dateCreated
     DateTime dateModified
-    Collection<LoyaltyOfferSegment> loyaltyOfferSegments = new ArrayList<>()
+    Collection<OfferSegment> loyaltyOfferSegments = new ArrayList<>()
     Integer remainingRedemptions
 
-    static hasMany = [loyaltyOfferSegments: LoyaltyOfferSegment, redeemedOffers: RedeemedOffer, memberOffer: MemberOffer]
+    static hasMany = [loyaltyOfferSegments: OfferSegment, redeemedOffers: RedeemedOffer, memberOffer: MemberOffer]
 
     static constraints = {
         offerDescription(nullable: false, validator: { val, obj ->
@@ -44,6 +44,18 @@ class LoyaltyOffer {
                 return ["loyaltyOffer.offerDescription.nullable"]
             } else if (val.length() < 1 || val.length() > 100) {
                 return ["loyaltyOffer.offerDescription.size.invalid"]
+            }
+            return true
+        })
+        marketingText(nullable: true, validator: { val, obj ->
+            if (val && (val.length() < 1 || val.length() > 200)) {
+                return ["loyaltyOffer.marketingText.size.invalid"]
+            }
+            return true
+        })
+        termsText(nullable: true, validator: { val, obj ->
+            if (val && (val.length() < 1 || val.length() > 600)) {
+                return ["loyaltyOffer.termsText.size.invalid"]
             }
             return true
         })
@@ -136,6 +148,8 @@ class LoyaltyOffer {
 
         id column: "id", sqlType: "int"
         offerDescription column: "offer_description", sqlType: "text"
+        marketingText column: "marketing_text"
+        termsText column: "terms_text"
         retailerOfferId column: "retailer_offer_id"
         retailerId column: "retailer_id"
         type column: "type" , sqlType: "enum", enumType: 'string'
@@ -167,6 +181,8 @@ class LoyaltyOffer {
         uk.co.wonderlane.wlpos.entities.LoyaltyOffer loyaltyOffer = new uk.co.wonderlane.wlpos.entities.LoyaltyOffer();
         loyaltyOffer.setId(id)
         loyaltyOffer.setOfferDescription(offerDescription)
+        loyaltyOffer.setMarketingText(marketingText)
+        loyaltyOffer.setTermsText(termsText)
         loyaltyOffer.setRetailerOfferId(retailerOfferId)
         loyaltyOffer.setRetailerId(retailerId)
         loyaltyOffer.setType(type)

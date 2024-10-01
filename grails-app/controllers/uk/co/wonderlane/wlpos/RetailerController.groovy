@@ -304,7 +304,7 @@ class FunctionToggleCommand {
 }
 
 class LoyaltyConfigCommand {
-    boolean isLoyaltyEnable
+    boolean isLoyaltyEnabled
     String loyaltyUrl
     String loyaltyIIN
     Double loyaltyPointValue

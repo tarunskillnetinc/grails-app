@@ -85,7 +85,7 @@
                     <g:each in="${entry.value}" var="shift">
                         <div class="row mb-2 align-items-center">
                             <g:if test="${isFinancialWeekExists}">
-                                <div class="col-1 text-center">${shift?.financialWeek?.id}</div>
+                                <div class="col-1 text-center">${shift?.financialWeek?.weekNumber}</div>
                             </g:if>
                             <div class="col-1 text-center">${shift.tillId}</div>
                             <div class="col-1 text-center">${shift.shiftNumber}</div>

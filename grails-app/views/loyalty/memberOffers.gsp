@@ -73,6 +73,12 @@
             </g:if>
         </section>
 
+        <section id="alerts-container" class="container-fluid">
+            <g:if test="${flash.error}">
+                <div id="alerts-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+            </g:if>
+        </section>
+
         <section id="member-offers-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
