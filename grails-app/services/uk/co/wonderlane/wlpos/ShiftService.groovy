@@ -214,7 +214,7 @@ class ShiftService extends MySqlDal {
         FinancialWeek financialWeek = getFinancialWeek(retailerId)
         String userName = springSecurityService.principal.usersName
         User loggedInUser = userService.getUserByUsername(userName)
-        Shift shift = new Shift(retailerId, storeId, tillId, -1, new DateTime())
+        Shift shift = new Shift(retailerId, storeId, tillId, -1, null)
         shift.setCustomerCount(0)
         shift.setShiftNumber(shiftNumber)
         shift.setCashInDrawer(BigDecimal.ZERO)

@@ -82,7 +82,7 @@ class ShiftController {
             // Sort the map by tillId
             def sortedShiftMap = shiftMap.sort { it.key }
 
-            render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage])
+            render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage, errorMessage: errorMessage])
 
         } catch (Exception ex) {
             log.error(String.format("Shift loading error for tillId: %d error: %s", tillId, ex.getMessage()), ex)
@@ -294,9 +294,10 @@ class ShiftController {
                 flash.message = String.format("Till %d's shift was already open", tillId)
             }
         } catch (Exception ex) {
+            flash.error = String.format("Till %d's shift open failed", tillId)
             log.error(String.format("Shift create error: %d store: %d tillId: %d error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
         }
-        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message]) //Once done redirect to process get shift action
+        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error]) //Once done redirect to process get shift action
     }
 }
 
