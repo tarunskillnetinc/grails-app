@@ -1,11 +1,14 @@
 package uk.co.wonderlane.wlpos
 
 import grails.databinding.BindingFormat
+import org.joda.time.DateTimeZone
 import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 
 class ProductListController {
+
+    static def timeZone = DateTimeZone.forID("Europe/London")
 
     def springSecurityService
     def productListService
@@ -66,36 +69,44 @@ class ProductListController {
         }
 
         def productListsToBeSaved = new ArrayList()
-            def productList = new ProductList()
-            productList.properties = cmd.properties
+        def productList = new ProductList()
+        productList.properties = cmd.properties
 
-            productList.userId = springSecurityService.principal.id
-            productList.retailerId = springSecurityService.principal.retailerId
+        productList.userId = springSecurityService.principal.id
+        productList.retailerId = springSecurityService.principal.retailerId
 
-            productList.setEndDate(productList.getEndDate().plusHours(23).plusMinutes(59).plusSeconds(59))
+        productList.setStartDate(
+                productList.getStartDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
+        )
+        productList.setEndDate(
+                productList.getEndDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
+                        .plusHours(23)
+                        .plusMinutes(59)
+                        .plusSeconds(59)
+        )
 
-            if (cmd.productVariantId) {
-                // Loop over each product variant
-                cmd.productVariantId.each {
-                    def productVariant = productService.getProductVariant(it)
+        if (cmd.productVariantId) {
+            // Loop over each product variant
+            cmd.productVariantId.each {
+                def productVariant = productService.getProductVariant(it)
 
-                    if (productVariant) {
-                        ProductListItem productListItem = new ProductListItem()
-                        productListItem.productVariant = productVariant
-                        productListItem.fillQuantity = 0
-                        productListItem.productList = productList
-                        productListItem.productQuantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
-                        productList.productListItems.add(productListItem)
-                    }
+                if (productVariant) {
+                    ProductListItem productListItem = new ProductListItem()
+                    productListItem.productVariant = productVariant
+                    productListItem.fillQuantity = 0
+                    productListItem.productList = productList
+                    productListItem.productQuantityInStock = productVariant?.getProductStock(productList.store?.id)?.quantityInStock ?: 0
+                    productList.productListItems.add(productListItem)
                 }
             }
+        }
 
-            if (!productList.validate()) {
-                onError(cmd, productList);
-                return
-            }
+        if (!productList.validate()) {
+            onError(cmd, productList);
+            return
+        }
 
-            productListsToBeSaved.add(productList)
+        productListsToBeSaved.add(productList)
         
         try {
             productListService.saveProductLists(productListsToBeSaved)
