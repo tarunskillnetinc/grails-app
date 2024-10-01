@@ -432,7 +432,7 @@ environments:
                 port: 3306
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
-                database: cerberus-loyalty
+                database: persephone-loyalty
 
         wlpos:
             defaultImageBucket: "persephone-retail-platform-default-images"
