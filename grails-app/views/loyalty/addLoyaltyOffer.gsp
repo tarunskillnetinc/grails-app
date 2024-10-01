@@ -55,23 +55,25 @@
         })
 
         $(document).ready(function() {
-            $('#offerStartDateId').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
+            <g:if test="${isUpdate}">
+                $('#offerStartDateId').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
 
-            $('#offerEndDateId').datepicker({
-                format: "dd/mm/yyyy",
-                weekStart: 1,
-                todayHighlight: true,
-                autoclose: true,
-                todayBtn: "linked",
-                orientation: "bottom auto"
-            });
+                $('#offerEndDateId').datepicker({
+                    format: "dd/mm/yyyy",
+                    weekStart: 1,
+                    todayHighlight: true,
+                    autoclose: true,
+                    todayBtn: "linked",
+                    orientation: "bottom auto"
+                });
+            </g:if>
         });
 
         function updateSegmentInputOnLoading() {
