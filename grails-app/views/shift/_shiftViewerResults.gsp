@@ -102,6 +102,7 @@
                                         <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="openShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId});">Open</button>
                                     </g:if>
                                     <g:else>
+                                        <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}" >
                                             <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Close</button>
                                         </g:if>
@@ -112,7 +113,6 @@
                                             <button class="btn btn-danger p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Recount</button>
                                             <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Finalise</button>
                                         </g:if>
-                                        <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
                                     </g:else>
                                 </div>
                             </div>
