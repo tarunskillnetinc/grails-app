@@ -183,12 +183,6 @@
         });
       }
     }
-
-    function resetPage() {
-      if (confirm("All unsaved changes will be lost, are you sure you want to reset?")) {
-        clearForm();
-      }
-    }
   </script>
 </head>
 
@@ -209,10 +203,12 @@
 <section id="editSignifierTtl" class="container-fluid">
   <div class="row header-wl mt-3">
     <div class="col-6 offset-3">
-      <h2 id="page-title" class="mx-auto my-auto">Edit Barcode Signifier.</h2>
+      <h2 id="page-title" class="mx-auto my-auto">Edit Barcode Signifier</h2>
     </div>
   </div>
 </section>
+
+<g:render template="/errors/errorMessage" model="[errorMessages: errorMessages, error: error]" />
 
 <section id="form-section" class="container-fluid">
   <div class="row mt-3">
@@ -261,9 +257,6 @@
                   />
                 </sec:ifNotGranted>
               </div>
-              <div class="field-error text-sm-left mt-2">
-                <g:render template="/errors/fieldError" model="[errorKey: 'type', errorMessages: errorMessages, error: error]" />
-              </div>
             </div>
             <label for="checkDigitValue" class="col-2 col-form-label-sm text-right">Check Digit</label>
             <div class="col-4 custom-checkbox-align">
@@ -286,9 +279,6 @@
                   <g:field type="text" id="pattern" name="patternValue" value="${signifier?.pattern}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumeric(event);" readonly="true"/>
                 </sec:ifNotGranted>
               </div>
-              <div class="field-error text-sm-left mt-2">
-                <g:render template="/errors/fieldError" model="[errorKey: 'pattern', errorMessages: errorMessages, error: error]" />
-              </div>
             </div>
             <label for="lengthValue" class="col-2 col-form-label-mandatory text-right">Length</label>
             <div class="col-4">
@@ -299,9 +289,6 @@
                 <sec:ifNotGranted roles="ROLE_ENGINEER">
                   <g:field type="number" id="length" name="lengthValue" value="${signifier?.length}" class="form-control bottom-border" oninput="validateInput(this);" min="0" max="45" onkeydown="acceptMaxNumberValue(event, 45);" readonly="true"/>
                 </sec:ifNotGranted>
-              </div>
-              <div class="field-error text-sm-left mt-2">
-                <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
               </div>
             </div>
           </div>
@@ -316,22 +303,16 @@
                   <g:field type="number" name="discountPercentageValue" value="${signifier?.discountPercentage}" class="form-control bottom-border" min="0" max="100" onkeydown="acceptMaxNumberValue(event, 100);" readonly="true"/>
                 </sec:ifNotGranted>
               </div>
-              <div class="field-error text-sm-left mt-2">
-                <g:render template="/errors/fieldError" model="[errorKey: 'discountPercentage', errorMessages: errorMessages, error: error]" />
-              </div>
             </div>
           </div>
-          <g:render template="/errors/errorMessage" model="[errorKey: 'general', errorMessages: errorMessages, error: error]" />
         </form>
         <div id="btn-container" class="form-group row">
           <div class="col-12 text-right">
             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
-              <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
-              <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="saveSignifier()">Submit</button>
+              <button id="form-submit-button" type="submit" class="btn btn-success text-right" onclick="saveSignifier()">Save</button>
             </sec:ifAnyGranted>
             <sec:ifAnyGranted roles='ROLE_HEAD_OFFICE'>
-              <button id="form-clear-button" type="button" class="btn btn-danger text-right" onclick="resetPage();">Reset</button>
-              <button id="form-submit-button" type="submit" class="btn btn-wl text-right" onclick="updateRestrictedSignifier()">Submit</button>
+              <button id="form-submit-button" type="submit" class="btn btn-success text-right" onclick="updateRestrictedSignifier()">Save</button>
             </sec:ifAnyGranted>
           </div>
         </div>
@@ -343,7 +324,7 @@
 <section id="signifiers-container" class="container-fluid mb-1">
   <div class="row mt-5">
     <div class="col-12 mt-5 d-flex justify-content-center">
-      <h4 id="embedded-data-title" class="mx-auto my-auto">Embedded Data.</h4>
+      <h2 id="embedded-data-title" class="mx-auto my-auto">Embedded Data</h2>
     </div>
     <div class="col-12 text-right">
       <sec:ifAnyGranted roles='ROLE_ENGINEER'>

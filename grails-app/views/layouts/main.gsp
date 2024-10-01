@@ -198,15 +198,18 @@
 
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
-                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true]"  class="dropdown-item">Cash Managment</g:link>
+                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]"  class="dropdown-item">Cash Management</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
 
-                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
-                            </g:if>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
+                                </g:if>
+                            </sec:ifAnyGranted>
+
 
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
@@ -219,13 +222,15 @@
                                     <span id="retailer-configuration" class="dropdown-header">Retailer Configuration</span>
 
                                     <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
-                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" class="dropdown-item">Cash Managment</g:link>
+                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" class="dropdown-item">Cash Management</g:link>
                                     <g:link elementId="reason-code-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
                                     <g:link elementId="user-groups-dropdown" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
+
+                                <g:link elementId="user-groups-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <div class="dropdown-divider"></div>
 

@@ -379,7 +379,9 @@ class ButtonController {
 
     def syncAfterBtnRemoval(id, buttonGridId, ImageRecord imageRecord) {
         SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.IMAGE_SYNC, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
-        removeImageSyncMessage.setImageRecord(imageRecord)
+        if (imageRecord != null) {
+            removeImageSyncMessage.setImageRecord(imageRecord.toEntity())
+        }
         removeImageSyncMessage.setTransactionId(id)
         removeImageSyncMessage.setInsert(false)
         removeImageSyncMessage.setDelete(true)

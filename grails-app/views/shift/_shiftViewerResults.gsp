@@ -1,51 +1,102 @@
-<div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-%{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('tillId', ${sortColumn == 'tillId' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Till Number</a></div>--}%
-%{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('shiftNumber', ${sortColumn == 'shiftNumber' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Shift Number</a></div>--}%
-%{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('date', ${sortColumn == 'date' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Shift Date</a></div>--}%
-%{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('status', ${sortColumn == 'status' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Status</a></div>--}%
-%{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('total', ${sortColumn == 'total' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Total</a></div>--}%
-%{--    <div class="col-2 font-weight-bold"><a href="#" onclick="getShifts('variance', ${sortColumn == 'variance' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} );">Variance</a></div>--}%
-    <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-        <div class="col-1 font-weight-bold">Store Number</div>
-        <div class="col-1 font-weight-bold">Till Number</div>
-    </g:if>
-    <g:else>
-        <div class="col-2 font-weight-bold">Till Number</div>
-    </g:else>
+<style>
+    /* Shift details border styling */
+    .shift-card-body {
+        /*background-color: #fff;*/
+        border: 2px  solid black;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
 
-    <div class="col-2 font-weight-bold">Shift Number</div>
-    <div class="col-2 font-weight-bold">Shift Date</div>
-    <div class="col-2 font-weight-bold">Status</div>
-    <div class="col-2 font-weight-bold">Total</div>
-    <div class="col-2 font-weight-bold">Variance</div>
-</div>
+    .shift-card-header {
+        border: 2px  solid black;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-<div class="d-flex justify-content-center">
-    <div id="loading-indicator" class="spinner-border" role="status" style="display: none;">
-        <span class="sr-only">Loading...</span>
+    /* Button styling (can be customized more if needed) */
+    button.btn {
+        margin-left: 5px;
+    }
+
+    .card{
+        margin-top: 5px;
+    }
+
+
+</style>
+
+<div class="container-fluid mt-3 mb-3">
+    <div class="row justify-content-end align-items-center">
+        <div class="col-auto pr-0">
+            <div class="d-flex align-items-center">
+                <strong class="mr-2 h5 mb-0">Data retrieved at:</strong>
+                <span id="lastRefreshTime" class="h5 mb-0 mr-3"><g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${lastRefreshDate?.toDate() ?: new Date()}" timeZone="Europe/London"/></span>
+            </div>
+        </div>
+        <div class="col-auto pr-0"><a id="refresh" href="#" class="btn btn-wl" onclick="getShifts();">Refresh</a></div>
     </div>
 </div>
 
-<div id="search-results">
-    <g:if test="${!shifts || shifts?.size() == 0}">
-        <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No shifts found.</div>
-    </g:if>
 
-    <g:each in="${shifts}" var="shift" status="i">
-        <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">
-            <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                <div id="store-number-${i + 1}" class="col-1 my-auto">${shift.storeId}</div>
-                <div id="till-number-${i + 1}" class="col-1 my-auto">${shift.tillId}</div>
-            </g:if>
-            <g:else>
-                <div id="till-number-${i + 1}" class="col-2 my-auto">${shift.tillId}</div>
-            </g:else>
+<div class="container-fluid p-0">
+    <div class="row mb-2 no-gutters" id="shift-menu-headers">
+        <g:if test="${isFinancialWeekExists}">
+            <div class="col-1 text-center font-weight-bold">Financial Week</div>
+        </g:if>
+        <div class="col-1 text-center font-weight-bold pl-2">Till Number</div>
+        <div class="col-1 text-center font-weight-bold">Shift Number</div>
+        <div class="col-2 text-center font-weight-bold">Shift Start</div>
+        <div class="col-2 text-center font-weight-bold">Shift End</div>
+        <div class="col-2 text-center font-weight-bold">Shift Status</div>
+        <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'} text-right font-weight-bold pr-4"></div>
+    </div>
 
-            <div id="shift-number-${i + 1}" class="col-2 my-auto">${shift.shiftNumber ?: 0}</div>
-            <div id="shift-date-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" /></div>
-            <div id="status-${i + 1}" class="col-2 my-auto">${shift.reconciledDate != null ? "Reconciled" : "Unreconciled"}</div>
-            <div id="total-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${(shift.sales.sum { it.value } ?: BigDecimal.ZERO) - (shift.refunds.sum { it.value } ?: BigDecimal.ZERO)}" type="currency" /></div>
-            <div id="variance-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${(shift.reconciliationTotals.find { it.tenderType.name() == 'CASH' }?.variance?.abs() ?: BigDecimal.ZERO) + (shift.reconciliationTotals.find { it.tenderType.name() == 'VOUCHER' }?.variance?.abs() ?: BigDecimal.ZERO)}" type="currency" /></div>
-        </div>
-    </g:each>
+    <div class="card">
+        <!-- Each Shift as a Boxed Card -->
+        <g:if test="${shiftMap?.isEmpty()}">
+            <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                <h3 class="text-muted">No results found</h3>
+            </div>
+        </g:if>
+        <g:else>
+            <!-- Each Shift as a Boxed Card -->
+            <g:each in="${shiftMap}" var="entry" status="i">
+                <div class="shift-card-body border rounded mb-2 shift-info-container pt-2 pb-2 wl-striped${i%2}">
+                    <g:each in="${entry.value}" var="shift">
+                        <div class="row mb-2 align-items-center">
+                            <g:if test="${isFinancialWeekExists}">
+                                <div class="col-1 text-center">${shift?.financialWeek?.weekNumber}</div>
+                            </g:if>
+                            <div class="col-1 text-center">${shift.tillId}</div>
+                            <div class="col-1 text-center">${shift.shiftNumber}</div>
+                            <div class="col-2 text-center">
+                                <g:formatStringDate date="${shift?.shiftOpenTime}" inputFormat="yyyy-MM-dd HH:mm:ss" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
+                            </div>
+                            <div class="col-2 text-center">
+                                <g:formatStringDate date="${shift?.shiftCloseTime}" inputFormat="yyyy-MM-dd HH:mm" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
+                            </div>
+                            <div class="col-2 text-center">${shift.shiftStatus}</div>
+                            <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
+                                <div class="button-container d-flex justify-content-end align-items-center">
+                                    <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Close</button>
+                                    </g:if>
+                                    <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
+                                    </g:if>
+                                    <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
+                                        <button class="btn btn-danger p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Recount</button>
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Finalise</button>
+                                    </g:if>
+                                    <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
+                                </div>
+                            </div>
+                        </div>
+                    </g:each>
+                </div>
+            </g:each>
+        </g:else>
+    </div>
 </div>
