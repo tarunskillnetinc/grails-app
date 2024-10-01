@@ -1,29 +1,42 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="org.joda.time.DateTime" %>
+<%@ page import="org.joda.time.DateTimeZone" %>
+<%@ page import="org.joda.time.format.DateTimeFormat" %>
+<%@ page import="uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus" %>
 <html>
 <head>
     <meta name="layout" content="main" />
 
-    <title>Add Loyalty Offer</title>
+    <title>${isUpdate ? 'Edit' : 'Add'} Loyalty Offer</title>
 
     <asset:stylesheet src="bootstrap-datepicker3.min.css" />
     <asset:javascript src="bootstrap-datepicker.min.js" />
 
     <style>
-        .no-bullets {
-            list-style-type: none;
-            padding-left: 0; /* Remove left padding */
+        .no-bullets { list-style-type: none; padding-left: 0; /* Remove left padding */ }
+        .no-bullets li { margin-left: 0; /* Remove left margin */ }
+
+        .selected-item {
+            background-color: #f0f0f0;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            position: relative;
         }
 
-        .no-bullets li {
-            margin-left: 0; /* Remove left margin */
+        .cancel-icon {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            cursor: pointer;
         }
-
     </style>
 
     <script type='text/javascript'>
         let isUpdate = false
 
         window.onload = function() {
+            /* sets elements of this class to only allow numeric entries */
             var numericFields = document.querySelectorAll('.numeric-field');
             numericFields.forEach(function(field) {
                 field.addEventListener('input', function(event) {
@@ -41,10 +54,7 @@
             isUpdate = ${isUpdate}
         })
 
-        $(function() {
-            var changingDate = false;
-
-            // Initialize datepicker for offer start date
+        $(document).ready(function() {
             $('#offerStartDateId').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
@@ -54,7 +64,6 @@
                 orientation: "bottom auto"
             });
 
-            // Initialize datepicker for offer end date
             $('#offerEndDateId').datepicker({
                 format: "dd/mm/yyyy",
                 weekStart: 1,
@@ -63,67 +72,7 @@
                 todayBtn: "linked",
                 orientation: "bottom auto"
             });
-
-            // Add event listeners to validate and correct dates
-            $('#offerEndDateId').on('change', function() {
-                validateAndCorrectDates();
-            });
-
-            $('#offerStartDateId').on('change', function() {
-                validateAndCorrectDates();
-            });
-
-            function validateAndCorrectDates() {
-                var startDate = $('#offerStartDateId').datepicker('getDate');
-                var endDate = $('#offerEndDateId').datepicker('getDate');
-                var today = new Date();
-                today.setHours(0, 0, 0, 0);  // Reset time components to 00:00:00 to compare dates only
-
-                if (!startDate) {
-                    startDate = today;
-                    $('#offerStartDateId').datepicker('setDate', startDate);
-                }
-
-                if (!endDate) {
-                    endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 7);
-                    $('#offerEndDateId').datepicker('setDate', endDate);
-                }
-
-                // Ensure startDate is not null after setting default value
-                startDate = $('#offerStartDateId').datepicker('getDate');
-                endDate = $('#offerEndDateId').datepicker('getDate');
-
-                // Ensure startDate is less than or equal to endDate
-                if (endDate <= startDate) {
-                    endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 7);
-                    $('#offerEndDateId').datepicker('setDate', endDate);
-                }
-            }
-
-            // Fill start date if it's empty when losing focus
-            $('#offerStartDateId').on('blur', function() {
-                var startDate = $(this).datepicker('getDate');
-                if (!startDate) {
-                    var today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    $(this).datepicker('setDate', today);
-                }
-            });
-
-            // Fill end date if it's empty when losing focus
-            $('#offerEndDateId').on('blur', function() {
-                var endDate = $(this).datepicker('getDate');
-                if (!endDate) {
-                    var startDate = $('#offerStartDateId').datepicker('getDate') || new Date();
-                    var newEndDate = new Date(startDate);
-                    newEndDate.setDate(startDate.getDate() + 7);
-                    $(this).datepicker('setDate', newEndDate);
-                }
-            });
         });
-
 
         function updateSegmentInputOnLoading() {
             var selectedSegmentIdList = ${selectedSegmentIds}; // Get the selected segment IDs from the server response
@@ -181,10 +130,73 @@
             }
         }
 
-        function updatePromotionInput(selectedValue) {
-            document.getElementById('offerPromotionAssignedInput').value = selectedValue;
+        function parseDate(dateString) {
+            /* Required due to american defaultism and not being able to read a calender */
+            var parts = dateString.split('/');
+            return new Date(parts[2], parts[1] - 1, parts[0]);
         }
 
+        function updatePromotionInput(selectedValue) {
+            <g:each in="${promotions}" var="promotion">
+                if ('${promotion.description}' === selectedValue) {
+
+                    $('#offerStartDateId').datepicker('destroy');
+                    $('#offerEndDateId').datepicker('destroy');
+
+                    <%
+                        def currentDate = new DateTime(DateTimeZone.UTC)
+                        def startDate = promotion.startDate.isBefore(currentDate) ? currentDate : promotion.startDate
+                        def formattedStartDate = startDate.toString("dd/MM/yyyy")
+
+                        def endDate = promotion.endDate
+                        def formattedEndDate = endDate ? endDate.toString("dd/MM/yyyy") : startDate.plusDays(7).toString("dd/MM/yyyy")
+                    %>
+
+                    var startDatePoint = parseDate('${formattedStartDate}');
+                    var endDatePoint = parseDate('${formattedEndDate}');
+
+                    $('#offerStartDateId').datepicker({
+                        format: "dd/mm/yyyy",
+                        weekStart: 1,
+                        todayHighlight: true,
+                        autoclose: true,
+                        todayBtn: "linked",
+                        orientation: "bottom auto",
+                        startDate: startDatePoint,
+                        endDate: endDatePoint
+                    });
+
+                    $('#offerEndDateId').datepicker({
+                        format: "dd/mm/yyyy",
+                        weekStart: 1,
+                        todayHighlight: true,
+                        autoclose: true,
+                        todayBtn: "linked",
+                        orientation: "bottom auto",
+                        startDate: startDatePoint,
+                        endDate: endDatePoint
+                    });
+
+                    $('#offerStartDateId').datepicker('setDate',  startDatePoint);
+                    $('#offerEndDateId').datepicker('setDate',  endDatePoint);
+                }
+            </g:each>
+
+            document.getElementById('offerPromotionAssignedInput').value = selectedValue;
+
+            /* Promotion has been selected so other values can be edited */
+            document.getElementById('offerSegmentAssignedInput').readOnly = false;
+            document.getElementById('offerSegmentAssignedId').disabled = false;
+
+            document.getElementById('offerDescriptionId').readOnly = false;
+            document.getElementById('offerStatusId').disabled = false;
+
+            document.getElementById('offerMaxRedemptionsId').readOnly = false;
+            document.getElementById('offerMaxBudgetId').readOnly = false;
+
+            document.getElementById('offerMarketingTextId').readOnly = false;
+            document.getElementById('offerTermsTextId').readOnly = false;
+        }
 
         function filterDropdown(inputId, selectId, inputElement) {
             // Filter the dropdown options based on the input value
@@ -272,9 +284,8 @@
             selectedSegmentsInput.value = selectedDescriptions.join(',');
         }
 
-
-        function saveLoyaltyOffer(){
-            if(validateMandatoryFields()){
+        function saveLoyaltyOffer() {
+            if(validateMandatoryFields()) {
                 return
             }
 
@@ -292,7 +303,7 @@
             //Get promotion id
             var selectElement = document.getElementById('offerPromotionAssignedId');
             var selectedOption = selectElement.options[selectElement.selectedIndex];
-            if(selectedOption != null){
+            if(selectedOption != null) {
                 selectedPromotion = selectedOption.value;
             }
             //Prepare parameter map
@@ -326,31 +337,17 @@
                 statusCode: {
                     500: function (response) {
                         var errorList = response.responseJSON.error;
+
                         if (errorList && errorList.length > 0) {
-                            var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+                            let errorHeader = "An error occured when attempting to save the offer."
+                            let errorString = "";
 
                             errorList.forEach(function(errorMessage) {
-                                var errorMessageSpan = $('<span>' + errorMessage + '</span>');
-                                errorDiv.append(errorMessageSpan);
-                                errorDiv.append($('<br>'));
+                                errorString = errorString.concat("<li>" + errorMessage + "</li>");
                             });
 
-                            var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
-
-                            closeIcon.click(function () {
-                                errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
-                            });
-
-                            errorDiv.append(closeIcon);
-                            $('#errors-container').html(errorDiv);
-
-                            // Adjust icon position to top-right corner
-                            closeIcon.css({
-                                "position": "absolute",
-                                "top": "-10px",
-                                "right": "1px",
-                                "margin": "0.5rem"
-                            });
+                            $('#validation-errors').html("<ul class='no-bullets'>" + errorHeader + errorString + "\n</ul>");
+                            $('#validation-errors').prop("hidden", false);
                         }
                     },
                     200: function (response) {
@@ -365,7 +362,7 @@
             });
         }
 
-        function validateMandatoryFields(){
+        function validateMandatoryFields() {
             let error = false;
             let errorString = "";
 
@@ -384,62 +381,26 @@
                 error = true;
             }
 
+            var startDate = parseDate($('#offerStartDateId').val());
+            var endDate = parseDate($('#offerEndDateId').val());
+
+
+            if (endDate < startDate) {
+                errorString = errorString.concat("<li>Offer end date cannot be set before the start date</li>");
+                error = true;
+            }
+
             if (error) {
                 let errorHeader = "All mandatory fields must be present before data can be saved."
                 let errorMessage = "<ul  class='no-bullets'>" + errorHeader + errorString + "\n</ul>"
-                createErrorAlert(errorMessage)
+
+                $('#validation-errors').html("<ul class='no-bullets'>" + errorHeader + errorString + "\n</ul>");
+                $('#validation-errors').prop("hidden", false);
             }
 
             return error
         }
-
-        function createErrorAlert(errorMessage){
-            var errorDiv = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
-            var errorMessageSpan = $('<span id="error-message">' + errorMessage + '</span>');
-            var closeIcon = $('<span id="cancel-icon" class="close" aria-label="Close">&times;</span>');
-
-            closeIcon.click(function () {
-                errorDiv.remove(); // Remove the error message div when the cancel icon is clicked
-            });
-
-            errorDiv.append(closeIcon);
-            errorDiv.append(errorMessageSpan);
-            $('#errors-container').html(errorDiv);
-
-            // Adjust icon position to top-right corner
-            closeIcon.css({
-                "position": "absolute",
-                "top": "-10px",
-                "right": "1px",
-                "margin": "0.5rem"
-            });
-
-        }
-
     </script>
-
-    <style>
-        .selected-item {
-            background-color: #f0f0f0;
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 3px;
-            position: relative;
-        }
-
-        .cancel-icon {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            cursor: pointer;
-        }
-
-        #errors-container {
-            margin-top: 20px; /* Adjust the value as needed */
-            margin-bottom: 20px; /* Adjust the value as needed */
-        }
-
-    </style>
 </head>
 
 <body>
@@ -469,64 +430,21 @@
             </div>
         </div>
 
-        <section id="errors-container" class="container-fluid mb-20"></section>
+        <div id="validation-errors" class="alert alert-danger alert-wl mx-0" role="alert" hidden></div>
 
         <g:form name="add-loyalty-offer-form" id="add-loyalty-offer-form-id" action="save" novalidate="novalidate" class="mt-4">
             <g:hiddenField name="offerId" value="${loyaltyOffer?.id ?: 0}" />
 
             <div class="row mt-5 mb-3">
                 <div class="form-group row col-12 col-sm-6">
-                    <label id="offerDescription" for="offerDescription" class="col-4 col-form-label text-right pr-4">Offer Description</label>
-                    <g:textField name="offerDescription" id="offerDescriptionId" class="col-6 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" autocomplete="off" />
-                </div>
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="role" for="role" class="col-4 col-form-label text-right pr-4">Status</label>
-                    <g:select name="role" id="offerStatusId" class="col-6 form-control select-border" from="${eligibleOfferStatus}" value="${loyaltyOffer?.status ? loyaltyOffer?.status : defaultStatus}" valueMessagePrefix="Role" />
-                </div>
-            </div>
-
-            <div class="row mt-2 mb-3">
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerStartDate" for="offerStartDate" class="col-4 col-form-label text-right pr-4">Start date</label>
-                    <g:textField name="offerStartDate" id="offerStartDateId" class="col-6 form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" readonly="false"/>
-                </div>
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerEndDate" for="offerEndDate" class="col-4 col-form-label text-right pr-4">End date</label>
-                    <g:textField name="offerEndDate" id="offerEndDateId" class="col-6 form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" readonly="false"/>
-                </div>
-            </div>
-
-            <div class="row mt-2 mb-5">
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerMaxRedemptions" for="offerMaxRedemptions" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
-                    <g:textField name="offerMaxRedemptions" id="offerMaxRedemptionsId" class="col-6 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxRedemptions}" autocomplete="off" />
-                </div>
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerMaxBudget" for="offerMaxBudget" class="col-4 col-form-label text-right pr-4">Max budget</label>
-                    <g:textField name="offerMaxBudget" id="offerMaxBudgetId" class="col-6 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxBudget}" autocomplete="off" />
-                </div>
-            </div>
-
-            <div class="row mt-2 mb-5">
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerMarketingText" for="offerMarketingText" class="col-4 col-form-label text-right pr-4">Marketing Text</label>
-                    <g:textArea name="offerMarketingText" id="offerMarketingTextId" class="col-6 form-control select-border" value="${loyaltyOffer?.marketingText}" rows="5" />
-                </div>
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerTermsText" for="offerTermsText" class="col-4 col-form-label text-right pr-4">Terms &amp; Conditions</label>
-                    <g:textArea name="offerTermsText" id="offerTermsTextId" class="col-6 form-control select-border" value="${loyaltyOffer?.termsText}" rows="5" />
-                </div>
-            </div>
-
-            <div class="row mt-5 mb-3">
-                <div class="form-group row col-12 col-sm-6">
-                    <label id="offerPromotionAssigned" for="offerPromotionAssigned" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
+                    <label id="offerPromotionAssigned" for="offerPromotionAssignedInput" class="col-4 col-form-label text-right pr-4">Promotion Assigned</label>
                     <div class="dropdown-content col-6">
                         <div class="input-group-append">
-                            <input type="text" class="form-control bottom-border" placeholder="Search For Promotion.." id="offerPromotionAssignedInput"
-                                   oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
+                            <input id="offerPromotionAssignedInput" type="text" class="form-control bottom-border" placeholder="Search For Promotion.." oninput="filterDropdown('offerPromotionAssignedInput', 'offerPromotionAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
                         </div>
-                        <g:select id="offerPromotionAssignedId" name="offerPromotionAssigned" size="6" style="overflow-y: scroll; overflow-x: hidden; display: true;" from="${promotions}" optionValue="description"
+                        <g:select id="offerPromotionAssignedId" name="offerPromotionAssigned" size="6" style="overflow-y: scroll; overflow-x: hidden;"
+                                  from="${promotions}"
+                                  optionValue="description"
                                   value="${loyaltyOffer?.retailerOfferId}"
                                   optionKey="id"
                                   class="form-control select-border"
@@ -534,35 +452,70 @@
                                   onchange="updatePromotionInput(this.options[this.selectedIndex].text)"/>
                     </div>
                 </div>
-
                 <div class="form-group row col-12 col-sm-6">
-                    <label id="offerSegmentAssigned" for="offerSegmentAssigned" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
+                    <label id="offerSegmentAssigned" for="offerSegmentAssignedInput" class="col-4 col-form-label text-right pr-4">Segment Assigned</label>
                     <div class="dropdown-content col-6">
                         <div class="input-group-append">
-                            <input type="text" class="form-control bottom-border" placeholder="Search For Segment.." id="offerSegmentAssignedInput"
-                                oninput="filterDropdown('offerSegmentAssignedInput', 'offerSegmentAssignedId', this)" ${isUpdate ? 'disabled' : ''}>
+                            <input id="offerSegmentAssignedInput" type="text" class="form-control bottom-border" placeholder="Search For Segment.." oninput="filterDropdown('offerSegmentAssignedInput', 'offerSegmentAssignedId', this)" readonly="true">
                         </div>
                         <div id="offerSelectedSegmentsContainer" style="height: 100px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px; border-top: 0; border-bottom: 1px solid #ccc;"></div>
                         <input type="hidden" id="offerSelectedSegments" name="offerSelectedSegments" readonly = "${isUpdate ? true : false}">
-                        <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple" style="display: true;" from="${segments}" optionValue="description"
+                        <g:select id="offerSegmentAssignedId" name="offerSegmentAssigned" multiple="multiple"
+                                  from="${segments}"
+                                  optionValue="description"
                                   value="${selectedSegmentIds}"
                                   optionKey="id"
                                   class="form-control select-border"
-                                  disabled="${isUpdate ? true : false}"
+                                  disabled="true"
                                   onchange="updateSegmentInput()"/>
                     </div>
                 </div>
+            </div>
 
+            <div class="row mt-5 mb-3">
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerDescription" for="offerDescriptionId" class="col-4 col-form-label text-right pr-4">Offer Description</label>
+                    <g:textField id="offerDescriptionId" name="offerDescription" class="col-6 form-control bottom-border" value="${loyaltyOffer?.offerDescription}" readonly="${isUpdate ? 'false' : 'true'}" />
+                </div>
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerStatus" for="offerStatusId" class="col-4 col-form-label text-right pr-4">Status</label>
+                    <g:select id="offerStatusId" name="status" class="col-6 form-control select-border" from="${LoyaltyOfferStatus.values()}" value="${loyaltyOffer?.status ? loyaltyOffer?.status : LoyaltyOfferStatus.PENDING}" disabled="${isUpdate ? 'false' : 'true'}" />
+                </div>
+            </div>
+
+            <div class="row mt-2 mb-3">
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerStartDate" for="offerStartDateId" class="col-4 col-form-label text-right pr-4">Start date</label>
+                    <g:textField id="offerStartDateId" name="offerStartDate" class="col-6 form-control bottom-border" value="${startDate?.toString("dd/MM/yyyy")}" readonly="true"/>
+                </div>
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerEndDate" for="offerEndDateId" class="col-4 col-form-label text-right pr-4">End date</label>
+                    <g:textField id="offerEndDateId" name="offerEndDate" class="col-6 form-control bottom-border" value="${endDate?.toString("dd/MM/yyyy")}" readonly="true"/>
+                </div>
+            </div>
+
+            <div class="row mt-2 mb-5">
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerMaxRedemptions" for="offerMaxRedemptionsId" class="col-4 col-form-label text-right pr-4">Max Redemptions</label>
+                    <g:textField id="offerMaxRedemptionsId" name="offerMaxRedemptions" class="col-6 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxRedemptions}" readonly="${isUpdate ? 'false' : 'true'}" />
+                </div>
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerMaxBudget" for="offerMaxBudgetId" class="col-4 col-form-label text-right pr-4">Max budget</label>
+                    <g:textField id="offerMaxBudgetId" name="offerMaxBudget" class="col-6 form-control bottom-border numeric-field" value="${loyaltyOffer?.maxBudget}" readonly="${isUpdate ? 'false' : 'true'}" />
+                </div>
+            </div>
+
+            <div class="row mt-2 mb-5">
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerMarketingText" for="offerMarketingTextId" class="col-4 col-form-label text-right pr-4">Marketing Text</label>
+                    <g:textArea id="offerMarketingTextId" name="offerMarketingText" class="col-6 form-control select-border" value="${loyaltyOffer?.marketingText}" rows="5" readonly="${isUpdate ? 'false' : 'true'}" />
+                </div>
+                <div class="form-group row col-12 col-sm-6">
+                    <label id="offerTermsText" for="offerTermsTextId" class="col-4 col-form-label text-right pr-4">Terms &amp; Conditions</label>
+                    <g:textArea id="offerTermsTextId" name="offerTermsText" class="col-6 form-control select-border" value="${loyaltyOffer?.termsText}" rows="5" readonly="${isUpdate ? 'false' : 'true'}" />
+                </div>
             </div>
         </g:form>
-    </section>
-
-    <section id="addLoyaltyOffers-modal" class="container-fluid" >
-        <div class="modal fade" id="addLoyaltyOffersModal" tabindex="-1" role="dialog" aria-labelledby="addLoyaltyOffersModalLabel" data-backdrop="false" aria-hidden="true" style="margin-top: 120px">
-            <div class="modal-dialog modal-lg" style="border: 2px black solid ; margin-top: 120px" role="document" >
-                <div id="addLoyaltyOffersContent" class="modal-content" ></div>
-            </div>
-        </div>
     </section>
 
 </body>
