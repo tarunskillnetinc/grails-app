@@ -8,6 +8,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
+import uk.co.wonderlane.wlpos.enums.MemberOfferStatus
 import uk.co.wonderlane.wlpos.enums.SegmentStatus
 import uk.co.wonderlane.wlpos.enums.SegmentType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
@@ -136,16 +137,20 @@ class LoyaltyService extends MySqlDal {
     def updateLoyaltyOfferStatus(int promotionId, int retailerId) {
         /* Set any offers associated with this promotion id and retailer id to inactive */
         Offer.withTransaction {
-            def offers = Offer.findAllByRetailerOfferIdAndRetailerIdAndStatusInList(promotionId, retailerId, ['ACTIVE', 'PENDING', 'OPEN'])
+            def offers = Offer.findAllByRetailerOfferIdAndRetailerIdAndStatusInList(promotionId, retailerId, [LoyaltyOfferStatus.ACTIVE, LoyaltyOfferStatus.PENDING, LoyaltyOfferStatus.OPEN])
 
             offers.each { offer ->
-                offer.status = 'INACTIVE'
-                offer.save()
+                offer.status = LoyaltyOfferStatus.INACTIVE
+                offer.save(flush: true)
 
-                def memberOffers = MemberOffer.findAllByOfferAndStatusInList(offer, ['ACTIVE', 'OPEN'])
+                def memberOffers = MemberOffer.findAllByOfferAndStatusInList(offer, [MemberOfferStatus.ACTIVE, MemberOfferStatus.OPEN])
                 memberOffers.each { memberOffer ->
-                    memberOffer.status = 'CLOSED'
-                    memberOffer.save()
+                    memberOffer.status = MemberOfferStatus.CLOSED
+                    memberOffer.dateModified = DateTime.now(DateTimeZone.UTC)
+
+                    if (memberOffer.validate()) {
+                        memberOffer.save(flush: true)
+                    }
                 }
             }
         }
