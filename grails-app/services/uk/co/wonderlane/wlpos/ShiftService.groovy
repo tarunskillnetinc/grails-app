@@ -391,7 +391,7 @@ class ShiftService extends MySqlDal {
         shift.setShiftStatus(ShiftStatus.UNRECONCILED);
         shift.setShiftCloseTime(convertDateTimeToString(new DateTime()))
         shift.setShiftCloseUserId(loggedUser.getId())
-        shift.setShiftOpenUsername(loggedUser.getUsername())
+        shift.setShiftCloseUsername(loggedUser.getUsername())
     }
 
     private User loadLoggedInUser(){
