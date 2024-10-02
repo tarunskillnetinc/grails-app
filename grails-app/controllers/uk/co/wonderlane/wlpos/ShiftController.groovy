@@ -275,7 +275,7 @@ class ShiftController {
     }
 
 
-    def ajaxOpenShift(){ // This is method to functioning action button of shift
+    def ajaxOpenShift(){ // This is method to functioning action button of shift open
         Integer retailerId = null
         Integer storeId = null
         Integer tillId = null
@@ -286,7 +286,7 @@ class ShiftController {
             storeId  = Integer.parseInt(params.storeId)
             tillId  = Integer.parseInt(params.tillId)
             tillIdFilter  = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null //If any till id added into filter then pass it
-            def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing shift
+            def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing open shift
             if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) { // Check shift is null or not open if so then proceed to create new shift
                 shift = shiftService.createNewShift(retailerId, storeId, tillId, false) //call function to open shift
                 flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getId(), tillId)

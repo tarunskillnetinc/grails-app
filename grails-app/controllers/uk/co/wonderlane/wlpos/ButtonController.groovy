@@ -111,7 +111,7 @@ class ButtonController {
                 def parent = createBlankToOverride(form.buttonGridId, form.row, form.column)
                 if (parent == null) {
                     form.errors.reject('button.error.noParent')
-                    renderError(button, form)
+                    renderError(button, form, imageRecord)
                     return
                 }
                 button.overrideId = parent.id
@@ -128,7 +128,7 @@ class ButtonController {
         }
 
         if (form.hasErrors()) {
-            renderError(button, form)
+            renderError(button, form, imageRecord)
             return
         }
 
@@ -379,7 +379,9 @@ class ButtonController {
 
     def syncAfterBtnRemoval(id, buttonGridId, ImageRecord imageRecord) {
         SyncMessage removeImageSyncMessage = new SyncMessage(SyncMessageType.IMAGE_SYNC, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
-        removeImageSyncMessage.setImageRecord(imageRecord)
+        if (imageRecord != null) {
+            removeImageSyncMessage.setImageRecord(imageRecord.toEntity())
+        }
         removeImageSyncMessage.setTransactionId(id)
         removeImageSyncMessage.setInsert(false)
         removeImageSyncMessage.setDelete(true)
