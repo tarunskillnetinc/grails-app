@@ -363,6 +363,26 @@
                 resetTempSelectedStoreIds()
             }
 
+            function submitPromotion() {
+                var submit = true;
+
+                <g:if test="${promotion != null}">
+                    /* If before any changes were made the promotion was set as active and loyalty */
+                    <g:if test="${promotion.loyalty && promotion.active}">
+                        /* Get the potentially updated active flag value */
+                        var isActive = $('#active').prop('checked');
+
+                        if (!isActive) {
+                            submit = confirm('Disabling a loyalty associated promotion will update any underlying offers. Are you sure you wish to save these changes?')
+                        }
+                    </g:if>
+                </g:if>
+
+                if (submit) {
+                    $('#add-promotion-form').submit();
+                }
+            }
+
             function addAllStores() {
                 $.ajax({
                     url: '${createLink(controller: "promotion", action: 'ajaxAddAllStores')}',
@@ -436,7 +456,7 @@
 
                 <div class="col-2 text-right">
                     <g:link elementId="cancel-btn" controller="promotion" action="index" tabindex="-1" role="button" class="btn btn-wl">Cancel</g:link>
-                    <button id="save-btn" class="btn btn-success" name="save" onclick="$('#add-promotion-form').submit();">Save</button>
+                    <button id="save-btn" class="btn btn-success" name="save" onclick="submitPromotion();">Save</button>
                 </div>
             </div>
         </section>
