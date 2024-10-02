@@ -1,3 +1,20 @@
+<script>
+    var successMessage = "${successMessage}";
+    var errorMessage = "${errorMessage}";
+
+    $(document).ready(function () {
+        if(successMessage != null && successMessage !== ''){
+            $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
+        } else if (errorMessage != null && errorMessage !== '') {
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        } else {
+            $("#messages-container").html('');
+        }
+
+    });
+</script>
+
+
 <style>
     /* Shift details border styling */
     .shift-card-body {
@@ -26,6 +43,7 @@
 
 
 </style>
+
 
 <div class="container-fluid mt-3 mb-3">
     <div class="row justify-content-end align-items-center">
@@ -80,17 +98,22 @@
                             <div class="col-2 text-center">${shift.shiftStatus}</div>
                             <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                                 <div class="button-container d-flex justify-content-end align-items-center">
-                                    <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
-                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Close</button>
+                                    <g:if test="${!shift.shiftStatus}">
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="openShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId});">Open</button>
                                     </g:if>
-                                    <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
-                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
-                                    </g:if>
-                                    <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
-                                        <button class="btn btn-danger p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Recount</button>
-                                        <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Finalise</button>
-                                    </g:if>
-                                    <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
+                                    <g:else>
+                                        <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
+                                        <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}" >
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Close</button>
+                                        </g:if>
+                                        <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
+                                        </g:if>
+                                        <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
+                                            <button class="btn btn-danger p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Recount</button>
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Finalise</button>
+                                        </g:if>
+                                    </g:else>
                                 </div>
                             </div>
                         </div>
