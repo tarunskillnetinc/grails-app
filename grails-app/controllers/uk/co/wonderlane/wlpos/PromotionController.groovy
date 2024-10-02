@@ -320,7 +320,15 @@ class PromotionController {
 
         syncMessage.setPromotion(tillPromo)
 
-        rabbitService.sendMessage(syncMessage)
+        if(promotion.stores != null){
+            promotion.stores?.each { store ->
+
+                syncMessage.setStoreId(store.id)
+
+                rabbitService.sendMessage(syncMessage);
+            }
+        }
+
     }
 
     private boolean validateChildren(PromotionCommand promotionCommand) {
