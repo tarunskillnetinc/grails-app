@@ -312,7 +312,7 @@ class ShiftController {
             tillId  = Integer.parseInt(params.tillId)
             int shiftId  = params.shiftId ? Integer.parseInt(params.shiftId) : -1
             tillIdFilter  = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null //If any till id added into filter then pass it
-            def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing shift
+            def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing open shift
             if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) { // Check shift is null or not open if so then proceed to create new shift
                 shiftService.processShiftClose(shift) //call function to open shift
                 boolean isNewShiftOpen =  shiftService.postTillControlEventProcess(shift) //Check if shift auto open is configured if yes then open new one

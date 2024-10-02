@@ -5,7 +5,7 @@
 <div class="row mt-3 mb-2">
     <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
         <div class="row">
-            <p class="mx-auto">Reconciliation for shift number ${shift.shiftNumber} (<g:formatDate format="dd/MM/yyyy" date="${shift.firstTransactionDate.toDate()}" />)</p>
+            <p class="mx-auto">Reconciliation for shift number ${shift.shiftNumber} (<g:formatDate format="dd/MM/yyyy" date="${shift?.firstTransactionDate?.toDate()}" />)</p>
         </div>
 
         <div class="row mt-3 mb-2 ml-0 mr-0 table-wl">
@@ -110,13 +110,13 @@
 
             <div class="row mb-2 ml-0 mr-0">
                 <div class="col-5 text-right">Reconciled by:</div>
-                <div class="col-7">${shift.reconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift.reconciledDate.toDate()}" />.</div>
+                <div class="col-7">${shift.reconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift?.reconciledDate?.toDate()}" />.</div>
             </div>
 
             <g:if test="${shift.reReconciledDate != null}">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Re-reconciled by:</div>
-                    <div class="col-7">${shift.reReconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift.reReconciledDate.toDate()}" />.</div>
+                    <div class="col-7">${shift.reReconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift?.reReconciledDate?.toDate()}" />.</div>
                 </div>
             </g:if>
         </g:else>
