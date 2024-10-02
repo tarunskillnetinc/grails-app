@@ -7,11 +7,14 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.entities.transaction.FinancialWeek
 import uk.co.wonderlane.wlpos.entities.transaction.ShiftAudit
+import uk.co.wonderlane.wlpos.entities.transaction.TillControlTransaction
 import uk.co.wonderlane.wlpos.entities.transaction.Transaction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
+import uk.co.wonderlane.wlpos.enums.TillControlEventType
 
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -29,6 +32,7 @@ class ShiftService extends MySqlDal {
     def gsonProvider
     def storeService
     def userService
+    def cashManagementService
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
@@ -134,6 +138,45 @@ class ShiftService extends MySqlDal {
             log.error(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
         }
+    }
+
+    void processShiftClose(Shift shift){
+        try {
+            User loggedInUser = loadLoggedInUser()
+            updateShiftStatus(shift) //Update status of current shift if
+            saveShift(shift) //This will called shift save method to process close
+            addAudit(shift, ShiftAction.CLOSE, false, loggedInUser) //Add shift audit for shift close
+        } catch (Exception ex) {
+            log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+    }
+
+    boolean postTillControlEventProcess(Shift shift) {
+        boolean isNewShiftOpen = false
+        try {
+            if (!ShiftStatus.OPEN.equals(shift.getShiftStatus())) {
+                println 'shifttttttttttttt retailerrrrrrrrr ' + shift.getRetailerId() + ' store iddddddddddd ' + shift.getStoreId()
+                if (cashManagementService.isTillShiftsAutoOpen(shift.getRetailerId(), shift.getStoreId())) {
+                    createNewShift(shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), true)
+                    isNewShiftOpen = true
+                }
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Error in post shift close event process for shift id: %d retailer id: %s store id: %s till id: %s error: %s", shift.getId(), shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+        return isNewShiftOpen
+    }
+
+    private void updateShiftStatus(Shift shift) {
+        shift.setShiftStatus(ShiftStatus.UNRECONCILED);
+        shift.setShiftCloseTime(convertDateTimeToString(new DateTime()));
+    }
+
+    private User loadLoggedInUser(){
+        String userName = springSecurityService.principal.usersName
+        User loggedInUser = userService.getUserByUsername(userName)
+        return loggedInUser
     }
 
     Shift getOpenShift(int retailerId, int storeId, int tillId) {
