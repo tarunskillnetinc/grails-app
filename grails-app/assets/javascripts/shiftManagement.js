@@ -264,14 +264,14 @@ function openShifts(retailerId, storeId, tillId) {
 
 }
 
-function closeShifts(retailerId, storeId, tillId) {
+function closeShifts(retailerId, storeId, tillId, shiftId) {
     $("#search-results").hide();
     $("#loading-indicator").show();
     tillIdFilter = $("#tillId").val();
     $.ajax({
         url: ShiftUrls.closeShiftUrl(),
         method: "POST",
-        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, tillIdFilter: tillIdFilter},
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
         success: function(resp) {
             $("#results-container").html(resp);
         },

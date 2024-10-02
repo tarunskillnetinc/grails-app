@@ -104,7 +104,7 @@
                                     <g:else>
                                         <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}" >
-                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="closeShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId});">Close</button>
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="closeShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Close</button>
                                         </g:if>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
                                             <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
