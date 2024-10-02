@@ -283,7 +283,10 @@ class ShiftService extends MySqlDal {
 
     private List<TillConfiguration> getAllActiveTills(Integer storeNumber, Integer tillId) {
         return TillConfiguration.createCriteria().list {
-            isNotNull('serialNumber')
+            and {
+                isNotNull('serialNumber')
+                ne('serialNumber', '')  // Exclude empty strings
+            }
             eq('retailerId', springSecurityService.principal.retailerId)
             if (storeNumber != null){ //In Till configuration table store id mean store number
                 eq('storeId', storeNumber)
