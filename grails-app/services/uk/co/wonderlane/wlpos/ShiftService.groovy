@@ -7,14 +7,10 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
-import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.entities.transaction.FinancialWeek
 import uk.co.wonderlane.wlpos.entities.transaction.ShiftAudit
-import uk.co.wonderlane.wlpos.entities.transaction.TillControlTransaction
-import uk.co.wonderlane.wlpos.entities.transaction.Transaction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
-import uk.co.wonderlane.wlpos.enums.TillControlEventType
 
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -144,7 +140,7 @@ class ShiftService extends MySqlDal {
     void processShiftClose(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            updateShiftStatus(shift, loggedInUser) //Update status of current shift if
+            populateShiftClose(shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
             addAudit(shift, ShiftAction.CLOSE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
@@ -387,7 +383,7 @@ class ShiftService extends MySqlDal {
         return new Timestamp(new DateTime().getMillis());
     }
 
-    private void updateShiftStatus(Shift shift, User loggedUser) {
+    private void populateShiftClose(Shift shift, User loggedUser) {
         shift.setShiftStatus(ShiftStatus.UNRECONCILED);
         shift.setShiftCloseTime(convertDateTimeToString(new DateTime()))
         shift.setShiftCloseUserId(loggedUser.getId())
