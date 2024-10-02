@@ -72,7 +72,7 @@ class CashManagementService extends MySqlDal{
             try (ResultSet rs = cstmt.executeQuery()) {
                 if (rs.next()) {
                     String configJson = rs.getString("config");
-                    CashManagementConfig storeConfig = gson.fromJson(configJson, CashManagementConfig.class);
+                    CashManagementConfig storeConfig = gsonProvider.gson.fromJson(configJson, CashManagementConfig.class);
                     if (storeConfig != null && !storeConfig.isTillShiftsManualOpen()) {
                         isTillShiftOpenAuto = true;
                     }
@@ -85,7 +85,6 @@ class CashManagementService extends MySqlDal{
             log.error("Error parsing JSON config for retailerId: " + retailerId + " and storeId: " + storeId, ex);
             throw new RuntimeException("Unexpected error parsing cash management configuration", ex);
         }
-        println 'is till opennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn ' + isTillShiftOpenAuto
         return isTillShiftOpenAuto;
     }
 }
