@@ -11,6 +11,7 @@ import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.SegmentStatus
 import uk.co.wonderlane.wlpos.enums.SegmentType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
+import uk.co.wonderlane.wlpos.loyalty.MemberOffer
 import uk.co.wonderlane.wlpos.loyalty.Offer
 import uk.co.wonderlane.wlpos.loyalty.OfferSegment
 
@@ -130,6 +131,24 @@ class LoyaltyService extends MySqlDal {
 
     def getLoyaltyOfferById(int id){
         return Offer.findById(id)
+    }
+
+    def updateLoyaltyOfferStatus(int promotionId, int retailerId) {
+        /* Set any offers associated with this promotion id and retailer id to inactive */
+        Offer.withTransaction {
+            def offers = Offer.findAllByRetailerOfferIdAndRetailerIdAndStatusInList(promotionId, retailerId, ['ACTIVE', 'PENDING', 'OPEN'])
+
+            offers.each { offer ->
+                offer.status = 'INACTIVE'
+                offer.save()
+
+                def memberOffers = MemberOffer.findAllByOfferAndStatusInList(offer, ['ACTIVE', 'OPEN'])
+                memberOffers.each { memberOffer ->
+                    memberOffer.status = 'CLOSED'
+                    memberOffer.save()
+                }
+            }
+        }
     }
 
     List<OfferSegment> getLoyaltyOfferSegmentsById(int offerId){
