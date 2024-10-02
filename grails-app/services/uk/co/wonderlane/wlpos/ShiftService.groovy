@@ -80,26 +80,25 @@ class ShiftService extends MySqlDal {
         return shifts
     }
 
-    def getShift(int shiftId) {
+    def getShift(int shiftId, int retailerId, int storeId) {
         Connection conn = getConnection()
         CallableStatement getShiftStatement = conn.prepareCall("{ call getShift(?, ?, ?) }")
-
         try {
-            getShiftStatement.setInt(1, springSecurityService.principal.retailerId)
-            getShiftStatement.setInt(2, springSecurityService.principal.storeId)
+            getShiftStatement.setInt(1, retailerId > 0 ? retailerId : springSecurityService.principal.retailerId)
+            getShiftStatement.setInt(2, storeId > 0 ? storeId : springSecurityService.principal.storeId)
             getShiftStatement.setInt(3, shiftId)
-
             ResultSet rs = getShiftStatement.executeQuery()
-
             try {
                 if (rs.next()) {
                     String shiftJson = rs.getString("shift")
-
                     return gsonProvider.gson.fromJson(shiftJson, Shift.class)
                 }
             } finally {
                 rs.close()
             }
+        }catch (Exception ex) {
+            log.error(String.format("Error loading shift for from retailer: %d store: %d shiftId: %d error: %s", retailerId, storeId, shiftId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error persisting shift for from retailer: %d store: %d tillId: %d error: %s", retailerId, storeId, shiftId, ex.getMessage()), ex)
         } finally {
             getShiftStatement.close()
             conn.close()

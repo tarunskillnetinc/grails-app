@@ -89,7 +89,7 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             Shift _shift = getNewShiftObject(shiftId)
             _shift.setReconciledDate(reconciledDate)
 
-            getShift(shiftId) >> _shift
+            getShift(shiftId, -1, -1) >> _shift
         }
 
         when:
@@ -115,7 +115,7 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         given:
 
         controller.shiftService = Stub(ShiftService) {
-            getShift(1) >> null
+            getShift(1, -1, -1) >> null
         }
 
         when:
@@ -211,7 +211,7 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             _shift.setReconciliationTotals(reconciliationTotalList)
             _shift.setTenderTotals(tenderTotalList)
 
-            getShift(cashUpCommand.getShiftId()) >> _shift
+            getShift(cashUpCommand.getShiftId(), -1, -1) >> _shift
         }
 
         controller.locationService = Stub(LocationService) {}
@@ -306,7 +306,7 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
                     getReconciliationTotal(TenderType.VOUCHER, 100, 0)))
             _shift.setTenderTotals(List.of(getTenderTotal(TenderType.CASH, 10)))
 
-            getShift(saveShiftCommand.getShiftId()) >> _shift
+            getShift(saveShiftCommand.getShiftId(), -1, -1) >> _shift
         }
 
         controller.locationService = Stub(LocationService) {

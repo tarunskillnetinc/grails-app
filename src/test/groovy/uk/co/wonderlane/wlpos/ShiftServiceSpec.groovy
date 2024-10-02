@@ -87,7 +87,7 @@ class ShiftServiceSpec extends Specification implements ServiceUnitTest<ShiftSer
         resultSetMock.getString("shift") >> getShiftDummyJson()
 
         when:
-        Shift shiftReturned = shiftServiceHelper.getShift(1)
+        Shift shiftReturned = shiftServiceHelper.getShift(1, -1, -1)
 
         then:
         (shiftReturned == null) == emptyResult
