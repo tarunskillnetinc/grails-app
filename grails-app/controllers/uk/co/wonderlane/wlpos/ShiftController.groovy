@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-import grails.converters.JSON
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -9,11 +8,7 @@ import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
-import uk.co.wonderlane.wlpos.enums.LocationType
-import uk.co.wonderlane.wlpos.enums.ShiftStatus
-import uk.co.wonderlane.wlpos.enums.TenderMovementType
-import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
-import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.enums.*
 import uk.co.wonderlane.wlpos.reporting.Location
 
 class ShiftController {
@@ -95,12 +90,10 @@ class ShiftController {
 
     def ajaxGetCashDetails(int shiftId) {
         def shift = shiftService.getShift(shiftId, -1, -1)
-
         if (shift == null) {
             render ""
             return
         }
-
         if (shift.reconciledDate == null) {
             render(template: "cashUpModal", model: [shift: shift])
         } else if (shift.reconciledDate != null) {
