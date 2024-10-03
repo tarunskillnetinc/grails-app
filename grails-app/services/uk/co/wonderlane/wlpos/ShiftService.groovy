@@ -140,7 +140,7 @@ class ShiftService extends MySqlDal {
     void processShiftClose(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            populateShiftClose(shift, loggedInUser) //Update status of current shift if
+            populateShiftCloseFields(shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
             addAudit(shift, ShiftAction.CLOSE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
@@ -383,7 +383,7 @@ class ShiftService extends MySqlDal {
         return new Timestamp(new DateTime().getMillis());
     }
 
-    private void populateShiftClose(Shift shift, User loggedUser) {
+    private void populateShiftCloseFields(Shift shift, User loggedUser) {
         shift.setShiftStatus(ShiftStatus.UNRECONCILED);
         shift.setShiftCloseTime(convertDateTimeToString(new DateTime()))
         shift.setShiftCloseUserId(loggedUser.getId())
