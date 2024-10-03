@@ -6,6 +6,7 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.entities.transaction.FinancialWeek
@@ -26,7 +27,7 @@ import java.sql.Types
 import java.util.stream.Collectors
 
 @Transactional
-class ShiftService extends MySqlDal {
+class ShiftService extends MySqlPoolDal {
 
     def springSecurityService
     def gsonProvider
@@ -34,7 +35,6 @@ class ShiftService extends MySqlDal {
     def userService
     def cashManagementService
 
-    protected static final String DATE_FORMAT = "yyyy-MM-dd";
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 
     ShiftService(DatabaseCredentials databaseCredentials) {
@@ -150,6 +150,38 @@ class ShiftService extends MySqlDal {
         } catch (Exception ex) {
             log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+    }
+
+    void processShiftReconcile(SaveShiftCommand saveShiftCommand , Shift shift){
+        try {
+            User loggedInUser = loadLoggedInUser()
+            updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
+            saveShift(shift) //This will called shift save method to process close
+            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
+        } catch (Exception ex) {
+            log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+    }
+
+    private void updateShiftReconcileFields(SaveShiftCommand saveShiftCommand , Shift shift, User loggedInUser){
+        if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
+            shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
+                it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
+                it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
+            }
+        }
+
+        if (shift.reconciledDate == null) {
+            shift.reconciledDate = DateTime.now()
+            shift.reconciledByUserId = loggedInUser.getId()
+            shift.reconciledByUsersName = loggedInUser.getUsername()
+            shift.setShiftStatus(ShiftStatus.RECONCILED)
+        } else {
+            shift.reReconciledDate = DateTime.now()
+            shift.reReconciledByUserId = loggedInUser.getId()
+            shift.reReconciledByUsersName = loggedInUser.getUsername()
         }
     }
 

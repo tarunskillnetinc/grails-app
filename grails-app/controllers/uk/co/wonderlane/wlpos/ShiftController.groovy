@@ -89,184 +89,198 @@ class ShiftController {
     }
 
     def ajaxGetCashDetails(int shiftId) {
-        def shift = shiftService.getShift(shiftId, -1, -1)
-        if (shift == null) {
-            render ""
-            return
-        }
-        if (shift.reconciledDate == null) {
-            render(template: "cashUpModal", model: [shift: shift])
-        } else if (shift.reconciledDate != null) {
-            render(template: "cashUpSummaryModal", model: [shift: shift])
+         try {
+             def shift = shiftService.getShift(shiftId, -1, -1)
+             if (shift == null) {
+                 throw new RuntimeException(String.format("No shift found for shift id %d ", shiftId))
+             }
+             def template = shift.reconciledDate ? "cashUpSummaryModal" : "cashUpModal"
+             render(template: template, model: [shift: shift])
+        } catch (Exception ex) {
+            log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)
+            return null
         }
     }
 
     def ajaxChangeCashUpType(CashUpCommand cashUpCommand) {
-        def template = ""
-
-        if (cashUpCommand.type == "VALUE") {
-            template = "cashUpByValue"
-
-            // Switching from denomination to value.
-            if (cashUpCommand.cashUpBy == "DENOMINATION") {
-                cashUpCommand.fiftyPounds *= 50
-                cashUpCommand.twentyPounds *= 20
-                cashUpCommand.tenPounds *= 10
-                cashUpCommand.fivePounds *= 5
-                cashUpCommand.twoPounds *= 2
-                cashUpCommand.onePounds *= 1
-                cashUpCommand.fiftyPences *= 0.50
-                cashUpCommand.twentyPences *= 0.20
-                cashUpCommand.tenPences *= 0.10
-                cashUpCommand.fivePences *= 0.05
-                cashUpCommand.twoPences *= 0.02
-                cashUpCommand.onePences *= 0.01
+        try {
+            def template = ""
+            if (cashUpCommand.type == "VALUE") {
+                template = "cashUpByValue"
+                if (cashUpCommand.cashUpBy == "DENOMINATION") {  //Switching from denomination to value.
+                    cashUpCommand.fiftyPounds *= 50
+                    cashUpCommand.twentyPounds *= 20
+                    cashUpCommand.tenPounds *= 10
+                    cashUpCommand.fivePounds *= 5
+                    cashUpCommand.twoPounds *= 2
+                    cashUpCommand.onePounds *= 1
+                    cashUpCommand.fiftyPences *= 0.50
+                    cashUpCommand.twentyPences *= 0.20
+                    cashUpCommand.tenPences *= 0.10
+                    cashUpCommand.fivePences *= 0.05
+                    cashUpCommand.twoPences *= 0.02
+                    cashUpCommand.onePences *= 0.01
+                }
+            } else if (cashUpCommand.type == "DENOMINATION") {
+                template = "cashUpByDenomination"
+                if (cashUpCommand.cashUpBy == "VALUE") { //Switching from value to denomination.
+                    cashUpCommand.fiftyPounds /= 50
+                    cashUpCommand.twentyPounds /= 20
+                    cashUpCommand.tenPounds /= 10
+                    cashUpCommand.fivePounds /= 5
+                    cashUpCommand.twoPounds /= 2
+                    cashUpCommand.onePounds /= 1
+                    cashUpCommand.fiftyPences /= 0.50
+                    cashUpCommand.twentyPences /= 0.20
+                    cashUpCommand.tenPences /= 0.10
+                    cashUpCommand.fivePences /= 0.05
+                    cashUpCommand.twoPences /= 0.02
+                    cashUpCommand.onePences /= 0.01
+                }
+            } else if (cashUpCommand.type == "TOTALS") {
+                template = "cashUpByTotals"
+                if (cashUpCommand.cashUpBy == "VALUE") { //Switching from value to totals.
+                    cashUpCommand.cashTotal = cashUpCommand.fiftyPounds + cashUpCommand.twentyPounds + cashUpCommand.tenPounds +
+                            cashUpCommand.fivePounds + cashUpCommand.twoPounds + cashUpCommand.onePounds + cashUpCommand.fiftyPences +
+                            cashUpCommand.twentyPences + cashUpCommand.tenPences + cashUpCommand.fivePences + cashUpCommand.twoPences +
+                            cashUpCommand.onePences
+                } else if (cashUpCommand.cashUpBy == "DENOMINATION") { //Switching from denomination to totals.
+                    cashUpCommand.cashTotal = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 +
+                            cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 +
+                            cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 +
+                            cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 +
+                            cashUpCommand.onePences * 0.01
+                }
             }
-        } else if (cashUpCommand.type == "DENOMINATION") {
-            template = "cashUpByDenomination"
-
-            // Switching from value to denomination.
-            if (cashUpCommand.cashUpBy == "VALUE") {
-                cashUpCommand.fiftyPounds /= 50
-                cashUpCommand.twentyPounds /= 20
-                cashUpCommand.tenPounds /= 10
-                cashUpCommand.fivePounds /= 5
-                cashUpCommand.twoPounds /= 2
-                cashUpCommand.onePounds /= 1
-                cashUpCommand.fiftyPences /= 0.50
-                cashUpCommand.twentyPences /= 0.20
-                cashUpCommand.tenPences /= 0.10
-                cashUpCommand.fivePences /= 0.05
-                cashUpCommand.twoPences /= 0.02
-                cashUpCommand.onePences /= 0.01
-            }
-        } else if (cashUpCommand.type == "TOTALS") {
-            template = "cashUpByTotals"
-
-            // Switching from value to totals.
-            if (cashUpCommand.cashUpBy == "VALUE") {
-                cashUpCommand.cashTotal = cashUpCommand.fiftyPounds + cashUpCommand.twentyPounds + cashUpCommand.tenPounds + cashUpCommand.fivePounds + cashUpCommand.twoPounds + cashUpCommand.onePounds + cashUpCommand.fiftyPences + cashUpCommand.twentyPences + cashUpCommand.tenPences + cashUpCommand.fivePences + cashUpCommand.twoPences + cashUpCommand.onePences
-            } else if (cashUpCommand.cashUpBy == "DENOMINATION") {
-                // Switching from denomination to totals.
-                cashUpCommand.cashTotal = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 + cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 + cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 + cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 + cashUpCommand.onePences * 0.01
-            }
+            render(template: template, model: [values: cashUpCommand])
+        } catch (Exception ex) {
+            log.error(String.format("Shift cash up type change error for shift id: %d error: %s", cashUpCommand.shiftId, ex.getMessage()), ex)
+            return null
         }
-
-        render(template: template, model: [values: cashUpCommand])
     }
 
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
-        def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
+        try {
+            def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
 
-        ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
+            ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
 
-        if (cashTotal == null) {
-            cashTotal = new ReconciliationTotal(TenderType.CASH)
-            shift.reconciliationTotals.add(cashTotal)
+            if (cashTotal == null) {
+                cashTotal = new ReconciliationTotal(TenderType.CASH)
+                shift.reconciliationTotals.add(cashTotal)
+            }
+
+            if (cashUpCommand.cashUpBy == "VALUE") {
+                cashTotal.value = cashUpCommand.fiftyPounds + cashUpCommand.twentyPounds + cashUpCommand.tenPounds + cashUpCommand.fivePounds + cashUpCommand.twoPounds + cashUpCommand.onePounds + cashUpCommand.fiftyPences + cashUpCommand.twentyPences + cashUpCommand.tenPences + cashUpCommand.fivePences + cashUpCommand.twoPences + cashUpCommand.onePences
+            } else if (cashUpCommand.cashUpBy == "DENOMINATION") {
+                cashTotal.value = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 + cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 + cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 + cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 + cashUpCommand.onePences * 0.01
+            } else {
+                cashTotal.value = cashUpCommand.cashTotal
+            }
+
+            cashTotal.variance = (cashTotal.value ?: BigDecimal.ZERO) - (shift.cashInDrawer ?: BigDecimal.ZERO)
+
+            ReconciliationTotal vouchersTotal = shift.reconciliationTotals?.find { it.tenderType == TenderType.VOUCHER }
+
+            if (vouchersTotal == null) {
+                vouchersTotal = new ReconciliationTotal(TenderType.VOUCHER)
+                shift.reconciliationTotals.add(vouchersTotal)
+            }
+
+            vouchersTotal.value = cashUpCommand.vouchersTotal
+            vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }?.sum { it.value } ?: BigDecimal.ZERO)
+
+            shiftService.saveShift(shift)
+
+            def safeLocations = locationService.getStoreSafeLocations()
+
+            if (safeLocations.collect().isEmpty()) {
+                Location location = new Location()
+                location.safeId = 1
+                location.retailerId = shift.retailerId
+                location.storeId = shift.storeId
+                location.type = LocationType.SAFE
+                location.description = "Safe 1"
+                location.save()
+                safeLocations = locationService.getStoreSafeLocations()
+            }
+            render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
+        } catch (Exception ex) {
+            log.error(String.format("Shift cash save error for shift id: %d error: %s", cashUpCommand.shiftId, ex.getMessage()), ex)
+            return null
         }
-
-        if (cashUpCommand.cashUpBy == "VALUE") {
-            cashTotal.value = cashUpCommand.fiftyPounds + cashUpCommand.twentyPounds + cashUpCommand.tenPounds + cashUpCommand.fivePounds + cashUpCommand.twoPounds + cashUpCommand.onePounds + cashUpCommand.fiftyPences + cashUpCommand.twentyPences + cashUpCommand.tenPences + cashUpCommand.fivePences + cashUpCommand.twoPences + cashUpCommand.onePences
-        } else if (cashUpCommand.cashUpBy == "DENOMINATION") {
-            cashTotal.value = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 + cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 + cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 + cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 + cashUpCommand.onePences * 0.01
-        } else {
-            cashTotal.value = cashUpCommand.cashTotal
-        }
-
-        cashTotal.variance = (cashTotal.value ?: BigDecimal.ZERO) - (shift.cashInDrawer ?: BigDecimal.ZERO)
-
-        ReconciliationTotal vouchersTotal = shift.reconciliationTotals?.find { it.tenderType == TenderType.VOUCHER }
-
-        if (vouchersTotal == null) {
-            vouchersTotal = new ReconciliationTotal(TenderType.VOUCHER)
-            shift.reconciliationTotals.add(vouchersTotal)
-        }
-
-        vouchersTotal.value = cashUpCommand.vouchersTotal
-        vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }?.sum { it.value } ?: BigDecimal.ZERO)
-
-        shiftService.saveShift(shift)
-
-        def safeLocations = locationService.getStoreSafeLocations()
-
-        if (safeLocations.collect().isEmpty()) {
-            Location location = new Location()
-            location.safeId = 1
-            location.retailerId = shift.retailerId
-            location.storeId = shift.storeId
-            location.type = LocationType.SAFE
-            location.description = "Safe 1"
-            location.save()
-            safeLocations = locationService.getStoreSafeLocations()
-        }
-
-        render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
     }
 
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
-        def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
-
-        if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
-            shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
-                it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
-                it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
+        try {
+            def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
+            if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
+                shiftService.processShiftReconcile(saveShiftCommand, shift)
             }
+            render(template: "cashUpSummaryModal", model: [ shift: shift ])
+
+//            if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
+//                shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
+//                    it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
+//                    it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
+//                }
+//            }
+//
+//            if (shift.reconciledDate == null) {
+//                shift.reconciledDate = DateTime.now()
+//                shift.reconciledByUserId = springSecurityService.principal.id
+//                shift.reconciledByUsersName = springSecurityService.principal.usersName
+//            } else {
+//                shift.reReconciledDate = DateTime.now()
+//                shift.reReconciledByUserId = springSecurityService.principal.id
+//                shift.reReconciledByUsersName = springSecurityService.principal.usersName
+//            }
+//
+//            shiftService.saveShift(shift)
+//
+//            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
+//            ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
+//
+//            if (cashTotal != null) {
+//                TenderTotal cashExpected = latestSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH } ?: null
+//                if (cashExpected == null) {
+//                    cashExpected = new TenderTotal(TenderType.CASH)
+//                    latestSnapshot.expectedTotals.add(cashExpected)
+//                }
+//
+//                cashExpected.value = cashExpected.value.add(cashTotal.value)
+//            }
+//
+//            ReconciliationTotal voucherTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
+//            if (voucherTotal != null) {
+//                TenderTotal voucherExpected = latestSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
+//                if (voucherExpected == null) {
+//                    voucherExpected = new TenderTotal(TenderType.VOUCHER)
+//                    latestSnapshot.expectedTotals.add(voucherExpected)
+//                }
+//
+//                voucherExpected.value = voucherExpected.value.add(voucherTotal.value)
+//            }
+//
+//            snapshotService.saveSnapshot(latestSnapshot)
+//
+//            def tillLocation = locationService.getTillLocation(shift.tillId)
+//            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+//
+//            shift.reconciliationTotals.each {
+//                if (it.value > BigDecimal.ZERO) {
+//                    reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
+//                            it.tenderType,
+//                            tillLocation as Location,
+//                            safeLocation as Location,
+//                            it.value))
+//                }
+//            }
+        } catch (Exception ex) {
+            log.error(String.format("Shift reconciliation error for shift id: %d error: %s", saveShiftCommand.shiftId, ex.getMessage()), ex)
+            return null
         }
-
-        if (shift.reconciledDate == null) {
-            shift.reconciledDate = DateTime.now()
-            shift.reconciledByUserId = springSecurityService.principal.id
-            shift.reconciledByUsersName = springSecurityService.principal.usersName
-        } else {
-            shift.reReconciledDate = DateTime.now()
-            shift.reReconciledByUserId = springSecurityService.principal.id
-            shift.reReconciledByUsersName = springSecurityService.principal.usersName
-        }
-
-        shiftService.saveShift(shift)
-
-        Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
-        ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
-
-        if (cashTotal != null) {
-            TenderTotal cashExpected = latestSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH } ?: null
-            if (cashExpected == null) {
-                cashExpected = new TenderTotal(TenderType.CASH)
-                latestSnapshot.expectedTotals.add(cashExpected)
-            }
-
-            cashExpected.value = cashExpected.value.add(cashTotal.value)
-        }
-
-        ReconciliationTotal voucherTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
-        if (voucherTotal != null) {
-            TenderTotal voucherExpected = latestSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER } ?: null
-            if (voucherExpected == null) {
-                voucherExpected = new TenderTotal(TenderType.VOUCHER)
-                latestSnapshot.expectedTotals.add(voucherExpected)
-            }
-
-            voucherExpected.value = voucherExpected.value.add(voucherTotal.value)
-        }
-
-        snapshotService.saveSnapshot(latestSnapshot)
-
-        def tillLocation = locationService.getTillLocation(shift.tillId)
-        def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
-
-        shift.reconciliationTotals.each {
-            if (it.value > BigDecimal.ZERO) {
-                reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
-                        it.tenderType,
-                        tillLocation as Location,
-                        safeLocation as Location,
-                        it.value))
-            }
-        }
-
-        render(template: "cashUpSummaryModal", model: [ shift: shift ])
     }
-
 
     def ajaxOpenShift(){ // This is method to functioning action button of shift open
         Integer retailerId = null

@@ -15,8 +15,7 @@ function getShifts() {
             $("#search-results").show();
 
             const result = document.createElement('div');
-            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
-                .html('No shifts found.');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
             $("#search-results").html(result);
         },
     });
@@ -46,6 +45,15 @@ function showCashModal(shiftId, isReconciled) {
                     e.preventDefault();
                 }
             });
+        },
+        error: function (){
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Cash model loading failed ' + shiftId + '</div>');
         }
     });
 }
@@ -116,6 +124,10 @@ function changeCashUpType(type) {
                     e.preventDefault();
                 }
             });
+        },
+        error: function () {
+            $('#shiftModal').modal('hide'); // This line hides the modal
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Cash up type change failed</div>');
         }
     });
 }
@@ -141,8 +153,75 @@ function submitCash(shiftId) {
             $("#saveShiftButton").click(function() {
                 submitShift(shiftId);
             });
+        },
+        error: function () {
+            $('#shiftModal').modal('hide'); // This line hides the modal
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Cash data submit failed</div>');
         }
     });
+}
+
+function submitShift() {
+    var formValues = $("#shiftVarianceForm").serialize();
+    $.ajax({
+        url: ShiftUrls.saveShiftUrl(),
+        method: "POST",
+        data: formValues,
+        success: function(resp) {
+            $("#modal-content").html(resp);
+        },
+        error: function () {
+            $("#modal-content").html('')
+            $('#shiftModal').modal('hide'); // This line hides the modal
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Reconciliation failed</div>');
+        }
+    });
+}
+
+function openShifts(retailerId, storeId, tillId) {
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    tillIdFilter = $("#tillId").val();
+    $.ajax({
+        url: ShiftUrls.openShiftUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, tillIdFilter: tillIdFilter},
+        success: function(resp) {
+            $("#results-container").html(resp);
+        },
+        error: function() {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            const result = document.createElement('div');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
+            $("#search-results").html(result);
+        },
+    });
+
+}
+
+function closeShifts(retailerId, storeId, tillId, shiftId) {
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    tillIdFilter = $("#tillId").val();
+    $.ajax({
+        url: ShiftUrls.closeShiftUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
+        success: function(resp) {
+            $("#results-container").html(resp);
+        },
+        error: function() {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            const result = document.createElement('div');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
+            $("#search-results").html(result);
+        },
+    });
+
 }
 
 function isFormValid() {
@@ -225,65 +304,4 @@ function isFormValid() {
     }
 
     return isFormValid;
-}
-
-function submitShift() {
-    var formValues = $("#shiftVarianceForm").serialize();
-
-    $.ajax({
-        url: ShiftUrls.saveShiftUrl(),
-        method: "POST",
-        data: formValues,
-        success: function(resp) {
-            $("#modal-content").html(resp);
-        }
-    });
-}
-
-function openShifts(retailerId, storeId, tillId) {
-    $("#search-results").hide();
-    $("#loading-indicator").show();
-    tillIdFilter = $("#tillId").val();
-    $.ajax({
-        url: ShiftUrls.openShiftUrl(),
-        method: "POST",
-        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, tillIdFilter: tillIdFilter},
-        success: function(resp) {
-            $("#results-container").html(resp);
-        },
-        error: function() {
-            $("#loading-indicator").hide();
-            $("#search-results").show();
-
-            const result = document.createElement('div');
-            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
-                .html('No shifts found.');
-            $("#search-results").html(result);
-        },
-    });
-
-}
-
-function closeShifts(retailerId, storeId, tillId, shiftId) {
-    $("#search-results").hide();
-    $("#loading-indicator").show();
-    tillIdFilter = $("#tillId").val();
-    $.ajax({
-        url: ShiftUrls.closeShiftUrl(),
-        method: "POST",
-        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
-        success: function(resp) {
-            $("#results-container").html(resp);
-        },
-        error: function() {
-            $("#loading-indicator").hide();
-            $("#search-results").show();
-
-            const result = document.createElement('div');
-            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
-                .html('No shifts found.');
-            $("#search-results").html(result);
-        },
-    });
-
 }
