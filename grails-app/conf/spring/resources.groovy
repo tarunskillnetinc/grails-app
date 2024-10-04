@@ -94,6 +94,7 @@ beans = {
         gsonProvider = ref("gsonProvider")
         storeService = ref('storeService')
         userService = ref('userService')
+        cashManagementService = ref('cashManagementService')
     }
 
     snapshotService(SnapshotService,
