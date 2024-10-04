@@ -241,6 +241,13 @@
                                 </div>
 
                                 <div class="form-group row">
+                                    <label for="showSinglesWhenScanningWeighted" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Show Singles Option When Scanning Weighted Items</label>
+                                    <div class="col-7 col-lg-4">
+                                        <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="showSinglesWhenScanningWeighted" id="showSinglesWhenScanningWeighted" ${retailer?.config?.showSinglesWhenScanningWeighted ? 'checked' : ''} />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
                                     <label for="sendStockUpdates" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Send Stock Updates To Export Service</label>
                                     <div class="col-7 col-lg-4">
                                         <input type="checkbox" class="col-1 form-check-input wl-checkbox" name="sendStockUpdates" id="sendStockUpdates" ${retailer?.config?.sendStockUpdates() ? 'checked' : ''} />
