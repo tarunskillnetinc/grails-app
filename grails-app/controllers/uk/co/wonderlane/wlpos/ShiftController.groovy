@@ -75,7 +75,10 @@ class ShiftController {
             // Sort the map by tillId
             def sortedShiftMap = shiftMap.sort { it.key }
 
-            render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), successMessage: successMessage, errorMessage: errorMessage])
+            int configuredRetryAttempts = shiftService.getConfiguredRecountAttempts(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+
+            render(template: "shiftViewerResults", model: [shiftMap: sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), configuredRetryAttempts: configuredRetryAttempts,
+                                                           successMessage: successMessage, errorMessage: errorMessage])
 
         } catch (Exception ex) {
             log.error(String.format("Shift loading error for tillId: %d error: %s", tillId, ex.getMessage()), ex)

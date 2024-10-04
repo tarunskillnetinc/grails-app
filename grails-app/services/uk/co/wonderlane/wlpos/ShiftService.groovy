@@ -234,14 +234,22 @@ class ShiftService extends MySqlPoolDal {
     }
 
     boolean isShiftRecountAmountNotExceed(Shift shift){
-        CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+        int configuredRecountAttempts = getConfiguredRecountAttempts(shift.getRetailerId(), shift.getStoreId())
         if(shift.getShiftStatus() == ShiftStatus.RECONCILED) {
             int currentTotalRecountAttempts = shift.getTotalRecountAttempts() != null ? shift.getTotalRecountAttempts() : 0
-            if (cashManagementConfig != null && currentTotalRecountAttempts < cashManagementConfig.getTillShiftRecountLimit()) {
+            if (configuredRecountAttempts > 0 && currentTotalRecountAttempts < configuredRecountAttempts) {
                 return true
             }
         }
-        return false;
+        return false
+    }
+
+    int getConfiguredRecountAttempts(int retailerId, int storeId){
+        CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(retailerId, storeId)
+        if (cashManagementConfig != null) {
+            return cashManagementConfig.getTillShiftRecountLimit()
+        }
+        return -1;
     }
 
     boolean postTillControlEventProcess(Shift shift) {
@@ -567,17 +575,17 @@ class ShiftService extends MySqlPoolDal {
             }
         }
 
-        if (shift.reconciledDate == null) {
+        if (shift.reconciledDate == null) { //Update reconcile fields
             shift.reconciledDate = DateTime.now()
             shift.reconciledByUserId = loggedInUser.getId()
             shift.reconciledByUsersName = loggedInUser.getUsername()
             shift.setShiftStatus(ShiftStatus.RECONCILED)
-        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalized){
+        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalized){ //Update recount fields
             shift.reReconciledDate = DateTime.now()
             shift.reReconciledByUserId = loggedInUser.getId()
             shift.reReconciledByUsersName = loggedInUser.getUsername()
             shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
-        } else if (saveShiftCommand.isFinalized){
+        } else if (saveShiftCommand.isFinalized){ //Update finalise fields
             shift.setShiftStatus(ShiftStatus.FINALISED)
         }
     }
