@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.entities.transaction.FinancialWeek
 import uk.co.wonderlane.wlpos.entities.transaction.ShiftAudit
 import uk.co.wonderlane.wlpos.enums.ShiftAction
@@ -46,10 +47,8 @@ class ShiftService extends MySqlPoolDal {
 
     def getShifts(Integer tillId) {
         List<Shift> shifts = new ArrayList<>()
-
         Connection conn = getConnection()
         CallableStatement getShiftsStatement = conn.prepareCall("{ call getActiveShifts(?, ?, ?) }")
-
         try {
             getShiftsStatement.setInt(1, springSecurityService.principal.retailerId)
             if (springSecurityService.principal.storeId != null) {
@@ -57,15 +56,12 @@ class ShiftService extends MySqlPoolDal {
             } else {
                 getShiftsStatement.setNull(2, Types.INTEGER)
             }
-
             if (tillId != null) {
                 getShiftsStatement.setInt(3, tillId)
             } else {
                 getShiftsStatement.setNull(3, Types.INTEGER)
             }
-
             ResultSet rs = getShiftsStatement.executeQuery()
-
             try {
                 while (rs.next()) {
                     String shiftJson = rs.getString("shift")
@@ -75,6 +71,9 @@ class ShiftService extends MySqlPoolDal {
             } finally {
                 rs.close()
             }
+        }catch (Exception ex) {
+            log.error(String.format("Error loading active shift for retailer: %d shiftId: %d error: %s", springSecurityService.principal.retailerId, tillId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error loading active shift for retailer: %d tillId: %d error: %s", springSecurityService.principal.retailerId, tillId, ex.getMessage()), ex)
         } finally {
             getShiftsStatement.close()
             conn.close();
@@ -158,147 +157,77 @@ class ShiftService extends MySqlPoolDal {
 
     void processShiftCashSave(CashUpCommand cashUpCommand, Shift shift){
         try {
-            User loggedInUser = loadLoggedInUser()
             updateOnHoldCashTotal(cashUpCommand, shift) //Update status of current shift if
             updateOnHoldVoucherTotal(cashUpCommand, shift) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
-    void processShiftReconcile(SaveShiftCommand saveShiftCommand , Shift shift){
+    void processShiftSummary(SaveShiftCommand saveShiftCommand, Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
             updateCashTotal(shift)
             updateVoucherTotal(shift)
             updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
+            ShiftAction auditShiftAction = saveShiftCommand.isFinalized ? ShiftAction.FINALISE : saveShiftCommand.isReconciled ? ShiftAction.RECONCILE : ShiftAction.RECOUNT
+            addAudit(shift, auditShiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
-            log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-            throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
     void processTakeSnapshot(SaveShiftCommand saveShiftCommand, Shift shift) {
-        Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
-        processReconciliationTotal(latestSnapshot, shift, TenderType.CASH)
-        processReconciliationTotal(latestSnapshot, shift, TenderType.VOUCHER)
-        snapshotService.saveSnapshot(latestSnapshot)
+        try {
+            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
+            processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
+            processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
+            snapshotService.saveSnapshot(latestSnapshot)
+        }catch (Exception ex){
+            log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
     }
 
     void updateTenderMovement(SaveShiftCommand saveShiftCommand, Shift shift){
-        def tillLocation = locationService.getTillLocation(shift.tillId)
-        def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+        try {
+            def tillLocation = locationService.getTillLocation(shift.tillId)
+            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
 
-        shift.reconciliationTotals.each {
-            if (it.value > BigDecimal.ZERO) {
-                reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
-                        it.tenderType,
-                        tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                        safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                        it.value))
+            shift.reconciliationTotals.each {
+                if (it.value > BigDecimal.ZERO) {
+                    reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
+                            it.tenderType,
+                            tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                            safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                            it.value))
+                }
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Error shift tender movement for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+
+    }
+
+    boolean isShiftRecountAmountNotExceed(Shift shift){
+        CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+        if(shift.getShiftStatus() == ShiftStatus.RECONCILED) {
+            int currentTotalRecountAttempts = shift.getTotalRecountAttempts() != null ? shift.getTotalRecountAttempts() : 0
+            if (cashManagementConfig != null && currentTotalRecountAttempts < cashManagementConfig.getTillShiftRecountLimit()) {
+                return true
             }
         }
-    }
-
-    private void processReconciliationTotal(Snapshot snapshot, Shift shift, TenderType type) {
-        def total = shift.reconciliationTotals.find { it.tenderType == type }
-        if (total) {
-            def expected = snapshot.expectedTotals.find { it.tenderType == type }
-            if (!expected) {
-                expected = new TenderTotal(type)
-                snapshot.expectedTotals.add(expected)
-            }
-            expected.value = expected.value.add(total.value)
-        }
-    }
-
-    private void updateCashTotal(Shift shift) {
-        //Load on hold cash total values --> Saved at cash up view
-        def cashOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH }
-
-        def cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { shift.reconciliationTotals << it }
-        cashTotal.value = cashOnHoldTotal?.value ?: BigDecimal.ZERO
-        cashTotal.variance = cashOnHoldTotal?.variance ?: BigDecimal.ZERO
-    }
-
-    private void updateVoucherTotal(Shift shift) {
-        //Load on hold voucher total values --> Saved at cash up view
-        def vouchersOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
-
-        def vouchersTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.reconciliationTotals << it }
-        vouchersTotal.value = vouchersOnHoldTotal?.value ?: BigDecimal.ZERO
-        vouchersTotal.variance = vouchersOnHoldTotal?.variance ?: BigDecimal.ZERO
-    }
-
-    private void updateOnHoldCashTotal(CashUpCommand cashUpCommand, Shift shift) {
-        def cashTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { shift.onHoldReconciliationTotals << it }
-        cashTotal.value = calculateCashTotal(cashUpCommand)
-        cashTotal.variance = (cashTotal.value ?: 0) - (shift.cashInDrawer ?: 0)
-    }
-
-    private void updateOnHoldVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
-        def vouchersTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.onHoldReconciliationTotals << it }
-        vouchersTotal.value = cashUpCommand.vouchersTotal
-        vouchersTotal.variance = (vouchersTotal.value ?: 0) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: 0)
-    }
-
-    private BigDecimal calculateCashTotal(CashUpCommand cashUpCommand) {
-        switch(cashUpCommand.cashUpBy) {
-            case "VALUE":
-                return sumDenominations(cashUpCommand)
-            case "DENOMINATION":
-                return sumDenominationsWithMultipliers(cashUpCommand)
-            default:
-                return cashUpCommand.cashTotal
-        }
-    }
-
-    private BigDecimal sumDenominations(CashUpCommand cmd) {
-        ([cmd.fiftyPounds, cmd.twentyPounds, cmd.tenPounds, cmd.fivePounds, cmd.twoPounds, cmd.onePounds, cmd.fiftyPences, cmd.twentyPences, cmd.tenPences,
-          cmd.fivePences, cmd.twoPences, cmd.onePences].sum() ?: 0) as BigDecimal
-    }
-
-    private BigDecimal sumDenominationsWithMultipliers(CashUpCommand cmd) {
-        ([cmd.fiftyPounds * 50, cmd.twentyPounds * 20, cmd.tenPounds * 10, cmd.fivePounds * 5, cmd.twoPounds * 2, cmd.onePounds, cmd.fiftyPences * 0.50, cmd.twentyPences * 0.20,
-          cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
-    }
-
-    private void updateShiftReconcileFields(SaveShiftCommand saveShiftCommand , Shift shift, User loggedInUser){
-        if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
-            shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
-                it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
-                it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
-            }
-        }
-
-        if (shift.reconciledDate == null) {
-            shift.reconciledDate = DateTime.now()
-            shift.reconciledByUserId = loggedInUser.getId()
-            shift.reconciledByUsersName = loggedInUser.getUsername()
-            shift.setShiftStatus(ShiftStatus.RECONCILED)
-        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalized){
-            shift.reReconciledDate = DateTime.now()
-            shift.reReconciledByUserId = loggedInUser.getId()
-            shift.reReconciledByUsersName = loggedInUser.getUsername()
-        } else if (saveShiftCommand.isFinalized){
-            shift.setShiftStatus(ShiftStatus.FINALISED)
-        }
+        return false;
     }
 
     boolean postTillControlEventProcess(Shift shift) {
         boolean isNewShiftOpen = false
         try {
             if (!ShiftStatus.OPEN.equals(shift.getShiftStatus())) {
-                if (cashManagementService.isTillShiftsAutoOpen(shift.getRetailerId(), shift.getStoreId())) {
+                if (isTillShiftsAutoOpen(shift.getRetailerId(), shift.getStoreId())) {
                     createNewShift(shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), true)
                     isNewShiftOpen = true
                 }
@@ -308,6 +237,7 @@ class ShiftService extends MySqlPoolDal {
         }
         return isNewShiftOpen
     }
+
 
     Shift getOpenShift(int retailerId, int storeId, int tillId) {
         Shift result = null;
@@ -540,5 +470,103 @@ class ShiftService extends MySqlPoolDal {
         User loggedInUser = userService.getUserByUsername(userName)
         return loggedInUser
     }
+
+    private void processSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
+        def total = shift.reconciliationTotals.find { it.tenderType == type }
+        if (total) {
+            def expected = snapshot.expectedTotals.find { it.tenderType == type }
+            if (!expected) {
+                expected = new TenderTotal(type)
+                snapshot.expectedTotals.add(expected)
+            }
+            expected.value = expected.value.add(total.value)
+        }
+    }
+
+    private void updateCashTotal(Shift shift) {
+        //Load on hold cash total values --> Saved at cash up view
+        def cashOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH }
+
+        def cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
+                new ReconciliationTotal(TenderType.CASH).tap { shift.reconciliationTotals << it }
+        cashTotal.value = cashOnHoldTotal?.value ?: BigDecimal.ZERO
+        cashTotal.variance = cashOnHoldTotal?.variance ?: BigDecimal.ZERO
+    }
+
+    private void updateVoucherTotal(Shift shift) {
+        //Load on hold voucher total values --> Saved at cash up view
+        def vouchersOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
+
+        def vouchersTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
+                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.reconciliationTotals << it }
+        vouchersTotal.value = vouchersOnHoldTotal?.value ?: BigDecimal.ZERO
+        vouchersTotal.variance = vouchersOnHoldTotal?.variance ?: BigDecimal.ZERO
+    }
+
+    private void updateOnHoldCashTotal(CashUpCommand cashUpCommand, Shift shift) {
+        def cashTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
+                new ReconciliationTotal(TenderType.CASH).tap { shift.onHoldReconciliationTotals << it }
+        cashTotal.value = calculateCashTotal(cashUpCommand)
+        cashTotal.variance = (cashTotal.value ?: 0) - (shift.cashInDrawer ?: 0)
+    }
+
+    private void updateOnHoldVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
+        def vouchersTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
+                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.onHoldReconciliationTotals << it }
+        vouchersTotal.value = cashUpCommand.vouchersTotal
+        vouchersTotal.variance = (vouchersTotal.value ?: 0) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: 0)
+    }
+
+    private BigDecimal calculateCashTotal(CashUpCommand cashUpCommand) {
+        switch(cashUpCommand.cashUpBy) {
+            case "VALUE":
+                return sumDenominations(cashUpCommand)
+            case "DENOMINATION":
+                return sumDenominationsWithMultipliers(cashUpCommand)
+            default:
+                return cashUpCommand.cashTotal
+        }
+    }
+
+    private BigDecimal sumDenominations(CashUpCommand cmd) {
+        ([cmd.fiftyPounds, cmd.twentyPounds, cmd.tenPounds, cmd.fivePounds, cmd.twoPounds, cmd.onePounds, cmd.fiftyPences, cmd.twentyPences, cmd.tenPences,
+          cmd.fivePences, cmd.twoPences, cmd.onePences].sum() ?: 0) as BigDecimal
+    }
+
+    private BigDecimal sumDenominationsWithMultipliers(CashUpCommand cmd) {
+        ([cmd.fiftyPounds * 50, cmd.twentyPounds * 20, cmd.tenPounds * 10, cmd.fivePounds * 5, cmd.twoPounds * 2, cmd.onePounds, cmd.fiftyPences * 0.50, cmd.twentyPences * 0.20,
+          cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
+    }
+
+    private void updateShiftReconcileFields(SaveShiftCommand saveShiftCommand , Shift shift, User loggedInUser){
+        if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
+            shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
+                it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
+                it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
+            }
+        }
+
+        if (shift.reconciledDate == null) {
+            shift.reconciledDate = DateTime.now()
+            shift.reconciledByUserId = loggedInUser.getId()
+            shift.reconciledByUsersName = loggedInUser.getUsername()
+            shift.setShiftStatus(ShiftStatus.RECONCILED)
+        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalized){
+            shift.reReconciledDate = DateTime.now()
+            shift.reReconciledByUserId = loggedInUser.getId()
+            shift.reReconciledByUsersName = loggedInUser.getUsername()
+        } else if (saveShiftCommand.isFinalized){
+            shift.setShiftStatus(ShiftStatus.FINALISED)
+        }
+    }
+
+    private boolean isTillShiftsAutoOpen(int retailerId, int storeId) {
+        CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(retailerId, storeId)
+        if (cashManagementConfig != null && !cashManagementConfig.isTillShiftsManualOpen()) {
+            return true
+        }
+        return false
+    }
+
 
 }

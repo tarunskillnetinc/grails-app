@@ -5,13 +5,10 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
-import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.enums.LocationType
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
-import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.Location
 
 class ShiftController {
@@ -94,14 +91,17 @@ class ShiftController {
     def ajaxGetCashDetails(int shiftId) {
          try {
              def shift = shiftService.getShift(shiftId, -1, -1)
-             if (shift == null) {
-                 throw new RuntimeException(String.format("No shift found for shift id %d ", shiftId))
+             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
+                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)){
+                     render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Recount attempts for shift id: %d has exceeded", shiftId)]))
+                     return
+                 }
+                 def template = shift.reconciledDate ? "cashUpSummaryModal" : "cashUpModal"
+                 render(template: template, model: [shift: shift])
              }
-             def template = shift.reconciledDate ? "cashUpSummaryModal" : "cashUpModal"
-             render(template: template, model: [shift: shift])
         } catch (Exception ex) {
-            log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)
-            return null
+             log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)
+             render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action failed for shift id: %d has exceeded", shiftId)]))
         }
     }
 
@@ -166,6 +166,10 @@ class ShiftController {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
+                if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)){
+                    render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Recount attempts for shift id: %d has exceeded", cashUpCommand.shiftId)]))
+                    return
+                }
                 shiftService.processShiftCashSave(cashUpCommand, shift)
                 def safeLocations = locationService.getStoreSafeLocations()
                 if (safeLocations.collect().isEmpty()) {
@@ -226,10 +230,10 @@ class ShiftController {
         try {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
-                shiftService.processShiftReconcile(saveShiftCommand, shift)
+                shiftService.processShiftSummary(saveShiftCommand, shift)
                 if (saveShiftCommand.isFinalized){ //Only update this if it is finalized
-                    shiftService.processTakeSnapshot(saveShiftCommand, shift)
-                    shiftService.updateTenderMovement(saveShiftCommand, shift)
+                    shiftService.processTakeSnapshot(saveShiftCommand, shift) //Take snapshot
+                    shiftService.updateTenderMovement(saveShiftCommand, shift) //Move into update tender movement
                 }
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
                 render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", saveShiftCommand.shiftId, shift.getShiftStatus())]))

@@ -15,7 +15,7 @@
             <div class="col-3 font-weight-bold text-right" style="border-bottom: 1px solid black;">Diff</div>
         </div>
 
-        <g:each in="${shift.reconciliationTotals}" var="reconciliationTotal">
+        <g:each in="${shift.onHoldReconciliationTotals}" var="reconciliationTotal">
             <div class="row ml-0 mr-0 pt-2 pb-2">
                 <div class="col-2 my-auto text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
                 <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
@@ -26,7 +26,7 @@
 
         <div class="row ml-0 mr-0 pt-2 pb-2">
             <div class="col-5 my-auto text-right">Total</div>
-            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${shift.reconciliationTotals.sum { it.value }}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${shift.onHoldReconciliationTotals.sum { it.value }}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
@@ -50,7 +50,7 @@
 
         <div class="row ml-0 mr-0 pt-4 pb-2">
             <div class="col-5 my-auto font-weight-bold text-right">Shift Total</div>
-            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${(shift.reconciliationTotals.sum { it.value } ?: 0) + (shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0)}" type="currency" /></div>
+            <div class="col-3 my-auto text-right text-truncate" style="border-top: 1px solid black; border-bottom: 1px solid black;"><g:formatNumber number="${(shift.onHoldReconciliationTotals.sum { it.value } ?: 0) + (shift.tenderTotals.find { it.tenderType.name() == 'CARD' }?.value ?: 0)}" type="currency" /></div>
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
@@ -58,9 +58,9 @@
             <g:form name="shiftVarianceForm">
                 <g:hiddenField name="shiftId" value="${shift.id}" />
 
-                <g:if test="${shift.reconciliationTotals.sum { it.variance.abs() } ?: 0 != 0}">
+                <g:if test="${shift.onHoldReconciliationTotals.sum { it.variance.abs() } ?: 0 != 0}">
                     <div class="row ml-0 mr-0 pt-5 pb-2">
-                        <p class="mx-auto text-truncate">You are about to declare a shift variance of <g:formatNumber number="${shift.reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
+                        <p class="mx-auto text-truncate">You are about to declare a shift variance of <g:formatNumber number="${shift.onHoldReconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
                     </div>
                     <div class="row ml-0 mr-0 pt-2 pb-2">
                         <p class="mx-auto">Please select a reason:</p>
@@ -94,17 +94,17 @@
         </g:if>
         <g:else>
             <div class="row mt-5">&nbsp;</div>
-            <g:if test="${shift.reconciliationTotals.find { it.varianceReason != null }}">
+            <g:if test="${shift.onHoldReconciliationTotals.find { it.varianceReason != null }}">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance reason:</div>
-                    <div class="col-7"><g:message code="TenderReconciliationVarianceReason.${shift.reconciliationTotals.find { it.varianceReason != null }?.varianceReason}" /></div>
+                    <div class="col-7"><g:message code="TenderReconciliationVarianceReason.${shift.onHoldReconciliationTotals.find { it.varianceReason != null }?.varianceReason}" /></div>
                 </div>
             </g:if>
 
-            <g:if test="${shift.reconciliationTotals.find { it.varianceReasonText != null }}">
+            <g:if test="${shift.onHoldReconciliationTotals.find { it.varianceReasonText != null }}">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance additional reason:</div>
-                    <div class="col-7">${shift.reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}</div>
+                    <div class="col-7">${shift.onHoldReconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}</div>
                 </div>
             </g:if>
 
