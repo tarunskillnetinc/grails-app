@@ -29,7 +29,7 @@ function showCashModal(shiftId, isReconciled) {
     $.ajax({
         url: ShiftUrls.getCashDetailsUrl(),
         method: "POST",
-        data: { shiftId: shiftId },
+        data: { shiftId: shiftId, isReconciled: isReconciled },
         success: function(resp) {
             $("#modal-content").html(resp);
 
@@ -132,7 +132,7 @@ function changeCashUpType(type) {
     });
 }
 
-function submitCash(shiftId) {
+function submitCash(shiftId, isReconciled) {
     var cashUpBy = $("#cashUpBy").val();
 
     if (cashUpBy === "VALUE" && !isFormValid()) {
@@ -140,29 +140,31 @@ function submitCash(shiftId) {
     }
 
     var formValues = $("#cashUpForm").serialize();
-    formValues = formValues + "&shiftId=" +shiftId
+    formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled
 
     $.ajax({
         url: ShiftUrls.saveCashUrl(),
         method: "POST",
         data: formValues,
         success: function(resp) {
+            console.log(resp)
             $("#modal-content").html(resp);
-
             $("#saveShiftButton").prop("onclick", null).off("click");
             $("#saveShiftButton").click(function() {
                 submitShift(shiftId);
             });
         },
-        error: function () {
+        error: function (resp) {
+            var errorMessage = resp.responseJSON && resp.responseJSON.error ? resp.responseJSON.error : "Action failed";
             $('#shiftModal').modal('hide'); // This line hides the modal
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Cash data submit failed</div>');
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
 }
 
-function submitShift() {
+function submitShift(shiftId, isReconciled) {
     var formValues = $("#shiftVarianceForm").serialize();
+    formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled
     $.ajax({
         url: ShiftUrls.saveShiftUrl(),
         method: "POST",

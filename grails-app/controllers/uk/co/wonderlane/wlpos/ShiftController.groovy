@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import groovy.json.JsonOutput
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -7,8 +8,10 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
-import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
-import uk.co.wonderlane.wlpos.enums.*
+import uk.co.wonderlane.wlpos.enums.LocationType
+import uk.co.wonderlane.wlpos.enums.ShiftStatus
+import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
+import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.Location
 
 class ShiftController {
@@ -162,52 +165,60 @@ class ShiftController {
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
-
-            ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
-
-            if (cashTotal == null) {
-                cashTotal = new ReconciliationTotal(TenderType.CASH)
-                shift.reconciliationTotals.add(cashTotal)
-            }
-
-            if (cashUpCommand.cashUpBy == "VALUE") {
-                cashTotal.value = cashUpCommand.fiftyPounds + cashUpCommand.twentyPounds + cashUpCommand.tenPounds + cashUpCommand.fivePounds + cashUpCommand.twoPounds + cashUpCommand.onePounds + cashUpCommand.fiftyPences + cashUpCommand.twentyPences + cashUpCommand.tenPences + cashUpCommand.fivePences + cashUpCommand.twoPences + cashUpCommand.onePences
-            } else if (cashUpCommand.cashUpBy == "DENOMINATION") {
-                cashTotal.value = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 + cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 + cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 + cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 + cashUpCommand.onePences * 0.01
+            if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
+                shiftService.processShiftCashSave(cashUpCommand, shift)
+                def safeLocations = locationService.getStoreSafeLocations()
+                if (safeLocations.collect().isEmpty()) {
+                    Location location = new Location()
+                    location.safeId = 1
+                    location.retailerId = shift.retailerId
+                    location.storeId = shift.storeId
+                    location.type = LocationType.SAFE
+                    location.description = "Safe 1"
+                    location.save()
+                    safeLocations = locationService.getStoreSafeLocations()
+                }
+                response.status = 200
+                render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
+            } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
+                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", cashUpCommand.shiftId, shift.getShiftStatus())]))
             } else {
-                cashTotal.value = cashUpCommand.cashTotal
+                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d", cashUpCommand.shiftId)]))
             }
 
-            cashTotal.variance = (cashTotal.value ?: BigDecimal.ZERO) - (shift.cashInDrawer ?: BigDecimal.ZERO)
-
-            ReconciliationTotal vouchersTotal = shift.reconciliationTotals?.find { it.tenderType == TenderType.VOUCHER }
-
-            if (vouchersTotal == null) {
-                vouchersTotal = new ReconciliationTotal(TenderType.VOUCHER)
-                shift.reconciliationTotals.add(vouchersTotal)
-            }
-
-            vouchersTotal.value = cashUpCommand.vouchersTotal
-            vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }?.sum { it.value } ?: BigDecimal.ZERO)
-
-            shiftService.saveShift(shift)
-
-            def safeLocations = locationService.getStoreSafeLocations()
-
-            if (safeLocations.collect().isEmpty()) {
-                Location location = new Location()
-                location.safeId = 1
-                location.retailerId = shift.retailerId
-                location.storeId = shift.storeId
-                location.type = LocationType.SAFE
-                location.description = "Safe 1"
-                location.save()
-                safeLocations = locationService.getStoreSafeLocations()
-            }
-            render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
+//
+//            ReconciliationTotal cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?: null
+//
+//            if (cashTotal == null) {
+//                cashTotal = new ReconciliationTotal(TenderType.CASH)
+//                shift.reconciliationTotals.add(cashTotal)
+//            }
+//
+//            if (cashUpCommand.cashUpBy == "VALUE") {
+//                cashTotal.value = cashUpCommand.fiftyPounds + cashUpCommand.twentyPounds + cashUpCommand.tenPounds + cashUpCommand.fivePounds + cashUpCommand.twoPounds + cashUpCommand.onePounds + cashUpCommand.fiftyPences + cashUpCommand.twentyPences + cashUpCommand.tenPences + cashUpCommand.fivePences + cashUpCommand.twoPences + cashUpCommand.onePences
+//            } else if (cashUpCommand.cashUpBy == "DENOMINATION") {
+//                cashTotal.value = cashUpCommand.fiftyPounds * 50 + cashUpCommand.twentyPounds * 20 + cashUpCommand.tenPounds * 10 + cashUpCommand.fivePounds * 5 + cashUpCommand.twoPounds * 2 + cashUpCommand.onePounds * 1 + cashUpCommand.fiftyPences * 0.50 + cashUpCommand.twentyPences * 0.20 + cashUpCommand.tenPences * 0.10 + cashUpCommand.fivePences * 0.05 + cashUpCommand.twoPences * 0.02 + cashUpCommand.onePences * 0.01
+//            } else {
+//                cashTotal.value = cashUpCommand.cashTotal
+//            }
+//
+//            cashTotal.variance = (cashTotal.value ?: BigDecimal.ZERO) - (shift.cashInDrawer ?: BigDecimal.ZERO)
+//
+//            ReconciliationTotal vouchersTotal = shift.reconciliationTotals?.find { it.tenderType == TenderType.VOUCHER }
+//
+//            if (vouchersTotal == null) {
+//                vouchersTotal = new ReconciliationTotal(TenderType.VOUCHER)
+//                shift.reconciliationTotals.add(vouchersTotal)
+//            }
+//
+//            vouchersTotal.value = cashUpCommand.vouchersTotal
+//            vouchersTotal.variance = (vouchersTotal.value ?: BigDecimal.ZERO) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }?.sum { it.value } ?: BigDecimal.ZERO)
+//
+//            shiftService.saveShift(shift)
+//
         } catch (Exception ex) {
             log.error(String.format("Shift cash save error for shift id: %d error: %s", cashUpCommand.shiftId, ex.getMessage()), ex)
-            return null
+            render(status: 400, contentType: 'application/json', text: "Unable to process shift cash save. Shift may not exist or is not in UNRECONCILED status.")
         }
     }
 
@@ -216,9 +227,15 @@ class ShiftController {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
                 shiftService.processShiftReconcile(saveShiftCommand, shift)
+                if (saveShiftCommand.isFinalized){ //Only update this if it is finalized
+                    shiftService.processTakeSnapshot(saveShiftCommand, shift)
+                    shiftService.updateTenderMovement(saveShiftCommand, shift)
+                }
+            } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
+                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", saveShiftCommand.shiftId, shift.getShiftStatus())]))
+            } else {
+                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d", saveShiftCommand.shiftId)]))
             }
-            render(template: "cashUpSummaryModal", model: [ shift: shift ])
-
 //            if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
 //                shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
 //                    it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
@@ -278,7 +295,7 @@ class ShiftController {
 //            }
         } catch (Exception ex) {
             log.error(String.format("Shift reconciliation error for shift id: %d error: %s", saveShiftCommand.shiftId, ex.getMessage()), ex)
-            return null
+            render(status: 400, contentType: 'application/json', text: "Unable to process shift cash save. Shift may not exist or is not in UNRECONCILED status.")
         }
     }
 
@@ -364,6 +381,8 @@ class CashUpCommand {
 class SaveShiftCommand {
 
     int shiftId
+    boolean isReconciled
+    boolean isFinalized
     Integer safeLocationId
     TenderReconciliationVarianceReason tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText

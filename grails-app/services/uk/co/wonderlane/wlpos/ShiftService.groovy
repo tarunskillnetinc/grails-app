@@ -5,17 +5,17 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
-import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
+import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
-import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
+import uk.co.wonderlane.wlpos.entities.cash.Snapshot
+import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.entities.transaction.FinancialWeek
 import uk.co.wonderlane.wlpos.entities.transaction.ShiftAudit
-import uk.co.wonderlane.wlpos.entities.transaction.TillControlTransaction
-import uk.co.wonderlane.wlpos.entities.transaction.Transaction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
-import uk.co.wonderlane.wlpos.enums.TillControlEventType
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
+import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.sql.CallableStatement
 import java.sql.Connection
@@ -34,6 +34,9 @@ class ShiftService extends MySqlPoolDal {
     def storeService
     def userService
     def cashManagementService
+    def snapshotService
+    def locationService
+    def reportingService
 
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 
@@ -153,9 +156,24 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
+    void processShiftCashSave(CashUpCommand cashUpCommand, Shift shift){
+        try {
+            User loggedInUser = loadLoggedInUser()
+            updateOnHoldCashTotal(cashUpCommand, shift) //Update status of current shift if
+            updateOnHoldVoucherTotal(cashUpCommand, shift) //Update status of current shift if
+            saveShift(shift) //This will called shift save method to process close
+            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
+        } catch (Exception ex) {
+            log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+    }
+
     void processShiftReconcile(SaveShiftCommand saveShiftCommand , Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
+            updateCashTotal(shift)
+            updateVoucherTotal(shift)
             updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
             addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
@@ -163,6 +181,95 @@ class ShiftService extends MySqlPoolDal {
             log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
+    }
+
+    void processTakeSnapshot(SaveShiftCommand saveShiftCommand, Shift shift) {
+        Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
+        processReconciliationTotal(latestSnapshot, shift, TenderType.CASH)
+        processReconciliationTotal(latestSnapshot, shift, TenderType.VOUCHER)
+        snapshotService.saveSnapshot(latestSnapshot)
+    }
+
+    void updateTenderMovement(SaveShiftCommand saveShiftCommand, Shift shift){
+        def tillLocation = locationService.getTillLocation(shift.tillId)
+        def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+
+        shift.reconciliationTotals.each {
+            if (it.value > BigDecimal.ZERO) {
+                reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
+                        it.tenderType,
+                        tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                        safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                        it.value))
+            }
+        }
+    }
+
+    private void processReconciliationTotal(Snapshot snapshot, Shift shift, TenderType type) {
+        def total = shift.reconciliationTotals.find { it.tenderType == type }
+        if (total) {
+            def expected = snapshot.expectedTotals.find { it.tenderType == type }
+            if (!expected) {
+                expected = new TenderTotal(type)
+                snapshot.expectedTotals.add(expected)
+            }
+            expected.value = expected.value.add(total.value)
+        }
+    }
+
+    private void updateCashTotal(Shift shift) {
+        //Load on hold cash total values --> Saved at cash up view
+        def cashOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH }
+
+        def cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
+                new ReconciliationTotal(TenderType.CASH).tap { shift.reconciliationTotals << it }
+        cashTotal.value = cashOnHoldTotal?.value ?: BigDecimal.ZERO
+        cashTotal.variance = cashOnHoldTotal?.variance ?: BigDecimal.ZERO
+    }
+
+    private void updateVoucherTotal(Shift shift) {
+        //Load on hold voucher total values --> Saved at cash up view
+        def vouchersOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
+
+        def vouchersTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
+                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.reconciliationTotals << it }
+        vouchersTotal.value = vouchersOnHoldTotal?.value ?: BigDecimal.ZERO
+        vouchersTotal.variance = vouchersOnHoldTotal?.variance ?: BigDecimal.ZERO
+    }
+
+    private void updateOnHoldCashTotal(CashUpCommand cashUpCommand, Shift shift) {
+        def cashTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
+                new ReconciliationTotal(TenderType.CASH).tap { shift.onHoldReconciliationTotals << it }
+        cashTotal.value = calculateCashTotal(cashUpCommand)
+        cashTotal.variance = (cashTotal.value ?: 0) - (shift.cashInDrawer ?: 0)
+    }
+
+    private void updateOnHoldVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
+        def vouchersTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
+                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.onHoldReconciliationTotals << it }
+        vouchersTotal.value = cashUpCommand.vouchersTotal
+        vouchersTotal.variance = (vouchersTotal.value ?: 0) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: 0)
+    }
+
+    private BigDecimal calculateCashTotal(CashUpCommand cashUpCommand) {
+        switch(cashUpCommand.cashUpBy) {
+            case "VALUE":
+                return sumDenominations(cashUpCommand)
+            case "DENOMINATION":
+                return sumDenominationsWithMultipliers(cashUpCommand)
+            default:
+                return cashUpCommand.cashTotal
+        }
+    }
+
+    private BigDecimal sumDenominations(CashUpCommand cmd) {
+        ([cmd.fiftyPounds, cmd.twentyPounds, cmd.tenPounds, cmd.fivePounds, cmd.twoPounds, cmd.onePounds, cmd.fiftyPences, cmd.twentyPences, cmd.tenPences,
+          cmd.fivePences, cmd.twoPences, cmd.onePences].sum() ?: 0) as BigDecimal
+    }
+
+    private BigDecimal sumDenominationsWithMultipliers(CashUpCommand cmd) {
+        ([cmd.fiftyPounds * 50, cmd.twentyPounds * 20, cmd.tenPounds * 10, cmd.fivePounds * 5, cmd.twoPounds * 2, cmd.onePounds, cmd.fiftyPences * 0.50, cmd.twentyPences * 0.20,
+          cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
     }
 
     private void updateShiftReconcileFields(SaveShiftCommand saveShiftCommand , Shift shift, User loggedInUser){
@@ -178,10 +285,12 @@ class ShiftService extends MySqlPoolDal {
             shift.reconciledByUserId = loggedInUser.getId()
             shift.reconciledByUsersName = loggedInUser.getUsername()
             shift.setShiftStatus(ShiftStatus.RECONCILED)
-        } else {
+        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalized){
             shift.reReconciledDate = DateTime.now()
             shift.reReconciledByUserId = loggedInUser.getId()
             shift.reReconciledByUsersName = loggedInUser.getUsername()
+        } else if (saveShiftCommand.isFinalized){
+            shift.setShiftStatus(ShiftStatus.FINALISED)
         }
     }
 
