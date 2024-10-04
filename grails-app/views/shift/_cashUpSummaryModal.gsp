@@ -129,7 +129,10 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">${shift.reconciledDate == null ? "Cancel" : "Close"}</button>
-    <g:if test="${shift.reconciledDate == null}">
+    <g:if test="${!isShiftFinalizeMode}">
         <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null})" >Save</button>
     </g:if>
+    <g:else>
+        <button type="button" id="finalizeButton" class="btn btn-success">Finalise</button>
+    </g:else>
 </div>

@@ -46,14 +46,17 @@ function showCashModal(shiftId, isReconciled) {
                 }
             });
         },
-        error: function (){
+        error: function (resp){
+            var errorMessage = resp.responseJSON && resp.responseJSON.error ?
+                resp.responseJSON.error : "Cash model loading failed for shiftId: " + shiftId;
+
             $("#modal-content").empty();
 
             $('#shiftModal').modal('hide');
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
 
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Cash model loading failed ' + shiftId + '</div>');
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
 }
