@@ -579,9 +579,7 @@ class ProductController extends BaseController {
                     return product
                 }
 
-                if (editedProduct.rangeId != null) {
-                    saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
-                }
+                saveRangeUpdates(product, editedProduct.rangeId?.toSet() as HashSet<Integer>)
             }
 
             if (isRequest) {
@@ -1452,16 +1450,21 @@ class ProductController extends BaseController {
 
         savedRanges?.each { Integer rangeId ->
             if (!productRanges.containsKey(rangeId)) {
-                // range doesn't exist for product, so add it
+                // Range doesn't exist for product, so add it.
                 addRange(product, ranges.get(rangeId), productHistories)
             } else if (productRanges.get(rangeId).deleted) {
-                // range exists, but is soft deleted, un-delete it
+                // Range exists, but is soft deleted, un-delete it.
                 undeleteRange(product, productRanges.get(rangeId), ranges.get(rangeId), productHistories)
             }
         }
 
-        // delete all ranges that have been unselected, except those already soft-deleted
-        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories) }
+        // Delete all ranges that have been unselected, except those already soft-deleted
+        productRanges?.each {
+            if (!savedRanges?.contains(it.key) && !it.value.deleted) {
+                deleteRange(it.value, productHistories)
+            }
+        }
+
         if (productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
