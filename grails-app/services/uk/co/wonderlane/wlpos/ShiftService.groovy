@@ -176,14 +176,14 @@ class ShiftService extends MySqlPoolDal {
         return safeLocations
     }
 
-    void processShiftSummary(SaveShiftCommand saveShiftCommand, Shift shift){
+    void processShiftSave(SaveShiftCommand saveShiftCommand, Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
             updateCashTotal(shift)
             updateVoucherTotal(shift)
             updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            ShiftAction auditShiftAction = saveShiftCommand.isFinalized ? ShiftAction.FINALISE : saveShiftCommand.isReconciled ? ShiftAction.RECONCILE : ShiftAction.RECOUNT
+            ShiftAction auditShiftAction = saveShiftCommand.isFinalised ? ShiftAction.FINALISE : saveShiftCommand.isReconciled ? ShiftAction.RECONCILE : ShiftAction.RECOUNT
             addAudit(shift, auditShiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -569,14 +569,17 @@ class ShiftService extends MySqlPoolDal {
             shift.reconciledByUserId = loggedInUser.getId()
             shift.reconciledByUsersName = loggedInUser.getUsername()
             shift.setShiftStatus(ShiftStatus.RECONCILED)
-        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalized){ //Update recount fields
+        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalised){ //Update recount fields
             shift.reReconciledDate = DateTime.now()
             shift.reReconciledByUserId = loggedInUser.getId()
             shift.reReconciledByUsersName = loggedInUser.getUsername()
             shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
-        } else if (saveShiftCommand.isFinalized){ //Update finalise fields
+        } else if (saveShiftCommand.isFinalised){ //Update finalise fields
             shift.setShiftStatus(ShiftStatus.FINALISED)
         }
+
+        //Clear onhold list
+        shift.getOnHoldReconciliationTotals().clear()
     }
 
     private boolean isTillShiftsAutoOpen(int retailerId, int storeId) {

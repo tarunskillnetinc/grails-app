@@ -107,14 +107,14 @@
                                             <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="closeShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Close</button>
                                         </g:if>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
-                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Reconcile</button>
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false);">Reconcile</button>
                                         </g:if>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
                                             <%int currentTotalRecountAttempts = shift.totalRecountAttempts != null ? shift.totalRecountAttempts : 0 %>
                                             <g:if test="${currentTotalRecountAttempts < configuredRetryAttempts}">
-                                                <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, ${shift.reconciledDate != null});">Recount</button>
+                                                <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false);">Recount</button>
                                             </g:if>
-                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Finalise</button>
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, true);">Finalise</button>
                                         </g:if>
                                     </g:else>
                                 </div>

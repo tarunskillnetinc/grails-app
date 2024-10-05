@@ -22,14 +22,14 @@ function getShifts() {
 
 }
 
-function showCashModal(shiftId, isReconciled) {
+function showCashModal(shiftId, isFinalise) {
     $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#shiftModal').modal({ show: true });
 
     $.ajax({
         url: ShiftUrls.getCashDetailsUrl(),
         method: "POST",
-        data: { shiftId: shiftId, isReconciled: isReconciled },
+        data: { shiftId: shiftId, isFinalise: isFinalise },
         success: function(resp) {
             $("#modal-content").html(resp);
 
@@ -137,11 +137,9 @@ function changeCashUpType(type) {
 
 function submitCash(shiftId, isReconciled) {
     var cashUpBy = $("#cashUpBy").val();
-
     if (cashUpBy === "VALUE" && !isFormValid()) {
         return;
     }
-
     var formValues = $("#cashUpForm").serialize();
     formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled
 
@@ -154,7 +152,7 @@ function submitCash(shiftId, isReconciled) {
             $("#modal-content").html(resp);
             $("#saveShiftButton").prop("onclick", null).off("click");
             $("#saveShiftButton").click(function() {
-                submitShift(shiftId);
+                submitShift(shiftId, isReconciled, false);
             });
         },
         error: function (resp) {
@@ -165,22 +163,36 @@ function submitCash(shiftId, isReconciled) {
     });
 }
 
-function submitShift(shiftId, isReconciled) {
-    var formValues = $("#shiftVarianceForm").serialize();
-    formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled
-    $.ajax({
-        url: ShiftUrls.saveShiftUrl(),
-        method: "POST",
-        data: formValues,
-        success: function(resp) {
-            $("#modal-content").html(resp);
-        },
-        error: function () {
-            $("#modal-content").html('')
-            $('#shiftModal').modal('hide'); // This line hides the modal
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Reconciliation failed</div>');
-        }
-    });
+function submitShift(shiftId, isReconciled, isFinalised) {
+    var proceedWithSubmission = true;
+    if (isFinalised) {
+        proceedWithSubmission = confirm("Are you sure you want to finalise the shift and move money into the safe?");
+    }
+    if (proceedWithSubmission) {
+        var formValues = $("#shiftVarianceForm").serialize();
+        console.log(isFinalised)
+        formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled + "&isFinalised=" + isFinalised
+        $.ajax({
+            url: ShiftUrls.saveShiftUrl(),
+            method: "POST",
+            data: formValues,
+            success: function(resp) {
+                alert(isFinalised)
+                if (isFinalised){
+                    $("#modal-content").html('')
+                    $('#shiftModal').modal('hide'); // This line hides the modal
+                    getShifts();
+                } else {
+                    $("#modal-content").html(resp);
+                }
+            },
+            error: function () {
+                $("#modal-content").html('')
+                $('#shiftModal').modal('hide'); // This line hides the modal
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Reconciliation failed</div>');
+            }
+        });
+    }
 }
 
 function openShifts(retailerId, storeId, tillId) {

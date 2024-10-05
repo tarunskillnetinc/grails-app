@@ -89,11 +89,11 @@ class ShiftController {
         }
     }
 
-    def ajaxGetCashDetails(int shiftId) {
+    def ajaxGetCashDetails(int shiftId, boolean isFinalise) {
          try {
              def shift = shiftService.getShift(shiftId, -1, -1)
              if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
-                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)){
+                 if ((shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) || isFinalise){
                      render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true])
                      return
                  }
@@ -174,7 +174,8 @@ class ShiftController {
                 def safeLocations = locationService.getStoreSafeLocations()
                 safeLocations =  shiftService.updateSafeLocation(shift,safeLocations)
                 response.status = 200
-                render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations ])
+                //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
+                render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations, isShiftFinalizeMode: false ])
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
                 render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", cashUpCommand.shiftId, shift.getShiftStatus())]))
             } else {
@@ -190,11 +191,12 @@ class ShiftController {
         try {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
-                shiftService.processShiftSummary(saveShiftCommand, shift)
-                if (saveShiftCommand.isFinalized){ //Only update this if it is finalized
+                shiftService.processShiftSave(saveShiftCommand, shift)
+                if (saveShiftCommand.isFinalised){ //Only update this if it is finalized
                     shiftService.processTakeSnapshot(saveShiftCommand, shift) //Take snapshot
                     shiftService.updateTenderMovement(saveShiftCommand, shift) //Move into update tender movement
                 }
+                //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
                 render(template: "cashUpSummaryModal", model: [ shift: shift, isShiftFinalizeMode: true ])
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
                 render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", saveShiftCommand.shiftId, shift.getShiftStatus())]))
@@ -290,7 +292,7 @@ class SaveShiftCommand {
 
     int shiftId
     boolean isReconciled
-    boolean isFinalized
+    boolean isFinalised
     Integer safeLocationId
     TenderReconciliationVarianceReason tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText

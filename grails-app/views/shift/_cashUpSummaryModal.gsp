@@ -57,7 +57,7 @@
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
-        <g:if test="${shift.reconciledDate == null}">
+        <g:if test="${!isShiftFinalizeMode}">
             <g:form name="shiftVarianceForm">
                 <g:hiddenField name="shiftId" value="${shift.id}" />
 
@@ -133,9 +133,9 @@
 <div class="modal-footer">
     <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">${shift.reconciledDate == null ? "Cancel" : "Close"}</button>
     <g:if test="${!isShiftFinalizeMode}">
-        <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null})" >Save</button>
+        <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null}, false)" >Save</button>
     </g:if>
     <g:else>
-        <button type="button" id="finalizeButton" class="btn btn-success">Finalise</button>
+        <button type="button" id="finalizeButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null}, true)">Finalise</button>
     </g:else>
 </div>
