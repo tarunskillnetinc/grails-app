@@ -195,7 +195,6 @@ class ShiftController {
                 if (saveShiftCommand.isFinalise){ //Only update this if it is finalized
                     shiftService.processTakeSnapshot(saveShiftCommand, shift) //Take snapshot
                     shiftService.updateTenderMovement(saveShiftCommand, shift) //Move into update tender movement
-                    //redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error]) //Once done redirect to process get shift action
                 }
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
                 render(template: "cashUpSummaryModal", model: [ shift: shift, isShiftFinalizeMode: true ])
