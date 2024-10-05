@@ -23,7 +23,8 @@ function getShifts() {
 }
 
 function showCashModal(shiftId, isFinalise) {
-    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
+        "<span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#shiftModal').modal({ show: true });
 
     $.ajax({
@@ -135,13 +136,13 @@ function changeCashUpType(type) {
     });
 }
 
-function submitCash(shiftId, isReconciled) {
+function submitCash(shiftId, isRecount) {
     var cashUpBy = $("#cashUpBy").val();
     if (cashUpBy === "VALUE" && !isFormValid()) {
         return;
     }
     var formValues = $("#cashUpForm").serialize();
-    formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled
+    formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount
 
     $.ajax({
         url: ShiftUrls.saveCashUrl(),
@@ -151,7 +152,7 @@ function submitCash(shiftId, isReconciled) {
             $("#modal-content").html(resp);
             $("#saveShiftButton").prop("onclick", null).off("click");
             $("#saveShiftButton").click(function() {
-                submitShift(shiftId, isReconciled, false);
+                submitShift(shiftId, isRecount, false);
             });
         },
         error: function (resp) {
@@ -162,20 +163,20 @@ function submitCash(shiftId, isReconciled) {
     });
 }
 
-function submitShift(shiftId, isReconciled, isFinalised) {
+function submitShift(shiftId, isRecount, isFinalise) {
     var proceedWithSubmission = true;
-    if (isFinalised) {
+    if (isFinalise) {
         proceedWithSubmission = confirm("Are you sure you want to finalise the shift and move money into the safe?");
     }
     if (proceedWithSubmission) {
         var formValues = $("#shiftVarianceForm").serialize();
-        formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled + "&isFinalised=" + isFinalised
+        formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise
         $.ajax({
             url: ShiftUrls.saveShiftUrl(),
             method: "POST",
             data: formValues,
             success: function(resp) {
-                if (isFinalised){
+                if (isFinalise){
                     $("#modal-content").html('')
                     $('#shiftModal').modal('hide'); // This line hides the modal
                     getShifts();

@@ -183,7 +183,7 @@ class ShiftService extends MySqlPoolDal {
             updateVoucherTotal(shift)
             updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            ShiftAction auditShiftAction = saveShiftCommand.isFinalised ? ShiftAction.FINALISE : saveShiftCommand.isReconciled ? ShiftAction.RECONCILE : ShiftAction.RECOUNT
+            ShiftAction auditShiftAction = saveShiftCommand.isFinalise ? ShiftAction.FINALISE : saveShiftCommand.isRecount ? ShiftAction.RECONCILE : ShiftAction.RECOUNT
             addAudit(shift, auditShiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -505,6 +505,7 @@ class ShiftService extends MySqlPoolDal {
         //Load on hold cash total values --> Saved at cash up view
         def cashOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH }
 
+        //Then update onhold cash value to shift actual cash value
         def cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
                 new ReconciliationTotal(TenderType.CASH).tap { shift.reconciliationTotals << it }
         cashTotal.value = cashOnHoldTotal?.value ?: BigDecimal.ZERO
@@ -515,6 +516,7 @@ class ShiftService extends MySqlPoolDal {
         //Load on hold voucher total values --> Saved at cash up view
         def vouchersOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
 
+        //Then update onhold voucher value to shift actual voucher value
         def vouchersTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
                 new ReconciliationTotal(TenderType.VOUCHER).tap { shift.reconciliationTotals << it }
         vouchersTotal.value = vouchersOnHoldTotal?.value ?: BigDecimal.ZERO
@@ -564,17 +566,17 @@ class ShiftService extends MySqlPoolDal {
             }
         }
 
-        if (shift.reconciledDate == null) { //Update reconcile fields
+        if (shift.reconciledDate == null) { //If no reconciledDate date mean it is reconcile request
             shift.reconciledDate = DateTime.now()
             shift.reconciledByUserId = loggedInUser.getId()
             shift.reconciledByUsersName = loggedInUser.getUsername()
             shift.setShiftStatus(ShiftStatus.RECONCILED)
-        } else if (shift.reconciledDate != null && !saveShiftCommand.isReconciled && !saveShiftCommand.isFinalised){ //Update recount fields
+        } else if (shift.reconciledDate != null && saveShiftCommand.isRecount && !saveShiftCommand.isFinalise){ //This is update fields for recount
             shift.reReconciledDate = DateTime.now()
             shift.reReconciledByUserId = loggedInUser.getId()
             shift.reReconciledByUsersName = loggedInUser.getUsername()
             shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
-        } else if (saveShiftCommand.isFinalised){ //Update finalise fields
+        } else if (saveShiftCommand.isFinalise){ //This is update fields for finalise
             shift.setShiftStatus(ShiftStatus.FINALISED)
         }
 

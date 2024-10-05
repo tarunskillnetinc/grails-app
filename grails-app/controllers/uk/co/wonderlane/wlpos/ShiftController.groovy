@@ -192,9 +192,10 @@ class ShiftController {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
                 shiftService.processShiftSave(saveShiftCommand, shift)
-                if (saveShiftCommand.isFinalised){ //Only update this if it is finalized
+                if (saveShiftCommand.isFinalise){ //Only update this if it is finalized
                     shiftService.processTakeSnapshot(saveShiftCommand, shift) //Take snapshot
                     shiftService.updateTenderMovement(saveShiftCommand, shift) //Move into update tender movement
+                    //redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error]) //Once done redirect to process get shift action
                 }
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
                 render(template: "cashUpSummaryModal", model: [ shift: shift, isShiftFinalizeMode: true ])
@@ -291,8 +292,8 @@ class CashUpCommand {
 class SaveShiftCommand {
 
     int shiftId
-    boolean isReconciled
-    boolean isFinalised
+    boolean isRecount
+    boolean isFinalise
     Integer safeLocationId
     TenderReconciliationVarianceReason tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
