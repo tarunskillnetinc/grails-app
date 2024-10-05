@@ -183,7 +183,7 @@ class ShiftService extends MySqlPoolDal {
             updateVoucherTotal(shift)
             updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            ShiftAction auditShiftAction = saveShiftCommand.isFinalise ? ShiftAction.FINALISE : saveShiftCommand.isRecount ? ShiftAction.RECONCILE : ShiftAction.RECOUNT
+            ShiftAction auditShiftAction = saveShiftCommand.isFinalise ? ShiftAction.FINALISE : saveShiftCommand.isRecount ? ShiftAction.RECOUNT : ShiftAction.RECONCILE
             addAudit(shift, auditShiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
