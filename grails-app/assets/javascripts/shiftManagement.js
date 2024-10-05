@@ -148,7 +148,6 @@ function submitCash(shiftId, isReconciled) {
         method: "POST",
         data: formValues,
         success: function(resp) {
-            console.log(resp)
             $("#modal-content").html(resp);
             $("#saveShiftButton").prop("onclick", null).off("click");
             $("#saveShiftButton").click(function() {
@@ -176,7 +175,6 @@ function submitShift(shiftId, isReconciled, isFinalised) {
             method: "POST",
             data: formValues,
             success: function(resp) {
-                alert(isFinalised)
                 if (isFinalised){
                     $("#modal-content").html('')
                     $('#shiftModal').modal('hide'); // This line hides the modal
