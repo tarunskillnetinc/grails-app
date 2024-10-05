@@ -170,7 +170,6 @@ function submitShift(shiftId, isReconciled, isFinalised) {
     }
     if (proceedWithSubmission) {
         var formValues = $("#shiftVarianceForm").serialize();
-        console.log(isFinalised)
         formValues = formValues + "&shiftId=" + shiftId + "&isReconciled=" + isReconciled + "&isFinalised=" + isFinalised
         $.ajax({
             url: ShiftUrls.saveShiftUrl(),
