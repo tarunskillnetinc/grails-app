@@ -93,7 +93,7 @@ class ShiftController {
          try {
              def shift = shiftService.getShift(shiftId, -1, -1)
              if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
-                 if ((shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) || isFinalise){
+                 if ((shift.getShiftStatus() == ShiftStatus.RECONCILED) && (!shiftService.isShiftRecountAmountNotExceed(shift) || isFinalise)){
                      render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true])
                      return
                  }
@@ -170,8 +170,8 @@ class ShiftController {
                     render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true])
                     return
                 }
-                shiftService.processShiftCashSave(cashUpCommand, shift)
                 def safeLocations = locationService.getStoreSafeLocations()
+                shiftService.processShiftCashSave(cashUpCommand, shift)
                 safeLocations =  shiftService.updateSafeLocation(shift,safeLocations)
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
@@ -191,10 +191,10 @@ class ShiftController {
         try {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
-                shiftService.processShiftSave(saveShiftCommand, shift)
+                shiftService.processShiftDataPopulation(saveShiftCommand, shift)
                 if (saveShiftCommand.isFinalise){ //Only update this if it is finalized
-                    shiftService.processTakeSnapshot(saveShiftCommand, shift) //Take snapshot
-                    shiftService.updateTenderMovement(saveShiftCommand, shift) //Move into update tender movement
+                    shiftService.processTakeSnapshot(shift) //Take snapshot
+                    shiftService.updateTenderMovement(shift) //Move into update tender movement
                 }
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
                 render(template: "cashUpSummaryModal", model: [ shift: shift, isShiftFinalizeMode: true ])

@@ -170,6 +170,7 @@ function submitShift(shiftId, isRecount, isFinalise) {
     }
     if (proceedWithSubmission) {
         var formValues = $("#shiftVarianceForm").serialize();
+        var cashUpBy = $("#cashUpBy").val();
         formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise
         $.ajax({
             url: ShiftUrls.saveShiftUrl(),

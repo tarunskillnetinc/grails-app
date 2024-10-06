@@ -57,45 +57,132 @@
             <div class="col-3 my-auto text-right">&nbsp;</div>
         </div>
 
+%{--        <g:if test="${!isShiftFinalizeMode}">--}%
+%{--            <g:form name="shiftVarianceForm">--}%
+%{--                <g:hiddenField name="shiftId" value="${shift.id}" />--}%
+
+%{--                <g:if test="${reconciliationTotals.sum { it.variance.abs() } ?: 0 != 0}">--}%
+%{--                    <div class="row ml-0 mr-0 pt-5 pb-2">--}%
+%{--                        <p class="mx-auto text-truncate">You are about to declare a shift variance of <g:formatNumber number="${reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>--}%
+%{--                    </div>--}%
+%{--                    <div class="row ml-0 mr-0 pt-2 pb-2">--}%
+%{--                        <p class="mx-auto">Please select a reason:</p>--}%
+%{--                    </div>--}%
+
+%{--                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">--}%
+%{--                        <div class="col-6 offset-3">--}%
+%{--                            <g:select name="tenderReconciliationVarianceReason" from="${varianceReasons}" valueMessagePrefix="TenderReconciliationVarianceReason"--}%
+%{--                                      value="TenderReconciliationVarianceReason.${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"--}%
+%{--                                      class="form-control select-border" />--}%
+%{--                        </div>--}%
+%{--                    </div>--}%
+%{--                    <div class="row ml-0 mr-0 pt-2 pb-2 form-group align-items-center">--}%
+%{--                        <div class="col-4 text-right">--}%
+%{--                            <p class="mb-0">Please select a reason:</p>--}%
+%{--                        </div>--}%
+%{--                        <div class="col-5">--}%
+%{--                            <g:select name="tenderReconciliationVarianceReason"--}%
+%{--                                      from="${varianceReasons}"--}%
+%{--                                      valueMessagePrefix="TenderReconciliationVarianceReason"--}%
+%{--                                      value="TenderReconciliationVarianceReason.${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"--}%
+%{--                                      class="form-control select-border" />--}%
+%{--                        </div>--}%
+%{--                    </div>--}%
+%{--                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">--}%
+%{--                        <div class="col-6 offset-3">--}%
+%{--                            <g:textField name="tenderReconciliationVarianceReasonText" class="form-control bottom-border" placeholder="Additional reason (optional)."--}%
+%{--                                         value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}" />--}%
+%{--                        </div>--}%
+%{--                    </div>--}%
+%{--                </g:if>--}%
+%{--                <g:else>--}%
+%{--                    <g:hiddenField name="tenderReconciliationVarianceReason" value="null" />--}%
+%{--                    <g:hiddenField name="tenderReconciliationVarianceReasonText" value="null" />--}%
+%{--                </g:else>--}%
+
+%{--                <g:if test="${safeLocations?.collect()?.size() > 1}">--}%
+%{--                    <div class="row ml-0 mr-0 pt-2 pb-2">--}%
+%{--                        <p class="mx-auto">Please select a safe location:</p>--}%
+%{--                    </div>--}%
+%{--                    <div class="row ml-0 mr-0 pt-5 pb-2 form-group">--}%
+%{--                        <g:select name="safeLocationId" from="${safeLocations}" optionKey="id" optionValue="description" class="form-control select-border col-3"/>--}%
+%{--                    </div>--}%
+%{--                </g:if>--}%
+%{--                <g:if test="${safeLocations?.collect()?.size() > 1}">--}%
+%{--                    <div class="row ml-0 mr-0 pt-2 pb-2 form-group align-items-center">--}%
+%{--                        <div class="col-4 text-right">--}%
+%{--                            <p class="mb-0">Please select a safe location:</p>--}%
+%{--                        </div>--}%
+%{--                        <div class="col-5">--}%
+%{--                            <g:select name="safeLocationId"--}%
+%{--                                      from="${safeLocations}"--}%
+%{--                                      optionKey="id"--}%
+%{--                                      optionValue="description"--}%
+%{--                                      class="form-control select-border"/>--}%
+%{--                        </div>--}%
+%{--                    </div>--}%
+%{--                </g:if>--}%
+%{--                <g:elseif test="${safeLocations?.collect()?.size() == 1}">--}%
+%{--                    <g:hiddenField name="safeLocationId" value="${safeLocations?.collect()[0].id}"/>--}%
+%{--                </g:elseif>--}%
+%{--            </g:form>--}%
+%{--        </g:if>--}%
+
         <g:if test="${!isShiftFinalizeMode}">
             <g:form name="shiftVarianceForm">
                 <g:hiddenField name="shiftId" value="${shift.id}" />
 
                 <g:if test="${reconciliationTotals.sum { it.variance.abs() } ?: 0 != 0}">
-                    <div class="row ml-0 mr-0 pt-5 pb-2">
-                        <p class="mx-auto text-truncate">You are about to declare a shift variance of <g:formatNumber number="${reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
-                    </div>
-                    <div class="row ml-0 mr-0 pt-2 pb-2">
-                        <p class="mx-auto">Please select a reason:</p>
-                    </div>
+                    <div class="container">
+                        <div class="row pt-5 pb-2">
+                            <div class="col-10 offset-1">
+                                <p>You are about to declare a shift variance of <g:formatNumber number="${reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
+                            </div>
+                        </div>
 
-                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
-                        <div class="col-6 offset-3">
-                            <g:select name="tenderReconciliationVarianceReason" from="${varianceReasons}" valueMessagePrefix="TenderReconciliationVarianceReason"
-                                      value="TenderReconciliationVarianceReason.${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"
-                                      class="form-control select-border" />
+                        <div class="row pt-2 pb-2 align-items-center">
+                            <div class="col-5 offset-1">
+                                <p class="mb-0">Please select a reason:</p>
+                            </div>
+                            <div class="col-4">
+                                <g:select name="tenderReconciliationVarianceReason"
+                                          from="${varianceReasons}"
+                                          valueMessagePrefix="TenderReconciliationVarianceReason"
+                                          value="TenderReconciliationVarianceReason.${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"
+                                          class="form-control select-border form-control-sm" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
-                        <div class="col-6 offset-3">
-                            <g:textField name="tenderReconciliationVarianceReasonText" class="form-control bottom-border" placeholder="Additional reason (optional)."
-                                         value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}" />
+
+                        <div class="row pt-1 pb-2">
+                            <div class="col-9 offset-1">
+                                <g:textField name="tenderReconciliationVarianceReasonText" class="form-control bottom-border form-control-sm" placeholder="Additional reason (optional)."
+                                             value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}" />
+                            </div>
                         </div>
+
+                        <g:if test="${safeLocations?.collect()?.size() > 1}">
+                            <div class="row pt-2 pb-2 align-items-center">
+                                <div class="col-5 offset-1">
+                                    <p class="mb-0 text-nowrap">Please select a safe location:</p>
+                                </div>
+                                <div class="col-4">
+                                    <g:select name="safeLocationId"
+                                              from="${safeLocations}"
+                                              optionKey="id"
+                                              optionValue="description"
+                                              class="form-control select-border form-control-sm"/>
+                                </div>
+                            </div>
+                        </g:if>
+                        <g:elseif test="${safeLocations?.collect()?.size() == 1}">
+                            <g:hiddenField name="safeLocationId" value="${safeLocations?.collect()[0].id}"/>
+                        </g:elseif>
                     </div>
                 </g:if>
                 <g:else>
                     <g:hiddenField name="tenderReconciliationVarianceReason" value="null" />
                     <g:hiddenField name="tenderReconciliationVarianceReasonText" value="null" />
                 </g:else>
-
-                <g:if test="${safeLocations?.collect()?.size() > 1}">
-                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
-                        <g:select name="safeLocationId" from="${safeLocations}" optionKey="id" optionValue="description" class="form-control select-border col-3"/>
-                    </div>
-                </g:if>
-                <g:elseif test="${safeLocations?.collect()?.size() == 1}">
-                    <g:hiddenField name="safeLocationId" value="${safeLocations?.collect()[0].id}"/>
-                </g:elseif>
             </g:form>
         </g:if>
         <g:else>
