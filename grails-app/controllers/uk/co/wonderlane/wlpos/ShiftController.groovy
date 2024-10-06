@@ -6,6 +6,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 
@@ -89,15 +90,25 @@ class ShiftController {
         }
     }
 
-    def ajaxGetCashDetails(int shiftId, boolean isFinalise) {
+    def ajaxGetCashDetails(int shiftId, boolean isRecount, boolean isFinalise) {
          try {
              def shift = shiftService.getShift(shiftId, -1, -1)
-             if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
+             //To process
+             // 1. Shift should exists
+             // 2. If it is RECONCILE request -> Shift status must be UNRECONCILED
+             // 3. If it is RECOUNT or FINALISED request -> Shift status must be RECONCILED
+             if (shift != null && ((!isRecount &&  !isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) ||  ((isRecount ||  isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))){
                  if ((shift.getShiftStatus() == ShiftStatus.RECONCILED) && (!shiftService.isShiftRecountAmountNotExceed(shift) || isFinalise)){
                      render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true])
                      return
                  }
                  render(template: "cashUpModal", model: [shift: shift])
+             } else if (!isRecount &&  !isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED){
+                 // Request is for reconcile but already reconciled
+             }  else if (isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                 // Request is for recount but already recount
+             } else if (isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                 // Request is for finalise but already finalised
              }
         } catch (Exception ex) {
              log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)

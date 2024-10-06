@@ -22,7 +22,7 @@ function getShifts() {
 
 }
 
-function showCashModal(shiftId, isFinalise) {
+function showCashModal(shiftId, isRecount, isFinalise) {
     $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
         "<span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#shiftModal').modal({ show: true });
@@ -30,7 +30,7 @@ function showCashModal(shiftId, isFinalise) {
     $.ajax({
         url: ShiftUrls.getCashDetailsUrl(),
         method: "POST",
-        data: { shiftId: shiftId, isFinalise: isFinalise },
+        data: { shiftId: shiftId, isRecount: isRecount, isFinalise: isFinalise },
         success: function(resp) {
             $("#modal-content").html(resp);
 
