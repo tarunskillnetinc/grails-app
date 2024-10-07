@@ -1,12 +1,11 @@
 package uk.co.wonderlane.wlpos
 
-import groovy.json.JsonOutput
+
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.Shift
-import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 
@@ -103,19 +102,21 @@ class ShiftController {
                      return
                  }
                  render(template: "cashUpModal", model: [shift: shift])
-             } else if (!isRecount &&  !isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED){
+             } else if (shift != null && !isRecount &&  !isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED){
                  // Request is for reconcile but already reconciled
-                 render(status: 400, contentType: 'application/json', text: String.format("Shift %s already reconciled.", shiftId))
-             }  else if (isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                 render(status: 400, contentType: 'application/json', message: String.format("Failed to reconcile shift %s. Already reconciled.", shiftId))
+             }  else if (shift != null && isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
                  // Request is for recount but already recounted
-                 render(status: 400, contentType: 'application/json', text: String.format("Shift %s already recounted.", shiftId))
-             } else if (isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                 render(status: 400, contentType: 'application/json', message: String.format("Failed to recount shift %s. Already recounted.", shiftId))
+             } else if (shift != null && isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED){
                  // Request is for finalise but already finalised
-                 render(status: 400, contentType: 'application/json', text: String.format("Shift %s already finalised.", shiftId))
+                 render(status: 400, contentType: 'application/json', message: String.format("Failed to finalise shift %s. Already finalised.", shiftId))
+             }  else {
+                 render(status: 400, contentType: 'application/json', message: String.format("Action failed for shift id: %d", shiftId))
              }
         } catch (Exception ex) {
              log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)
-             render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action failed for shift id: %d has exceeded", shiftId)]))
+             render (status: 400, contentType: 'application/json', message: String.format("Action failed for shift id: %d", shiftId))
         }
     }
 
@@ -179,7 +180,7 @@ class ShiftController {
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
-            if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
+            if (shift != null && ((!cashUpCommand.isRecount &&  shift.getShiftStatus() == ShiftStatus.UNRECONCILED) ||  (cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.RECONCILED))){
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)){
                     render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true])
                     return
@@ -190,21 +191,24 @@ class ShiftController {
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
                 render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations, isShiftFinalizeMode: false ])
-            } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
-                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", cashUpCommand.shiftId, shift.getShiftStatus())]))
+            } else if (shift != null && !cashUpCommand.isRecount &&  shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
+                render (status: 400, contentType: 'application/json', message: String.format("Failed to reconcile shift %s. Already reconciled.", cashUpCommand.shiftId))
+            }  else if (shift != null && cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                // Request is for recount but already recounted
+                render(status: 400, contentType: 'application/json', message: String.format("Failed to recount shift %s. Already recounted.", cashUpCommand.shiftId))
             } else {
-                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d", cashUpCommand.shiftId)]))
+                render (status: 400, contentType: 'application/json', message: String.format("Action failed for shift id: %d", cashUpCommand.shiftId))
             }
         } catch (Exception ex) {
             log.error(String.format("Shift cash save error for shift id: %d error: %s", cashUpCommand.shiftId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', text: "Unable to process shift cash save. Shift may not exist or is not in UNRECONCILED status.")
+            render(status: 400, contentType: 'application/json', message: String.format("Action failed for shift id: %d", cashUpCommand.shiftId))
         }
     }
 
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
         try {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
-            if (shift != null && (shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)){
+            if (shift != null && ((!saveShiftCommand.isRecount &&  !saveShiftCommand.isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) ||  ((saveShiftCommand.isRecount ||  saveShiftCommand.isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))){
                 shiftService.processShiftDataPopulation(saveShiftCommand, shift)
                 if (saveShiftCommand.isFinalise){ //Only update this if it is finalized
                     shiftService.processTakeSnapshot(shift) //Take snapshot
@@ -212,14 +216,21 @@ class ShiftController {
                 }
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
                 render(template: "cashUpSummaryModal", model: [ shift: shift, isShiftFinalizeMode: true ])
-            } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.UNRECONCILED || shift.getShiftStatus() == ShiftStatus.RECONCILED)) {
-                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d shift status: %s ", saveShiftCommand.shiftId, shift.getShiftStatus())]))
+            } else if (shift != null && !saveShiftCommand.isRecount &&  !saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED){
+                // Request is for reconcile but already reconciled
+                render(status: 400, contentType: 'application/json', message: String.format("Failed to reconcile shift %s. Already reconciled.", saveShiftCommand.shiftId))
+            }  else if (shift != null && saveShiftCommand.isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                // Request is for recount but already recounted
+                render(status: 400, contentType: 'application/json', message: String.format("Failed to recount shift %s. Already recounted.", saveShiftCommand.shiftId))
+            } else if (shift != null && saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED){
+                // Request is for finalise but already finalised
+                render(status: 400, contentType: 'application/json', message: String.format("Failed to finalise shift %s. Already finalised.", saveShiftCommand.shiftId))
             } else {
-                render (status: 400, contentType: 'application/json', text: JsonOutput.toJson([error: String.format("Action not allowed for shift id: %d", saveShiftCommand.shiftId)]))
+                render (status: 400, contentType: 'application/json', message: String.format("Action failed for shift id: %d", saveShiftCommand.shiftId))
             }
         } catch (Exception ex) {
             log.error(String.format("Shift reconciliation error for shift id: %d error: %s", saveShiftCommand.shiftId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', text: "Unable to process shift cash save. Shift may not exist or is not in UNRECONCILED status.")
+            render(status: 400, contentType: 'application/json', message: String.format("Action failed for shift id: %d", saveShiftCommand.shiftId))
         }
     }
 
@@ -283,6 +294,7 @@ class ShiftController {
 class CashUpCommand {
 
     int shiftId
+    boolean isRecount
     String type // Type being navigated TO.
     String cashUpBy // Type being navigated FROM.
     BigDecimal fiftyPounds = BigDecimal.ZERO

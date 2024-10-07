@@ -48,9 +48,8 @@ function showCashModal(shiftId, isRecount, isFinalise) {
             });
         },
         error: function (resp){
-            var errorMessage = resp.responseJSON && resp.responseJSON.error ?
-                resp.responseJSON.error : "Action failed for shiftId: " + shiftId;
-
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
             $("#modal-content").empty();
 
             $('#shiftModal').modal('hide');
@@ -129,9 +128,16 @@ function changeCashUpType(type) {
                 }
             });
         },
-        error: function () {
-            $('#shiftModal').modal('hide'); // This line hides the modal
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Cash up type change failed</div>');
+        error: function (resp) {
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                resp.responseJSON.message : "Cash up type change failed";
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
 }
@@ -156,8 +162,14 @@ function submitCash(shiftId, isRecount) {
             });
         },
         error: function (resp) {
-            var errorMessage = resp.responseJSON && resp.responseJSON.error ? resp.responseJSON.error : "Action failed";
-            $('#shiftModal').modal('hide'); // This line hides the modal
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
@@ -185,10 +197,16 @@ function submitShift(shiftId, isRecount, isFinalise) {
                     $("#modal-content").html(resp);
                 }
             },
-            error: function () {
-                $("#modal-content").html('')
-                $('#shiftModal').modal('hide'); // This line hides the modal
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Reconciliation failed</div>');
+            error: function (resp) {
+                var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                    resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+                $("#modal-content").empty();
+
+                $('#shiftModal').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
             }
         });
     }
