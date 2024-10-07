@@ -49,7 +49,7 @@ function showCashModal(shiftId, isRecount, isFinalise) {
         },
         error: function (resp){
             var errorMessage = resp.responseJSON && resp.responseJSON.error ?
-                resp.responseJSON.error : "Cash model loading failed for shiftId: " + shiftId;
+                resp.responseJSON.error : "Action failed for shiftId: " + shiftId;
 
             $("#modal-content").empty();
 

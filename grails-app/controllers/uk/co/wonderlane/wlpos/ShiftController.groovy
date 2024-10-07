@@ -105,10 +105,13 @@ class ShiftController {
                  render(template: "cashUpModal", model: [shift: shift])
              } else if (!isRecount &&  !isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED){
                  // Request is for reconcile but already reconciled
+                 render(status: 400, contentType: 'application/json', text: String.format("Shift %s already reconciled.", shiftId))
              }  else if (isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
-                 // Request is for recount but already recount
+                 // Request is for recount but already recounted
+                 render(status: 400, contentType: 'application/json', text: String.format("Shift %s already recounted.", shiftId))
              } else if (isFinalise && shift.getShiftStatus() != ShiftStatus.RECONCILED){
                  // Request is for finalise but already finalised
+                 render(status: 400, contentType: 'application/json', text: String.format("Shift %s already finalised.", shiftId))
              }
         } catch (Exception ex) {
              log.error(String.format("Shift cash detail loading error for shift id: %d error: %s", shiftId, ex.getMessage()), ex)
