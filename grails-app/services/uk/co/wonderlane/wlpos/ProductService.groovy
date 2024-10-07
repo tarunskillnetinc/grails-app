@@ -188,6 +188,9 @@ class ProductService extends MySqlDal {
                         deletedBarcode.recordStatus = 'D'
                         deletedBarcode.save()
                     } else if (barcode instanceof Barcode) {
+                        barcode.retailerId = product.retailerId
+                        barcode.effectiveDate = variant.effectiveDate
+                        barcode.pack = pack
                         barcode.save()
                     }
                 }
