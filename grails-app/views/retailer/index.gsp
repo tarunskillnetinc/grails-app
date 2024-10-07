@@ -508,7 +508,7 @@
                             <div class="form-group row">
                                 <label for="stockLocationsTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Stock Locations (Locations Table)</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}" maxlength="15"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.locationsTableConfig.stockLocationsTerm" id="stockLocationsTerm" value="${retailer?.config?.retailerTerminologyConfig?.locationsTableConfig?.stockLocationsTerm}" maxlength="20"/>
                                 </div>
                                 <div class="form-group row">
                                     <div class="btn btn-danger" id="reset-stockLocations-term-button"onclick="$('#stockLocationsTerm').val('Stock Locations')">Reset</div>
