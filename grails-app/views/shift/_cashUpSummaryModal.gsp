@@ -226,6 +226,6 @@
         <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null}, false)" >Save</button>
     </g:if>
     <g:else>
-        <button type="button" id="finalizeButton" class="btn btn-success" onclick="submitShift(${shift.id}, ${shift.reconciledDate != null}, true)">Finalise</button>
+        <button type="button" id="finalizeButton" class="btn btn-success" onclick="submitShift(${shift.id}, false, true)">Finalise</button>
     </g:else>
 </div>

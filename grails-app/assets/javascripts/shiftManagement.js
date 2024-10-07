@@ -183,7 +183,8 @@ function submitShift(shiftId, isRecount, isFinalise) {
     if (proceedWithSubmission) {
         var formValues = $("#shiftVarianceForm").serialize();
         var cashUpBy = $("#cashUpBy").val();
-        formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise
+        tillIdFilter = $("#tillId").val();
+        formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise + "&tillIdFilter=" + tillIdFilter
         $.ajax({
             url: ShiftUrls.saveShiftUrl(),
             method: "POST",
@@ -192,7 +193,7 @@ function submitShift(shiftId, isRecount, isFinalise) {
                 if (isFinalise){
                     $("#modal-content").html('')
                     $('#shiftModal').modal('hide'); // This line hides the modal
-                    getShifts();
+                    $("#results-container").html(resp);
                 } else {
                     $("#modal-content").html(resp);
                 }

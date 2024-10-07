@@ -111,7 +111,7 @@
                                         </g:if>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
                                             <%int currentTotalRecountAttempts = shift.totalRecountAttempts != null ? shift.totalRecountAttempts : 0 %>
-                                            <g:if test="${currentTotalRecountAttempts < configuredRetryAttempts -1}">
+                                            <g:if test="${currentTotalRecountAttempts < configuredRetryAttempts}">
                                                 <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, true, false);">Recount</button>
                                             </g:if>
                                             <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false, true);">Finalise</button>

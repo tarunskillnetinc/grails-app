@@ -211,8 +211,11 @@ class ShiftController {
             if (shift != null && ((!saveShiftCommand.isRecount &&  !saveShiftCommand.isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) ||  ((saveShiftCommand.isRecount ||  saveShiftCommand.isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))){
                 shiftService.processShiftDataPopulation(saveShiftCommand, shift)
                 if (saveShiftCommand.isFinalise){ //Only update this if it is finalized
+                    Integer tillIdFilter  = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null //If any till id added into filter then pass it
                     shiftService.processTakeSnapshot(shift) //Take snapshot
                     shiftService.updateTenderMovement(shift) //Move into update tender movement
+                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %s.", saveShiftCommand.shiftId)])
+                    return
                 }
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
                 render(template: "cashUpSummaryModal", model: [ shift: shift, isShiftFinalizeMode: true ])
@@ -320,6 +323,7 @@ class SaveShiftCommand {
     boolean isRecount
     boolean isFinalise
     Integer safeLocationId
+    Integer tillIdFilter
     TenderReconciliationVarianceReason tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
 }
