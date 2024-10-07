@@ -391,7 +391,7 @@ class ShiftService extends MySqlDal {
     }
 
     private User loadLoggedInUser(){
-        String userName = springSecurityService.principal.usersName
+        String userName = springSecurityService.principal.username
         User loggedInUser = userService.getUserByUsername(userName)
         return loggedInUser
     }
