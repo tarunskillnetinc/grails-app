@@ -1,15 +1,12 @@
 function getShifts() {
     $("#search-results").hide();
     $("#loading-indicator").show();
-
-    startDate = $("#startDate").val();
-    endDate = $("#endDate").val();
     tillId = $("#tillId").val();
 
     $.ajax({
         url: ShiftUrls.getShiftsUrl(),
         method: "POST",
-        data: { startDate: startDate, endDate: endDate, tillId: tillId },
+        data: { tillId: tillId },
         success: function(resp) {
             $("#results-container").html(resp);
         },

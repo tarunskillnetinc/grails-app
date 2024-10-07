@@ -152,6 +152,8 @@ class PromotionController {
     }
 
     def save(PromotionCommand promotionCommand) {
+        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnable ? true : false
+
         // If we're logged in at a store, we want to ensure the promotionCommand contains our store.
         if (springSecurityService.principal.storeId) {
             Store store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
@@ -224,7 +226,7 @@ class PromotionController {
 
             redirect(action: "index")
         } else {
-            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values(), canEdit: true])
+            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values(), canEdit: true, loyaltyEnable: loyaltyEnable])
         }
     }
 
@@ -331,7 +333,7 @@ class PromotionController {
 
     }
 
-    private boolean validateChildren(PromotionCommand promotionCommand) {
+    private static boolean validateChildren(PromotionCommand promotionCommand) {
         boolean valid = true
 
         promotionCommand?.requiredGroups?.eachWithIndex { obj, i ->
@@ -721,7 +723,12 @@ class PromotionGroupCommand implements Validateable {
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
         requiredQuantity nullable: true, range:1..999999999
-        requiredValue nullable: true, min: 0.02, max:9999.99, scale: 2
+        requiredValue nullable:true, min: 0.02, max:9999.99, scale: 2, validator: {val, obj ->
+            // Only one of these two fields needs a validator
+            if (val != null && obj.requiredQuantity != null) {
+                return 'error.Promotion.requiredQuantityAndRequiredValueBothSet'
+            }
+        }
     }
 }
 

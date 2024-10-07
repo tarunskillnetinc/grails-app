@@ -1,12 +1,12 @@
 <div class="modal-header">
     <g:if test="${enableEdit}">
-        <h2>Edit Embedded Data</h2>
+        <h2 id="page-title" class="mx-auto my-auto">Edit Embedded Data</h2>
     </g:if>
     <g:else>
-        <h2>Add Embedded Data</h2>
+        <h2 id="page-title" class="mx-auto my-auto">Add Embedded Data</h2>
     </g:else>
 </div>
-
+<g:render template="/errors/errorMessage" model="[errorMessages: errorMessages, error: error]" />
 <div class="modal-body">
     <div class="text-center mt-4 mb-5">Please complete the following form to add a new EmbeddedData. Type, Start Index, Format and Length are required.</div>
 
@@ -28,9 +28,6 @@
                               class="form-control select-border"
                               value="${embeddedData?.type}" />
                 </div>
-                <div class="field-error text-sm-left mt-2">
-                    <g:render template="/errors/fieldError" model="[errorKey: 'type', errorMessages: errorMessages, error: error]" />
-                </div>
             </div>
         </div>
 
@@ -40,9 +37,6 @@
             <div class="col-4">
                 <div class="input-group number-box">
                     <g:field type="number" id="startIndexValue" name="startIndexValue" value="${embeddedData?.startIndex}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);" />
-                </div>
-                <div class="field-error text-sm-left mt-2">
-                    <g:render template="/errors/fieldError" model="[errorKey: 'startIndex', errorMessages: errorMessages, error: error]" />
                 </div>
             </div>
         </div>
@@ -58,9 +52,6 @@
                               class="form-control select-border"
                               value="${embeddedData?.format}" />
                 </div>
-                <div class="field-error text-sm-left mt-2">
-                    <g:render template="/errors/fieldError" model="[errorKey: 'format', errorMessages: errorMessages, error: error]" />
-                </div>
             </div>
         </div>
 
@@ -70,14 +61,10 @@
                 <div class="input-group number-box">
                     <g:field type="number" id="lengthValue" name="lengthValue" value="${embeddedData?.length}" class="form-control bottom-border" oninput="validateInput(this);" onkeydown="acceptNumericInt(event);" />
                 </div>
-                <div class="field-error text-sm-left mt-2">
-                    <g:render template="/errors/fieldError" model="[errorKey: 'length', errorMessages: errorMessages, error: error]" />
-                </div>
             </div>
         </div>
 
     </g:form>
-    <g:render template="/errors/errorMessage" model="[errorKey: 'general', errorMessages: errorMessages, error: error]" />
 </div>
 
 <div class="modal-footer">

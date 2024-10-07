@@ -427,6 +427,12 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: persephone-transactions
+            loyalty:
+                host: retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: CdtfudWdnGVS87IKs7dV
+                database: persephone-loyalty
 
         wlpos:
             defaultImageBucket: "persephone-retail-platform-default-images"
@@ -587,6 +593,17 @@ environments:
                 properties:
                     <<: *databaseDefaultProperties
 
+            loyalty:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retail-platform.cluster-cvobkreibkwt.eu-west-1.rds.amazonaws.com:3306/zagreus-loyalty"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "CdtfudWdnGVS87IKs7dV"
+                properties:
+                    <<: *databaseDefaultProperties
+
         rabbitmq:
             host: b-8a4cc67f-a559-41ea-98d3-d3949bc49275.mq.eu-west-1.amazonaws.com
             port: 5671
@@ -612,6 +629,14 @@ environments:
                 username: cloudoffice
                 password: CdtfudWdnGVS87IKs7dV
                 database: zagreus-transactions
+            loyalty:
+                host: localhost
+                port: 3306
+                username: root
+                password: Pa**W0rd01
+                #username: "wonderlane"
+                #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
+                database: zagreus-loyalty
 
         wlpos:
             defaultImageBucket: "zagreus-retail-platform-default-images"

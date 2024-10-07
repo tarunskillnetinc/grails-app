@@ -5,6 +5,14 @@
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].categoryId" value="${promotionGroup.categoryId}" />
     <g:hiddenField name="${promotionGroupType}Groups[${promoGroupId}].tagId" value="${promotionGroup.tagId}" />
 
+    <g:hasErrors bean="${promotionGroup}">
+        <section id="errors-container" class="container-fluid">
+            <div class="alert alert-danger alert-wl mx-0" role="alert">
+                <g:renderErrors bean="${promotionGroup}" as="list" />
+            </div>
+        </section>
+    </g:hasErrors>
+
     <div class="row">
         <div class="col-11"><strong>${promotionGroupDescription}</strong></div>
         <g:if test="${canDeleteProduct == null || (canDeleteProduct != null && canDeleteProduct == true)}">
