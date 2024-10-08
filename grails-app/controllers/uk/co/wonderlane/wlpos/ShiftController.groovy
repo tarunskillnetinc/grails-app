@@ -223,8 +223,8 @@ class ShiftController {
                 if (saveShiftCommand.isFinalise) { //Only update this if it is finalized
                     //If any till id added into filter then pass it
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
-                    shiftService.processTakeSnapshot(shift) //Take snapshot
-                    shiftService.updateTenderMovement(shift) //Move into update tender movement
+                    shiftService.processTakeSnapshot(shift, saveShiftCommand) //Take snapshot
+                    shiftService.updateTenderMovement(shift, saveShiftCommand) //Move into update tender movement
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %s.", saveShiftCommand.shiftId)])
                     return
                 }

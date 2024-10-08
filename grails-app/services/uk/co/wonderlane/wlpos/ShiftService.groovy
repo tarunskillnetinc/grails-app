@@ -105,9 +105,9 @@ class ShiftService extends MySqlPoolDal {
     }
 
 
-    void processTakeSnapshot(Shift shift) {
+    void processTakeSnapshot(Shift shift, SaveShiftCommand saveShiftCommand) {
         try {
-            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(shift.getSafeLocationId())
+            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
             snapshotService.saveSnapshot(latestSnapshot)
@@ -116,10 +116,10 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    void updateTenderMovement(Shift shift){
+    void updateTenderMovement(Shift shift, SaveShiftCommand saveShiftCommand){
         try {
             def tillLocation = locationService.getTillLocation(shift.tillId)
-            def safeLocation = locationService.getLocation(shift.getSafeLocationId())
+            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
 
             shift.reconciliationTotals.each {
                 if (it.value > BigDecimal.ZERO) {
@@ -600,7 +600,6 @@ class ShiftService extends MySqlPoolDal {
                 // Once update done clear `onhold` list
                 shift.getOnHoldReconciliationTotals().clear()
             } else {
-                shift.safeLocationId = saveShiftCommand.safeLocationId // update shift location
                 shift.shiftStatus = ShiftStatus.FINALISED
             }
         }
