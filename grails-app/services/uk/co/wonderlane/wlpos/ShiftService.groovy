@@ -87,12 +87,12 @@ class ShiftService extends MySqlPoolDal {
         return safeLocations
     }
 
-    void processShiftDataPopulation(SaveShiftCommand saveShiftCommand, Shift shift){
+    void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            updateCashTotal(shift)
-            updateVoucherTotal(shift)
-            updateShiftReconcileFields(saveShiftCommand, shift, loggedInUser) //Update status of current shift if
+            // This method will populate shift data corresponding at action requested
+            // Based on request (reconcile, recount or finalise) shift object is populated differently
+            updateShiftSaveFields(saveShiftCommand, shift, loggedInUser)
             saveShift(shift) //This will called shift save method to process close
             ShiftAction auditShiftAction = saveShiftCommand.isFinalise ? ShiftAction.FINALISE : saveShiftCommand.isRecount ? ShiftAction.RECOUNT : ShiftAction.RECONCILE
             addAudit(shift, auditShiftAction, false, loggedInUser) //Add shift audit for shift close
@@ -144,11 +144,12 @@ class ShiftService extends MySqlPoolDal {
                     return true
                 }
             }
+            return false
         } catch (Exception ex) {
             log.error(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
-        return false
+
     }
 
     int getConfiguredRecountAttempts(int retailerId, int storeId){
@@ -157,12 +158,11 @@ class ShiftService extends MySqlPoolDal {
             if (cashManagementConfig != null) {
                 return cashManagementConfig.getTillShiftRecountLimit()
             }
-
+            return -1
         } catch (Exception ex) {
             log.error(String.format("Error loading cash management configuration for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error loading cash management configuration for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
         }
-        return -1
     }
 
     boolean postTillControlEventProcess(Shift shift) {
@@ -568,16 +568,24 @@ class ShiftService extends MySqlPoolDal {
           cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
     }
 
-    private void updateShiftReconcileFields(SaveShiftCommand saveShiftCommand , Shift shift, User loggedInUser){
+    private void updateShiftSaveFields(SaveShiftCommand saveShiftCommand, Shift shift, User loggedInUser){
         if (shift.shiftStatus == ShiftStatus.UNRECONCILED || shift.shiftStatus == ShiftStatus.RECONCILED){
             if (!saveShiftCommand.isFinalise){
-                if (saveShiftCommand.tenderReconciliationVarianceReason != null) {
+                // If the request is not a final request (Intermediate --> reconcile or recount)
+                // Then should
+                //   1. Move on hold cash values into shift cash value
+                //   2. Move on hold voucher values into shift voucher value
+                //   3. Update variance reason and reason text
+                //   4. Safe location to move
+                updateCashTotal(shift) // Update on hold cash into actual shift object cash
+                updateVoucherTotal(shift) // Update on hold voucher into actual shift object voucher
+                if (saveShiftCommand.tenderReconciliationVarianceReason != null) { // Update variance and variance text
                     shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
                         it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
                         it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
                     }
                 }
-                shift.safeLocationId = saveShiftCommand.safeLocationId
+                shift.safeLocationId = saveShiftCommand.safeLocationId // update shift location
                 if (!saveShiftCommand.isRecount){
                     shift.reconciledDate = DateTime.now()
                     shift.reconciledByUserId = loggedInUser.getId()
@@ -589,20 +597,25 @@ class ShiftService extends MySqlPoolDal {
                     shift.reReconciledByUsersName = loggedInUser.getUsername()
                     shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
                 }
+                // Once update done clear `onhold` list
+                shift.getOnHoldReconciliationTotals().clear()
             } else {
                 shift.shiftStatus = ShiftStatus.FINALISED
             }
         }
-        //Clear `onhold` list
-        shift.getOnHoldReconciliationTotals().clear()
     }
 
     private boolean isTillShiftsAutoOpen(int retailerId, int storeId) {
-        CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(retailerId, storeId)
-        if (cashManagementConfig != null && !cashManagementConfig.isTillShiftsManualOpen()) {
-            return true
+        try {
+            CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(retailerId, storeId)
+            if (cashManagementConfig != null && !cashManagementConfig.isTillShiftsManualOpen()) {
+                return true
+            }
+            return false
+        } catch (Exception ex) {
+            log.error(String.format("Error checking shift auto open for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error checking recount amount for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
         }
-        return false
     }
 
 }
