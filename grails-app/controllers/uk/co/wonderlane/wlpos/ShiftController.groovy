@@ -252,7 +252,8 @@ class ShiftController {
         }
     }
 
-    def ajaxOpenShift(){ // This is method to functioning action button of shift open
+    // This is method to functioning action button of shift open
+    def ajaxOpenShift(){
         Integer retailerId = null
         Integer storeId = null
         Integer tillId = null
@@ -277,7 +278,8 @@ class ShiftController {
         redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error]) //Once done redirect to process get shift action
     }
 
-    def ajaxCloseShift(){ // This is method to functioning action button of shift close
+    // This is method to functioning action button of shift close
+    def ajaxCloseShift(){
         Integer retailerId = null
         Integer storeId = null
         Integer tillId = null

@@ -136,22 +136,33 @@ class ShiftService extends MySqlPoolDal {
     }
 
     boolean isShiftRecountAmountNotExceed(Shift shift){
-        int configuredRecountAttempts = getConfiguredRecountAttempts(shift.getRetailerId(), shift.getStoreId())
-        if(shift.getShiftStatus() == ShiftStatus.RECONCILED) {
-            int currentTotalRecountAttempts = shift.getTotalRecountAttempts() != null ? shift.getTotalRecountAttempts() : 0
-            if (configuredRecountAttempts > 0 && currentTotalRecountAttempts < configuredRecountAttempts) {
-                return true
+        try {
+            int configuredRecountAttempts = getConfiguredRecountAttempts(shift.getRetailerId(), shift.getStoreId())
+            if(shift.getShiftStatus() == ShiftStatus.RECONCILED) {
+                int currentTotalRecountAttempts = shift.getTotalRecountAttempts() != null ? shift.getTotalRecountAttempts() : 0
+                if (configuredRecountAttempts > 0 && currentTotalRecountAttempts < configuredRecountAttempts) {
+                    return true
+                }
             }
+        } catch (Exception ex) {
+            log.error(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
         return false
     }
 
     int getConfiguredRecountAttempts(int retailerId, int storeId){
-        CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(retailerId, storeId)
-        if (cashManagementConfig != null) {
-            return cashManagementConfig.getTillShiftRecountLimit()
+        try {
+            CashManagementConfig cashManagementConfig = cashManagementService.getCashManagementConfig(retailerId, storeId)
+            if (cashManagementConfig != null) {
+                return cashManagementConfig.getTillShiftRecountLimit()
+            }
+
+        } catch (Exception ex) {
+            log.error(String.format("Error loading cash management configuration for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error loading cash management configuration for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
         }
-        return -1;
+        return -1
     }
 
     boolean postTillControlEventProcess(Shift shift) {
@@ -582,7 +593,7 @@ class ShiftService extends MySqlPoolDal {
                 shift.shiftStatus = ShiftStatus.FINALISED
             }
         }
-        //Clear onhold list
+        //Clear `onhold` list
         shift.getOnHoldReconciliationTotals().clear()
     }
 
@@ -593,7 +604,5 @@ class ShiftService extends MySqlPoolDal {
         }
         return false
     }
-
-
 
 }
