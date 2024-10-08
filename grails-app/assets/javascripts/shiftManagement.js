@@ -182,7 +182,6 @@ function submitShift(shiftId, isRecount, isFinalise) {
     }
     if (proceedWithSubmission) {
         var formValues = $("#shiftVarianceForm").serialize();
-        var cashUpBy = $("#cashUpBy").val();
         tillIdFilter = $("#tillId").val();
         formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise + "&tillIdFilter=" + tillIdFilter
         $.ajax({
