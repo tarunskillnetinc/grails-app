@@ -31,6 +31,8 @@ class ShiftController {
         [startDate: params.startDate ?: startDate , endDate: params.endDate ?: endDate, tillId: params.tillId]
     }
 
+    // This will load all available shifts based on tills
+    // If shift is available then load shift along with till if it does not then add extra button to open shift
     def ajaxGetShifts() { //Method to load all shifts
         def successMessage = params.successMessage
         def errorMessage = params.errorMessage
@@ -89,6 +91,9 @@ class ShiftController {
         }
     }
 
+    // This is method to load either cash up model or cash summary based on requested action
+    // If action is either reconcile or recount --> then popup cash up mode
+    // If action is finalise --> then pop up cash summary mode
     def ajaxGetCashDetails(int shiftId, boolean isRecount, boolean isFinalise) {
          try {
              def shift = shiftService.getShift(shiftId, -1, -1)
@@ -120,6 +125,7 @@ class ShiftController {
         }
     }
 
+    // This will use to move between each cash up views (value, denomination or totals)
     def ajaxChangeCashUpType(CashUpCommand cashUpCommand) {
         try {
             def template = ""
@@ -177,6 +183,8 @@ class ShiftController {
         }
     }
 
+    // This will store values added in cash up model into temporary variable `onhold` cash and voucher total's in shift object
+    // Secondary this will check any available locations available if not added default `Safe 1` location
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
@@ -185,13 +193,14 @@ class ShiftController {
                     render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true])
                     return
                 }
-                def safeLocations = locationService.getStoreSafeLocations()
                 shiftService.processShiftCashSave(cashUpCommand, shift)
+                def safeLocations = locationService.getStoreSafeLocations()
                 safeLocations =  shiftService.updateSafeLocation(shift,safeLocations)
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
                 render(template: "cashUpSummaryModal", model: [ shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations, isShiftFinalizeMode: false ])
             } else if (shift != null && !cashUpCommand.isRecount &&  shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
+                // Request is for reconcile but already reconciled
                 render (status: 400, contentType: 'application/json', message: String.format("Failed to reconcile shift %s. Already reconciled.", cashUpCommand.shiftId))
             }  else if (shift != null && cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.RECONCILED){
                 // Request is for recount but already recounted
@@ -205,6 +214,12 @@ class ShiftController {
         }
     }
 
+    // If the request is reconcile, recount or finalise then this is to
+    //    1. save shift to temporary save variable `onhold` into actual cash and voucher total's in shift object
+    //    2. Add audit entry
+    // If the request is for finalise then specifically need to
+    //    1. Create safe snapshot
+    //    2. update tender movements
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
         try {
             def shift = shiftService.getShift(saveShiftCommand.shiftId, -1, -1)
