@@ -5,7 +5,7 @@
 <div class="row mt-3 mb-2">
     <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
 
-        <g:set var="reconciliationTotals" value="${isShiftFinalizeMode ? shift.reconciliationTotals : shift.onHoldReconciliationTotals}" />
+        <g:set var="reconciliationTotals" value="${isShiftFinalizeMode ? shift.reconciliationTotals : shift.pendingReconciliationTotals}" />
 
         <div class="row">
             <p class="mx-auto">Reconciliation for shift number ${shift.shiftNumber}(<g:formatStringDate date="${shift?.shiftOpenTime}" inputFormat="yyyy-MM-dd HH:mm:ss" outputFormat="dd/MM/yyyy" timeZone="Europe/London"/>)</p>

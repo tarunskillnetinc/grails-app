@@ -514,7 +514,7 @@ class ShiftService extends MySqlPoolDal {
 
     private void updateCashTotal(Shift shift) {
         //Load on hold cash total values --> Saved at cash up view
-        def cashOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH }
+        def cashOnHoldTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH }
 
         //Then update onhold cash value to shift actual cash value
         def cashTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
@@ -525,7 +525,7 @@ class ShiftService extends MySqlPoolDal {
 
     private void updateVoucherTotal(Shift shift) {
         //Load on hold voucher total values --> Saved at cash up view
-        def vouchersOnHoldTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
+        def vouchersOnHoldTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
 
         //Then update onhold voucher value to shift actual voucher value
         def vouchersTotal = shift.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
@@ -535,15 +535,15 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void updateOnHoldCashTotal(CashUpCommand cashUpCommand, Shift shift) {
-        def cashTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { shift.onHoldReconciliationTotals << it }
+        def cashTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
+                new ReconciliationTotal(TenderType.CASH).tap { shift.pendingReconciliationTotals << it }
         cashTotal.value = calculateCashTotal(cashUpCommand)
         cashTotal.variance = (cashTotal.value ?: 0) - (shift.cashInDrawer ?: 0)
     }
 
     private void updateOnHoldVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
-        def vouchersTotal = shift.onHoldReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.onHoldReconciliationTotals << it }
+        def vouchersTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
+                new ReconciliationTotal(TenderType.VOUCHER).tap { shift.pendingReconciliationTotals << it }
         vouchersTotal.value = cashUpCommand.vouchersTotal
         vouchersTotal.variance = (vouchersTotal.value ?: 0) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: 0)
     }
@@ -598,7 +598,7 @@ class ShiftService extends MySqlPoolDal {
                     shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
                 }
                 // Once update done clear `onhold` list
-                shift.getOnHoldReconciliationTotals().clear()
+                shift.getPendingReconciliationTotals().clear()
             } else {
                 shift.shiftStatus = ShiftStatus.FINALISED
             }
