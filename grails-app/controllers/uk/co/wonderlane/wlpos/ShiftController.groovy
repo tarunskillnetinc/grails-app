@@ -274,8 +274,9 @@ class ShiftController {
             flash.error = String.format("Till %d's shift open failed", tillId)
             log.error(String.format("Shift create error: %d store: %d tillId: %d error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
         }
-        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error])
         //Once done redirect to process get shift action
+        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error])
+
     }
 
     // This is method to functioning action button of shift close
