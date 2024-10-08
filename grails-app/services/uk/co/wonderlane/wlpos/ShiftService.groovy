@@ -108,7 +108,6 @@ class ShiftService extends MySqlPoolDal {
     void processTakeSnapshot(Shift shift) {
         try {
             Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(shift.getSafeLocationId())
-            latestSnapshot.setCountDate(new DateTime())
             processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
             snapshotService.saveSnapshot(latestSnapshot)
