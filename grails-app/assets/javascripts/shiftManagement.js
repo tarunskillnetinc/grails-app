@@ -182,8 +182,10 @@ function submitShift(shiftId, isRecount, isFinalise) {
     }
     if (proceedWithSubmission) {
         var formValues = $("#shiftVarianceForm").serialize();
-        tillIdFilter = $("#tillId").val();
+        var tillIdFilter = $("#tillId").val();
+        var safeLocationId = $("#safeLocationId").val();
         formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise + "&tillIdFilter=" + tillIdFilter
+            + "&safeLocationId=" + safeLocationId
         $.ajax({
             url: ShiftUrls.saveShiftUrl(),
             method: "POST",

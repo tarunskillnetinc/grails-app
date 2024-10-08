@@ -69,8 +69,10 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    def updateSafeLocation(Shift shift,  def safeLocations){
+    def getSafeLocation(Shift shift){
+        def safeLocations = null
         try {
+            safeLocations = locationService.getStoreSafeLocations()
             if (safeLocations.collect().isEmpty()) {
                 Location location = new Location()
                 location.safeId = 1
@@ -585,7 +587,6 @@ class ShiftService extends MySqlPoolDal {
                         it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
                     }
                 }
-                shift.safeLocationId = saveShiftCommand.safeLocationId // update shift location
                 if (!saveShiftCommand.isRecount){
                     shift.reconciledDate = DateTime.now()
                     shift.reconciledByUserId = loggedInUser.getId()
@@ -600,6 +601,7 @@ class ShiftService extends MySqlPoolDal {
                 // Once update done clear `onhold` list
                 shift.getOnHoldReconciliationTotals().clear()
             } else {
+                shift.safeLocationId = saveShiftCommand.safeLocationId // update shift location
                 shift.shiftStatus = ShiftStatus.FINALISED
             }
         }
