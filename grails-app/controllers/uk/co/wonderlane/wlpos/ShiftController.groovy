@@ -251,7 +251,7 @@ class ShiftController {
             def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing open shift
             if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) { // Check shift is null or not open if so then proceed to create new shift
                 shift = shiftService.createNewShift(retailerId, storeId, tillId, false) //call function to open shift
-                flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getId(), tillId)
+                flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getShiftNumber(), tillId)
             } else {
                 flash.message = String.format("Till %d's shift was already open", tillId)
             }
@@ -278,9 +278,9 @@ class ShiftController {
             if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) { // Check shift is null or not open if so then proceed to create new shift
                 shiftService.processShiftClose(shift) //call function to open shift
                 boolean isNewShiftOpen =  shiftService.postTillControlEventProcess(shift) //Check if shift auto open is configured if yes then open new one
-                flash.message = String.format("Shift %d for Till %d has been successfully closed.", shift.getId(), tillId)
+                flash.message = String.format("Shift %d for Till %d has been successfully closed.", shift.getShiftNumber(), tillId)
                 if (isNewShiftOpen) {
-                    flash.message = String.format("Shift %d for Till %d has been successfully closed, and a new shift has been opened.", shift.getId(), tillId)
+                    flash.message = String.format("Shift %d for Till %d has been successfully closed, and a new shift has been opened.", shift.getShiftNumber(), tillId)
                 }
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.OPEN)){ //If there is no open shift mean shift should already be closed
                 flash.message = String.format("Shift %d for Till %d has already been closed.", shiftId, tillId)

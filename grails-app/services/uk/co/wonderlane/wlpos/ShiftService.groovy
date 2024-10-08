@@ -483,8 +483,8 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private User loadLoggedInUser(){
-        int userId = springSecurityService.principal.id
-        User loggedInUser = userService.getUser(userId)
+        int id = springSecurityService.principal.id
+        User loggedInUser = userService.getUser(id)
         return loggedInUser
     }
 
