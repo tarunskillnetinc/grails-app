@@ -328,11 +328,8 @@ class ShiftController {
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null) {
-                def expectedAmounts = [:]
-                def tenderTypes = TenderType.values()
-                shift?.reconciliationTotals?.each { total -> expectedAmounts[total.tenderType] = total.value}
                 shiftService.addSpotCheckAudit(shift)
-                render(template: "spotCheck", model: [shift: shift, tenderTypes: tenderTypes, expectedAmounts: expectedAmounts])
+                render(template: "spotCheck", model: [shift: shift])
             } else {
                 render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift id: %d not available anymore for till id: %d ", shiftId, tillId))
             }
