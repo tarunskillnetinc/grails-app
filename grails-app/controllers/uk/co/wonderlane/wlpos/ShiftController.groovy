@@ -1,6 +1,5 @@
 package uk.co.wonderlane.wlpos
 
-
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -8,6 +7,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
+import uk.co.wonderlane.wlpos.enums.TenderType
 
 class ShiftController {
 
@@ -311,8 +311,35 @@ class ShiftController {
             flash.error = String.format("Till %d's shift close failed", tillId)
             log.error(String.format("Shift close error: %d store: %d tillId: %d error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
         }
-        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error])
         //Once done redirect to process get shift action
+        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error])
+    }
+
+    def ajaxSpotCheck(){
+        Integer retailerId = null
+        Integer storeId = null
+        Integer tillId = null
+        Integer shiftId = null
+        try {
+            shiftService.validateParams(params)
+            retailerId = Integer.parseInt(params.retailerId)
+            storeId = Integer.parseInt(params.storeId)
+            tillId = Integer.parseInt(params.tillId)
+            shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
+            def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
+            if (shift != null) {
+                def expectedAmounts = [:]
+                def tenderTypes = TenderType.values()
+                shift?.reconciliationTotals?.each { total -> expectedAmounts[total.tenderType] = total.value}
+                shiftService.addSpotCheckAudit(shift)
+                render(template: "spotCheck", model: [shift: shift, tenderTypes: tenderTypes, expectedAmounts: expectedAmounts])
+            } else {
+                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift id: %d not available anymore for till id: %d ", shiftId, tillId))
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Spot check error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
+            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check shift id: %d till id: %d ", shiftId, tillId))
+        }
     }
 
 }

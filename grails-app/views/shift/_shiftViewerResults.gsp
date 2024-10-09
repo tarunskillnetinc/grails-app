@@ -102,7 +102,7 @@
                                         <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="openShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId});">Open</button>
                                     </g:if>
                                     <g:else>
-                                        <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;">Spot check</button>
+                                        <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="spotCheck(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Spot check</button>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}" >
                                             <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="closeShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Close</button>
                                         </g:if>
