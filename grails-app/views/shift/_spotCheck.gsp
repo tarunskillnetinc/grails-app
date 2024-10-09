@@ -84,7 +84,7 @@
             <div class="spot-check-row spot-check-total">
                 <span>Total</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.reconciliationTotals?.sum { it?.value ?: BigDecimal.ZERO }}" type="currency" />
+                    <g:formatNumber number="${shift?.reconciliationTotals?.sum { it?.value ?: BigDecimal.ZERO } ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
         </div>
