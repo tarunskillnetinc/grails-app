@@ -178,7 +178,7 @@ class ShiftController {
         }
     }
 
-    // This will store values added in cash up model into temporary variable `onhold` cash and voucher total's in shift object
+    // This will store values added in cash up model into temporary variable `pending` cash and voucher total's in shift object
     // Secondary this will check any available locations available if not added default `Safe 1` location
     def ajaxSaveCash(CashUpCommand cashUpCommand) {
         try {
@@ -210,7 +210,7 @@ class ShiftController {
     }
 
     // If the request is reconcile, recount or finalise then this is to
-    //    1. save shift to temporary save variable `onhold` into actual cash and voucher total's in shift object
+    //    1. save shift to temporary save variable `pending` into actual cash and voucher total's in shift object
     //    2. Add audit entry
     // If the request is for finalise then specifically need to
     //    1. Create safe snapshot
@@ -297,7 +297,7 @@ class ShiftController {
             if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) {
                 // Check shift is null or not open if so then proceed to create new shift
                 shiftService.processShiftClose(shift) //call function to open shift
-                boolean isNewShiftOpen = shiftService.postTillControlEventProcess(shift)
+                boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(shift)
                 //Check if shift auto open is configured if yes then open new one
                 flash.message = String.format("Shift %d for Till %d has been successfully closed.", shift.getShiftNumber(), tillId)
                 if (isNewShiftOpen) {
