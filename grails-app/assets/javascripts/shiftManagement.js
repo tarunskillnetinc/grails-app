@@ -223,7 +223,7 @@ function openShifts(retailerId, storeId, tillId) {
         method: "POST",
         data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, tillIdFilter: tillIdFilter},
         success: function(resp) {
-            $("#modal-content").html(resp);
+            $("#results-container").html(resp);
         },
         error: function() {
             $("#loading-indicator").hide();
