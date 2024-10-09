@@ -62,8 +62,7 @@ class CashManagementService extends MySqlDal{
         }
     }
 
-    def boolean isTillShiftsAutoOpen(int retailerId, int storeId) {
-        boolean isTillShiftOpenAuto = false;
+    CashManagementConfig getCashManagementConfig(int retailerId, int storeId) {
         try (Connection conn = getConnection();
              CallableStatement cstmt = conn.prepareCall("{ call getCashManagementConfiguration(?, ?) }")) {
             cstmt.setInt(1, retailerId);
@@ -72,10 +71,7 @@ class CashManagementService extends MySqlDal{
             try (ResultSet rs = cstmt.executeQuery()) {
                 if (rs.next()) {
                     String configJson = rs.getString("config");
-                    CashManagementConfig storeConfig = gsonProvider.gson.fromJson(configJson, CashManagementConfig.class);
-                    if (storeConfig != null && !storeConfig.isTillShiftsManualOpen()) {
-                        isTillShiftOpenAuto = true;
-                    }
+                    return gsonProvider.gson.fromJson(configJson, CashManagementConfig.class);
                 }
             }
         } catch (SQLException ex) {
@@ -85,6 +81,6 @@ class CashManagementService extends MySqlDal{
             log.error("Error parsing JSON config for retailerId: " + retailerId + " and storeId: " + storeId, ex);
             throw new RuntimeException("Unexpected error parsing cash management configuration", ex);
         }
-        return isTillShiftOpenAuto;
+        return null;
     }
 }

@@ -32,5 +32,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">Cancel</button>
-    <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitCash(${shift.id})">Save</button>
+    <button type="button" id="saveShiftButton" class="btn btn-success" onclick="submitCash(${shift.id}, ${shift.reconciledDate != null})">Save</button>
 </div>
