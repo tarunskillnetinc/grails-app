@@ -24,15 +24,15 @@
 }
 </style>
 
-<div class="row mt-3 mb-2" style="height: 400px;">
+<div class="row mt-3 mb-2" style="height: 300px;">
     <div class="col-8 pr-0 mx-auto" style="flex: 0 0 70%; max-width: 70%;">
         <div class="row text-center">
             <p class="mx-auto">
-                Spot check for till ${shift?.tillId} shift ${shift?.shiftNumber} (<g:formatStringDate date="${shift?.shiftOpenTime}" inputFormat="yyyy-MM-dd HH:mm:ss" outputFormat="dd/MM/yyyy HH:mm:ss" timeZone="Europe/London"/>)
+                Spot check for till ${shift?.tillId} shift ${shift?.shiftNumber} (<g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${fetchTime?.toDate() ?: new Date()}" timeZone="Europe/London"/>)
             </p>
         </div>
 
-        <div class="spot-check-list" style="padding: 10px; border: 1px solid #000;">
+        <div class="spot-check-list" style="padding: 10px;">
             <div class="spot-check-row" style="font-weight: bold;">
                 <span>Tender</span>
                 <span>Value</span>
@@ -63,5 +63,5 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">Cancel</button>
+    <button type="button" id="cancelShiftButton" class="btn btn-secondary" data-dismiss="modal" onclick="getShifts()">Close</button>
 </div>

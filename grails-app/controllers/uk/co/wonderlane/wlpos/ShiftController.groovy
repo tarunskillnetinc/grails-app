@@ -315,6 +315,7 @@ class ShiftController {
         redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error])
     }
 
+    // This is method to spot check this will popup dialog box which have values each tender types
     def ajaxSpotCheck(){
         Integer retailerId = null
         Integer storeId = null
@@ -327,9 +328,9 @@ class ShiftController {
             tillId = Integer.parseInt(params.tillId)
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
-            if (shift != null) {
-                shiftService.addSpotCheckAudit(shift)
-                render(template: "spotCheck", model: [shift: shift])
+            if (shift != null) { // If shift exists then process
+                shiftService.addSpotCheckAudit(shift) // Add audit
+                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()])
             } else {
                 render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift id: %d not available anymore for till id: %d ", shiftId, tillId))
             }
