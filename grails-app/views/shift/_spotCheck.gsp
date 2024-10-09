@@ -27,13 +27,12 @@
     border-top: 1px solid black;
     padding-top: 8px; /* Reduced padding for the total row */
     margin-top: 12px;
-    font-size: 1.4em; /* Slightly reduced font size for total row */
 }
 .spot-check-value {
-    font-size: 1.3em; /* Reduced font size for values */
+    font-size: 1.3em; /* Keep the same font size as Cash, Card, etc. */
 }
 .spot-check-row span {
-    font-size: 1.3em; /* Reduced font size for labels (Cash, Card, etc.) */
+    font-size: 1.3em; /* Keep the same font size for labels (Cash, Card, etc.) */
 }
 </style>
 
@@ -47,9 +46,9 @@
         </div>
 
         <div class="spot-check-list" style="padding: 10px;">
-            <div class="spot-check-row" style="font-weight: bold; font-size: 1.4em;"> <!-- Slightly reduced font size for headers -->
-                <span>Tender</span>
-                <span>Value</span>
+            <div class="spot-check-row">
+                <span style="font-weight: bold;">Tender</span> <!-- Keeping the font weight bold -->
+                <span style="font-weight: bold;">Value</span> <!-- Keeping the font weight bold -->
             </div>
 
             <div class="spot-check-row">
@@ -82,7 +81,7 @@
 
             <!-- Total Line -->
             <div class="spot-check-row spot-check-total">
-                <span>Total</span>
+                <span style="font-weight: bold;">Total</span> <!-- Keeping the font weight bold -->
                 <span class="spot-check-value">
                     <g:formatNumber number="${shift?.reconciliationTotals?.sum { it?.value ?: BigDecimal.ZERO } ?: BigDecimal.ZERO}" type="currency" />
                 </span>
