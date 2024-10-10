@@ -25,7 +25,8 @@
                     "${createLink(controller: 'shift', action: 'ajaxSaveCash')}",
                     "${createLink(controller: 'shift', action: 'ajaxSaveShift')}",
                     "${createLink(controller: 'shift', action: 'ajaxOpenShift')}",
-                    "${createLink(controller: 'shift', action: 'ajaxCloseShift')}"
+                    "${createLink(controller: 'shift', action: 'ajaxCloseShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSpotCheck')}"
                 );
 
                 SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",

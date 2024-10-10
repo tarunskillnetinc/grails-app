@@ -257,7 +257,36 @@ function closeShifts(retailerId, storeId, tillId, shiftId) {
             $("#search-results").html(result);
         },
     });
+}
 
+function spotCheck(retailerId, storeId, tillId, shiftId) {
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
+        "<span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#shiftModal').modal({ show: true });
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    tillIdFilter = $("#tillId").val();
+    $.ajax({
+        url: ShiftUrls.spotCheckUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
+        success: function(resp) {
+            $("#modal-content").html(resp);
+        },
+        error: function(resp) {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        },
+    });
 }
 
 function isFormValid() {
