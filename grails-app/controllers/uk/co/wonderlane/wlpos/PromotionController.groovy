@@ -151,7 +151,7 @@ class PromotionController {
     }
 
     def save(PromotionCommand promotionCommand) {
-        def loyaltyEnable = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         // If we're logged in at a store, we want to ensure the promotionCommand contains our store.
         if (springSecurityService.principal.storeId) {
@@ -217,7 +217,7 @@ class PromotionController {
 
             redirect(action: "index")
         } else {
-            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values(), canEdit: true, loyaltyEnable: loyaltyEnable])
+            render (view: "add", model: [promotion: promotionCommand, promotionTypes: PromotionType.values(), canEdit: true, loyaltyEnabled: loyaltyEnabled])
         }
     }
 
