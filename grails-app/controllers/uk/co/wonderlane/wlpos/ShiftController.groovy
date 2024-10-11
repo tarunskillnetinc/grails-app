@@ -225,7 +225,7 @@ class ShiftController {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
                     shiftService.processTakeSnapshot(shift, saveShiftCommand) //Take snapshot
                     shiftService.updateTenderMovement(shift, saveShiftCommand) //Move into update tender movement
-                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised till %d's shift %d.", shift.getTillId(), shift.getShiftNumber())])
+                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
                     return
                 }
                 def safeLocations = shiftService.getSafeLocation(shift)
