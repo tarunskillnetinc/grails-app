@@ -1,12 +1,15 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import org.hibernate.Session
+import org.hibernate.Transaction
 import org.joda.time.DateTime
 
 @Transactional("transactions")
 class ReceiptService {
 
     def springSecurityService
+    def sessionFactory
 
     def getReceipts(DateTime fromDate, DateTime toDate, Integer tillId, Integer transactionId, String sort, String order, int offset, int max) {
         def receiptsCriteria = Receipt.createCriteria()
@@ -60,5 +63,19 @@ class ReceiptService {
             eq("tillId", tillId)
             eq ("retailerId", springSecurityService.principal.retailerId)
         }
+    }
+    def saveReceiptPrinted(int receiptId) {
+            Session session = sessionFactory.openSession()
+            Transaction transaction = session.beginTransaction()
+            Receipt receipt = Receipt.get(receiptId)
+
+        if(receipt){
+            receipt.printed = 1
+            receipt.save(flush: true)
+        }
+
+            transaction.commit()
+            session.close()
+
     }
 }
