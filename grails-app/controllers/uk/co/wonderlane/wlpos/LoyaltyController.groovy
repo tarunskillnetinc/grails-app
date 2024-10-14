@@ -289,9 +289,7 @@ class LoyaltyController {
 
                 loyaltyService.saveSegment(currentSegment)
                 updated = true
-            } else {
-                flash.message = "No changes were made to the segment, so there was nothing to update"
-            }
+            } 
         } else {
             flash.error = "A segment with this name already exists, a unique name is required. No updates were completed."
         }

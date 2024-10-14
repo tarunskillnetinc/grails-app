@@ -77,9 +77,7 @@
         $('#error-message').html(errorMessage);
         $('#error-message').prop("hidden", false);
       } else {
-        if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
           $('#segmentDetails').submit();
-        }
       }
     }
   </script>
