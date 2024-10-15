@@ -434,8 +434,8 @@ class ProductService extends MySqlDal {
             barcodePacks = validBarcodePacks?.unique()
         }
 
-        def queryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now, max: maxResults, offset: startIndex]
-        def countQueryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now]
+        def queryParams = [retailerId: springSecurityService.principal.retailerId, max: maxResults, offset: startIndex]
+        def countQueryParams = [retailerId: springSecurityService.principal.retailerId]
 
         if (springSecurityService.principal.storeId) {
             queryParams.range = springSecurityService.principal.range
@@ -452,10 +452,10 @@ class ProductService extends MySqlDal {
 
         if (springSecurityService.principal.storeId) {
             // Store level.
-            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate """
+            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) """
         } else {
             // Head office level.
-            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND pv.storeId IS NULL AND pv.effectiveDate <= :effectiveDate """
+            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND pv.storeId IS NULL """
         }
 
         searchQuery += """LEFT JOIN Pack pk ON pk.productVariant = pv.id
@@ -531,6 +531,14 @@ class ProductService extends MySqlDal {
 
         def results = [:]
         results.products = Product.executeQuery(querySelect + searchQuery, queryParams)
+        results.products.each { product ->
+            if (product.variants?.size() > 1) {
+                product.variants.removeAll { variant ->
+                    variant.effectiveDate != null && variant.effectiveDate.isAfter(now)
+                }
+            }
+        }
+
         results.totalCount = Product.executeQuery(countQuerySelect + searchQuery, countQueryParams)?.get(0) ?: 0
 
         return results
