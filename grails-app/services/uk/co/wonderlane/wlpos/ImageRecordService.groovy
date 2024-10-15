@@ -48,6 +48,10 @@ class ImageRecordService {
      * @param imageRecord The ImageRecord to be deleted.
      */
     def deleteImageRecord(ImageRecord imageRecord) throws SQLException {
-        imageRecord.delete()
+        try {
+            imageRecord.delete()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
     }
 }
