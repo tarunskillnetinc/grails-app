@@ -710,6 +710,9 @@ class ProductService extends MySqlDal {
     }
 
     def sendProductUpdate(List<Product> products, List<Store> stores) {
+        sendProductUpdate(products, stores, true)
+    }
+    def sendProductUpdate(List<Product> products, List<Store> stores, boolean insert) {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
@@ -729,10 +732,10 @@ class ProductService extends MySqlDal {
 
             if (!productEntities.isEmpty()) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
-                syncMessage.setInsert(true)
+                syncMessage.setInsert(insert)
                 syncMessage.setProducts(productEntities)
 
-                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber} (insert: $insert)")
 
                 rabbitService.sendMessage(syncMessage)
             }
