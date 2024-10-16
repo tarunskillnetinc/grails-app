@@ -63,24 +63,24 @@
         }
 
         function save(weighted) {
-            var supplierId = $('#supplierId').val();
             var productListId = $('#productListId').val();
+            var productListItemId = $('#productListItemId').val();
             var productVariantId = $('#productVariantId').val();
-            var productItemId = $('#productItemId').val();
             var params = {
-                supplierId: supplierId,
                 productListId: productListId,
-                productVariantId: productVariantId,
-                productItemId: productItemId
+                productListItemId: productListItemId,
+                productVariantId: productVariantId
             };
             let quantity = 0
             let packLineIndex = 0
+
             $("#variants").find("div").each(function () {
                 var innerDivId = $(this).attr("id");
                 var packLineSelector = "#packLines\\[" + innerDivId + "\\]\\.";
                 if ($(packLineSelector + "quantity").val() > 0) {
                     params["packLines[" + packLineIndex + "].orderCode"] = $(packLineSelector + "orderCode").val();
                     params["packLines[" + packLineIndex + "].id"] = $(packLineSelector + "id").val();
+                    params["packLines[" + packLineIndex + "].packId"] = $(packLineSelector + "packId").val();
                     params["packLines[" + packLineIndex + "].orderCode"] = $(packLineSelector + "orderCode").val();
                     params["packLines[" + packLineIndex + "].quantity"] = $(packLineSelector + "quantity").val();
                     quantity += weighted
@@ -89,11 +89,14 @@
                     packLineIndex++;
                 }
             });
+
             if (weighted) {
                 quantity = quantity.toFixed(3)
             }
+
             params["quantity"] = quantity
-            if(quantity > 0){
+
+            if (quantity > 0) {
                 $.ajax({
                     url: "${createLink(controller: 'order', action: 'ajaxSavePackLines')}",
                     method: "POST",
@@ -104,7 +107,7 @@
                             $("#productListItemContent").html(response.responseText);
                         },
                         200: function (response) {
-                            window.location.href = window.location.href = '${createLink(controller: 'order', action:'productList')}';
+                            window.location.href = '${createLink(controller: 'order', action:'productList', id: productList.id)}';
                         }
                     }
                 });
@@ -140,9 +143,10 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="reporting" action="orders" >Orders Report</g:link></li>
-                        <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="order" action="productList" >Orders List</g:link></li>
-                        <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${variants?.product?.description}</li>
+                        <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="reporting" action="orders">All Orders</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="reporting" action="order" id="${productList?.id}">${productList?.supplierReference}</g:link></li>
+                        <li id="breadcrumb-4" class="breadcrumb-item"><g:link controller="order" action="edit" id="${productList?.id}">Edit ${productList?.supplierReference}</g:link></li>
+                        <li id="breadcrumb-5" class="breadcrumb-item active" aria-current="page">${productVariant?.product?.description}</li>
                     </ol>
                 </div>
             </div>
@@ -151,90 +155,90 @@
 
     <section id="order-list-container" class="container-fluid">
 
-        <g:set var="isWeighted" value="${variants?.product?.weightedItem ?: false}"/>
+        <g:set var="isWeighted" value="${productVariant?.product?.weightedItem ?: false}" />
 
-        <div class="row header-wl mt-3">
-            <div class="col-8 offset-2">
-                <h2 class="mx-auto my-auto">Order List Item</h2>
-            </div>
-
-            <div class="col-2 text-right">
-                <button id="cancel" class="btn btn-wl" name="save" onclick="document.location.href='${createLink(controller: 'order', action:'productList')}';">Cancel</button>
-                <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
-                    <button id="save" class="btn btn-success" name="save" onclick="save(${isWeighted})">Save</button>
-                </g:if>
-                <g:else>
-                    <button id="save" class="btn btn-success" disabled name="save" onclick="save(${isWeighted})">Save</button>
-                </g:else>
-
-            </div>
-
-        </div>
-
-        <g:hiddenField name="id" value="${product?.id ?: 0}" />
-        <g:hiddenField name="supplierId"  id="supplierId" value="${supplierId ?: 0}" />
-        <g:hiddenField name="productListId"  id="productListId" value="${productListId ?: 0}" />
-        <g:hiddenField name="productVariantId" id="productVariantId" value="${variants?.id ?: 0}" />
-        <g:hiddenField name="productItemId" id="productItemId" value="${productItemId ?: 0}" />
-
-        <div id="collapseProductVariants1"  aria-labelledby="productVariants" data-parent="#accordion">
-            <div class="card-body py-5">
-
-                <div class="row mx-5" style="width: 100%; margin-bottom: 50px">
-                    <label for="productName" class="col-2 col-form-label text-left">Product Name </label>
-                    <g:textField name="productName" class="col-8 form-control bottom-border text-left" readonly="true" value="${variants?.product?.description}" autocomplete="off" />
+        <g:form method="post" action="saveProductListItem" class="mt-5" name="product-list-item-form">
+            <div class="row header-wl mt-3">
+                <div class="col-8 offset-2">
+                    <h2 class="mx-auto my-auto">Order List Item</h2>
                 </div>
 
-                <div class="row mx-5" style="width: 100%; margin-bottom: 50px">
-                    <label for="productName" class="col-2 col-form-label text-left">SKU </label>
-                    <g:textField name="sku" class="col-8 form-control bottom-border text-left" readonly="true" value="${variants?.sku}" autocomplete="off" />
-                </div>
+                <div class="col-2 text-right">
+                    <g:link id="cancel" class="btn btn-wl" controller="order" action="edit" id="${productList?.id}">Cancel</g:link>
 
-                <div id="variantsContainer" style="max-height: 400px; overflow-x: auto; overflow-y: auto;">
-                    <div class="row mx-5  hoverable" title="Click to edit." style="cursor: pointer;" >
-                        <label for="productName" class="col-2 col-form-label text-left"> </label>
-                        <div id="variants" class="col-9 my-auto" >
+                    <g:if test="${packs?.size() > 0 || !isSymbolGroupOrder}">
+                        <button type="submit" id="save" class="btn btn-success" name="save">Save</button>
+                    </g:if>
+                    <g:else>
+                        <button type="button" id="save" class="btn btn-success" disabled name="save">Save</button>
+                    </g:else>
+                </div>
+            </div>
+
+            <g:hiddenField name="productListId" id="productListId" value="${productList?.id}" />
+            <g:hiddenField name="productListItemId" id="productListItemId" value="${productListItem?.id ?: 0}" />
+            <g:hiddenField name="productVariantId" id="productVariantId" value="${productVariant?.id ?: 0}" />
+
+            <div id="collapseProductVariants1" aria-labelledby="productVariants" data-parent="#accordion">
+                <div class="card-body py-5">
+                    <div class="row form-group">
+                        <label for="sku" class="col-12 col-md-2 offset-md-1 col-form-label text-right">SKU</label>
+                        <g:textField name="sku" class="col-12 col-md-2 form-control bottom-border" readonly="true" value="${productVariant?.sku}" autocomplete="off" />
+                    </div>
+
+                    <div class="row form-group">
+                        <label for="productName" class="col-12 col-md-2 offset-md-1 col-form-label text-right">Product Name</label>
+                        <g:textField name="productName" class="col-12 col-md-6 form-control bottom-border" readonly="true" value="${productVariant?.product?.description}" autocomplete="off" />
+                    </div>
+
+                    <div id="variantsContainer" style="max-height: 400px; overflow-y: auto;" class="row form-group">
+                        <label for="variants" class="col-12 col-md-2 offset-md-1 col-form-label text-right">Order Quantity</label>
+
+                        <div id="variants" class="col-12 col-md-7">
                             <!--This is for non symbol group orders, quantities are calculated in server and passed into view-->
-                            <g:if test="${isNoSymbolOrders}">
-                                <div class="quantity-${packSingles}" id="${packSingles}" style="width: 100%; margin-bottom: 30px" >
-                                    <button id="decrementSinglesButton" class="counterButton" onclick="decrement(${packSingles}, ${isWeighted})">-</button>
-                                    <g:hiddenField name="packLines[${packSingles}].id" id="packLines[${packSingles}].id" value="0" />
-                                    <g:hiddenField name="packLines[${packSingles}].orderCode" id="packLines[${packSingles}].orderCode" value="-1" />
-                                    <g:hiddenField name="packLines[${packSingles}].size" id="packLines[${packSingles}].size" value="1" />
-                                    <input name="packLines[${packSingles}].quantity" id="packLines[${packSingles}].quantity" type="number" class="quantity__input"
+                            <g:if test="${!isSymbolGroupOrder}">
+                                <div class="row form-inline quantity--1 mb-3" id="-1">
+                                    <g:hiddenField name="packLines[0].id" id="packLines[0].id" value="0" />
+                                    <g:hiddenField name="packLines[0].packId" id="packLines[0].packId" value="0" />
+                                    <g:hiddenField name="packLines[0].orderCode" id="packLines[0].orderCode" value="0" />
+                                    <g:hiddenField name="packLines[0].size" id="packLines[0].size" value="1" />
+
+                                    <button type="button" id="decrementSinglesButton" class="btn btn-wl" onclick="decrement(0, ${isWeighted})">-</button>
+                                    <input name="packLines[0].quantity" id="packLines[0].quantity" type="number" class="form-control bottom-border text-center"
                                            value="${singleQuantity.remainder(BigDecimal.ONE) == BigDecimal.ZERO ? singleQuantity.setScale(0) : singleQuantity}"
                                            min="0" max="999999" style="width: 100px"
                                            onkeydown="acceptQuantity(event, ${isWeighted})" onkeyup="validateQuantity(this, 0, 999999, ${isWeighted})">
-                                    <button id="incrementSinglesButton" class="counterButton" onclick="increment(${packSingles}, ${isWeighted})" >+</button>
-                                    <span id="packQty">x <g:if test="${isWeighted}">Kilograms</g:if><g:else>Singles</g:else></span>
+                                    <button type="button" id="incrementSinglesButton" class="btn btn-wl" onclick="increment(0, ${isWeighted})" >+</button>
+                                    <span id="packQty" class="ml-2">x <g:if test="${isWeighted}">Kilograms</g:if><g:else>Singles</g:else></span>
                                 </div>
                             </g:if>
-                            <g:if test="${(packs && packs?.size()>0) || isNoSymbolOrders}">
+
+                            <g:if test="${packs?.size() > 0 || !isSymbolGroupOrder}">
                                 <g:each in="${packs}" var="pack" status="i">
-                                    <div class="quantity-${pack.id}" id="${pack.id}" style="width: 100%; margin-bottom: 30px" >
-                                        <button id="decrementButton" class="counterButton" onclick="decrement(${pack.id}, false)">-</button>
-                                        <g:hiddenField name="packLines[${pack.id}].id" id="packLines[${pack.id}].id" value="${pack?.id ?: 0}" />
-                                        <g:hiddenField name="packLines[${pack.id}].orderCode" id="packLines[${pack.id}].orderCode" value="${pack?.orderCode ?: ''}" />
-                                        <g:hiddenField name="packLines[${pack.id}].size" id="packLines[${pack.id}].size" value="${pack?.quantity ?: 0}" />
-                                        <input name="packLines[${pack.id}].quantity" id="packLines[${pack.id}].quantity" type="number" class="quantity__input" value="${pack?.getQuantity(packLinesList)}"
+                                    <div class="row form-inline quantity-${i+1} mb-3" id="${i+1}">
+                                        <g:hiddenField name="packLines[${i+1}].id" id="packLines[${i+1}].id" value="${productListItem?.packLines?.find { it?.orderCode == pack?.orderCode }?.id ?: 0}" />
+                                        <g:hiddenField name="packLines[${i+1}].packId" id="packLines[${i+1}].packId" value="${pack?.id ?: 0}" />
+                                        <g:hiddenField name="packLines[${i+1}].orderCode" id="packLines[${i+1}].orderCode" value="${pack?.orderCode ?: ''}" />
+                                        <g:hiddenField name="packLines[${i+1}].size" id="packLines[${i+1}].size" value="${pack?.quantity ?: 0}" />
+
+                                        <button type="button" id="decrementButton" class="btn btn-wl" onclick="decrement(${i+1}, false)">-</button>
+                                        <input name="packLines[${i+1}].quantity" id="packLines[${i+1}].quantity" type="number" class="form-control bottom-border text-center" value="${productListItem?.packLines?.find { it?.orderCode == pack?.orderCode }?.quantity?.setScale(0) ?: 0}"
                                             min="0" max="${pack.maximumOrderQuantity ?: 99999}" style="width: 100px" onkeydown="acceptQuantity(event, false)" onkeyup="validateQuantity(this, 0, 99999, false)">
-                                        <button id="incrementButton" class="counterButton" onclick="increment(${pack.id}, false)" >+</button>
-                                        <span id="packQty">x ${pack.quantity?.setScale(isWeighted ? 3 : 0)} Packs</span>
+                                        <button type="button" id="incrementButton" class="btn btn-wl" onclick="increment(${i+1}, false)" >+</button>
+                                        <span id="packQty" class="ml-2">x ${pack.quantity?.setScale(isWeighted ? 3 : 0)} Packs</span>
                                     </div>
                                 </g:each>
                             </g:if>
                             <g:else>
-                                <h3>No Packs Available For This Product</h3>
+                                <!-- Only show this message if there are no packs and this is a symbol group order (which doesn't support singles). -->
+                                <h3>No packs available for this product.</h3>
                             </g:else>
                         </div>
                     </div>
                 </div>
-
             </div>
-        </div>
-
+        </g:form>
     </section>
-
 
     <section id="productListItem-modal" class="container-fluid">
         <div class="modal fade" id="productListItemModal" tabindex="-1" role="dialog" aria-labelledby="productListItemModalLabel" data-backdrop="false"  aria-hidden="true">
@@ -243,7 +247,5 @@
             </div>
         </div>
     </section>
-
-
 </body>
 </html>

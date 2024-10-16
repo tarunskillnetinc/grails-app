@@ -123,10 +123,25 @@ class ProductList {
     }
 
     def getTotalPackLines() {
-        ArrayList<PackLine> packLines = new ArrayList<>()
+        def packLines = []
+
         productListItems.each { item ->
-            packLines.addAll(item?.packLines)
+            BigDecimal totalQuantity = item.quantity ?: BigDecimal.ZERO
+
+            item?.packLines?.each { packLine ->
+                packLines.add(packLine)
+
+                totalQuantity = totalQuantity.subtract(packLines.totalQuantity)
+            }
+
+            if (totalQuantity.compareTo(0) > 0) {
+                // Singles involved, add a dummy pack line.
+                def dummyPack = [quantity: BigDecimal.ONE, price: item?.productVariant?.costPrice]
+
+                packLines.add([productListId: item.productListId, quantity: totalQuantity, productListItem: item, pack: dummyPack])
+            }
         }
+
         return packLines
     }
 
@@ -179,5 +194,48 @@ class ProductList {
 
     int hashCode() {
         return id.hashCode()
+    }
+
+    public uk.co.wonderlane.wlpos.entities.wlim.ProductList getProductList(PriceBand priceBand, Integer storeId) {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = new uk.co.wonderlane.wlpos.entities.wlim.ProductList()
+
+        productList.setId(id)
+        productList.setStoreId(store?.id?.toString() ?: null)
+        productList.setUserId(userId)
+        productList.setType(type)
+        productList.setStatus(status)
+        productList.setParentId(parentId ?: 0)
+        productList.setParentType(null) // TODO
+
+        // TODO ProductListItemGroups not yet implemented in CO?
+//        productListItemGroups?.each {
+//            productList.getProductListItemGroups().add(it.getProductListItemGroup())
+//        }
+
+        productListItems?.each {
+            productList.getProductListItems().add(it.getProductListItem(priceBand, storeId))
+        }
+
+        productList.setDateStarted(dateStarted)
+        productList.setDateCompleted(dateCompleted)
+        productList.setOwnerUserId(ownerUserId)
+        productList.setOwnerUsersName(ownerUsersName)
+        productList.setDescription(description)
+        productList.setReasonId(reasonId)
+        productList.setReasonDescription(reasonDescription)
+        productList.setSupplierId(Integer.parseInt(supplierId))
+        productList.setSupplierReference(supplierReference)
+        productList.setStockAdjustedOnCompletion(stockAdjustedOnCompletion)
+        productList.setStartDate(startDate)
+        productList.setEndDate(endDate)
+        productList.setDestinationStore(destinationStoreId)
+        productList.setOrderId(orderId ?: 0)
+
+        // TODO Following items are not yet added to the CO ProductList object.
+//        productList.setShipmentReference(shipmentReference)
+//        productList.setRetailerListId(retailerListId)
+//        productList.setProductListItemCount(productListItemCount)
+
+        return productList
     }
 }

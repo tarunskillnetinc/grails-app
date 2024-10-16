@@ -1,5 +1,8 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.entities.supplier.Pack
+
 import java.math.RoundingMode
 
 class ProductListItem {
@@ -69,5 +72,38 @@ class ProductListItem {
 
         // Estimated delivery cost = total pack cost + singles cost.
         return totalPackCost + totalSinglesCost
+    }
+
+    public uk.co.wonderlane.wlpos.entities.wlim.ProductListItem getProductListItem(PriceBand priceBand, Integer storeId) {
+        uk.co.wonderlane.wlpos.entities.wlim.ProductListItem productListItem = new uk.co.wonderlane.wlpos.entities.wlim.ProductListItem()
+
+        productListItem.setId(id)
+        productListItem.setProductVariantId(productVariant?.id)
+        productListItem.setProductVariantItemCode(productVariant?.product?.itemCode)
+        productListItem.setProductLongDescription(productVariant?.product?.description)
+        productListItem.setProductShortDescription(productVariant?.product?.receiptDescription)
+        productListItem.setProductBarcodes(productVariant?.barcodes?.collect{ it.barcode })
+        productListItem.setProductPrice(productVariant?.getCurrentPrice(priceBand))
+        productListItem.setUnitSize(productVariant?.product?.unitSize)
+        productListItem.setProductQuantityInStock(productVariant?.getProductStock(storeId)?.quantityInStock)
+        productListItem.setQuantity(quantity)
+        productListItem.setFillQuantity(fillQuantity)
+        productListItem.setParentQuantity(parentQuantity)
+        productListItem.setProductStatus(productVariant?.product?.status?.name())
+        productListItem.setProductListItemGroupId(productListItemGroup?.id)
+        productListItem.setShelfCapacity(productVariant?.shelfCapacity)
+
+        productListItem.setPackLines(new ArrayList<>())
+        packLines?.each {
+            productListItem.getPackLines().add(it.getPackLine())
+        }
+
+        productListItem.setAvailablePacks(null) // TODO
+//        productListItem.setEffectiveDate(effectiveDate) // TODO not yet in CO domain.
+//        productListItem.setLocation(location) // TODO not yet in CO domain.
+        productListItem.setWeighted(productVariant?.product?.weightedItem)
+        productListItem.setProductItemCode(productVariant?.product?.itemCode)
+
+        return productListItem
     }
 }
