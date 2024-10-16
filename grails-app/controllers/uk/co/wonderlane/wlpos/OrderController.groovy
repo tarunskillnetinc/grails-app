@@ -134,22 +134,6 @@ class OrderController {
         }
     }
 
-    // When loading check is there any active product for user and if not popup supplier view to select
-    def ajaxCheckActiveProducts() {
-        def suppliers = null
-        User user = userService.getUser(springSecurityService.principal.id)
-        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
-
-        if ((productList == null) || (productList != null && productList.getSupplierId() == null)) {
-            suppliers = supplierService.getSuppliers()
-            response.setStatus(200)
-        } else {
-            response.setStatus(204)
-        }
-
-        render (template: "showSupplier", model: [suppliers: suppliers])
-    }
-
     // This will load available variants user can select.
     // For non symbol group orders user will shown all available variants.
     // For symbol group orders only variants belonging to supplier will shown.
@@ -239,53 +223,6 @@ class OrderController {
         redirect(action: "edit", id: productList.id)
     }
 
-    //This is to save or update product list items and pack lines
-    def ajaxSavePackLines(PackLineRequestCommand packLineRequestCommand) {
-        def productList = productListService.getProductList(packLineRequestCommand.productListId)
-
-        if (!productList) {
-            flash.message = "Order not found."
-            redirect(controller: "reporting", action: "orders")
-            return
-        }
-
-        def productVariant = productService.getProductVariant(packLineRequestCommand.productVariantId)
-
-        def productListItem = packLineRequestCommand.productListItemId > 0 ? productList.productListItems.find { it.id == packLineRequestCommand.productListItemId } : new ProductListItem()
-        productListItem.productVariant = productVariant
-        productListItem.productQuantityInStock = productVariant.getProductStock(springSecurityService.principal.storeId)?.quantityInStock ?: 0
-        productListItem.quantity = packLineRequestCommand.quantity
-        productListItem.fillQuantity = BigDecimal.ZERO
-        productListItem.productList = productList
-
-        productListService.saveProductListItem(productListItem)
-
-        productList.addToProductListItems(productListItem)
-
-        productListService.saveProductList(productList)
-
-        for (PackLinesCommand packLineCommand : packLineRequestCommand.packLines) {
-            // Singles go on screen with dummy order code of 0 and don't get their own pack line.
-            if (packLineCommand.orderCode != "0") {
-                def packLine = productListItem?.packLines?.find { it.id = packLineCommand.id } ?: new PackLine()
-                packLine.type = "ORDER"
-                packLine.quantity = packLineCommand.quantity
-                packLine.orderCode = packLineCommand.orderCode
-                packLine.productListId = productList.id
-                packLine.pack = productVariant.packs?.find { it.id == packLineCommand.packId }
-                packLine.productListItem = productListItem
-
-                productListService.savePackLine(packLine)
-
-                productListItem.addToPackLines(packLine)
-            }
-        }
-
-        productListService.saveProductListItem(productListItem)
-
-        redirect(action: "edit", id: productList.id)
-    }
-
     //This is to confirm place order This will
     // 1. Update product stock
     // 2. Update product list status
@@ -335,36 +272,21 @@ class OrderController {
         }
     }
 
-    def ajaxSupplierSearch(SupplierSortParams sortParams){
-        def suppliers = [] //declare supplier list
-        if (params.searchTerm != null){
-            def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
-            def returnedSuppliers = suppliersResponse?.suppliers
-            if (returnedSuppliers != null && returnedSuppliers.size() > 0){
-                suppliers = returnedSuppliers
-            }
-        } else {
-            suppliers = supplierService.getSuppliers()
-        }
-        render (template: "supplierListView", model: [suppliers: suppliers])
-    }
-
-    def ajaxShowOrderConfirmWindow(){
+    def ajaxShowOrderConfirmWindow() {
         render(view: "_orderConfirm")
     }
 
-    def ajaxShowOrderDeleteWindow(){
+    def ajaxShowOrderDeleteWindow() {
         render(view: "_orderDelete")
     }
 
-    def ajaxShowQuantityWarningWindow(){
+    def ajaxShowQuantityWarningWindow() {
         render(view: "_quantityWarning")
     }
 
-    def ajaxShowOrderItemDeleteWindow(){
+    def ajaxShowOrderItemDeleteWindow() {
         render(view: "_orderItemDelete", model: [productItemId : Integer.parseInt(params.productItemId)])
     }
-
 }
 
 class PackLineRequestCommand {

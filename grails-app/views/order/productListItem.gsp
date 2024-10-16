@@ -62,69 +62,6 @@
             input.val(value);
         }
 
-        function save(weighted) {
-            var productListId = $('#productListId').val();
-            var productListItemId = $('#productListItemId').val();
-            var productVariantId = $('#productVariantId').val();
-            var params = {
-                productListId: productListId,
-                productListItemId: productListItemId,
-                productVariantId: productVariantId
-            };
-            let quantity = 0
-            let packLineIndex = 0
-
-            $("#variants").find("div").each(function () {
-                var innerDivId = $(this).attr("id");
-                var packLineSelector = "#packLines\\[" + innerDivId + "\\]\\.";
-                if ($(packLineSelector + "quantity").val() > 0) {
-                    params["packLines[" + packLineIndex + "].orderCode"] = $(packLineSelector + "orderCode").val();
-                    params["packLines[" + packLineIndex + "].id"] = $(packLineSelector + "id").val();
-                    params["packLines[" + packLineIndex + "].packId"] = $(packLineSelector + "packId").val();
-                    params["packLines[" + packLineIndex + "].orderCode"] = $(packLineSelector + "orderCode").val();
-                    params["packLines[" + packLineIndex + "].quantity"] = $(packLineSelector + "quantity").val();
-                    quantity += weighted
-                        ? parseFloat($(packLineSelector + "quantity").val()) * parseFloat($(packLineSelector + "size").val())
-                        : parseInt($(packLineSelector + "quantity").val()) * parseInt($(packLineSelector + "size").val())
-                    packLineIndex++;
-                }
-            });
-
-            if (weighted) {
-                quantity = quantity.toFixed(3)
-            }
-
-            params["quantity"] = quantity
-
-            if (quantity > 0) {
-                $.ajax({
-                    url: "${createLink(controller: 'order', action: 'ajaxSavePackLines')}",
-                    method: "POST",
-                    data: params,
-                    statusCode: {
-                        500: function (response) {
-                            $('#productListItemModal').modal({show: true});
-                            $("#productListItemContent").html(response.responseText);
-                        },
-                        200: function (response) {
-                            window.location.href = '${createLink(controller: 'order', action:'productList', id: productList.id)}';
-                        }
-                    }
-                });
-            } else {
-                $.ajax({
-                    url: "${createLink(controller: 'order', action: 'ajaxShowQuantityWarningWindow')}",
-                    method: "GET",
-                    statusCode: {
-                        200: function (response) {
-                            $('#productListItemModal').modal({show: true});
-                            $("#productListItemContent").html(response);
-                        }
-                    }
-                });
-            }
-        }
-
         function cancelPackLineSaveError(){
             $('#productListItemModal').modal('hide');
         }
