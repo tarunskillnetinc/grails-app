@@ -403,11 +403,17 @@
 
             function barcodeValid(barcode, barcodes, content) {
                 if (barcode == null || barcode === "") {
-                    $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`)
-                    return false
+                    if(!$("div:contains('Blank barcode found')").length)
+                    {
+                        $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`);
+                    }
+                    return false;
                 } else if (barcodes.includes(barcode)){
-                    $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
-                    return false
+                    if(!$("div:contains('Duplicate Barcode found')").length)
+                    {
+                        $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`);
+                    }
+                    return false;
                 }
 
                 return true
