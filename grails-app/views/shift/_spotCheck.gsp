@@ -39,8 +39,6 @@
 <div class="row mt-3 mb-2" style="height: 400px;">
     <div class="col-8 pr-0 mx-auto" style="flex: 0 0 70%; max-width: 70%;">
 
-        <g:set var="reconciliationTotals" value="${isOpenShift ? shift.tenderTotals : shift.reconciliationTotals}" />
-
         <div class="row text-center">
             <p class="mx-auto">
                 <strong>Spot check for till ${shift?.tillId} shift ${shift?.shiftNumber}</strong><br />
@@ -57,28 +55,28 @@
             <div class="spot-check-row">
                 <span>Cash</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${reconciliationTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
             <div class="spot-check-row">
                 <span>Card</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${reconciliationTotals?.find { it.tenderType.name() == 'CARD' }?.value ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CARD' }?.value ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
             <div class="spot-check-row">
                 <span>Cashback</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${reconciliationTotals?.find { it.tenderType.name() == 'CASHBACK' }?.value ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CASHBACK' }?.value ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
             <div class="spot-check-row">
                 <span>Voucher</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${reconciliationTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
@@ -86,7 +84,7 @@
             <div class="spot-check-row spot-check-total">
                 <span style="font-weight: bold;">Total</span> <!-- Keeping the font weight bold -->
                 <span class="spot-check-value">
-                    <g:formatNumber number="${reconciliationTotals?.sum { it?.value ?: BigDecimal.ZERO } ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.tenderTotals?.sum { it?.value ?: BigDecimal.ZERO } ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
         </div>
