@@ -617,8 +617,8 @@ class LoyaltyController {
                         ?.collect { it.segmentId }
             }
 
-            DateTime startDate = originalLoyaltyOffer?.startDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.startDate.getTime()))) : DateTime.now(DateTimeZone.UTC)
-            DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : DateTime.now(DateTimeZone.UTC).plusDays(7)
+            DateTime startDate = originalLoyaltyOffer?.startDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.startDate.getTime()))) : null;
+            DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : null;
 
             //load all promotions for retailer
             //List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)
@@ -637,8 +637,6 @@ class LoyaltyController {
             String promotionsJson = objectMapper.writeValueAsString(promotionEntityList)
             String segmentsJson = objectMapper.writeValueAsString(segments)
 
-            //Load eligible offer status
-            List eligibleOfferStatus = loyaltyService.getEligibleOfferStatus()
 
             render(view: "/loyalty/addLoyaltyOffer", model: [
                     loyaltyOffer : originalLoyaltyOffer,
@@ -647,9 +645,7 @@ class LoyaltyController {
                     promotionsJson: promotionsJson,
                     segmentsJson: segmentsJson,
                     selectedSegmentIds: selectedSegmentIds,
-                    eligibleOfferStatus: eligibleOfferStatus,
                     isUpdate: isUpdate,
-                    defaultStatus : LoyaltyOfferStatus.PENDING,
                     startDate : startDate,
                     endDate : endDate
             ])
