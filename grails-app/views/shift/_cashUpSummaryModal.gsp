@@ -114,13 +114,13 @@
 
             <div class="row mb-2 ml-0 mr-0">
                 <div class="col-5 text-right">Reconciled by:</div>
-                <div class="col-7">${shift.reconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift?.reconciledDate?.toDate()}" />.</div>
+                <div class="col-7">${shift.reconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift?.reconciledDate?.toDate()}" timeZone="Europe/London"/>.</div>
             </div>
 
             <g:if test="${shift.reReconciledDate != null}">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Re-reconciled by:</div>
-                    <div class="col-7">${shift.reReconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift?.reReconciledDate?.toDate()}" />.</div>
+                    <div class="col-7">${shift.reReconciledByUsersName} on <g:formatDate format="dd/MM/yyyy 'at' HH:mm:ss" date="${shift?.reReconciledDate?.toDate()}" timeZone="Europe/London"/>.</div>
                 </div>
             </g:if>
 
