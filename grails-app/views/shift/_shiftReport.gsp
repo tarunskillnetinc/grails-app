@@ -10,7 +10,7 @@
         </div>
 
         <div class="col-6 text-right">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shift?.firstTransactionDate?.toDate()}" />
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shift?.firstTransactionDate?.toDate()}" timeZone="Europe/London"/>
         </div>
     </div>
 
@@ -20,7 +20,7 @@
         </div>
 
         <div class="col-6 text-right">
-            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shift?.lastTransactionDate?.toDate()}" />
+            <g:formatDate format="dd/MM/yyyy HH:mm:ss" date="${shift?.lastTransactionDate?.toDate()}" timeZone="Europe/London"/>
         </div>
     </div>
 
