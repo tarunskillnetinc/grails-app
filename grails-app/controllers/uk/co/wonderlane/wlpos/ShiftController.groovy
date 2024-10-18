@@ -329,9 +329,8 @@ class ShiftController {
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null) { // If shift not exists then process the action
-                boolean isOpenShift = shift.getShiftStatus() == ShiftStatus.OPEN
                 shiftService.addSpotCheckAudit(shift) // Add audit for spot check
-                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime(), isOpenShift: isOpenShift]) //Load spot check template
+                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()]) //Load spot check template
             } else {
                 render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
             }
