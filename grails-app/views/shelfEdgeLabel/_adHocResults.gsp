@@ -15,7 +15,7 @@
         <div class="row col-10 offset-1 px-0 py-1 wl-striped${i%2} hoverable">
             <div id="ad-hoc-description-${i + 1}" class="col-4 my-auto">${productList.reasonDescription ?: g.message(code: 'ShelfEdgeLabelType.' +productList.type)}</div>
             <div id="ad-hoc-date-started-${i + 1}" class="col-2 my-auto">${productList.dateStarted?.toString('dd/MM HH:mm')}</div>
-            <div id="ad-hoc-label-count-${i + 1}" class="col-2 my-auto">${productList.labelCount}</div>
+            <div id="ad-hoc-label-count-${i + 1}" class="col-2 my-auto">${productList.labelCount.intValueExact()}</div>
             <div id="ad-hoc-print-${i + 1}" class="col-3 my-auto"><g:select id="ad-hoc-print-select-${i + 1}" name="labelTemplate" from="${labelTemplates}" noSelection="${[0: 'Select Label']}" optionKey="id" optionValue="name" class="form-control select-border" onclick="event.stopPropagation();" onChange="adHocBatchTemplateSelected(${productList.id}, this);" /></div>
             <div class="col-1 my-auto">
                 <g:if test="${deletableStatuses.contains(productList.status)}">
