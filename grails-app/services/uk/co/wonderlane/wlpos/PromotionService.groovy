@@ -10,7 +10,7 @@ import uk.co.wonderlane.wlpos.enums.PromotionType
 class PromotionService {
 
     def springSecurityService
-
+    def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
     def savePromotion(Promotion promotion) {
         promotion.save()
     }
@@ -68,6 +68,9 @@ class PromotionService {
                 stores {
                     inList("id", springSecurityService.principal.storeId)
                 }
+            }
+            if (!loyaltyEnabled) {
+                eq("loyalty", false)
             }
         }
 
@@ -129,15 +132,19 @@ class PromotionService {
                 eq("active", status == "ACTIVE")
             }
 
-            if (loyaltyOnly) {
-                eq("loyalty", true)
+            if (loyaltyEnabled) {
+                if (loyaltyOnly) {
+                    eq("loyalty", true)
+                }
+            } else {
+                eq("loyalty", false)
             }
 
             if (searchTerm != null && searchTerm != "") {
                 if (descriptionSearch) {
                     like("description", "%$searchTerm%")
                 } else if (searchTerm.isNumber()) {
-                    sqlRestriction "cast( retailerPromotionId AS char( 256 )) like '%${searchTerm}%'";
+                    sqlRestriction "cast( retailerPromotionId AS char( 256 )) like '%${searchTerm}%'"
                 } else {
                     // This block is only hit when the user selects to search by promotion reference but then enters a non-numeric entry in the search box.
                     like("description", "%$searchTerm%")
