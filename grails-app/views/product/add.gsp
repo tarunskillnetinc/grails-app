@@ -402,21 +402,30 @@
             }
 
             function barcodeValid(barcode, barcodes, content) {
+                let errorToAdd = ''
+
                 if (barcode == null || barcode === "") {
-                    if(!$("div:contains('Blank barcode found')").length)
-                    {
-                        $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`);
-                    }
-                    return false;
+                    errorToAdd = 'Blank barcode found';
                 } else if (barcodes.includes(barcode)){
-                    if(!$("div:contains('Duplicate Barcode found')").length)
-                    {
-                        $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`);
-                    }
-                    return false;
+                    errorToAdd = 'Duplicate barcode found';
                 }
 
-                return true
+                if (errorToAdd.length > 0) {
+                    let errorContent = $("#barcode_errors_container");
+                    if (errorContent.length === 0) {
+                        errorContent = $(content).prepend(`<div id="barcode_errors_container" class="alert alert-danger alert-wl" role="alert"/>`);
+                    }
+
+                    let isDuplicate = errorContent.find("div").filter(function() {
+                        return $(this).text().trim() === `• ` + errorToAdd;
+                    }).length > 0;
+
+                    if (!isDuplicate) {
+                        $(errorContent).append(`<div>• ` + errorToAdd + `</div>`);
+                    }
+                }
+
+                return errorToAdd.length <= 0;
             }
 
             function removeWhitespace(string) {
