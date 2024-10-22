@@ -22,6 +22,7 @@ class PromotionController {
     def categoryService
     def tagService
     def rabbitService
+    def loyaltyService
     def gsonProvider
 
     def index() {
@@ -175,6 +176,14 @@ class PromotionController {
                 promotion = new Promotion()
             }
 
+            /* Was set as loyalty and that has not changed */
+            if (promotion.loyalty && promotionCommand.loyalty) {
+                /* Promotion has just been set to inactive */
+                if (promotion.active && !promotionCommand.active) {
+                    loyaltyService.updateLoyaltyOfferStatus(promotion.id, promotion.retailerId)
+                }
+            }
+
             bindData(promotion, promotionCommand)
 
             promotion.updateDatetime = DateTime.now(DateTimeZone.UTC)
@@ -313,7 +322,15 @@ class PromotionController {
 
         syncMessage.setPromotion(tillPromo)
 
-        rabbitService.sendMessage(syncMessage)
+        if(promotion.stores != null){
+            promotion.stores?.each { store ->
+
+                syncMessage.setStoreId(store.id)
+
+                rabbitService.sendMessage(syncMessage);
+            }
+        }
+
     }
 
     private static boolean validateChildren(PromotionCommand promotionCommand) {
