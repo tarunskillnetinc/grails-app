@@ -83,7 +83,7 @@
                                         </div>
                                         <g:each in="${availableStores}" var="store">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="storeId${store.config.storeNumber}" name="storeIdList" value="${store.id}">
+                                                <g:checkBox class="form-check-input" type="checkbox" id="storeId${store.config.storeNumber}" name="storeIdList" value="${store.id}" checked="${command?.storeIdList?.contains(store.id)}"/>
                                                 <label class="form-check-label" for="storeId${store.config.storeNumber}">${store.config.storeName}</label>
                                             </div>
                                         </g:each>
@@ -118,12 +118,16 @@
                 </div>
 
                 <div id="productList" class="align-content-center mb-5">
-                    <g:if test="${!productList?.productListItems || productList?.productListItems?.size() == 0}">
+                    <g:if test="${(!productList?.productListItems || productList?.productListItems?.size() == 0) && (!unsavedVariants || unsavedVariants?.size() == 0) }">
                         <div id="noResultsRow" class="col pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                     </g:if>
 
                     <g:each in="${productList?.productListItems}" var="productListItem" status="i">
                         <g:render template="centralCountProductRow" model="[productVariant: productListItem.productVariant, i: i]" />
+                    </g:each>
+
+                    <g:each in="${unsavedVariants}" var="productVariant" status="i">
+                        <g:render template="centralCountProductRow" model="[productVariant: productVariant, i: i]" />
                     </g:each>
                 </div>
             </g:form>
