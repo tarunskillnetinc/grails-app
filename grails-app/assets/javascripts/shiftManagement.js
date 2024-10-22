@@ -1,15 +1,12 @@
 function getShifts() {
     $("#search-results").hide();
     $("#loading-indicator").show();
-
-    startDate = $("#startDate").val();
-    endDate = $("#endDate").val();
     tillId = $("#tillId").val();
 
     $.ajax({
         url: ShiftUrls.getShiftsUrl(),
         method: "POST",
-        data: { startDate: startDate, endDate: endDate, tillId: tillId },
+        data: { tillId: tillId },
         success: function(resp) {
             $("#results-container").html(resp);
         },
@@ -18,22 +15,22 @@ function getShifts() {
             $("#search-results").show();
 
             const result = document.createElement('div');
-            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0')
-                .html('No shifts found.');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
             $("#search-results").html(result);
         },
     });
 
 }
 
-function showCashModal(shiftId, isReconciled) {
-    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+function showCashModal(shiftId, isRecount, isFinalise) {
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
+        "<span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#shiftModal').modal({ show: true });
 
     $.ajax({
         url: ShiftUrls.getCashDetailsUrl(),
         method: "POST",
-        data: { shiftId: shiftId },
+        data: { shiftId: shiftId, isRecount: isRecount, isFinalise: isFinalise },
         success: function(resp) {
             $("#modal-content").html(resp);
 
@@ -49,6 +46,17 @@ function showCashModal(shiftId, isReconciled) {
                     e.preventDefault();
                 }
             });
+        },
+        error: function (resp){
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
 }
@@ -119,19 +127,28 @@ function changeCashUpType(type) {
                     e.preventDefault();
                 }
             });
+        },
+        error: function (resp) {
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                resp.responseJSON.message : "Cash up type change failed";
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
 }
 
-function submitCash(shiftId) {
+function submitCash(shiftId, isRecount) {
     var cashUpBy = $("#cashUpBy").val();
-
     if (cashUpBy === "VALUE" && !isFormValid()) {
         return;
     }
-
     var formValues = $("#cashUpForm").serialize();
-    formValues = formValues + "&shiftId=" +shiftId
+    formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount
 
     $.ajax({
         url: ShiftUrls.saveCashUrl(),
@@ -139,12 +156,136 @@ function submitCash(shiftId) {
         data: formValues,
         success: function(resp) {
             $("#modal-content").html(resp);
-
             $("#saveShiftButton").prop("onclick", null).off("click");
             $("#saveShiftButton").click(function() {
-                submitShift(shiftId);
+                submitShift(shiftId, isRecount, false);
             });
+        },
+        error: function (resp) {
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
+    });
+}
+
+function submitShift(shiftId, isRecount, isFinalise) {
+    var proceedWithSubmission = true;
+    if (isFinalise) {
+        proceedWithSubmission = confirm("Are you sure you want to finalise the shift and move money into the safe?");
+    }
+    if (proceedWithSubmission) {
+        var formValues = $("#shiftVarianceForm").serialize();
+        var tillIdFilter = $("#tillId").val();
+        var safeLocationId = $("#safeLocationId").val();
+        formValues = formValues + "&shiftId=" + shiftId + "&isRecount=" + isRecount + "&isFinalise=" + isFinalise + "&tillIdFilter=" + tillIdFilter
+            + "&safeLocationId=" + safeLocationId
+        $.ajax({
+            url: ShiftUrls.saveShiftUrl(),
+            method: "POST",
+            data: formValues,
+            success: function(resp) {
+                if (isFinalise){
+                    $("#modal-content").html('')
+                    $('#shiftModal').modal('hide'); // This line hides the modal
+                    $("#results-container").html(resp);
+                } else {
+                    $("#modal-content").html(resp);
+                }
+            },
+            error: function (resp) {
+                var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+                    resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+                $("#modal-content").empty();
+
+                $('#shiftModal').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+            }
+        });
+    }
+}
+
+function openShifts(retailerId, storeId, tillId) {
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    tillIdFilter = $("#tillId").val();
+    $.ajax({
+        url: ShiftUrls.openShiftUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, tillIdFilter: tillIdFilter},
+        success: function(resp) {
+            $("#results-container").html(resp);
+        },
+        error: function() {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            const result = document.createElement('div');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
+            $("#search-results").html(result);
+        },
+    });
+
+}
+
+function closeShifts(retailerId, storeId, tillId, shiftId) {
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    tillIdFilter = $("#tillId").val();
+    $.ajax({
+        url: ShiftUrls.closeShiftUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
+        success: function(resp) {
+            $("#results-container").html(resp);
+        },
+        error: function() {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            const result = document.createElement('div');
+            $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
+            $("#search-results").html(result);
+        },
+    });
+}
+
+function spotCheck(retailerId, storeId, tillId, shiftId) {
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
+        "<span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#shiftModal').modal({ show: true });
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    tillIdFilter = $("#tillId").val();
+    $.ajax({
+        url: ShiftUrls.spotCheckUrl(),
+        method: "POST",
+        data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
+        success: function(resp) {
+            $("#modal-content").html(resp);
+        },
+        error: function(resp) {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        },
     });
 }
 
@@ -228,17 +369,4 @@ function isFormValid() {
     }
 
     return isFormValid;
-}
-
-function submitShift() {
-    var formValues = $("#shiftVarianceForm").serialize();
-
-    $.ajax({
-        url: ShiftUrls.saveShiftUrl(),
-        method: "POST",
-        data: formValues,
-        success: function(resp) {
-            $("#modal-content").html(resp);
-        }
-    });
 }

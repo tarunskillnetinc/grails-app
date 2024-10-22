@@ -204,9 +204,12 @@
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
 
-                            <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
-                            </g:if>
+                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
+                                </g:if>
+                            </sec:ifAnyGranted>
+
 
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>

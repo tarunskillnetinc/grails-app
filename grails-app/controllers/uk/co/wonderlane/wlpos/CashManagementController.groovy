@@ -187,7 +187,7 @@ class CashManagementFormData implements Validateable {
     String manualOrAutoClose
     String automaticCloseDays
     String automaticCloseTime
-    Boolean isRollingFloatEnable
+    Boolean isRollingFloatEnabled
     Double rollingFloatValue
     Integer tillShiftRecountLimit
     Double tillShiftVarianceLimit
@@ -209,7 +209,7 @@ class CashManagementFormData implements Validateable {
         cashManagementConfig.setTillShiftsManualClose(manualOrAutoClose == "manual")
         cashManagementConfig.setTillShiftsAutoCloseDays((automaticCloseDays != null ? automaticCloseDays: "").toCharArray())
         cashManagementConfig.setTillShiftsAutoCloseTime(automaticCloseTime != null ? automaticCloseTime : "")
-        cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnable != null ? isRollingFloatEnable : false)
+        cashManagementConfig.setRollingFloatEnabled(isRollingFloatEnabled != null ? isRollingFloatEnabled : false)
         cashManagementConfig.setRollingFloatValue(rollingFloatValue != null ? rollingFloatValue*100 as int : 0)
         cashManagementConfig.setTillsCashHoldingLimit(tillCashHoldingLimit != null  ? tillCashHoldingLimit * 100 as int : 0)
         cashManagementConfig.setTillShiftVarianceLimit(tillShiftVarianceLimit != null ? tillShiftVarianceLimit * 100 as int: 0)

@@ -23,7 +23,11 @@
                     "${createLink(controller: 'shift', action: 'ajaxGetCashDetails')}",
                     "${createLink(controller: 'shift', action: 'ajaxChangeCashUpType')}",
                     "${createLink(controller: 'shift', action: 'ajaxSaveCash')}",
-                    "${createLink(controller: 'shift', action: 'ajaxSaveShift')}");
+                    "${createLink(controller: 'shift', action: 'ajaxSaveShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxOpenShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxCloseShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSpotCheck')}"
+                );
 
                 SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
@@ -64,6 +68,7 @@
             });
 
             $(document).ready(function () {
+                $("#messages-container").html('');
                 intListener("tillId", 10, 2147483647);
             });
 
@@ -76,6 +81,16 @@
                 );
                 $("#tillId").val("");
                 getShifts();
+            }
+
+            function validateInput(input){
+                // Remove leading minus sign if present
+                input.value = input.value.replace(/^-/, '');
+
+                // Ensure the value is greater than or equal to 0
+                if (parseInt(input.value, 10) < 0 || input.value === '-') {
+                    input.value = 0;
+                }
             }
 
         </script>
@@ -100,8 +115,10 @@
                 <h2 id="page-title" class="mx-auto">Shift Viewer</h2>
             </div>
 
+            <div id="messages-container"></div>
+
             <div class="row mt-4">
-                <div class="col-5">
+                <div class="col-6">
                     <div class="card bg-light border-wl">
                         <div id="filter" class="card-header pointer" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                             <div class="row">
@@ -116,44 +133,32 @@
                         <div class="card-body collapse" id="filterCollapse">
                             <g:form name="filtersForm" id="filtersForm">
                                 <div class="form-group row">
-                                    <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
-                                    <div class="col-4">
-                                        <g:textField name="startDate" id="startDate" class="form-control bottom-border" value="${startDate}" onkeydown="return false" autocomplete="off" />
-                                    </div>
-
-                                    <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
-                                    <div class="col-4">
-                                        <g:textField name="endDate" id="endDate" class="form-control bottom-border" value="${endDate}" onkeydown="return false" autocomplete="off" />
-                                    </div>
+                                    <g:hiddenField name="startDate" id="startDate" value="${startDate}" />
+                                    <g:hiddenField name="endDate" id="endDate" value="${endDate}" />
                                 </div>
 
-                                <div class="form-group row">
-                                    <label for="tillId" class="col-2 col-form-label text-right">Till Number</label>
-                                    <div class="col-2">
-                                        <g:field id="tillId" type="number" min="0" max = "2147483647" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" oninput="validateInput(this); " onkeydown="acceptNumeric(event); "/>
+                                <div class="form-group row align-items-center no-gutters">
+                                    <label for="tillId" class="col-auto pr-2">Till Number</label>
+                                    <div class="col-2 pl-0">
+                                        <g:field id="tillId" type="number" min="0" max="2147483647" name="tillId" step="1" class="form-control bottom-border" autocomplete="off" value="${tillId}" oninput="validateInput(this); " onkeydown="acceptNumeric(event); "/>
                                     </div>
-
-                                    <div class="col-4 offset-4 text-right">
-                                        <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetShiftFilters()">
+                                    <div class="col text-right">
+                                        <button id="filter-reset-button" type="button" class="btn btn-danger" onclick="resetShiftFilters()">
                                             Reset Filters
                                         </button>
-                                        <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getShifts();">Filter</button>
+                                        <button id="filter-submit-button" type="button" class="btn btn-wl" onclick="getShifts();">Filter</button>
                                     </div>
                                 </div>
                             </g:form>
                         </div>
                     </div>
                 </div>
-                <div class="offset-2 col-5">
-                    <div class="row">
-                        <div class="offset-4 col-4">
-                            <button id="count-safe-button" type="button" class="btn btn-wl text-center w-100" onclick="showSafeModal(0)">Count Safe</button>
-                        </div>
-                        <div class="col-4">
-                            <g:link elementId="snapShotLink" controller="snapshot" action="index"  class="w-100">
-                                <button id="snapshot-viewer-button" type="button" class="btn btn-wl text-center w-100">Snapshot Viewer</button>
-                            </g:link>
-                        </div>
+                <div class="col-6">
+                    <div class="d-flex justify-content-end">
+                        <button id="count-safe-button" type="button" class="btn btn-wl text-center mr-2" onclick="showSafeModal(0)" style="width: 200px; min-width: 150px;">Count Safe</button>
+                        <g:link elementId="snapShotLink" controller="snapshot" action="index" class="btn btn-wl text-center" style="width: 200px; min-width: 150px;">
+                            Snapshot Viewer
+                        </g:link>
                     </div>
                 </div>
             </div>

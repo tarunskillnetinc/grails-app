@@ -495,6 +495,25 @@ class EposTagLib {
             out << tag?.description
         }
     }
+
+    def formatStringDate = { attrs, body ->
+        def dateString = attrs.date
+        def inputFormat = attrs.inputFormat ?: "yyyy-MM-dd HH:mm:ss"
+        def outputFormat = attrs.outputFormat ?: "dd/MM/yyyy HH:mm:ss"
+        def timeZone = attrs.timeZone ?: "Europe/London"
+
+        if (dateString) {
+            try {
+                def date = new java.text.SimpleDateFormat(inputFormat).parse(dateString)
+                out << g.formatDate(format: outputFormat, date: date, timeZone: timeZone)
+            } catch (Exception e) {
+                log.error("Error parsing date: ${dateString}", e)
+                out << g.formatDate(format: outputFormat, date: new Date(), timeZone: timeZone)
+            }
+        } else {
+            out << ""
+        }
+    }
     
     private static String getLocationField(String field) {
         def formattedFieldArray = field?.split("(?=\\p{Upper})")

@@ -87,10 +87,10 @@
                 $("#restrictions\\.buyerChallengeAge").attr("readonly", !this.checked);
                 $("#restrictions\\.sellerAgeRestriction").val("");
                 $("#restrictions\\.sellerAgeRestriction").attr("readonly", !this.checked);
-                $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnable});
+                $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
             });
 
-            $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnable});
+            $("#restrictions\\.allowsLoyaltyPointsCollection").attr("disabled", ${!loyaltyEnabled});
         }
     </script>
 </head>

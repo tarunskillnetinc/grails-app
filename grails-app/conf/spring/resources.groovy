@@ -92,6 +92,12 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+        storeService = ref('storeService')
+        userService = ref('userService')
+        cashManagementService = ref('cashManagementService')
+        snapshotService = ref('snapshotService')
+        locationService = ref('locationService')
+        reportingService = ref('reportingService')
     }
 
     snapshotService(SnapshotService,
@@ -209,6 +215,18 @@ beans = {
             grailsApplication.config.getProperty('mysql.wlpos.database'))) {
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+    }
+
+    loyaltyService(LoyaltyService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.loyalty.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.loyalty.port')),
+                    grailsApplication.config.getProperty('mysql.loyalty.username'),
+                    grailsApplication.config.getProperty('mysql.loyalty.password'),
+                    grailsApplication.config.getProperty('mysql.loyalty.database'))) {
+
+        springSecurityService = ref('springSecurityService')
+        messageSource = ref('messageSource')
+        rabbitService = ref('rabbitService')
     }
 
     gsonProvider(GsonProvider)

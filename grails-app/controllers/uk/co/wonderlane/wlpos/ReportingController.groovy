@@ -13,6 +13,8 @@ import uk.co.wonderlane.wlpos.enums.wlim.ProductListStatus
 import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 
+import java.math.RoundingMode
+
 class ReportingController {
 
     def reportingService
@@ -1633,6 +1635,7 @@ class ReportingController {
     private String getSalesByProductCsv(List<Sale> sales) {
         StringBuilder stringBuilder = new StringBuilder()
         String pattern = "dd/MM/yy HH:mm:ss"
+        DateTimeZone userTimeZone = DateTimeZone.forID("Europe/London")
         DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern)
         stringBuilder.append("Description,Quantity Sold,Cost Price,Net Total,VAT Amount,Profit,Margin,User,Timestamp\n")
         sales?.each {
@@ -1642,7 +1645,12 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append("£" + it.costPrice?.setScale(2))
             stringBuilder.append(",")
-            stringBuilder.append("£" + it.retailPrice.subtract(it.vatAmount)?.setScale(2))
+
+            // Net Total Logic
+            def netTotal = it.retailPrice >= 0 ? it.retailPrice.subtract(it.costPrice) :
+                    it.retailPrice.negate().subtract(it.costPrice).negate()
+            stringBuilder.append("£" + netTotal?.setScale(2))
+
             stringBuilder.append(",")
             stringBuilder.append("£" + it.vatAmount?.setScale(2))
             stringBuilder.append(",")
@@ -1652,7 +1660,12 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.usersName)
             stringBuilder.append(",")
-            stringBuilder.append(it.dateCreated ? formatter.print(it.dateCreated) : "N/A")
+
+            // Timestamp Logic
+            def timestamp = it.dateCreated ? it.dateCreated.withZone(userTimeZone)?.
+                    toString("dd/MM/yyyy HH:mm:ss") : "N/A"
+            stringBuilder.append(timestamp)
+
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
@@ -2030,15 +2043,15 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.quantity)
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.profit != null ? it.profit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.profit != null ? it.profit.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append(it.margin?.setScale(2) + "%")
+            stringBuilder.append(it.margin?.setScale(2, RoundingMode.HALF_UP) + "%")
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
@@ -2052,15 +2065,15 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.type?.getFriendlyName()?.replace("'", "\\'"))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.profit != null ? it.profit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.profit != null ? it.profit.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append(it.margin?.setScale(2) + "%")
+            stringBuilder.append(it.margin?.setScale(2, RoundingMode.HALF_UP) + "%")
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
             stringBuilder.append(it.dateCreated?.toString("dd/MM/yyyy HH:mm"))
             stringBuilder.append("\n")
@@ -2077,23 +2090,23 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.description?.replace("'", "\\'"))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.costPrice != null ? it.costPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.costPrice != null ? it.costPrice.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.fullPrice != null ? it.fullPrice.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.fullPriceProfit != null ? it.fullPriceProfit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.fullPriceProfit != null ? it.fullPriceProfit.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
             stringBuilder.append(it.fullPriceMargin?.setScale(2) + "%")
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.discount != null ? it.discount.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.discountedPrice != null ? it.discountedPrice.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.discountedPrice != null ? it.discountedPrice.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.discountedProfit != null ? it.discountedProfit.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.discountedProfit != null ? it.discountedProfit.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append(",")
-            stringBuilder.append(it.discountedMargin?.setScale(2) + "%")
+            stringBuilder.append(it.discountedMargin?.setScale(2, RoundingMode.HALF_UP) + "%")
             stringBuilder.append(",")
-            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2) : BigDecimal.ZERO))
+            stringBuilder.append("£" + (it.vat != null ? it.vat.setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO))
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
