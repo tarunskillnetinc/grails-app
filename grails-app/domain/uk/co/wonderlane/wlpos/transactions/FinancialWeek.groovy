@@ -1,4 +1,4 @@
-package uk.co.wonderlane.wlpos.reporting
+package uk.co.wonderlane.wlpos.transactions
 
 import grails.gorm.annotation.Entity
 

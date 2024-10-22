@@ -23,7 +23,11 @@
                     "${createLink(controller: 'shift', action: 'ajaxGetCashDetails')}",
                     "${createLink(controller: 'shift', action: 'ajaxChangeCashUpType')}",
                     "${createLink(controller: 'shift', action: 'ajaxSaveCash')}",
-                    "${createLink(controller: 'shift', action: 'ajaxSaveShift')}");
+                    "${createLink(controller: 'shift', action: 'ajaxSaveShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxOpenShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxCloseShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSpotCheck')}"
+                );
 
                 SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
                     "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
@@ -64,6 +68,7 @@
             });
 
             $(document).ready(function () {
+                $("#messages-container").html('');
                 intListener("tillId", 10, 2147483647);
             });
 
@@ -76,6 +81,16 @@
                 );
                 $("#tillId").val("");
                 getShifts();
+            }
+
+            function validateInput(input){
+                // Remove leading minus sign if present
+                input.value = input.value.replace(/^-/, '');
+
+                // Ensure the value is greater than or equal to 0
+                if (parseInt(input.value, 10) < 0 || input.value === '-') {
+                    input.value = 0;
+                }
             }
 
         </script>
@@ -99,6 +114,8 @@
             <div class="header-wl mt-3">
                 <h2 id="page-title" class="mx-auto">Shift Viewer</h2>
             </div>
+
+            <div id="messages-container"></div>
 
             <div class="row mt-4">
                 <div class="col-6">

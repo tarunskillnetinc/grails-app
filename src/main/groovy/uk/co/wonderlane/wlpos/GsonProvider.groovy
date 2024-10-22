@@ -15,6 +15,7 @@ class GsonProvider {
 
     GsonProvider() {
         gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd")
                 .registerTypeAdapter(DateTime.class, new JsonSerializer<DateTime>() {
                     @Override
                     JsonElement serialize(DateTime json, Type typeOfSrc, JsonSerializationContext context) {
