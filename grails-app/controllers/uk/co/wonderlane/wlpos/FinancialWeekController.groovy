@@ -3,7 +3,7 @@ package uk.co.wonderlane.wlpos
 
 import groovy.json.JsonOutput
 import org.springframework.security.access.annotation.Secured
-import uk.co.wonderlane.wlpos.reporting.FinancialWeek
+import uk.co.wonderlane.wlpos.transactions.FinancialWeek
 
 @Secured(['ROLE_ENGINEER'])
 class FinancialWeekController {
