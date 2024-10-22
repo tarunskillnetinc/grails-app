@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.enums.PromotionType
 class PromotionService {
 
     def springSecurityService
+
     def savePromotion(Promotion promotion) {
         promotion.save()
     }
@@ -145,10 +146,11 @@ class PromotionService {
                 if (descriptionSearch) {
                     like("description", "%$searchTerm%")
                 } else if (searchTerm.isNumber()) {
-                    sqlRestriction "cast( retailerPromotionId AS char( 256 )) like '%${searchTerm}%'"
+                    sqlRestriction "CAST(retailerPromotionId AS char(256)) LIKE '%${searchTerm}%'";
                 } else {
                     // This block is only hit when the user selects to search by promotion reference but then enters a non-numeric entry in the search box.
-                    like("description", "%$searchTerm%")
+                    // WAIT-867 - force this scenario to return no results.
+                    eq("id", -99)
                 }
             }
 

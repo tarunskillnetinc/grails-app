@@ -188,6 +188,9 @@ class ProductService extends MySqlDal {
                         deletedBarcode.recordStatus = 'D'
                         deletedBarcode.save()
                     } else if (barcode instanceof Barcode) {
+                        barcode.retailerId = product.retailerId
+                        barcode.effectiveDate = variant.effectiveDate
+                        barcode.pack = pack
                         barcode.save()
                     }
                 }
@@ -431,8 +434,8 @@ class ProductService extends MySqlDal {
             barcodePacks = validBarcodePacks?.unique()
         }
 
-        def queryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now, max: maxResults, offset: startIndex]
-        def countQueryParams = [retailerId: springSecurityService.principal.retailerId, effectiveDate: now]
+        def queryParams = [retailerId: springSecurityService.principal.retailerId, max: maxResults, offset: startIndex]
+        def countQueryParams = [retailerId: springSecurityService.principal.retailerId]
 
         if (springSecurityService.principal.storeId) {
             queryParams.range = springSecurityService.principal.range
@@ -449,10 +452,10 @@ class ProductService extends MySqlDal {
 
         if (springSecurityService.principal.storeId) {
             // Store level.
-            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) AND pv.effectiveDate <= :effectiveDate """
+            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND (pv.storeId IS NULL OR pv.storeId = :storeId) """
         } else {
             // Head office level.
-            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND pv.storeId IS NULL AND pv.effectiveDate <= :effectiveDate """
+            searchQuery += """JOIN ProductVariant pv ON p.id = pv.product AND pv.storeId IS NULL """
         }
 
         searchQuery += """LEFT JOIN Pack pk ON pk.productVariant = pv.id
@@ -528,6 +531,14 @@ class ProductService extends MySqlDal {
 
         def results = [:]
         results.products = Product.executeQuery(querySelect + searchQuery, queryParams)
+        results.products.each { product ->
+            if (product.variants?.size() > 1) {
+                product.variants.removeAll { variant ->
+                    variant.effectiveDate != null && variant.effectiveDate.isAfter(now)
+                }
+            }
+        }
+
         results.totalCount = Product.executeQuery(countQuerySelect + searchQuery, countQueryParams)?.get(0) ?: 0
 
         return results
@@ -707,6 +718,9 @@ class ProductService extends MySqlDal {
     }
 
     def sendProductUpdate(List<Product> products, List<Store> stores) {
+        sendProductUpdate(products, stores, true)
+    }
+    def sendProductUpdate(List<Product> products, List<Store> stores, boolean insert) {
         if (!rabbitService.isOpen()) {
             throw new Exception("Rabbit MQ not available")
         }
@@ -726,10 +740,10 @@ class ProductService extends MySqlDal {
 
             if (!productEntities.isEmpty()) {
                 SyncMessage syncMessage = new SyncMessage(SyncMessageType.PRODUCT, springSecurityService.principal.retailerId, store.config.storeNumber, store.id, 0)
-                syncMessage.setInsert(true)
+                syncMessage.setInsert(insert)
                 syncMessage.setProducts(productEntities)
 
-                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber}")
+                log.println("Syncing ${productEntities.size()} product updates to store ${store.config.storeNumber} (insert: $insert)")
 
                 rabbitService.sendMessage(syncMessage)
             }
