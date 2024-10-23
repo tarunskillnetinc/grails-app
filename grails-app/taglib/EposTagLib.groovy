@@ -156,7 +156,7 @@ class EposTagLib {
                 break
             case ReportType.ORDER:
                 out << """<li id="breadcrumb-2" class="breadcrumb-item">${g.link(action:"orders", params:[productListId: attrs.productListId, startDate: attrs.startDate?.toString('dd/MM/yyyy'), endDate: attrs.endDate?.toString('dd/MM/yyyy')]) { "All Orders" }}"""
-                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Order</li>"""
+                out << """<li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${attrs.supplierReference}</li>"""
 
                 break
             case ReportType.DELIVERIES:

@@ -55,6 +55,7 @@ class PromotionService {
         tagIds = allTags?.collect { Tag it -> it.id }
 
         def promotionCriteria = Promotion.createCriteria()
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         def promotions = promotionCriteria.list([sort: "description", order: "ASC"]) {
             eq("retailerId", springSecurityService.principal.retailerId)
@@ -68,6 +69,9 @@ class PromotionService {
                 stores {
                     inList("id", springSecurityService.principal.storeId)
                 }
+            }
+            if (!loyaltyEnabled) {
+                eq("loyalty", false)
             }
         }
 
@@ -96,6 +100,7 @@ class PromotionService {
 
         def promotions
         def criteria = Promotion.createCriteria()
+        def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         promotions = criteria.list([max: max, offset: offset]) {
             eq("retailerId", springSecurityService.principal.retailerId)
@@ -129,8 +134,12 @@ class PromotionService {
                 eq("active", status == "ACTIVE")
             }
 
-            if (loyaltyOnly) {
-                eq("loyalty", true)
+            if (loyaltyEnabled) {
+                if (loyaltyOnly) {
+                    eq("loyalty", true)
+                }
+            } else {
+                eq("loyalty", false)
             }
 
             if (searchTerm != null && searchTerm != "") {

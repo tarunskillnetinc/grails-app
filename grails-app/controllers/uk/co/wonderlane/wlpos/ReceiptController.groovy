@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.enums.ReceiptLineType
 class ReceiptController {
 
     def receiptService
+    int lastShownReceiptId
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
@@ -80,6 +81,7 @@ class ReceiptController {
 
     def ajaxGetReceipt(int receiptId) {
         def receipt = receiptService.getReceipt(receiptId)
+        lastShownReceiptId = receiptId;
 
         render (template: "receipt", model: [receipt: receipt,
                                              containsModifiers: receipt.receiptLines.find { it.type == ReceiptLineType.MODIFIER } ?: false,
@@ -96,6 +98,13 @@ class ReceiptController {
                                                 firstHorizontalLineId: receipt.receiptLines.sort { it.id }.find { it.type == ReceiptLineType.H_LINE }?.id ?: -1,
                                                 maxTotalLength       : receipt.receiptLines?.findAll { it.type == ReceiptLineType.BASKET_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0,
                                                 maxVatLength         : receipt.receiptLines?.findAll { it.type == ReceiptLineType.VAT_ITEM }?.max { it.total?.toString()?.length() }?.total?.toString()?.length() ?: 0])
+        }
+    }
+
+    def saveReceiptPrinted(){
+        if(lastShownReceiptId > 0){
+            receiptService.saveReceiptPrinted(lastShownReceiptId);
+            lastShownReceiptId = null;
         }
     }
 }

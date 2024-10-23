@@ -295,7 +295,15 @@ class ProductListService extends MySqlDal {
     }
 
     def saveProductList(ProductList productList) {
-        productList.save()
+        productList.save(failOnError: true)
+    }
+
+    def saveProductListItem(ProductListItem productListItem) {
+        productListItem.save(failOnError: true)
+    }
+
+    def savePackLine(PackLine packLine) {
+        packLine.save(failOnError: true)
     }
 
     def saveProductLists(List<ProductList> productListArray) {

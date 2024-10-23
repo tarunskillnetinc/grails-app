@@ -9,7 +9,7 @@
     <g:if test="${variantSize > 0}">
         <g:each in="${variants}" var="variant" status="i">
             <g:if test="${(variant.storeId == null || variant.storeId == storeId) && product?.isCurrentProductVariant(effectiveDate, variant.id, variant.sku)}">
-                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'productListItem', params: [supplierId: supplierId,variantId: variant?.id, productListId: productListId])}';">
+                <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable" title="Select SKU." style="cursor: pointer;" onclick="document.location.href='${createLink(action: "productListItem", params: [productVariantId: variant?.id, productListId: productList?.id])}';">
                     <div id="variant-sku-${i + 1}-value" class="row" style="text-align: center; margin: auto">SKU : ${variant?.sku}</div>
                 </div>
             </g:if>
@@ -24,8 +24,3 @@
 <div class="modal-footer">
     <button type="button" id="cancelShowSupplierButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 </div>
-
-
-
-
-
