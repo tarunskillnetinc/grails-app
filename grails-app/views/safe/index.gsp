@@ -8,15 +8,32 @@
     <asset:stylesheet src="bootstrap-datepicker3.min.css"/>
     <asset:javascript src="bootstrap-datepicker.min.js"/>
     <asset:javascript src="money-mask.js"/>
-    <asset:javascript src="snapshotUrls.js"/>
-    <asset:javascript src="safeCount.js"/>
     <asset:javascript src="date-pickers.js"/>
     <asset:javascript src="co-utils.js"/>
     <asset:javascript src="validators/input-validator.js"/>
 
-
     <script type="text/javascript">
+        $(document).ready(function () {
+            //Loading safes and primary dropdown results
+            searchSafe(null, true);
+        });
 
+        function submitSaveSafe() {
+            if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
+                var activeCheckbox = document.getElementById('active');
+                var hiddenActiveInput = document.getElementById('hiddenActive');
+
+                // Copy the value of the checkbox to the hidden input
+                hiddenActiveInput.name = 'active'; // Change the name to 'active' right before submission
+                hiddenActiveInput.value = activeCheckbox.checked ? 'true' : 'false';
+
+                // Remove the checkbox name temporarily if it is not disabled to avoid duplicate submissions
+                if (!activeCheckbox.disabled) {
+                    activeCheckbox.removeAttribute('name');
+                }
+                $('#safeDetails').submit();
+            }
+        }
 
         function updatePrimarySafe(selectedSafeId) {
             $.ajax({
@@ -24,75 +41,85 @@
                 method: "POST",
                 data: {selectedSafeId: selectedSafeId},
                 success: function (resp) {
-                    var successMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Successfully update primary safe.";
-                    displayMessage('success', successMessage);
-                    document.getElementById('alerts-error-container-message').style.display = 'none';
+                    $('#results-container').html(resp);
                 },
                 error: function (resp) {
-                    var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Failed to update primary safe.";
-                    displayMessage('error', errorMessage);
-                    document.getElementById('alerts-success-container-message').style.display = 'none';
+                    $('#results-container').html(resp);
                 }
             });
         }
 
-        function searchSafe(){
+        function searchSafe(sortParams, isPrimaryDropDownOnly) {
             $("#search-results").hide();
             $("#loading-indicator").show();
 
-            let url = "${createLink(controller: 'safe', action: 'searchSafe')}";
             let searchTerm = $('#safeSearchTerm').val();
-            let activeSafes = $('#activeOffers').prop("checked");
-            let inactiveSafes = $('#inactiveOffers').prop("checked");
-
+            let activeSafes = $('#activeSafes').prop("checked");
+            let inactiveSafes = $('#inactiveSafes').prop("checked");
+            let isDropdownOnly = isPrimaryDropDownOnly.toString().toLowerCase() === "true";
             $.ajax({
-                url: url,
+                url: "${createLink(controller: 'safe', action: 'searchSafe')}",
+                method: "POST",
                 data: {
                     searchTerm: searchTerm,
                     activeSafes: activeSafes,
-                    inactiveSafes: inactiveOffers,
+                    inactiveSafes: inactiveSafes,
                     max: sortParams ? sortParams["max"] : null,
                     offset: sortParams ? sortParams.offset : null,
                     sortColumn: sortParams ? sortParams.sortColumn : null,
-                    sortOrder: sortParams ? sortParams.sortOrder : null
+                    sortOrder: sortParams ? sortParams.sortOrder : null,
+                    isDropdownOnly: isDropdownOnly
                 },
-                success: function(resp) {
+                success: function (resp) {
                     $('#results-container').html(resp);
-                    $('#memberOfferSearchTerm').data('prev',$('#memberOfferSearchTerm').val());
-                    $('#memberOfferSearchBy').data('prev', $('#memberOfferSearchBy').val());
+                    $('#safeSearchTerm').data('prev', $('#memberOfferSearchTerm').val());
+                },
+                error: function (resp) {
+                    var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Safe search failed.";
+                    displayMessage('error', errorMessage);
+                    document.getElementById('alerts-success-container-message').style.display = 'none';
                 }
             })
         }
 
         function displayMessage(type, message) {
-            const containerId = type === 'success' ? 'alerts-success-container-message' : 'alerts-error-container-message';
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.textContent = message;
-                container.style.display = 'block';
+            const containers = {
+                success: document.getElementById('alerts-success-container-message'),
+                error: document.getElementById('alerts-error-container-message')
+            };
+
+            for (const [key, container] of Object.entries(containers)) {
+                if (container) {
+                    if (key === type) {
+                        container.textContent = message;
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                }
             }
         }
 
     </script>
 
     <style>
-        .primary-safe-label {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
+    .primary-safe-label {
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
 
-        .primary-safe-select {
-            border: 2px solid #ced4da;
-            font-weight: 500;
-        }
+    .primary-safe-select {
+        border: 2px solid #ced4da;
+        font-weight: 500;
+    }
 
-        .form-group {
-            margin-bottom: 0; /* Remove margin between form groups */
-        }
+    .form-group {
+        margin-bottom: 0; /* Remove margin between form groups */
+    }
 
-        .form-check-input {
-            margin-left: 0; /* Adjust checkbox margin */
-        }
+    .form-check-input {
+        margin-left: 0; /* Adjust checkbox margin */
+    }
     </style>
 
 </head>
@@ -116,13 +143,11 @@
         <h2 id="page-title" class="mx-auto">Safe Management</h2>
     </div>
 
-    <div id="alerts-success-container-message" class="alert alert-success" role="alert"
-         style="${flash.message ? '' : 'display: none;'}">
+    <div id="alerts-success-container-message" class="alert alert-success" role="alert" style="${flash.message ? '' : 'display: none;'}">
         ${flash.message ?: ''}
     </div>
 
-    <div id="alerts-error-container-message" class="alert alert-danger" role="alert"
-         style="${flash.error ? '' : 'display: none;'}">
+    <div id="alerts-error-container-message" class="alert alert-danger" role="alert" style="${flash.error ? '' : 'display: none;'}">
         ${flash.error ?: ''}
     </div>
 
@@ -134,6 +159,7 @@
                      aria-expanded="false" aria-controls="filterCollapse">
                     <div class="row">
                         <div class="col-10">Filters</div>
+
                         <div class="col-2 text-right">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right"
                                  fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -147,6 +173,7 @@
                     <!-- Search By Description -->
                     <div class="form-group row align-items-center mb-0">
                         <label class="col-4 col-form-label text-right mb-0">Search By Description</label>
+
                         <div class="col-6">
                             <g:textField id="safeSearchTerm" name="safeSearchTerm" maxlength="100"
                                          class="form-control" aria-describedby="select-addon2"/>
@@ -156,6 +183,7 @@
                     <!-- Active Offers -->
                     <div class="form-group row align-items-center mb-0">
                         <label class="col-4 col-form-label text-right mb-0">Active Safes</label>
+
                         <div class="col-6 d-flex align-items-center">
                             <g:checkBox id="activeSafes" name="activeSafes" class="form-check-input wl-checkbox"/>
                         </div>
@@ -164,6 +192,7 @@
                     <!-- Inactive Offers -->
                     <div class="form-group row align-items-center mb-0">
                         <label class="col-4 col-form-label text-right mb-0">Inactive Safes</label>
+
                         <div class="col-6 d-flex align-items-center">
                             <g:checkBox id="inactiveSafes" name="inactiveSafes" class="form-check-input wl-checkbox"/>
                         </div>
@@ -173,7 +202,7 @@
                     <div class="form-group row mb-0">
                         <div class="col-12 text-right">
                             <button id="reset-filters-btn" type="button" class="btn btn-danger mr-2" onclick="resetForm()">Reset Filters</button>
-                            <button id="filter-submit-button" type="button" class="btn btn-wl" onclick="searchSafe()">Search</button>
+                            <button id="filter-submit-button" type="button" class="btn btn-wl" onclick="searchSafe(null, false)">Search</button>
                         </div>
                     </div>
                 </div>
@@ -185,24 +214,6 @@
                 <g:link elementId="count-safe-button" type="button" class="btn btn-wl text-center mr-2"
                         action="segmentDetails" params="[id: null, edit: false]"
                         style="width: 200px; min-width: 150px;">Add New Safe</g:link>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Move the Primary Safe dropdown to the middle -->
-    <div class="row justify-content-center mt-5">
-        <div class="col-6">
-            <div id="primarySafeForm" class="text-center">
-                <label for="primarySafe" class="mr-3 primary-safe-label">Primary Safe</label>
-                <g:select name="defaultSupplier"
-                          from="${safeDescriptions}"
-                          optionKey="key"
-                          optionValue="value"
-                          value="${primaryDescription ? safeDescriptions?.find { it.value == primaryDescription }?.key : ''}"
-                          class="form-control d-inline-block primary-safe-select"
-                          style="width: auto; min-width: 200px;"
-                          onchange="updatePrimarySafe(this.value)"/>
             </div>
         </div>
     </div>

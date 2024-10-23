@@ -10,11 +10,9 @@
             if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
                 var activeCheckbox = document.getElementById('active');
                 var hiddenActiveInput = document.getElementById('hiddenActive');
-
                 // Copy the value of the checkbox to the hidden input
                 hiddenActiveInput.name = 'active'; // Change the name to 'active' right before submission
                 hiddenActiveInput.value = activeCheckbox.checked ? 'true' : 'false';
-
                 // Remove the checkbox name temporarily if it is not disabled to avoid duplicate submissions
                 if (!activeCheckbox.disabled) {
                     activeCheckbox.removeAttribute('name');
