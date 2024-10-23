@@ -13,7 +13,7 @@ class ReceiptTagLib {
 
     def brandAssetsService
 
-    def BASKET_ITEM_LENGTH = 35
+    def BASKET_ITEM_LENGTH = 40
     def RECEIPT_BARCODE_WIDTH = 450
     def RECEIPT_BARCODE_HEIGHT = 75
 
