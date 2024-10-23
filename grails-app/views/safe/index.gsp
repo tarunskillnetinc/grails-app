@@ -15,7 +15,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             //Loading safes and primary dropdown results
-            searchSafe(null, true);
+            searchSafe(null, false);
         });
 
         function submitSaveSafe() {
@@ -36,10 +36,18 @@
         }
 
         function updatePrimarySafe(selectedSafeId) {
+            var searchTerm = $('#safeSearchTerm').val();
+            var activeSafes = $('#activeSafes').prop("checked");
+            var inactiveSafes = $('#inactiveSafes').prop("checked");
             $.ajax({
                 url: "${createLink(controller: 'safe', action: 'updatePrimarySafe')}",
                 method: "POST",
-                data: {selectedSafeId: selectedSafeId},
+                data: {
+                    searchTerm: searchTerm,
+                    activeSafes: activeSafes,
+                    inactiveSafes: inactiveSafes,
+                    selectedSafeId: selectedSafeId
+                },
                 success: function (resp) {
                     $('#results-container').html(resp);
                 },
@@ -53,21 +61,13 @@
             $("#search-results").hide();
             $("#loading-indicator").show();
 
-            let searchTerm = $('#safeSearchTerm').val();
-            let activeSafes = $('#activeSafes').prop("checked");
-            let inactiveSafes = $('#inactiveSafes').prop("checked");
-            let isDropdownOnly = isPrimaryDropDownOnly.toString().toLowerCase() === "true";
+            var inactiveSafes = $('#inactiveSafes').prop("checked");
+            var isDropdownOnly = isPrimaryDropDownOnly.toString().toLowerCase() === "true";
             $.ajax({
                 url: "${createLink(controller: 'safe', action: 'searchSafe')}",
                 method: "POST",
                 data: {
-                    searchTerm: searchTerm,
-                    activeSafes: activeSafes,
                     inactiveSafes: inactiveSafes,
-                    max: sortParams ? sortParams["max"] : null,
-                    offset: sortParams ? sortParams.offset : null,
-                    sortColumn: sortParams ? sortParams.sortColumn : null,
-                    sortOrder: sortParams ? sortParams.sortOrder : null,
                     isDropdownOnly: isDropdownOnly
                 },
                 success: function (resp) {
@@ -102,25 +102,34 @@
 
     </script>
 
-    <style>
-    .primary-safe-label {
-        font-weight: 700;
-        font-size: 1.2rem;
-    }
+%{--    <style>--}%
+%{--        .primary-safe-label {--}%
+%{--            font-weight: 700;--}%
+%{--            font-size: 1.2rem;--}%
+%{--        }--}%
 
-    .primary-safe-select {
-        border: 2px solid #ced4da;
-        font-weight: 500;
-    }
+%{--        .primary-safe-select {--}%
+%{--            border: 2px solid #ced4da;--}%
+%{--            font-weight: 500;--}%
+%{--        }--}%
 
-    .form-group {
-        margin-bottom: 0; /* Remove margin between form groups */
-    }
+%{--        .form-group {--}%
+%{--            margin-bottom: 0; /* Remove margin between form groups */--}%
+%{--        }--}%
 
-    .form-check-input {
-        margin-left: 0; /* Adjust checkbox margin */
-    }
-    </style>
+%{--        .form-check-input {--}%
+%{--            margin-left: 0; /* Adjust checkbox margin */--}%
+%{--        }--}%
+
+%{--        .form-check {--}%
+%{--            display: flex;--}%
+%{--            align-items: center;--}%
+%{--        }--}%
+
+%{--        .form-check-input.wl-checkbox {--}%
+%{--            margin-right: 10px;--}%
+%{--        }--}%
+%{--    </style>--}%
 
 </head>
 
@@ -170,42 +179,22 @@
                 </div>
 
                 <div class="card-body collapse" id="filterCollapse">
-                    <!-- Search By Description -->
-                    <div class="form-group row align-items-center mb-0">
-                        <label class="col-4 col-form-label text-right mb-0">Search By Description</label>
-
-                        <div class="col-6">
-                            <g:textField id="safeSearchTerm" name="safeSearchTerm" maxlength="100"
-                                         class="form-control" aria-describedby="select-addon2"/>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- Inactive Offers -->
+                        <div class="d-flex align-items-center">
+                            <label for="inactiveSafes" class="mb-0 mr-2">Show Inactive Safes</label>
+                            <input type="checkbox" id="inactiveSafes" name="inactiveSafes" style="transform: scale(1.3); margin-left: 5px;">
                         </div>
-                    </div>
 
-                    <!-- Active Offers -->
-                    <div class="form-group row align-items-center mb-0">
-                        <label class="col-4 col-form-label text-right mb-0">Active Safes</label>
-
-                        <div class="col-6 d-flex align-items-center">
-                            <g:checkBox id="activeSafes" name="activeSafes" class="form-check-input wl-checkbox"/>
-                        </div>
-                    </div>
-
-                    <!-- Inactive Offers -->
-                    <div class="form-group row align-items-center mb-0">
-                        <label class="col-4 col-form-label text-right mb-0">Inactive Safes</label>
-
-                        <div class="col-6 d-flex align-items-center">
-                            <g:checkBox id="inactiveSafes" name="inactiveSafes" class="form-check-input wl-checkbox"/>
-                        </div>
-                    </div>
-
-                    <!-- Buttons for Reset and Search -->
-                    <div class="form-group row mb-0">
-                        <div class="col-12 text-right">
+                        <!-- Buttons for Reset and Search -->
+                        <div class="d-flex">
                             <button id="reset-filters-btn" type="button" class="btn btn-danger mr-2" onclick="resetForm()">Reset Filters</button>
                             <button id="filter-submit-button" type="button" class="btn btn-wl" onclick="searchSafe(null, false)">Search</button>
                         </div>
                     </div>
                 </div>
+
+
             </div>
         </div>
 

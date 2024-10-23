@@ -94,18 +94,17 @@ class SafeService {
         return errorMessages
     }
 
-    List<Safe> findSearchSafes(String searchTerm, boolean activeSafes, boolean  inactiveSafes, int max, int offset, String sortColumn, String sortOrder){
+    List<Safe> findSearchSafes(String searchTerm, boolean  inactiveSafes, Integer max, Integer offset, String sortColumn, String sortOrder){
         return Safe.createCriteria().list(max: max, offset: offset) {
             like ("description", "%$searchTerm%")
 
-            if (activeSafes || inactiveSafes) {
+            if (inactiveSafes) {
                 or {
-                    if (activeSafes) {
-                        eq("active", true)
-                    }
-                    if (inactiveSafes) {
-                        eq("active", false)
-                    }
+                    eq("active", false)
+                }
+            } else{
+                or {
+                    eq("active", true)
                 }
             }
             order(sortColumn ?: "offerDescription", sortOrder ?: "asc")

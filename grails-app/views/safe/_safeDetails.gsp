@@ -5,6 +5,12 @@
     <meta name="layout" content="main"/>
     <title>${isUpdate ? "Edit" : "Add"} Safe</title>
 
+    <asset:stylesheet href="radio.css" />
+    <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+    <asset:javascript src="category-select.js" />
+    <asset:javascript src="money-mask.js" />
+    <asset:javascript src="bootstrap-datepicker.min.js" />
+
     <script>
         function submitSaveSafe() {
             if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
@@ -66,7 +72,7 @@
 
     <div class="row header-wl mt-3 mb-5">
         <div class="col-6 offset-3">
-            <h2 id="page-title" class="mx-auto my-auto">Safe Details</h2>
+            <h2 id="page-title" class="mx-auto my-auto">${isUpdate ? 'Edit Safe' : 'Add Safe'}</h2>
         </div>
     </div>
 </section>
@@ -93,12 +99,17 @@
 
                     <div class="mb-5">
                         <div class="d-flex align-items-center">
-                            <label for="type" class="col-form-label mb-0 mr-3"
-                                   style="width: 120px; text-align: right;">Segment Type</label>
+                            <label for="type" class="col-form-label mb-0 mr-3" style="width: 120px; text-align: right;">Safe Type</label>
 
-                            <div class="flex-grow-1">
-                                <g:select id="type" name="type" from="${safeTypes}" value="${safe?.type}"
-                                          class="form-control select-border"/>
+                            <div class="col-2 form-check form-check-inline">
+                                <g:radio class="form-check-input ml-2 wl-radio" type="radio" name="type" id="type" value="MANUAL"
+                                         checked="${safe?.type == uk.co.wonderlane.wlpos.enums.SafeType.MANUAL || safe?.type == null}" />
+                                <label class="form-check-label" for="manual">Manual</label>
+                            </div>
+                            <div class="col-2 form-check form-check-inline">
+                                <g:radio class="form-check-input wl-radio" type="radio" name="type" id="type" value="SMART"
+                                         checked="${safe?.type == uk.co.wonderlane.wlpos.enums.SafeType.SMART}" />
+                                <label class="form-check-label" for="smart">Smart</label>
                             </div>
                         </div>
                     </div>

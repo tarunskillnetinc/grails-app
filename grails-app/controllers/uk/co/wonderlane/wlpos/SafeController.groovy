@@ -40,7 +40,8 @@ class SafeController {
             safe.validate()
             if (!safe.hasErrors()) {
                 safeService.saveSafe(safe)
-                redirect(action: "searchSafe", params: [successMessage: "Safe ${isUpdate ? 'updated' : 'created'} successfully"])
+                flash.message = "Safe ${isUpdate ? 'updated' : 'created'} successfully"
+                redirect(action: "index")
             } else {
                 List<String> errors = safeService.extractErrorMessages(safe.errors)
                 String finalErrors = errors.join('\n')
@@ -57,59 +58,45 @@ class SafeController {
     }
 
     def updatePrimarySafe(Integer selectedSafeId) {
+        String inactiveSafes = params?.inactiveSafes
         try {
-            //Check selected safe id is valid id
-            if (selectedSafeId == null || (selectedSafeId != null && selectedSafeId < 0)) {
-                redirect(action: "index", params: [errorMessage: "Invalid description selected to be primary. Try again."])
-                return
-            }
-            Safe existingSafe = safeService.getSafeById(selectedSafeId)
-            if (existingSafe && !existingSafe.active) {  //There is one validation --> check if it is active
-                redirect(action: "searchSafe", params: [errorMessage: "Invalid safe to be primary. Safe need to be active. Try again."])
+            if (selectedSafeId != null && selectedSafeId > 0) { //Check selected safe id is valid id
+                Safe existingSafe = safeService.getSafeById(selectedSafeId)
+                if (existingSafe && !existingSafe.active) {  //There is one validation --> check if it is active
+                    flash.error = "Invalid safe to be primary. Safe need to be active. Try again."
+                } else {
+                    safeService.updatePrimarySafe(selectedSafeId)
+                    flash.success = "Successfully updated primary safe."
+                }
             } else {
-                safeService.updatePrimarySafe(selectedSafeId)
-                redirect(action: "searchSafe", params: [successMessage: "Successfully updated primary safe."])
+                flash.error = "Invalid description selected to be primary. Try again."
             }
         } catch (Exception ex) {
             log.error(String.format("Safe saving failed: error: %s ", ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: "Primary safe update failed.")
+            flash.error = "Primary safe update failed."
         }
+        redirect(action: "searchSafe", params: [inactiveSafes: inactiveSafes, successMessage: flash.success, errorMessage: flash.error])
     }
 
     def searchSafe() {
-        String searchTerm = null
-        boolean activeSafes = false
         boolean inactiveSafes = false
         def successMessage = params?.successMessage
         def errorMessage = params?.errorMessage
         try {
-            searchTerm = params.searchTerm ? params.searchTerm : ""
-            activeSafes = params.activeSafes ? params.activeSafes.toBoolean() : false
             inactiveSafes = params.inactiveSafes ? params.inactiveSafes.toBoolean() : false
             boolean isDropdownOnly = params.isDropdownOnly ? params.isDropdownOnly.toBoolean() : false
-            int max = params.max ? Integer.parseInt(params.max) : 20
-            int offset = 0
-            String sortColumn = params.sortColumn ?: "dateCreated"
-            String sortOrder = params.sortOrder ?: "desc"
-
-            //This will load safes based on search criteria
-            List<Safe> safeList = safeService.findSearchSafes(searchTerm, activeSafes, inactiveSafes, max, offset, sortColumn, sortOrder)
-
             //This will load all available safe list and extract all safe description with primary safe
-            List<Safe> allAvailableSafeList = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-            Map<Integer, String> safeDescriptions = allAvailableSafeList?.collectEntries { safe -> [(safe.id): safe.description] }
-            String primaryDescription = allAvailableSafeList?.find { it.primary == true }?.description
-
+            List<Safe> safeList = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            if (!inactiveSafes) {
+                safeList.retainAll { it.active }
+            }
             render(template: "safeViewerResults", model: [safes             : safeList,
-                                                          safeDescriptions  : safeDescriptions,
-                                                          primaryDescription: primaryDescription,
-                                                          searchTerm        : searchTerm,
                                                           isDropdownOnly    : isDropdownOnly,
                                                           successMessage    : successMessage,
                                                           errorMessage      : errorMessage])
 
         } catch (Exception ex) {
-            log.error(String.format("Safe searching failed: for search term: %s active enable : %s inactive enable: %s error: %s ", searchTerm, activeSafes, inactiveSafes, ex.getMessage()), ex)
+            log.error(String.format("Safe searching failed: for inactive enable: %s error: %s ", inactiveSafes, ex.getMessage()), ex)
             render(status: 400, contentType: 'application/json', message: "Safe search failed")
         }
     }
