@@ -13,20 +13,13 @@
 
     });
 
-    function handleRowClick(event, url) {
-        // Check if the click didn't come from the button
-        if (!event.target.closest('button')) {
-            document.location.href = url;
-        }
-    }
-
 </script>
 
 <style>
-/* Button styling (can be customized more if needed) */
-button.btn {
-    margin-left: 5px;
-}
+    /* Button styling (can be customized more if needed) */
+    button.btn {
+        margin-left: 5px;
+    }
 </style>
 
 <div class="row mt-5 ml-0 mr-0 pb-2 table-wl bottom-border">
@@ -52,7 +45,7 @@ button.btn {
         <g:else>
             <g:each in="${safes}" var="safe" status="i">
                 <div id="safe-result-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable"
-                     onclick="handleRowClick(event, '${createLink(action:'segmentDetails', params: [id: safe?.id, edit: true])}');">
+                     onclick="handleSafeRowClickEvent(event, '${createLink(action:'addSafe', params: [id: safe?.id, edit: true])}');">
                     <div id="safe-id-${i + 1}" class="col-1">${safe?.id}</div>
                     <div id="safe-description-${i + 1}" class="col-4">${safe?.description}</div>
                     <div id="safe-type-${i + 1}" class="col-2">${safe?.type?.toString()?.toLowerCase()?.capitalize()}</div>

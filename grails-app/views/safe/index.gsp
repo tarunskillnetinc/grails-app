@@ -14,37 +14,21 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+            if (${showInactiveSafes}) {
+                $('#inactiveSafes').prop('checked', true);
+            }
+
             //Loading safes and primary dropdown results
             searchSafe(null, false);
         });
 
-        function submitSaveSafe() {
-            if (confirm('Confirm changes. Are you sure you wish to save these changes?')) {
-                var activeCheckbox = document.getElementById('active');
-                var hiddenActiveInput = document.getElementById('hiddenActive');
-
-                // Copy the value of the checkbox to the hidden input
-                hiddenActiveInput.name = 'active'; // Change the name to 'active' right before submission
-                hiddenActiveInput.value = activeCheckbox.checked ? 'true' : 'false';
-
-                // Remove the checkbox name temporarily if it is not disabled to avoid duplicate submissions
-                if (!activeCheckbox.disabled) {
-                    activeCheckbox.removeAttribute('name');
-                }
-                $('#safeDetails').submit();
-            }
-        }
-
         function updatePrimarySafe(selectedSafeId) {
-            var searchTerm = $('#safeSearchTerm').val();
-            var activeSafes = $('#activeSafes').prop("checked");
             var inactiveSafes = $('#inactiveSafes').prop("checked");
             $.ajax({
                 url: "${createLink(controller: 'safe', action: 'updatePrimarySafe')}",
                 method: "POST",
                 data: {
-                    searchTerm: searchTerm,
-                    activeSafes: activeSafes,
                     inactiveSafes: inactiveSafes,
                     selectedSafeId: selectedSafeId
                 },
@@ -66,10 +50,7 @@
             $.ajax({
                 url: "${createLink(controller: 'safe', action: 'searchSafe')}",
                 method: "POST",
-                data: {
-                    inactiveSafes: inactiveSafes,
-                    isDropdownOnly: isDropdownOnly
-                },
+                data: {inactiveSafes: inactiveSafes, isDropdownOnly: isDropdownOnly},
                 success: function (resp) {
                     $('#results-container').html(resp);
                     $('#safeSearchTerm').data('prev', $('#memberOfferSearchTerm').val());
@@ -80,6 +61,14 @@
                     document.getElementById('alerts-success-container-message').style.display = 'none';
                 }
             })
+        }
+
+        function addInactiveSafesParam(link) {
+            var inactiveSafes = $('#inactiveSafes').prop("checked");
+            var url = link.href;
+            url += (url.indexOf('?') !== -1 ? '&' : '?') + 'inactiveSafes=' + inactiveSafes;
+            link.href = url;
+            return true;
         }
 
         function displayMessage(type, message) {
@@ -100,36 +89,24 @@
             }
         }
 
+        function handleSafeRowClickEvent(event, url) {
+            if (!event.target.closest('button')) { // Check if the click didn't come from the button
+                var tempLink = document.createElement('a'); // Create a temporary anchor element
+                tempLink.href = url;
+                addInactiveSafesParam(tempLink); // Use addInactiveSafesParam to modify the URL
+                document.location.href = tempLink.href; // Navigate to the modified URL
+            }
+        }
+
+        function confirmAndSubmit(message, yesCallBack) {
+            let result = confirm(message);
+            if (result) {
+                yesCallBack();
+            }
+        }
+
     </script>
 
-%{--    <style>--}%
-%{--        .primary-safe-label {--}%
-%{--            font-weight: 700;--}%
-%{--            font-size: 1.2rem;--}%
-%{--        }--}%
-
-%{--        .primary-safe-select {--}%
-%{--            border: 2px solid #ced4da;--}%
-%{--            font-weight: 500;--}%
-%{--        }--}%
-
-%{--        .form-group {--}%
-%{--            margin-bottom: 0; /* Remove margin between form groups */--}%
-%{--        }--}%
-
-%{--        .form-check-input {--}%
-%{--            margin-left: 0; /* Adjust checkbox margin */--}%
-%{--        }--}%
-
-%{--        .form-check {--}%
-%{--            display: flex;--}%
-%{--            align-items: center;--}%
-%{--        }--}%
-
-%{--        .form-check-input.wl-checkbox {--}%
-%{--            margin-right: 10px;--}%
-%{--        }--}%
-%{--    </style>--}%
 
 </head>
 
@@ -201,7 +178,8 @@
         <div class="col-6">
             <div class="d-flex justify-content-end">
                 <g:link elementId="count-safe-button" type="button" class="btn btn-wl text-center mr-2"
-                        action="segmentDetails" params="[id: null, edit: false]"
+                        action="addSafe" params="[id: null, edit: false]"
+                        onclick="return addInactiveSafesParam(this)"
                         style="width: 200px; min-width: 150px;">Add New Safe</g:link>
             </div>
         </div>

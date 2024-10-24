@@ -6,30 +6,35 @@ class SafeController {
 
     def safeService
     def springSecurityService
+    def rabbitService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
             flash.error = "You do not have access to this page."
             redirect(uri: "/")
         }
+        boolean showInactiveSafes = params?.showInactiveSafes ? Boolean.parseBoolean(params.showInactiveSafes) : false
+        [showInactiveSafes: showInactiveSafes]
     }
 
-    def segmentDetails(Integer id, Boolean edit) {
+    def addSafe(Integer id, Boolean edit) {
         boolean isUpdate = edit
+        boolean showInactiveSafes = params.boolean('inactiveSafes')
         def safe = safeService.getSafeById(id)
-        def safeTypes = SafeType.values()
-        render(view: "_safeDetails", model: [safe: safe, safeTypes: safeTypes, isUpdate: isUpdate])
+        render(view: "_addSafe", model: [safe: safe, isUpdate: isUpdate, showInactiveSafes: showInactiveSafes])
     }
 
     def saveSafe() {
         Safe existingSafe = null
         boolean isUpdate = false
+        boolean showInactiveSafes
         try {
             isUpdate = params?.isUpdate ? Boolean.parseBoolean(params.isUpdate) : false
             Integer safeId = params?.id ? Integer.parseInt(params.id) : null
             String safeDescription = params?.description
             String safeType = params?.type as SafeType
             boolean shiftStatus = params?.active?.toLowerCase() == 'true'
+            showInactiveSafes = params?.showInactiveSafes ? Boolean.parseBoolean(params.showInactiveSafes) : false
             existingSafe = safeService.getSafeById(safeId)
             if (isUpdate && existingSafe && existingSafe.primary && !shiftStatus) {
                 //Check if it try to inactive primary safe (not allowed)
@@ -40,8 +45,10 @@ class SafeController {
             safe.validate()
             if (!safe.hasErrors()) {
                 safeService.saveSafe(safe)
+                //once save make sure to publish this into rabbitMq
+                rabbitService.sendOfferAllocationMessage("DataSync", loyaltyOfferSyncMessage)
                 flash.message = "Safe ${isUpdate ? 'updated' : 'created'} successfully"
-                redirect(action: "index")
+                redirect(action: "index", params: [showInactiveSafes: showInactiveSafes])
             } else {
                 List<String> errors = safeService.extractErrorMessages(safe.errors)
                 String finalErrors = errors.join('\n')
@@ -53,7 +60,7 @@ class SafeController {
             if (!flash.error) {
                 flash.error = String.format("Failed to ${isUpdate ? 'update' : 'create'} safe")
             }
-            render(view: "_safeDetails", model: [safe: existingSafe, safeTypes: SafeType.values(), isUpdate: isUpdate])
+            render(view: "_addSafe", model: [safe: existingSafe, showInactiveSafes: showInactiveSafes , isUpdate: isUpdate])
         }
     }
 
