@@ -58,12 +58,8 @@ class Pack implements Serializable {
         primaryCase column: "primaryCase"
     }
 
-    int getQuantity(List<PackLine> packLines){
-        PackLine packLine = packLines?.find {it?.orderCode == this?.orderCode}
-        if (packLine != null){
-            return packLine.quantity
-        }
-        return 0;
+    int getQuantity(def packLines) {
+        return packLines?.find { it?.orderCode == this?.orderCode }?.quantity ?: 0
     }
 
     // pack is active if the current datetime is after the pack effectiveDate and before the pack effectiveEndDate

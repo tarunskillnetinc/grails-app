@@ -202,10 +202,12 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="loyalty" class="col-2 col-form-label-sm text-right">Loyalty only</label>
-                                <div class="col-4">
-                                    <g:checkBox name="loyalty" id="loyaltyFilter" class="form-check-input loy-checkbox promo-loyalty"/>
-                                </div>
+                                <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
+                                    <label for="loyalty" class="col-2 col-form-label-sm text-right">Loyalty only</label>
+                                    <div class="col-4">
+                                        <g:checkBox name="loyalty" id="loyaltyFilter" class="form-check-input loy-checkbox promo-loyalty"/>
+                                    </div>
+                                </g:if>
                                 <div class="col-4 offset-2 text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>

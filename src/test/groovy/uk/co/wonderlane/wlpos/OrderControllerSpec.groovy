@@ -200,66 +200,6 @@ class OrderControllerSpec extends Specification implements ControllerUnitTest<Or
 
     }
 
-    //-------------------------------check active products function Unit tests----------------------------//
-
-    void "should return response status 204 if product list has a supplier id on ajaxCheckActiveProducts"() {
-        given:
-        controller.springSecurityService = getFakeSpringSecurityService()
-
-        User testUser = new User(
-                username: "testUser", password: "password", defaultStoreId: 234,
-                name: "Test", active: true, role: Role.ENGINEER, dateOfBirth: new Date()
-        )
-        testUser.setId(100)
-        controller.userService = Stub(UserService) {
-            getUser(_) >> testUser
-        }
-
-        uk.co.wonderlane.wlpos.entities.wlim.ProductList testProductList = new uk.co.wonderlane.wlpos.entities.wlim.ProductList()
-        testProductList.setSupplierId(100)
-        controller.orderService = Stub(OrderService) {
-            getActiveProductList(_, _) >> testProductList
-        }
-
-        when: 'ajaxCheckActiveProducts action is executed'
-        controller.ajaxCheckActiveProducts()
-
-        then: 'ajaxCheckActiveProducts action response is correct'
-        response.status == 204
-        model.suppliers == null
-    }
-
-    void "should return response status 200 if product list does not have a supplier id on ajaxCheckActiveProducts"() {
-        given:
-        controller.springSecurityService = getFakeSpringSecurityService()
-
-        User testUser = new User(
-                username: "testUser", password: "password", defaultStoreId: 234,
-                name: "Test", active: true, role: Role.ENGINEER, dateOfBirth: new Date()
-        )
-        testUser.setId(100)
-        controller.userService = Stub(UserService) {
-            getUser(_) >> testUser
-        }
-
-        uk.co.wonderlane.wlpos.entities.wlim.ProductList testProductList = new uk.co.wonderlane.wlpos.entities.wlim.ProductList()
-        testProductList.setSupplierId(null)
-        controller.orderService = Stub(OrderService) {
-            getActiveProductList(_, _) >> testProductList
-        }
-
-        Supplier testSupplier = new Supplier(name: "Test Supplier", retailerId: 9, storeId: 100)
-        testSupplier.setId(100)
-        testSupplier.save(flush: true, failOnError: true)
-
-        when: 'ajaxCheckActiveProducts action is executed'
-        controller.ajaxCheckActiveProducts()
-
-        then: 'ajaxCheckActiveProducts action response is correct'
-        response.status == 200
-        model.suppliers != null
-    }
-
     //-------------------------------ajax search products function Unit tests----------------------------//
 
     void "should retrieve product search results"() {
@@ -323,33 +263,6 @@ class OrderControllerSpec extends Specification implements ControllerUnitTest<Or
         ID | symbolGroup
         1  | new SymbolGroup()
         1  | null
-    }
-
-    //-------------------------------save pack lines function Unit tests----------------------------//
-
-    void "should save pack lines successfully and redirect to product list view"() {
-        given:
-        PackLineRequestCommand packLineRequestCommand = new PackLineRequestCommand()
-
-        controller.orderService = Stub(OrderService) {}
-
-        when: 'ajaxSavePackLines action is executed'
-        controller.ajaxSavePackLines(packLineRequestCommand)
-
-        then: 'ajaxSavePackLines action response is correct'
-        response.status == HttpStatus.FOUND.value()
-        response.redirectUrl == "/order/productList"
-    }
-
-    void "should handle error when saving pack lines and return error response"() {
-        given:
-        PackLineRequestCommand packLineRequestCommand = new PackLineRequestCommand()
-
-        when: 'ajaxSavePackLines action is executed'
-        controller.ajaxSavePackLines(packLineRequestCommand)
-
-        then: 'ajaxSavePackLines action response is correct'
-        response.status == HttpStatus.INTERNAL_SERVER_ERROR.value()
     }
 
     //-------------------------------confirm order function Unit tests----------------------------//

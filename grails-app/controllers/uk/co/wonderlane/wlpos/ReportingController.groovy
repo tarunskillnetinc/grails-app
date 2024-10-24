@@ -916,50 +916,40 @@ class ReportingController {
     }
 
     // The bottom level of the main orders report.
-    def order() {
-        int productListId = getIntegerParam(params.productListId)
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(6)
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter) : DateTime.now(DateTimeZone.UTC)
-        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+    def order(int id) {
+        def order = productListService.getProductList(id)
 
-        def suppliers = supplierService.getSuppliers()
+        if (!order) {
+            flash.error = "Order not found"
+            redirect (action: "orders")
+            return
+        }
 
         [reportType   : ReportType.ORDER,
-         productListId: productListId,
-         suppliers    : suppliers,
-         startDate    : startDate,
-         endDate      : endDate,
+         productListId: id,
+         supplierReference: order?.supplierReference,
          userColumns  : reportingService.getReportColumns(ReportType.ORDER),
-         stores       : stores]
+         isEditable   : order?.status == ProductListStatus.IN_PROGRESS ]
     }
 
     // The bottom level of the main orders report.
     def ajaxOrder(SortParams sortParams) {
         sortParams.validateParams(ORDER_REPORT_SORT_COLUMNS)
+
         Integer productListId = getIntegerParam(params.productListId)
 
-        Integer storeId
-        if (springSecurityService.principal.storeId) {
-            storeId = springSecurityService.principal.storeId
-        } else {
-            storeId = params.storeFilter ? Integer.parseInt(params.storeFilter) : null
+        def order = productListService.getProductList(productListId)
+
+        if (!order) {
+            flash.error = "Order not found."
+            response.setStatus(404)
+            redirect(action: "orders")
+            return
         }
 
-        Integer supplierId = null
-        if (params.supplier && !params.supplier.isEmpty()) {
-            supplierId = getIntegerParam(params.supplier)
-        }
+        // Sort pack lines based on sort column (sku / description / packQuantity / orderedQuantity / lineValue)
+        def packLines = order?.totalPackLines
 
-        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
-        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
-
-        def orders = productListService.getOrder(productListId, storeId, supplierId, startDate, endDate.plusDays(1))
-
-        //sort pack lines based on sort column (sku / description / packQuantity / orderedQuantity / lineValue)
-        def packLines = []
-        packLines = orders[0]?.totalPackLines
         if (sortParams.sortColumn == "description") {
             packLines?.sort { it.productListItem?.productVariant?.product?.description }
         } else if (sortParams.sortColumn == "packQuantity") {
@@ -982,12 +972,11 @@ class ReportingController {
             response.setHeader("Content-Type", "text/csv;")
             render getOrderCsv(packLines)
         } else {
-            render(template: "orderResults", model: [orders      : packLines,
+            render(template: "orderResults", model: [orderLines  : packLines,
                                                      userColumns : reportingService.getReportColumns(ReportType.ORDER),
-                                                     startDate   : startDate,
-                                                     endDate     : endDate,
                                                      sortParams  : sortParams,
-                                                     totalResults: orders.size()])
+                                                     totalResults: packLines.size(),
+                                                     isEditable  : order?.status == ProductListStatus.IN_PROGRESS])
         }
     }
 

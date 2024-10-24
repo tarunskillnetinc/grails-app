@@ -39,6 +39,19 @@
                 }
             });
 
+            $('input[id=loyaltyEnableFlag]').on("click", function () {
+                if (this.checked === true) {
+                    $('#loyaltyUrl').removeAttr("readonly");
+                    $('#loyaltyIIN').removeAttr("readonly");
+                    $('#loyaltyPointValue').removeAttr("readonly");
+
+                } else {
+                    $('#loyaltyUrl').attr("readonly", true);
+                    $('#loyaltyIIN').attr("readonly", true);
+                    $('#loyaltyPointValue').attr("readonly", true);
+                }
+            });
+
             $.ajax({
                 url: getBrandLogoUrl,
                 success: function(resp) {
@@ -89,6 +102,23 @@
 
         function splitCamelCaseString(camelCaseString) {
             return camelCaseString.split(/(?=[A-Z])/);
+        }
+
+        function resetLoyaltyUrl(){
+            if ($('input[id=loyaltyEnableFlag]').prop('checked'))
+                $('#loyaltyUrl').val('');
+
+        }
+
+        function resetLoyaltyIIN(){
+            if ($('input[id=loyaltyEnableFlag]').prop('checked'))
+                $('#loyaltyIIN').val('');
+
+        }
+
+        function resetLoyaltyPointValue(){
+            if ($('input[id=loyaltyEnableFlag]').prop('checked'))
+                $('#loyaltyPointValue').val('')
         }
     </script>
 </head>
@@ -903,36 +933,36 @@
                             <div class="form-group row">
                                 <label for="loyaltyEnableFlag" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Enable</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="loyaltyEnableFlag" name="loyaltyConfig.isLoyaltyEnabled"  ${retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? 'checked' : ''} />
+                                    <input type="checkbox" class="col-1 form-check-input wl-checkbox" id="loyaltyEnableFlag" name="loyaltyConfig.isLoyaltyEnabled"  ${retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? "checked" : ""} />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label for="loyaltyUrl" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty URL</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyUrl" id="loyaltyUrl" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyUrl}" />
+                                    <input type="text" class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyUrl" id="loyaltyUrl" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyUrl}" ${!retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? "readonly" : ""}/>
                                 </div>
                                 <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-loyalty-url-button" onclick="$('#loyaltyUrl').val('')">Reset</div>
+                                    <div class="btn btn-danger" id="reset-loyalty-url-button" onclick="resetLoyaltyUrl()" >Reset</div>
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label for="loyaltyIIN" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty IIN</label>
                                 <div class="col-7 col-lg-4">
-                                    <input type="text" class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyIIN" id="loyaltyIIN" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyIIN}"/>
+                                    <input type="text" class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyIIN" id="loyaltyIIN" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyIIN}" ${!retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? "readonly" : ""}/>
                                 </div>
                                 <div class="form-group row">
-                                    <div class="btn btn-danger" id="reset-loyaltyIIN-term-button" onclick="$('#loyaltyIIN').val('')">Reset</div>
+                                    <div class="btn btn-danger" id="reset-loyaltyIIN-term-button" onclick="resetLoyaltyIIN()" >Reset</div>
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label for="loyaltyPointValue" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Loyalty Point Value</label>
                                 <div class="col-7 col-lg-4" style="display: flex; align-items: center;">
-                                    <g:field class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyPointValue"  type="number" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyPointValue}"/>
+                                    <g:field class="col-5 form-control bottom-border" name="loyaltyConfig.loyaltyPointValue"  id="loyaltyPointValue" type="number" value="${retailer?.config?.loyaltyRetailerConfig?.loyaltyPointValue}" readonly="${!retailer?.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? 'true' : 'false'}"/>
                                 </div>
-                                <div class="form-group row"><div class="btn btn-danger" id="reset-loyaltyPointValue-term-button" onclick="$('#loyaltyPointValue').val('')">Reset</div>
+                                <div class="form-group row"><div class="btn btn-danger" id="reset-loyaltyPointValue-term-button" onclick="resetLoyaltyPointValue()" >Reset</div>
                                 </div>
                             </div>
 

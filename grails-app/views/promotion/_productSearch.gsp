@@ -2,7 +2,6 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <g:hiddenField name="productModal-currentPromotionType" value=""/>
                 <h3 class="product-search-header">Select product</h3>
 
                 <div class="row product-search-filters">
@@ -18,17 +17,6 @@
                         <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="productSearchButtonClicked()" class="wl-search-button" />
                     </div>
                 </div>
-
-%{--                <div class="row mt-4 ml-0 mr-0">--}%
-%{--                    <div class="input-group offset-2 col-8">--}%
-%{--                        <g:textField id="productSearchTerm" name="productSearchTerm" maxlength="100" class="form-control" placeholder="Enter a search term." aria-describedby="select-addon2" />--}%
-%{----}%
-%{--                        <div class="input-group-append">--}%
-%{--                            <g:select id="productSearchBy" name="productSearchBy" from="${['everything', 'description', 'itemCode']}" value="everything" valueMessagePrefix="ProductSearchBy" class="form-control select-border" style="z-index: 0;" />--}%
-%{--                            <asset:image src="search.png" id="productSearchButton" name="productSearchButton" onclick="productSearchButtonClicked()" class="wl-search-button" />--}%
-%{--                        </div>--}%
-%{--                    </div>--}%
-%{--                </div>--}%
 
                 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
                     <div class="col-2 font-weight-bold">Item Code</div>
