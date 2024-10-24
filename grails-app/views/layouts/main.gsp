@@ -174,8 +174,8 @@
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loyaltyDropdown">
                             <g:link elementId="membership-management-dropdown" controller="loyalty" action="loyaltyMembers" class="dropdown-item">Membership Management</g:link>
-                            <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment Management</g:link>
-                            <g:link elementId="loyalty-segment-maintenance-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offer Management</g:link>
+                            <g:link elementId="loyalty-segment-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment Management</g:link>
+                            <g:link elementId="loyalty-offer-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offer Management</g:link>
                         </div>
                     </li>
                 </g:if>
@@ -198,32 +198,25 @@
 
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
+                                    <div class="dropdown-submenu">
+                                        <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="cashManagementDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
+
+                                        <div class="dropdown-menu" aria-labelledby="cashManagementDropdown">
+                                            <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Config</g:link>
+                                                    <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Management</g:link>
+                                                </g:if>
+                                            </sec:ifAnyGranted>
+                                            <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
+                                                </g:if>
+                                            </sec:ifAnyGranted>
+                                        </div>
+                                    </div>
                                 </g:if>
                             </sec:ifAnyGranted>
-
-                            <div class="dropdown-submenu">
-                                <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="cashManagementDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
-
-                                <div class="dropdown-menu" aria-labelledby="cashManagementDropdown">
-                                    <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
-                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Config</g:link>
-                                            <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Management</g:link>
-                                        </g:if>
-                                    </sec:ifAnyGranted>
-                                    <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
-                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
-                                        </g:if>
-                                    </sec:ifAnyGranted>
-                                </div>
-                            </div>
-
-%{--                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>--}%
-%{--                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">--}%
-%{--                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>--}%
-%{--                                </g:if>--}%
-%{--                            </sec:ifAnyGranted>--}%
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
 

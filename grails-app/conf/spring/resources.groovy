@@ -232,6 +232,7 @@ beans = {
     safeService(SafeService) {
         springSecurityService = ref('springSecurityService')
         messageSource = ref('messageSource')
+        rabbitService = ref('rabbitService')
     }
 
     gsonProvider(GsonProvider)

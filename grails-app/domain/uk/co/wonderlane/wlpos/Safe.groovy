@@ -83,4 +83,18 @@ class Safe {
         dateCreated column: 'dateCreated'
         dateModified column: 'dateModified'
     }
+
+    public uk.co.wonderlane.wlpos.entities.Safe getSafe() {
+        uk.co.wonderlane.wlpos.entities.Safe safe = new uk.co.wonderlane.wlpos.entities.Safe()
+
+        safe.setId(id)
+        safe.setStoreId(storeId)
+        safe.setRetailerId(retailerId)
+        safe.setPrimary(primary)
+        safe.setDescription(description)
+        safe.setSafeType(type)
+        safe.setActive(active)
+
+        return safe
+    }
 }

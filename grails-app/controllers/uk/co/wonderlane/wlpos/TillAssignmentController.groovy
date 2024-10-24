@@ -153,6 +153,7 @@ class TillAssignmentController {
             till.serialNumber = addEditTillCommand.serialNumber
             till.pinExpiry = DateTime.now(DateTimeZone.UTC)
             till.dateTimeUpdated = DateTime.now(DateTimeZone.UTC)
+            till.cashManagementEnabled = ("on" == addEditTillCommand.cashManagementEnabled)
 
             tillAssignmentService.saveTill(till)
 
@@ -247,6 +248,7 @@ class AddEditTillCommand implements Validateable {
     int storeId // Actually store number.
     String description
     String serialNumber
+    String cashManagementEnabled
 
     static constraints = {
         id nullable: true
@@ -263,6 +265,7 @@ class AddEditTillCommand implements Validateable {
         }
         storeId nullable: false, min: 1 // Actually store number.
         description nullable: true
+        cashManagementEnabled nullable:true
         serialNumber nullable: true, validator: { val, obj ->
             if (val) {
                 def existingTills = TillConfiguration.findAllByRetailerIdAndSerialNumber(obj.springSecurityService.principal.retailerId, val)

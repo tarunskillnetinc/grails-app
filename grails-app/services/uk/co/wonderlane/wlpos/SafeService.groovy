@@ -3,39 +3,39 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.springframework.validation.Errors
+import uk.co.wonderlane.wlpos.entities.SyncMessage
+import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 @Transactional
 class SafeService {
 
     def springSecurityService
     def messageSource
+    def rabbitService
 
     def serviceMethod() {}
-
-    List<Safe> getSafesByRetailerAndStore(Integer retailerId, Integer storeId){
-        return Safe.withCriteria {
-            eq ("retailerId", retailerId)
-            eq ("storeId", storeId)
-        }
-    }
-
-    def getSafeById(Integer id){
-        return Safe.findById(id)
-    }
 
     @Transactional
     def saveSafe(Safe safe){
         safe.save(flush: true)
     }
 
-    boolean isPrimaryExists(Integer retailerId, Integer storeId){
-        return Safe.findByRetailerIdAndStoreIdAndPrimaryAndActive(retailerId, storeId, true, true) != null
-    }
-
-    def updatePrimarySafe(Integer selectedSafeId){
-        int updatedCount = updatePrimaryToFalse(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-        if (updatedCount > 0) {
-            updateNewSafePrimary(selectedSafeId)
+    @Transactional
+    def updatePrimarySafe(Integer selectedSafeId) {
+        try {
+            int updatedCount = updatePrimaryToFalse(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            if (updatedCount > 0) {
+                boolean updateSuccess = updateNewSafePrimary(selectedSafeId)
+                if (!updateSuccess) {
+                    throw new RuntimeException("Failed to update new primary safe")
+                }
+            } else {
+                throw new RuntimeException("No safes were updated to non-primary")
+            }
+            return true // Return true if everything succeeded
+        } catch (Exception ex) {
+            log.error("Failed to update primary safe: ${ex.message}", ex)
+            throw ex // Re-throw the exception to trigger a rollback
         }
     }
 
@@ -50,6 +50,7 @@ class SafeService {
            safe.retailerId = springSecurityService.principal.retailerId
            safe.storeId = springSecurityService.principal.storeId
            safe.primary = false
+           safe.active = true //If newly created safe make it active
            if (!isPrimaryExists(springSecurityService.principal.retailerId,springSecurityService.principal.storeId)) {
                safe.primary = true
            }
@@ -57,10 +58,62 @@ class SafeService {
        return safe
     }
 
-    private updateNewSafePrimary(Integer selectedSafeId){
+    List<String> extractErrorMessages(Errors errors) {
+        Locale locale = new Locale("en","GB");
+        List<String> errorMessages = []
+        errors.allErrors.each { error ->
+            String text = messageSource.getMessage(error, locale)
+            errorMessages << text
+        }
+        return errorMessages
+    }
+
+    def pushAllUpdatedSafesIntoRabbitMQ() {
+        try {
+            List<Safe> safeList = getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            long pushedCount = safeList.stream().filter(safe -> safe.active)
+                    .peek(this::pushSafeIntoRabbitMQ).count()
+            log.info("Successfully pushed all available safes ${pushedCount} into RabbitMQ after primary updated")
+        } catch (Exception ex) {
+            log.error("Failed to push all available safes into RabbitMQ after primary updated: ${ex.message} ", ex)
+        }
+    }
+
+    def pushSafeIntoRabbitMQ(Safe safe){
+        try {
+            SyncMessage safeSyncMessage = new SyncMessage(SyncMessageType.SAFE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
+            safeSyncMessage.setInsert(true)
+            safeSyncMessage.setSafe(safe.getSafe())
+            rabbitService.sendOfferAllocationMessage("DataSync", safeSyncMessage)
+        }catch(Exception ex){
+            log.error("Failed to push updated safe into rabbitMQ, Exception: ${ex.message} " + ex)
+            throw ex
+        }
+    }
+
+    List<Safe> getSafesByRetailerAndStore(Integer retailerId, Integer storeId){
+        return Safe.withCriteria {
+            eq ("retailerId", retailerId)
+            eq ("storeId", storeId)
+        }
+    }
+
+    def getSafeById(Integer id){
+        return Safe.findById(id)
+    }
+
+    boolean isPrimaryExists(Integer retailerId, Integer storeId){
+        return Safe.findByRetailerIdAndStoreIdAndPrimaryAndActive(retailerId, storeId, true, true) != null
+    }
+
+    private boolean updateNewSafePrimary(Integer selectedSafeId) {
         Safe safe = getSafeById(selectedSafeId)
-        safe.primary = true
-        safe.dateModified = new DateTime()
+        if (safe) {
+            safe.primary = true
+            safe.dateModified = new DateTime()
+            return safe.save(flush: true) != null
+        }
+        return false
     }
 
     private int updatePrimaryToFalse(Integer retailerId, Integer storeId) {
@@ -84,30 +137,4 @@ class SafeService {
         return updatedCount
     }
 
-    List<String> extractErrorMessages(Errors errors) {
-        Locale locale = new Locale("en","GB");
-        List<String> errorMessages = []
-        errors.allErrors.each { error ->
-            String text = messageSource.getMessage(error, locale)
-            errorMessages << text
-        }
-        return errorMessages
-    }
-
-    List<Safe> findSearchSafes(String searchTerm, boolean  inactiveSafes, Integer max, Integer offset, String sortColumn, String sortOrder){
-        return Safe.createCriteria().list(max: max, offset: offset) {
-            like ("description", "%$searchTerm%")
-
-            if (inactiveSafes) {
-                or {
-                    eq("active", false)
-                }
-            } else{
-                or {
-                    eq("active", true)
-                }
-            }
-            order(sortColumn ?: "offerDescription", sortOrder ?: "asc")
-        }
-    }
 }

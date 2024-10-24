@@ -6,35 +6,40 @@ class SafeController {
 
     def safeService
     def springSecurityService
-    def rabbitService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
             flash.error = "You do not have access to this page."
             redirect(uri: "/")
         }
-        boolean showInactiveSafes = params?.showInactiveSafes ? Boolean.parseBoolean(params.showInactiveSafes) : false
-        [showInactiveSafes: showInactiveSafes]
+        boolean inactiveSafes = params?.inactiveSafes ? Boolean.parseBoolean(params.inactiveSafes) : false
+        def successMessage = params?.successMessage
+        [showInactiveSafes: inactiveSafes, successMessage: successMessage]
     }
 
     def addSafe(Integer id, Boolean edit) {
         boolean isUpdate = edit
-        boolean showInactiveSafes = params.boolean('inactiveSafes')
+        boolean inactiveSafes = params.boolean('inactiveSafes')
         def safe = safeService.getSafeById(id)
-        render(view: "_addSafe", model: [safe: safe, isUpdate: isUpdate, showInactiveSafes: showInactiveSafes])
+        render(view: "_addSafe", model: [safe: safe, isUpdate: isUpdate, inactiveSafes: inactiveSafes])
+    }
+
+    def closeShiftAdd(){
+        boolean inactiveSafes = params.boolean('inactiveSafes')
+        redirect(action: "index", params: [inactiveSafes: inactiveSafes])
     }
 
     def saveSafe() {
         Safe existingSafe = null
         boolean isUpdate = false
-        boolean showInactiveSafes
+        boolean inactiveSafes
         try {
             isUpdate = params?.isUpdate ? Boolean.parseBoolean(params.isUpdate) : false
+            inactiveSafes = params?.inactiveSafes ? Boolean.parseBoolean(params.inactiveSafes) : false
             Integer safeId = params?.id ? Integer.parseInt(params.id) : null
             String safeDescription = params?.description
             String safeType = params?.type as SafeType
-            boolean shiftStatus = params?.active?.toLowerCase() == 'true'
-            showInactiveSafes = params?.showInactiveSafes ? Boolean.parseBoolean(params.showInactiveSafes) : false
+            boolean shiftStatus = params?.active ? Boolean.parseBoolean(params.active) : false
             existingSafe = safeService.getSafeById(safeId)
             if (isUpdate && existingSafe && existingSafe.primary && !shiftStatus) {
                 //Check if it try to inactive primary safe (not allowed)
@@ -42,13 +47,12 @@ class SafeController {
                 throw new RuntimeException("Primary shift can not be disable.")
             }
             Safe safe = safeService.populateSafe(existingSafe, isUpdate, safeDescription, safeType, shiftStatus)
-            safe.validate()
+            safe.validate() //call validation to check ant domain class validation errors
             if (!safe.hasErrors()) {
-                safeService.saveSafe(safe)
-                //once save make sure to publish this into rabbitMq
-                rabbitService.sendOfferAllocationMessage("DataSync", loyaltyOfferSyncMessage)
+                safeService.saveSafe(safe) //Save created/updated safe into db
+                safeService.pushSafeIntoRabbitMQ(safe) //once save make sure to publish this into rabbitMq
                 flash.message = "Safe ${isUpdate ? 'updated' : 'created'} successfully"
-                redirect(action: "index", params: [showInactiveSafes: showInactiveSafes])
+                redirect(action: "index", params: [inactiveSafes: inactiveSafes, successMessage: flash.message])
             } else {
                 List<String> errors = safeService.extractErrorMessages(safe.errors)
                 String finalErrors = errors.join('\n')
@@ -60,7 +64,7 @@ class SafeController {
             if (!flash.error) {
                 flash.error = String.format("Failed to ${isUpdate ? 'update' : 'create'} safe")
             }
-            render(view: "_addSafe", model: [safe: existingSafe, showInactiveSafes: showInactiveSafes , isUpdate: isUpdate])
+            render(view: "_addSafe", model: [safe: existingSafe, inactiveSafes: inactiveSafes , isUpdate: isUpdate])
         }
     }
 
@@ -73,7 +77,8 @@ class SafeController {
                     flash.error = "Invalid safe to be primary. Safe need to be active. Try again."
                 } else {
                     safeService.updatePrimarySafe(selectedSafeId)
-                    flash.success = "Successfully updated primary safe."
+                    safeService.pushAllUpdatedSafesIntoRabbitMQ() //once update done send all available safes into rabbitMq
+                    flash.success = String.format("Successfully updated primary safe to %s.", existingSafe.description)
                 }
             } else {
                 flash.error = "Invalid description selected to be primary. Try again."

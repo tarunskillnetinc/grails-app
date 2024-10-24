@@ -11,102 +11,33 @@
     <asset:javascript src="date-pickers.js"/>
     <asset:javascript src="co-utils.js"/>
     <asset:javascript src="validators/input-validator.js"/>
+    <asset:javascript src="safeUrls.js"/>
+    <asset:javascript src="safeManagement.js"/>
 
     <script type="text/javascript">
+        var successMessage = "${successMessage}";
+
         $(document).ready(function () {
+
+            hideMessages();
+
+            SafeUrls.init("${createLink(controller: 'safe', action: 'searchSafe')}",
+                "${createLink(controller: 'safe', action: 'updatePrimarySafe')}"
+            );
 
             if (${showInactiveSafes}) {
                 $('#inactiveSafes').prop('checked', true);
             }
 
+            //Handle ajax success and error messages
+            if (successMessage != null && successMessage !== '') {
+                displayMessage('success', successMessage);
+            }
+
             //Loading safes and primary dropdown results
             searchSafe(null, false);
         });
-
-        function updatePrimarySafe(selectedSafeId) {
-            var inactiveSafes = $('#inactiveSafes').prop("checked");
-            $.ajax({
-                url: "${createLink(controller: 'safe', action: 'updatePrimarySafe')}",
-                method: "POST",
-                data: {
-                    inactiveSafes: inactiveSafes,
-                    selectedSafeId: selectedSafeId
-                },
-                success: function (resp) {
-                    $('#results-container').html(resp);
-                },
-                error: function (resp) {
-                    $('#results-container').html(resp);
-                }
-            });
-        }
-
-        function searchSafe(sortParams, isPrimaryDropDownOnly) {
-            $("#search-results").hide();
-            $("#loading-indicator").show();
-
-            var inactiveSafes = $('#inactiveSafes').prop("checked");
-            var isDropdownOnly = isPrimaryDropDownOnly.toString().toLowerCase() === "true";
-            $.ajax({
-                url: "${createLink(controller: 'safe', action: 'searchSafe')}",
-                method: "POST",
-                data: {inactiveSafes: inactiveSafes, isDropdownOnly: isDropdownOnly},
-                success: function (resp) {
-                    $('#results-container').html(resp);
-                    $('#safeSearchTerm').data('prev', $('#memberOfferSearchTerm').val());
-                },
-                error: function (resp) {
-                    var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Safe search failed.";
-                    displayMessage('error', errorMessage);
-                    document.getElementById('alerts-success-container-message').style.display = 'none';
-                }
-            })
-        }
-
-        function addInactiveSafesParam(link) {
-            var inactiveSafes = $('#inactiveSafes').prop("checked");
-            var url = link.href;
-            url += (url.indexOf('?') !== -1 ? '&' : '?') + 'inactiveSafes=' + inactiveSafes;
-            link.href = url;
-            return true;
-        }
-
-        function displayMessage(type, message) {
-            const containers = {
-                success: document.getElementById('alerts-success-container-message'),
-                error: document.getElementById('alerts-error-container-message')
-            };
-
-            for (const [key, container] of Object.entries(containers)) {
-                if (container) {
-                    if (key === type) {
-                        container.textContent = message;
-                        container.style.display = 'block';
-                    } else {
-                        container.style.display = 'none';
-                    }
-                }
-            }
-        }
-
-        function handleSafeRowClickEvent(event, url) {
-            if (!event.target.closest('button')) { // Check if the click didn't come from the button
-                var tempLink = document.createElement('a'); // Create a temporary anchor element
-                tempLink.href = url;
-                addInactiveSafesParam(tempLink); // Use addInactiveSafesParam to modify the URL
-                document.location.href = tempLink.href; // Navigate to the modified URL
-            }
-        }
-
-        function confirmAndSubmit(message, yesCallBack) {
-            let result = confirm(message);
-            if (result) {
-                yesCallBack();
-            }
-        }
-
     </script>
-
 
 </head>
 
@@ -137,7 +68,6 @@
         ${flash.error ?: ''}
     </div>
 
-
     <div class="row mt-4">
         <div class="col-6">
             <div class="card bg-light border-wl">
@@ -160,27 +90,28 @@
                         <!-- Inactive Offers -->
                         <div class="d-flex align-items-center">
                             <label for="inactiveSafes" class="mb-0 mr-2">Show Inactive Safes</label>
-                            <input type="checkbox" id="inactiveSafes" name="inactiveSafes" style="transform: scale(1.3); margin-left: 5px;">
+                            <input type="checkbox" id="inactiveSafes" name="inactiveSafes"
+                                   style="transform: scale(1.3); margin-left: 5px;">
                         </div>
 
                         <!-- Buttons for Reset and Search -->
                         <div class="d-flex">
-                            <button id="reset-filters-btn" type="button" class="btn btn-danger mr-2" onclick="resetForm()">Reset Filters</button>
-                            <button id="filter-submit-button" type="button" class="btn btn-wl" onclick="searchSafe(null, false)">Search</button>
+                            <button id="reset-filters-btn" type="button" class="btn btn-danger mr-2"
+                                    onclick="resetSafeFilters()">Reset Filters</button>
+                            <button id="filter-submit-button" type="button" class="btn btn-wl"
+                                    onclick="searchSafe(null, false)">Search</button>
                         </div>
                     </div>
                 </div>
-
 
             </div>
         </div>
 
         <div class="col-6">
             <div class="d-flex justify-content-end">
-                <g:link elementId="count-safe-button" type="button" class="btn btn-wl text-center mr-2"
+                <g:link elementId="count-safe-button" type="button" class="btn btn-wl p-2"
                         action="addSafe" params="[id: null, edit: false]"
-                        onclick="return addInactiveSafesParam(this)"
-                        style="width: 200px; min-width: 150px;">Add New Safe</g:link>
+                        onclick="return addInactiveSafesParam(this)">Add New Safe</g:link>
             </div>
         </div>
     </div>
