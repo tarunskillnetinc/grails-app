@@ -112,20 +112,13 @@ function addInactiveSafesParam(link) {
 }
 
 function displayMessage(type, message) {
-    const containers = {
-        success: document.getElementById('alerts-success-container-message'),
-        error: document.getElementById('alerts-error-container-message')
-    };
-
-    for (const [key, container] of Object.entries(containers)) {
-        if (container) {
-            if (key === type) {
-                container.textContent = message;
-                container.style.display = 'block';
-            } else {
-                container.style.display = 'none';
-            }
-        }
+    hideMessages()
+    if (type === 'success') {
+        $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + message + '</div>');
+    } else if (type === 'error') {
+        $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + message + '</div>');
+    } else {
+        $("#messages-container").html(''); // Clear the container if no message is provided
     }
 }
 

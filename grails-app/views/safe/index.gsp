@@ -15,11 +15,9 @@
     <asset:javascript src="safeManagement.js"/>
 
     <script type="text/javascript">
-        var successMessage = "${successMessage}";
 
         $(document).ready(function () {
-
-            hideMessages();
+            $("#messages-container").html('');
 
             SafeUrls.init("${createLink(controller: 'safe', action: 'searchSafe')}",
                 "${createLink(controller: 'safe', action: 'updatePrimarySafe')}"
@@ -27,11 +25,6 @@
 
             if (${showInactiveSafes}) {
                 $('#inactiveSafes').prop('checked', true);
-            }
-
-            //Handle ajax success and error messages
-            if (successMessage != null && successMessage !== '') {
-                displayMessage('success', successMessage);
             }
 
             //Loading safes and primary dropdown results
@@ -60,13 +53,15 @@
         <h2 id="page-title" class="mx-auto">Safe Management</h2>
     </div>
 
-    <div id="alerts-success-container-message" class="alert alert-success" role="alert" style="${flash.message ? '' : 'display: none;'}">
-        ${flash.message ?: ''}
-    </div>
+    <div id="messages-container"></div>
 
-    <div id="alerts-error-container-message" class="alert alert-danger" role="alert" style="${flash.error ? '' : 'display: none;'}">
-        ${flash.error ?: ''}
-    </div>
+    <g:if test="${flash.message}">
+        <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.message}</div>
+    </g:if>
+
+    <g:if test="${flash.error}">
+        <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+    </g:if>
 
     <div class="row mt-4">
         <div class="col-6">

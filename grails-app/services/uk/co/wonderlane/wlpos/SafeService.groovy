@@ -12,6 +12,7 @@ class SafeService {
     def springSecurityService
     def messageSource
     def rabbitService
+    def locationService
 
     def serviceMethod() {}
 
@@ -36,6 +37,15 @@ class SafeService {
         } catch (Exception ex) {
             log.error("Failed to update primary safe: ${ex.message}", ex)
             throw ex // Re-throw the exception to trigger a rollback
+        }
+    }
+
+    def updateLocationDescriptionBySafeId(int safeId, String safeDescription){
+        try {
+            locationService.updateLocationDescriptionsBySafeId(safeId, springSecurityService.principal.retailerId,
+                    springSecurityService.principal.storeId, safeDescription)
+        } catch (Exception ex) {
+            log.error("Failed to update primary safe: ${ex.message}", ex)
         }
     }
 
@@ -87,7 +97,6 @@ class SafeService {
             rabbitService.sendOfferAllocationMessage("DataSync", safeSyncMessage)
         }catch(Exception ex){
             log.error("Failed to push updated safe into rabbitMQ, Exception: ${ex.message} " + ex)
-            throw ex
         }
     }
 

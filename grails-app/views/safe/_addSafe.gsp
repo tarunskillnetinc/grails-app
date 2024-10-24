@@ -13,13 +13,14 @@
     <asset:javascript src="safeUrls.js"/>
     <asset:javascript src="safeManagement.js"/>
 
-    <style>
-        .large-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-    </style>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#messages-container").html('');
+        });
+
+    </script>
+
 
 </head>
 
@@ -48,13 +49,16 @@
         </div>
     </div>
 
-    <div id="alerts-success-container-message" class="alert alert-success" role="alert" style="${flash.message ? '' : 'display: none;'}">
-        ${flash.message ?: ''}
-    </div>
+    <div id="messages-container"></div>
 
-    <div id="alerts-error-container-message" class="alert alert-danger" role="alert" style="${flash.error ? '' : 'display: none;'}">
-        ${flash.error ?: ''}
-    </div>
+    <g:if test="${flash.message}">
+        <div id="alerts-success-container-message" class="alert alert-success" role="alert">${flash.message}</div>
+    </g:if>
+
+    <g:if test="${flash.error}">
+        <div id="alerts-success-container-message" class="alert alert-danger" role="alert">${flash.error}</div>
+    </g:if>
+
 </section>
 
 <section class="mt-5">

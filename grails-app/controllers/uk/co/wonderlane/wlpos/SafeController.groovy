@@ -13,8 +13,7 @@ class SafeController {
             redirect(uri: "/")
         }
         boolean inactiveSafes = params?.inactiveSafes ? Boolean.parseBoolean(params.inactiveSafes) : false
-        def successMessage = params?.successMessage
-        [showInactiveSafes: inactiveSafes, successMessage: successMessage]
+        [showInactiveSafes: inactiveSafes]
     }
 
     def addSafe(Integer id, Boolean edit) {
@@ -50,9 +49,12 @@ class SafeController {
             safe.validate() //call validation to check ant domain class validation errors
             if (!safe.hasErrors()) {
                 safeService.saveSafe(safe) //Save created/updated safe into db
+                if (isUpdate) { // If this is update then update location description
+                    safeService.updateLocationDescriptionBySafeId(safe.id, safe.description)
+                }
                 safeService.pushSafeIntoRabbitMQ(safe) //once save make sure to publish this into rabbitMq
                 flash.message = "Safe ${isUpdate ? 'updated' : 'created'} successfully"
-                redirect(action: "index", params: [inactiveSafes: inactiveSafes, successMessage: flash.message])
+                redirect(action: "index", params: [inactiveSafes: inactiveSafes])
             } else {
                 List<String> errors = safeService.extractErrorMessages(safe.errors)
                 String finalErrors = errors.join('\n')
