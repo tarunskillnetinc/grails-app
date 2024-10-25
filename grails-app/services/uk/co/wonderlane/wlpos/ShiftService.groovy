@@ -11,7 +11,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.cash.*
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
-import uk.co.wonderlane.wlpos.entities.transaction.ShiftAudit
+import uk.co.wonderlane.wlpos.entities.cash.ShiftAudit
 import uk.co.wonderlane.wlpos.enums.*
 import uk.co.wonderlane.wlpos.reporting.Location
 
@@ -387,6 +387,21 @@ class ShiftService extends MySqlPoolDal {
         shiftAudit.setUsername(loggedInUser?.username)
         shiftAudit.setTimestamp(new DateTime())
         if (shiftAction == ShiftAction.SPOT_CHECK) { // Adding extras when action is spot check
+            JsonObject jsonObject = new JsonObject()
+            if (shift?.reconciliationTotals != null) {
+                try {
+                    String jsonString = gsonProvider?.gson?.toJson(shift.tenderTotals) ?: "[]"
+                    JsonArray jsonArray = JsonParser.parseString(jsonString)?.asJsonArray ?: new JsonArray()
+                    jsonObject.add("tenderTotals", jsonArray)
+                } catch (Exception ex) {
+                    log.error("Error parsing extra for spot check audit for shift id: " + shift.getId() + " : " + ex.getMessage(), ex)
+                    jsonObject.add("tenderTotals", new JsonArray())
+                }
+            } else {
+                jsonObject.add("tenderTotals", new JsonArray())
+            }
+            shiftAudit.setExtras(jsonObject)
+        } else if (shiftAction == ShiftAction.RECONCILE || shiftAction == ShiftAction.RECOUNT) { // Adding extras when action is spot check
             JsonObject jsonObject = new JsonObject()
             if (shift?.reconciliationTotals != null) {
                 try {
