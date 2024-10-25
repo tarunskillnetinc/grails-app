@@ -132,6 +132,7 @@ function hideMessages() {
             container.style.display = 'none';
         }
     });
+    $("#messages-container").html('');
 }
 
 function resetSafeFilters() {
