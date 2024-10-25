@@ -101,9 +101,8 @@ class SafeController {
         def errorMessage = params?.errorMessage
         try {
             inactiveSafes = params.inactiveSafes ? params.inactiveSafes.toBoolean() : false
-            //This will load all available safe list and extract all safe description with primary safe
             List<Safe> safeList = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-            if (!inactiveSafes) {
+            if (!inactiveSafes) { //This will load all available safe list and extract with active
                 safeList.retainAll { it.active }
             }
             render(template: "safeViewerResults", model: [safes             : safeList,
