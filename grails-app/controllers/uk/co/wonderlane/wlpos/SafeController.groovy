@@ -38,14 +38,14 @@ class SafeController {
             Integer safeId = params?.id ? Integer.parseInt(params.id) : null
             String safeDescription = params?.description
             String safeType = params?.type as SafeType
-            boolean shiftStatus = params?.active ? Boolean.parseBoolean(params.active) : false
+            boolean safeStatus = params?.active ? Boolean.parseBoolean(params.active) : false
             existingSafe = safeService.getSafeById(safeId)
-            if (isUpdate && existingSafe && existingSafe.primary && !shiftStatus) {
+            if (isUpdate && existingSafe && existingSafe.primary && !safeStatus) {
                 //Check if it try to inactive primary safe (not allowed)
-                flash.error = String.format("Primary shift can not be disable.")
-                throw new RuntimeException("Primary shift can not be disable.")
+                flash.error = String.format("Primary safe can not be disable.")
+                throw new RuntimeException("Primary safe can not be disable.")
             }
-            Safe safe = safeService.populateSafe(existingSafe, isUpdate, safeDescription, safeType, shiftStatus)
+            Safe safe = safeService.populateSafe(existingSafe, isUpdate, safeDescription, safeType, safeStatus)
             safe.validate() //call validation to check and if domain class validation errors
             if (!safe.hasErrors()) {
                 safeService.saveSafe(safe) //Save created/updated safe into db
@@ -59,7 +59,7 @@ class SafeController {
                 List<String> errors = safeService.extractErrorMessages(safe.errors)
                 String finalErrors = errors.join('\n')
                 flash.error = finalErrors
-                throw new RuntimeException("Shift save error.")
+                throw new RuntimeException("Safe saving error.")
             }
         } catch (Exception ex) {
             log.error(String.format("Safe saving failed: error: %s ", ex.getMessage()), ex)
@@ -101,14 +101,12 @@ class SafeController {
         def errorMessage = params?.errorMessage
         try {
             inactiveSafes = params.inactiveSafes ? params.inactiveSafes.toBoolean() : false
-            boolean isDropdownOnly = params.isDropdownOnly ? params.isDropdownOnly.toBoolean() : false
             //This will load all available safe list and extract all safe description with primary safe
             List<Safe> safeList = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
             if (!inactiveSafes) {
                 safeList.retainAll { it.active }
             }
             render(template: "safeViewerResults", model: [safes             : safeList,
-                                                          isDropdownOnly    : isDropdownOnly,
                                                           successMessage    : successMessage,
                                                           errorMessage      : errorMessage])
 

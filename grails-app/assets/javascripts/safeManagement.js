@@ -1,13 +1,14 @@
-function searchSafe(sortParams, isPrimaryDropDownOnly) {
+function searchSafe(sortParams, isForceButtonClick) {
     $("#search-results").hide();
     $("#loading-indicator").show();
-
     var inactiveSafes = $('#inactiveSafes').prop("checked");
-    var isDropdownOnly = isPrimaryDropDownOnly.toString().toLowerCase() === "true";
+    if (isForceButtonClick){
+        hideMessages()
+    }
     $.ajax({
         url: SafeUrls.getSearchSafeUrl(),
         method: "POST",
-        data: {inactiveSafes: inactiveSafes, isDropdownOnly: isDropdownOnly},
+        data: {inactiveSafes: inactiveSafes},
         success: function (resp) {
             $('#results-container').html(resp);
             $('#safeSearchTerm').data('prev', $('#memberOfferSearchTerm').val());
@@ -15,7 +16,6 @@ function searchSafe(sortParams, isPrimaryDropDownOnly) {
         error: function (resp) {
             var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Safe search failed.";
             displayMessage('error', errorMessage);
-            document.getElementById('alerts-success-container-message').style.display = 'none';
         }
     })
 }
@@ -36,8 +36,8 @@ function validateAndSave() {
         errorString = errorString.concat("\nThe safe type can not be empty. Please select type.");
     }
 
-    var shiftStatus = $('input[name="active"]:checked').val();
-    if (shiftStatus === undefined) {
+    var safeStatus = $('input[name="active"]:checked').val();
+    if (safeStatus === undefined) {
         error = true;
         errorString = errorString.concat("\nThe safe status must be selected.");
     }
@@ -82,13 +82,13 @@ function handleSafeRowClickEvent(event, url) {
     }
 }
 
-function handleCancelAddShift(url) {
+function handleCancelAddSafe(url) {
     confirmAndSubmit("Are you sure you want to cancel ?", function() {
-        cancelAddShiftView(url);
+        cancelAddSafeView(url);
     });
 }
 
-function cancelAddShiftView(url) {
+function cancelAddSafeView(url) {
     var tempLink = document.createElement('a'); // Create a temporary anchor element
     tempLink.href = url;
     addInactiveSafesParam(tempLink); // Use addInactiveSafesParam to modify the URL
@@ -136,7 +136,7 @@ function hideMessages() {
 
 function resetSafeFilters() {
     $('#inactiveSafes').prop('checked', false);
-    searchSafe(null, false);
+    searchSafe(null, true);
 }
 
 function confirmAndSubmit(message, yesCallBack) {

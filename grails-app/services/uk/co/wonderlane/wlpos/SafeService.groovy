@@ -28,14 +28,14 @@ class SafeService {
             if (updatedCount > 0) {
                 boolean updateSuccess = updateNewSafePrimary(selectedSafeId)
                 if (!updateSuccess) {
-                    throw new RuntimeException("Failed to update new primary safe")
+                    throw new RuntimeException("Failed to update new primary safeId: ${selectedSafeId}")
                 }
             } else {
-                throw new RuntimeException("No safes were updated to non-primary")
+                throw new RuntimeException("Failed to update current primary safe to non-primary when trying to update safeId: ${selectedSafeId} to primary")
             }
             return true // Return true if everything succeeded
         } catch (Exception ex) {
-            log.error("Failed to update primary safe: ${ex.message}", ex)
+            log.error("Unexpected failure updating primary safeId: ${selectedSafeId} with message: ${ex.message}", ex)
             throw ex // Re-throw the exception to trigger a rollback
         }
     }
@@ -45,7 +45,7 @@ class SafeService {
             locationService.updateLocationDescriptionsBySafeId(safeId, springSecurityService.principal.retailerId,
                     springSecurityService.principal.storeId, safeDescription)
         } catch (Exception ex) {
-            log.error("Failed to update primary safe: ${ex.message}", ex)
+            log.error("Failed to update primary safeId: ${safeId} description: ${safeDescription} with message: ${ex.message}", ex)
         }
     }
 
@@ -100,10 +100,11 @@ class SafeService {
         }
     }
 
-    List<Safe> getSafesByRetailerAndStore(Integer retailerId, Integer storeId){
+    List<Safe> getSafesByRetailerAndStore(Integer retailerId, Integer storeId) {
         return Safe.withCriteria {
-            eq ("retailerId", retailerId)
-            eq ("storeId", storeId)
+            eq("retailerId", retailerId)
+            eq("storeId", storeId)
+            order("dateCreated", "desc")
         }
     }
 

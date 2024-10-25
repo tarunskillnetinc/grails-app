@@ -20,7 +20,7 @@
 
             document.querySelector('.safe-management-link').addEventListener('click', function(event) {
                 event.preventDefault();
-                cancelAddShiftView('${createLink(action:'closeSafeAdd')}');
+                cancelAddSafeView('${createLink(action:'closeSafeAdd')}');
             });
         });
 
@@ -135,7 +135,7 @@
                     </div>
 
                     <div class="mt-5 text-center">
-                        <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddShift('${createLink(action:'closeSafeAdd')}')" class="btn btn-wl mr-2">Cancel</button>
+                        <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddSafe('${createLink(action:'closeSafeAdd')}')" class="btn btn-wl mr-2">Cancel</button>
                         <button id="safe-save" type="button" name="safe-save-button" onclick="validateAndSave()" class="btn btn-success ml-2">Save</button>
                     </div>
                 </div>

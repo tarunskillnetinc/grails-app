@@ -94,7 +94,7 @@
                             <button id="reset-filters-btn" type="button" class="btn btn-danger mr-2"
                                     onclick="resetSafeFilters()">Reset Filters</button>
                             <button id="filter-submit-button" type="button" class="btn btn-wl"
-                                    onclick="searchSafe(null, false)">Search</button>
+                                    onclick="searchSafe(null, true)">Search</button>
                         </div>
                     </div>
                 </div>
