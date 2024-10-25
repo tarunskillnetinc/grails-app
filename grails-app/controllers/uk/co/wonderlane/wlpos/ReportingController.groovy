@@ -1993,6 +1993,9 @@ class ReportingController {
             } else if (it.type.name() == "PAID_OUT") {
                 reason = getMappingFromResource("PaidOutReason." + it.reason) != null ?
                         getMappingFromResource("PaidOutReason." + it.reason) : "PaidOutReason." + it.reason
+            } else if (it.type.name() == "PAID_IN") {
+                reason = getMappingFromResource("PaidInReason." + it.reason) != null ?
+                        getMappingFromResource("PaidInReason." + it.reason) : "PaidInReason." + it.reason
             } else {
                 reason = it.reason
             }
