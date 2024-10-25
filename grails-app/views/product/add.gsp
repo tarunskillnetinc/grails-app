@@ -316,6 +316,9 @@
                 var barcodes = []; // To store the barcode values for validation
                 var error = false;
                 $("#addVariantContent .alert-wl").remove();
+                if ($("#barcode_errors_container").length > 0) {
+                    $("#barcode_errors_container").remove();
+                }
 
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
@@ -411,17 +414,16 @@
                 }
 
                 if (errorToAdd.length > 0) {
-                    let errorContent = $("#barcode_errors_container");
-                    if (errorContent.length === 0) {
-                        errorContent = $(content).prepend(`<div id="barcode_errors_container" class="alert alert-danger alert-wl" role="alert"/>`);
+                    if ($("#barcode_errors_container").length === 0) {
+                        $(content).prepend(`<div id="barcode_errors_container" class="alert alert-danger alert-wl" role="alert"/>`);
                     }
 
-                    let isDuplicate = errorContent.find("div").filter(function() {
+                    let isDuplicate = $("#barcode_errors_container").find("div").filter(function() {
                         return $(this).text().trim() === `• ` + errorToAdd;
                     }).length > 0;
 
                     if (!isDuplicate) {
-                        $(errorContent).append(`<div>• ` + errorToAdd + `</div>`);
+                        $("#barcode_errors_container").append(`<div>• ` + errorToAdd + `</div>`);
                     }
                 }
 
@@ -753,6 +755,9 @@
                     filterValues[$(this).attr("name")] = $(this).find(":selected").val();
                 }).get();
                 $("#suppliersContent .alert-wl").remove();
+                if ($("#barcode_errors_container").length > 0) {
+                    $("#barcode_errors_container").remove();
+                }
 
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
