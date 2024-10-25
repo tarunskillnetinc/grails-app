@@ -229,6 +229,13 @@ beans = {
         rabbitService = ref('rabbitService')
     }
 
+    safeService(SafeService) {
+        springSecurityService = ref('springSecurityService')
+        messageSource = ref('messageSource')
+        rabbitService = ref('rabbitService')
+        locationService = ref('locationService')
+    }
+
     gsonProvider(GsonProvider)
 
     Environment.executeForCurrentEnvironment {

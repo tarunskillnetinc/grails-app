@@ -198,18 +198,27 @@
 
                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                     <g:link elementId="store-settings-dropdown" controller="store" action="config" class="dropdown-item">Store Configuration</g:link>
-                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]"  class="dropdown-item">Cash Management</g:link>
+                                    <div class="dropdown-submenu">
+                                        <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="cashManagementDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
+
+                                        <div class="dropdown-menu" aria-labelledby="cashManagementDropdown">
+                                            <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
+                                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Config</g:link>
+                                                    <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Management</g:link>
+                                                </g:if>
+                                            </sec:ifAnyGranted>
+                                            <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
+                                                </g:if>
+                                            </sec:ifAnyGranted>
+                                        </div>
+                                    </div>
                                 </g:if>
                             </sec:ifAnyGranted>
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
-
-                            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
-                                <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
-                                </g:if>
-                            </sec:ifAnyGranted>
-
 
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
