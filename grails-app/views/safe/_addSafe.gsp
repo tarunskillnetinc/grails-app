@@ -17,6 +17,11 @@
 
         $(document).ready(function () {
             $("#messages-container").html('');
+
+            document.querySelector('.safe-management-link').addEventListener('click', function(event) {
+                event.preventDefault();
+                cancelAddShiftView('${createLink(action:'closeSafeAdd')}');
+            });
         });
 
     </script>
@@ -31,10 +36,8 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link
-                            action="index">Safe Management</g:link></li>
-                    <li id="breadcrumb-3" class="breadcrumb-item active"
-                        aria-current="page">${isUpdate ? 'Edit Safe' : 'Add Safe'}</li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="safe-management-link">Safe Management</g:link></li>
+                    <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${isUpdate ? 'Edit Safe' : 'Add Safe'}</li>
                 </ol>
             </div>
         </div>
@@ -132,7 +135,7 @@
                     </div>
 
                     <div class="mt-5 text-center">
-                        <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddShift('${createLink(action:'closeShiftAdd')}')" class="btn btn-wl mr-2">Cancel</button>
+                        <button id="save-safe-cancel" type="button" name="safe-save-button" onclick="handleCancelAddShift('${createLink(action:'closeSafeAdd')}')" class="btn btn-wl mr-2">Cancel</button>
                         <button id="safe-save" type="button" name="safe-save-button" onclick="validateAndSave()" class="btn btn-success ml-2">Save</button>
                     </div>
                 </div>

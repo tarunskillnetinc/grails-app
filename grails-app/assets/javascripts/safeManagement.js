@@ -27,19 +27,19 @@ function validateAndSave() {
     var description = $('#description').val();
     if (description === "" || description.trim() === "") {
         error = true;
-        errorString = errorString.concat("\nDescription can not be empty");
+        errorString = errorString.concat("\nThe description can not be empty.");
     }
 
     var type = $('#type').val();
     if (type === "" || type.trim() === "") {
         error = true;
-        errorString = errorString.concat("\nSafe type can not be empty. Please select type");
+        errorString = errorString.concat("\nThe safe type can not be empty. Please select type.");
     }
 
     var shiftStatus = $('input[name="active"]:checked').val();
     if (shiftStatus === undefined) {
         error = true;
-        errorString = errorString.concat("\nSafe status must be selected");
+        errorString = errorString.concat("\nThe safe status must be selected.");
     }
 
 
@@ -96,7 +96,6 @@ function cancelAddShiftView(url) {
 }
 
 function addInactiveSafesParam(link) {
-    //var inactiveSafes = $('#inactiveSafes').prop("checked");
     var inactiveSafesElement = document.getElementById('inactiveSafes');
     var inactiveSafes;
 

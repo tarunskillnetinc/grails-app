@@ -23,7 +23,7 @@ class SafeController {
         render(view: "_addSafe", model: [safe: safe, isUpdate: isUpdate, inactiveSafes: inactiveSafes])
     }
 
-    def closeShiftAdd(){
+    def closeSafeAdd(){
         boolean inactiveSafes = params.boolean('inactiveSafes')
         redirect(action: "index", params: [inactiveSafes: inactiveSafes])
     }
@@ -46,7 +46,7 @@ class SafeController {
                 throw new RuntimeException("Primary shift can not be disable.")
             }
             Safe safe = safeService.populateSafe(existingSafe, isUpdate, safeDescription, safeType, shiftStatus)
-            safe.validate() //call validation to check ant domain class validation errors
+            safe.validate() //call validation to check and if domain class validation errors
             if (!safe.hasErrors()) {
                 safeService.saveSafe(safe) //Save created/updated safe into db
                 if (isUpdate) { // If this is update then update location description
@@ -78,6 +78,9 @@ class SafeController {
                 if (existingSafe && !existingSafe.active) {  //There is one validation --> check if it is active
                     flash.error = "Invalid safe to be primary. Safe need to be active. Try again."
                 } else {
+                    // This will
+                    // 1. Remove primary flag from all available safes
+                    // 2. Add new flag to requested safe
                     safeService.updatePrimarySafe(selectedSafeId)
                     safeService.pushAllUpdatedSafesIntoRabbitMQ() //once update done send all available safes into rabbitMq
                     flash.success = String.format("Successfully updated primary safe to %s.", existingSafe.description)
