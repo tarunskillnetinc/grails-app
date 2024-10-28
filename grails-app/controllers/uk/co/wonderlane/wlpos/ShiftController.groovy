@@ -108,7 +108,8 @@ class ShiftController {
                     // When we move into finalise view we need to pass safe location to summary view to select
                     // For that select if no have create safe location
                     def safeLocations = shiftService.getSafeLocation(shift)
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations])
+                    def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
+                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations, varianceReasons:varianceReasons])
                     return
                 }
                 render(template: "cashUpModal", model: [shift: shift])
@@ -187,15 +188,15 @@ class ShiftController {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
             if (shift != null && ((!cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || (cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
+                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) {
                     def safeLocations = shiftService.getSafeLocation(shift)
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations])
+                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations, varianceReasons:varianceReasons])
                     return
                 }
                 shiftService.processShiftCashSave(cashUpCommand, shift)
                 def safeLocations = shiftService.getSafeLocation(shift)
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
-                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
                 render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safeLocations: safeLocations, isShiftFinalizeMode: false,
@@ -235,8 +236,9 @@ class ShiftController {
                     return
                 }
                 def safeLocations = shiftService.getSafeLocation(shift)
+                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
-                render(template: "cashUpSummaryModal", model: [shift: shift,  safeLocations: safeLocations, isShiftFinalizeMode: true])
+                render(template: "cashUpSummaryModal", model: [shift: shift,  safeLocations: safeLocations, isShiftFinalizeMode: true, varianceReasons:varianceReasons])
             } else if (shift != null && !saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
