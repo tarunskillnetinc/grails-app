@@ -1974,30 +1974,9 @@ class ReportingController {
             stringBuilder.append(",")
             stringBuilder.append(it.usersName?.replace("'", "\\'"))
             stringBuilder.append(",")
-            //build till event reason since
-            String reason = it.reason
-            if (it.reason == null) {
-                reason = "N/A";
-            } else if (it.type.name() == "CUSTOMER_REFUSAL") {
-                reason = getMappingFromResource("CustomerRefusalReason." + it.reason) != null ?
-                        getMappingFromResource("CustomerRefusalReason." + it.reason) : "CustomerRefusalReason." + it.reason
-            } else if (it.type.name() == "REFUND") {
-                reason = getMappingFromResource("RefundReason." + it.reason) != null ?
-                        getMappingFromResource("RefundReason." + it.reason) : "RefundReason." + it.reason
-            } else if (it.type.name() == "MARKDOWN") {
-                reason = getMappingFromResource("MarkdownReason." + it.reason) != null ?
-                        getMappingFromResource("MarkdownReason." + it.reason) : "MarkdownReason." + it.reason
-            } else if (it.type.name() == "LINE_VOID") {
-                reason = getMappingFromResource("LineVoidReason." + it.reason) != null ?
-                        getMappingFromResource("LineVoidReason." + it.reason) : "LineVoidReason." + it.reason
-            } else if (it.type.name() == "PAID_OUT") {
-                reason = getMappingFromResource("PaidOutReason." + it.reason) != null ?
-                        getMappingFromResource("PaidOutReason." + it.reason) : "PaidOutReason." + it.reason
-            } else if (it.type.name() == "PAID_IN") {
-                reason = getMappingFromResource("PaidInReason." + it.reason) != null ?
-                        getMappingFromResource("PaidInReason." + it.reason) : "PaidInReason." + it.reason
-            } else {
-                reason = it.reason
+            String reason = it.reason ?: "N/A"
+            if (it.reasonOther) {
+                reason += " - ${it.reasonOther }"
             }
             stringBuilder.append(reason?.replace("'", "\\'"))
             stringBuilder.append(",")
