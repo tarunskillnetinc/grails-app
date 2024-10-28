@@ -133,7 +133,7 @@ class SafeService {
 
         int updatedCount = Safe.withTransaction { status ->
             Safe.executeUpdate("""
-            UPDATE Safe s 
+            UPDATE safe s 
             SET s.primary = false, s.dateModified = :currentDate 
             WHERE s.storeId = :storeId 
             AND s.retailerId = :retailerId 
