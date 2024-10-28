@@ -46,7 +46,23 @@ class LocationService {
         location.save()
     }
 
-    def saveLocation(Location location) {
+    def updateLocationDescriptionsBySafeId(Integer safeId, Integer retailerId, Integer storeId, String newDescription) {
+        def updatedCount = 0
 
+        Location.withTransaction { status ->
+            updatedCount = Location.executeUpdate("""
+                UPDATE Location l 
+                SET l.description = :newDescription 
+                WHERE l.safeId = :safeId 
+                AND l.retailerId = :retailerId 
+                AND l.storeId = :storeId
+            """, [
+                    newDescription: newDescription,
+                    safeId: safeId,
+                    retailerId: retailerId,
+                    storeId: storeId
+            ])
+        }
+        return updatedCount;
     }
 }

@@ -67,13 +67,6 @@
             </div>
 
             <div class="spot-check-row">
-                <span>Cashback</span>
-                <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CASHBACK' }?.value ?: BigDecimal.ZERO}" type="currency" />
-                </span>
-            </div>
-
-            <div class="spot-check-row">
                 <span>Voucher</span>
                 <span class="spot-check-value">
                     <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO}" type="currency" />
