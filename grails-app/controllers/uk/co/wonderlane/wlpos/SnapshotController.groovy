@@ -7,6 +7,7 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
@@ -19,6 +20,7 @@ class SnapshotController {
     def snapshotService
     def locationService
     def reportingService
+    def reasonCodeService
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
@@ -102,7 +104,9 @@ class SnapshotController {
 
         snapshotService.saveSnapshot(snapshot)
 
-        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
+        def varianceReasons = reasonCodeService.getReasonCodesByType(snapshot.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
+
+        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: varianceReasons ])
     }
 
     def ajaxSaveSnapshot(SaveSnapshotCommand snapshotCommand) {
@@ -113,13 +117,16 @@ class SnapshotController {
             snapshot.varianceReasonText = snapshotCommand.varianceReasonText
         }
 
+        // Remove the time offset by setting the time zone to UTC
         snapshot.countDate = DateTime.now()
         snapshot.countedByUserId = springSecurityService.principal.id
         snapshot.countedByUsersName = springSecurityService.principal.usersName
 
         snapshotService.saveSafeSnapshot(snapshot)
 
-        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
+        def varianceReasons = reasonCodeService.getReasonCodesByType(snapshot.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
+
+        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: varianceReasons ])
     }
 
     def ajaxBanking() {
@@ -302,6 +309,7 @@ class SnapshotController {
             render "OK"
         }
     }
+
 }
 
 class SaveSafeCommand {
@@ -327,7 +335,7 @@ class SaveSafeCommand {
 
 class SaveSnapshotCommand {
     int snapshotId
-    TenderReconciliationVarianceReason varianceReason
+    String varianceReason
     String varianceReasonText
 }
 

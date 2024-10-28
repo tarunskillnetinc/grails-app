@@ -76,8 +76,9 @@
                             <div class="col-4">
                                 <g:select name="tenderReconciliationVarianceReason"
                                           from="${varianceReasons}"
-                                          valueMessagePrefix="TenderReconciliationVarianceReason"
-                                          value="TenderReconciliationVarianceReason.${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"
+                                          optionKey="code"
+                                          optionValue="description"
+                                          value="${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"
                                           class="form-control select-border form-control-sm" />
                             </div>
                         </div>

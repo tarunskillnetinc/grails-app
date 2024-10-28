@@ -5,6 +5,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
@@ -16,6 +17,7 @@ class ShiftController {
     def snapshotService
     def reportingService
     def cashManagementService
+    def reasonCodeService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -193,9 +195,10 @@ class ShiftController {
                 shiftService.processShiftCashSave(cashUpCommand, shift)
                 def safeLocations = shiftService.getSafeLocation(shift)
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
-                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations, isShiftFinalizeMode: false,
+                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safeLocations: safeLocations, isShiftFinalizeMode: false,
                                                                tillShiftVarianceLimit : cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
@@ -375,6 +378,6 @@ class SaveShiftCommand {
     boolean isFinalise
     Integer safeLocationId
     String tillIdFilter
-    TenderReconciliationVarianceReason tenderReconciliationVarianceReason
+    String tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
 }
