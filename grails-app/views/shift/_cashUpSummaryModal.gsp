@@ -61,7 +61,7 @@
             <g:form name="shiftVarianceForm">
                 <g:hiddenField name="shiftId" value="${shift.id}" />
 
-                <g:if test="${reconciliationTotals.sum { it.variance.abs() } ?: 0 != 0}">
+                <g:if test="${reconciliationTotals.sum { it.variance.abs() } >  tillShiftVarianceLimit}">
                     <div class="container">
                         <div class="row pt-5 pb-2">
                             <div class="col-10 offset-1">
