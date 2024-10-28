@@ -187,6 +187,7 @@ class ReasonCodeController {
 
         switch (rc.type) {
             case ReasonCodeType.PAID_OUT:
+            case ReasonCodeType.PAID_IN:
                 rc.additionalFunctionality = params.promptAge != null && params.promptAge == "on"
                 break
             case ReasonCodeType.REFUND:
