@@ -775,8 +775,6 @@
                     var packIndex = $(this).attr("id").substring($(this).attr("id").lastIndexOf("-") + 1);
                     var packSelector = "#addPack\\[" +packIndex +"\\]";
 
-                    var primaryCase = $(packSelector + "\\.primaryCaseValue");
-
                     params["packs[" +loopIndex +"].index"] = loopIndex;
                     params["packs[" +loopIndex +"].id"] = $(packSelector +"\\.id").val();
                     params["packs[" +loopIndex +"].supplier.id"] = $(packSelector +"\\.supplier\\.id").val();
