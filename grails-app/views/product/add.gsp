@@ -357,6 +357,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
                 });
 
                 var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
@@ -611,6 +612,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
 
                     var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
                     barcodeContainers.each(function(BarcodeLoopIndex) {
@@ -788,6 +790,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCaseValue").prop("checked");
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
 
