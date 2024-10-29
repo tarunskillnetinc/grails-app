@@ -250,16 +250,6 @@ class ShiftController {
         }
     }
 
-
-    def ajaxCashUpdateModal(boolean isAddFloat){
-        try {
-            List<Safe> safeLocations = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
-            render(template: "cashUpdateModal", model: [isAddFloat: isAddFloat, safeLocations: safeLocations])
-        } catch (Exception ex) {
-
-        }
-    }
-
     // This is method to functioning action button of shift open
     def ajaxOpenShift() {
         Integer retailerId = null
@@ -351,36 +341,17 @@ class ShiftController {
         }
     }
 
-    // This is method to spot check this will popup dialog box which have values each tender types
-    def ajaxAddFloat(){
-        Integer retailerId = null
-        Integer storeId = null
-        Integer tillId = null
-        Integer shiftId = null
+
+    def ajaxCashUpdateModal(boolean isAddFloat){
         try {
-            shiftService.validateParams(params)
-            retailerId = Integer.parseInt(params.retailerId)
-            storeId = Integer.parseInt(params.storeId)
-            tillId = Integer.parseInt(params.tillId)
-            shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
-            def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
-            if (shift != null) { // If shift not exists then process the action
-                shiftService.processShiftAddFloat(shift) // Add audit for spot check
-                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()]) //Load spot check template
-            } else {
-                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
-            }
+            List<Safe> safeLocations = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            render(template: "cashUpdateModal", model: [isAddFloat: isAddFloat, safeLocations: safeLocations])
         } catch (Exception ex) {
-            log.error(String.format("Spot check error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for till id: %d ", tillId))
+
         }
     }
 
-    def ajaxCashLift(){
-        Integer retailerId = null
-        Integer storeId = null
-        Integer tillId = null
-        Integer shiftId = null
+    def ajaxSaveCashUpdate(){
         try {
             shiftService.validateParams(params)
             retailerId = Integer.parseInt(params.retailerId)
@@ -389,14 +360,12 @@ class ShiftController {
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null) { // If shift not exists then process the action
-                shiftService.processShiftAddFloat(shift) // Add audit for spot check
-                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()]) //Load spot check template
+                //Process save cash update based on cash lift and add float logic
             } else {
                 render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
             }
         } catch (Exception ex) {
-            log.error(String.format("Spot check error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for till id: %d ", tillId))
+
         }
     }
 
