@@ -85,7 +85,9 @@
                                     </div>
                                 </div>
                             </g:if>
-
+                            <g:else>
+                                <g:hiddenField name="tenderReconciliationVarianceReason" value="null" />
+                            </g:else>
                             <div class="row pt-1 pb-2">
                                 <div class="col-9 offset-1">
                                     <g:textField name="tenderReconciliationVarianceReasonText" class="form-control bottom-border form-control-sm" placeholder="Additional reason (optional)."
