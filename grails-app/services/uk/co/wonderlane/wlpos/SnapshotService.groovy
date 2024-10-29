@@ -2,8 +2,9 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
-import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
+import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
@@ -14,7 +15,7 @@ import java.sql.ResultSet
 import java.sql.Types
 
 @Transactional
-class SnapshotService extends MySqlDal {
+class SnapshotService extends MySqlPoolDal {
 
     def springSecurityService
     def gsonProvider
