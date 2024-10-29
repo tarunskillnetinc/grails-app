@@ -197,10 +197,11 @@ class ShiftController {
                 shiftService.processShiftCashSave(cashUpCommand, shift)
                 def safeLocations = shiftService.getSafeLocation(shift)
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+                def tillShiftVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
                 render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safeLocations: safeLocations, isShiftFinalizeMode: false,
-                                                               tillShiftVarianceLimit : cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00])
+                                                               tillShiftVarianceLimit : tillShiftVarianceLimit])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
