@@ -340,6 +340,56 @@ class ShiftController {
         }
     }
 
+    // This is method to spot check this will popup dialog box which have values each tender types
+    def ajaxAddFloat(){
+        Integer retailerId = null
+        Integer storeId = null
+        Integer tillId = null
+        Integer shiftId = null
+        try {
+            shiftService.validateParams(params)
+            retailerId = Integer.parseInt(params.retailerId)
+            storeId = Integer.parseInt(params.storeId)
+            tillId = Integer.parseInt(params.tillId)
+            shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
+            def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
+            if (shift != null) { // If shift not exists then process the action
+                shiftService.processShiftAddFloat(shift) // Add audit for spot check
+                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()]) //Load spot check template
+            } else {
+                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Spot check error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
+            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for till id: %d ", tillId))
+        }
+    }
+
+    def ajaxCashLift(){
+        Integer retailerId = null
+        Integer storeId = null
+        Integer tillId = null
+        Integer shiftId = null
+        try {
+            shiftService.validateParams(params)
+            retailerId = Integer.parseInt(params.retailerId)
+            storeId = Integer.parseInt(params.storeId)
+            tillId = Integer.parseInt(params.tillId)
+            shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
+            def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
+            if (shift != null) { // If shift not exists then process the action
+                shiftService.processShiftAddFloat(shift) // Add audit for spot check
+                render(template: "spotCheck", model: [shift: shift, fetchTime: new DateTime()]) //Load spot check template
+            } else {
+                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Shift not available anymore for till id: %d ", tillId))
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Spot check error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
+            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for till id: %d ", tillId))
+        }
+    }
+
+
 }
 
 class CashUpCommand {
