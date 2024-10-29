@@ -230,7 +230,7 @@ class ShiftController {
                 shiftService.processShiftDataSave(saveShiftCommand, shift)
                 if (saveShiftCommand.isFinalise) { //Only update this if it is finalized
                     def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
-                    if (shift.reconciliationTotalssum { it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
+                    if (shift.reconciliationTotals.sum{ it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
                             (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
                         log.warn("No VarianceReason configured or selected.");
                     }
