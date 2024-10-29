@@ -103,7 +103,7 @@
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance reason:</div>
                     <g:set var="varianceReasonSelected" value="${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}" />
-                    <div class="col-7"><g:message code="${varianceReasons.find { it.varianceReason != null }?.description}" /></div>
+                    <div class="col-7"><g:message code="${varianceReasons.find { it.getCode() == varianceReasonSelected }?.description}" /></div>
                 </div>
             </g:if>
 

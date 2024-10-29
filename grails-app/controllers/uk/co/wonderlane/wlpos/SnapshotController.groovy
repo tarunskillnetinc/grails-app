@@ -118,7 +118,7 @@ class SnapshotController {
         }
 
         // Remove the time offset by setting the time zone to UTC
-        snapshot.countDate = DateTime.now()
+        snapshot.countDate = ZonedDateTime.now(ZoneOffset.UTC);
         snapshot.countedByUserId = springSecurityService.principal.id
         snapshot.countedByUsersName = springSecurityService.principal.usersName
 
