@@ -103,8 +103,8 @@
                                     </g:if>
                                     <g:else>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
-                                            <button class="btn btn-primary p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="addFloat(${shift.id});">Add Float</button>
-                                            <button class="btn btn-warning p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashLift(${shift.id});">Cash Lift</button>
+                                            <button class="btn btn-primary p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashUpdateModal(${true});">Add Float</button>
+                                            <button class="btn btn-warning p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashUpdateModal(${false});">Cash Lift</button>
                                         </g:if>
                                         <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="spotCheck(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Spot check</button>
                                         <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}" >

@@ -289,6 +289,62 @@ function spotCheck(retailerId, storeId, tillId, shiftId) {
     });
 }
 
+function cashUpdateModal(isAddFloat) {
+    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
+        "<span class=\"sr-only\">Loading...</span></div></div></div>");
+    $('#shiftModal').modal({ show: true });
+    $("#search-results").hide();
+    $("#loading-indicator").show();
+    $.ajax({
+        url: ShiftUrls.cashUpdateModal(),
+        method: "POST",
+        data: {isAddFloat: isAddFloat},
+        success: function(resp) {
+            $("#modal-content").html(resp);
+            $(".mask-money").maskMoney({ allowZero: true });
+            $(".mask-money").maskMoney('mask');
+        },
+        error: function(resp) {
+            $("#loading-indicator").hide();
+            $("#search-results").show();
+
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#modal-content").empty();
+
+            $('#shiftModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        },
+    });
+}
+
+
+// function cashUpdateModal(isAddFloat) {
+//     $.ajax({
+//         url: ShiftUrls.getShiftsUrl(),
+//         method: "POST",
+//         data:  {isAddFloat: isAddFloat},
+//         success: function(resp) {
+//             $("#cashUpContainer").html(resp);
+//             $(".mask-money").maskMoney({ allowZero: true });
+//             $(".mask-money").maskMoney('mask');
+//         },
+//         error: function (resp) {
+//             var errorMessage = resp.responseJSON && resp.responseJSON.message ?
+//                 resp.responseJSON.message : "Cash up type change failed";
+//             $("#modal-content").empty();
+//
+//             $('#shiftModal').modal('hide');
+//             $('.modal-backdrop').remove();
+//             $('body').removeClass('modal-open');
+//
+//             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+//         }
+//     });
+// }
+
 function isFormValid() {
     var isFormValid = true;
 

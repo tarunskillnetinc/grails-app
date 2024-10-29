@@ -15,6 +15,7 @@ class ShiftController {
     def shiftService
     def snapshotService
     def reportingService
+    def safeService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -246,6 +247,16 @@ class ShiftController {
         } catch (Exception ex) {
             log.error(String.format("Shift reconciliation error for shift id: %d error: %s", saveShiftCommand.shiftId, ex.getMessage()), ex)
             render(status: 400, contentType: 'application/json', message: "Action failed for shift.")
+        }
+    }
+
+
+    def ajaxCashUpdateModal(boolean isAddFloat){
+        try {
+            List<Safe> safeLocations = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            render(template: "cashUpdateModal", model: [isAddFloat: isAddFloat, safeLocations: safeLocations])
+        } catch (Exception ex) {
+
         }
     }
 

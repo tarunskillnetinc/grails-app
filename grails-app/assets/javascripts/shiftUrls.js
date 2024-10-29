@@ -7,9 +7,10 @@ var ShiftUrls = ShiftUrls || (function () {
     var _openShiftUrl;
     var _closeShiftUrl;
     var _spotCheckUrl;
+    var _cashUpdateModal;
 
     return {
-        init : function (getShiftsUrl, getCashDetailsUrl, changeCashUpTypeUrl, saveCashUrl, saveShiftUrl, openShiftUrl, closeShiftUrl, spotCheckUrl) {
+        init : function (getShiftsUrl, getCashDetailsUrl, changeCashUpTypeUrl, saveCashUrl, saveShiftUrl, openShiftUrl, closeShiftUrl, spotCheckUrl, cashUpdateModal) {
             _getShiftsUrl = getShiftsUrl;
             _getCashDetailsUrl = getCashDetailsUrl;
             _changeCashUpTypeUrl = changeCashUpTypeUrl;
@@ -18,6 +19,7 @@ var ShiftUrls = ShiftUrls || (function () {
             _openShiftUrl = openShiftUrl;
             _closeShiftUrl = closeShiftUrl;
             _spotCheckUrl = spotCheckUrl;
+            _cashUpdateModal = cashUpdateModal;
         },
         getShiftsUrl : function () {
             return _getShiftsUrl;
@@ -42,6 +44,9 @@ var ShiftUrls = ShiftUrls || (function () {
         },
         spotCheckUrl : function() {
             return _spotCheckUrl;
+        },
+        cashUpdateModal : function() {
+            return _cashUpdateModal;
         }
     }
 } ());
