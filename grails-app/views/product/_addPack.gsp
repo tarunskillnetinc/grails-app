@@ -23,7 +23,8 @@
     <g:hiddenField name="addPack[${packIndex}].allowSubstitutes" value="${pack?.allowSubstitutes}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.name" value="${pack?.supplier?.name}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.symbolGroupId" value="${pack?.supplier?.symbolGroupId}" />
-    <g:hiddenField name="addPack[${packIndex}].barcodes" value="${barcodes}" />
+    <g:hiddenField name="addPack[${packIndex}].barcodes" value="${barcodes}"/>
+    <g:hiddenField name="addPack[${packIndex}].primaryCase" value="${pack?.primaryCase}"/>
 
 
     <g:if test="${pack?.supplier?.symbolGroupId}">
@@ -80,6 +81,7 @@
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
         <div class="col-3 my-auto font-weight-bold">Barcodes</div>
+        <div class="col-3 offset-2 my-auto font-weight-bold">Preferred Pack</div>
     </div>
 
     <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
@@ -95,6 +97,10 @@
                     <g:render template="addBarcode" model="[index: i, barcode: barcode, selector: '#addBarcodesContainer' + packIndex]"/>
                 </div>
             </g:each>
+        </div>
+
+        <div id="setPreferred${packIndex}" class="col-5 mr-0">
+            <g:checkBox name="addPack[${packIndex}].primaryCaseValue" class="col-1 form-check-input wl-checkbox" checked="${pack?.primaryCase}" />
         </div>
     </div>
 

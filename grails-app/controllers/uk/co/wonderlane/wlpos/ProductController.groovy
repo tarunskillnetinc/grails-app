@@ -1248,6 +1248,7 @@ class ProductController extends BaseController {
         packToBeUpdated.status = editedPack.status
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
+        packToBeUpdated.primaryCase = editedPack.primaryCase
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1980,6 +1981,7 @@ class AddPackCommand implements Validateable {
     PackStatus status
     Integer maximumOrderQuantity
     Boolean allowSubstitutes
+    boolean primaryCase
     boolean isNewPack = false
     boolean isWeighted = false
     Integer productVariantId
@@ -1990,6 +1992,7 @@ class AddPackCommand implements Validateable {
         id nullable: true
         productVariantId nullable: true
         allowSubstitutes nullable: true
+        primaryCase nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2165,6 +2168,7 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
+    boolean primaryCase
 
     static constraints = {
         importFrom Pack
