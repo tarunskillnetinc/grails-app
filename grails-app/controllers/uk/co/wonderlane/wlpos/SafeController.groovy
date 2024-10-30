@@ -101,7 +101,7 @@ class SafeController {
         def errorMessage = params?.errorMessage
         try {
             inactiveSafes = params.inactiveSafes ? params.inactiveSafes.toBoolean() : false
-            List<Safe> safeList = safeService.getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            List<Safe> safeList = safeService.getStoreSafes()
             if (!inactiveSafes) { //This will load all available safe list and extract with active
                 safeList.retainAll { it.active }
             }

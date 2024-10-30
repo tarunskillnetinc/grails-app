@@ -29,6 +29,7 @@ class ShiftService extends MySqlPoolDal {
     def snapshotService
     def locationService
     def reportingService
+    def safeService
 
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 
@@ -68,10 +69,11 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    def getSafeLocation(Shift shift){
+    def getSafeLocation(Shift shift){  //todo - blah
         def safeLocations = null
         try {
-            safeLocations = locationService.getStoreSafeLocations()
+            safeLocations = safeService.getStoreSafes()
+            //safeLocations = locationService.getStoreSafeLocations()
             if (safeLocations.collect().isEmpty()) {
                 Location location = new Location()
                 location.safeId = 1
@@ -106,7 +108,7 @@ class ShiftService extends MySqlPoolDal {
 
     void processTakeSnapshot(Shift shift, SaveShiftCommand saveShiftCommand) {
         try {
-            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
+            Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(saveShiftCommand.safeLocationId)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
             snapshotService.saveSnapshot(latestSnapshot)
@@ -118,7 +120,7 @@ class ShiftService extends MySqlPoolDal {
     void updateTenderMovement(Shift shift, SaveShiftCommand saveShiftCommand){
         try {
             def tillLocation = locationService.getTillLocation(shift.tillId)
-            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId) //todo
 
             shift.reconciliationTotals.each {
                 if (it.value > BigDecimal.ZERO) {

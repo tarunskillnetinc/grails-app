@@ -36,9 +36,17 @@ class LocationService {
         }
     }
 
-    def generateDefaultSafeLocation() {
+    def getLocationBySafeId(int safeId) {
+        return Location.createCriteria().get {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeId)
+            eq ("safeId", safeId)
+        }
+    }
+
+    def createSafeLocation(int safeId) {
         Location location = new Location()
-        location.safeId = 1
+        location.safeId = safeId
         location.retailerId = springSecurityService.principal.retailerId
         location.storeId = springSecurityService.principal.storeId
         location.type = LocationType.SAFE

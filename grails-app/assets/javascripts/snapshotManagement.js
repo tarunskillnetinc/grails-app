@@ -5,12 +5,12 @@ function getSnapshots() {
 
     const startDate = $("#startDate").val();
     const endDate = $("#endDate").val();
-    const tillId = $("#tillId").val();
+    const safeId = $("#safeId").val();
 
     $.ajax({
         url: SnapshotUrls.getSnapshotsUrl(),
         method: "POST",
-        data: { startDate: startDate, endDate: endDate, tillId: tillId },
+        data: { startDate: startDate, endDate: endDate, safeId: safeId },
         success: function(resp) {
             $("#results-container").html(resp);
         },
@@ -33,6 +33,7 @@ function resetSnapshotFilters(startDate, endDate) {
         startDate,
         endDate
     );
+    $('#safeId').prop('selectedIndex', 0);
     $("#tillId").val("");
     getSnapshots();
 }

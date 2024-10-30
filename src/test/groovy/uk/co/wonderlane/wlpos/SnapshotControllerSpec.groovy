@@ -85,7 +85,7 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         }
 
         controller.snapshotService = Stub(SnapshotService){
-            getSnapshotForLocation(1) >> snapshotMock
+            getSnapshotForSafe(1) >> snapshotMock
         }
 
         views['/snapshot/_snapshotModal.gsp'] = "test"
