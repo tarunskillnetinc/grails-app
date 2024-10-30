@@ -355,7 +355,7 @@ class ShiftService extends MySqlPoolDal {
             addAudit(shift, shiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-            throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for retailer: %d storeId: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for shift id ${shift.getId()}, safe id ${safeId} error: ${ex.getMessage()}"), ex)
         }
     }
 

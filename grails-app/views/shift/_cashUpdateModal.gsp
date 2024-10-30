@@ -36,7 +36,8 @@
                     <div class="form-group row align-items-center">
                         <label for="safeId" class="col-sm-5 col-form-label text-right">Target safe:</label>
                         <div class="col-sm-7">
-                            <g:textField name="safeId"
+                            <g:hiddenField name="safeId" value="${safeLocations?.collect()?[0].id}" />
+                            <g:textField name="safeDescription"
                                          value="${safeLocations?.collect()?[0].description}"
                                          class="form-control"
                                          style="min-width: 200px; max-width: 300px;"/>

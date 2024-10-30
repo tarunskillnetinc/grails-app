@@ -348,13 +348,6 @@ function saveCashUpdate() {
                 $(".mask-money").maskMoney({allowZero: true});
                 $(".mask-money").maskMoney('mask');
             }
-            // $("#loading-indicator").hide();
-            // $("#search-results").show();
-            // $("#modal-content").empty();
-            // $('#shiftModal').modal('hide');
-            // $('.modal-backdrop').remove();
-            // $('body').removeClass('modal-open');
-            // $("#results-container").html(resp);
         },
         error : function(resp) {
             $("#modal-content").html(resp);
