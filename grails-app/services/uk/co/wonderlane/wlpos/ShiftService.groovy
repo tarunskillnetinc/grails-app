@@ -11,7 +11,6 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.cash.*
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
-import uk.co.wonderlane.wlpos.entities.cash.ShiftAudit
 import uk.co.wonderlane.wlpos.enums.*
 import uk.co.wonderlane.wlpos.reporting.Location
 
@@ -107,8 +106,8 @@ class ShiftService extends MySqlPoolDal {
     void processTakeSnapshot(Shift shift, SaveShiftCommand saveShiftCommand) {
         try {
             Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
-            processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
-            processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
+            processFinalizeSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
+            processFinalizeSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
             snapshotService.saveSnapshot(latestSnapshot)
         }catch (Exception ex){
             log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -349,13 +348,76 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    void processShiftAddFloat(Shift shift){
+    void processShiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount, int safeId){
         try {
+            ShiftAction shiftAction = isAddFloat ? ShiftAction.ADD_FLOAT : ShiftAction.CASH_LIFT
             User loggedInUser = loadLoggedInUser()
-            addAudit(shift, ShiftAction.SPOT_CHECK, false, loggedInUser) //Add shift audit for shift close
+            shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
+            shiftSnapshotUpdate(safeId) //update snapshot
+            shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
+            addAudit(shift, shiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
-            log.error(String.format("Error adding shift float for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for retailer: %d storeId: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
         }
+    }
+
+    private void shiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        shiftCashTenderUpdate(shift, isAddFloat, cashAmount, voucherAmount)
+        updateCashDrawer(shift, isAddFloat, cashAmount)
+        saveShift(shift)
+    }
+
+    private void shiftSnapshotUpdate(int safeId){
+
+    }
+
+    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
+        updateTenderTotal(shift, TenderType.CASH, adjustedCashAmount)
+        if (isAddFloat) {
+            updateTenderTotal(shift, TenderType.VOUCHER, voucherAmount)
+        }
+    }
+
+    private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        createNewTenderMovement(shift, safeId, isAddFloat, TenderType.CASH, cashAmount)
+        if (isAddFloat) {
+            createNewTenderMovement(shift, safeId, isAddFloat, TenderType.VOUCHER, voucherAmount)
+        }
+    }
+
+    private void updateCashDrawer(Shift shift, boolean isAddFloat, BigDecimal cashAmount){
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate();
+        if (shift.getCashInDrawer()){
+            shift.setCashInDrawer(shift.getCashInDrawer().add(adjustedCashAmount))
+        }
+    }
+
+    private void updateTenderTotal(Shift shift, TenderType tenderType, BigDecimal updateAmount) {
+        if (updateAmount.compareTo(BigDecimal.ZERO) > 0) {
+            TenderTotal tenderTotal = shift.getTenderTotals().stream()
+                    .filter(tt -> tt.getTenderType() == tenderType).findFirst()
+                    .orElseGet(() -> {
+                        TenderTotal newTenderTotal = new TenderTotal(tenderType);
+                        shift.getTenderTotals().add(newTenderTotal);
+                        return newTenderTotal;
+                    });
+
+            tenderTotal.setQuantity(tenderTotal.getQuantity() + 1);
+            tenderTotal.setValue(tenderTotal.getValue().add(updateAmount));
+        }
+    }
+
+    private void createNewTenderMovement(Shift shift, int safeId, boolean isAddFloat, TenderType tenderType, BigDecimal updateAmount){
+        def tillLocation = locationService.getTillLocation(shift.tillId)
+        def safeLocation = locationService.getLocation(safeId)
+        TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
+        reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+                tenderType,
+                tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                updateAmount))
     }
 
     private Shift populateNewShift(int retailerId, int storeId, int tillId, boolean isAutoGenerated) throws Exception {
@@ -549,15 +611,19 @@ class ShiftService extends MySqlPoolDal {
         return loggedInUser
     }
 
-    private void processSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
-        def total = shift.reconciliationTotals.find { it.tenderType == type }
-        if (total) {
+    private void processFinalizeSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
+        BigDecimal total = shift.reconciliationTotals.find { it.tenderType == type }
+        updateSnapshot(snapshot, total, type)
+    }
+
+    private void updateSnapshot(Snapshot snapshot, BigDecimal amount, TenderType type){
+        if (amount) {
             def expected = snapshot.expectedTotals.find { it.tenderType == type }
             if (!expected) {
                 expected = new TenderTotal(type)
                 snapshot.expectedTotals.add(expected)
             }
-            expected.value = expected.value.add(total.value)
+            expected.value = expected.value.add(amount)
         }
     }
 

@@ -289,7 +289,7 @@ function spotCheck(retailerId, storeId, tillId, shiftId) {
     });
 }
 
-function cashUpdateModal(isAddFloat) {
+function cashUpdateModal(isAddFloat, retailerId, storeId, tillId, shiftId) {
     $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
         "<span class=\"sr-only\">Loading...</span></div></div></div>");
     $('#shiftModal').modal({ show: true });
@@ -298,7 +298,7 @@ function cashUpdateModal(isAddFloat) {
     $.ajax({
         url: ShiftUrls.cashUpdateModal(),
         method: "POST",
-        data: {isAddFloat: isAddFloat},
+        data: {isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId, tillId: tillId, shiftId: shiftId},
         success: function(resp) {
             $("#modal-content").html(resp);
             $(".mask-money").maskMoney({ allowZero: true });
@@ -320,30 +320,49 @@ function cashUpdateModal(isAddFloat) {
     });
 }
 
-
-// function cashUpdateModal(isAddFloat) {
-//     $.ajax({
-//         url: ShiftUrls.getShiftsUrl(),
-//         method: "POST",
-//         data:  {isAddFloat: isAddFloat},
-//         success: function(resp) {
-//             $("#cashUpContainer").html(resp);
-//             $(".mask-money").maskMoney({ allowZero: true });
-//             $(".mask-money").maskMoney('mask');
-//         },
-//         error: function (resp) {
-//             var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-//                 resp.responseJSON.message : "Cash up type change failed";
-//             $("#modal-content").empty();
-//
-//             $('#shiftModal').modal('hide');
-//             $('.modal-backdrop').remove();
-//             $('body').removeClass('modal-open');
-//
-//             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
-//         }
-//     });
-// }
+function saveCashUpdate() {
+    let formValues = $("#modal-form").serialize();
+    tillIdFilter = $("#tillId").val();
+    var isAddFloat = $("#isAddFloat").val();
+    var cashUpdateAction = null
+    $.ajax({
+        url: ShiftUrls.saveCashUpdateUrl(),
+        method: "POST",
+        data: formValues + "&tillIdFilter=" + tillIdFilter ,
+        success: function(resp) {
+            if (resp == 'OK') {
+                $("#loading-indicator").hide();
+                $("#search-results").show();
+                $("#modal-content").empty();
+                $('#shiftModal').modal('hide');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+                cashUpdateAction =  "Cash lift";
+                if (isAddFloat) {
+                    cashUpdateAction = "Add float";
+                }
+                var successMessage = cashUpdateAction + " process successfully completed"
+                $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
+            } else {
+                $("#modal-content").html(resp);
+                $(".mask-money").maskMoney({allowZero: true});
+                $(".mask-money").maskMoney('mask');
+            }
+            // $("#loading-indicator").hide();
+            // $("#search-results").show();
+            // $("#modal-content").empty();
+            // $('#shiftModal').modal('hide');
+            // $('.modal-backdrop').remove();
+            // $('body').removeClass('modal-open');
+            // $("#results-container").html(resp);
+        },
+        error : function(resp) {
+            $("#modal-content").html(resp);
+            $(".mask-money").maskMoney({allowZero: true});
+            $(".mask-money").maskMoney('mask');
+        }
+    });
+}
 
 function isFormValid() {
     var isFormValid = true;
