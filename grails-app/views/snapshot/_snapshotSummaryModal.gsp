@@ -41,12 +41,20 @@
                     <div class="row ml-0 mr-0 pt-2 pb-2">
                         <p class="mx-auto">Please select a reason:</p>
                     </div>
-
-                    <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
-                        <div class="col-6 offset-3">
-                            <g:select name="varianceReason" from="${varianceReasons}" valueMessagePrefix="TenderReconciliationVarianceReason" class="form-control select-border" />
+                    <g:if test="${varianceReasons.size() > 0}">
+                        <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
+                            <div class="col-6 offset-3">
+                                <g:select name="varianceReason"
+                                          from="${varianceReasons}"
+                                          optionKey="code"
+                                          optionValue="description"
+                                          class="form-control select-border form-control-sm" />
+                            </div>
                         </div>
-                    </div>
+                    </g:if>
+                    <g:else>
+                        <g:hiddenField name="varianceReason" value="null" />
+                    </g:else>
                     <div class="row ml-0 mr-0 pt-1 pb-2 form-group">
                         <div class="col-6 offset-3">
                             <g:textField name="varianceReasonText" class="form-control bottom-border" placeholder="Additional reason (optional)." />
@@ -54,8 +62,8 @@
                     </div>
                 </g:if>
                 <g:else>
-                    <g:hiddenField name="tenderReconciliationVarianceReason" value="null" />
-                    <g:hiddenField name="tenderReconciliationVarianceReasonText" value="null" />
+                    <g:hiddenField name="varianceReason" value="null" />
+                    <g:hiddenField name="varianceReasonText" value="null" />
                 </g:else>
             </g:form>
         </g:if>
@@ -64,7 +72,7 @@
             <g:if test="${snapshot.varianceReason != null }">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance reason:</div>
-                    <div id="variance-reason-after-save" class="col-7"><g:message code="TenderReconciliationVarianceReason.${snapshot.varianceReason}" /></div>
+                    <div class="col-7"><g:message code="${varianceReasons.find { snapshot.varianceReason != null }?.description}" /></div>
                 </div>
             </g:if>
 

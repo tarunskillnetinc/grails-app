@@ -5,6 +5,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
@@ -15,6 +16,8 @@ class ShiftController {
     def shiftService
     def snapshotService
     def reportingService
+    def cashManagementService
+    def reasonCodeService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -105,7 +108,8 @@ class ShiftController {
                     // When we move into finalise view we need to pass safe location to summary view to select
                     // For that select if no have create safe location
                     def safeLocations = shiftService.getSafeLocation(shift)
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations])
+                    def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
+                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations, varianceReasons:varianceReasons])
                     return
                 }
                 render(template: "cashUpModal", model: [shift: shift])
@@ -184,16 +188,20 @@ class ShiftController {
         try {
             def shift = shiftService.getShift(cashUpCommand.shiftId, -1, -1)
             if (shift != null && ((!cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || (cashUpCommand.isRecount && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
+                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) {
                     def safeLocations = shiftService.getSafeLocation(shift)
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations])
+                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safeLocations: safeLocations, varianceReasons:varianceReasons])
                     return
                 }
                 shiftService.processShiftCashSave(cashUpCommand, shift)
                 def safeLocations = shiftService.getSafeLocation(shift)
+                def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+                def tillShiftVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
-                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: TenderReconciliationVarianceReason.values(), safeLocations: safeLocations, isShiftFinalizeMode: false])
+                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safeLocations: safeLocations, isShiftFinalizeMode: false,
+                                                               tillShiftVarianceLimit : tillShiftVarianceLimit])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
@@ -221,6 +229,11 @@ class ShiftController {
             if (shift != null && ((!saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() == ShiftStatus.UNRECONCILED) || ((saveShiftCommand.isRecount || saveShiftCommand.isFinalise) && shift.getShiftStatus() == ShiftStatus.RECONCILED))) {
                 shiftService.processShiftDataSave(saveShiftCommand, shift)
                 if (saveShiftCommand.isFinalise) { //Only update this if it is finalized
+                    def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
+                    if (shift.reconciliationTotals.sum{ it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
+                            (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
+                        log.warn("No VarianceReason configured or selected.");
+                    }
                     //If any till id added into filter then pass it
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
                     shiftService.processTakeSnapshot(shift, saveShiftCommand) //Take snapshot
@@ -229,8 +242,9 @@ class ShiftController {
                     return
                 }
                 def safeLocations = shiftService.getSafeLocation(shift)
+                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
-                render(template: "cashUpSummaryModal", model: [shift: shift,  safeLocations: safeLocations, isShiftFinalizeMode: true])
+                render(template: "cashUpSummaryModal", model: [shift: shift,  safeLocations: safeLocations, isShiftFinalizeMode: true, varianceReasons:varianceReasons])
             } else if (shift != null && !saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
@@ -372,6 +386,6 @@ class SaveShiftCommand {
     boolean isFinalise
     Integer safeLocationId
     String tillIdFilter
-    TenderReconciliationVarianceReason tenderReconciliationVarianceReason
+    String tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
 }
