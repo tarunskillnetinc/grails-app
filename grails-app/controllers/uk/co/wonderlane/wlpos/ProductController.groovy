@@ -1389,7 +1389,6 @@ class ProductController extends BaseController {
         //---------------------------- Update history for pack fields --------------------------------//
 
         variant?.packs?.each { editedPack ->
-            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack.id == editedPack.id }
             def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
             if (existingPack) { //Pack already existed
                 comparePackFields(builder, existingPack, editedPack)
