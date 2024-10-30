@@ -51,14 +51,8 @@
                     </div>
                 </g:if>
                 <g:else>
-                    <div class="form-group row align-items-center mt-4">
-                        <label for="cashTotal" class="col-sm-5 col-form-label text-right">Cash Total:</label>
-                        <div class="col-sm-7">
-                            <g:textField name="cashTotal"
-                                         value="0.00"
-                                         class="form-control"
-                                         style="min-width: 200px; max-width: 300px;"/>
-                        </div>
+                    <div class="form-group row align-items-center">
+                        <g:render template="/shift/textField" model="[name: 'cashTotal', label: 'Cash Total', value: 0.00, labelCols: 5]" />
                     </div>
                 </g:else>
             </div>

@@ -77,18 +77,22 @@
                     <div class="card-body collapse" id="filterCollapse">
                         <g:form name="filtersForm" id="filtersForm">
                             <div class="form-group row">
-                                <label for="startDate" class="col-2 col-form-label text-right">Start Date</label>
+                                <label class="col-2 col-form-label text-right">Start Date</label>
                                 <div class="col-4">
                                     <g:textField name="startDate" class="form-control bottom-border" value="${startDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
                                 </div>
 
-                                <label for="endDate" class="col-2 col-form-label text-right">End Date</label>
+                                <label class="col-2 col-form-label text-right">End Date</label>
                                 <div class="col-4">
                                     <g:textField name="endDate" class="form-control bottom-border" value="${endDate.toString("dd/MM/yyyy")}" onkeydown="return false" autocomplete="off" />
                                 </div>
                             </div>
 
                             <div class="form-group row">
+                                <label class="col-2 col-form-label text-right">Description</label>
+                                <div class="col-4">
+                                    <g:select name="safeId" id="safeId" from="${safes}" optionValue="description" optionKey="id" noSelection="['': '']" class="form-control select-border"/>
+                                </div>
                                 <div class="col-12 text-right">
                                     <button id="filter-reset-button" type="button" class="btn btn-danger text-right" onclick="resetSnapshotFilters('${startDate.toString("dd/MM/yyyy")}','${endDate.toString("dd/MM/yyyy")}');">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="getSnapshots();">Filter</button>

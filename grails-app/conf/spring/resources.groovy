@@ -109,6 +109,7 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+        safeService = ref("safeService")
     }
 
     rabbitService(BackOfficeRabbitService,
