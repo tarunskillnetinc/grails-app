@@ -14,6 +14,8 @@ import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.Location
 import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
+import java.time.ZonedDateTime
+
 class SnapshotController {
 
     def springSecurityService
@@ -118,7 +120,7 @@ class SnapshotController {
         }
 
         // Remove the time offset by setting the time zone to UTC
-        snapshot.countDate = ZonedDateTime.now(ZoneOffset.UTC);
+        snapshot.countDate = DateTime.now().withZone(DateTimeZone.UTC)
         snapshot.countedByUserId = springSecurityService.principal.id
         snapshot.countedByUsersName = springSecurityService.principal.usersName
 
