@@ -72,7 +72,7 @@
             <g:if test="${snapshot.varianceReason != null }">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Variance reason:</div>
-                    <div class="col-7"><g:message code="${varianceReasons.find { snapshot.varianceReason != null }?.description}" /></div>
+                    <div class="col-7"><g:message code="${varianceReasons.find {  it.getCode() == snapshot.varianceReason }?.description}" /></div>
                 </div>
             </g:if>
 
