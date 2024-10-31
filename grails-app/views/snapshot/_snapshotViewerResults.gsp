@@ -1,8 +1,9 @@
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
-    <div class="col-3 font-weight-bold">Count Date</div>
-    <div class="col-3 font-weight-bold">Total</div>
-    <div class="col-3 font-weight-bold">Variance</div>
-    <div class="col-3 font-weight-bold">Counted By</div>
+    <div class="col-3 font-weight-bold">Description</div>
+    <div class="col-2 font-weight-bold">Count Date</div>
+    <div class="col-2 font-weight-bold">Total</div>
+    <div class="col-2 font-weight-bold">Variance</div>
+    <div class="col-2 font-weight-bold">Counted By</div>
 </div>
 
 <div class="d-flex justify-content-center">
@@ -17,10 +18,11 @@
     </g:if>
     <g:each in="${snapshots}" var="snapshot" status="i">
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to view." style="cursor: pointer;" onclick="showModal('SNAPSHOT', ${snapshot.id});">
-            <div id="count-date-${i + 1}" class="col-3 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${snapshot.countDate.toDate()}" /></div>
-            <div id="total-${i + 1}" class="col-3 my-auto text-truncate"><g:formatNumber number="${snapshot.totals.sum { it.value } ?: BigDecimal.ZERO}" type="currency" /></div>
-            <div id="variance-${i + 1}" class="col-3 my-auto text-truncate"><g:formatNumber number="${snapshot.variance ?: BigDecimal.ZERO}" type="currency" /></div>
-            <div id="counted-by-${i + 1}" class="col-3 my-auto">${snapshot.countedByUsersName}</div>
+            <div id="description-${i + 1}" class="col-3 my-auto">${descriptions[snapshot.safeId]}</div>
+            <div id="count-date-${i + 1}" class="col-2 my-auto"><g:formatDate format="dd/MM/yyyy HH:mm" date="${snapshot.countDate.toDate()}" /></div>
+            <div id="total-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${snapshot.totals.sum { it.value } ?: BigDecimal.ZERO}" type="currency" /></div>
+            <div id="variance-${i + 1}" class="col-2 my-auto text-truncate"><g:formatNumber number="${snapshot.variance ?: BigDecimal.ZERO}" type="currency" /></div>
+            <div id="counted-by-${i + 1}" class="col-2 my-auto">${snapshot.countedByUsersName}</div>
         </div>
     </g:each>
 </div>

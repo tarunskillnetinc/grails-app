@@ -98,6 +98,7 @@ beans = {
         snapshotService = ref('snapshotService')
         locationService = ref('locationService')
         reportingService = ref('reportingService')
+        safeService = ref('safeService')
     }
 
     snapshotService(SnapshotService,
@@ -109,6 +110,7 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+        safeService = ref("safeService")
     }
 
     rabbitService(BackOfficeRabbitService,

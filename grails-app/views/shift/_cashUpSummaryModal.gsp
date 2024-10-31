@@ -136,20 +136,20 @@
                 </div>
             </g:if>
 
-            <g:if test="${safeLocations?.collect()?.size() > 1}">
+            <g:if test="${safes?.collect()?.size() > 1}">
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Please select a safe location:</div>
                     <div class="col-4">
                         <g:select name="safeLocationId"
-                                  from="${safeLocations}"
+                                  from="${safes}"
                                   optionKey="id"
                                   optionValue="description"
                                   class="form-control select-border form-control-sm"/>
                     </div>
                 </div>
             </g:if>
-            <g:elseif test="${safeLocations?.collect()?.size() == 1}">
-                <g:hiddenField name="safeLocationId" value="${safeLocations?.collect()[0].id}"/>
+            <g:elseif test="${safes?.collect()?.size() == 1}">
+                <g:hiddenField name="safeLocationId" value="${safes?.collect()[0].id}"/>
             </g:elseif>
 
         </g:else>
