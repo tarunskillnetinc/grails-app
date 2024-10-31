@@ -1,6 +1,8 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import grails.gorm.transactions.Transactional
@@ -302,7 +304,7 @@ class ShiftService extends MySqlPoolDal {
                         .collect(Collectors.toMap(Shift::getTillId,
                                 shift -> ShiftStatus.OPEN,
                                 (existing, replacement) -> existing
-                        ));
+                        ))
 
                 nonExistingShiftList = tillConfigList.stream()
                         .filter(tillConfig -> !shiftTillIds.contains(tillConfig.getTillId()) || openTillsMap.get(tillConfig.getTillId()) == null)
@@ -399,15 +401,19 @@ class ShiftService extends MySqlPoolDal {
             timestamp = new DateTime()
         }
 
-        if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT]) {
+        if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
             JsonObject jsonObject = new JsonObject()
 
-            if (shiftAction == ShiftAction.SPOT_CHECK || shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT]) {
-                addJsonArrayToObject(jsonObject, "tenderTotals", shift.tenderTotals)
+            if (shiftAction == ShiftAction.SPOT_CHECK || shiftAction == ShiftAction.ADD_FLOAT || shiftAction == ShiftAction.CASH_LIFT ||  shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT]) {
+                addJsonFieldToObject(jsonObject, "tenderTotals", shift.tenderTotals)
+            }
+
+            if (shiftAction == ShiftAction.ADD_FLOAT || shiftAction == ShiftAction.CASH_LIFT) {
+                addJsonFieldToObject(jsonObject, "cashInDrawer", shift.cashInDrawer)
             }
 
             if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT]) {
-                addJsonArrayToObject(jsonObject, "reconciliationTotals", shift.reconciliationTotals)
+                addJsonFieldToObject(jsonObject, "reconciliationTotals", shift.reconciliationTotals)
             }
 
             shiftAudit.extras = jsonObject
@@ -416,18 +422,25 @@ class ShiftService extends MySqlPoolDal {
         return shiftAudit
     }
 
-    private void addJsonArrayToObject(JsonObject jsonObject, String key, def totals) {
-        if (totals != null) {
+    private void addJsonFieldToObject(JsonObject jsonObject, String key, def value) {
+        if (value != null) {
             try {
-                String jsonString = gsonProvider?.gson?.toJson(totals) ?: "[]"
-                JsonArray jsonArray = JsonParser.parseString(jsonString)?.asJsonArray ?: new JsonArray()
-                jsonObject.add(key, jsonArray)
+                String jsonString = gsonProvider?.gson?.toJson(value) ?: "{}"
+                JsonElement jsonElement = JsonParser.parseString(jsonString)
+
+                if (jsonElement.isJsonArray()) {
+                    jsonObject.add(key, jsonElement.getAsJsonArray())
+                } else if (jsonElement.isJsonObject()) {
+                    jsonObject.add(key, jsonElement.getAsJsonObject())
+                } else {
+                    jsonObject.add(key, jsonElement)
+                }
             } catch (Exception ex) {
                 log.error("Error parsing extra for audit for key: $key : ${ex.message}", ex)
                 jsonObject.add(key, new JsonArray())
             }
         } else {
-            jsonObject.add(key, new JsonArray())
+            jsonObject.add(key, JsonNull.INSTANCE)
         }
     }
 
@@ -551,7 +564,7 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void processFinalizeSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
-        BigDecimal total = shift.reconciliationTotals.find { it.tenderType == type }
+        BigDecimal total = shift.reconciliationTotals.find { it.tenderType == type } as BigDecimal
         updateSnapshot(snapshot, total, type)
     }
 
@@ -672,28 +685,21 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-
     private void shiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        shiftCashTenderUpdate(shift, isAddFloat, cashAmount, voucherAmount)
-        updateCashDrawer(shift, isAddFloat, cashAmount)
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
+        shiftCashTenderUpdate(shift, isAddFloat, adjustedCashAmount, voucherAmount)
+        updateCashDrawer(shift, adjustedCashAmount)
         saveShift(shift)
     }
 
     private void shiftSnapshotUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
         Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
-        updateSnapshot(latestSnapshot, cashAmount, TenderType.CASH)
+        updateSnapshot(latestSnapshot, adjustedCashAmount, TenderType.CASH)
         if (isAddFloat) {
-            updateSnapshot(latestSnapshot, voucherAmount, TenderType.VOUCHER)
+            updateSnapshot(latestSnapshot, voucherAmount.negate(), TenderType.VOUCHER)
         }
         snapshotService.saveSnapshot(latestSnapshot)
-    }
-
-    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
-        updateTenderTotalForCashUpdate(shift, TenderType.CASH, adjustedCashAmount)
-        if (isAddFloat) {
-            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
-        }
     }
 
     private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
@@ -706,6 +712,25 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
+    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        updateTenderTotalForCashUpdate(shift, TenderType.CASH, cashAmount)
+        if (isAddFloat) {
+            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
+        }
+    }
+
+    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
+        if (cashAmount != null){
+            BigDecimal currentCash = shift.getCashInDrawer();
+            if (currentCash == null) {
+                currentCash = BigDecimal.ZERO;
+            }
+            BigDecimal newCashAmount = currentCash.add(cashAmount);
+            shift.setCashInDrawer(newCashAmount);
+        }
+    }
+
+
     private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
                 tenderType,
@@ -714,15 +739,8 @@ class ShiftService extends MySqlPoolDal {
                 updateAmount))
     }
 
-    private void updateCashDrawer(Shift shift, boolean isAddFloat, BigDecimal cashAmount){
-        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate();
-        if (shift.getCashInDrawer()){
-            shift.setCashInDrawer(shift.getCashInDrawer().add(adjustedCashAmount))
-        }
-    }
-
     private void updateTenderTotalForCashUpdate(Shift shift, TenderType tenderType, BigDecimal updateAmount) {
-        if (updateAmount.compareTo(BigDecimal.ZERO) > 0) {
+        if (updateAmount != 0) { //update amount either can be negative or positive
             TenderTotal tenderTotal = shift.getTenderTotals().stream()
                     .filter(tt -> tt.getTenderType() == tenderType).findFirst()
                     .orElseGet(() -> {

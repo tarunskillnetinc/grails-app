@@ -366,10 +366,18 @@ class ShiftController {
             storeId = Integer.parseInt(params.storeId)
             tillId = Integer.parseInt(params.tillId)
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
+            BigDecimal cashAmount = params.cashAmount ? new BigDecimal(params.cashAmount) : null
+            BigDecimal voucherAmount = params.cashAmount ? new BigDecimal(params.voucherAmount) : null
+            Integer safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
             String error = params.error
             List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
+            Safe primarySafe = safeLocations.find { it.primary }
+            if (safeId > 0) {
+                primarySafe = safeService.getSafeById(safeId)
+            }
             render(template: "cashUpdateModal", model: [isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId,
-                                                        tillId: tillId, shiftId: shiftId, safeLocations: safeLocations, error: error])
+                                                        tillId: tillId, shiftId: shiftId, safeLocations: safeLocations, primarySafe: primarySafe,
+                                                        cashAmount:cashAmount, voucherAmount: voucherAmount , error: error])
         } catch (Exception ex) {
             log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} modal loading error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
             render(status: 400, contentType: 'application/json', message: String.format("Action failed for loading ${isAddFloat ? 'add float ' : 'cash lift '} modal for till id: %d ", tillId))
@@ -382,6 +390,9 @@ class ShiftController {
         Integer storeId = null
         Integer tillId = null
         Integer shiftId = null
+        BigDecimal cashAmount = null
+        BigDecimal voucherAmount = null
+        Integer safeId = null
         try {
             isAddFloat = Boolean.parseBoolean(params.isAddFloat)
             shiftService.validateParams(params)
@@ -389,24 +400,24 @@ class ShiftController {
             storeId = Integer.parseInt(params.storeId)
             tillId = Integer.parseInt(params.tillId)
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
-            Integer safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
-            BigDecimal cashAmount = params.cashTotal ? new BigDecimal(params.cashTotal) : BigDecimal.ZERO
-            BigDecimal voucherAmount = params.vouchersTotal ? new BigDecimal(params.vouchersTotal) : BigDecimal.ZERO
-            Integer tillIdFilter = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+            cashAmount = params.cashTotal ? new BigDecimal(params.cashTotal) : BigDecimal.ZERO
+            voucherAmount = params.vouchersTotal ? new BigDecimal(params.vouchersTotal) : BigDecimal.ZERO
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null) { // If shift not exists then process the action
                 //Process save cash update based on cash lift and add float logic
                 shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
-                flash.message = String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} process successfully completed for till id ${tillId}")
                 render "OK"
             } else {
                 redirect(action: "ajaxCashUpdateModal", params: [tillId: tillId, isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId,
-                                                                 shiftId: shiftId, error: String.format("No shift exists anymore for ${isAddFloat ? 'add float ' : 'cash lift '}")])
+                                                                 shiftId: shiftId, safeId : safeId, cashAmount: cashAmount, voucherAmount : voucherAmount,
+                                                                 error: String.format("No shift exists anymore for ${isAddFloat ? 'add float ' : 'cash lift '}")])
             }
         } catch (Exception ex) {
             log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} saving error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
             redirect(action: "ajaxCashUpdateModal", params: [tillId: tillId, isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId,
-                                                             shiftId: shiftId, error: String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} failed for till id: ${tillId}")])
+                                                             shiftId: shiftId, safeId : safeId, cashAmount: cashAmount, voucherAmount : voucherAmount,
+                                                             error: String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} failed for till id: ${tillId}")])
         }
     }
 

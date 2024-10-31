@@ -27,6 +27,7 @@
                                       from="${safeLocations}"
                                       optionKey="id"
                                       optionValue="description"
+                                      value="${primarySafe?.id}"
                                       class="form-control select-border"
                                       style="min-width: 200px; max-width: 300px;"/>
                         </div>
@@ -47,8 +48,8 @@
 
                 <g:if test="${isAddFloat}">
                     <div class="row form-group mb-4 mt-5 justify-content-center">
-                        <g:render template="/shift/textField" model="[name: 'cashTotal', label: 'Cash Total', value: 0.00, labelCols: 2]" />
-                        <g:render template="/shift/textField" model="[name: 'vouchersTotal', label: 'Vouchers Total', value: 0.00, labelCols: 2]" />
+                        <g:render template="/shift/textField" model="[name: 'cashTotal', label: 'Cash Total', value:  cashAmount  ? cashAmount : '0.00' , labelCols: 2]" />
+                        <g:render template="/shift/textField" model="[name: 'vouchersTotal', label: 'Vouchers Total', value:  voucherAmount  ? voucherAmount : '0.00' , labelCols: 2]" />
                     </div>
                 </g:if>
                 <g:else>
