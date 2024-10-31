@@ -98,6 +98,7 @@ beans = {
         snapshotService = ref('snapshotService')
         locationService = ref('locationService')
         reportingService = ref('reportingService')
+        safeService = ref('safeService')
     }
 
     snapshotService(SnapshotService,

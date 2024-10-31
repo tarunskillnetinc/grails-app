@@ -31,7 +31,7 @@ class SnapshotController {
 
         def storeSafes = safeService.getStoreSafes()
 
-        [startDate: startDate, endDate: endDate, safeLocations: safeService.getStoreSafes(), shiftStartDate: params.shiftStartDate, shiftEndDate: params.shiftEndDate, shiftTillId: params.shiftTillId, safes: storeSafes]
+        [startDate: startDate, endDate: endDate, safes: storeSafes, shiftStartDate: params.shiftStartDate, shiftEndDate: params.shiftEndDate, shiftTillId: params.shiftTillId]
     }
 
     def ajaxGetSnapshots() {
@@ -61,11 +61,11 @@ class SnapshotController {
         if (id == 0) {
             if (safes.collect().isEmpty()) {
                 def safe = safeService.createDefaultSafe()
-                locationService.generateSafeLocation(safe.id)
+                locationService.createSafeLocation(safe.id)
             }
 
             if (safes.collect().size() == 1) {
-                Snapshot safeSnapshot = snapshotService.getSnapshotForSafe((locations.collect()[0] as Safe).id)
+                Snapshot safeSnapshot = snapshotService.getSnapshotForSafe((safes.collect()[0] as Safe).id)
                 render(template: "snapshotModal", model: [safeLocations: safes, snapshot: safeSnapshot])
             } else {
                 render(template: "snapshotModal", model: [safeLocations: safes, snapshot: null])
@@ -82,8 +82,12 @@ class SnapshotController {
     }
 
     def ajaxGetSnapshot(int id) {
+        def safe = null
         def snapshot = snapshotService.getSnapshot(id)
-        def safe = safeService.getSafeById(snapshot.safeId)
+
+        if (snapshot != null) {
+            safe = safeService.getSafeById(snapshot.safeId)
+        }
 
         if (snapshot) {
             render(template: "snapshotSummaryModal", model: [snapshot: snapshot, description: safe.description])
@@ -155,7 +159,7 @@ class SnapshotController {
 
         if (location == null) {
             /* Should not happen, but if necessary create a location for the safe */
-            locationService.generateSafeLocation(safeId)
+            locationService.createSafeLocation(safeId)
         }
 
         return location

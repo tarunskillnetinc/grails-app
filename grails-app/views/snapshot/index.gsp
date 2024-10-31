@@ -104,13 +104,13 @@
             </div>
             <div class="offset-2 col-5">
                 <div class="row">
-                    <div class="${safeLocations?.collect()?.size() < 2 ? 'offset-4 ': ''}col-4">
+                    <div class="${safes?.collect()?.size() < 2 ? 'offset-4 ': ''}col-4">
                         <button id="banking-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('BANKING')">Banking</button>
                     </div>
                     <div class="col-4">
                         <button id="cash-inbound-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('CASH_INBOUND')">Cash Inbound</button>
                     </div>
-                    <g:if test="${safeLocations?.collect()?.size() > 1}">
+                    <g:if test="${safes?.collect()?.size() > 1}">
                         <div class="col-4">
                             <button id="cash-lift-button" type="button" class="btn btn-wl text-center w-100" onclick="showModal('CASH_LIFT')">Cash Lift</button>
                         </div>

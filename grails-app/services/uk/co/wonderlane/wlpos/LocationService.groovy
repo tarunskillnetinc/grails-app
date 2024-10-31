@@ -9,17 +9,6 @@ class LocationService {
 
     def springSecurityService
 
-    def getStoreSafeLocations() {
-        def locationCriteria = Location.createCriteria()
-        return locationCriteria.list {
-            eq ("retailerId", springSecurityService.principal.retailerId)
-            if (springSecurityService.principal.storeId != null) {
-                eq ("storeId", springSecurityService.principal.storeId)
-            }
-            eq ("type", LocationType.SAFE)
-        }
-    }
-
     def getTillLocation(int tillId) {
         def locationCriteria = Location.createCriteria()
         return locationCriteria.get {
@@ -30,22 +19,17 @@ class LocationService {
         }
     }
 
-    def getLocation(int locationId) {
-        return Location.createCriteria().get {
-            eq ("id", locationId)
-        }
-    }
-
     def getLocationBySafeId(int safeId) {
         return Location.createCriteria().get {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
             eq ("safeId", safeId)
+            eq ("type", LocationType.SAFE)
         }
     }
 
     def createSafeLocation(int safeId) {
-        Location location = new Location()
+        def location = new Location()
         location.safeId = safeId
         location.retailerId = springSecurityService.principal.retailerId
         location.storeId = springSecurityService.principal.storeId

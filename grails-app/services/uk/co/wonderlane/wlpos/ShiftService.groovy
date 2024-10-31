@@ -70,27 +70,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    def getSafeLocation(Shift shift){  //todo - blah
-        def safeLocations = null
-        try {
-            safeLocations = safeService.getStoreSafes()
-            //safeLocations = locationService.getStoreSafeLocations()
-            if (safeLocations.collect().isEmpty()) {
-                Location location = new Location()
-                location.safeId = 1
-                location.retailerId = shift.retailerId
-                location.storeId = shift.storeId
-                location.type = LocationType.SAFE
-                location.description = "Safe 1"
-                location.save()
-                safeLocations = locationService.getStoreSafeLocations()
-            }
-        } catch (Exception ex) {
-            log.error(String.format("Error saving safe location shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-        }
-        return safeLocations
-    }
-
     void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
@@ -121,7 +100,7 @@ class ShiftService extends MySqlPoolDal {
     void updateFinaliseTenderMovement(Shift shift, SaveShiftCommand saveShiftCommand){
         try {
             Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
-            Location safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId) as Location //todo
+            def safeLocation = locationService.getLocationBySafeId(saveShiftCommand.safeLocationId)
 
             shift.reconciliationTotals.each {
                 createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderType, it.value)
