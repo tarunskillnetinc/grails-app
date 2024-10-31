@@ -94,7 +94,7 @@ class SafeService {
             SyncMessage safeSyncMessage = new SyncMessage(SyncMessageType.SAFE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
             safeSyncMessage.setInsert(true)
             safeSyncMessage.setSafe(safe.getSafe())
-            rabbitService.sendOfferAllocationMessage("DataSync", safeSyncMessage)
+            rabbitService.sendMessage(safeSyncMessage)
         }catch(Exception ex){
             log.error("Failed to push updated safe into rabbitMQ, Exception: ${ex.message} " + ex)
         }
