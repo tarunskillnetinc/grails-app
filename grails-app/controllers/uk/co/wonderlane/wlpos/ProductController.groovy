@@ -1389,7 +1389,10 @@ class ProductController extends BaseController {
         //---------------------------- Update history for pack fields --------------------------------//
 
         variant?.packs?.each { editedPack ->
+            log.println("EditedPack ID - " + editedPack.id)
             def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+            log.println("ExistingPack - " + existingPack)
+
             if (existingPack) { //Pack already existed
                 comparePackFields(builder, existingPack, editedPack)
             } else { //Pack newly added
@@ -1562,8 +1565,8 @@ class ProductController extends BaseController {
         render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
-    def ajaxAddVariant(AddVariantCommand cmd) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value])
+    def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
     }
 
     def ajaxAddBarcode(int index, String selector) {
