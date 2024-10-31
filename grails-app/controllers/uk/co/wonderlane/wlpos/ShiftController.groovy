@@ -367,20 +367,28 @@ class ShiftController {
             tillId = Integer.parseInt(params.tillId)
             shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
             BigDecimal cashAmount = params.cashAmount ? new BigDecimal(params.cashAmount) : null
-            BigDecimal voucherAmount = params.cashAmount ? new BigDecimal(params.voucherAmount) : null
+            BigDecimal voucherAmount = params.voucherAmount ? new BigDecimal(params.voucherAmount) : null
             Integer safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
             String error = params.error
             List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
+            if (safeLocations == null || safeLocations.isEmpty()) {
+                flash.error = "No safe locations are configured. Please add safe and retry"
+                throw new RuntimeException("No safe locations are configured.")
+            }
             Safe primarySafe = safeLocations.find { it.primary }
             if (safeId > 0) {
                 primarySafe = safeService.getSafeById(safeId)
             }
             render(template: "cashUpdateModal", model: [isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId,
                                                         tillId: tillId, shiftId: shiftId, safeLocations: safeLocations, primarySafe: primarySafe,
-                                                        cashAmount:cashAmount, voucherAmount: voucherAmount , error: error])
+                                                        cashAmount:cashAmount, voucherAmount:voucherAmount , error: error])
         } catch (Exception ex) {
             log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} modal loading error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            render(status: 400, contentType: 'application/json', message: String.format("Action failed for loading ${isAddFloat ? 'add float ' : 'cash lift '} modal for till id: %d ", tillId))
+            String error =  "${isAddFloat ? 'Add float ' : 'Cash lift '} action failed. "
+            if (flash.error) {
+                error = error + flash.error
+            }
+            render(status: 400, contentType: 'application/json', message: error)
         }
     }
 

@@ -21,7 +21,7 @@
             <div class="col-md-10">
                 <g:if test="${safeLocations?.collect()?.size() > 1}">
                     <div class="form-group row align-items-center">
-                        <label for="safeId" class="col-sm-5 col-form-label text-right">Please select a safe location:</label>
+                        <label for="safeId" class="col-sm-5 col-form-label text-right">Please select ${isAddFloat ? 'source' : 'target'} safe location:</label>
                         <div class="col-sm-7">
                             <g:select name="safeId"
                                       from="${safeLocations}"
@@ -35,7 +35,7 @@
                 </g:if>
                 <g:else>
                     <div class="form-group row align-items-center">
-                        <label for="safeId" class="col-sm-5 col-form-label text-right">Target safe:</label>
+                        <label for="safeId" class="col-sm-5 col-form-label text-right">${isAddFloat ? 'Source' : 'Target'} safe:</label>
                         <div class="col-sm-7">
                             <g:hiddenField name="safeId" value="${safeLocations?.collect()?[0].id}" />
                             <g:textField name="safeDescription"

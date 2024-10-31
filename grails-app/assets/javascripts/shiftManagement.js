@@ -307,10 +307,8 @@ function cashUpdateModal(isAddFloat, retailerId, storeId, tillId, shiftId) {
         error: function(resp) {
             $("#loading-indicator").hide();
             $("#search-results").show();
-
             var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
             $("#modal-content").empty();
-
             $('#shiftModal').modal('hide');
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
