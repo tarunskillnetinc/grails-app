@@ -124,9 +124,7 @@ class ShiftService extends MySqlPoolDal {
             Location safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId) as Location //todo
 
             shift.reconciliationTotals.each {
-                if (it.value.compareTo(BigDecimal.ZERO) > 0) {
-                    createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderType, it.value)
-                }
+                createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderType, it.value)
             }
         } catch (Exception ex) {
             log.error(String.format("Error shift tender movement for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -693,6 +691,7 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void shiftSnapshotUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        // If this is add float action then amounts need to be deduct on snapshot if cash lift then need to sum up for snapshot
         BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
         Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
         updateSnapshot(latestSnapshot, adjustedCashAmount, TenderType.CASH)
@@ -732,11 +731,13 @@ class ShiftService extends MySqlPoolDal {
 
 
     private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
-        reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
-                tenderType,
-                tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                updateAmount))
+        if (updateAmount.compareTo(BigDecimal.ZERO) > 0) {
+            reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+                    tenderType,
+                    tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                    safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                    updateAmount))
+        }
     }
 
     private void updateTenderTotalForCashUpdate(Shift shift, TenderType tenderType, BigDecimal updateAmount) {
