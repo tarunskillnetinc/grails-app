@@ -1,6 +1,4 @@
 function getShifts() {
-    $("#search-results").hide();
-    $("#loading-indicator").show();
     tillId = $("#tillId").val();
 
     $.ajax({
@@ -11,27 +9,21 @@ function getShifts() {
             $("#results-container").html(resp);
         },
         error: function() {
-            $("#loading-indicator").hide();
             $("#search-results").show();
-
             const result = document.createElement('div');
             $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
             $("#search-results").html(result);
         },
     });
-
 }
 
 function showCashModal(shiftId, isRecount, isFinalise) {
-    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
-        "<span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#shiftModal').modal({ show: true });
-
     $.ajax({
         url: ShiftUrls.getCashDetailsUrl(),
         method: "POST",
         data: { shiftId: shiftId, isRecount: isRecount, isFinalise: isFinalise },
         success: function(resp) {
+            $('#shiftModal').modal({ show: true });
             $("#modal-content").html(resp);
 
             $(".mask-money").maskMoney({ allowZero: true });
@@ -50,12 +42,6 @@ function showCashModal(shiftId, isRecount, isFinalise) {
         error: function (resp){
             var errorMessage = resp.responseJSON && resp.responseJSON.message ?
                 resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#modal-content").empty();
-
-            $('#shiftModal').modal('hide');
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
@@ -129,14 +115,19 @@ function changeCashUpType(type) {
             });
         },
         error: function (resp) {
+            if ($("#modal-content").length) {
+                $("#modal-content").empty();
+            }
+            if ($('#shiftModal').length) {
+                $('#shiftModal').modal('hide');
+            }
+
+            if ($('.modal-backdrop').length) {
+                $('.modal-backdrop').remove();
+            }
+            $('body').removeClass('modal-open');
             var errorMessage = resp.responseJSON && resp.responseJSON.message ?
                 resp.responseJSON.message : "Cash up type change failed";
-            $("#modal-content").empty();
-
-            $('#shiftModal').modal('hide');
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
@@ -162,14 +153,19 @@ function submitCash(shiftId, isRecount) {
             });
         },
         error: function (resp) {
+            if ($("#modal-content").length) {
+                $("#modal-content").empty();
+            }
+            if ($('#shiftModal').length) {
+                $('#shiftModal').modal('hide');
+            }
+
+            if ($('.modal-backdrop').length) {
+                $('.modal-backdrop').remove();
+            }
+            $('body').removeClass('modal-open');
             var errorMessage = resp.responseJSON && resp.responseJSON.message ?
                 resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#modal-content").empty();
-
-            $('#shiftModal').modal('hide');
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
@@ -200,14 +196,19 @@ function submitShift(shiftId, isRecount, isFinalise) {
                 }
             },
             error: function (resp) {
+                if ($("#modal-content").length) {
+                    $("#modal-content").empty();
+                }
+                if ($('#shiftModal').length) {
+                    $('#shiftModal').modal('hide');
+                }
+
+                if ($('.modal-backdrop').length) {
+                    $('.modal-backdrop').remove();
+                }
+                $('body').removeClass('modal-open');
                 var errorMessage = resp.responseJSON && resp.responseJSON.message ?
                     resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-                $("#modal-content").empty();
-
-                $('#shiftModal').modal('hide');
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
-
                 $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
             }
         });
@@ -215,8 +216,6 @@ function submitShift(shiftId, isRecount, isFinalise) {
 }
 
 function openShifts(retailerId, storeId, tillId) {
-    $("#search-results").hide();
-    $("#loading-indicator").show();
     tillIdFilter = $("#tillId").val();
     $.ajax({
         url: ShiftUrls.openShiftUrl(),
@@ -228,7 +227,6 @@ function openShifts(retailerId, storeId, tillId) {
         error: function() {
             $("#loading-indicator").hide();
             $("#search-results").show();
-
             const result = document.createElement('div');
             $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
             $("#search-results").html(result);
@@ -238,8 +236,6 @@ function openShifts(retailerId, storeId, tillId) {
 }
 
 function closeShifts(retailerId, storeId, tillId, shiftId) {
-    $("#search-results").hide();
-    $("#loading-indicator").show();
     tillIdFilter = $("#tillId").val();
     $.ajax({
         url: ShiftUrls.closeShiftUrl(),
@@ -251,7 +247,6 @@ function closeShifts(retailerId, storeId, tillId, shiftId) {
         error: function() {
             $("#loading-indicator").hide();
             $("#search-results").show();
-
             const result = document.createElement('div');
             $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
             $("#search-results").html(result);
@@ -260,59 +255,37 @@ function closeShifts(retailerId, storeId, tillId, shiftId) {
 }
 
 function spotCheck(retailerId, storeId, tillId, shiftId) {
-    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
-        "<span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#shiftModal').modal({ show: true });
-    $("#search-results").hide();
-    $("#loading-indicator").show();
     tillIdFilter = $("#tillId").val();
     $.ajax({
         url: ShiftUrls.spotCheckUrl(),
         method: "POST",
         data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
         success: function(resp) {
+            $('#shiftModal').modal({ show: true });
             $("#modal-content").html(resp);
         },
         error: function(resp) {
-            $("#loading-indicator").hide();
-            $("#search-results").show();
-
+             $("#search-results").show();
             var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#modal-content").empty();
-
-            $('#shiftModal').modal('hide');
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         },
     });
 }
 
 function cashUpdateModal(isAddFloat, retailerId, storeId, tillId, shiftId) {
-    $("#modal-content").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\">" +
-        "<span class=\"sr-only\">Loading...</span></div></div></div>");
-    $('#shiftModal').modal({ show: true });
-    $("#search-results").hide();
-    $("#loading-indicator").show();
     $.ajax({
         url: ShiftUrls.cashUpdateModal(),
         method: "POST",
         data: {isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId, tillId: tillId, shiftId: shiftId},
         success: function(resp) {
+            $('#shiftModal').modal({ show: true });
             $("#modal-content").html(resp);
             $(".mask-money").maskMoney({ allowZero: true });
             $(".mask-money").maskMoney('mask');
         },
         error: function(resp) {
-            $("#loading-indicator").hide();
-            $("#search-results").show();
+            $('#search-results').show();
             var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#modal-content").empty();
-            $('#shiftModal').modal('hide');
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         },
     });
@@ -329,12 +302,6 @@ function saveCashUpdate() {
         data: formValues + "&tillIdFilter=" + tillIdFilter ,
         success: function(resp) {
             if (resp == 'OK') {
-                $("#loading-indicator").hide();
-                $("#search-results").show();
-                $("#modal-content").empty();
-                $('#shiftModal').modal('hide');
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
                 cashUpdateAction =  "Cash lift";
                 if (isAddFloat) {
                     cashUpdateAction = "Add float";
