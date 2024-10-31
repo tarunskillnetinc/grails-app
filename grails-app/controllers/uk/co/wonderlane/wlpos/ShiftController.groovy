@@ -410,13 +410,13 @@ class ShiftController {
                 render "OK"
             } else {
                 redirect(action: "ajaxCashUpdateModal", params: [tillId: tillId, isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId,
-                                                                 shiftId: shiftId, safeId : safeId, cashAmount: cashAmount, voucherAmount : voucherAmount,
-                                                                 error: String.format("No shift exists anymore for ${isAddFloat ? 'add float ' : 'cash lift '}")])
+                                                                 shiftId: shiftId, safeId: safeId, cashAmount: cashAmount, voucherAmount: voucherAmount,
+                                                                 error: String.format("No shift exists anymore for ${isAddFloat ? 'add float ': 'cash lift '}")])
             }
         } catch (Exception ex) {
             log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} saving error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
             redirect(action: "ajaxCashUpdateModal", params: [tillId: tillId, isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId,
-                                                             shiftId: shiftId, safeId : safeId, cashAmount: cashAmount, voucherAmount : voucherAmount,
+                                                             shiftId: shiftId, safeId: safeId, cashAmount: cashAmount, voucherAmount: voucherAmount,
                                                              error: String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} failed for till id: ${tillId}")])
         }
     }
