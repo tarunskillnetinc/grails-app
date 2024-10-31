@@ -326,7 +326,7 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             }
 
             _latestSafeSnapshot.setExpectedTotals(tenderTotals)
-            getSnapshotForLocation(1) >> _latestSafeSnapshot
+            getSnapshotForSafe(1) >> _latestSafeSnapshot
         }
 
         controller.reportingService = Stub(ReportingService) {}

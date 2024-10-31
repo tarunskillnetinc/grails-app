@@ -29,6 +29,7 @@ class ShiftService extends MySqlPoolDal {
     def snapshotService
     def locationService
     def reportingService
+    def safeService
 
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 
@@ -68,26 +69,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    def getSafeLocation(Shift shift){
-        def safeLocations = null
-        try {
-            safeLocations = locationService.getStoreSafeLocations()
-            if (safeLocations.collect().isEmpty()) {
-                Location location = new Location()
-                location.safeId = 1
-                location.retailerId = shift.retailerId
-                location.storeId = shift.storeId
-                location.type = LocationType.SAFE
-                location.description = "Safe 1"
-                location.save()
-                safeLocations = locationService.getStoreSafeLocations()
-            }
-        } catch (Exception ex) {
-            log.error(String.format("Error saving safe location shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-        }
-        return safeLocations
-    }
-
     void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
@@ -106,7 +87,7 @@ class ShiftService extends MySqlPoolDal {
 
     void processTakeSnapshot(Shift shift, SaveShiftCommand saveShiftCommand) {
         try {
-            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
+            Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(saveShiftCommand.safeLocationId)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
             processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
             snapshotService.saveSnapshot(latestSnapshot)
@@ -118,7 +99,7 @@ class ShiftService extends MySqlPoolDal {
     void updateTenderMovement(Shift shift, SaveShiftCommand saveShiftCommand){
         try {
             def tillLocation = locationService.getTillLocation(shift.tillId)
-            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+            def safeLocation = locationService.getLocationBySafeId(saveShiftCommand.safeLocationId)
 
             shift.reconciliationTotals.each {
                 if (it.value > BigDecimal.ZERO) {

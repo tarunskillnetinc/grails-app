@@ -30,6 +30,12 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
 
         given:
 
+        List<Safe> storeSafes = getDummySafes()
+
+        controller.safeService = Stub(SafeService){
+            getStoreSafes() >> storeSafes
+        }
+
         when: 'The index action is executed'
         HashMap model = controller.index()
 
@@ -47,6 +53,7 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
 
         String startDate = "02/12/2022"
         String endDate = "10/12/2022"
+        List<Safe> storeSafes = getDummySafes()
 
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
         DateTime parseStartDate = DateTime.parse(startDate, dateFormatter)
@@ -54,6 +61,10 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
 
         controller.snapshotService = Stub(SnapshotService){
             getSnapshots(parseStartDate, parseEndDate) >> getDummySnapshotList(true, true)
+        }
+
+        controller.safeService = Stub(SafeService){
+            getStoreSafes() >> storeSafes
         }
 
         views['/snapshot/_snapshotViewerResults.gsp'] = "test"
@@ -80,16 +91,22 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         given:
 
         Snapshot snapshotMock =  null
+        List<Safe> storeSafes = getDummySafes()
+
         if (existingSnapshot){
             snapshotMock = getDummySnapshot(isCashRequired, isVoucherRequired)
         }
 
         controller.snapshotService = Stub(SnapshotService){
-            getSnapshotForLocation(1) >> snapshotMock
+            getSnapshotForSafe(1) >> snapshotMock
+        }
+
+        controller.safeService = Stub(SafeService){
+            getStoreSafes() >> storeSafes
         }
 
         views['/snapshot/_snapshotModal.gsp'] = "test"
-        controller.params.locationId = "1"
+        controller.params.id = "1"
 
         when: 'The ajaxGetSafe action is executed'
         controller.ajaxGetSafe()
@@ -119,12 +136,18 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         given:
 
         Snapshot snapshotMock =  null
+        Safe storeSafe = getDummySafe()
+
         if (snapshotId > 0){
             snapshotMock = getDummySnapshot(isCashRequired, isVoucherRequired)
         }
 
         controller.snapshotService = Stub(SnapshotService){
             getSnapshot(snapshotId) >> snapshotMock
+        }
+
+        controller.safeService = Stub(SafeService){
+            getSafeById(_) >> storeSafe
         }
 
         views['/snapshot/_snapshotSummaryModal.gsp'] = "test"
@@ -327,6 +350,28 @@ class SnapshotControllerSpec extends Specification implements ControllerUnitTest
         snapshot.getTotals().addAll(getReconciliationTotal(isCashRequired, isVoucherRequired))
         snapshot.getExpectedTotals().addAll(getExpectedTotal(isCashRequired, isVoucherRequired))
         return snapshot
+    }
+
+    List<Safe> getDummySafes() {
+        def safes = new ArrayList<>();
+
+        def safe = new Safe()
+        safe.setId(1);
+        safe.setPrimary(true);
+        safe.setDescription("Safe 1");
+
+        safes.add(safe);
+
+        return safes;
+    }
+
+    Safe getDummySafe() {
+        def safe = new Safe()
+        safe.setId(1);
+        safe.setPrimary(true);
+        safe.setDescription("Safe 1");
+
+        return safe;
     }
 
     List<ReconciliationTotal> getReconciliationTotal(boolean isCashRequired, boolean  isVoucherRequired){

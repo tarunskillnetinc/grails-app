@@ -5,7 +5,7 @@
 <div class="row mt-3 mb-2">
     <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
         <div class="row">
-            <p class="mx-auto">Safe Count reconciliation</p>
+            <p class="mx-auto">${description} Count reconciliation</p>
         </div>
 
         <div class="row mt-3 mb-2 ml-0 mr-0 table-wl">

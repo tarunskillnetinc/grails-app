@@ -19,7 +19,7 @@ class SnapshotService extends MySqlPoolDal {
 
     def springSecurityService
     def gsonProvider
-    def locationService
+    def safeService
 
     protected static final String DATE_FORMAT = "yyyy-MM-dd";
 
@@ -86,18 +86,14 @@ class SnapshotService extends MySqlPoolDal {
         return null
     }
 
-    def getSnapshotForLocation(Integer locationId) {
+    def getSnapshotForSafe(int safeId) {
         Connection conn = getConnection()
-        CallableStatement getSnapshotStatement = conn.prepareCall("{ call getLatestSnapshotForLocation(?, ?, ?) }")
+        CallableStatement getSnapshotStatement = conn.prepareCall("{ call getLatestSnapshotForSafe(?, ?, ?) }")
 
         try {
             getSnapshotStatement.setInt(1, springSecurityService.principal.retailerId)
             getSnapshotStatement.setInt(2, springSecurityService.principal.storeId)
-            if (locationId) {
-                getSnapshotStatement.setInt(3, locationId)
-            } else {
-                getSnapshotStatement.setInt(3, getDefaultSafeLocation(springSecurityService.principal.retailerId, springSecurityService.principal.storeId).id)
-            }
+            getSnapshotStatement.setInt(3, safeId)
 
             ResultSet rs = getSnapshotStatement.executeQuery()
 
@@ -115,7 +111,7 @@ class SnapshotService extends MySqlPoolDal {
             conn.close()
         }
 
-        Snapshot latest = new Snapshot(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, locationId)
+        Snapshot latest = new Snapshot(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, null, safeId)
         int latestId = saveSnapshot(latest)
         latest.setId(latestId)
         return latest
@@ -131,7 +127,7 @@ class SnapshotService extends MySqlPoolDal {
             saveSnapshotStatement.setString(2, gsonProvider.gson.toJson(snapshot, Snapshot.class))
             saveSnapshotStatement.execute()
 
-            Snapshot newSafe = new Snapshot(snapshot.retailerId, snapshot.storeId, snapshot.locationId)
+            Snapshot newSafe = new Snapshot(snapshot.getRetailerId(), snapshot.getStoreId(), null, snapshot.getSafeId())
             for (ReconciliationTotal total : snapshot.totals) {
                 TenderTotal newTotal = new TenderTotal(total.tenderType)
                 newTotal.value = total.value
