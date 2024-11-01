@@ -86,11 +86,13 @@ class BackOfficeRabbitService extends RabbitService {
     List<RabbitQueue> getServiceQueues(String... queueNames) {
         def allRabbitQueues = getQueues()
 
+        String vhost = Holders.grailsApplication.config.getProperty('rabbitmq.virtualHost') ?: '/'
+
         def rabbitQueues = []
 
         // Only return the queues for our retailer.
         allRabbitQueues?.each {
-            if (queueNames.contains(it.name)) {
+            if (it.vhost == vhost && queueNames.contains(it.name)) {
                 rabbitQueues.add(it)
             }
         }

@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 
 class RabbitQueue {
 
+    private String vhost
     private int consumers
     private int messages
     private DateTime idle_since
@@ -16,6 +17,14 @@ class RabbitQueue {
 
     public RabbitQueue() {
 
+    }
+
+    String getVhost() {
+        return vhost
+    }
+
+    void setVhost(String vhost) {
+        this.vhost = vhost
     }
 
     int getConsumers() {
