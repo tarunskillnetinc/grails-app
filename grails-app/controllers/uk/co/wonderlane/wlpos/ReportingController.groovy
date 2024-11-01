@@ -2140,10 +2140,14 @@ class ReportingController {
             def donations = reportingService.getCharityDonations(startDate, endDate, storeId, Integer.MAX_VALUE, 0, sortParams.sortColumn, sortParams.sortOrder)
 
             if (storeId == null) {
-                fileName = "CharirtyDonation-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+                fileName = "CharityDonation-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
             } else {
-                def store = donations?.first()?.storeNumber ?: params.storeFilter
-                fileName = "CharirtyDonation-" + store + "-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
+                def stores = storeService.getStores(springSecurityService.principal.retailerId)
+
+                def store = stores.find { it.id == storeId }
+                def storeNumber = store.config.storeNumber
+
+                fileName = "CharityDonation-" + storeNumber + "-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
             }
 
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
