@@ -306,6 +306,17 @@ function saveCashUpdate() {
                 if (isAddFloat) {
                     cashUpdateAction = "Add float";
                 }
+                if ($("#modal-content").length) {
+                    $("#modal-content").empty();
+                }
+                if ($('#shiftModal').length) {
+                    $('#shiftModal').modal('hide');
+                }
+
+                if ($('.modal-backdrop').length) {
+                    $('.modal-backdrop').remove();
+                }
+                $('body').removeClass('modal-open');
                 var successMessage = cashUpdateAction + " process successfully completed"
                 $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
             } else {

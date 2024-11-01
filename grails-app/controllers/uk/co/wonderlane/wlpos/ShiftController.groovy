@@ -353,6 +353,7 @@ class ShiftController {
         }
     }
 
+    //This will load either Add Float or Cash Lift popup based on button we clicked
     def ajaxCashUpdateModal(){
         boolean isAddFloat = false
         Integer retailerId = null
@@ -392,6 +393,7 @@ class ShiftController {
         }
     }
 
+    // This will update cash based on add float and cash lift
     def ajaxSaveCashUpdate(){
         boolean isAddFloat = false
         Integer retailerId = null
@@ -413,7 +415,16 @@ class ShiftController {
             voucherAmount = params.vouchersTotal ? new BigDecimal(params.vouchersTotal) : BigDecimal.ZERO
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null) { // If shift not exists then process the action
-                //Process save cash update based on cash lift and add float logic
+                // Process save cash update based on cash lift and add float logic
+                // This will
+                // 1. Update shift balances
+                //    (If add float -> increment cash and voucher amounts in tender and cash drawer)
+                //    (If cash lift -> decrease cash amounts in tender and cash drawer)
+                // 2. Update snapshot balances
+                //    (If add float -> decrease cash and voucher amounts from totals)
+                //    (If cash lift -> increment cash amounts from totals)
+                // 3. Create tender movements
+                // 4. Add audit
                 shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
                 render "OK"
             } else {

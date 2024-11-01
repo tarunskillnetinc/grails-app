@@ -100,7 +100,7 @@ class ShiftService extends MySqlPoolDal {
     void updateFinaliseTenderMovement(Shift shift, SaveShiftCommand saveShiftCommand){
         try {
             Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
-            def safeLocation = locationService.getLocationBySafeId(saveShiftCommand.safeLocationId)
+            Location safeLocation = locationService.getLocationBySafeId(saveShiftCommand.safeLocationId) as Location
 
             shift.reconciliationTotals.each {
                 createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderType, it.value)
@@ -684,9 +684,16 @@ class ShiftService extends MySqlPoolDal {
         TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
         Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
         Location safeLocation = locationService.getLocationBySafeId(safeId) as Location
-        createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.CASH, cashAmount)
         if (isAddFloat) {
-            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.VOUCHER, voucherAmount)
+            // If this is add float action then we can have both CASH and VOUCHER types
+            // For add float action from location should be location of safe we are moving money into
+            // To location should be location of till where we move cash/voucher into
+            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.CASH, cashAmount)
+            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.VOUCHER, voucherAmount)
+        } else {
+            // In cash lift action there can only CASH type
+            // from location should be location of till while to location should be location of safe where we move cash into
+            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.CASH, cashAmount)
         }
     }
 
