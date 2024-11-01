@@ -11,21 +11,23 @@ class LocationService {
 
     def getTillLocation(int tillId) {
         def locationCriteria = Location.createCriteria()
-        return locationCriteria.get {
+        return locationCriteria.list {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
             eq ("tillId", tillId)
             eq ("type", LocationType.TILL)
-        }
+            maxResults(1)
+        }?.first()
     }
 
     def getLocationBySafeId(int safeId) {
-        return Location.createCriteria().get {
+        return Location.createCriteria().list {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("storeId", springSecurityService.principal.storeId)
             eq ("safeId", safeId)
             eq ("type", LocationType.SAFE)
-        }
+            maxResults(1)
+        }?.first()
     }
 
     def createSafeLocation(int safeId) {
