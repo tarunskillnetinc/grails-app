@@ -80,7 +80,7 @@ class SafeService {
 
     def pushAllUpdatedSafesIntoRabbitMQ() {
         try {
-            List<Safe> safeList = getSafesByRetailerAndStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
+            List<Safe> safeList = getStoreSafes()
             long pushedCount = safeList.stream().filter(safe -> safe.active)
                     .peek(this::pushSafeIntoRabbitMQ).count()
             log.info("Successfully pushed all available safes ${pushedCount} into RabbitMQ after primary updated")
@@ -94,18 +94,25 @@ class SafeService {
             SyncMessage safeSyncMessage = new SyncMessage(SyncMessageType.SAFE, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
             safeSyncMessage.setInsert(true)
             safeSyncMessage.setSafe(safe.getSafe())
-            rabbitService.sendOfferAllocationMessage("DataSync", safeSyncMessage)
+            rabbitService.sendMessage(safeSyncMessage)
         }catch(Exception ex){
             log.error("Failed to push updated safe into rabbitMQ, Exception: ${ex.message} " + ex)
         }
     }
 
-    List<Safe> getSafesByRetailerAndStore(Integer retailerId, Integer storeId) {
+    List<Safe> getStoreSafes() {
         return Safe.withCriteria {
-            eq("retailerId", retailerId)
-            eq("storeId", storeId)
-            order("dateCreated", "desc")
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", springSecurityService.principal.storeId)
+            order("active", "desc")
+            order("description")
         }
+    }
+
+    def createDefaultSafe() {
+        /* Creates a default safe for the current store, should only be called if there is no safe for a store, but will not be set as primary if that is not the case */
+        def safe = populateSafe(null, false, "Safe 1", "MANUAL", true)
+        return saveSafe(safe)
     }
 
     def getSafeById(Integer id){
@@ -133,7 +140,7 @@ class SafeService {
 
         int updatedCount = Safe.withTransaction { status ->
             Safe.executeUpdate("""
-            UPDATE safe s 
+            UPDATE Safe s 
             SET s.primary = false, s.dateModified = :currentDate 
             WHERE s.storeId = :storeId 
             AND s.retailerId = :retailerId 
