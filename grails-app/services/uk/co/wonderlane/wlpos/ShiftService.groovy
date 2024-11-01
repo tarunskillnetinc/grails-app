@@ -381,11 +381,11 @@ class ShiftService extends MySqlPoolDal {
         if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
             JsonObject jsonObject = new JsonObject()
 
-            if (shiftAction == ShiftAction.SPOT_CHECK || shiftAction == ShiftAction.ADD_FLOAT || shiftAction == ShiftAction.CASH_LIFT ||  shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT]) {
+            if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.SPOT_CHECK, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
                 addJsonFieldToObject(jsonObject, "tenderTotals", shift.tenderTotals)
             }
 
-            if (shiftAction == ShiftAction.ADD_FLOAT || shiftAction == ShiftAction.CASH_LIFT) {
+            if (shiftAction in [ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
                 addJsonFieldToObject(jsonObject, "cashInDrawer", shift.cashInDrawer)
             }
 
@@ -663,6 +663,7 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void shiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        // If this is add float action then amounts need to be added on shift balances if cash lift then need to deduct from shift
         BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
         shiftCashTenderUpdate(shift, isAddFloat, adjustedCashAmount, voucherAmount)
         updateCashDrawer(shift, adjustedCashAmount)
@@ -673,11 +674,17 @@ class ShiftService extends MySqlPoolDal {
         // If this is add float action then amounts need to be deduct on snapshot if cash lift then need to sum up for snapshot
         BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
         Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
-        updateSnapshot(latestSnapshot, adjustedCashAmount, TenderType.CASH)
-        if (isAddFloat) {
-            updateSnapshot(latestSnapshot, voucherAmount.negate(), TenderType.VOUCHER)
+        if (latestSnapshot) {
+            updateSnapshot(latestSnapshot, adjustedCashAmount, TenderType.CASH)
+            if (isAddFloat) {
+                updateSnapshot(latestSnapshot, voucherAmount.negate(), TenderType.VOUCHER)
+            }
+            snapshotService.saveSnapshot(latestSnapshot)
+        } else {
+            log.error(String.format("No available snapshot for safe id id: ${safeId} error: ${ex.getMessage()}"))
+            throw new RuntimeException(String.format("No available snapshot for safe id id: ${safeId} error: ${ex.getMessage()}"))
         }
-        snapshotService.saveSnapshot(latestSnapshot)
+
     }
 
     private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){

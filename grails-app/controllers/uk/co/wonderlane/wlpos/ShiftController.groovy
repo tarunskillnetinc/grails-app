@@ -373,7 +373,7 @@ class ShiftController {
             String error = params.error
             List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
             if (safeLocations == null || safeLocations.isEmpty()) {
-                flash.error = "No safe locations are configured. Please add safe and retry"
+                flash.error = "No available safe. Please add safe and retry"
                 throw new RuntimeException("No safe locations are configured.")
             }
             Safe primarySafe = safeLocations.find { it.primary }
@@ -418,11 +418,11 @@ class ShiftController {
                 // Process save cash update based on cash lift and add float logic
                 // This will
                 // 1. Update shift balances
-                //    (If add float -> increment cash and voucher amounts in tender and cash drawer)
-                //    (If cash lift -> decrease cash amounts in tender and cash drawer)
+                //    (If add float -> add cash and voucher amounts in tender and cash drawer)
+                //    (If cash lift -> deduct cash amounts in tender and cash drawer)
                 // 2. Update snapshot balances
-                //    (If add float -> decrease cash and voucher amounts from totals)
-                //    (If cash lift -> increment cash amounts from totals)
+                //    (If add float -> deduct cash and voucher amounts from totals)
+                //    (If cash lift -> add cash amounts from totals)
                 // 3. Create tender movements
                 // 4. Add audit
                 shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
