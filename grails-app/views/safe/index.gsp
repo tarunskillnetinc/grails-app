@@ -17,7 +17,7 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            $("#messages-container").html('');
+            hideMessages()
 
             SafeUrls.init("${createLink(controller: 'safe', action: 'searchSafe')}",
                 "${createLink(controller: 'safe', action: 'updatePrimarySafe')}"
