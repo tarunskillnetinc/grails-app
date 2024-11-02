@@ -311,13 +311,13 @@ class ShiftController {
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) {
                 // Check shift is null or not open if so then proceed to create new shift
-                shiftService.processShiftClose(shift) //call function to open shift
+                shiftService.processShiftClose(shift) //call function to close shift
 
                 boolean isDirectShiftFinalise = false
                 //Directly process for reconcile and finalise actions if cash management flag is set
                 if (shiftService.isCashManagementEnable(shift.tillId)){
                     Safe primarySafe = safeService.getPrimaryStoreSafes()
-                    if (primarySafe !+ null) {
+                    if (primarySafe != null) {
                         int primarySafeId = primarySafe.getId()
                         shiftService.processShiftReconcile(shift)
                         shiftService.processShiftFinalise(shift, primarySafeId)

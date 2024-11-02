@@ -160,7 +160,7 @@ class SafeService {
             eq("storeId", springSecurityService.principal.storeId)
             eq("primary", true)
             eq("active", true)
-        }
+        } as Safe
     }
 
 }

@@ -806,7 +806,7 @@ class ShiftService extends MySqlPoolDal {
     private TillConfiguration getTillConfiguration(int tillId){
         return TillConfiguration.createCriteria().get {
             eq ("retailerId", springSecurityService.principal.retailerId)
-            eq ("storeId", springSecurityService.principal.storeId)
+            eq ("storeId", springSecurityService.principal.storeNumber)
             eq ("tillId", tillId)
             isNotNull("serialNumber")
             maxResults(1)
