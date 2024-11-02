@@ -410,10 +410,10 @@ class ShiftService extends MySqlPoolDal {
             timestamp = new DateTime()
         }
 
-        if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
+        if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.FINALISE, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
             JsonObject jsonObject = new JsonObject()
 
-            if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.SPOT_CHECK, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
+            if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.SPOT_CHECK, ShiftAction.FINALISE, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
                 addJsonFieldToObject(jsonObject, "tenderTotals", shift.tenderTotals)
             }
 
@@ -421,7 +421,7 @@ class ShiftService extends MySqlPoolDal {
                 addJsonFieldToObject(jsonObject, "cashInDrawer", shift.cashInDrawer)
             }
 
-            if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT]) {
+            if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.FINALISE]) {
                 addJsonFieldToObject(jsonObject, "reconciliationTotals", shift.reconciliationTotals)
             }
 
@@ -573,8 +573,10 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void processFinalizeSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
-        BigDecimal total = shift.reconciliationTotals.find { it.tenderType == type } as BigDecimal
-        updateSnapshot(snapshot, total, type)
+        ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
+        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) > 0){
+            updateSnapshot(snapshot, reconciliationTotal.value, type)
+        }
     }
 
     private void updateSnapshot(Snapshot snapshot, BigDecimal amount, TenderType type){
@@ -790,9 +792,8 @@ class ShiftService extends MySqlPoolDal {
                 shift.setReconciledByUserId(user.getId());
                 shift.setReconciledByUsersName(user.getUsername());
                 for (TenderTotal tenderTotal : shift.getTenderTotals()){
-                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.getTenderType());
-                    newReconciliationTotal.setValue(tenderTotal.getValue());
-                    newReconciliationTotal.setValue(BigDecimal.ZERO);
+                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.getTenderType())
+                    newReconciliationTotal.setValue(tenderTotal.getValue())
                     shift.getReconciliationTotals().add(newReconciliationTotal);
                 }
             }
