@@ -154,4 +154,13 @@ class SafeService {
         return updatedCount
     }
 
+    Safe getPrimaryStoreSafes() {
+        return Safe.createCriteria().get {
+            eq("retailerId", springSecurityService.principal.retailerId)
+            eq("storeId", springSecurityService.principal.storeId)
+            eq("primary", true)
+            eq("active", true)
+        }
+    }
+
 }
