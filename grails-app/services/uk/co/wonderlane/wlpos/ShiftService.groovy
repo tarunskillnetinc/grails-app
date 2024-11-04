@@ -616,14 +616,18 @@ class ShiftService extends MySqlPoolDal {
         def cashTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
                 new ReconciliationTotal(TenderType.CASH).tap { shift.pendingReconciliationTotals << it }
         cashTotal.value = calculateCashTotal(cashUpCommand)
-        cashTotal.variance = (cashTotal.value ?: 0) - (shift.cashInDrawer ?: 0)
+        BigDecimal currentCashTotal = (cashTotal.value ?: BigDecimal.ZERO)
+        BigDecimal currentCashInDrawer = (shift.cashInDrawer ?: BigDecimal.ZERO)
+        cashTotal.variance = currentCashTotal.subtract(currentCashInDrawer)
     }
 
     private void updatePendingVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
         def vouchersTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
                 new ReconciliationTotal(TenderType.VOUCHER).tap { shift.pendingReconciliationTotals << it }
         vouchersTotal.value = cashUpCommand.vouchersTotal
-        vouchersTotal.variance = (vouchersTotal.value ?: 0) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: 0)
+        BigDecimal currentVoucherTotal = (vouchersTotal.value ?: BigDecimal.ZERO)
+        BigDecimal currentTenderTotal = (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        vouchersTotal.variance = currentVoucherTotal.subtract(currentTenderTotal)
     }
 
     private BigDecimal calculateCashTotal(CashUpCommand cashUpCommand) {
