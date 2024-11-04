@@ -232,7 +232,7 @@
             }
 
             // Displays the add/edit variant modal depending whether you've clicked the add button or clicked an existing row.
-            function addVariant(index) {
+            function addVariant(index, isNewVariant) {
                 $("#addVariantContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#addVariantModal').modal({ show: true });
 
@@ -275,6 +275,7 @@
                 }
 
                 params["index"] = index;
+                params["isNewVariant"] = isNewVariant;
 
                 $.ajax({
                     url: addVariantUrl,
