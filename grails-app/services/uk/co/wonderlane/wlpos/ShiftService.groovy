@@ -324,6 +324,7 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
+    // This is method of processing ADD_FLOAT or CASH_LIFT request
     void processShiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount, int safeId){
         try {
             ShiftAction shiftAction = isAddFloat ? ShiftAction.ADD_FLOAT : ShiftAction.CASH_LIFT
@@ -338,10 +339,11 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    void processShiftReconcile(Shift shift){
+    // This is method which reconcile shift if it is configured to auto reconcile at shift close
+    void processShiftAutoReconcile(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            updateDirectShiftDataFields(shift, loggedInUser, false);
+            updateAutoShiftDataFields(shift, loggedInUser, false);
             addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -349,10 +351,11 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    void processShiftFinalise(Shift shift, int primarySafeId){
+    // This is method which finalise shift if it is configured to auto finalise at shift close
+    void processShiftAutoFinalise(Shift shift, int primarySafeId){
         try {
             User loggedInUser = loadLoggedInUser()
-            updateDirectShiftDataFields(shift, loggedInUser, true);
+            updateAutoShiftDataFields(shift, loggedInUser, true);
             processTakeSnapshot(shift, primarySafeId);
             updateFinaliseTenderMovement(shift, primarySafeId);
             addAudit(shift, ShiftAction.FINALISE, false, loggedInUser) //Add shift audit for shift close
@@ -786,22 +789,23 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void updateDirectShiftDataFields(Shift shift, User user, boolean isFinal){
+    private void updateAutoShiftDataFields(Shift shift, User user, boolean isFinal){
         try {
             if (isFinal) {
-                shift.setShiftStatus(ShiftStatus.FINALISED);
+                shift.setShiftStatus(ShiftStatus.FINALISED)
             } else {
-                shift.setShiftStatus(ShiftStatus.RECONCILED);
-                shift.setReconciledDate(DateTime.now());
-                shift.setReconciledByUserId(user.getId());
-                shift.setReconciledByUsersName(user.getUsername());
+                shift.setShiftStatus(ShiftStatus.RECONCILED)
+                shift.setReconciledDate(DateTime.now())
+                shift.setReconciledByUserId(user.getId())
+                shift.setReconciledByUsersName(user.getUsername())
                 for (TenderTotal tenderTotal : shift.getTenderTotals()){
                     ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.getTenderType())
                     newReconciliationTotal.setValue(tenderTotal.getValue())
-                    shift.getReconciliationTotals().add(newReconciliationTotal);
+                    newReconciliationTotal.setVariance(BigDecimal.ZERO)
+                    shift.getReconciliationTotals().add(newReconciliationTotal)
                 }
             }
-            saveShift(shift);
+            saveShift(shift)
         } catch (Exception ex) {
             log.error(String.format("Error updating direct shift data update for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error updating direct shift data update for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
@@ -817,7 +821,5 @@ class ShiftService extends MySqlPoolDal {
             maxResults(1)
         }
     }
-
-
 
 }

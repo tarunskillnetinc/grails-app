@@ -319,8 +319,8 @@ class ShiftController {
                     Safe primarySafe = safeService.getPrimaryStoreSafes()
                     if (primarySafe != null) {
                         int primarySafeId = primarySafe.getId()
-                        shiftService.processShiftReconcile(shift)
-                        shiftService.processShiftFinalise(shift, primarySafeId)
+                        shiftService.processShiftAutoReconcile(shift)
+                        shiftService.processShiftAutoFinalise(shift, primarySafeId)
                         isDirectShiftFinalise = true
                     } else {
                         log.warn("Direct reconcile and finalise process skipped for shift ${shift.shiftNumber}. No primary safe configured for the store.")
