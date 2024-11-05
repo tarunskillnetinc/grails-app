@@ -577,7 +577,7 @@ class ShiftService extends MySqlPoolDal {
 
     private void processFinalizeSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
         ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
-        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) > 0){
+        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) != 0){
             updateSnapshot(snapshot, reconciliationTotal.value, type)
         }
     }
@@ -765,7 +765,7 @@ class ShiftService extends MySqlPoolDal {
 
 
     private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
-        if (updateAmount.compareTo(BigDecimal.ZERO) > 0) {
+        if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
                     tenderType,
                     tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
