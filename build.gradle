@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "1.13.31-SNAPSHOT"
+version "1.15.0"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
@@ -109,6 +109,7 @@ dependencies {
     implementation 'com.opencsv:opencsv:5.7.1'
     implementation 'software.amazon.awssdk:s3:2.20.26'
     implementation 'commons-io:commons-io:2.11.0'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-joda', version: '2.12.2'
 
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
@@ -181,21 +182,23 @@ sourceSets {
     elasticbeanstalk
 }
 
-tasks.withType(Jar) {
-    archiveName "Cloud Office ${version}.jar"
+tasks.named("assemble") {
+    def projectName = it.project.name
+    def projectVersion = it.project.version
 
     doLast {
         // Specify the path to the existing zip file.
-        def zipFile = file("build/libs/Cloud Office ${version}.zip")
+        def zipFile = file("build/libs/Cloud Office ${projectVersion}.zip")
 
         // Create a temporary directory to unzip the existing zip.
-        def tempDir = file("build/libs/Cloud Office ${version}")
+        def tempDir = file("build/libs/Cloud Office ${projectVersion}")
 
         // Copy the built .jar to the temporary directory.
+        println "Build jar = ${projectName}-${projectVersion}.jar"
         copy {
-            from "build/libs/Cloud Office ${version}.jar"
+            from "build/libs/${projectName}-${projectVersion}.jar"
             into tempDir
-            rename "Cloud Office ${version}.jar", "application.jar"
+            rename "${projectName}-${projectVersion}.jar", "application.jar"
         }
 
         // Copy the Nginx config to the temporary directory.
