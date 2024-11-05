@@ -10,7 +10,7 @@
                 <g:if test="${safeLocations?.collect()?.size() > 1}">
                     <div class="row form-group mb-4 justify-content-center">
                         <div class="col-2 text-right my-auto">Safe: </div>
-                        <g:select name="safeLocation" from="${safeLocations}" optionKey="id" optionValue="description" value="${snapshot.getLocationId()}" class="form-control select-border col-5" onchange="showSafeModal(this.value)"/>
+                        <g:select name="safeLocation" from="${safeLocations}" optionKey="id" optionValue="description" value="${snapshot.getSafeId()}" class="form-control select-border col-5" onchange="showSafeModal(this.value)"/>
                     </div>
                 </g:if>
                 <div class="row cash-up-by">
