@@ -294,7 +294,7 @@ function cashUpdateModal(isAddFloat, retailerId, storeId, tillId, shiftId) {
 function saveCashUpdate() {
     let formValues = $("#modal-form").serialize();
     tillIdFilter = $("#tillId").val();
-    var isAddFloat = $("#isAddFloat").val();
+    var isAddFloat = $("#isAddFloat").val() === "true";
     var cashUpdateAction = null
     $.ajax({
         url: ShiftUrls.saveCashUpdateUrl(),
