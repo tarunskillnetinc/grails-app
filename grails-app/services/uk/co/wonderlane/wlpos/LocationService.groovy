@@ -6,7 +6,7 @@ import uk.co.wonderlane.wlpos.reporting.Location
 
 @Transactional("reporting")
 class LocationService {
-
+    def safeService
     def springSecurityService
 
     def getTillLocation(int tillId) {
@@ -26,6 +26,20 @@ class LocationService {
             eq ("safeId", safeId)
             eq ("type", LocationType.SAFE)
         }
+    }
+
+    def getOrCreateLocationForSafe(int safeId) {
+        /* Get the location from the safe id */
+        def location = getLocationBySafeId(safeId)
+
+        if (location == null) {
+            def save = safeService.getSafeById(safeId)
+
+            /* Should not happen, but if necessary create a location for the safe */
+            location = createSafeLocation(save.id, save.description)
+        }
+
+        return location
     }
 
     def createSafeLocation(int safeId, String description) {

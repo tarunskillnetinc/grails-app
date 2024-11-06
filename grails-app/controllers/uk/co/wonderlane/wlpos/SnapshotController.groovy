@@ -153,20 +153,6 @@ class SnapshotController {
         render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: varianceReasons ])
     }
 
-    Location getOrCreateLocationForSafe(int safeId) {
-        /* Get the location from the safe id */
-        def location = locationService.getLocationBySafeId(safeId)
-
-        if (location == null) {
-            def save = safeService.getSafeById(safeId)
-
-            /* Should not happen, but if necessary create a location for the safe */
-            locationService.createSafeLocation(save.id, save.description)
-        }
-
-        return location
-    }
-
     def ajaxBanking() {
         def safeLocations = safeService.getStoreSafes()
 
@@ -198,7 +184,7 @@ class SnapshotController {
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.BANKING,
                     TenderType.CASH,
-                    getOrCreateLocationForSafe(bankingCommand.fromLocation),
+                    locationService.getOrCreateLocationForSafe(bankingCommand.fromLocation),
                     null,
                     bankingCommand.cashTotal))
 
@@ -215,7 +201,7 @@ class SnapshotController {
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.BANKING,
                     TenderType.VOUCHER,
-                    getOrCreateLocationForSafe(bankingCommand.fromLocation),
+                    locationService.getOrCreateLocationForSafe(bankingCommand.fromLocation),
                     null,
                     bankingCommand.vouchersTotal))
 
@@ -258,7 +244,7 @@ class SnapshotController {
             def movement = reportingService.createNewTenderMovement(TenderMovementType.CASH_INBOUND,
                     TenderType.CASH,
                     null,
-                    getOrCreateLocationForSafe(cashInboundCommand.toLocation),
+                    locationService.getOrCreateLocationForSafe(cashInboundCommand.toLocation),
                     cashInboundCommand.cashTotal)
             reportingService.saveTenderMovement(movement)
             render "OK"
@@ -309,8 +295,8 @@ class SnapshotController {
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.CASH_LIFT,
                     TenderType.CASH,
-                    getOrCreateLocationForSafe(cashLiftCommand.fromLocation),
-                    getOrCreateLocationForSafe(cashLiftCommand.toLocation),
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.fromLocation),
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.toLocation),
                     cashLiftCommand.cashTotal))
 
             fromCashExpected.value = fromCashExpected.value.subtract(cashLiftCommand.cashTotal)
@@ -335,8 +321,8 @@ class SnapshotController {
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.CASH_LIFT,
                     TenderType.VOUCHER,
-                    getOrCreateLocationForSafe(cashLiftCommand.fromLocation),
-                    getOrCreateLocationForSafe(cashLiftCommand.toLocation),
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.fromLocation),
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.toLocation),
                     cashLiftCommand.vouchersTotal))
 
             voucherExpected.value = voucherExpected.value.subtract(cashLiftCommand.vouchersTotal)
