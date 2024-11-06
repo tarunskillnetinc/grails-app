@@ -5,6 +5,7 @@ import uk.co.wonderlane.wlpos.enums.SafeType
 class SafeController {
 
     def safeService
+    def locationService
     def springSecurityService
 
     def index() {
@@ -51,6 +52,8 @@ class SafeController {
                 safeService.saveSafe(safe) //Save created/updated safe into db
                 if (isUpdate) { // If this is update then update location description
                     safeService.updateLocationDescriptionBySafeId(safe.id, safe.description)
+                } else {
+                    locationService.createSafeLocation(safe.id, safe.description)
                 }
                 safeService.pushSafeIntoRabbitMQ(safe) //once save make sure to publish this into rabbitMq
                 flash.message = "Safe ${isUpdate ? 'updated' : 'created'} successfully"

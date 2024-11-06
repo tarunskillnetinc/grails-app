@@ -690,7 +690,8 @@ class ShiftService extends MySqlPoolDal {
     private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
         TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
         Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
-        Location safeLocation = locationService.getLocationBySafeId(safeId) as Location
+        Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as Location
+
         if (isAddFloat) {
             // If this is add float action then we can have both CASH and VOUCHER types
             // For add float action from location should be location of safe we are moving money into
