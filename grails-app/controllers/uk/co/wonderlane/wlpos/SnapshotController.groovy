@@ -61,7 +61,7 @@ class SnapshotController {
         if (id == 0) {
             if (safes.collect().isEmpty()) {
                 def safe = safeService.createDefaultSafe()
-                locationService.createSafeLocation(safe.id)
+                locationService.createSafeLocation(safe.id, safe.description)
             }
 
             if (safes.collect().size() == 1) {
@@ -158,8 +158,10 @@ class SnapshotController {
         def location = locationService.getLocationBySafeId(safeId)
 
         if (location == null) {
+            def save = safeService.getSafeById(safeId)
+
             /* Should not happen, but if necessary create a location for the safe */
-            locationService.createSafeLocation(safeId)
+            locationService.createSafeLocation(save.id, save.description)
         }
 
         return location

@@ -28,13 +28,13 @@ class LocationService {
         }
     }
 
-    def createSafeLocation(int safeId) {
+    def createSafeLocation(int safeId, String description) {
         def location = new Location()
         location.safeId = safeId
         location.retailerId = springSecurityService.principal.retailerId
         location.storeId = springSecurityService.principal.storeId
         location.type = LocationType.SAFE
-        location.description = "Safe 1"
+        location.description = description
         location.save()
     }
 
