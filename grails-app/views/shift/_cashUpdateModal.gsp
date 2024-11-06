@@ -13,11 +13,11 @@
 
     <g:form name="modal-form">
         <div class="row justify-content-center">
-            <g:hiddenField name="retailerId" id="startDate" value="${retailerId}" />
-            <g:hiddenField name="storeId" id="endDate" value="${storeId}" />
-            <g:hiddenField name="tillId" id="endDate" value="${tillId}" />
-            <g:hiddenField name="shiftId" id="endDate" value="${shiftId}" />
-            <g:hiddenField name="isAddFloat" id="endDate" value="${isAddFloat}" />
+            <g:hiddenField name="retailerId" id="retailerId" value="${retailerId}" />
+            <g:hiddenField name="storeId" id="storeId" value="${storeId}" />
+            <g:hiddenField name="tillId" id="tillId" value="${tillId}" />
+            <g:hiddenField name="shiftId" id="shiftId" value="${shiftId}" />
+            <g:hiddenField name="isAddFloat" id="isAddFloat" value="${isAddFloat}" />
             <div class="col-md-10">
                 <g:if test="${safeLocations?.collect()?.size() > 1}">
                     <div class="form-group row align-items-center">
