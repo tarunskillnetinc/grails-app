@@ -55,7 +55,7 @@
             <div class="spot-check-row">
                 <span>Cash</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${shift.cashInDrawer ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.cashInDrawer ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
