@@ -237,8 +237,8 @@ class ShiftController {
                     }
                     //If any till id added into filter then pass it
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
-                    shiftService.processTakeSnapshot(shift, saveShiftCommand.safeLocationId) //Take snapshot
-                    shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeLocationId) //Move into update tender movement
+                    shiftService.processTakeSnapshot(shift, saveShiftCommand.safeId) //Take snapshot
+                    shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
                     return
                 }
@@ -499,7 +499,7 @@ class SaveShiftCommand {
     int shiftId
     boolean isRecount
     boolean isFinalise
-    Integer safeLocationId
+    Integer safeId
     String tillIdFilter
     String tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
