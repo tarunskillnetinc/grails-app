@@ -147,10 +147,12 @@ class ProductController extends BaseController {
      * Called from the main product maintenance search screen.
      */
     def ajaxSearchProducts() {
+        session.PENDING_CHANGES = params.pendingChanges
         session.PRODUCT_SEARCH_TERM = params.searchTerm
+        Boolean filterWithPendingChanges = Boolean.parseBoolean(params.pendingChanges)
         session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
 
-        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
+        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 50, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc", filterWithPendingChanges)
 
         render(template: "productSearchResults", model: [products    : products.products,
                                                          storeId     : springSecurityService.principal.storeId,

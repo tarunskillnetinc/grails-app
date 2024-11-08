@@ -405,7 +405,7 @@ class ProductService extends MySqlDal {
         return results
     }
 
-    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder) {
+    def searchProductsHql(String searchTerm, String searchBy, int maxResults, int startIndex, String sortColumn, String sortOrder, Boolean filterWithPendingChanges = false) {
         def now = DateTime.now(DateTimeZone.UTC)
 
         def barcodeSkus = []
@@ -443,8 +443,6 @@ class ProductService extends MySqlDal {
         }
 
         String querySelect = "SELECT DISTINCT(p) "
-        String countQuerySelect = "SELECT COUNT(DISTINCT p) "
-
         String searchQuery = """FROM Product p """
 
         if (springSecurityService.principal.storeId) {
@@ -526,9 +524,22 @@ class ProductService extends MySqlDal {
             searchQuery += """ORDER BY pv.${sortColumn} ${sortOrder}"""
         }
 
+        def products = Product.executeQuery(querySelect + searchQuery, queryParams)
+        def allProducts = Product.executeQuery(querySelect + searchQuery, countQueryParams)
+
+        if (filterWithPendingChanges) {
+            products = products.findAll { product ->
+                product?.getEffectiveDatesForFutureChanges()?.size() > 1
+            }
+
+            allProducts = allProducts.findAll { product ->
+                product?.getEffectiveDatesForFutureChanges()?.size() > 1
+            }
+        }
+
         def results = [:]
-        results.products = Product.executeQuery(querySelect + searchQuery, queryParams)
-        results.totalCount = Product.executeQuery(countQuerySelect + searchQuery, countQueryParams)?.get(0) ?: 0
+        results.products = products
+        results.totalCount = allProducts.size()
 
         return results
     }
