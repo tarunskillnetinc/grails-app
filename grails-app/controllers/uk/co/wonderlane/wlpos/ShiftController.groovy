@@ -315,7 +315,7 @@ class ShiftController {
 
                 boolean isDirectShiftFinalise = false
                 //Directly process for reconcile and finalise actions if cash management flag is set
-                if (shiftService.isCashManagementEnable(shift.tillId)){
+                if (!shiftService.isCashManagementEnable(shift.tillId)){
                     Safe primarySafe = safeService.getPrimaryStoreSafes()
                     if (primarySafe != null) {
                         int primarySafeId = primarySafe.getId()
