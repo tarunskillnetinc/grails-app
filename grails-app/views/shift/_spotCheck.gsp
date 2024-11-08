@@ -55,7 +55,7 @@
             <div class="spot-check-row">
                 <span>Cash</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${shift?.cashInDrawer ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
@@ -77,7 +77,9 @@
             <div class="spot-check-row spot-check-total">
                 <span style="font-weight: bold;">Total</span> <!-- Keeping the font weight bold -->
                 <span class="spot-check-value">
-                    <g:formatNumber number="${shift?.tenderTotals?.sum { it?.value ?: BigDecimal.ZERO } ?: BigDecimal.ZERO}" type="currency" />
+                    <g:formatNumber number="${ (shift?.cashInDrawer ?: BigDecimal.ZERO) +
+                            (shift?.tenderTotals?.find { it.tenderType.name() == 'CARD' }?.value ?: BigDecimal.ZERO) +
+                            (shift?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO) }" type="currency" />
                 </span>
             </div>
         </div>
