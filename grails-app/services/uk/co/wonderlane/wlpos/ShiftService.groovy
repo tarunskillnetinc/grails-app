@@ -385,7 +385,7 @@ class ShiftService extends MySqlPoolDal {
                 addJsonFieldToObject(jsonObject, "tenderTotals", shift.tenderTotals)
             }
 
-            if (shiftAction in [ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
+            if (shiftAction in [ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT, ShiftAction.SPOT_CHECK]) {
                 addJsonFieldToObject(jsonObject, "cashInDrawer", shift.cashInDrawer)
             }
 
