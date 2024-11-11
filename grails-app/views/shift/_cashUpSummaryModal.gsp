@@ -129,7 +129,7 @@
                 <div class="row mb-2 ml-0 mr-0">
                     <div class="col-5 text-right">Please select a safe location:</div>
                     <div class="col-4">
-                        <g:select name="safeLocationId"
+                        <g:select name="safeId"
                                   from="${safes}"
                                   optionKey="id"
                                   optionValue="description"
@@ -138,7 +138,7 @@
                 </div>
             </g:if>
             <g:elseif test="${safes?.collect()?.size() == 1}">
-                <g:hiddenField name="safeLocationId" value="${safes?.collect()[0].id}"/>
+                <g:hiddenField name="safeId" value="${safes?.collect()[0].id}"/>
             </g:elseif>
 
         </g:else>

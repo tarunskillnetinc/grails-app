@@ -233,12 +233,12 @@ class ShiftController {
                     def cashManagementConfig = cashManagementService.getCashManagementConfig(shift.getRetailerId(), shift.getStoreId())
                     if (shift.reconciliationTotals.sum{ it.variance.abs() } > cashManagementConfig.tillShiftVarianceLimit &&
                             (saveShiftCommand.tenderReconciliationVarianceReason == null || saveShiftCommand.tenderReconciliationVarianceReason.isEmpty())) {
-                        log.warn("No VarianceReason configured or selected.");
+                        log.warn("No VarianceReason configured or selected.")
                     }
                     //If any till id added into filter then pass it
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
-                    shiftService.processTakeSnapshot(shift, saveShiftCommand) //Take snapshot
-                    shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand) //Move into update tender movement
+                    shiftService.processTakeSnapshot(shift, saveShiftCommand.safeId) //Take snapshot
+                    shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
                     return
                 }
@@ -311,13 +311,32 @@ class ShiftController {
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) {
                 // Check shift is null or not open if so then proceed to create new shift
-                shiftService.processShiftClose(shift) //call function to open shift
-                boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(shift)
-                //Check if shift auto open is configured if yes then open new one
-                flash.message = String.format("Shift %d for Till %d has been successfully closed.", shift.getShiftNumber(), tillId)
-                if (isNewShiftOpen) {
-                    flash.message = String.format("Shift %d for Till %d has been successfully closed, and a new shift has been opened.", shift.getShiftNumber(), tillId)
+                shiftService.processShiftClose(shift) //call function to close shift
+
+                boolean isDirectShiftFinalise = false
+                //Directly process for reconcile and finalise actions if cash management flag is not enable
+                if (!shiftService.isCashManagementEnable(shift.tillId)){
+                    Safe primarySafe = safeService.getPrimaryStoreSafes()
+                    if (primarySafe != null) {
+                        int primarySafeId = primarySafe.getId()
+                        shiftService.processShiftAutoReconcile(shift)
+                        shiftService.processShiftAutoFinalise(shift, primarySafeId)
+                        isDirectShiftFinalise = true
+                    } else {
+                        log.warn("Direct reconcile and finalise process skipped for shift ${shift.shiftNumber}. No primary safe configured for the store.")
+                    }
                 }
+
+                //Check if shift auto open is configured if yes then open new one
+                boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(shift)
+
+                //Construct flash messages appropriately
+                def messageBuilder = new StringBuilder()
+                messageBuilder.append("Shift ${shift.getShiftNumber()} for Till ${tillId} has been successfully closed.")
+                if (isDirectShiftFinalise) {messageBuilder.append(" The shift was reconciled and finalized directly.")}
+                if (isNewShiftOpen) {messageBuilder.append(" A new shift has been opened.")}
+                flash.message = messageBuilder.toString()
+
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
                 //If there is no open shift mean shift should already be closed
                 flash.message = String.format("Shift %d for Till %d has already been closed.", shift.getShiftNumber(), tillId)
@@ -480,7 +499,7 @@ class SaveShiftCommand {
     int shiftId
     boolean isRecount
     boolean isFinalise
-    Integer safeLocationId
+    Integer safeId
     String tillIdFilter
     String tenderReconciliationVarianceReason
     String tenderReconciliationVarianceReasonText
