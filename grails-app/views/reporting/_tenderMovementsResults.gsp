@@ -66,7 +66,12 @@
                 <div class="col-2 my-auto">
                     <g:if test="${!tenderMovement.reason}">N/A</g:if>
                     <g:elseif test="${tenderMovement.type == 'PAID_OUT'}"><g:message code="PaidOutReason.${tenderMovement.reason}" /></g:elseif>
-                    <g:else>${tenderMovement.reason}</g:else>
+                    <g:else>
+                        <g:set var="maxLength" value="${30}" />
+                        <g:set var="originalValue" value="${tenderMovement.reason}" />
+                        <g:set var="truncatedValue" value="${originalValue?.take(maxLength) + (originalValue?.length() > maxLength ? '...' : '')}" />
+                        <span title="${originalValue}">${truncatedValue}</span>
+                    </g:else>
 
                     <g:if test="${tenderMovement.reasonOther}">&nbsp;-&nbsp;${tenderMovement.reasonOther}</g:if>
                 </div>
