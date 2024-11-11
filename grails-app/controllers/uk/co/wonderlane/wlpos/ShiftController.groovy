@@ -314,7 +314,7 @@ class ShiftController {
                 shiftService.processShiftClose(shift) //call function to close shift
 
                 boolean isDirectShiftFinalise = false
-                //Directly process for reconcile and finalise actions if cash management flag is set
+                //Directly process for reconcile and finalise actions if cash management flag is not enable
                 if (!shiftService.isCashManagementEnable(shift.tillId)){
                     Safe primarySafe = safeService.getPrimaryStoreSafes()
                     if (primarySafe != null) {
