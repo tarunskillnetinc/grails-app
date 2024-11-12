@@ -34,8 +34,6 @@ spring:
 management:
     endpoints:
         enabled-by-default: true
-server:
-    port: 8080
 ---
 grails:
     mime:
