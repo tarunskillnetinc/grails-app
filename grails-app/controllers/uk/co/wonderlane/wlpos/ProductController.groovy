@@ -1248,6 +1248,7 @@ class ProductController extends BaseController {
         packToBeUpdated.status = editedPack.status
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
+        packToBeUpdated.primaryCase = editedPack.primaryCase
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1388,7 +1389,8 @@ class ProductController extends BaseController {
         //---------------------------- Update history for pack fields --------------------------------//
 
         variant?.packs?.each { editedPack ->
-            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack.id == editedPack.id }
+            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+            
             if (existingPack) { //Pack already existed
                 comparePackFields(builder, existingPack, editedPack)
             } else { //Pack newly added
@@ -1561,8 +1563,8 @@ class ProductController extends BaseController {
         render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
-    def ajaxAddVariant(AddVariantCommand cmd) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value])
+    def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
     }
 
     def ajaxAddBarcode(int index, String selector) {
@@ -1980,6 +1982,7 @@ class AddPackCommand implements Validateable {
     PackStatus status
     Integer maximumOrderQuantity
     Boolean allowSubstitutes
+    boolean primaryCase
     boolean isNewPack = false
     boolean isWeighted = false
     Integer productVariantId
@@ -1990,6 +1993,7 @@ class AddPackCommand implements Validateable {
         id nullable: true
         productVariantId nullable: true
         allowSubstitutes nullable: true
+        primaryCase nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2165,6 +2169,7 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
+    boolean primaryCase
 
     static constraints = {
         importFrom Pack

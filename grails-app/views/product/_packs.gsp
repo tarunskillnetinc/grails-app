@@ -16,6 +16,7 @@
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].status" value="${pack.status}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].maximumOrderQuantity" value="${pack.maximumOrderQuantity}" />
             <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].allowSubstitutes" value="${pack.allowSubstitutes}" />
+            <g:hiddenField name="variants[${variantIndex}].packs[${packIndex}].primaryCase" value="${pack.primaryCase}"/>
 
             <div id="variants[${variantIndex}].packs[${packIndex}].barcodesContainer" class="col-2 my-auto">
             <g:each in="${pack.barcodez ? pack.barcodez : pack.hasProperty("barcodes") ? pack.barcodes : ""}"
