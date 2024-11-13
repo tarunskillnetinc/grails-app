@@ -214,7 +214,7 @@
                                             </sec:ifAnyGranted>
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
                                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                                    <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Configuration</g:link>
+                                                    <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Configurations</g:link>
                                                 </g:if>
                                             </sec:ifAnyGranted>
                                         </div>

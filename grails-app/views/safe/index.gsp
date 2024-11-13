@@ -41,7 +41,7 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Safe Configuration</li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Safe Configurations</li>
                 </ol>
             </div>
         </div>
@@ -50,7 +50,7 @@
 
 <section id="safe-container" class="container-fluid">
     <div class="header-wl mt-3">
-        <h2 id="page-title" class="mx-auto">Safe Configuration</h2>
+        <h2 id="page-title" class="mx-auto">Safe Configurations</h2>
     </div>
 
     <div id="messages-container"></div>

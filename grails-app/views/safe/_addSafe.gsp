@@ -36,7 +36,7 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="safe-configuration-link">Safe Configuration</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="safe-configuration-link">Safe Configurations</g:link></li>
                     <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${isUpdate ? 'Edit Safe' : 'Add Safe'}</li>
                 </ol>
             </div>
