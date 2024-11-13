@@ -752,6 +752,110 @@ environments:
         grails:
             serverURL: "https://trustretail-preprod.com"
 
+    clientuat1:
+        dataSource:
+            pooled: true
+            dbCreate: "validate"
+            url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-wlpos"
+            driverClassName: "com.mysql.cj.jdbc.Driver"
+            dialect: org.hibernate.dialect.MySQLInnoDBDialect
+            username: "cloudoffice"
+            password: "G8blr10SYQ6lc8KCXxdh"
+            properties:
+                <<: *databaseDefaultProperties
+
+        dataSources:
+            reporting:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "G8blr10SYQ6lc8KCXxdh"
+                properties:
+                    <<: *databaseDefaultProperties
+
+            reportingReadOnly:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retail-platform.cluster-ro-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-reporting"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "G8blr10SYQ6lc8KCXxdh"
+                properties:
+                    <<: *databaseDefaultProperties
+
+            transactions:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-transactions"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "G8blr10SYQ6lc8KCXxdh"
+                properties:
+                    <<: *databaseDefaultProperties
+
+            loyalty:
+                pooled: true
+                dbCreate: "validate"
+                url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-loyalty"
+                driverClassName: "com.mysql.cj.jdbc.Driver"
+                dialect: org.hibernate.dialect.MySQLInnoDBDialect
+                username: "cloudoffice"
+                password: "G8blr10SYQ6lc8KCXxdh"
+                properties:
+                    <<: *databaseDefaultProperties
+
+        rabbitmq:
+            host: b-9ae3b409-e6dc-4f72-b890-169b68a2639e.mq.eu-west-1.amazonaws.com
+            port: 5671
+            apiProtocol: https
+            apiPort: 443
+            virtualHost: "ClientUAT1"
+            username: cloudoffice
+            password: BIirEAt0dC89whYZgJZE
+            useSsl: true
+            senderExchange: Processing
+            exportExchange: Trigger
+
+        mysql:
+            wlpos:
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: G8blr10SYQ6lc8KCXxdh
+                database: clientuat1-wlpos
+            transactions:
+                host: retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: G8blr10SYQ6lc8KCXxdh
+                database: clientuat1-transactions
+            loyalty:
+                host: retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com
+                port: 3306
+                username: cloudoffice
+                password: G8blr10SYQ6lc8KCXxdh
+                database: clientuat1-loyalty
+
+        wlpos:
+            defaultImageBucket: "clientuat1-retail-platform-default-images-preprod"
+            cfdImageBucket: "clientuat1-retail-platform-customer-display-images-preprod"
+            receiptImageBucket: "clientuat1-retail-platform-receipt-images-preprod"
+            receipt_headerImageBucket: "clientuat1-retail-platform-receipt-images-preprod"
+            receipt_footerImageBucket: "clientuat1-retail-platform-receipt-images-preprod"
+            buttonImageBucket: "clientuat1-retail-platform-button-images-preprod"
+            brandAssetsBucket: "clientuat1-retail-platform-brand-assets-preprod"
+            customerDisplayImageBucket: "clientuat1-retail-platform-customer-display-images-preprod"
+
+        server:
+            port: 5000
+        grails:
+            serverURL: "https://clientuat1.trustretail-preprod.com"
+
     production:
         dataSource:
             pooled: true
