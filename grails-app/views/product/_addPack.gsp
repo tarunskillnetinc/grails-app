@@ -23,7 +23,8 @@
     <g:hiddenField name="addPack[${packIndex}].allowSubstitutes" value="${pack?.allowSubstitutes}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.name" value="${pack?.supplier?.name}" />
     <g:hiddenField name="addPack[${packIndex}].supplier.symbolGroupId" value="${pack?.supplier?.symbolGroupId}" />
-    <g:hiddenField name="addPack[${packIndex}].barcodes" value="${barcodes}" />
+    <g:hiddenField name="addPack[${packIndex}].barcodes" value="${barcodes}"/>
+    <g:hiddenField name="addPack[${packIndex}].primaryCase" value="${pack?.primaryCase}"/>
 
 
     <g:if test="${pack?.supplier?.symbolGroupId}">
@@ -80,10 +81,11 @@
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
         <div class="col-3 my-auto font-weight-bold">Barcodes</div>
+        <div class="col-3 offset-2 my-auto font-weight-bold">Preferred Pack</div>
     </div>
 
-    <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
-        <div id="addBarcodesContainer${packIndex}" class="col-6 mr-0">
+    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
+        <div id="addBarcodesContainer${packIndex}" class="col-5 mr-0">
             <g:if test="${pack?.barcodez?.empty}">
                 <div id="addBarcode0" class="input-group py-1">
                     <g:render template="addBarcode" model="[index: 0, barcode: null, selector: '#addBarcodesContainer' + packIndex]"/>
@@ -96,19 +98,22 @@
                 </div>
             </g:each>
         </div>
+
+        <div id="setPreferred${packIndex}" class="col-5 mr-0">
+            <g:checkBox name="addPack[${packIndex}].primaryCaseValue" class="col-1 form-check-input wl-checkbox" checked="${pack?.primaryCase}" />
+        </div>
     </div>
 
-
-    <div class="row mb-4">
-        <div class="col-4 offset-4">
+    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
+        <div class="col-4">
             <a href="#" onclick="addBarcode('#addBarcodesContainer${packIndex}');" class="btn btn-wl">Add Barcode</a>
         </div>
     </div>
 
     <div class="${existingPackIds?.contains(pack?.id) == true ? 'hidden' : ''}">
         <div class="row mx-4 pt-2 pb-2 wl-striped${packIndex % 2}">
-            <div class="col-1 my-auto">
-                <a href="#" class="btn btn-wl red" onclick="removePack(${variantIndex}, ${packIndex});">Remove</a>
+            <div class="col text-right">
+                <a href="#" class="btn btn-wl red" onclick="removePack(${variantIndex}, ${packIndex});">Remove Pack</a>
             </div>
         </div>
     </div>

@@ -166,21 +166,18 @@
                             <a id="journal" class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Journal</a>
                         </div>
                     </li>
-
-                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
-                        <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="loyaltyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Loyalty</a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loyaltyDropdown">
-                                    <g:link elementId="membership-management-dropdown" controller="loyalty" action="loyaltyMembers" class="dropdown-item">Membership Management</g:link>
-                                    <g:link elementId="loyalty-segment-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment Management</g:link>
-                                    <g:link elementId="loyalty-offer-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offer Management</g:link>
-                                </div>
-                            </li>
-                        </g:if>
-                    </sec:ifAnyGranted>
-
+            <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE'>
+                <g:if test="${!sec.loggedInUserInfo(field: 'storeId').toBoolean() && sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="loyaltyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Loyalty</a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loyaltyDropdown">
+                            <g:link elementId="membership-management-dropdown" controller="loyalty" action="loyaltyMembers" class="dropdown-item">Membership Management</g:link>
+                            <g:link elementId="loyalty-segment-dropdown" controller="loyalty" action="loyaltySegment" class="dropdown-item">Loyalty Segment Management</g:link>
+                            <g:link elementId="loyalty-offer-dropdown" controller="loyalty" action="loyaltyOffers" class="dropdown-item">Loyalty Offer Management</g:link>
+                        </div>
+                    </li>
+                </g:if>
+            </sec:ifAnyGranted>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
@@ -223,7 +220,6 @@
                             </sec:ifAnyGranted>
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
-
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
                             </g:if>

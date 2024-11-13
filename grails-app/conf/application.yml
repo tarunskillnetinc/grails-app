@@ -34,7 +34,6 @@ spring:
 management:
     endpoints:
         enabled-by-default: true
-
 ---
 grails:
     mime:
@@ -403,7 +402,7 @@ environments:
                     <<: *databaseDefaultProperties
 
         rabbitmq:
-            host: b-8a4cc67f-a559-41ea-98d3-d3949bc49275.mq.eu-west-1.amazonaws.com
+            host: rabbitmq.trustretail-test.com
             port: 5671
             apiProtocol: https
             apiPort: 443

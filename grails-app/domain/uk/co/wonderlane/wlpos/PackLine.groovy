@@ -71,4 +71,14 @@ class PackLine {
         }
         return 1 // singles
     }
+
+    public uk.co.wonderlane.wlpos.entities.wlim.PackLine getPackLine() {
+        uk.co.wonderlane.wlpos.entities.wlim.PackLine packLine = new uk.co.wonderlane.wlpos.entities.wlim.PackLine()
+
+        packLine.setPackId(pack?.id)
+        packLine.setQuantity(quantity)
+        packLine.setOrderCode(orderCode)
+
+        return packLine
+    }
 }

@@ -66,6 +66,14 @@
                 document.getElementById('supplier').value = "${null}";
                 document.getElementById('storeFilter').value = null;
             }
+
+            function createOrderClicked() {
+                $('#showSupplierModal').modal('show');
+            }
+
+            function selectSupplier(supplierId) {
+                window.location.href = '${createLink(controller: 'order', action:'add')}' + '?supplierId=' +supplierId;
+            }
         </script>
     </head>
     <body>
@@ -75,6 +83,14 @@
             <div class="header-wl mt-3">
                 <h2 id="page-title" class="mx-auto">Orders Report</h2>
             </div>
+
+            <g:if test="${flash.message}">
+                <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
+            </g:if>
+
+            <g:if test="${flash.error}">
+                <div class="alert alert-danger alert-wl mx-0" role="alert">${flash.error}</div>
+            </g:if>
 
             <div class="row mt-4">
                 <div class="col-5">
@@ -135,11 +151,12 @@
 
                 <div class="col-4 offset-1 text-right" style="margin-top: 8px; ">
                     <g:if test="${enableOrderCreate}">
-                        <button id="create-order" class="btn btn-wl" onclick="document.location.href='${createLink(controller: 'order', action: 'productList')}';">Create Order</button>
+                        <button id="create-order" class="btn btn-wl" onclick="createOrderClicked();">Create Order</button>
                     </g:if>
                     <g:else>
-                        <button id="create-order" class="btn btn-wl" disabled onclick="document.location.href='${createLink(controller: 'order', action: 'productList')}';">Create Order</button>
+                        <button id="create-order" class="btn btn-wl" disabled>Create Order</button>
                     </g:else>
+
                     <button id="export-to-csv" class="btn btn-wl" onclick="exportToCsv();">Export to CSV</button>
                 </div>
 
@@ -204,6 +221,16 @@
             <div class="modal fade" id="showOrderSuppliersModal" tabindex="-1" role="dialog" aria-labelledby="showOrderSuppliersModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div id="showOrderSuppliersContent" class="modal-content" ></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="showPopUp-modal" class="container-fluid">
+            <div class="modal fade" id="showSupplierModal" tabindex="-1"  role="dialog" aria-labelledby="showSupplierModalLabel" data-backdrop="false" aria-hidden="true" >
+                <div class="modal-dialog modal-lg" role="document"style="border: 2px black solid; width: 350px; margin-top: 120px">
+                    <div id="showSupplierContent" class="modal-content">
+                        <g:render template="/order/showSupplier" model="[suppliers: suppliers]" />
+                    </div>
                 </div>
             </div>
         </section>

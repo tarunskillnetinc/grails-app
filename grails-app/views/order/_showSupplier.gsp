@@ -11,7 +11,11 @@
     </div>
 
     <div id="supplierListView">
-        <g:render template="supplierListView" model="[suppliers: suppliers]" />
+        <g:each in="${suppliers}" var="supplier" status="i">
+            <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Select supplier." onclick="selectSupplier(${supplier?.id})">
+                <div id="supplier-name-${i + 1}" class="col-12 text-truncate-wrap">${supplier?.name}</div>
+            </div>
+        </g:each>
     </div>
 
 </div>

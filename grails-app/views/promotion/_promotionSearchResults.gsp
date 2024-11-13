@@ -15,7 +15,9 @@
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'startDate', sortOrder: ${sortColumn == 'startDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Start Date</a></div>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'endDate', sortOrder: ${sortColumn == 'endDate' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">End Date</a></div>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'active', sortOrder: ${sortColumn == 'active' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Active</a></div>
-    <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'loyalty', sortOrder: ${sortColumn == 'loyalty' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Loyalty</a></div>
+    <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
+        <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'loyalty', sortOrder: ${sortColumn == 'loyalty' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Loyalty</a></div>
+    </g:if>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'type', sortOrder: ${sortColumn == 'type' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'amount', sortOrder: ${sortColumn == 'amount' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Discount Amount</a></div>
     <div class="col-1 font-weight-bold"><a href="#" onclick="searchButtonClicked({ max: '${max}', offset: '${offset}', sortColumn: 'supplierName', sortOrder: ${sortColumn == 'supplierName' ? sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Supplier Name</a></div>
@@ -50,9 +52,11 @@
             <div id="promo-result-${i+1}-active" class="col-1 text-truncate">
                 <g:checkBox name="promo-${i}-active" value="${promotion.active}" disabled="true"/>
             </div>
-            <div id="promo-result-${i+1}-loyalty" class="col-1 text-truncate">
-                <g:checkBox name="promo-${i}-loyalty" value="${promotion.loyalty}" disabled="true"/>
-            </div>
+            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
+                <div id="promo-result-${i+1}-loyalty" class="col-1 text-truncate">
+                    <g:checkBox name="promo-${i}-loyalty" value="${promotion.loyalty}" disabled="true"/>
+                </div>
+            </g:if>
             <div id="promo-result-${i+1}-type" class="col-1 text-truncate"><g:message code="PromotionType.${promotion.type}" /></div>
             <div id="promo-result-${i+1}-amount" class="col-1 text-truncate">${promotion.amount}</div>
             <div id="promo-result-${i+1}-group" class="col-1 text-truncate">${promotion.symbolGroupPromotion?.symbolGroup?.name} ${promotion.symbolGroupPromotion?.isLeaflet ? " - Leaflet" : ""}</div>
