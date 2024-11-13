@@ -7,11 +7,14 @@ import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
 import uk.co.wonderlane.wlpos.reporting.Location
 import uk.co.wonderlane.wlpos.reporting.TenderMovement
+
+import java.time.ZonedDateTime
 
 class SnapshotController {
 
@@ -19,41 +22,59 @@ class SnapshotController {
     def snapshotService
     def locationService
     def reportingService
+    def reasonCodeService
+    def safeService
 
     def index() {
         DateTime startDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().minusDays(7)
         DateTime endDate = DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
 
-        [startDate: startDate, endDate: endDate, safeLocations: locationService.getStoreSafeLocations(), shiftStartDate: params.shiftStartDate, shiftEndDate: params.shiftEndDate, shiftTillId: params.shiftTillId]
+        def storeSafes = safeService.getStoreSafes()
+
+        [startDate: startDate, endDate: endDate, safes: storeSafes, shiftStartDate: params.shiftStartDate, shiftEndDate: params.shiftEndDate, shiftTillId: params.shiftTillId]
     }
 
     def ajaxGetSnapshots() {
+        def safeId = null
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
         DateTime startDate = DateTime.parse(params.startDate, dateFormatter)
         DateTime endDate = DateTime.parse(params.endDate, dateFormatter)
 
-        render (template: "snapshotViewerResults", model: [snapshots: snapshotService.getSnapshots(startDate, endDate)])
+        def storeSafes = safeService.getStoreSafes()
+        def snapshots = snapshotService.getSnapshots(startDate, endDate)
+
+        if (params.safeId != null && params.safeId.length() > 0) {
+            safeId = Integer.parseInt(params.safeId);
+
+            /* Filters only the selected safe */
+            snapshots = snapshots.findAll { it.safeId == safeId }
+        }
+
+        def safeDescriptions = storeSafes.collectEntries { [(it.id): it.description] }
+
+        render (template: "snapshotViewerResults", model: [snapshots: snapshots, descriptions: safeDescriptions])
     }
 
     def ajaxGetSafe(int id) {
-        def locations = locationService.getStoreSafeLocations()
+        def safes = safeService.getStoreSafes()
+
         if (id == 0) {
-            if (locations.collect().isEmpty()) {
-                locationService.generateDefaultSafeLocation()
-                locations = locationService.getStoreSafeLocations()
+            if (safes.collect().isEmpty()) {
+                def safe = safeService.createDefaultSafe()
+                locationService.createSafeLocation(safe.id, safe.description)
             }
 
-            if (locations.collect().size() == 1) {
-                Snapshot safeSnapshot = snapshotService.getSnapshotForLocation((locations.collect()[0] as Location).id)
-                render(template: "snapshotModal", model: [safeLocations: locations, snapshot: safeSnapshot])
+            if (safes.collect().size() == 1) {
+                Snapshot safeSnapshot = snapshotService.getSnapshotForSafe((safes.collect()[0] as Safe).id)
+                render(template: "snapshotModal", model: [safeLocations: safes, snapshot: safeSnapshot])
             } else {
-                render(template: "snapshotModal", model: [safeLocations: locations, snapshot: null])
+                render(template: "snapshotModal", model: [safeLocations: safes, snapshot: null])
             }
         } else {
-            Snapshot safeSnapshot = snapshotService.getSnapshotForLocation(id)
+            Snapshot safeSnapshot = snapshotService.getSnapshotForSafe(id)
 
             if (safeSnapshot) {
-                render(template: "snapshotModal", model: [safeLocations: locations, snapshot: safeSnapshot])
+                render(template: "snapshotModal", model: [safeLocations: safes, snapshot: safeSnapshot])
             } else {
                 render "Unable to retrieve safe."
             }
@@ -61,10 +82,15 @@ class SnapshotController {
     }
 
     def ajaxGetSnapshot(int id) {
-        Snapshot snapshot = snapshotService.getSnapshot(id)
+        def safe = null
+        def snapshot = snapshotService.getSnapshot(id)
+
+        if (snapshot != null) {
+            safe = safeService.getSafeById(snapshot.safeId)
+        }
 
         if (snapshot) {
-            render(template: "snapshotSummaryModal", model: [ snapshot: snapshot])
+            render(template: "snapshotSummaryModal", model: [snapshot: snapshot, description: safe.description])
         } else {
             render "Unable to retrieve snapshot"
         }
@@ -102,7 +128,9 @@ class SnapshotController {
 
         snapshotService.saveSnapshot(snapshot)
 
-        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
+        def varianceReasons = reasonCodeService.getReasonCodesByType(snapshot.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
+
+        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: varianceReasons ])
     }
 
     def ajaxSaveSnapshot(SaveSnapshotCommand snapshotCommand) {
@@ -113,47 +141,50 @@ class SnapshotController {
             snapshot.varianceReasonText = snapshotCommand.varianceReasonText
         }
 
-        snapshot.countDate = DateTime.now()
+        // Remove the time offset by setting the time zone to UTC
+        snapshot.countDate = DateTime.now().withZone(DateTimeZone.UTC)
         snapshot.countedByUserId = springSecurityService.principal.id
         snapshot.countedByUsersName = springSecurityService.principal.usersName
 
         snapshotService.saveSafeSnapshot(snapshot)
 
-        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: TenderReconciliationVarianceReason.values() ])
+        def varianceReasons = reasonCodeService.getReasonCodesByType(snapshot.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
+
+        render(template: "snapshotSummaryModal", model: [ snapshot: snapshot, varianceReasons: varianceReasons ])
     }
 
     def ajaxBanking() {
-        def safeLocations = locationService.getStoreSafeLocations()
+        def safeLocations = safeService.getStoreSafes()
 
         render(template: "bankingModal", model: [safeLocations: safeLocations])
     }
 
     def ajaxSaveBanking(BankingCommand bankingCommand) {
         if (bankingCommand.cashTotal == BigDecimal.ZERO && bankingCommand.vouchersTotal == BigDecimal.ZERO) {
-            render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "At least one tender total must be non-zero."])
+            render(template: "bankingModal", model: [safeLocations: safeService.getStoreSafes(), error: "At least one tender total must be non-zero."])
             return
         } else if (bankingCommand.cashTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
-            render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash totals cannot exceed more than 10 million."])
+            render(template: "bankingModal", model: [safeLocations: safeService.getStoreSafes(), error: "Cash totals cannot exceed more than 10 million."])
             return
         } else if (bankingCommand.vouchersTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
-            render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Voucher totals cannot exceed more than 10 million."])
+            render(template: "bankingModal", model: [safeLocations: safeService.getStoreSafes(), error: "Voucher totals cannot exceed more than 10 million."])
             return
         }
         
-        Snapshot fromSnapshot = snapshotService.getSnapshotForLocation(bankingCommand.fromLocation)
+        Snapshot fromSnapshot = snapshotService.getSnapshotForSafe(bankingCommand.fromLocation)
         def movements = new ArrayList<TenderMovement>()
 
         if (bankingCommand.cashTotal > BigDecimal.ZERO) {
             TenderTotal cashExpected = fromSnapshot.expectedTotals.find{ it.tenderType == TenderType.CASH } ?: null
             if (cashExpected == null || cashExpected.value.subtract(bankingCommand.cashTotal) < BigDecimal.ZERO) {
                 // expected value would become below zero. Advise to count safe first
-                render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "The amount entered for Cash is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
+                render(template: "bankingModal", model: [safeLocations: safeService.getStoreSafes(), error: "The amount entered for Cash is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
                 return
             }
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.BANKING,
                     TenderType.CASH,
-                    locationService.getLocation(bankingCommand.fromLocation) as Location,
+                    locationService.getOrCreateLocationForSafe(bankingCommand.fromLocation),
                     null,
                     bankingCommand.cashTotal))
 
@@ -164,13 +195,13 @@ class SnapshotController {
             TenderTotal voucherExpected = fromSnapshot.expectedTotals.find{ it.tenderType == TenderType.VOUCHER } ?: null
             if (voucherExpected == null || voucherExpected.value.subtract(bankingCommand.vouchersTotal) < BigDecimal.ZERO) {
                 // expected value would become below zero. Advise to count safe first
-                render(template: "bankingModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "The amount entered for Voucher is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
+                render(template: "bankingModal", model: [safeLocations: safeService.getStoreSafes(), error: "The amount entered for Voucher is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
                 return
             }
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.BANKING,
                     TenderType.VOUCHER,
-                    locationService.getLocation(bankingCommand.fromLocation) as Location,
+                    locationService.getOrCreateLocationForSafe(bankingCommand.fromLocation),
                     null,
                     bankingCommand.vouchersTotal))
 
@@ -184,21 +215,21 @@ class SnapshotController {
     }
 
     def ajaxCashInbound() {
-        def safeLocations = locationService.getStoreSafeLocations()
+        def safeLocations = safeService.getStoreSafes()
 
         render(template: "cashInboundModal", model: [safeLocations: safeLocations])
     }
 
     def ajaxSaveCashInbound(CashInboundCommand cashInboundCommand) {
         if (cashInboundCommand.cashTotal == BigDecimal.ZERO) {
-            render(template: "cashInboundModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash total must be non-zero."])
+            render(template: "cashInboundModal", model: [safeLocations: safeService.getStoreSafes(), error: "Cash total must be non-zero."])
             return
         } else if (cashInboundCommand.cashTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
-            render(template: "cashInboundModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash total cannot exceed more than 10 million."])
+            render(template: "cashInboundModal", model: [safeLocations: safeService.getStoreSafes(), error: "Cash total cannot exceed more than 10 million."])
             return
         }
 
-        Snapshot toSnapshot = snapshotService.getSnapshotForLocation(cashInboundCommand.toLocation)
+        Snapshot toSnapshot = snapshotService.getSnapshotForSafe(cashInboundCommand.toLocation)
 
         //Add to safe total
         def cashExpected = toSnapshot.expectedTotals.find{it.tenderType == TenderType.CASH} ?: null
@@ -213,7 +244,7 @@ class SnapshotController {
             def movement = reportingService.createNewTenderMovement(TenderMovementType.CASH_INBOUND,
                     TenderType.CASH,
                     null,
-                    locationService.getLocation(cashInboundCommand.toLocation) as Location,
+                    locationService.getOrCreateLocationForSafe(cashInboundCommand.toLocation),
                     cashInboundCommand.cashTotal)
             reportingService.saveTenderMovement(movement)
             render "OK"
@@ -221,13 +252,13 @@ class SnapshotController {
     }
 
     def ajaxCashLift() {
-        def safeLocations = locationService.getStoreSafeLocations()
+        def safeLocations = safeService.getStoreSafes()
 
         render(template: "cashLiftModal", model: [safeLocations: safeLocations])
     }
 
     def ajaxSaveCashLift(CashLiftCommand cashLiftCommand) {
-        def safeLocations = locationService.getStoreSafeLocations()
+        def safeLocations = safeService.getStoreSafes()
 
         if (!cashLiftCommand.fromLocation || !cashLiftCommand.toLocation) {
             render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "A Cash Lift operation requires both safe locations to be set."])
@@ -243,29 +274,29 @@ class SnapshotController {
             render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "At least one tender total must be non-zero."])
             return
         } else if (cashLiftCommand.cashTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
-            render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Cash totals cannot exceed more than 10 million."])
+            render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "Cash totals cannot exceed more than 10 million."])
             return
         } else if (cashLiftCommand.vouchersTotal >= BigDecimal.valueOf(10000000)) { //Allow up to £10 million, but not a penny more.
-            render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "Voucher totals cannot exceed more than 10 million."])
+            render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "Voucher totals cannot exceed more than 10 million."])
             return
         }
 
-        Snapshot fromSnapshot = snapshotService.getSnapshotForLocation(cashLiftCommand.fromLocation)
-        Snapshot toSnapshot = snapshotService.getSnapshotForLocation(cashLiftCommand.toLocation)
+        Snapshot fromSnapshot = snapshotService.getSnapshotForSafe(cashLiftCommand.fromLocation)
+        Snapshot toSnapshot = snapshotService.getSnapshotForSafe(cashLiftCommand.toLocation)
         def movements = new ArrayList<TenderMovement>()
 
         if (cashLiftCommand.cashTotal > BigDecimal.ZERO) {
             TenderTotal fromCashExpected = fromSnapshot.expectedTotals.find{ it.tenderType == TenderType.CASH } ?: null
             if (fromCashExpected == null || fromCashExpected.value.subtract(cashLiftCommand.cashTotal) < BigDecimal.ZERO) {
                 // expected value would become below zero. Advise to count safe first
-                render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "The amount entered for Cash is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
+                render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "The amount entered for Cash is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
                 return
             }
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.CASH_LIFT,
                     TenderType.CASH,
-                    locationService.getLocation(cashLiftCommand.fromLocation) as Location,
-                    locationService.getLocation(cashLiftCommand.toLocation) as Location,
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.fromLocation),
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.toLocation),
                     cashLiftCommand.cashTotal))
 
             fromCashExpected.value = fromCashExpected.value.subtract(cashLiftCommand.cashTotal)
@@ -284,14 +315,14 @@ class SnapshotController {
             TenderTotal voucherExpected = fromSnapshot.expectedTotals.find{ it.tenderType == TenderType.VOUCHER } ?: null
             if (voucherExpected == null || voucherExpected.value.subtract(cashLiftCommand.vouchersTotal) < BigDecimal.ZERO) {
                 // expected value would become below zero. Advise to count safe first
-                render(template: "cashLiftModal", model: [safeLocations: locationService.getStoreSafeLocations(), error: "The amount entered for Voucher is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
+                render(template: "cashLiftModal", model: [safeLocations: safeLocations, error: "The amount entered for Voucher is greater than the expected value in the safe. Please count the safe to account for discrepancies."])
                 return
             }
 
             movements.add(reportingService.createNewTenderMovement(TenderMovementType.CASH_LIFT,
                     TenderType.VOUCHER,
-                    locationService.getLocation(cashLiftCommand.fromLocation) as Location,
-                    locationService.getLocation(cashLiftCommand.toLocation) as Location,
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.fromLocation),
+                    locationService.getOrCreateLocationForSafe(cashLiftCommand.toLocation),
                     cashLiftCommand.vouchersTotal))
 
             voucherExpected.value = voucherExpected.value.subtract(cashLiftCommand.vouchersTotal)
@@ -302,6 +333,7 @@ class SnapshotController {
             render "OK"
         }
     }
+
 }
 
 class SaveSafeCommand {
@@ -327,7 +359,7 @@ class SaveSafeCommand {
 
 class SaveSnapshotCommand {
     int snapshotId
-    TenderReconciliationVarianceReason varianceReason
+    String varianceReason
     String varianceReasonText
 }
 

@@ -1,22 +1,18 @@
 package uk.co.wonderlane.wlpos
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import grails.gorm.transactions.Transactional
-import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
-import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
-import uk.co.wonderlane.wlpos.entities.cash.Shift
-import uk.co.wonderlane.wlpos.entities.cash.Snapshot
-import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.entities.cash.*
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
-import uk.co.wonderlane.wlpos.entities.transaction.FinancialWeek
-import uk.co.wonderlane.wlpos.entities.transaction.ShiftAudit
 import uk.co.wonderlane.wlpos.enums.*
 import uk.co.wonderlane.wlpos.reporting.Location
 
@@ -34,6 +30,7 @@ class ShiftService extends MySqlPoolDal {
     def snapshotService
     def locationService
     def reportingService
+    def safeService
 
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 
@@ -73,26 +70,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    def getSafeLocation(Shift shift){
-        def safeLocations = null
-        try {
-            safeLocations = locationService.getStoreSafeLocations()
-            if (safeLocations.collect().isEmpty()) {
-                Location location = new Location()
-                location.safeId = 1
-                location.retailerId = shift.retailerId
-                location.storeId = shift.storeId
-                location.type = LocationType.SAFE
-                location.description = "Safe 1"
-                location.save()
-                safeLocations = locationService.getStoreSafeLocations()
-            }
-        } catch (Exception ex) {
-            log.error(String.format("Error saving safe location shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-        }
-        return safeLocations
-    }
-
     void processShiftDataSave(SaveShiftCommand saveShiftCommand, Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
@@ -109,35 +86,28 @@ class ShiftService extends MySqlPoolDal {
     }
 
 
-    void processTakeSnapshot(Shift shift, SaveShiftCommand saveShiftCommand) {
+    void processTakeSnapshot(Shift shift, int safeId) {
         try {
-            Snapshot latestSnapshot = snapshotService.getSnapshotForLocation(saveShiftCommand.safeLocationId)
-            processSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
-            processSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
+            Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
+            processFinalizeSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
+            processFinalizeSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
             snapshotService.saveSnapshot(latestSnapshot)
         }catch (Exception ex){
             log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
-    void updateTenderMovement(Shift shift, SaveShiftCommand saveShiftCommand){
+    void updateFinaliseTenderMovement(Shift shift, int safeId){
         try {
-            def tillLocation = locationService.getTillLocation(shift.tillId)
-            def safeLocation = locationService.getLocation(saveShiftCommand.safeLocationId)
+            Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
+            Location safeLocation = locationService.getLocationBySafeId(safeId) as Location
 
             shift.reconciliationTotals.each {
-                if (it.value > BigDecimal.ZERO) {
-                    reportingService.saveTenderMovement(reportingService.createNewTenderMovement(TenderMovementType.CASH_UP,
-                            it.tenderType,
-                            tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                            safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                            it.value))
-                }
+                createNewTenderMovement(tillLocation, safeLocation, TenderMovementType.CASH_UP, it.tenderType, it.value)
             }
         } catch (Exception ex) {
             log.error(String.format("Error shift tender movement for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
-
     }
 
     boolean isShiftRecountAmountNotExceed(Shift shift){
@@ -311,7 +281,7 @@ class ShiftService extends MySqlPoolDal {
                         .collect(Collectors.toMap(Shift::getTillId,
                                 shift -> ShiftStatus.OPEN,
                                 (existing, replacement) -> existing
-                        ));
+                        ))
 
                 nonExistingShiftList = tillConfigList.stream()
                         .filter(tillConfig -> !shiftTillIds.contains(tillConfig.getTillId()) || openTillsMap.get(tillConfig.getTillId()) == null)
@@ -354,6 +324,55 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
+    // This is method of processing ADD_FLOAT or CASH_LIFT request
+    void processShiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount, int safeId){
+        try {
+            ShiftAction shiftAction = isAddFloat ? ShiftAction.ADD_FLOAT : ShiftAction.CASH_LIFT
+            User loggedInUser = loadLoggedInUser()
+            shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
+            shiftSnapshotUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //update snapshot
+            shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
+            addAudit(shift, shiftAction, false, loggedInUser) //Add shift audit for shift close
+        } catch (Exception ex) {
+            log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for shift id ${shift.getId()}, safe id ${safeId} error: ${ex.getMessage()}"), ex)
+        }
+    }
+
+    // This is method which reconcile shift if it is configured to auto reconcile at shift close
+    void processShiftAutoReconcile(Shift shift){
+        try {
+            User loggedInUser = loadLoggedInUser()
+            updateAutoShiftDataFields(shift, loggedInUser, false);
+            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
+        } catch (Exception ex) {
+            log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
+        }
+    }
+
+    // This is method which finalise shift if it is configured to auto finalise at shift close
+    void processShiftAutoFinalise(Shift shift, int primarySafeId){
+        try {
+            User loggedInUser = loadLoggedInUser()
+            updateAutoShiftDataFields(shift, loggedInUser, true);
+            processTakeSnapshot(shift, primarySafeId);
+            updateFinaliseTenderMovement(shift, primarySafeId);
+            addAudit(shift, ShiftAction.FINALISE, false, loggedInUser) //Add shift audit for shift close
+        } catch (Exception ex) {
+            log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
+        }
+    }
+
+    boolean isCashManagementEnable(int tillId) {
+        TillConfiguration tillConfiguration = getTillConfiguration(tillId)
+        if (tillConfiguration != null) {
+            return tillConfiguration.cashManagementEnabled
+        }
+        return false
+    }
+
     private Shift populateNewShift(int retailerId, int storeId, int tillId, boolean isAutoGenerated) throws Exception {
         int shiftNumber = getLastShiftNumber(retailerId, storeId, tillId) + 1
         FinancialWeek financialWeek = getFinancialWeek(retailerId)
@@ -385,29 +404,51 @@ class ShiftService extends MySqlPoolDal {
 
     private ShiftAudit initializeShiftAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser) {
         ShiftAudit shiftAudit = new ShiftAudit()
-        shiftAudit.setShiftId(shift.getId())
-        shiftAudit.setAutoGenerated(isAutoGenerated)
-        shiftAudit.setAction(shiftAction)
-        shiftAudit.setUserId(loggedInUser?.id)
-        shiftAudit.setUsername(loggedInUser?.username)
-        shiftAudit.setTimestamp(new DateTime())
-        if (shiftAction == ShiftAction.SPOT_CHECK) { // Adding extras when action is spot check
-            JsonObject jsonObject = new JsonObject()
-            if (shift?.reconciliationTotals != null) {
-                try {
-                    String jsonString = gsonProvider?.gson?.toJson(shift.reconciliationTotals) ?: "[]"
-                    JsonArray jsonArray = JsonParser.parseString(jsonString)?.asJsonArray ?: new JsonArray()
-                    jsonObject.add("reconciliationTotals", jsonArray)
-                } catch (Exception ex) {
-                    log.error("Error parsing extra for spot check audit for shift id: " + shift.getId() + " : " + ex.getMessage(), ex)
-                    jsonObject.add("reconciliationTotals", new JsonArray())
-                }
-            } else {
-                jsonObject.add("reconciliationTotals", new JsonArray())
-            }
-            shiftAudit.setExtras(jsonObject)
+        shiftAudit.with {
+            shiftId = shift.id
+            autoGenerated = isAutoGenerated
+            action = shiftAction
+            userId = loggedInUser?.id
+            username = loggedInUser?.username
+            timestamp = new DateTime()
         }
+
+        if (shiftAction in [ShiftAction.SPOT_CHECK, ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.FINALISE, ShiftAction.ADD_FLOAT, ShiftAction.CASH_LIFT]) {
+            JsonObject jsonObject = new JsonObject()
+
+            addJsonFieldToObject(jsonObject, "tenderTotals", shift.tenderTotals)
+            addJsonFieldToObject(jsonObject, "cashInDrawer", shift.cashInDrawer)
+
+            if (shiftAction in [ShiftAction.RECONCILE, ShiftAction.RECOUNT, ShiftAction.FINALISE]) {
+                addJsonFieldToObject(jsonObject, "reconciliationTotals", shift.reconciliationTotals)
+            }
+
+            shiftAudit.extras = jsonObject
+        }
+
         return shiftAudit
+    }
+
+    private void addJsonFieldToObject(JsonObject jsonObject, String key, def value) {
+        if (value != null) {
+            try {
+                String jsonString = gsonProvider?.gson?.toJson(value) ?: "{}"
+                JsonElement jsonElement = JsonParser.parseString(jsonString)
+
+                if (jsonElement.isJsonArray()) {
+                    jsonObject.add(key, jsonElement.getAsJsonArray())
+                } else if (jsonElement.isJsonObject()) {
+                    jsonObject.add(key, jsonElement.getAsJsonObject())
+                } else {
+                    jsonObject.add(key, jsonElement)
+                }
+            } catch (Exception ex) {
+                log.error("Error parsing extra for audit for key: $key : ${ex.message}", ex)
+                jsonObject.add(key, new JsonArray())
+            }
+        } else {
+            jsonObject.add(key, JsonNull.INSTANCE)
+        }
     }
 
     private List<TillConfiguration> getAllActiveTills(Integer storeNumber, Integer tillId) {
@@ -529,15 +570,21 @@ class ShiftService extends MySqlPoolDal {
         return loggedInUser
     }
 
-    private void processSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
-        def total = shift.reconciliationTotals.find { it.tenderType == type }
-        if (total) {
+    private void processFinalizeSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
+        ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
+        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) != 0){
+            updateSnapshot(snapshot, reconciliationTotal.value, type)
+        }
+    }
+
+    private void updateSnapshot(Snapshot snapshot, BigDecimal amount, TenderType type){
+        if (amount) {
             def expected = snapshot.expectedTotals.find { it.tenderType == type }
             if (!expected) {
                 expected = new TenderTotal(type)
                 snapshot.expectedTotals.add(expected)
             }
-            expected.value = expected.value.add(total.value)
+            expected.value = expected.value.add(amount)
         }
     }
 
@@ -567,14 +614,18 @@ class ShiftService extends MySqlPoolDal {
         def cashTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
                 new ReconciliationTotal(TenderType.CASH).tap { shift.pendingReconciliationTotals << it }
         cashTotal.value = calculateCashTotal(cashUpCommand)
-        cashTotal.variance = (cashTotal.value ?: 0) - (shift.cashInDrawer ?: 0)
+        BigDecimal currentCashTotal = (cashTotal.value ?: BigDecimal.ZERO)
+        BigDecimal currentCashInDrawer = (shift.cashInDrawer ?: BigDecimal.ZERO)
+        cashTotal.variance = currentCashTotal.subtract(currentCashInDrawer)
     }
 
     private void updatePendingVoucherTotal(CashUpCommand cashUpCommand, Shift shift) {
         def vouchersTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
                 new ReconciliationTotal(TenderType.VOUCHER).tap { shift.pendingReconciliationTotals << it }
         vouchersTotal.value = cashUpCommand.vouchersTotal
-        vouchersTotal.variance = (vouchersTotal.value ?: 0) - (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: 0)
+        BigDecimal currentVoucherTotal = (vouchersTotal.value ?: BigDecimal.ZERO)
+        BigDecimal currentTenderTotal = (shift.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        vouchersTotal.variance = currentVoucherTotal.subtract(currentTenderTotal)
     }
 
     private BigDecimal calculateCashTotal(CashUpCommand cashUpCommand) {
@@ -644,6 +695,126 @@ class ShiftService extends MySqlPoolDal {
         } catch (Exception ex) {
             log.error(String.format("Error checking shift auto open for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error checking recount amount for retailer id: %s store id: %s error: %s", retailerId, storeId, ex.getMessage()), ex)
+        }
+    }
+
+    private void shiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        // If this is add float action then amounts need to be added on shift balances if cash lift then need to deduct from shift
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
+        shiftCashTenderUpdate(shift, isAddFloat, adjustedCashAmount, voucherAmount)
+        updateCashDrawer(shift, adjustedCashAmount)
+        saveShift(shift)
+    }
+
+    private void shiftSnapshotUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        // If this is add float action then amounts need to be deduct on snapshot if cash lift then need to sum up for snapshot
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
+        Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
+        if (latestSnapshot) {
+            updateSnapshot(latestSnapshot, adjustedCashAmount, TenderType.CASH)
+            if (isAddFloat) {
+                updateSnapshot(latestSnapshot, voucherAmount.negate(), TenderType.VOUCHER)
+            }
+            snapshotService.saveSnapshot(latestSnapshot)
+        } else {
+            log.error(String.format("No available snapshot for safe id id: ${safeId} error: ${ex.getMessage()}"))
+            throw new RuntimeException(String.format("No available snapshot for safe id id: ${safeId} error: ${ex.getMessage()}"))
+        }
+
+    }
+
+    private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
+        Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
+        Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as Location
+
+        if (isAddFloat) {
+            // If this is add float action then we can have both CASH and VOUCHER types
+            // For add float action from location should be location of safe we are moving money into
+            // To location should be location of till where we move cash/voucher into
+            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.CASH, cashAmount)
+            createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, TenderType.VOUCHER, voucherAmount)
+        } else {
+            // In cash lift action there can only CASH type
+            // from location should be location of till while to location should be location of safe where we move cash into
+            createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, TenderType.CASH, cashAmount)
+        }
+    }
+
+    private void shiftCashTenderUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
+        updateTenderTotalForCashUpdate(shift, TenderType.CASH, cashAmount)
+        if (isAddFloat) {
+            updateTenderTotalForCashUpdate(shift, TenderType.VOUCHER, voucherAmount)
+        }
+    }
+
+    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
+        if (cashAmount != null){
+            BigDecimal currentCash = shift.getCashInDrawer();
+            if (currentCash == null) {
+                currentCash = BigDecimal.ZERO;
+            }
+            BigDecimal newCashAmount = currentCash.add(cashAmount);
+            shift.setCashInDrawer(newCashAmount);
+        }
+    }
+
+
+    private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
+        if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
+            reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+                    tenderType,
+                    tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                    safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                    updateAmount))
+        }
+    }
+
+    private void updateTenderTotalForCashUpdate(Shift shift, TenderType tenderType, BigDecimal updateAmount) {
+        if (updateAmount != 0) { //update amount either can be negative or positive
+            TenderTotal tenderTotal = shift.getTenderTotals().stream()
+                    .filter(tt -> tt.getTenderType() == tenderType).findFirst()
+                    .orElseGet(() -> {
+                        TenderTotal newTenderTotal = new TenderTotal(tenderType);
+                        shift.getTenderTotals().add(newTenderTotal);
+                        return newTenderTotal;
+                    });
+
+            tenderTotal.setQuantity(tenderTotal.getQuantity() + 1);
+            tenderTotal.setValue(tenderTotal.getValue().add(updateAmount));
+        }
+    }
+
+    private void updateAutoShiftDataFields(Shift shift, User user, boolean isFinal){
+        try {
+            if (isFinal) {
+                shift.setShiftStatus(ShiftStatus.FINALISED)
+            } else {
+                shift.setShiftStatus(ShiftStatus.RECONCILED)
+                shift.setReconciledDate(DateTime.now())
+                shift.setReconciledByUserId(user.getId())
+                shift.setReconciledByUsersName(user.getUsername())
+                for (TenderTotal tenderTotal : shift.getTenderTotals()){
+                    ReconciliationTotal newReconciliationTotal = new ReconciliationTotal(tenderTotal.getTenderType())
+                    newReconciliationTotal.setValue(tenderTotal.getValue())
+                    newReconciliationTotal.setVariance(BigDecimal.ZERO)
+                    shift.getReconciliationTotals().add(newReconciliationTotal)
+                }
+            }
+            saveShift(shift)
+        } catch (Exception ex) {
+            log.error(String.format("Error updating direct shift data update for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error updating direct shift data update for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
+        }
+    }
+
+    private TillConfiguration getTillConfiguration(int tillId){
+        return TillConfiguration.createCriteria().get {
+            eq ("retailerId", springSecurityService.principal.retailerId)
+            eq ("storeId", springSecurityService.principal.storeNumber)
+            eq ("tillId", tillId)
+            isNotNull("serialNumber")
+            maxResults(1)
         }
     }
 
