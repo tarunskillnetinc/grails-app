@@ -181,6 +181,7 @@
                         </g:if>
                     </sec:ifAnyGranted>
 
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="administrationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administration</a>
 
@@ -208,13 +209,12 @@
                                         <div class="dropdown-menu" aria-labelledby="cashManagementDropdown">
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER,ROLE_HEAD_OFFICE'>
                                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Config</g:link>
+                                                    <g:link elementId="cash-management-dropdown" controller="cashManagement" params="[storeId:sec.loggedInUserInfo(field: 'storeId'),isStoreLevelLogin:true,onlyRetailerLevel:false]" class="dropdown-item">Cash Management Configurations</g:link>
                                                 </g:if>
                                             </sec:ifAnyGranted>
                                             <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
                                                 <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                                    <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Management</g:link>
-                                                    <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
+                                                    <g:link elementId="safe-management-dropdown" controller="safe" class="dropdown-item">Safe Configuration</g:link>
                                                 </g:if>
                                             </sec:ifAnyGranted>
                                         </div>
@@ -243,7 +243,10 @@
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
 
-                                <g:link elementId="user-groups-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
+                                <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <g:link elementId="user-groups-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
+                                </g:if>
+
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                     <div class="dropdown-divider"></div>
 
@@ -255,6 +258,24 @@
                             </sec:ifAnyGranted>
                         </div>
                     </li>
+
+                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="cashManagementMenuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cashManagementMenuDropdown">
+                                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Tills Shift Management</g:link>
+                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Safe Management</g:link>
+                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Tender Movement</g:link>
+                                        </g:if>
+                                    </sec:ifAnyGranted>
+                                </div>
+                            </li>
+                        </g:if>
+                    </sec:ifAnyGranted>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="monitoringDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Monitoring</a>

@@ -291,7 +291,7 @@
 <section id="header-container" class="container-fluid">
     <div class="row header-wl mt-0">
         <div class="col-8 offset-2">
-            <h2 id="page-title" class="mx-auto my-auto">Cash Management</h2>
+            <h2 id="page-title" class="mx-auto my-auto">${storeLevelExist ? "Cash Management Configuration" : "Cash Management"}</h2>
         </div>
 
         <div class="col-12 text-right mt-3">
