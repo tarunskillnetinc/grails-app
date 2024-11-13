@@ -34,8 +34,6 @@ spring:
 management:
     endpoints:
         enabled-by-default: true
-server:
-    port: 8082
 ---
 grails:
     mime:
@@ -803,7 +801,7 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://retailplatform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-loyalty"
+                url: "jdbc:mysql://retail-platform.cluster-csqjcfv8ufyj.eu-west-1.rds.amazonaws.com:3306/clientuat1-loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "cloudoffice"
