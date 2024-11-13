@@ -131,6 +131,24 @@
                         </div>
                     </li>
 
+                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="cashManagementMenuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
+
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cashManagementMenuDropdown">
+                                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
+                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Tills Shift Management</g:link>
+                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Safe Management</g:link>
+                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Tender Movement</g:link>
+                                        </g:if>
+                                    </sec:ifAnyGranted>
+                                </div>
+                            </li>
+                        </g:if>
+                    </sec:ifAnyGranted>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="reportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reporting</a>
 
@@ -258,24 +276,6 @@
                             </sec:ifAnyGranted>
                         </div>
                     </li>
-
-                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
-                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="cashManagementMenuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cashManagementMenuDropdown">
-                                    <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
-                                        <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
-                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Tills Shift Management</g:link>
-                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Safe Management</g:link>
-                                            <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Tender Movement</g:link>
-                                        </g:if>
-                                    </sec:ifAnyGranted>
-                                </div>
-                            </li>
-                        </g:if>
-                    </sec:ifAnyGranted>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="monitoringDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Monitoring</a>
