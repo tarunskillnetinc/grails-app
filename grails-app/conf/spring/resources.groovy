@@ -238,6 +238,18 @@ beans = {
         locationService = ref('locationService')
     }
 
+    safeManagementService(SafeManagementService,
+            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
+                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
+                    grailsApplication.config.getProperty('mysql.transactions.username'),
+                    grailsApplication.config.getProperty('mysql.transactions.password'),
+                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
+
+        springSecurityService = ref('springSecurityService')
+        gsonProvider = ref("gsonProvider")
+    }
+
+
     gsonProvider(GsonProvider)
 
     Environment.executeForCurrentEnvironment {
