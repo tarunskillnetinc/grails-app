@@ -2,6 +2,7 @@ package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.xml.sax.SAXException
@@ -79,14 +80,15 @@ class OrderService extends MySqlDal {
     }
 
     // This will work on confirming order request
-    def confirmOrder(int productListId, Supplier supplier) {
+    def confirmOrder(ProductList productList, Supplier supplier) {
         String response = null
         Connection connection
+
         try {
             connection = getConnection()
             connection.setAutoCommit(false)
 
-            response = confirmProductList(connection, supplier, productListId)
+            response = confirmProductList(connection, productList, supplier)
 
             connection.commit()
         } catch (Exception ex) {
@@ -315,38 +317,39 @@ class OrderService extends MySqlDal {
 
     /** =================================== Start confirm product list methods =========================================================== **/
 
-    private confirmProductList(Connection connection, Supplier supplier, int productListId) throws SQLException, IOException, ParserConfigurationException, SAXException {
-        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = getProductListById(productListId)
+    private confirmProductList(Connection connection, ProductList productList, Supplier supplier) throws SQLException, IOException, ParserConfigurationException, SAXException {
+        if (productList?.getType() == ProductListType.ORDER) {
+            // Update product list to relevant status.
+            productList.dateCompleted = DateTime.now(DateTimeZone.UTC)
+            productList.status = getStatusToUpdate(productList.getType(), productList.getParentId())
+            productList.save()
 
-        if (productList.getType() == ProductListType.ORDER) {
-            //Update entry to product stock
-            productListService.sendProductListExportRequest(productList)
+            def commonProductList = productList.getProductList(springSecurityService.principal.priceBand, springSecurityService.principal.storeId)
 
-            // Save completed status in database.
-            //Update status in product list as complete
-            confirmProductList(connection, productListId, getStatusToUpdate(productList.getType(), productList.getParentId()))
+            // Update entry to product stock.
+            productListService.sendProductListExportRequest(commonProductList)
 
-            if (supplier.getSymbolGroup() != null && supplier.getSymbolGroup().getId() > 0) {
-                //In case of symbol group order send request NISA
-                return nisaService.generateXMLForOrder(connection, productList)
+            if (supplier?.symbolGroup?.id > 0) {
+                // In case of symbol group order send request NISA
+                return nisaService.generateXMLForOrder(connection, commonProductList)
             } else {
                 //For non symbol group order requests --> Create deliveries
                 //Insert delivery row to product list
                 //Insert product list items
                 //Insert pack lines
-                return saveProductDeliveries(connection, productList, ProductListType.DELIVERY.toString(), ProductListStatus.PENDING.toString(), supplier)
+                return saveProductDeliveries(connection, commonProductList, ProductListType.DELIVERY.toString(), ProductListStatus.PENDING.toString(), supplier)
             }
-
         }
     }
 
-    private static ProductListStatus getStatusToUpdate(ProductListType type, int parentId) throws SQLException {
+    private ProductListStatus getStatusToUpdate(ProductListType type, Integer parentId) throws SQLException {
         // This function replicates the logic that was previously in saveProductList stored procedure
         if (type != null && type.IsIn(ProductListType.AD_HOC_SEL_BATCH, ProductListType.PRICE_CHECK)) {
             return ProductListStatus.PARTIALLY_COMPLETE
-        } else if (type == ProductListType.INVENTORY_ADJUSTMENT || parentId == 0 || doesParentAndChildrenProductListItemCountsMatch(parentId)) {
+        } else if (type == ProductListType.INVENTORY_ADJUSTMENT || parentId == null || parentId == 0 || doesParentAndChildrenProductListItemCountsMatch(parentId)) {
             return ProductListStatus.COMPLETE
         }
+
         return ProductListStatus.PARTIALLY_COMPLETE
     }
 
@@ -369,21 +372,6 @@ class OrderService extends MySqlDal {
 
     uk.co.wonderlane.wlpos.entities.wlim.ProductList getProductListById(int productListId) throws SQLException {
         productListService.getProductListById(productListId)
-    }
-
-    //Update status in product list
-    private void confirmProductList(Connection connection, int productListId, ProductListStatus status) throws SQLException {
-        CallableStatement cstmt
-        try {
-            cstmt = connection.prepareCall("{ call saveProductList(?, ?) }")
-            cstmt.setInt(1, productListId)
-            cstmt.setString(2, status.name())
-            cstmt.executeUpdate()
-        } catch (Exception ex) {
-            ex.printStackTrace()
-            log.error("Order create exception found when confirming product list , Exception " + ex.getMessage())
-            throw ex
-        }
     }
 
     def saveProductDeliveries(Connection connection, uk.co.wonderlane.wlpos.entities.wlim.ProductList productList, String type, String status, Supplier supplier) {

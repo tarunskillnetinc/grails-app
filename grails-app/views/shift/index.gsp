@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Shift Management</title>
+        <title>Tills Shift Management</title>
 
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
@@ -105,7 +105,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Shift Viewer</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Tills Shift Management</li>
                         </ol>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
 
         <section id="shifts-container" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 id="page-title" class="mx-auto">Shift Viewer</h2>
+                <h2 id="page-title" class="mx-auto">Tills Shift Management</h2>
             </div>
 
             <div id="messages-container"></div>
