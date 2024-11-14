@@ -91,12 +91,14 @@
                     <g:checkBox name="restrictions.receiptPrintForced" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.receiptPrintForced}" />
                 </div>
             </div>
-            <div class="row form-group form-check pl-0">
-                <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
-                    <label for="restrictions.receiptPrintForced" class="col-form-label text-right wl-label">Allows Loyalty Points Collection</label>
-                    <g:checkBox name="restrictions.allowsLoyaltyPointsCollection" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.allowsLoyaltyPointsCollection}"/>
+            <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
+                <div class="row form-group form-check pl-0">
+                    <div class="col-3 col-form-label text-right pr-4 pt-0 pb-0">
+                        <label for="restrictions.receiptPrintForced" class="col-form-label text-right wl-label">Allows Loyalty Points Collection</label>
+                        <g:checkBox name="restrictions.allowsLoyaltyPointsCollection" class="col-1 form-check-input wl-checkbox" checked="${restrictions?.allowsLoyaltyPointsCollection}"/>
+                    </div>
                 </div>
-            </div>
+            </g:if>
         </div>
     </div>
 </div>

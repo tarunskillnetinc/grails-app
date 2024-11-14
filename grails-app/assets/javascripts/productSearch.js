@@ -1,5 +1,3 @@
-//= require jquery-3.3.1.min
-
 $(document).ready(function() {
     // Bind product search button click.
     $('#productSearchButton').click(function() {

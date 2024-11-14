@@ -109,7 +109,7 @@
                     </div>
 
                     <div class="row mx-5 mt-3">
-                        <a id="add-sku-btn" href="#" onclick="addVariant(null);" class="btn btn-wl">Add SKU</a>
+                        <a id="add-sku-btn" href="#" onclick="addVariant(null, true);" class="btn btn-wl">Add SKU</a>
                     </div>
                 </div>
             </div>
