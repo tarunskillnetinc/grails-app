@@ -349,6 +349,8 @@ class ShiftService extends MySqlPoolDal {
             shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
             shiftSnapshotUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //update snapshot
             shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
+            shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
+            processMoveShiftToSafeSession(shift, safeId)
             addAudit(shift, shiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
