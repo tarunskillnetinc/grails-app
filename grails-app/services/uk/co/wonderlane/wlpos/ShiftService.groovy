@@ -106,10 +106,10 @@ class ShiftService extends MySqlPoolDal {
                 processSafeSessionCalculation(safeSession, shift, TenderType.VOUCHER)
                 safeManagementService.saveSafeSession(safeSession)
             }  else {
-                log.warn(String.format("No open safe session available for move tender for retailer: %d store: %d safeId: %d ", shift.getRetailerId(), shift.getStoreId(), safeId))
+                log.warn("No open safe session available for move tender for retailer: ${shift.getRetailerId()} store: ${shift.getStoreId()} safeId: ${safeId} ")
             }
         } catch (Exception ex) {
-            log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+            log.error("Error taking shift snapshot for retailer id: ${shift.getRetailerId()} store id: ${shift.getStoreId()} safe id: ${safeId} error: ${ex.getMessage()}", ex)
         }
 
     }
