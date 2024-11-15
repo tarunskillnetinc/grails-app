@@ -31,6 +31,7 @@ class ShiftService extends MySqlPoolDal {
     def locationService
     def reportingService
     def safeService
+    def safeManagementService
 
     public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
 
@@ -95,6 +96,22 @@ class ShiftService extends MySqlPoolDal {
         }catch (Exception ex){
             log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
+    }
+
+    void processMoveShiftToSafeSession(Shift shift, int safeId){
+        try {
+            SafeSession safeSession = safeManagementService.getOpenSafeSession(safeId)
+            if (safeSession != null){
+                processSafeSessionCalculation(safeSession, shift, TenderType.CASH)
+                processSafeSessionCalculation(safeSession, shift, TenderType.VOUCHER)
+                safeManagementService.saveSafeSession(safeSession)
+            }  else {
+                log.warn(String.format("No open safe session available for move tender for retailer: %d store: %d safeId: %d ", shift.getRetailerId(), shift.getStoreId(), safeId))
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
+        }
+
     }
 
     void updateFinaliseTenderMovement(Shift shift, int safeId){
@@ -343,7 +360,7 @@ class ShiftService extends MySqlPoolDal {
     void processShiftAutoReconcile(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            updateAutoShiftDataFields(shift, loggedInUser, false);
+            updateAutoShiftDataFields(shift, loggedInUser, false)
             addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -357,7 +374,8 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, true);
             processTakeSnapshot(shift, primarySafeId);
-            updateFinaliseTenderMovement(shift, primarySafeId);
+            updateFinaliseTenderMovement(shift, primarySafeId)
+            processMoveShiftToSafeSession(shift, primarySafeId)
             addAudit(shift, ShiftAction.FINALISE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -815,6 +833,24 @@ class ShiftService extends MySqlPoolDal {
             eq ("tillId", tillId)
             isNotNull("serialNumber")
             maxResults(1)
+        }
+    }
+
+    private void processSafeSessionCalculation(SafeSession safeSession, Shift shift, TenderType type) {
+        ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
+        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) != 0){
+            updateSafeSession(safeSession, reconciliationTotal.value, type)
+        }
+    }
+
+    private void updateSafeSession(SafeSession safeSession, BigDecimal amount, TenderType type){
+        if (amount) {
+            def expected = safeSession.tenderTotals.find { it.tenderType == type }
+            if (!expected) {
+                expected = new TenderTotal(type)
+                safeSession.tenderTotals.add(expected)
+            }
+            expected.value = expected.value.add(amount)
         }
     }
 

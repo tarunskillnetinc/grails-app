@@ -99,6 +99,7 @@ beans = {
         locationService = ref('locationService')
         reportingService = ref('reportingService')
         safeService = ref('safeService')
+        safeManagementService = ref("safeManagementService")
     }
 
     snapshotService(SnapshotService,
@@ -238,6 +239,7 @@ beans = {
         locationService = ref('locationService')
     }
 
+
     safeManagementService(SafeManagementService,
             new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
                     Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
@@ -247,6 +249,8 @@ beans = {
 
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
+        userService = ref('userService')
+
     }
 
 
