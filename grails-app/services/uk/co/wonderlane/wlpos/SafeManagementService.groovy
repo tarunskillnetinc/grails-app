@@ -52,7 +52,7 @@ class SafeManagementService extends MySqlPoolDal {
         return safeSession;
     }
 
-     saveSafeSession(SafeSession safeSession) {
+     def saveSafeSession(SafeSession safeSession) {
         Connection conn = getConnection()
         CallableStatement saveShiftStatement = conn.prepareCall("{ call saveSafeSession(?, ?, ?) }")
         try {
