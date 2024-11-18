@@ -75,14 +75,10 @@ class ProductListController {
         productList.userId = springSecurityService.principal.id
         productList.retailerId = springSecurityService.principal.retailerId
 
-        productList.setStartDate(
-                productList.getStartDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-        )
-        productList.setEndDate(
-                productList.getEndDate().withZoneRetainFields(timeZone).toDateTime(DateTimeZone.UTC)
-                        .plusHours(23)
-                        .plusMinutes(59)
-                        .plusSeconds(59)
+        productList.setEndDate(productList.getEndDate()
+                .plusHours(23)
+                .plusMinutes(59)
+                .plusSeconds(59)
         )
 
         if (cmd.productVariantId) {
@@ -146,7 +142,21 @@ class ProductListController {
             }
         }
 
-        render(view: "addCentralCount", model: [productList: productList, availableStores: availableStores])
+        def unsavedProductVariants = new ArrayList<uk.co.wonderlane.wlpos.entities.ProductVariant>()
+        for (productVariantId in cmd.productVariantId) {
+            if (productList.productListItems.contains { productListItem -> productListItem.productVariant.id == productVariantId }) {
+                continue
+            }
+
+            ProductVariant foundProductVariant = productService.getProductVariant(productVariantId)
+            if (!foundProductVariant || unsavedProductVariants.contains { unsavedProductVariant -> unsavedProductVariant.id == foundProductVariant.id }) {
+                continue
+            }
+
+            unsavedProductVariants.add(foundProductVariant)
+        }
+
+        render(view: "addCentralCount", model: [productList: productList, availableStores: availableStores, command: cmd, unsavedVariants: unsavedProductVariants])
     }
 
     def ajaxAddProduct(int productVariantId) {

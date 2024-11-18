@@ -383,6 +383,16 @@
                 error = true;
             }
 
+            if ($('#offerMarketingTextId').val().length > 200) {
+                errorString = errorString.concat("<li>Marketing text - max 200 characters allowed</li>");
+                error = true;
+            }
+
+            if ($('#offerTermsTextId').val().length > 600) {
+                errorString = errorString.concat("<li>Terms & conditions - max 600 characters allowed</li>");
+                error = true;
+            }
+
             var startDate = parseDate($('#offerStartDateId').val());
             var endDate = parseDate($('#offerEndDateId').val());
 

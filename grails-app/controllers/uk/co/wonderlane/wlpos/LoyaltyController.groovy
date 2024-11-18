@@ -289,7 +289,7 @@ class LoyaltyController {
 
                 loyaltyService.saveSegment(currentSegment)
                 updated = true
-            } else {
+            } else  {
                 flash.message = "No changes were made to the segment, so there was nothing to update"
             }
         } else {
@@ -617,8 +617,8 @@ class LoyaltyController {
                         ?.collect { it.segmentId }
             }
 
-            DateTime startDate = originalLoyaltyOffer?.startDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.startDate.getTime()))) : null;
-            DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : null;
+            DateTime startDate = originalLoyaltyOffer?.startDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.startDate.getTime()))) : null
+            DateTime endDate = originalLoyaltyOffer?.endDate ? dateFormatter.parseDateTime(dateFormatter.print(new DateTime(originalLoyaltyOffer?.endDate.getTime()))) : null
 
             //load all promotions for retailer
             //List<Promotion> promotions = promotionService.getPromotionForRetailer(springSecurityService.principal.retailerId)

@@ -1,3 +1,4 @@
+<%@ page import="uk.co.wonderlane.wlpos.enums.IdentificationType; uk.co.wonderlane.wlpos.enums.TillControlEventType" %>
 <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "type" }?.enabled}">
         <div class="col font-weight-bold"><a id="type" href="#" onclick="getReportData({ max: ${sortParams?.max}, offset: ${sortParams?.offset}, sortColumn: 'type', sortOrder: ${sortParams?.sortColumn == 'type' ? sortParams?.sortOrder == 'asc' ? '\'desc\'' : '\'asc\'' : '\'asc\''} });">Type</a></div>
@@ -44,7 +45,10 @@
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "reason" }?.enabled}">
                 <div id="reason-${i + 1}" class="col my-auto overflow-hidden">
                     <g:if test="${!tillControlEvent.reason}">N/A</g:if>
-                    <g:else>${tillControlEvent.reason}</g:else>
+                    <g:else>
+                        <g:if test="${tillControlEvent.type.equals(TillControlEventType.ID_CHECK)}">${ IdentificationType.valueOf(tillControlEvent.reason).friendlyName}</g:if>
+                        <g:else>${tillControlEvent.reason}</g:else>
+                    </g:else>
 
                     <g:if test="${tillControlEvent.reasonOther}">&nbsp;-&nbsp;${tillControlEvent.reasonOther}</g:if>
                 </div>

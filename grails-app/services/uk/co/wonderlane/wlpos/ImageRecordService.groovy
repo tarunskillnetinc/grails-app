@@ -38,8 +38,8 @@ class ImageRecordService {
     def saveImageRecord(ImageRecord imageRecord) {
         try {
             return imageRecord.save()
-        } catch (Exception e) {
-            e.printStackTrace()
+        } catch (Exception ex) {
+            log.error("Error saving imageRecord, Exception " + ex.getMessage())
         }
     }
 
@@ -48,6 +48,10 @@ class ImageRecordService {
      * @param imageRecord The ImageRecord to be deleted.
      */
     def deleteImageRecord(ImageRecord imageRecord) throws SQLException {
-        imageRecord.delete()
+        try {
+            imageRecord.delete()
+        } catch (Exception ex) {
+            log.error("Error deleting imageRecord, Exception " + ex.getMessage())
+        }
     }
 }

@@ -367,6 +367,7 @@ class ProductController extends BaseController {
         def noLongerRangedProducts = []
         def productHistories = []
         def rangedProductsMap = [:]
+        def unrangedProductsMap = [:]
 
         cmd.rangeProducts?.each { rangeProduct ->
             def existingRangeProduct = RangeProduct.findByProductIdAndRange(rangeProduct.productId, ranges.find { it.id == rangeProduct.rangeId })
@@ -384,6 +385,12 @@ class ProductController extends BaseController {
                 productHistories.add(handleProductRangeHistory(existingRangeProduct, true))
             } else if (!rangeProduct.isRanged() && existingRangeProduct) {
                 noLongerRangedProducts.add(existingRangeProduct)
+
+                if (!unrangedProductsMap.containsKey(rangeProduct.rangeId)) {
+                    unrangedProductsMap[rangeProduct.rangeId] = []
+                }
+
+                unrangedProductsMap[rangeProduct.rangeId].add(rangeProduct)
                 productHistories.add(handleProductRangeHistory(existingRangeProduct, false))
             }
         }
@@ -405,6 +412,20 @@ class ProductController extends BaseController {
             productService.sendProductUpdate(allProducts, storeService.getStoresByRange(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }))
         }
 
+        unrangedProductsMap.each { rangeId, rangeProductChanges ->
+            def allProducts = []
+
+            rangeProductChanges.each { RangeProductCommand rangeProductCommand ->
+                allProducts.addAll(productService.getProduct(rangeProductCommand.productId))
+            }
+
+            productService.sendProductUpdate(
+                    allProducts,
+                    storeService.getStoresByRange(springSecurityService.principal.retailerId, ranges.find { it.id == rangeId }),
+                    false
+            )
+        }
+
         render "OK"
     }
 
@@ -423,6 +444,8 @@ class ProductController extends BaseController {
 
         DateTime now = DateTime.now(DateTimeZone.UTC)
         List<ProductVariant> productVariantsList = new ArrayList<>()
+
+        List<RangeProduct> existingRangeProducts = new ArrayList<>()
 
         if (newProduct) {
             changeAffectsSel = true
@@ -527,6 +550,12 @@ class ProductController extends BaseController {
 
             // Variants.
             productVariantsList = getUpdatedProductVariantsOnSave(editedProduct, product, builder, changeAffectsSel, effectiveDate)
+
+            // Range Products
+            for (RangeProduct rangeProduct in product.ranges) {
+                // Copy the items without copying the list itself for later reference to which products have been unranged
+                existingRangeProducts.add(rangeProduct)
+            }
         }
 
         // check for errors added manually from barcode and category checks or validate can remove them
@@ -583,9 +612,7 @@ class ProductController extends BaseController {
                     return product
                 }
 
-                if (editedProduct.rangeId != null) {
-                    saveRangeUpdates(product, editedProduct.rangeId.toSet() as HashSet<Integer>)
-                }
+                saveRangeUpdates(product, editedProduct.rangeId?.toSet() as HashSet<Integer>)
             }
 
             if (isRequest) {
@@ -597,17 +624,35 @@ class ProductController extends BaseController {
 
         if (!product.hasErrors()) {
             if (productService.isSingleStageSel() || !changeAffectsSel) {
-                if (springSecurityService.principal.storeId) {
-                    productService.sendProductUpdate([product], [Store.findById(springSecurityService.principal.storeId)])
-                } else {
-                    def rangeProducts = RangeProduct.findAllByProductId(product.id)
+                List<RangeProduct> unrangedRangeProducts = []
+                def currentRangeProducts = RangeProduct.findAllByProductId(product.id)
+                for (RangeProduct existingRangeProduct in existingRangeProducts) {
+                    if (!currentRangeProducts.find {x -> x.id == existingRangeProduct.id }) {
+                        // This Range Product existed before updating and no longer does, the product bust have been unranged
+                        unrangedRangeProducts.add(existingRangeProduct)
+                    }
+                }
 
-                    rangeProducts?.each { rangeProduct ->
-                        productService.sendProductUpdate([product], storeService.getStoresByRange(springSecurityService.principal.retailerId, rangeProduct.range))
+                if (springSecurityService.principal.storeId) {
+                    boolean insert = !unrangedRangeProducts.find { x -> x.productId == product.id}
+                    productService.sendProductUpdate([product], [Store.findById(springSecurityService.principal.storeId)], insert)
+                } else {
+                    currentRangeProducts?.each { rangeProduct ->
+                        productService.sendProductUpdate(
+                                [product],
+                                storeService.getStoresByRange(springSecurityService.principal.retailerId, rangeProduct.range)
+                        )
+                    }
+
+                    unrangedRangeProducts?.each { rangeProduct ->
+                        productService.sendProductUpdate(
+                                [product],
+                                storeService.getStoresByRange(springSecurityService.principal.retailerId, rangeProduct.range),
+                                false
+                        )
                     }
                 }
             }
-
         }
 
         return product
@@ -1207,6 +1252,7 @@ class ProductController extends BaseController {
         packToBeUpdated.status = editedPack.status
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
+        packToBeUpdated.primaryCase = editedPack.primaryCase
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1347,7 +1393,8 @@ class ProductController extends BaseController {
         //---------------------------- Update history for pack fields --------------------------------//
 
         variant?.packs?.each { editedPack ->
-            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack.id == editedPack.id }
+            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+            
             if (existingPack) { //Pack already existed
                 comparePackFields(builder, existingPack, editedPack)
             } else { //Pack newly added
@@ -1456,16 +1503,21 @@ class ProductController extends BaseController {
 
         savedRanges?.each { Integer rangeId ->
             if (!productRanges.containsKey(rangeId)) {
-                // range doesn't exist for product, so add it
+                // Range doesn't exist for product, so add it.
                 addRange(product, ranges.get(rangeId), productHistories)
             } else if (productRanges.get(rangeId).deleted) {
-                // range exists, but is soft deleted, un-delete it
+                // Range exists, but is soft deleted, un-delete it.
                 undeleteRange(product, productRanges.get(rangeId), ranges.get(rangeId), productHistories)
             }
         }
 
-        // delete all ranges that have been unselected, except those already soft-deleted
-        productRanges.each { if (!savedRanges.contains(it.key) && !it.value.deleted) deleteRange(it.value, productHistories) }
+        // Delete all ranges that have been unselected, except those already soft-deleted
+        productRanges?.each {
+            if (!savedRanges?.contains(it.key) && !it.value.deleted) {
+                deleteRange(it.value, productHistories)
+            }
+        }
+
         if (productHistories.size() > 0) {
             productService.saveProductHistories(productHistories)
         }
@@ -1515,8 +1567,8 @@ class ProductController extends BaseController {
         render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
-    def ajaxAddVariant(AddVariantCommand cmd) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value])
+    def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
     }
 
     def ajaxAddBarcode(int index, String selector) {
@@ -1934,6 +1986,7 @@ class AddPackCommand implements Validateable {
     PackStatus status
     Integer maximumOrderQuantity
     Boolean allowSubstitutes
+    boolean primaryCase
     boolean isNewPack = false
     boolean isWeighted = false
     Integer productVariantId
@@ -1944,6 +1997,7 @@ class AddPackCommand implements Validateable {
         id nullable: true
         productVariantId nullable: true
         allowSubstitutes nullable: true
+        primaryCase nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2120,6 +2174,7 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
+    boolean primaryCase
 
     static constraints = {
         importFrom Pack

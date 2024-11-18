@@ -42,7 +42,7 @@ class WonderLaneAuthenticationProvider extends DaoAuthenticationProvider {
                 ((WonderLaneUserDetails)userDetails).priceBand = store.priceBand
                 ((WonderLaneUserDetails)userDetails).range = store.range
             }
-        } else if (userDetails instanceof WonderLaneUserDetails && wonderLaneAuthenticationDetails.storeId.length() < 10 && wonderLaneAuthenticationDetails.storeId.isNumber()) {
+        } else if (userDetails instanceof WonderLaneUserDetails && wonderLaneAuthenticationDetails.storeId.length() < 10 && wonderLaneAuthenticationDetails.storeId.isNumber() && !wonderLaneAuthenticationDetails.storeId.contains(".")) {
             def store = storeNumberValidator.getStore(((WonderLaneUserDetails)userDetails).retailerId, Integer.parseInt(wonderLaneAuthenticationDetails.storeId))
 
             if (store && store.id > 0) {

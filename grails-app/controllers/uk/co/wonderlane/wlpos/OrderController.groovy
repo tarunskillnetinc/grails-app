@@ -16,161 +16,140 @@ class OrderController {
     def springSecurityService
     def orderService
     def userService
+    def productListService
 
-    def index() {}
+    def index() {
 
-    // This is responsible for returning product list view related data
-    def productList() {
-        //If user do not logged in store level then redirect user back to reporting page
+    }
+
+    def add() {
+        // Only allowed at store level currently.
         if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0){
+            flash.error = "This function is not available at head office level."
             redirect(controller: "reporting", action: "orders")
-        } else {
-            def supplier =  null
-            uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = null
-
-            User user = userService.getUser(springSecurityService.principal.id)
-            productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
-
-            if (productList != null && productList.getSupplierId() != null){ //If user already have product list then return it
-                supplier = supplierService.getSupplier(Integer.parseInt(productList.getSupplierId() as String)) //Load supplier
-            } else {
-
-                if (!params.supplierId || !params.supplierId.isNumber() || params.supplierId.length() > 8) {
-                    params.supplierId = "-1"
-                }
-
-                if (!params.isNew || !params.isNew.isNumber() || params.isNew.length() > 8) {
-                    params.isNew = "-1"
-                }
-
-                //If user do not have product list then create new one only if request is mark for new and valid supplier id
-                if (Integer.parseInt(params.supplierId) > 0 && Integer.parseInt(params.isNew) == 1){
-                    supplier = supplierService.getSupplier(Integer.parseInt(params.supplierId)) //Load supplier
-                    if (supplier != null){
-                        productList = orderService.createProductList(productList, ProductListType.ORDER, supplier)
-                    }
-                } else {
-                    render(view: "_productList")
-                }
-            }
-
-            render(view: "_productList", model: [supplier: supplier, productList: productList, productListItems: productList?.getProductListItems()])
+            return
         }
+
+        if (!params.supplierId || !params.supplierId.isNumber()) {
+            flash.error = "Invalid supplier ID."
+            redirect(controller: "reporting", action: "orders")
+            return
+        }
+
+        def supplier = supplierService.getSupplier(Integer.parseInt(params.supplierId))
+
+        if (!supplier) {
+            flash.error = "Supplier not found."
+            redirect(controller: "reporting", action: "orders")
+            return
+        }
+
+        def productList = new ProductList()
+        productList.retailerId = springSecurityService.principal.retailerId
+        productList.userId = springSecurityService.principal.id
+        productList.store = Store.get(springSecurityService.principal.storeId)
+        productList.type = ProductListType.ORDER
+        productList.status = ProductListStatus.IN_PROGRESS
+        productList.dateStarted = DateTime.now(DateTimeZone.UTC)
+        productList.ownerUserId = springSecurityService.principal.id
+        productList.ownerUsersName = springSecurityService.principal.usersName
+        productList.supplierId = supplier.id
+        productList.supplierReference = supplier.reference
+
+        productListService.saveProductList(productList)
+
+        redirect(action: "edit", id: productList.id)
+    }
+
+    def edit(int id) {
+        // Only allowed at store level currently.
+        if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0){
+            flash.error = "This function is not available at head office level."
+            redirect(controller: "reporting", action: "orders")
+            return
+        }
+
+        def productList = productListService.getProductList(id)
+
+        if (!productList) {
+            flash.error = "Order not found."
+            redirect(controller: "reporting", action: "orders")
+            return
+        } else if (productList.status != ProductListStatus.IN_PROGRESS) {
+            flash.error = "Only in-progress orders can be edited."
+            redirect(controller: "reporting", action: "orders")
+            return
+        }
+
+        [productList: productList]
     }
 
     // This is responsible for returning product list item view related data
-    def productListItem(){
-        //If user do not logged in store level then redirect user back to reporting page
+    def productListItem(int id) {
+        // If user do not logged in store level then redirect user back to reporting page
         if (springSecurityService.principal.storeId == null || springSecurityService.principal.id <= 0) {
+            flash.error = "This function is not available at head office level."
             redirect(controller: "reporting", action: "orders")
-        } else {
-            boolean isNoSymbolOrders = false
-            BigDecimal singleQuantity = 0
+            return
+        }
+
+        def productList = productListService.getProductList(Integer.parseInt(params.productListId))
+
+        if (productList != null && productList.getStatus() == ProductListStatus.IN_PROGRESS) {
+            boolean isSymbolGroupOrder = false
             ArrayList<Pack> packs = new ArrayList<>()
-            uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getProductListById(Integer.parseInt(params.productListId))
 
-            //If there is pending product list only process this
-            if (productList != null && productList.getStatus() == ProductListStatus.IN_PROGRESS) {
-                //Load product list by id
-                productList = orderService.getProductListById(Integer.parseInt(params.productListId))
-                ProductVariant variant = productService.getProductVariant(Integer.parseInt(params.variantId))
+            def productListItem = productList?.productListItems?.find { it.id == id }
 
-                //Load active packs for selected supplier
-                for (Pack pack : variant?.packs) {
-                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId) && pack?.isActive()) {
-                        packs.add(pack)
-                    }
+            def productVariant = productListItem?.productVariant ?: productService.getProductVariant(Integer.parseInt(params.productVariantId))
+
+            BigDecimal singleQuantity = productListItem?.quantity ?: BigDecimal.ZERO
+
+            // Load active packs for selected supplier
+            for (Pack pack : productVariant?.packs) {
+                if (pack?.supplier?.id == Integer.parseInt(productList.supplierId) && pack?.isActive()) {
+                    packs.add(pack)
                 }
-
-                //Get stored pack lines if there are any
-                def productItemList = productList?.getProductListItems()?.find({ it?.productVariantId == Integer.parseInt(params.variantId) })
-                List<PackLine> packLinesList = productItemList?.getPackLines()
-                int productItemId = productItemList != null ? productItemList?.getId() : 0
-
-                //Load supplier
-                Supplier supplier = supplierService.getSupplier(Integer.parseInt(params.supplierId)) //Load supplier
-
-                //Calculate non symbol group 'singles' quantities
-                if (supplier?.getSymbolGroup() == null) {
-                    isNoSymbolOrders = true
-                    BigDecimal nonSingleQuantity = BigDecimal.ZERO
-                    for (uk.co.wonderlane.wlpos.entities.wlim.PackLine packLine : productItemList?.getPackLines()) {
-                        for (Pack filterPack : packs) {
-                            if (packLine.getOrderCode() == filterPack.getOrderCode() && packLine?.packId == filterPack?.id) {
-                                nonSingleQuantity = nonSingleQuantity + filterPack.getQuantity() * packLine.getQuantity()
-                            }
-                        }
-                    }
-
-                    singleQuantity = (productItemList?.getQuantity() ?: 0) - nonSingleQuantity
-
-                }
-
-                render(view: "_productListItem", model: [variants        : variant,
-                                                         packs           : packs,
-                                                         effectiveDate   : DateTime.now(DateTimeZone.UTC),
-                                                         storeId         : springSecurityService.principal.storeId,
-                                                         supplierId      : params.supplierId,
-                                                         packLinesList   : packLinesList,
-                                                         productItemId   : productItemId,
-                                                         productListId   : params.productListId,
-                                                         productItemList : productItemList,
-                                                         isNoSymbolOrders: isNoSymbolOrders,
-                                                         singleQuantity  : singleQuantity,
-                                                         packSingles     : -1])
-            } else {
-                redirect(controller: "order", action: "productList")
             }
+
+            // Load supplier
+            Supplier supplier = supplierService.getSupplier(Integer.parseInt(productList.supplierId))
+
+            // Calculate non symbol group 'singles' quantities
+            if (supplier?.symbolGroup != null) {
+                isSymbolGroupOrder = true
+            } else {
+                for (PackLine packLine : productListItem?.packLines) {
+                    def pack = packs.find { it.orderCode == packLine.orderCode && it.id == packLine?.pack?.id }
+
+                    singleQuantity = singleQuantity.subtract(pack?.quantity?.multiply(packLine.quantity))
+                }
+            }
+
+            [productVariant: productVariant, packs: packs, productList: productList, productListItem : productListItem, isSymbolGroupOrder: isSymbolGroupOrder, singleQuantity : singleQuantity]
+        } else {
+            flash.error = "Only in-progress orders can be edited."
+            redirect(controller: "reporting", action: "orders")
+            return
         }
     }
 
-    //When loading check is there any active product for user and if not popup supplier view to select
-    def ajaxCheckActiveProducts(){
-        def suppliers = null
-        User user = userService.getUser(springSecurityService.principal.id)
-        uk.co.wonderlane.wlpos.entities.wlim.ProductList productList = orderService.getActiveProductList(ProductListType.ORDER, user.getUsername())
-        if ((productList == null) || (productList != null && productList.getSupplierId() == null)){
-            suppliers = supplierService.getSuppliers()
-            response.setStatus(200)
-        }else {
-            response.setStatus(204)
-        }
-        render (template: "showSupplier", model: [suppliers: suppliers])
-    }
-
-    //Search product by given term and criteria
-    def ajaxSearchProducts() {
-        session.PRODUCT_SEARCH_TERM = params.searchTerm
-        session.effectiveDate = ["Current", DateTime.now(DateTimeZone.UTC)]
-
-        def products = productService.searchProductsHql(params.searchTerm, params.searchBy, params.max ? Integer.parseInt(params.max) : 25, params.offset ? Integer.parseInt(params.offset) : 0, "id", "asc")
-
-        render(template: "productSearchResults", model: [products: products.products,
-                                                         storeId: springSecurityService.principal.storeId,
-                                                         userColumns: productService.getColumns(),
-                                                         searchTerm: params.searchTerm,
-                                                         searchBy: params.searchBy,
-                                                         max: params.max ?: 25,
-                                                         offset: params.offset,
-                                                         totalResults: products.totalCount,
-                                                         supplierId:  params.supplierId,
-                                                         productListId: params.productListId])
-    }
-
-    //This will load available variants user can select
-    //For non symbol group orders user will shown all available variants
-    //For symbol group orders only variants belonging to supplier will shown
-    def ajaxSelectVariant(){
+    // This will load available variants user can select.
+    // For non symbol group orders user will shown all available variants.
+    // For symbol group orders only variants belonging to supplier will shown.
+    def ajaxSelectVariant() {
         ArrayList<ProductVariant> variants = new ArrayList<>()
         def product = productService.getProduct(Integer.parseInt(params.productId))
 
-        Supplier supplier = supplierService.getSupplier(Integer.parseInt(params.supplierId)) //Load supplier
+        def productList = productListService.getProductList(Integer.parseInt(params.productListId))
 
-        //For symbol group orders filter variants which only belonging to selected supplier
-        if (supplier?.symbolGroup != null){
-            for (ProductVariant productVariant : product?.variants){
-                for (Pack pack: productVariant?.packs){
-                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId) && pack?.isActive()){
+        Supplier supplier = supplierService.getSupplier(Integer.parseInt(productList.supplierId)) //Load supplier
+
+        // For symbol group orders filter variants which only belonging to selected supplier
+        if (supplier?.symbolGroup != null) {
+            for (ProductVariant productVariant : product?.variants) {
+                for (Pack pack: productVariant?.packs) {
+                    if (pack?.supplier?.id == Integer.parseInt(params.supplierId) && pack?.isActive()) {
                         variants.add(productVariant)
                         break
                     }
@@ -180,43 +159,83 @@ class OrderController {
             variants.addAll(product?.variants)
         }
 
-        render(view: "selectSku", model: [product : product,
-                                          variants : variants,
-                                          variantSize : variants?.size(),
-                                          totalVariantCount : variants.size(),
+        render(template: "selectSku", model: [product: product,
+                                          variants: variants,
+                                          variantSize: variants?.size(),
+                                          totalVariantCount: variants.size(),
                                           effectiveDate: DateTime.now(DateTimeZone.UTC),
-                                          storeId :springSecurityService.principal.storeId,
-                                          supplierId: params.supplierId,
-                                          productListId: params.productListId])
+                                          storeId: springSecurityService.principal.storeId,
+                                          productList: productList])
 
     }
 
-    //This is to save or update product list items and pack lines
-    def ajaxSavePackLines(PackLineRequestCommand packLineRequestCommand){
-        try {
-            //saving product order request --> save list item + pack lines
-            orderService.saveProductOrder(packLineRequestCommand)
-            response.setStatus(200)
-            redirect(action: "productList")
-        }catch(Exception ex){
-            ex.printStackTrace()
-            log.error("Order create exception found when saving order list item and pack lines, request is rollback , Exception " + ex)
-            response.setStatus(500)
-            render(view: "_packLineSaveError", contentType: "text/html")
+    // Save or update our product list items with their pack lines.
+    def saveProductListItem(PackLineRequestCommand packLineRequestCommand) {
+        def productList = productListService.getProductList(packLineRequestCommand.productListId)
+
+        if (!productList) {
+            flash.message = "Order not found."
+            redirect(controller: "reporting", action: "orders")
+            return
         }
+
+        def productVariant = productService.getProductVariant(packLineRequestCommand.productVariantId)
+
+        def productListItem = packLineRequestCommand.productListItemId > 0 ? productList.productListItems.find { it.id == packLineRequestCommand.productListItemId } : new ProductListItem()
+        productListItem.productVariant = productVariant
+        productListItem.productQuantityInStock = productVariant.getProductStock(springSecurityService.principal.storeId)?.quantityInStock ?: 0
+        productListItem.fillQuantity = BigDecimal.ZERO
+        productListItem.productList = productList
+
+        productListService.saveProductListItem(productListItem)
+
+        productList.addToProductListItems(productListItem)
+
+        productListService.saveProductList(productList)
+
+        BigDecimal quantity = BigDecimal.ZERO.setScale(3)
+
+        for (PackLinesCommand packLineCommand : packLineRequestCommand.packLines) {
+            // Singles go on screen with dummy order code of 0 and don't get their own pack line.
+            if (packLineCommand.orderCode != "0") {
+                def packLine = productListItem?.packLines?.find { it.id = packLineCommand.id } ?: new PackLine()
+                packLine.type = "ORDER"
+                packLine.quantity = packLineCommand.quantity
+                packLine.orderCode = packLineCommand.orderCode
+                packLine.productListId = productList.id
+                packLine.pack = productVariant.packs?.find { it.id == packLineCommand.packId }
+                packLine.productListItem = productListItem
+
+                productListService.savePackLine(packLine)
+
+                productListItem.addToPackLines(packLine)
+
+                quantity = quantity.add(packLine.quantity.multiply(packLine.pack.quantity))
+            } else {
+                quantity = quantity.add(packLineCommand.quantity)
+            }
+        }
+
+        productListItem.quantity = quantity
+
+        productListService.saveProductListItem(productListItem)
+
+        redirect(action: "edit", id: productList.id)
     }
 
     //This is to confirm place order This will
     // 1. Update product stock
     // 2. Update product list status
     // 3. If non symbol order then create deliveries Or else Send request to NISA API
-    def confirmOrder(){
+    def confirmOrder() {
         try {
-            Supplier supplier = supplierService.getSupplier(Integer.parseInt(params.supplierId)) //Load supplier
-            String orderResponse = orderService.confirmOrder(Integer.parseInt(params.productListId), supplier)
+            def productList = productListService.getProductList(Integer.parseInt(params.productListId))
+            def supplier = supplierService.getSupplier(Integer.parseInt(productList.supplierId))
+
+            String orderResponse = orderService.confirmOrder(productList, supplier)
             response.setStatus(200)
             render (template: "orderConfirmResponse", model: [orderResponse: orderResponse])
-        }catch(Exception ex){
+        } catch(Exception ex) {
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
             response.setStatus(500)
@@ -226,12 +245,12 @@ class OrderController {
 
     //This is to delete orders from database
     //This will delete all product list / product list items and corresponding pack lines
-    def deleteOrder(){
+    def deleteOrder() {
         try {
             orderService.deleteProductList(Integer.parseInt(params.productListId))
             response.setStatus(200)
-            redirect(controller: "order", action: "productList")
-        }catch(Exception ex){
+            redirect(controller: "reporting", action: "orders")
+        } catch(Exception ex) {
             ex.printStackTrace()
             log.error("Order create exception found when confirming order, request is rollback , Exception " + ex)
             response.setStatus(500)
@@ -244,7 +263,7 @@ class OrderController {
         try {
             orderService.deleteProductListItem(Integer.parseInt(params.productListId), Integer.parseInt(params.productItemId))
             response.setStatus(200)
-            redirect(controller: "order", action: "productList")
+            redirect(action: "edit", id: params.productListId)
         } catch (Exception ex) {
             ex.printStackTrace()
             log.error("Error removing item from order , Exception " + ex)
@@ -253,54 +272,35 @@ class OrderController {
         }
     }
 
-    def ajaxSupplierSearch(SupplierSortParams sortParams){
-        def suppliers = [] //declare supplier list
-        if (params.searchTerm != null){
-            def suppliersResponse = supplierService.getSuppliers(params.searchTerm, params.searchBy, sortParams.offset ? sortParams.offset : 0, sortParams.max ? sortParams.max : 50, sortParams.sortColumn, sortParams.getSortOrder())
-            def returnedSuppliers = suppliersResponse?.suppliers
-            if (returnedSuppliers != null && returnedSuppliers.size() > 0){
-                suppliers = returnedSuppliers
-            }
-        } else {
-            suppliers = supplierService.getSuppliers()
-        }
-        render (template: "supplierListView", model: [suppliers: suppliers])
-    }
-
-    def ajaxAddProduct(){
-        render(view: "productSearch")
-    }
-
-    def ajaxShowOrderConfirmWindow(){
+    def ajaxShowOrderConfirmWindow() {
         render(view: "_orderConfirm")
     }
 
-    def ajaxShowOrderDeleteWindow(){
+    def ajaxShowOrderDeleteWindow() {
         render(view: "_orderDelete")
     }
 
-    def ajaxShowQuantityWarningWindow(){
+    def ajaxShowQuantityWarningWindow() {
         render(view: "_quantityWarning")
     }
 
-    def ajaxShowOrderItemDeleteWindow(){
+    def ajaxShowOrderItemDeleteWindow() {
         render(view: "_orderItemDelete", model: [productItemId : Integer.parseInt(params.productItemId)])
     }
-
 }
 
 class PackLineRequestCommand {
-    int supplierId
     int productListId
-    int productItemId
+    int productListItemId
     int productVariantId
     BigDecimal quantity
     BigDecimal fillQuantity
     List<PackLinesCommand> packLines
 }
 
-class PackLinesCommand{
+class PackLinesCommand {
     int id
+    int packId
     BigDecimal quantity
     String orderCode
 }

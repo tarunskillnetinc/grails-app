@@ -232,7 +232,7 @@
             }
 
             // Displays the add/edit variant modal depending whether you've clicked the add button or clicked an existing row.
-            function addVariant(index) {
+            function addVariant(index, isNewVariant) {
                 $("#addVariantContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
                 $('#addVariantModal').modal({ show: true });
 
@@ -275,6 +275,7 @@
                 }
 
                 params["index"] = index;
+                params["isNewVariant"] = isNewVariant;
 
                 $.ajax({
                     url: addVariantUrl,
@@ -316,6 +317,9 @@
                 var barcodes = []; // To store the barcode values for validation
                 var error = false;
                 $("#addVariantContent .alert-wl").remove();
+                if ($("#barcode_errors_container").length > 0) {
+                    $("#barcode_errors_container").remove();
+                }
 
                 addBarcodeContainers.each(function(loopIndex) {
                     var barcodeIndex = $(this).attr("id").substring(10);
@@ -354,6 +358,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
                 });
 
                 var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
@@ -402,15 +407,29 @@
             }
 
             function barcodeValid(barcode, barcodes, content) {
+                let errorToAdd = ''
+
                 if (barcode == null || barcode === "") {
-                    $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Blank barcode found</div>`)
-                    return false
+                    errorToAdd = 'Blank barcode found';
                 } else if (barcodes.includes(barcode)){
-                    $(content).prepend(`<div class="alert alert-danger alert-wl" role="alert">Duplicate Barcode found</div>`)
-                    return false
+                    errorToAdd = 'Duplicate barcode found';
                 }
 
-                return true
+                if (errorToAdd.length > 0) {
+                    if ($("#barcode_errors_container").length === 0) {
+                        $(content).prepend(`<div id="barcode_errors_container" class="alert alert-danger alert-wl" role="alert"/>`);
+                    }
+
+                    let isDuplicate = $("#barcode_errors_container").find("div").filter(function() {
+                        return $(this).text().trim() === `• ` + errorToAdd;
+                    }).length > 0;
+
+                    if (!isDuplicate) {
+                        $("#barcode_errors_container").append(`<div>• ` + errorToAdd + `</div>`);
+                    }
+                }
+
+                return errorToAdd.length <= 0;
             }
 
             function removeWhitespace(string) {
@@ -594,6 +613,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
 
                     var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
                     barcodeContainers.each(function(BarcodeLoopIndex) {
@@ -738,6 +758,9 @@
                     filterValues[$(this).attr("name")] = $(this).find(":selected").val();
                 }).get();
                 $("#suppliersContent .alert-wl").remove();
+                if ($("#barcode_errors_container").length > 0) {
+                    $("#barcode_errors_container").remove();
+                }
 
                 var params = { index: variantIndex };
                 var variantId = $("#variants\\[" + variantIndex + "\\]\\.id").val();
@@ -768,6 +791,7 @@
                     params["packs[" +loopIndex +"].status"] = $(packSelector +"\\.status").val();
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
+                    params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCaseValue").prop("checked");
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
 

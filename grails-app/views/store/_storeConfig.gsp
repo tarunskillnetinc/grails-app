@@ -271,7 +271,7 @@
                             <div class="form-group row">
                                 <label for="config.countIncrement" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Count increments</label>
                                 <div class="col-7 col-lg-4 col-xl-3">
-                                    <g:field type="number" min="0.01" max="1" step="0.01" name="config.countIncrement" value="${storeSettings?.config?.countIncrement}" class="form-control bottom-border"/>
+                                    <g:field type="number" min="0.001" max="1" step="0.001" name="config.countIncrement" value="${storeSettings?.config?.countIncrement}" class="form-control bottom-border" onfocusout="enforceDecimalLimit(this, 3);"/>
                                 </div>
                             </div>
                         </div>

@@ -121,9 +121,15 @@
                 mywindow.document.write($("#receiptModalContent").html());
                 mywindow.document.write("</body></html>");
 
+                mywindow.onafterprint = () => {  $.ajax({
+                    url: "${createLink(controller: 'receipt', action: 'saveReceiptPrinted')}",
+                    method: "GET"
+                })
+
                 mywindow.document.close(); // necessary for IE >= 10
                 mywindow.focus(); // necessary for IE >= 10*/
 
+                ;}
                 // Running this after a short delay because I assume the CSS hasn't properly rendered before the print dialog kicks in so the printed document isn't styled correctly.
                 setTimeout(() => {
                     mywindow.print();
@@ -131,6 +137,8 @@
                 }, 300);
 
                 return true;
+
+
             }
     </script>
     </head>

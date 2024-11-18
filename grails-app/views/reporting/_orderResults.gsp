@@ -23,50 +23,50 @@
 </div>
 
 <div id="search-results">
-    <g:if test="${!orders || orders?.size() == 0}">
+    <g:if test="${!orderLines || orderLines?.size() == 0}">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No results found.</div>
     </g:if>
 
-    <g:each in="${orders}" var="order" status="i">
-        <g:set var="isWeighted" value="${order.productListItem?.productVariant?.product?.weightedItem ?: false}"/>
+    <g:each in="${orderLines}" var="orderLine" status="i">
+        <g:set var="isWeighted" value="${orderLine.productListItem?.productVariant?.product?.weightedItem ?: false}"/>
 
         <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "sku" }?.enabled}">
-                <div id="sku-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.productListItem?.productVariant?.sku}</div>
+                <div id="sku-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${orderLine.productListItem?.productVariant?.sku}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                <div id="description-${i + 1}" class="col-4 my-auto" style="overflow: hidden;">${order.productListItem?.productVariant?.product?.description}</div>
+                <div id="description-${i + 1}" class="col-4 my-auto" style="overflow: hidden;">${orderLine.productListItem?.productVariant?.product?.description}</div>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "orderedQuantity" }?.enabled}">
                 <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
-                <g:if test="${order.pack}">
+                <g:if test="${orderLine.pack}">
                     <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">
-                        ${order.pack?.quantity?.multiply(order.quantity)?.setScale(isWeighted ? 3 : 0)}
+                        ${orderLine.pack?.quantity?.multiply(orderLine.quantity)?.setScale(isWeighted ? 3 : 0)}
                         <g:if test="${isWeighted}"> kg</g:if><g:else> ea (each)</g:else>
                     </div>
                 </g:if>
                 <g:else>
                     <div id="ordered-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">
-                        ${order.quantity?.setScale(isWeighted ? 3 : 0)}
+                        ${orderLine.quantity?.setScale(isWeighted ? 3 : 0)}
                         <g:if test="${isWeighted}"> kg</g:if><g:else> ea (each)</g:else>
                     </div>
                 </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "packQuantity" }?.enabled}">
                 <!-- If pack exists can get value from packs. If pack does not exist mean it is singles-->
-                <g:if test="${order.pack}">
-                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${order.pack?.quantity?.setScale(isWeighted ? 3 : 0)}</div>
+                <g:if test="${orderLine.pack}">
+                    <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">${orderLine.pack?.quantity?.setScale(isWeighted ? 3 : 0)}</div>
                 </g:if>
                 <g:else>
                     <div id="pack-quantity-${i + 1}" class="col-2 my-auto" style="overflow: hidden;">1</div>
                 </g:else>
             </g:if>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "lineValue" }?.enabled}">
-                <g:if test="${order.pack}">
-                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${order.pack?.price?.multiply(order.quantity)}" type="currency" style="overflow: hidden;"/></div>
+                <g:if test="${orderLine.pack}">
+                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${orderLine.pack?.price?.multiply(orderLine.quantity)}" type="currency" style="overflow: hidden;"/></div>
                 </g:if>
                 <g:else>
-                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${(order?.productListItem?.productVariant?.costPrice?:0).multiply(order?.quantity)}" type="currency" style="overflow: hidden;"/></div>
+                    <div id="line-value-${i + 1}" class="col-2 my-auto"><g:formatNumber number="${(orderLine?.productListItem?.productVariant?.costPrice?:0).multiply(order?.quantity)}" type="currency" style="overflow: hidden;"/></div>
                 </g:else>
             </g:if>
         </div>
@@ -75,7 +75,7 @@
 
 <g:if test="${totalResults > 0}">
     <div class="my-3 text-right">
-        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (orders?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
+        <div>Displaying ${sortParams?.offset ? sortParams?.offset + 1 : 1} - ${((sortParams?.offset ?: 0) + (orderLines?.size() ?: 0))} of ${totalResults} result${totalResults > 1 ? 's' : ''}</div>
         <div class="mt-3"><g:paginateReport totalResults="${totalResults}" offset="${sortParams?.offset}" max="${sortParams?.max}" sortColumn="${sortParams?.sortColumn}" sortOrder="${sortParams?.sortOrder}" /></div>
     </div>
 </g:if>
