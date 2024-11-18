@@ -62,13 +62,14 @@
 
     <g:each in="${products}" var="product" status="i">
         <div style="display: flex;">
-            <div style="width: 50px; display: flex; justify-content: center; align-items: center;" class="wl-striped${i%2}">
-                <g:if test="${product?.getEffectiveDatesForFutureChanges()?.size() > 1}">
-                    <asset:image src="clock-history.svg" id="userSearchButton-${i+1}" name="userSearchButton" class="wl-search-button" style="background: none; width: 20px; height: 20px;" />
-                </g:if>
-            </div>
+
             <div style="flex-grow: 1;">
                 <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: product.id)}';">
+                    <div style="width: 50px; display: flex; justify-content: center; align-items: center;">
+                        <g:if test="${product?.getEffectiveDatesForFutureChanges()?.size() > 1}">
+                            <asset:image src="clock-history.svg" id="userSearchButton-${i+1}" name="userSearchButton" style="background: none; width: 20px; height: 20px;" />
+                        </g:if>
+                    </div>
                     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemCode" }?.enabled}">
                         <div id="product-result-${i+1}-item-code" class="col-1 text-truncate">${product.itemCode}</div>
                     </g:if>
