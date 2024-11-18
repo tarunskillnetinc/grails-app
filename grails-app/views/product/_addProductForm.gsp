@@ -1,6 +1,5 @@
 <%@ page import="java.math.RoundingMode" %>
 
-
 <g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
@@ -144,9 +143,30 @@
                                 <label for="discreetMessage" class="col-3 col-form-label text-right pr-4">Discreet Message</label>
                                 <g:textField maxLength="50" name="discreetMessage" value="${product?.discreetMessage}" class="col-5 form-control bottom-border" />
                             </div>
-                            <div class="row mt-1 form-group">
-                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
-                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
+                            <fieldset ${(snappyEnabled?:"disabled")}>
+                                <div class="row mt-1 form-group form-check pl-0">
+                                    <label for="snappyProduct" class="col-3 col-form-label text-right pr-4">Snappy Shopper Item</label>
+                                    <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
+                                </div>
+                            </fieldset>
+                            <div class="row mt-1 pl-0 form-group">
+                                <div class="col-3 mt-2">
+                                    <span class="text-right pr-4">Stock Management</span>
+                                </div>
+                                <div class="col-9">
+                                    <div class="form-check d-flex align-items-center">
+                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="stock" value="STOCK" checked="${product?.stockSale?.name() == 'STOCK'}" valueMessagePrefix="StockSale"/>
+                                        <label class="form-check-label mb-0 mt-2 ml-2" for="stock">Standard stock</label>
+                                    </div>
+                                    <div class="form-check d-flex align-items-center py-1">
+                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="noStockSale" value="NO_STOCK_SALE" checked="${product?.stockSale?.name() == 'NO_STOCK_SALE'}"  valueMessagePrefix="StockSale"/>
+                                        <label class="form-check-label mb-0 mt-2 ml-2" for="noStockSale">No stock, Allowed for sale</label>
+                                    </div>
+                                    <div class="form-check d-flex align-items-center py-1">
+                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="noStockNoSale" value="NO_STOCK_NO_SALE" checked="${product?.stockSale?.name() == 'NO_STOCK_NO_SALE'}"  valueMessagePrefix="StockSale"/>
+                                        <label class="form-check-label mb-0 mt-2 ml-2" for="noStockNoSale">No stock, Not allowed for sale</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -170,12 +190,10 @@
                                 </div>
                             </div>
 
-                            <fieldset ${(snappyEnabled?:"disabled")}>
-                                <div class="row mt-1 form-group form-check pl-0">
-                                    <label for="snappyProduct" class="col-3 col-form-label text-right pr-4">Snappy Shopper Item</label>
-                                    <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
-                                </div>
-                            </fieldset>
+                            <div class="row mt-1 form-group">
+                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
+                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
+                            </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="deliItem" class="col-3 col-form-label text-right pr-4">Deli Item</label>
                                 <g:checkBox name="deliItem" class="col-1 form-check-input wl-checkbox" checked="${product?.deliItem}" disabled="${product?.openPrice || product?.zeroPrice}" />
