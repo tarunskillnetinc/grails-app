@@ -239,7 +239,7 @@ class ShiftController {
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
                     shiftService.processTakeSnapshot(shift, saveShiftCommand.safeId) //Take snapshot
                     shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
-                    shiftService.processMoveShiftToSafeSession(shift, saveShiftCommand.safeId) //Move into safe session
+                    shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
                     return
                 }

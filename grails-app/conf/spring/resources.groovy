@@ -100,6 +100,8 @@ beans = {
         reportingService = ref('reportingService')
         safeService = ref('safeService')
         safeManagementService = ref("safeManagementService")
+        commonService = ref("commonService")
+        financialWeekService = ref("financialWeekService")
     }
 
     snapshotService(SnapshotService,
@@ -210,6 +212,7 @@ beans = {
                     grailsApplication.config.getProperty('mysql.transactions.database'))) {
         springSecurityService = ref('springSecurityService')
         sessionFactory = ref('sessionFactory')
+        commonService = ref("commonService")
     }
     cashManagementService(CashManagementService, new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
             Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
@@ -250,6 +253,8 @@ beans = {
         springSecurityService = ref('springSecurityService')
         gsonProvider = ref("gsonProvider")
         userService = ref('userService')
+        commonService = ref("commonService")
+        financialWeekService = ref("financialWeekService")
 
     }
 

@@ -3,13 +3,17 @@ package uk.co.wonderlane.wlpos
 import com.opencsv.CSVReader
 import com.opencsv.CSVWriter
 import grails.gorm.transactions.Transactional
+import org.joda.time.DateTime
 import org.springframework.web.multipart.MultipartFile
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.transactions.FinancialWeek
 
 import javax.validation.ConstraintViolationException
+import java.sql.CallableStatement
+import java.sql.Connection
 import java.sql.Date
+import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 import java.text.ParseException
@@ -23,6 +27,7 @@ class FinancialWeekService extends MySqlDal {
 
     def springSecurityService
     def sessionFactory
+    def commonService
 
     protected FinancialWeekService(DatabaseCredentials databaseCredentials) throws SQLException {
         super(databaseCredentials)
@@ -228,6 +233,30 @@ class FinancialWeekService extends MySqlDal {
             errorResponseMessages.add("Unexpected error while file processing, please check the logs for more details")
         }
         return errorResponseMessages;
+    }
+
+    uk.co.wonderlane.wlpos.entities.cash.FinancialWeek getFinancialWeek(int retailerId){
+        uk.co.wonderlane.wlpos.entities.cash.FinancialWeek financialWeek =  null
+        Date currentDate = commonService.convertToSqlDate(new DateTime())
+        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call getFinancialWeek(?, ?) }")) {
+            cstmt.setInt(1, retailerId)
+            cstmt.setDate(2, currentDate)
+            try (ResultSet rs = cstmt.executeQuery()) {
+                if (rs.next()) {
+                    financialWeek = new uk.co.wonderlane.wlpos.entities.cash.FinancialWeek()
+                    financialWeek.setId(rs.getInt("id"))
+                    financialWeek.setRetailerId(rs.getInt("retailerId"))
+                    financialWeek.setStartDate(rs.getDate("startDate"))
+                    financialWeek.setFinancialYear(rs.getString("financialYear"))
+                    financialWeek.setWeekNumber(rs.getInt("weekNumber"))
+                }
+            }
+        } catch (SQLException ex) {
+            log.error("Sql error loading financial week from retailer: ${retailerId} date: ${currentDate} error: ${ex.getMessage()}", ex)
+        } catch (Exception ex) {
+            log.error("Unexpected error loading financial week from retailer: ${retailerId} date: ${currentDate} error: ${ex.getMessage()}", ex)
+        }
+        return financialWeek
     }
 
     private List<String> validateCsvDataRow(int lineNumber, String startDate, String weekNumberStr, String financialYear){

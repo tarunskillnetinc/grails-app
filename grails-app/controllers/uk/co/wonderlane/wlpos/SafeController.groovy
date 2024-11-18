@@ -55,7 +55,7 @@ class SafeController {
                     safeService.updateLocationDescriptionBySafeId(safe.id, safe.description)
                 } else {
                     locationService.createSafeLocation(safe.id, safe.description)
-                    safeManagementService.populateNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
+                    safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
                 }
                 safeService.pushSafeIntoRabbitMQ(safe) //once save make sure to publish this into rabbitMq
                 flash.message = "Safe ${isUpdate ? 'updated' : 'created'} successfully"
