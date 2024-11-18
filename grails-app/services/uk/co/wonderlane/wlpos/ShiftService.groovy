@@ -33,7 +33,7 @@ class ShiftService extends MySqlPoolDal {
     def safeService
     def safeManagementService
 
-    public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
+    public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss"
 
     ShiftService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -141,7 +141,6 @@ class ShiftService extends MySqlPoolDal {
             log.error(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
-
     }
 
     int getConfiguredRecountAttempts(int retailerId, int storeId){

@@ -19,6 +19,8 @@ import java.sql.*
 @Transactional
 class SafeManagementService extends MySqlPoolDal {
 
+    public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
+
     def springSecurityService
     def gsonProvider
     def userService
@@ -44,6 +46,7 @@ class SafeManagementService extends MySqlPoolDal {
         safeSession.setSessionStatus(SafeSessionStatus.OPEN)
         safeSession.setOpenUserId(loggedInUser.getId())
         safeSession.setOpenUsername(loggedInUser.getUsername())
+        safeSession.setOpenTime(convertDateTimeToString(new DateTime()))
         if (financialWeek != null){
             safeSession.setFinancialWeek(financialWeek)
         }
