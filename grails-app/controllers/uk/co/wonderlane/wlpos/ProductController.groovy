@@ -56,6 +56,7 @@ class ProductController extends BaseController {
         def ranges = []
         def priceBands = []
         def productCategoryList = []
+        def selTypeValues = SelType.findAll()
         def category = product.category
 
         while (category) {
@@ -76,6 +77,7 @@ class ProductController extends BaseController {
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
+                                    selTypeValues      : selTypeValues,
                                     categoryValues     : categoryService.getTopLevelCategories(),
                                     productCategoryList: productCategoryList,
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
@@ -124,7 +126,8 @@ class ProductController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
-                                    statusValues    : selTypeValues,
+                                    statusValues    : ProductStatus.values(),
+                                    selTypeValues   : selTypeValues,
                                     categoryValues  : categoryService.getTopLevelCategories(),
                                     vatValues       : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges          : ranges,

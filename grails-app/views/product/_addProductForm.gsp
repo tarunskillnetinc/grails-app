@@ -51,7 +51,13 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="selType" class="col-3 col-form-label text-right pr-4">SEL type</label>
-                                <g:select name="selType" class="col-3 form-control select-border" from="${selTypeValues}" value="${product?.selType?.id}" optionKey="id" optionValue="${it?.name}" />
+                                <g:select name="selType"
+                                          class="col-3 form-control select-border"
+                                          from="${selTypeValues}"
+                                          optionKey="id"
+                                          optionValue="name"
+                                          value="${product?.selType?.id}"
+                                          noSelection="['':'-Choose SelType-']"/>
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
