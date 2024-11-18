@@ -517,6 +517,23 @@ class EposTagLib {
             out << ""
         }
     }
+
+    def renderSafeInfo = { attrs ->
+        def safe = attrs.safe
+        if (safe) {
+            out << '<div class="d-flex flex-column align-items-center">'
+
+            if (safe.primary) {
+                out << '<div>Primary Safe</div>'
+            }
+            if (safe.type == uk.co.wonderlane.wlpos.enums.SafeType.SMART) {
+                out << '<div>Smart Safe</div>'
+            }
+
+            out << "<div>${safe.id}</div>"
+            out << '</div>'
+        }
+    }
     
     private static String getLocationField(String field) {
         def formattedFieldArray = field?.split("(?=\\p{Upper})")

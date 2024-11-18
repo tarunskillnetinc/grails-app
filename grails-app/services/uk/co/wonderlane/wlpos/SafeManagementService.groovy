@@ -86,14 +86,22 @@ class SafeManagementService extends MySqlPoolDal {
         return safeSession;
     }
 
-    private getActiveSafeSession(Integer safeId) {
+    List<SafeSession> getActiveSafeSession(Integer safeId) {
         List<SafeSession> safeSessions = new ArrayList<>()
         Connection conn = getConnection()
         CallableStatement activeSafeSessionStatement = conn.prepareCall("{ call getActiveSafeSession(?, ?, ?) }")
         try {
             activeSafeSessionStatement.setInt(1, springSecurityService.principal.retailerId)
-            activeSafeSessionStatement.setInt(2, springSecurityService.principal.storeId)
-            activeSafeSessionStatement.setInt(3, safeId)
+            if (springSecurityService.principal.storeId != null) {
+                activeSafeSessionStatement.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                activeSafeSessionStatement.setNull(2, Types.INTEGER)
+            }
+            if (safeId != null) {
+                activeSafeSessionStatement.setInt(3, safeId)
+            } else {
+                activeSafeSessionStatement.setNull(3, Types.INTEGER)
+            }
             ResultSet rs = activeSafeSessionStatement.executeQuery()
             try {
                 while (rs.next()) {
