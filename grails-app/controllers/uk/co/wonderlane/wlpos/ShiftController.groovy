@@ -333,9 +333,10 @@ class ShiftController {
 
                 //Construct flash messages appropriately
                 def messageBuilder = new StringBuilder()
-                messageBuilder.append("Shift ${shift.getShiftNumber()} for Till ${tillId} has been successfully closed.")
-                if (isDirectShiftFinalise) {messageBuilder.append(" The shift was reconciled and finalized directly.")}
-                if (isNewShiftOpen) {messageBuilder.append(" A new shift has been opened.")}
+                messageBuilder.append("Shift ${shift.getShiftNumber()} for Till ${tillId} has been successfully closed")
+                if (isDirectShiftFinalise) { messageBuilder.append(" and finalised automatically") }
+                if (isNewShiftOpen) { messageBuilder.append(". A new shift has been opened for the till") }
+                messageBuilder.append(".")
                 flash.message = messageBuilder.toString()
 
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
