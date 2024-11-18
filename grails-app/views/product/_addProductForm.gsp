@@ -46,12 +46,24 @@
                                 <g:textField maxLength="50" name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
                             <div class="row form-group mb-3">
+                                <label for="selDescription" class="col-3 col-form-label text-right pr-4">SEL Description</label>
+                                <g:textField maxLength="50" name="selDescription" value="${product?.selDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
+                            </div>
+                            <div class="row form-group mb-3">
+                                <label for="selType" class="col-3 col-form-label text-right pr-4">SEL type</label>
+                                <g:select name="selType" class="col-3 form-control select-border" from="${selTypeValues}" value="${product?.selType?.id}" optionKey="id" optionValue="${it?.name}" />
+                            </div>
+                            <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
                                 <g:textField maxLength="50" name="unitSize" class="col-3 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
+                            <div class="row form-group">
+                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
+                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
+                            </div>
                             <div class="row form-group">
                                 <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
 
@@ -190,10 +202,6 @@
                                 </div>
                             </div>
 
-                            <div class="row mt-1 form-group">
-                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
-                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
-                            </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="deliItem" class="col-3 col-form-label text-right pr-4">Deli Item</label>
                                 <g:checkBox name="deliItem" class="col-1 form-check-input wl-checkbox" checked="${product?.deliItem}" disabled="${product?.openPrice || product?.zeroPrice}" />

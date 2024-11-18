@@ -112,6 +112,7 @@ class ProductController extends BaseController {
 
         def ranges = []
         def priceBands = []
+        def selTypeValues = SelType.findAll()
         def userRoles = springSecurityService.principal.authorities*.authority
 
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
@@ -123,7 +124,7 @@ class ProductController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
-                                    statusValues    : ProductStatus.values(),
+                                    statusValues    : selTypeValues,
                                     categoryValues  : categoryService.getTopLevelCategories(),
                                     vatValues       : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges          : ranges,
@@ -711,6 +712,7 @@ class ProductController extends BaseController {
 
             def ranges = []
             def priceBands = []
+            def selTypeValues = SelType.findAll()
             def editedPrices = []
 
             def userRoles = springSecurityService.principal.authorities*.authority
@@ -730,6 +732,7 @@ class ProductController extends BaseController {
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
+                                        selTypeValues      : selTypeValues,
                                         categoryValues     : topLevelCategories,
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
@@ -2100,6 +2103,9 @@ class ProductCommand {
     String retailerProductId
     DateTime effectiveDate
     StockSale stockSale
+    String selDescription
+    SelType selType
+    String productImgUrl
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
