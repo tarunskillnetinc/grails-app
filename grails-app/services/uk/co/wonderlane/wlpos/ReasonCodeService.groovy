@@ -20,6 +20,10 @@ class ReasonCodeService {
         return new Pair<Integer, List<ReasonCode>>(count, result != null ? result : new ArrayList<ReasonCode>())
     }
 
+     List<ReasonCode> getReasonCodesByType(int retailerId, ReasonCodeType type) {
+        return ReasonCode.findAllByRetailerIdAndTypeAndDeleted(retailerId, type, false)
+    }
+
     ReasonCode findByCode(int retailerId, String code, boolean additionalFunctionality, int id) {
         return ReasonCode.findByRetailerIdAndCodeAndAdditionalFunctionalityAndIdNotEqual(retailerId, code, additionalFunctionality, id)
     }

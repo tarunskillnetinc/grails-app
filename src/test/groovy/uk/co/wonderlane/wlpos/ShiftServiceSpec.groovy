@@ -51,7 +51,7 @@ class ShiftServiceSpec extends Specification implements ServiceUnitTest<ShiftSer
         resultSetMock.getString("shift") >> getShiftDummyJson()
 
         when:
-        List<Shift> shiftsReturned = shiftServiceHelper.getShifts(DateTime.now(DateTimeZone.UTC), DateTime.now(DateTimeZone.UTC), tillId)
+        List<Shift> shiftsReturned = shiftServiceHelper.getShifts(tillId)
 
         then: 'successfully get snapshot'
         shiftsReturned.size() == returnListSize

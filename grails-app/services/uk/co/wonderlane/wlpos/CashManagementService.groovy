@@ -64,7 +64,7 @@ class CashManagementService extends MySqlDal{
 
     CashManagementConfig getCashManagementConfig(int retailerId, int storeId) {
         try (Connection conn = getConnection();
-             CallableStatement cstmt = conn.prepareCall("{ call getCashManagementConfiguration(?, ?) }")) {
+            CallableStatement cstmt = conn.prepareCall("{ call getCashManagementConfiguration(?, ?) }")) {
             cstmt.setInt(1, retailerId);
             cstmt.setInt(2, storeId);
 

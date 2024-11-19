@@ -32,6 +32,7 @@
 
         switch ($("#type").val()) {
             case "PAID_OUT":
+            case "PAID_IN":
                 promptForAge.show();
                 promptForText.hide();
                 returnStock.hide();

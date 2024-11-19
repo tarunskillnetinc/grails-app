@@ -30,12 +30,14 @@
             function resetForm() {
                 document.getElementById('productSearchTerm').value = null;
                 document.getElementById('productSearchBy').value = 'everything';
+                document.getElementById('showPendingChangesOnly').checked = false;
             }
 
             function search() {
                 var url = "${createLink(controller: 'product', action: 'ajaxSearchProducts')}";
                 var searchTerm = $('#productSearchTerm').val();
                 var searchBy = $('#productSearchBy').val();
+                var pendingChanges = $('#showPendingChangesOnly').prop('checked');
 
                 if (searchBy === "barcode" && searchTerm.length < 4) {
                     alert("Please enter at least 4 digits of a barcode.");
@@ -47,7 +49,7 @@
 
                 $.ajax({
                     url: url,
-                    data: { searchTerm: searchTerm, searchBy: searchBy },
+                    data: { searchTerm: searchTerm, searchBy: searchBy, pendingChanges: pendingChanges },
                     success: function(resp) {
                         $('#results-container').html(resp);
                         $('#productSearchTerm').data('prev',$('#productSearchTerm').val())
@@ -277,6 +279,11 @@
                             </div>
 
                             <div class="form-group row">
+                                <label class="col-2 col-form-label-sm text-right">Pending Changes Only</label>
+                                <div class="input-group col-4">
+                                    <g:checkBox id="showPendingChangesOnly" name="showPendingChangesOnly" value="${session.PENDING_CHANGES}" class="col-1 form-check-input wl-checkbox" />
+                                </div>
+
                                 <div class="col-sm-8 col-xl-6 offset-sm-4 offset-xl-6 text-right">
                                     <button id="reset-filters-btn" type="button" class="btn btn-danger text-right mr-2" onclick="resetForm()">Reset Filters</button>
                                     <button id="filter-submit-button" type="button" class="btn btn-wl text-right" onclick="searchButtonClicked()">Search</button>
