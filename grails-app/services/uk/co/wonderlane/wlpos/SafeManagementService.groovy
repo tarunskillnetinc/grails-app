@@ -301,10 +301,15 @@ class SafeManagementService extends MySqlPoolDal {
                         it.varianceReasonText = safeSessionSaveCommand.tenderReconciliationVarianceReasonText
                     }
                 }
-                safeSession.reconciledDate = DateTime.now()
-                safeSession.reconciledByUserId = loggedInUser.getId()
-                safeSession.reconciledByUsersName = loggedInUser.getUsername()
-                safeSession.sessionStatus = SafeSessionStatus.RECONCILED
+
+                if(!safeSessionSaveCommand.isRecount) {
+                    safeSession.reconciledDate = DateTime.now()
+                    safeSession.reconciledByUserId = loggedInUser.getId()
+                    safeSession.reconciledByUsersName = loggedInUser.getUsername()
+                    safeSession.sessionStatus = SafeSessionStatus.RECONCILED
+                } else {
+                    //Handle recount here
+                }
                 // Once update done clear `pending` list
                 safeSession.getPendingReconciliationTotals().clear()
             } else {

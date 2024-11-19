@@ -77,7 +77,7 @@
                             <div class="row pt-1 pb-2 form-group">
                                 <div class="col-6 mx-auto">
                                     <g:textField name="tenderReconciliationVarianceReasonText" class="form-control bottom-border" placeholder="Additional reason (optional)."
-                                                 value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}"/>
+                                                 maxLength="40" size="40" value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}"/>
                                 </div>
                             </div>
                         </g:if>
