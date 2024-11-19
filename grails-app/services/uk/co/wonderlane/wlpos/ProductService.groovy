@@ -875,4 +875,16 @@ class ProductService extends MySqlDal {
 
         return productVariant
     }
+
+    def getRetailerSelTypes(Long retailerId) {
+        def session = sessionFactory.currentSession
+        def query = session.createNativeQuery("CALL getRetailerSelTypes(:retailerId)")
+        query.setParameter("retailerId", retailerId)
+
+        def results = query.list().collect { row ->
+            new SelType(id: row[0], name: row[1])
+        }
+
+        return results.sort { it.id }
+    }
 }
