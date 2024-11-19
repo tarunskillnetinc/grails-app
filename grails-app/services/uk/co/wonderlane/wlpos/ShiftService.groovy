@@ -7,8 +7,6 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
 import uk.co.wonderlane.wlpos.entities.cash.*
@@ -31,8 +29,9 @@ class ShiftService extends MySqlPoolDal {
     def locationService
     def reportingService
     def safeService
-
-    public static String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
+    def safeManagementService
+    def financialWeekService
+    def commonService
 
     ShiftService(DatabaseCredentials databaseCredentials) {
         super(databaseCredentials)
@@ -97,6 +96,22 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
+    void updateFinaliseShiftToSafeSessionMovements(Shift shift, int safeId){
+        try {
+            SafeSession safeSession = safeManagementService.getOpenSafeSession(safeId)
+            if (safeSession != null){
+                processSafeSessionCalculation(safeSession, shift, TenderType.CASH)
+                processSafeSessionCalculation(safeSession, shift, TenderType.VOUCHER)
+                safeManagementService.saveSafeSession(safeSession)
+            }  else {
+                log.warn("No open safe session available for move tender for retailer: ${shift.getRetailerId()} store: ${shift.getStoreId()} safeId: ${safeId} ")
+            }
+        } catch (Exception ex) {
+            log.error("Error taking shift snapshot for retailer id: ${shift.getRetailerId()} store id: ${shift.getStoreId()} safe id: ${safeId} error: ${ex.getMessage()}", ex)
+        }
+
+    }
+
     void updateFinaliseTenderMovement(Shift shift, int safeId){
         try {
             Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
@@ -124,7 +139,6 @@ class ShiftService extends MySqlPoolDal {
             log.error(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error checking recount amount for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
-
     }
 
     int getConfiguredRecountAttempts(int retailerId, int storeId){
@@ -331,7 +345,8 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
             shiftSnapshotUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //update snapshot
-            shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
+            shiftSafeSessionUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //Move tender to safe session for add float or cash lift
+            updateFinaliseShiftToSafeSessionMovements(shift, safeId) //Update safe session
             addAudit(shift, shiftAction, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -343,7 +358,7 @@ class ShiftService extends MySqlPoolDal {
     void processShiftAutoReconcile(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            updateAutoShiftDataFields(shift, loggedInUser, false);
+            updateAutoShiftDataFields(shift, loggedInUser, false)
             addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -357,7 +372,8 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, true);
             processTakeSnapshot(shift, primarySafeId);
-            updateFinaliseTenderMovement(shift, primarySafeId);
+            updateFinaliseTenderMovement(shift, primarySafeId)
+            updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
             addAudit(shift, ShiftAction.FINALISE, false, loggedInUser) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -375,14 +391,14 @@ class ShiftService extends MySqlPoolDal {
 
     private Shift populateNewShift(int retailerId, int storeId, int tillId, boolean isAutoGenerated) throws Exception {
         int shiftNumber = getLastShiftNumber(retailerId, storeId, tillId) + 1
-        FinancialWeek financialWeek = getFinancialWeek(retailerId)
+        FinancialWeek financialWeek = financialWeekService.getFinancialWeek(retailerId)
         User loggedInUser = loadLoggedInUser()
         Shift shift = new Shift(retailerId, storeId, tillId, -1, null)
         shift.setCustomerCount(0)
         shift.setShiftNumber(shiftNumber)
         shift.setCashInDrawer(BigDecimal.ZERO)
         shift.setShiftStatus(ShiftStatus.OPEN)
-        shift.setShiftOpenTime(convertDateTimeToString(new DateTime()))
+        shift.setShiftOpenTime(commonService.convertDateTimeToString(new DateTime()))
         shift.setShiftOpenUserId(loggedInUser.getId())
         shift.setShiftOpenUsername(loggedInUser.getUsername())
         if (financialWeek != null){
@@ -489,31 +505,6 @@ class ShiftService extends MySqlPoolDal {
         return result;
     }
 
-
-    private FinancialWeek getFinancialWeek(int retailerId){
-        FinancialWeek financialWeek =  null
-        Date currentDate = convertToSqlDate(new DateTime())
-        try (Connection conn = getConnection(); CallableStatement cstmt = conn.prepareCall("{ call getFinancialWeek(?, ?) }")) {
-            cstmt.setInt(1, retailerId)
-            cstmt.setDate(2, currentDate)
-            try (ResultSet rs = cstmt.executeQuery()) {
-                if (rs.next()) {
-                    financialWeek = new FinancialWeek()
-                    financialWeek.setId(rs.getInt("id"))
-                    financialWeek.setRetailerId(rs.getInt("retailerId"))
-                    financialWeek.setStartDate(rs.getDate("startDate"))
-                    financialWeek.setFinancialYear(rs.getString("financialYear"))
-                    financialWeek.setWeekNumber(rs.getInt("weekNumber"))
-                }
-            }
-        } catch (SQLException ex) {
-            log.error(String.format("Sql error loading financial week from retailer: %d date: %s error: %s", retailerId, currentDate, ex.getMessage()), ex)
-        } catch (Exception ex) {
-            log.error(String.format("Unexpected error loading financial week from retailer: %d date: %s error: %s", retailerId, currentDate, ex.getMessage()), ex)
-        }
-        return financialWeek
-    }
-
     private void saveShiftAudit(ShiftAudit shiftAudit){
         try (Connection conn = getConnection(); CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShiftAudit(?, ?, ?, ?, ?, ?, ?, ?) }")) {
             if (shiftAudit.getId() > 0) {
@@ -526,7 +517,7 @@ class ShiftService extends MySqlPoolDal {
             saveShiftStatement.setString(4, shiftAudit.getAction().toString())
             saveShiftStatement.setInt(5, shiftAudit.getUserId())
             saveShiftStatement.setString(6, shiftAudit.getUsername())
-            saveShiftStatement.setTimestamp(7, convertToSqlTimestamp(shiftAudit.getTimestamp()))
+            saveShiftStatement.setTimestamp(7, commonService.convertToSqlTimestamp(shiftAudit.getTimestamp()))
             saveShiftStatement.setString(8, gsonProvider?.gson?.toJson(shiftAudit?.extras) ?: null)
             saveShiftStatement.executeUpdate();
         } catch (SQLException ex) {
@@ -538,28 +529,9 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private  Date convertToSqlDate(DateTime date) {
-        return new Date(date.withTimeAtStartOfDay().getMillis());
-    }
-
-    private String convertDateTimeToString(DateTime dateTime) {
-        if(dateTime == null) {
-            return null;
-        }
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(DATE_PATTERN_YYYYMMDD_HHMMSS);
-        return dateTime.toString(formatter);
-    }
-
-    private Timestamp convertToSqlTimestamp(DateTime dateTime) {
-        if (dateTime != null){
-            return new Timestamp(dateTime.getMillis());
-        }
-        return new Timestamp(new DateTime().getMillis());
-    }
-
     private void populateShiftCloseFields(Shift shift, User loggedUser) {
         shift.setShiftStatus(ShiftStatus.UNRECONCILED);
-        shift.setShiftCloseTime(convertDateTimeToString(new DateTime()))
+        shift.setShiftCloseTime(commonService.convertDateTimeToString(new DateTime()))
         shift.setShiftCloseUserId(loggedUser.getId())
         shift.setShiftCloseUsername(loggedUser.getUsername())
     }
@@ -759,7 +731,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-
     private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
@@ -815,6 +786,42 @@ class ShiftService extends MySqlPoolDal {
             eq ("tillId", tillId)
             isNotNull("serialNumber")
             maxResults(1)
+        }
+    }
+
+    //This is for moving tender to safe session when shift finalising
+    private void processSafeSessionCalculation(SafeSession safeSession, Shift shift, TenderType type) {
+        ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
+        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) != 0){
+            updateSafeSession(safeSession, reconciliationTotal.value, type)
+        }
+    }
+
+    //This is for moving tender to safe session when add float and cash lift
+    private shiftSafeSessionUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount) {
+        // If this is add float action then amounts need to be deduct on safe session if cash lift then need to sum up for safe session
+        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
+        SafeSession safeSession = safeManagementService.getOpenSafeSession(safeId)
+        if (safeSession) { // Get available open session for safe id
+            updateSafeSession(safeSession, adjustedCashAmount, TenderType.CASH)
+            if (isAddFloat) {
+                updateSafeSession(safeSession, voucherAmount.negate(), TenderType.VOUCHER)
+            }
+            safeManagementService.saveSafeSession(safeSession)
+        } else { // If no any open safe session then add warning log
+            log.warn("No open safe session available for move tender for action ${isAddFloat ? "add float" : "cash lift"} for safeId: ${safeId} ")
+        }
+    }
+
+
+    private void updateSafeSession(SafeSession safeSession, BigDecimal amount, TenderType type){
+        if (amount) {
+            def expected = safeSession.tenderTotals.find { it.tenderType == type }
+            if (!expected) {
+                expected = new TenderTotal(type)
+                safeSession.tenderTotals.add(expected)
+            }
+            expected.value = expected.value.add(amount)
         }
     }
 
