@@ -1,13 +1,31 @@
 var SafeManagementUrls = SafeManagementUrls || (function () {
-    var _getSafeSessionUrl;
+    var _safeSessionUrl;
+    var _cashUpModalUrl;
+    var _updateReconcileDataUrl;
+    var _saveSafeSessionCashUrl;
 
     return {
-        init : function (getSafeSessionUrl) {
-            _getSafeSessionUrl = getSafeSessionUrl;
+        init : function (safeSessionUrl, cashUpModalUrl, updateReconcileDataUrl, saveSafeSessionCashUrl) {
+            _safeSessionUrl = safeSessionUrl;
+            _cashUpModalUrl = cashUpModalUrl;
+            _updateReconcileDataUrl = updateReconcileDataUrl;
+            _saveSafeSessionCashUrl = saveSafeSessionCashUrl;
         },
 
         getSafeSessionUrl : function () {
-            return _getSafeSessionUrl;
+            return _safeSessionUrl;
+        },
+
+        getSafeSessionCashUpUrl : function () {
+            return _cashUpModalUrl;
+        },
+
+        getUpdateSafeSessionReconcileUrl : function() {
+            return _updateReconcileDataUrl;
+        },
+
+        getSafeSessionSaveUrl : function() {
+            return _saveSafeSessionCashUrl;
         }
     }
 } ());

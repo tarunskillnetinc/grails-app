@@ -14,10 +14,28 @@
         <asset:javascript src="input-validator.js" />
         <asset:javascript src="safeManagement.js"/>
         <asset:javascript src="safeManagementUrls.js"/>
+        <asset:javascript src="shiftUrls.js"/>
+        <asset:javascript src="shiftManagement.js"/>
 
         <script type="text/javascript">
             $(function() {
-                SafeManagementUrls.init("${createLink(controller: 'SafeManagement', action: 'ajaxGetSafeSessions')}");
+                SafeManagementUrls.init(
+                    "${createLink(controller: 'SafeManagement', action: 'ajaxGetSafeSessions')}",
+                    "${createLink(controller: 'SafeManagement', action: 'ajaxGetSafeSessionCashUpModal')}",
+                    "${createLink(controller: 'SafeManagement', action: 'ajaxUpdateSafeSessionReconcileData')}",
+                    "${createLink(controller: 'SafeManagement', action: 'ajaxSaveSafeSessionCashData')}",
+                );
+                ShiftUrls.init("${createLink(controller: 'shift', action: 'ajaxGetShifts')}",
+                    "${createLink(controller: 'shift', action: 'ajaxGetCashDetails')}",
+                    "${createLink(controller: 'shift', action: 'ajaxChangeCashUpType')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSaveCash')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSaveShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxOpenShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxCloseShift')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSpotCheck')}",
+                    "${createLink(controller: 'shift', action: 'ajaxCashUpdateModal')}",
+                    "${createLink(controller: 'shift', action: 'ajaxSaveCashUpdate')}"
+                );
                 getSafeSessions();
                 $("#messages-container").html('');
             });
@@ -53,7 +71,7 @@
 
         <section id="shift-modal" class="container-fluid">
             <!-- Cash modal -->
-            <div class="modal fade" id="shiftModal" tabindex="-1" role="dialog" aria-labelledby="cashModalLabel" aria-hidden="true">
+            <div class="modal fade" id="sessionModal" tabindex="-1" role="dialog" aria-labelledby="cashModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div id="modal-content" class="modal-content"></div>
                 </div>

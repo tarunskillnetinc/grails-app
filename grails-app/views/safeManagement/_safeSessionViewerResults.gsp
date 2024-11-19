@@ -84,7 +84,9 @@
                         <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                             <div class="button-container d-flex justify-content-end align-items-center">
                                 <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;">Spot check</button>
-                                <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" >Reconcile</button>
+                                <g:if test="${safeSession.sessionStatus == uk.co.wonderlane.wlpos.enums.SafeSessionStatus.OPEN}">
+                                    <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9em;" onclick="showSafeSessionReconcileModal(${safeSession.id}, false, false, `${safe.description}`, ${configuredRecountLimit});">Reconcile</button>
+                                </g:if>
                                 <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem; display: none;">Recount</button>
                                 <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Finalise</button>
                             </div>
