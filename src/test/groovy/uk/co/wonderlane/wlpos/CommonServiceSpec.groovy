@@ -10,9 +10,4 @@ class CommonServiceSpec extends Specification implements ServiceUnitTest<CommonS
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }
