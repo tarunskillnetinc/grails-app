@@ -1302,6 +1302,12 @@ class ProductController extends BaseController {
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
 
+        builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
+
+        builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
+        builder.compare("selType", product.selType?.id, editedProduct.selType?.id)
+        builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
+
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
         // Restrictions
