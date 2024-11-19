@@ -56,7 +56,7 @@ class ProductController extends BaseController {
         def ranges = []
         def priceBands = []
         def productCategoryList = []
-        def selTypeValues = SelType.findAll()
+        def selTypeValues = SelType.list().sort { it.id }
         def category = product.category
 
         while (category) {
@@ -114,7 +114,7 @@ class ProductController extends BaseController {
 
         def ranges = []
         def priceBands = []
-        def selTypeValues = SelType.findAll()
+        def selTypeValues = SelType.list().sort { it.id }
         def userRoles = springSecurityService.principal.authorities*.authority
 
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
@@ -538,6 +538,9 @@ class ProductController extends BaseController {
             product.status = editedProduct.status
             product.retailerProductId = editedProduct.retailerProductId
             product.stockSale = editedProduct.stockSale
+            product.selType = editedProduct.selType
+            product.selDescription = editedProduct.selDescription
+            product.productImgUrl = editedProduct.productImgUrl
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -715,7 +718,7 @@ class ProductController extends BaseController {
 
             def ranges = []
             def priceBands = []
-            def selTypeValues = SelType.findAll()
+            def selTypeValues = SelType.list().sort { it.id }
             def editedPrices = []
 
             def userRoles = springSecurityService.principal.authorities*.authority
