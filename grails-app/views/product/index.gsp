@@ -280,8 +280,8 @@
 
                             <div class="form-group row">
                                 <label class="col-2 col-form-label-sm text-right">Pending Changes Only</label>
-                                <div class="input-group col-4">
-                                    <g:checkBox id="showPendingChangesOnly" name="showPendingChangesOnly" value="${session.PENDING_CHANGES}" class="col-1 form-check-input wl-checkbox" />
+                                <div class="col-10 input-group-append">
+                                    <g:checkBox id="showPendingChangesOnly" name="showPendingChangesOnly" checked="${session.PENDING_CHANGES}" class="col-1 form-check-input wl-checkbox ml-0" />
                                 </div>
 
                                 <div class="col-sm-8 col-xl-6 offset-sm-4 offset-xl-6 text-right">

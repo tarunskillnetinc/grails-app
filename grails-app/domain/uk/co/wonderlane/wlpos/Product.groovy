@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.StockSale
 
 import java.math.RoundingMode
 
@@ -31,6 +32,7 @@ class Product {
     String discreetMessage
     ProductStatus status
     String retailerProductId
+    StockSale stockSale
 
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
@@ -69,6 +71,7 @@ class Product {
         discreetMessage column: "discreetMessage"
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
+        stockSale column: "stockSale", sqlType: "enum", enumType: "string"
         variants cascade: "save-update,delete"
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
@@ -87,6 +90,7 @@ class Product {
         vatCode nullable: false
         status nullable: false
         category nullable: false
+        stockSale nullable: false
         retailerProductId nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
@@ -244,6 +248,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
+        product.setStockSale(stockSale)
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))

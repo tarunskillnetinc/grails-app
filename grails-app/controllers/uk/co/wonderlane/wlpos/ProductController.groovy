@@ -20,6 +20,7 @@ import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.StockSale
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -532,6 +533,7 @@ class ProductController extends BaseController {
             product.discreetMessage = editedProduct.discreetMessage
             product.status = editedProduct.status
             product.retailerProductId = editedProduct.retailerProductId
+            product.stockSale = editedProduct.stockSale
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -2097,6 +2099,7 @@ class ProductCommand {
     ProductStatus status
     String retailerProductId
     DateTime effectiveDate
+    StockSale stockSale
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
