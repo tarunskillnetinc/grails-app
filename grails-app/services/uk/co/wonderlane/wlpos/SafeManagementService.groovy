@@ -345,7 +345,7 @@ class SafeManagementService extends MySqlPoolDal {
                 new ReconciliationTotal(TenderType.CASH).tap { safeSession.pendingReconciliationTotals << it }
         cashTotal.value = calculateCashTotal(safeSessionCashUpCommand)
         BigDecimal currentCashTotal = (cashTotal.value ?: BigDecimal.ZERO)
-        BigDecimal currentTenderTotal = (safeSession.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        BigDecimal currentTenderTotal = (safeSession.tenderTotals.findAll { it.tenderType == TenderType.CASH }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
         cashTotal.variance = currentCashTotal.subtract(currentTenderTotal)
     }
 
