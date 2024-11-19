@@ -530,7 +530,7 @@ class EposTagLib {
                 out << '<div>Smart Safe</div>'
             }
 
-            out << "<div>${safe.id}</div>"
+            out << "<div>${safe.description}</div>"
             out << '</div>'
         }
     }

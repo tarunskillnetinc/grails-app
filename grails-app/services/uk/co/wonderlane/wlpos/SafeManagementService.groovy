@@ -138,12 +138,12 @@ class SafeManagementService extends MySqlPoolDal {
             timestamp = new DateTime()
         }
 
-        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.FINALISE]) {
+        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE]) {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)
 
-            if (safeSessionAction in [SafeSessionAction.RECONCILE, SafeSessionAction.FINALISE]) {
+            if (safeSessionAction in [SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE]) {
                 addJsonFieldToObject(jsonObject, "reconciliationTotals", safeSession.reconciliationTotals)
             }
 

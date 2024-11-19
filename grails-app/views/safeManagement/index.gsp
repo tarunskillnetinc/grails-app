@@ -19,10 +19,6 @@
             $(function() {
                 SafeManagementUrls.init("${createLink(controller: 'SafeManagement', action: 'ajaxGetSafeSessions')}");
                 getSafeSessions();
-
-            });
-
-            $(document).ready(function () {
                 $("#messages-container").html('');
             });
 

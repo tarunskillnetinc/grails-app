@@ -44,9 +44,9 @@
         </g:if>
         <div class="col-2 text-center font-weight-bold pl-2">Safe</div>
         <div class="col-1 text-center font-weight-bold">Session Number</div>
-        <div class="col-2 text-center font-weight-bold">Safe Begin<br>Date And Time</div>
-        <div class="col-2 text-center font-weight-bold">Safe Last Counted<br>Date And Time</div>
-        <div class="col-1 text-center font-weight-bold">Session Status</div>
+        <div class="col-2 text-center font-weight-bold">Safe Started<br>Date and Time</div>
+        <div class="col-2 text-center font-weight-bold">Safe Last Counted<br>Date and Time</div>
+        <div class="col-1 text-center font-weight-bold">Safe Status</div>
     </div>
 
     <div class="card">
@@ -77,13 +77,16 @@
                                 <g:formatDate format="dd/MM/yyyy HH:mm" date="${safeSession.reconciledDate.toDate()}" timeZone="Europe/London"/>
                             </g:elseif>
                         </div>
-                        <div class="col-1 text-center">${safeSession.sessionStatus}</div>
+                        <div class="col-1 text-center" style="white-space: nowrap; overflow: visible; text-overflow: ellipsis;">
+                            ${safeSession.sessionStatus == uk.co.wonderlane.wlpos.enums.SafeSessionStatus.OPEN ? 'In-progress' : 'Reconciled'}
+                        </div>
 
                         <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                             <div class="button-container d-flex justify-content-end align-items-center">
-                                <button class="btn btn-wl p-1" style="min-width: 70px; font-size: 0.9rem;">Spot check</button>
-                                <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;" >Reconcile</button>
-                                <button class="btn btn-success p-1 me-1" style="min-width: 70px; font-size: 0.9rem;">Finalise</button>
+                                <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;">Spot check</button>
+                                <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" >Reconcile</button>
+                                <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem; display: none;">Recount</button>
+                                <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Finalise</button>
                             </div>
                         </div>
                     </div>
