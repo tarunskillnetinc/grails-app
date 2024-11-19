@@ -64,7 +64,7 @@
                         <g:if test="${isFinancialWeekExists}">
                             <div class="col-1 text-center">${safeSession?.financialWeek?.weekNumber}</div>
                         </g:if>
-                        <div class="col-2 text-center"><g:renderSafeInfo safe="${safe}" /></div>
+                        <div class="col-2 text-center" style="word-break: break-word;"><g:renderSafeInfo safe="${safe}" /></div>
                         <div class="col-1 text-center">${safeSession.sessionNumber}</div>
                         <div class="col-2 text-center">
                             <g:formatStringDate date="${safeSession?.openTime}" inputFormat="yyyy-MM-dd HH:mm:ss" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
