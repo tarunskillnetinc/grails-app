@@ -1305,7 +1305,7 @@ class ProductController extends BaseController {
         builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
 
         builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
-        builder.compare("selType", product.selType?.id, editedProduct.selType?.id)
+        builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
         builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
