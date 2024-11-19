@@ -70,7 +70,12 @@
                             <g:formatStringDate date="${safeSession?.openTime}" inputFormat="yyyy-MM-dd HH:mm:ss" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
                         </div>
                         <div class="col-2 text-center">
-                            <g:formatStringDate date="${safeSession?.reconciledDate}" inputFormat="yyyy-MM-dd HH:mm" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
+                            <g:if test="${safeSession?.reReconciledDate}">
+                                <g:formatDate format="dd/MM/yyyy HH:mm" date="${safeSession.reReconciledDate.toDate()}" timeZone="Europe/London"/>
+                            </g:if>
+                            <g:elseif test="${safeSession?.reconciledDate}">
+                                <g:formatDate format="dd/MM/yyyy HH:mm" date="${safeSession.reconciledDate.toDate()}" timeZone="Europe/London"/>
+                            </g:elseif>
                         </div>
                         <div class="col-1 text-center">${safeSession.sessionStatus}</div>
 
