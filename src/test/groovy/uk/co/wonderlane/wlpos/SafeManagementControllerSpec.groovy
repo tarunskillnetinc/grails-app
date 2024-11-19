@@ -11,8 +11,4 @@ class SafeManagementControllerSpec extends Specification implements ControllerUn
     def cleanup() {
     }
 
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }
