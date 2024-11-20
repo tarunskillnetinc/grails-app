@@ -8,7 +8,7 @@
             <g:set var="reconciliationTotals" value="${isSafeSessionFinalizeMode ? safeSession.reconciliationTotals : safeSession.pendingReconciliationTotals}" />
 
             <div class="row">
-                <p class="mx-auto">${safeDescription} count reconciliation</p>
+                <p class="mx-auto"><strong>${safeDescription}</strong> count reconciliation</p>
             </div>
 
             <div class="row mt-3 mb-2 table-wl">
@@ -54,9 +54,22 @@
 
                     <g:if test="${reconciliationTotals.sum { it.variance } ?: 0 != 0}">
                         <div class="row pt-5 pb-2">
-                            <p id="safe-variance-message" class="mx-auto">You are about to declare a safe variance of
-                            <g:formatNumber number="${reconciliationTotals.sum { it.variance.abs() }}" type="currency" />.</p>
+                            <p id="safe-variance-message" class="mx-auto">
+                                You are about to declare a safe variance of
+                                <g:if test="${reconciliationTotals.sum { it.variance } < 0}">
+                                    <span style="font-weight: bold; color: red;">
+                                        <g:formatNumber number="${reconciliationTotals.sum { it.variance }}" type="currency" />
+                                    </span>
+                                </g:if>
+                                <g:else>
+                                    <span style="font-weight: bold; color: black;">
+                                        <g:formatNumber number="${reconciliationTotals.sum { it.variance }}" type="currency" />
+                                    </span>
+                                </g:else>
+                                .
+                            </p>
                         </div>
+
 
                         <g:if test="${reconciliationTotalsSum >  tillSafeSessionVarianceLimit}">
                             <g:if test="${varianceReasons.size() > 0}">

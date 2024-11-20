@@ -6,6 +6,11 @@
     <div class="row mt-3 mb-2">
         <g:if test="${safeSession}">
             <div class="col-12">
+
+                <div class="row">
+                    <p class="mx-auto"><strong>${safeDescription}</strong> count reconciliation</p>
+                </div>
+
                 <g:hiddenField name="safeSessionId" value="${safeSession.id}"/>
                 <div class="row cash-up-by">
                     <p class="mx-auto">
