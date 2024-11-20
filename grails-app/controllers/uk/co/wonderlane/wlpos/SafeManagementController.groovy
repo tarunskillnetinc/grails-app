@@ -77,7 +77,7 @@ class SafeManagementController {
                 render(template: "cashUpModal", model: [safeSession: safeSession, safeDescription: safeDescription])
             } else if (safeSession != null && !isRecount && !isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                 // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeDescription}.Already reconciled.")
+                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeDescription}. Already reconciled.")
             } else if (safeSession != null && isRecount && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
                 // Request is for recount but already recounted
                 render(status: 400, contentType: 'application/json', message: "Failed to recount safe ${safeDescription}. Already recounted.")
