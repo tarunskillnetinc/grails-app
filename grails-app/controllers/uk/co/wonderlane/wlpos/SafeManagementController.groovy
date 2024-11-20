@@ -126,6 +126,7 @@ class SafeManagementController {
                 safeManagementService.processSafeSessionDataSave(safeSessionSaveCommand, safeSession)
                 if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
                     //Add safe session finalise logic here
+                    //Redirect to ajaxGetSafeSessions to reload safe session view
                     return
                 }
                 def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
