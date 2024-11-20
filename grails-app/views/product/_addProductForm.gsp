@@ -78,7 +78,15 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="productImgUrl" class="col-3 col-form-label text-right pr-4">Image URL</label>
-                                <g:textField maxLength="255" name="productImgUrl" value="${product?.productImgUrl}" class="col-7 form-control bottom-border" required="true" />
+                                <g:textField
+                                        maxLength="255"
+                                        name="productImgUrl"
+                                        value="${product?.productImgUrl}"
+                                        class="col-7 form-control bottom-border"
+                                        required="true"
+                                        pattern="https?://.+"
+                                        title="Please enter a valid URL starting with http:// or https://"
+                                />
                             </div>
                         </div>
                     </div>
