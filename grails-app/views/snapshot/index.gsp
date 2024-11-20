@@ -45,7 +45,7 @@
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                         <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="shift" action="index"
-                        params="[startDate: shiftStartDate, endDate: shiftEndDate, tillId: shiftTillId]">Tills Shift Management</g:link></li>
+                        params="[startDate: shiftStartDate, endDate: shiftEndDate, tillId: shiftTillId]">Shift Management</g:link></li>
                         <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">Snapshot Viewer</li>
                     </ol>
                 </div>
