@@ -78,19 +78,19 @@ class SafeManagementController {
                 render(template: "cashUpModal", model: [safeSession: safeSession, safeDescription: safeDescription])
             } else if (safeSession != null && !isRecount && !isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                 // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe session. Already reconciled.")
+                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeDescription}.Already reconciled.")
             } else if (safeSession != null && isRecount && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
                 // Request is for recount but already recounted
-                render(status: 400, contentType: 'application/json', message: "Failed to recount safe session. Already recounted.")
+                render(status: 400, contentType: 'application/json', message: "Failed to recount safe ${safeDescription}. Already recounted.")
             } else if (safeSession != null && isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
                 // Request is for finalise but already finalised
-                render(status: 400, contentType: 'application/json', message: "Failed to finalise safe session. Already finalised.")
+                render(status: 400, contentType: 'application/json', message: "Failed to finalise safe ${safeDescription}. Already finalised.")
             } else {
-                render(status: 400, contentType: 'application/json', message: "Action failed.")
+                render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeDescription}.")
             }
         } catch (Exception ex) {
             log.error("Safe session cash detail loading error for safe session id: ${sessionId} error: ${ex.getMessage()}",  ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed.")
+            render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeDescription}.")
         }
     }
 
@@ -99,6 +99,7 @@ class SafeManagementController {
     def ajaxUpdateSafeSessionReconcileData(SafeSessionCashUpCommand safeSessionCashUpCommand) {
         try {
             def safeSession = safeManagementService.getSafeSession(safeSessionCashUpCommand.safeSessionId)
+            //This is called either in reconcile or recount flow in this case safe session status can be either OPEN or RECONCILED
             if (safeSession != null && (safeSession.getSessionStatus() == SafeSessionStatus.OPEN || safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED)) {
                 def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
                 safeManagementService.processSafeSessionPendingTenderSave(safeSessionCashUpCommand, safeSession)
@@ -111,7 +112,7 @@ class SafeManagementController {
             }
         } catch (Exception ex) {
             log.error("Safe sessions cash save error for safe session id: ${safeSessionCashUpCommand.safeSessionId} error: ${ex.getMessage()}", ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for safe session.")
+            render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionCashUpCommand.safeDescription}.")
         }
     }
 
@@ -133,19 +134,19 @@ class SafeManagementController {
                 render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons, safeDescription: safeSessionSaveCommand.safeDescription])
             } else if (safeSession != null && !safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                 // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe session. Already reconciled.")
+                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeSessionSaveCommand.safeDescription}. Already reconciled.")
             } else if (safeSession != null && safeSessionSaveCommand.isRecount && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
                 // Request is for recount but already recounted
-                render(status: 400, contentType: 'application/json', message: "Failed to recount safe session. Already recounted.")
+                render(status: 400, contentType: 'application/json', message: "Failed to recount safe ${safeSessionSaveCommand.safeDescription}. Already recounted.")
             } else if (safeSession != null && safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
                 // Request is for finalise but already finalised
-                render(status: 400, contentType: 'application/json', message: "Failed to finalise safe session. Already finalised.")
+                render(status: 400, contentType: 'application/json', message: "Failed to finalise safe ${safeSessionSaveCommand.safeDescription}. Already finalised.")
             } else {
-                render(status: 400, contentType: 'application/json', message: "Action failed for safe session.")
+                render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionSaveCommand.safeDescription}.")
             }
         } catch (Exception ex) {
             log.error("Safe session reconciliation error for session id: ${safeSessionSaveCommand.safeSessionId} error: ${ex.getMessage()}", ex)
-            render(status: 400, contentType: 'application/json', message: "Action failed for safe session.")
+            render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionSaveCommand.safeDescription}.")
         }
     }
 
