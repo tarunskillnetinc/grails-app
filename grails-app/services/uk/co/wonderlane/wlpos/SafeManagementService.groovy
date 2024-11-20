@@ -11,7 +11,6 @@ import uk.co.wonderlane.wlpos.entities.cash.SafeSessionAudit
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.SafeSessionStatus
 
-
 import java.sql.*
 
 @Transactional
@@ -55,7 +54,7 @@ class SafeManagementService extends MySqlPoolDal {
             saveSafeSessionStatement.setString(2, gsonProvider.gson.toJson(safeSession, SafeSession.class))
             saveSafeSessionStatement.executeUpdate()
             int sessionId = saveSafeSessionStatement.getInt(3)
-            safeSession.setId(sessionId) // Update the session object with the new ID
+            safeSession.setId(sessionId) // Update the safe session object with the new ID
             return sessionId
         } catch (Exception ex) {
             log.error("Error persisting safe session for retailer: ${safeSession.getRetailerId()} store: ${safeSession.getStoreId()} safeId: ${safeSession.getSafeId()} error: ${ex.getMessage()}", ex)
@@ -84,14 +83,22 @@ class SafeManagementService extends MySqlPoolDal {
         return safeSession;
     }
 
-    private getActiveSafeSession(Integer safeId) {
+    List<SafeSession> getActiveSafeSession(Integer safeId) {
         List<SafeSession> safeSessions = new ArrayList<>()
         Connection conn = getConnection()
         CallableStatement activeSafeSessionStatement = conn.prepareCall("{ call getActiveSafeSession(?, ?, ?) }")
         try {
             activeSafeSessionStatement.setInt(1, springSecurityService.principal.retailerId)
-            activeSafeSessionStatement.setInt(2, springSecurityService.principal.storeId)
-            activeSafeSessionStatement.setInt(3, safeId)
+            if (springSecurityService.principal.storeId != null) {
+                activeSafeSessionStatement.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                activeSafeSessionStatement.setNull(2, Types.INTEGER)
+            }
+            if (safeId != null) {
+                activeSafeSessionStatement.setInt(3, safeId)
+            } else {
+                activeSafeSessionStatement.setNull(3, Types.INTEGER)
+            }
             ResultSet rs = activeSafeSessionStatement.executeQuery()
             try {
                 while (rs.next()) {
