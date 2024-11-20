@@ -10,9 +10,10 @@
 
 
 <div style="display: flex;">
-    <div style="width: 50px;" class="table-wl bottom-border"></div>
     <div style="flex-grow: 1;">
-        <div class="row mt-5 pb-2 ml-0 mr-0 table-wl bottom-border">
+        <div class="row ml-0 mr-0 pt-2 pb-2 table-wl bottom-border">
+            <div style="width: 50px; display: flex; justify-content: center; align-items: center;">
+            </div>
             <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "itemCode" }?.enabled}">
                 <div class="col-1 font-weight-bold">Item Code</div>
             </g:if>
@@ -61,8 +62,7 @@
     </g:if>
 
     <g:each in="${products}" var="product" status="i">
-        <div style="display: flex;">
-
+        <div style="flex-grow: 1;">
             <div style="flex-grow: 1;">
                 <div id="product-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;" onclick="document.location.href='${createLink(action:'show', id: product.id)}';">
                     <div style="width: 50px; display: flex; justify-content: center; align-items: center;">
@@ -74,7 +74,7 @@
                         <div id="product-result-${i+1}-item-code" class="col-1 text-truncate">${product.itemCode}</div>
                     </g:if>
                     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "description" }?.enabled}">
-                        <div id="product-result-${i+1}-description" class="col">${product.description}</div>
+                        <div id="product-result-${i+1}-description" class="col ml-0">${product.description}</div>
                     </g:if>
                     <g:if test="${!userColumns || userColumns?.columns?.find { it.column == "unitSize" }?.enabled}">
                         <div id="product-result-${i+1}-unit-size" class="col-1">${product.unitSize}</div>
