@@ -16,7 +16,6 @@ class SafeManagementController {
         if (!springSecurityService.principal.storeId) {
             flash.error = "You do not have access to this page."
             redirect(uri: "/")
-            return
         }
     }
 
