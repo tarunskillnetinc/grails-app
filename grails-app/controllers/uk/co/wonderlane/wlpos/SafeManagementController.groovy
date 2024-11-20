@@ -69,7 +69,7 @@ class SafeManagementController {
             // 3. If it is RECOUNT or FINALISED request -> Session status must be RECONCILED
             if (safeSession != null && ((!isRecount && !isFinalise && safeSession.getSessionStatus() == SafeSessionStatus.OPEN) || ((isRecount || isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
                 if (safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED && isFinalise) { // If the safe request is finalise show summary modal
-                    def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
+                    def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
                     render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons,
                                                                    safeDescription: safeDescription])
                     return
