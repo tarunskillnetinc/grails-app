@@ -45,7 +45,7 @@ function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescri
             },
             error: function (resp){
                 var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                    resp.responseJSON.message : "Action failed for safe session Id: " + sessionId;
+                    resp.responseJSON.message : "Action failed for safe: " + safeDescription;
                 $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
             }
         });
@@ -84,7 +84,7 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
             }
             $('body').removeClass('modal-open');
             var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                resp.responseJSON.message : "Action failed for sessionId: " + safeSessionId;
+                resp.responseJSON.message : "Action failed for safe: " + safeDescription;
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         }
     });
