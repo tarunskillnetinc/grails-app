@@ -133,7 +133,7 @@ class CashManagementController {
         } else {
             cashManagementService.saveCashManagement(cashManagementFormData.toConfig(), cashManagementFormData.storeId)
 
-            flash.message = ["Configurations saved successfully."]
+            flash.message = ["Configuration saved successfully."]
             redirect(action: "index", params:[onlyRetailerLevel:cashManagementFormData.modelOnlyRetailerLevel,storeLevelExist:cashManagementFormData.storeId != null, storeId:cashManagementFormData.storeId, isStoreLevelLogin:cashManagementFormData.modelIsStoreLevelLogin])
         }
     }
