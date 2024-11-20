@@ -41,7 +41,12 @@ class Product {
     BigDecimal retailPrice
     BigDecimal costPrice
 
+    String selDescription
+    SelType selType
+    String productImgUrl
+
     static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant ]
+    static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
 
@@ -73,6 +78,9 @@ class Product {
         retailerProductId column: "retailerProductId"
         stockSale column: "stockSale", sqlType: "enum", enumType: "string"
         variants cascade: "save-update,delete"
+        selDescription column: "selDescription"
+        selType column: "selType"
+        productImgUrl column: "productImgUrl"
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
@@ -110,6 +118,9 @@ class Product {
 //            return noError ? true : ["error.Product.badVariants"]
             return true
         }
+        selDescription nullable: true, blank: true
+        selType nullable: true
+        productImgUrl nullable: true, blank: true, url: true
     }
 
     List<RangeProduct> getRanges() {
@@ -262,6 +273,13 @@ class Product {
         }
         product.setRetailerItemId(retailerProductId)
         product.setLocal(false)
+
+        product.setSelDescription(selDescription)
+        uk.co.wonderlane.wlpos.entities.SelType selTypeCommon = new uk.co.wonderlane.wlpos.entities.SelType();
+        selTypeCommon.setId(selType?.id)
+        selTypeCommon.setName(selType?.name)
+        product.setSelType(selTypeCommon)
+        product.setProductImgUrl(productImgUrl)
 
         return product
     }

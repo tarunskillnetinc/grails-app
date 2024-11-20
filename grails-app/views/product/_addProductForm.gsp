@@ -39,25 +39,54 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="description" class="col-3 col-form-label text-right pr-4">Description</label>
-                                <g:textField maxLength="100" name="description" class="col-9 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
+                                <g:textField maxLength="100" name="description" class="col-5 form-control bottom-border add-product-desc" value="${product?.description}" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="receiptDescription" class="col-3 col-form-label text-right pr-4">Receipt Description</label>
                                 <g:textField maxLength="50" name="receiptDescription" value="${product?.receiptDescription}" class="col-5 form-control bottom-border add-product-receiptDesc" required="true" />
                             </div>
                             <div class="row form-group mb-3">
+                                <label for="selDescription" class="col-3 col-form-label text-right pr-4">SEL Description</label>
+                                <g:textField maxLength="50" name="selDescription" value="${product?.selDescription}" class="col-5 form-control bottom-border" required="true" />
+                            </div>
+                            <div class="row form-group mb-3">
+                                <label for="selType" class="col-3 col-form-label text-right pr-4">SEL type</label>
+                                <g:select name="selType"
+                                          class="col-3 form-control select-border"
+                                          from="${selTypeValues}"
+                                          optionKey="id"
+                                          optionValue="name"
+                                          value="${product?.selType?.id}"/>
+                            </div>
+                            <div class="row form-group mb-3">
                                 <label for="unitSize" class="col-3 col-form-label text-right pr-4">Unit Size</label>
-                                <g:textField maxLength="50" name="unitSize" class="col-3 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
+                                <g:textField maxLength="50" name="unitSize" class="col-5 form-control bottom-border" value="${product?.unitSize ?: 'EACH'}"/>
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
                             <div class="row form-group">
+                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
+                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
+                            </div>
+                            <div class="row form-group">
                                 <span class="col-lg-3 col-form-label text-right pr-4">Category</span>
 
-                                <div class="col-lg-9 pt-2">
+                                <div class="col-lg-7 pt-2">
                                     <g:render template="categorySelect" model="[categories: categoryValues, productCategoryList: productCategoryList, selectedCategoryId: product?.category?.id, level: 1, triggerOnCategoryChange: true]" />
                                 </div>
+                            </div>
+                            <div class="row form-group mb-3">
+                                <label for="productImgUrl" class="col-3 col-form-label text-right pr-4">Image URL</label>
+                                <g:textField
+                                        maxLength="255"
+                                        name="productImgUrl"
+                                        value="${product?.productImgUrl}"
+                                        class="col-7 form-control bottom-border"
+                                        required="true"
+                                        pattern="https?://.+"
+                                        title="Please enter a valid URL starting with http:// or https://"
+                                />
                             </div>
                         </div>
                     </div>
@@ -190,10 +219,6 @@
                                 </div>
                             </div>
 
-                            <div class="row mt-1 form-group">
-                                <label for="status" class="col-3 col-form-label text-right pr-4">Status</label>
-                                <g:select name="status" class="col-3 form-control select-border" from="${statusValues}" value="${product?.status}" valueMessagePrefix="ProductStatus" />
-                            </div>
                             <div class="row mt-1 form-group form-check pl-0">
                                 <label for="deliItem" class="col-3 col-form-label text-right pr-4">Deli Item</label>
                                 <g:checkBox name="deliItem" class="col-1 form-check-input wl-checkbox" checked="${product?.deliItem}" disabled="${product?.openPrice || product?.zeroPrice}" />

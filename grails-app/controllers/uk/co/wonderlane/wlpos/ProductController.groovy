@@ -56,6 +56,7 @@ class ProductController extends BaseController {
         def ranges = []
         def priceBands = []
         def productCategoryList = []
+        def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
         def category = product.category
 
         while (category) {
@@ -76,6 +77,7 @@ class ProductController extends BaseController {
         render(view: "add", model: [product            : product,
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
+                                    selTypeValues      : selTypeValues,
                                     categoryValues     : categoryService.getTopLevelCategories(),
                                     productCategoryList: productCategoryList,
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
@@ -112,6 +114,7 @@ class ProductController extends BaseController {
 
         def ranges = []
         def priceBands = []
+        def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
         def userRoles = springSecurityService.principal.authorities*.authority
 
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
@@ -124,6 +127,7 @@ class ProductController extends BaseController {
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
+                                    selTypeValues   : selTypeValues,
                                     categoryValues  : categoryService.getTopLevelCategories(),
                                     vatValues       : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges          : ranges,
@@ -534,6 +538,9 @@ class ProductController extends BaseController {
             product.status = editedProduct.status
             product.retailerProductId = editedProduct.retailerProductId
             product.stockSale = editedProduct.stockSale
+            product.selType = editedProduct.selType
+            product.selDescription = editedProduct.selDescription
+            product.productImgUrl = editedProduct.productImgUrl
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -711,6 +718,7 @@ class ProductController extends BaseController {
 
             def ranges = []
             def priceBands = []
+            def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
             def editedPrices = []
 
             def userRoles = springSecurityService.principal.authorities*.authority
@@ -730,6 +738,7 @@ class ProductController extends BaseController {
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
+                                        selTypeValues      : selTypeValues,
                                         categoryValues     : topLevelCategories,
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
@@ -1292,6 +1301,12 @@ class ProductController extends BaseController {
         builder.compare("vatPercentageOverride", product.vatPercentageOverride == null ? BigDecimal.ZERO.setScale(2) : product.vatPercentageOverride, editedProduct.vatPercentageOverride)
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
+
+        builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
+
+        builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
+        builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
+        builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
@@ -2100,6 +2115,9 @@ class ProductCommand {
     String retailerProductId
     DateTime effectiveDate
     StockSale stockSale
+    String selDescription
+    SelType selType
+    String productImgUrl
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.

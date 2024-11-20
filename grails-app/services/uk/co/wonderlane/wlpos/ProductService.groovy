@@ -4,6 +4,8 @@ import grails.gorm.transactions.Transactional
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.hibernate.criterion.Projections
+import org.hibernate.transform.AliasToBeanResultTransformer
+import org.hibernate.transform.AliasedTupleSubsetResultTransformer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
@@ -463,6 +465,7 @@ class ProductService extends MySqlDal {
             // Store level.
             searchQuery += """LEFT JOIN RangeProduct rp ON p.id = rp.productId AND rp.range = :range """
         }
+        searchQuery += """LEFT JOIN SelType st ON p.selType = st.id """
 
         searchQuery += """WHERE p.retailerId = :retailerId """
 
@@ -874,5 +877,24 @@ class ProductService extends MySqlDal {
         productVariant.setEffectiveDate(new DateTime(resultSet.getTimestamp("effectiveDate"), DateTimeZone.UTC))
 
         return productVariant
+    }
+
+    def getRetailerSelTypes(Long retailerId) {
+        def session = sessionFactory.currentSession
+        def query = session.createNativeQuery("CALL getRetailerSelTypes(:retailerId)")
+        query.setParameter("retailerId", retailerId)
+
+        def rawResults = query.list()
+
+        def results = rawResults.collect { row ->
+            println "Row: ${row}"
+            def selType = new SelType()
+            selType.id = row[0] as Integer
+            selType.name = row[1] as String
+            selType.retailerId = retailerId
+            return selType
+        }
+
+        return results.sort { it.id }
     }
 }
