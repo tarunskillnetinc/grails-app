@@ -18,6 +18,7 @@ import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
+import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.StockSale
@@ -1235,6 +1236,11 @@ class ProductController extends BaseController {
                 || newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice
                 || newPack.status != existingPack.status
                 || newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
+                || newPack.priceMarked != existingPack.priceMarked
+                || newPack.priceMarkedType != existingPack.priceMarkedType
+                || newPack.priceMarkedValue != existingPack.priceMarkedValue
+                || newPack.minAlcoholUnitPrice != existingPack.minAlcoholUnitPrice
+                || newPack.weightedAverageCost != existingPack.weightedAverageCost
     }
 
     def locationChanged(def newLocation, def existingLocation) {
@@ -1262,6 +1268,11 @@ class ProductController extends BaseController {
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
         packToBeUpdated.primaryCase = editedPack.primaryCase
+        packToBeUpdated.priceMarked = editedPack.priceMarked
+        packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
+        packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
+        packToBeUpdated.minAlcoholUnitPrice = editedPack.minAlcoholUnitPrice
+        packToBeUpdated.weightedAverageCost = editedPack.weightedAverageCost
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -2006,6 +2017,11 @@ class AddPackCommand implements Validateable {
     boolean isWeighted = false
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
+    BigDecimal minAlcoholUnitPrice
+    BigDecimal weightedAverageCost
+    boolean priceMarked
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack
@@ -2013,6 +2029,7 @@ class AddPackCommand implements Validateable {
         productVariantId nullable: true
         allowSubstitutes nullable: true
         primaryCase nullable: true
+        priceMarkedType nullable: false, blank: false
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2031,6 +2048,17 @@ class AddPackCommand implements Validateable {
         }
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
+        }
+        minAlcoholUnitPrice nullable: true, blank: true,validator: {
+            if (it >= 1.0E9) return ['addPackCommand.minAlcoholUnitPrice.max']
+        }
+        weightedAverageCost validator: {
+            if (BigDecimal.ZERO == it) return ['addPackCommand.weightedAverageCost.zero']
+            if (it >= 1.0E9) return ['addPackCommand.weightedAverageCost.max']
+        }
+        priceMarkedValue nullable: false, blank: false,validator: {
+            if (BigDecimal.ZERO == it) return ['addPackCommand.priceMarkedValue.zero']
+            if (it >= 1.0E9) return ['addPackCommand.priceMarkedValue.max']
         }
     }
 
@@ -2193,6 +2221,11 @@ class PackCommand {
     Integer maximumOrderQuantity
     boolean allowSubstitutes
     boolean primaryCase
+    BigDecimal minAlcoholUnitPrice
+    BigDecimal weightedAverageCost
+    boolean priceMarked
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack

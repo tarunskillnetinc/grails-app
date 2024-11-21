@@ -68,7 +68,7 @@ dependencies {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
-    implementation 'uk.co.wonderlane.wlpos:Common:1.15.58.STMP-SNAPSHOT'
+    implementation 'uk.co.wonderlane.wlpos:Common:1.15.59.STMP-SNAPSHOT'
 
     implementation "org.grails:grails-core"
     implementation ("org.springframework.boot:spring-boot-starter-actuator")

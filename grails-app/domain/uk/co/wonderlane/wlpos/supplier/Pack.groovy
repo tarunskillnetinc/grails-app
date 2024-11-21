@@ -7,6 +7,7 @@ import uk.co.wonderlane.wlpos.Barcode
 import uk.co.wonderlane.wlpos.ProductVariant
 import uk.co.wonderlane.wlpos.entities.wlim.PackLine
 import uk.co.wonderlane.wlpos.enums.PackStatus
+import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 
 import java.util.stream.Collectors
 
@@ -31,6 +32,10 @@ class Pack implements Serializable {
     boolean primaryCase
     DateTime updateDatetime
     Collection<Barcode> barcodez = new ArrayList<>()
+    BigDecimal minAlcoholUnitPrice
+    BigDecimal weightedAverageCost
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static transients = ['barcodez']
 
@@ -56,6 +61,10 @@ class Pack implements Serializable {
         priceMarked column: "priceMarked"
         updateDatetime column: "updateDatetime"
         primaryCase column: "primaryCase"
+        minAlcoholUnitPrice column: "minAlcoholUnitPrice"
+        weightedAverageCost column: "weightedAverageCost"
+        priceMarkedType column: "priceMarkedType", sqlType: "enum", enumType: "string"
+        priceMarkedValue column: "priceMarkedValue"
     }
 
     int getQuantity(def packLines) {
@@ -84,6 +93,10 @@ class Pack implements Serializable {
         primaryCase nullable: false
         updateDatetime nullable: false
         barcodez bindable: true
+        priceMarkedType nullable: false
+        minAlcoholUnitPrice nullable: true, blank: true, max: 999999.99 as BigDecimal, scale: 2
+        weightedAverageCost nullable: false, max: 999999.99 as BigDecimal, scale: 2
+        priceMarkedValue nullable: false, max: 999999.99 as BigDecimal, scale: 2
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Pack getPack() {
@@ -104,7 +117,10 @@ class Pack implements Serializable {
         pack.setPriceMarked(priceMarked)
         pack.setPrimaryCase(primaryCase)
         pack.setUpdateDate(updateDatetime)
-
+        pack.setMinAlcoholUnitPrice(minAlcoholUnitPrice)
+        pack.setWeightedAverageCost(weightedAverageCost)
+        pack.setPriceMarkedType(priceMarkedType)
+        pack.setPriceMarkedValue(priceMarkedValue)
         getBarcodes()?.each {
             pack.getBarcodes().add(it.barcode)
         }
