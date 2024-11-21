@@ -1239,8 +1239,6 @@ class ProductController extends BaseController {
                 || newPack.priceMarked != existingPack.priceMarked
                 || newPack.priceMarkedType != existingPack.priceMarkedType
                 || newPack.priceMarkedValue != existingPack.priceMarkedValue
-                || newPack.minAlcoholUnitPrice != existingPack.minAlcoholUnitPrice
-                || newPack.weightedAverageCost != existingPack.weightedAverageCost
     }
 
     def locationChanged(def newLocation, def existingLocation) {
@@ -1271,8 +1269,6 @@ class ProductController extends BaseController {
         packToBeUpdated.priceMarked = editedPack.priceMarked
         packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
         packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
-        packToBeUpdated.minAlcoholUnitPrice = editedPack.minAlcoholUnitPrice
-        packToBeUpdated.weightedAverageCost = editedPack.weightedAverageCost
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1450,8 +1446,6 @@ class ProductController extends BaseController {
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
         builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
-        builder.compare("packMinAlcoholUnitPrice", oldPack.minAlcoholUnitPrice, pack.minAlcoholUnitPrice)
-        builder.compare("packWeightedAverageCost", oldPack.weightedAverageCost, pack.weightedAverageCost)
         builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
         builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
     }
@@ -2053,13 +2047,6 @@ class AddPackCommand implements Validateable {
         }
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
-        }
-        minAlcoholUnitPrice nullable: true, blank: true,validator: {
-            if (it >= 1.0E9) return ['addPackCommand.minAlcoholUnitPrice.max']
-        }
-        weightedAverageCost validator: {
-            if (BigDecimal.ZERO == it) return ['addPackCommand.weightedAverageCost.zero']
-            if (it >= 1.0E9) return ['addPackCommand.weightedAverageCost.max']
         }
         priceMarkedValue nullable: false, blank: false,validator: {
             if (BigDecimal.ZERO == it) return ['addPackCommand.priceMarkedValue.zero']

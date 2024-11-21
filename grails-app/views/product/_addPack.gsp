@@ -31,101 +31,99 @@
         <g:hiddenField name="addPack[${packIndex}].supplier.id" value="${pack?.supplier?.id}" />
     </g:if>
 
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">Supplier</div>
+        <div class="col-4 my-auto font-weight-bold">Pack Quantity</div>
+        <div class="col-4 my-auto font-weight-bold">Maximum Order Quantity</div>
+    </div>
+
     <div class="row mx-4 pt-2 wl-striped${packIndex % 2}">
-        <div class="col-3 my-auto">
+        <div class="col-4 my-auto">
             <g:if test="${!pack?.supplier?.symbolGroupId}">
                 <g:select name="addPack[${packIndex}].supplier.id" from="${suppliers}" value="${pack?.supplier?.id}" optionKey="id" optionValue="name" class="form-control select-border" noSelection="${['' : 'Please select']}" onchange="addPackSupplierChanged(${packIndex});" />
             </g:if>
         </div>
-        <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control bottom-border" maxlength="10" onkeydown="acceptQuantity(event, isWeightedItem())" oninput="validateQuantity(this, 0, Math.pow(2, 31) -1, isWeightedItem())" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;"/>
+        <div class="col-4 my-auto">
+            <g:textField name="addPack[${packIndex}].quantity" value="${pack?.quantity}" class="form-control select-border" maxlength="10" onkeydown="acceptQuantity(event, isWeightedItem())" oninput="validateQuantity(this, 0, Math.pow(2, 31) -1, isWeightedItem())" ondrop="return false;" onpaste="return false;" oncontextmenu="return false;"/>
         </div>
-        <div class="input-group col-2 my-auto">
-            <div class="input-group-prepend">
-                <span class="input-group-text">&pound;</span>
-            </div>
-            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" maxlength="7" />
-        </div>
-        <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control bottom-border" maxlength="20" onkeypress="return preventNegativeInteger(event);" />
+        <div class="col-4 my-auto">
+            <g:textField name="addPack[${packIndex}].maximumOrderQuantity" maxlength="5"
+                         value="${pack?.maximumOrderQuantity}" class="form-control select-border" min="0"
+                         onkeypress="return preventNegativeInteger(event);" ondrop="return false;"
+                         onpaste="return false;" oncontextmenu="return false;"/>
         </div>
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-3 my-auto font-weight-bold">Status</div>
-        <div class="col-2 my-auto font-weight-bold">Recommended Retail Price</div>
-        <div class="col-2 my-auto font-weight-bold">Maximum Order Quantity</div>
-        <div class="col-2 my-auto font-weight-bold">Min Alcohol Unit Price</div>
-        <div class="col-3 my-auto font-weight-bold">Weighted Average Cost</div>
+        <div class="col-4 my-auto font-weight-bold">Order Code</div>
+        <div class="col-4 my-auto font-weight-bold">Recommended Retail Price</div>
+        <div class="col-4 my-auto font-weight-bold">Cost Price</div>
     </div>
 
     <div class="row mx-4 pt-4 pb-2 wl-striped${packIndex % 2}">
-        <div class="col-3 my-auto">
-            <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}"
-                      valueMessagePrefix="PackStatus" class="form-control select-border"/>
+        <div class="col-4 my-auto">
+            <g:textField name="addPack[${packIndex}].orderCode" value="${pack?.orderCode}" class="form-control select-border" maxlength="20" onkeypress="return preventNegativeInteger(event);" />
         </div>
-
-        <div class="input-group col-2 my-auto">
+        <div class="input-group col-4 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
             <g:textField name="addPack[${packIndex}].recommendedRetailPrice" value="${pack?.recommendedRetailPrice}"
                          class="form-control mask-money" maxlength="7"/>
         </div>
-
-        <div class="col-2 my-auto">
-            <g:textField name="addPack[${packIndex}].maximumOrderQuantity" maxlength="5"
-                         value="${pack?.maximumOrderQuantity}" class="form-control select-border" min="0"
-                         onkeypress="return preventNegativeInteger(event);" ondrop="return false;"
-                         onpaste="return false;" oncontextmenu="return false;"/>
-        </div>
-        <div class="input-group col-2 my-auto">
+        <div class="input-group col-4 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
-            <g:textField name="addPack[${packIndex}].minAlcoholUnitPrice" value="${pack?.minAlcoholUnitPrice}"
-                         class="form-control mask-money" maxlength="10"/>
-        </div>
-
-        <div class="input-group col-2 my-auto">
-            <div class="input-group-prepend">
-                <span class="input-group-text">&pound;</span>
-            </div>
-            <g:textField name="addPack[${packIndex}].weightedAverageCost" value="${pack?.weightedAverageCost}"
-                         class="form-control mask-money" maxlength="10"/>
+            <g:textField name="addPack[${packIndex}].price" value="${pack?.price}" class="form-control mask-money" maxlength="7" />
         </div>
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
-        <div class="col-3 my-auto font-weight-bold">Barcodes</div>
-        <div class="col-2 my-auto font-weight-bold">Preferred Pack</div>
-        <div class="col-2 my-auto font-weight-bold">Price Marked Pack</div>
-        <div class="col-2 my-auto font-weight-bold">Price Marked Type</div>
-        <div class="col-3 my-auto font-weight-bold">Price Marked Value</div>
+        <div class="col-4 my-auto font-weight-bold">Min Alcohol Unit Price</div>
+        <div class="col-4 my-auto font-weight-bold">Weighted Average Cost</div>
+        <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
+    </div>
+
+    <div class="row mx-4 pt-4 pb-2 wl-striped${packIndex % 2}">
+        <div class="input-group col-4 my-auto">
+            <div class="input-group-prepend">
+                <span class="input-group-text">&pound;</span>
+            </div>
+            <g:textField value="${pack?.minAlcoholUnitPrice?pack?.minAlcoholUnitPrice:""}"
+                         class="form-control mask-money" name="addPack[${packIndex}].minAlcoholUnitPrice" maxlength="10" disabled="true"/>
+        </div>
+
+        <div class="input-group col-4 my-auto">
+            <div class="input-group-prepend">
+                <span class="input-group-text">&pound;</span>
+            </div>
+            <g:textField value="${pack?.weightedAverageCost?pack?.weightedAverageCost:""}"
+                         class="form-control mask-money" name="addPack[${packIndex}].weightedAverageCost" maxlength="10" disabled="true"/>
+        </div>
+        <div id="setPreferred${packIndex}" class="col-4 mr-0 d-flex align-items-center">
+            <div class="form-check form-check-inline">
+                <g:checkBox name="addPack[${packIndex}].primaryCaseValue" class="form-check-input wl-checkbox" checked="${pack?.primaryCase}" id="preferredPack${packIndex}" />
+                <label class="form-check-label font-weight-bold" for="preferredPack${packIndex}">Preferred Pack</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
+        <div class="col-4 my-auto font-weight-bold">Price Marked Type</div>
+        <div class="col-4 my-auto font-weight-bold">Price Marked Value</div>
     </div>
 
     <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
-        <div id="addBarcodesContainer${packIndex}" class="col-3 mr-0">
-            <g:if test="${pack?.barcodez?.empty}">
-                <div id="addBarcode0" class="input-group py-1">
-                    <g:render template="addBarcode" model="[index: 0, barcode: null, selector: '#addBarcodesContainer' + packIndex]"/>
-                </div>
-            </g:if>
 
-            <g:each in="${pack?.barcodez}" var="barcode" status="i">
-                <div id="addBarcode${i}" class="input-group py-1">
-                    <g:render template="addBarcode" model="[index: i, barcode: barcode, selector: '#addBarcodesContainer' + packIndex]"/>
-                </div>
-            </g:each>
+        <div id="setPriceMarked${packIndex}" class="col-4 mr-0 d-flex align-items-center">
+            <div class="form-check form-check-inline">
+                <g:checkBox name="addPack[${packIndex}].priceMarked" class="form-check-input wl-checkbox" checked="${pack?.priceMarked}" id="priceMarked${packIndex}" />
+                <label class="form-check-label font-weight-bold" for="priceMarked${packIndex}">Price Marked Pack</label>
+            </div>
         </div>
-
-        <div id="setPreferred${packIndex}" class="col-2 mr-0">
-            <g:checkBox name="addPack[${packIndex}].primaryCaseValue" class="col-1 form-check-input wl-checkbox" checked="${pack?.primaryCase}" />
-        </div>
-        <div id="setPriceMarked${packIndex}" class="col-2 mr-0">
-            <g:checkBox name="addPack[${packIndex}].priceMarked" class="col-1 form-check-input wl-checkbox" checked="${pack?.priceMarked}" />
-        </div>
-        <div class="col-2 mr-0">
+        <div class="col-4 mr-0 d-flex align-items-center">
             <g:hiddenField name="addPack[${packIndex}].priceMarkedType" class="form-control" id="addPack[${packIndex}].priceMarkedType"  value="${pack?.priceMarkedType?.name() ?: 'VALUE'}" valueMessagePrefix="PriceMarkedType"/>
             <div class="d-flex justify-content-start">
                 <div class="form-check d-flex align-items-center mr-3">
@@ -138,12 +136,37 @@
                 </div>
             </div>
         </div>
-        <div class="input-group col-3 my-auto">
+        <div class="input-group col-4 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
             <g:textField name="addPack[${packIndex}].priceMarkedValue" value="${pack?.priceMarkedValue}"
                          class="form-control mask-money" maxlength="10"/>
+        </div>
+    </div>
+
+    <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">Barcodes</div>
+        <div class="col-4 my-auto font-weight-bold">Status</div>
+    </div>
+
+    <div class="row mx-4 py-2 wl-striped${packIndex % 2}">
+        <div id="addBarcodesContainer${packIndex}" class="col-4 mr-0">
+            <g:if test="${pack?.barcodez?.empty}">
+                <div id="addBarcode0" class="input-group py-1">
+                    <g:render template="addBarcode" model="[index: 0, barcode: null, selector: '#addBarcodesContainer' + packIndex]"/>
+                </div>
+            </g:if>
+
+            <g:each in="${pack?.barcodez}" var="barcode" status="i">
+                <div id="addBarcode${i}" class="input-group py-1">
+                    <g:render template="addBarcode" model="[index: i, barcode: barcode, selector: '#addBarcodesContainer' + packIndex]"/>
+                </div>
+            </g:each>
+        </div>
+        <div class="col-4">
+            <g:select name="addPack[${packIndex}].status" from="${statuses}" value="${pack?.status ?: 'ACTIVE'}"
+                      valueMessagePrefix="PackStatus" class="form-control select-border"/>
         </div>
     </div>
 

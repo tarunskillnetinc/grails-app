@@ -93,10 +93,10 @@ class Pack implements Serializable {
         primaryCase nullable: false
         updateDatetime nullable: false
         barcodez bindable: true
-        priceMarkedType nullable: false
+        priceMarkedType nullable: true
         minAlcoholUnitPrice nullable: true, blank: true, max: 999999.99 as BigDecimal, scale: 2
-        weightedAverageCost nullable: false, max: 999999.99 as BigDecimal, scale: 2
-        priceMarkedValue nullable: false, max: 999999.99 as BigDecimal, scale: 2
+        weightedAverageCost nullable: true, max: 999999.99 as BigDecimal, scale: 2
+        priceMarkedValue nullable: true, max: 999999.99 as BigDecimal, scale: 2
     }
 
     public uk.co.wonderlane.wlpos.entities.supplier.Pack getPack() {

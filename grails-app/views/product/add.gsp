@@ -359,8 +359,6 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
-                    params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
-                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
                     params["packs[" +loopIndex +"].priceMarkedValue"] = $(packSelector +"\\.priceMarkedValue").val();
                     params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
                     params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
@@ -619,8 +617,6 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
-                    params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
-                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
                     params["packs[" +loopIndex +"].priceMarkedValue"] = $(packSelector +"\\.priceMarkedValue").val();
                     params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
                     params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
@@ -804,8 +800,6 @@
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCaseValue").prop("checked");
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
-                    params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
-                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
                     params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
                     params["packs[" +loopIndex +"].priceMarkedValue"] = $(packSelector +"\\.priceMarkedValue").val();
                     params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").prop("checked");
