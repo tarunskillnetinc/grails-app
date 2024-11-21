@@ -1449,6 +1449,11 @@ class ProductController extends BaseController {
         builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
+        builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
+        builder.compare("packMinAlcoholUnitPrice", oldPack.minAlcoholUnitPrice, pack.minAlcoholUnitPrice)
+        builder.compare("packWeightedAverageCost", oldPack.weightedAverageCost, pack.weightedAverageCost)
+        builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
+        builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
     }
 
     void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
