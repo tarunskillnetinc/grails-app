@@ -822,6 +822,7 @@ class ShiftService extends MySqlPoolDal {
                 safeSession.tenderTotals.add(expected)
             }
             expected.value = expected.value.add(amount)
+            expected.quantity = expected.quantity + 1
         }
     }
 
