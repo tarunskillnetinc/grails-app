@@ -1267,8 +1267,10 @@ class ProductController extends BaseController {
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
         packToBeUpdated.primaryCase = editedPack.primaryCase
         packToBeUpdated.priceMarked = editedPack.priceMarked
-        packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
-        packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
+        if (editedPack.priceMarked) {
+            packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
+            packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
+        }
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -2018,7 +2020,7 @@ class AddPackCommand implements Validateable {
     List<AddBarcodeCommand> barcodez
     BigDecimal minAlcoholUnitPrice
     BigDecimal weightedAverageCost
-    boolean priceMarked
+    boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
 
@@ -2028,7 +2030,7 @@ class AddPackCommand implements Validateable {
         productVariantId nullable: true
         allowSubstitutes nullable: true
         primaryCase nullable: true
-        priceMarkedType nullable: false, blank: false
+        priceMarked nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2048,9 +2050,17 @@ class AddPackCommand implements Validateable {
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
         }
-        priceMarkedValue nullable: false, blank: false,validator: {
-            if (BigDecimal.ZERO == it) return ['addPackCommand.priceMarkedValue.zero']
-            if (it >= 1.0E9) return ['addPackCommand.priceMarkedValue.max']
+        priceMarkedValue nullable: true, blank: true,validator: {val, obj ->
+            if (obj.priceMarked) {
+                if (val == null) return ['addPackCommand.priceMarkedValue.nullable']
+                if (BigDecimal.ZERO == val) return ['addPackCommand.priceMarkedValue.zero']
+                if (val >= 1.0E9) return ['addPackCommand.priceMarkedValue.max']
+            }
+        }
+        priceMarkedType nullable: true, blank: true, validator: {val, obj ->
+            if (obj.priceMarked) {
+                if (val == null) return ['addPackCommand.priceMarkedType.nullable']
+            }
         }
     }
 
@@ -2212,10 +2222,8 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
-    boolean primaryCase
-    BigDecimal minAlcoholUnitPrice
-    BigDecimal weightedAverageCost
-    boolean priceMarked
+    boolean primaryCase = false
+    boolean priceMarked = false
     PriceMarkedType priceMarkedType
     BigDecimal priceMarkedValue
 

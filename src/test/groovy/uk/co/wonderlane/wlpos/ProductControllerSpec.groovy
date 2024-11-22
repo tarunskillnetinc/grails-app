@@ -1143,8 +1143,6 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
             packCommand.priceMarked = it.priceMarked
             packCommand.priceMarkedType = it.priceMarkedType
             packCommand.priceMarkedValue = it.priceMarkedValue
-            packCommand.minAlcoholUnitPrice = it.minAlcoholUnitPrice
-            packCommand.weightedAverageCost = it.weightedAverageCost
             packs.add(packCommand)
         }
         variantCmd.packs.addAll(packs)

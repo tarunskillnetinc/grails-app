@@ -80,18 +80,24 @@
     </div>
 
     <div class="row mx-4 pt-4 wl-striped${packIndex % 2}">
+        <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
         <div class="col-4 my-auto font-weight-bold">Min Alcohol Unit Price</div>
         <div class="col-4 my-auto font-weight-bold">Weighted Average Cost</div>
-        <div class="col-4 my-auto font-weight-bold">&nbsp;</div>
     </div>
 
     <div class="row mx-4 pt-4 pb-2 wl-striped${packIndex % 2}">
+        <div id="setPreferred${packIndex}" class="col-4 mr-0 d-flex align-items-center">
+            <div class="form-check form-check-inline">
+                <g:checkBox name="addPack[${packIndex}].primaryCaseValue" id="addPack[${packIndex}].primaryCaseValue" class="form-check-input wl-checkbox" checked="${pack?.primaryCase}" />
+                <label class="form-check-label font-weight-bold">Preferred Pack</label>
+            </div>
+        </div>
         <div class="input-group col-4 my-auto">
             <div class="input-group-prepend">
                 <span class="input-group-text">&pound;</span>
             </div>
             <g:textField value="${pack?.minAlcoholUnitPrice?pack?.minAlcoholUnitPrice:""}"
-                         class="form-control mask-money" name="addPack[${packIndex}].minAlcoholUnitPrice" maxlength="10" disabled="true"/>
+                         class="form-control mask-money disabled-input" name="addPack[${packIndex}].minAlcoholUnitPrice" disabled maxlength="10" />
         </div>
 
         <div class="input-group col-4 my-auto">
@@ -99,13 +105,7 @@
                 <span class="input-group-text">&pound;</span>
             </div>
             <g:textField value="${pack?.weightedAverageCost?pack?.weightedAverageCost:""}"
-                         class="form-control mask-money" name="addPack[${packIndex}].weightedAverageCost" maxlength="10" disabled="true"/>
-        </div>
-        <div id="setPreferred${packIndex}" class="col-4 mr-0 d-flex align-items-center">
-            <div class="form-check form-check-inline">
-                <g:checkBox name="addPack[${packIndex}].primaryCaseValue" class="form-check-input wl-checkbox" checked="${pack?.primaryCase}" id="preferredPack${packIndex}" />
-                <label class="form-check-label font-weight-bold" for="preferredPack${packIndex}">Preferred Pack</label>
-            </div>
+                         class="form-control mask-money disabled-input" name="addPack[${packIndex}].weightedAverageCost" disabled maxlength="10"/>
         </div>
     </div>
 
@@ -119,19 +119,19 @@
 
         <div id="setPriceMarked${packIndex}" class="col-4 mr-0 d-flex align-items-center">
             <div class="form-check form-check-inline">
-                <g:checkBox name="addPack[${packIndex}].priceMarked" class="form-check-input wl-checkbox" checked="${pack?.priceMarked}" id="priceMarked${packIndex}" />
-                <label class="form-check-label font-weight-bold" for="priceMarked${packIndex}">Price Marked Pack</label>
+                <g:checkBox name="addPack[${packIndex}].priceMarked" id="addPack[${packIndex}].priceMarked" class="form-check-input wl-checkbox" checked="${pack?.priceMarked}"  onchange="togglePriceMarkedFields(${packIndex})" />
+                <label class="form-check-label font-weight-bold">Price Marked Pack</label>
             </div>
         </div>
         <div class="col-4 mr-0 d-flex align-items-center">
             <g:hiddenField name="addPack[${packIndex}].priceMarkedType" class="form-control" id="addPack[${packIndex}].priceMarkedType"  value="${pack?.priceMarkedType?.name() ?: 'VALUE'}" valueMessagePrefix="PriceMarkedType"/>
             <div class="d-flex justify-content-start">
                 <div class="form-check d-flex align-items-center mr-3">
-                    <g:radio class="form-check-input wl-radio" type="radio" value="VALUE" checked="${pack?.priceMarkedType == null || pack?.priceMarkedType?.name() == 'VALUE'}" onchange="updatePriceMarkedType(${packIndex}, 'VALUE')" />
+                    <g:radio class="form-check-input wl-radio disabled-input" name="addPack[${packIndex}].priceMarkedTypeDummy" type="radio" value="VALUE" checked="${pack?.priceMarkedType == null || pack?.priceMarkedType?.name() == 'VALUE'}" onchange="updatePriceMarkedType(${packIndex}, 'VALUE')" />
                     <label class="form-check-label mb-0 ml-2">Value</label>
                 </div>
                 <div class="form-check d-flex align-items-center">
-                    <g:radio class="form-check-input wl-radio" type="radio" value="PERCENTAGE" checked="${pack?.priceMarkedType?.name() == 'PERCENTAGE'}" onchange="updatePriceMarkedType(${packIndex}, 'PERCENTAGE')" />
+                    <g:radio class="form-check-input wl-radio disabled-input" type="radio" name="addPack[${packIndex}].priceMarkedTypeDummy"  value="PERCENTAGE" checked="${pack?.priceMarkedType?.name() == 'PERCENTAGE'}" onchange="updatePriceMarkedType(${packIndex}, 'PERCENTAGE')" />
                     <label class="form-check-label mb-0 ml-2">Percentage</label>
                 </div>
             </div>
@@ -141,7 +141,7 @@
                 <span class="input-group-text">&pound;</span>
             </div>
             <g:textField name="addPack[${packIndex}].priceMarkedValue" value="${pack?.priceMarkedValue}"
-                         class="form-control mask-money" maxlength="10"/>
+                         class="form-control mask-money disabled-input" maxlength="10"/>
         </div>
     </div>
 
@@ -186,6 +186,12 @@
 </div>
 
 <script type="text/javascript">
+
+    $('input[name$="].priceMarked"]').each(function() {
+        var packIndex = this.name.match(/\[(\d+)\]/)[1];
+        togglePriceMarkedFields(packIndex);
+    });
+
     function addPackSupplierChanged(packIndex) {
         $("#addPack\\[" +packIndex +"\\]\\.supplier\\.name").val($("#addPack\\[" +packIndex +"\\]\\.supplier\\.id option:selected").text());
     }
