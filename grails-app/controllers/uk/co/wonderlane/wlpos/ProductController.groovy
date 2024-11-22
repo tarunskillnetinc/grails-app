@@ -18,6 +18,7 @@ import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
+import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.enums.StockSale
@@ -1235,6 +1236,9 @@ class ProductController extends BaseController {
                 || newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice
                 || newPack.status != existingPack.status
                 || newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
+                || newPack.priceMarked != existingPack.priceMarked
+                || newPack.priceMarkedType != existingPack.priceMarkedType
+                || newPack.priceMarkedValue != existingPack.priceMarkedValue
     }
 
     def locationChanged(def newLocation, def existingLocation) {
@@ -1262,6 +1266,11 @@ class ProductController extends BaseController {
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
         packToBeUpdated.primaryCase = editedPack.primaryCase
+        packToBeUpdated.priceMarked = editedPack.priceMarked
+        if (editedPack.priceMarked) {
+            packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
+            packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
+        }
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1438,6 +1447,9 @@ class ProductController extends BaseController {
         builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
+        builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
+        builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
+        builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
     }
 
     void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
@@ -2006,6 +2018,11 @@ class AddPackCommand implements Validateable {
     boolean isWeighted = false
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
+    BigDecimal minAlcoholUnitPrice
+    BigDecimal weightedAverageCost
+    boolean priceMarked = false
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack
@@ -2013,6 +2030,7 @@ class AddPackCommand implements Validateable {
         productVariantId nullable: true
         allowSubstitutes nullable: true
         primaryCase nullable: true
+        priceMarked nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2031,6 +2049,18 @@ class AddPackCommand implements Validateable {
         }
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
+        }
+        priceMarkedValue nullable: true, blank: true,validator: {val, obj ->
+            if (obj.priceMarked) {
+                if (val == null) return ['addPackCommand.priceMarkedValue.nullable']
+                if (BigDecimal.ZERO == val) return ['addPackCommand.priceMarkedValue.zero']
+                if (val >= 1.0E9) return ['addPackCommand.priceMarkedValue.max']
+            }
+        }
+        priceMarkedType nullable: true, blank: true, validator: {val, obj ->
+            if (obj.priceMarked) {
+                if (val == null) return ['addPackCommand.priceMarkedType.nullable']
+            }
         }
     }
 
@@ -2192,7 +2222,10 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
-    boolean primaryCase
+    boolean primaryCase = false
+    boolean priceMarked = false
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack
