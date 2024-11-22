@@ -25,7 +25,6 @@ class ShiftService extends MySqlPoolDal {
     def storeService
     def userService
     def cashManagementService
-    def snapshotService
     def locationService
     def reportingService
     def safeService
@@ -81,18 +80,6 @@ class ShiftService extends MySqlPoolDal {
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-        }
-    }
-
-
-    void processTakeSnapshot(Shift shift, int safeId) {
-        try {
-            Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
-            processFinalizeSnapshotCalculation(latestSnapshot, shift, TenderType.CASH)
-            processFinalizeSnapshotCalculation(latestSnapshot, shift, TenderType.VOUCHER)
-            snapshotService.saveSnapshot(latestSnapshot)
-        }catch (Exception ex){
-            log.error(String.format("Error taking shift snapshot for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
     }
 
@@ -344,7 +331,6 @@ class ShiftService extends MySqlPoolDal {
             ShiftAction shiftAction = isAddFloat ? ShiftAction.ADD_FLOAT : ShiftAction.CASH_LIFT
             User loggedInUser = loadLoggedInUser()
             shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
-            shiftSnapshotUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //update snapshot
             shiftSafeSessionUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //Move tender to safe session for add float or cash lift
             updateFinaliseShiftToSafeSessionMovements(shift, safeId) //Update safe session
             addAudit(shift, shiftAction, false, loggedInUser) //Add shift audit for shift close
@@ -371,7 +357,6 @@ class ShiftService extends MySqlPoolDal {
         try {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, true);
-            processTakeSnapshot(shift, primarySafeId);
             updateFinaliseTenderMovement(shift, primarySafeId)
             updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
             addAudit(shift, ShiftAction.FINALISE, false, loggedInUser) //Add shift audit for shift close
@@ -542,24 +527,6 @@ class ShiftService extends MySqlPoolDal {
         return loggedInUser
     }
 
-    private void processFinalizeSnapshotCalculation(Snapshot snapshot, Shift shift, TenderType type) {
-        ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
-        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) != 0){
-            updateSnapshot(snapshot, reconciliationTotal.value, type)
-        }
-    }
-
-    private void updateSnapshot(Snapshot snapshot, BigDecimal amount, TenderType type){
-        if (amount) {
-            def expected = snapshot.expectedTotals.find { it.tenderType == type }
-            if (!expected) {
-                expected = new TenderTotal(type)
-                snapshot.expectedTotals.add(expected)
-            }
-            expected.value = expected.value.add(amount)
-        }
-    }
-
     private void updateCashTotal(Shift shift) {
         //Load on hold cash total values --> Saved at cash up view
         def cashPendingTotal = shift.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH }
@@ -676,23 +643,6 @@ class ShiftService extends MySqlPoolDal {
         shiftCashTenderUpdate(shift, isAddFloat, adjustedCashAmount, voucherAmount)
         updateCashDrawer(shift, adjustedCashAmount)
         saveShift(shift)
-    }
-
-    private void shiftSnapshotUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        // If this is add float action then amounts need to be deduct on snapshot if cash lift then need to sum up for snapshot
-        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
-        Snapshot latestSnapshot = snapshotService.getSnapshotForSafe(safeId)
-        if (latestSnapshot) {
-            updateSnapshot(latestSnapshot, adjustedCashAmount, TenderType.CASH)
-            if (isAddFloat) {
-                updateSnapshot(latestSnapshot, voucherAmount.negate(), TenderType.VOUCHER)
-            }
-            snapshotService.saveSnapshot(latestSnapshot)
-        } else {
-            log.error(String.format("No available snapshot for safe id id: ${safeId} error: ${ex.getMessage()}"))
-            throw new RuntimeException(String.format("No available snapshot for safe id id: ${safeId} error: ${ex.getMessage()}"))
-        }
-
     }
 
     private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
