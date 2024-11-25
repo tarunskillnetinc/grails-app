@@ -88,9 +88,9 @@
                                     <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9em;"
                                             onclick="showSafeSessionReconcileModal(${safeSession.id}, false, false, `${safe.description}`, ${configuredRecountLimit}, ${safeSession.totalRecountAttempts});">Reconcile</button>
                                 </g:if>
-                                <g:if test="${safeSession.sessionStatus == uk.co.wonderlane.wlpos.enums.SafeSessionStatus.RECONCILED && configuredRecountLimit > safeSession.totalRecountAttempts}">
+                                <g:if test="${safeSession.sessionStatus == uk.co.wonderlane.wlpos.enums.SafeSessionStatus.RECONCILED && configuredRecountLimit > (safeSession.totalRecountAttempts ?: 0)}">
                                     <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
-                                            onclick="showSafeSessionReconcileModal(${safeSession.id}, true, false, `${safe.description}`, ${configuredRecountLimit}, ${safeSession.totalRecountAttempts});">Recount</button>
+                                            onclick="showSafeSessionReconcileModal(${safeSession.id}, true, false, `${safe.description}`, ${configuredRecountLimit}, ${safeSession.totalRecountAttempts ?: 0});">Recount</button>
                                 </g:if>
                                 <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;">Finalise</button>
                             </div>
