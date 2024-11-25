@@ -320,8 +320,11 @@ class SafeManagementService extends MySqlPoolDal {
                     safeSession.reconciledByUserId = loggedInUser.getId()
                     safeSession.reconciledByUsersName = loggedInUser.getUsername()
                     safeSession.sessionStatus = SafeSessionStatus.RECONCILED
-                } else {
-                    //Handle recount here
+                 } else {
+                    safeSession.reReconciledDate = DateTime.now()
+                    safeSession.reReconciledByUserId = loggedInUser.getId()
+                    safeSession.reReconciledByUsersName = loggedInUser.getUsername()
+                    safeSession.totalRecountAttempts = (safeSession.totalRecountAttempts ?: 0) + 1
                 }
                 // Once update done clear `pending` list
                 safeSession.getPendingReconciliationTotals().clear()
