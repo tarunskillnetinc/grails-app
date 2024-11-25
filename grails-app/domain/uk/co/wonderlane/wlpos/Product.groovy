@@ -33,6 +33,7 @@ class Product {
     ProductStatus status
     String retailerProductId
     StockSale stockSale
+    Long preferredSku
 
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
@@ -81,6 +82,7 @@ class Product {
         selDescription column: "selDescription"
         selType column: "selType"
         productImgUrl column: "productImgUrl"
+        preferredSku column: "preferredSku"
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
@@ -121,6 +123,7 @@ class Product {
         selDescription nullable: true, blank: true
         selType nullable: true
         productImgUrl nullable: true, blank: true, url: true
+        preferredSku nullable: true
     }
 
     List<RangeProduct> getRanges() {
