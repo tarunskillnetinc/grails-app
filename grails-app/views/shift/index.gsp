@@ -155,11 +155,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="d-flex justify-content-end">
-                        <button id="count-safe-button" type="button" class="btn btn-wl text-center mr-0" onclick="showSafeModal(0)" style="width: 200px; min-width: 150px;">Count Safe</button>
-                    </div>
-                </div>
             </div>
 
             <div id="results-container" class="align-content-center">
