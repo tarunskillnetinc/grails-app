@@ -42,10 +42,11 @@ class SafeController {
             String safeType = params?.type as SafeType
             boolean safeStatus = params?.active ? Boolean.parseBoolean(params.active) : false
             existingSafe = safeService.getSafeById(safeId)
+            boolean currentlyActive = existingSafe.active
             if (isUpdate && existingSafe && existingSafe.primary && !safeStatus) {
                 //Check if it try to inactive primary safe (not allowed)
-                flash.error = String.format("Primary safe can not be disable.")
-                throw new RuntimeException("Primary safe can not be disable.")
+                flash.error = String.format("Primary safe can not be disabled.")
+                throw new RuntimeException("Primary safe can not be disabled.")
             }
             Safe safe = safeService.populateSafe(existingSafe, isUpdate, safeDescription, safeType, safeStatus)
             safe.validate() //call validation to check and if domain class validation errors
@@ -53,6 +54,10 @@ class SafeController {
                 safeService.saveSafe(safe) //Save created/updated safe into db
                 if (isUpdate) { // If this is update then update location description
                     safeService.updateLocationDescriptionBySafeId(safe.id, safe.description)
+                    //If safe saved and has been set active create a a safe session
+                    if(!currentlyActive && safeStatus){
+                        safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false);
+                    }
                 } else {
                     locationService.createSafeLocation(safe.id, safe.description)
                     safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
