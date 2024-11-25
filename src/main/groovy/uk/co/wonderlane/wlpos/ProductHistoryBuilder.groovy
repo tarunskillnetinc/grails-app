@@ -60,6 +60,10 @@ class ProductHistoryBuilder {
         compare(null, property, left, right)
     }
 
+    def compare(String property, Object left, Object right, ProductHistoryType productHistoryType) {
+        compare(null, property, left, right, productHistoryType)
+    }
+
     def compare(Integer productVariantId, String property, Object left, Object right) {
         compare(productVariantId, property, left, right, ProductHistoryType.FIELD)
     }

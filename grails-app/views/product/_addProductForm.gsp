@@ -108,6 +108,16 @@
             </div>
 
             <div id="collapseProductVariants" class="collapse" aria-labelledby="productVariants" data-parent="#accordion">
+
+                <div id="preferredSkuSelect">
+                    <div class="row mx-4 pt-3 pb-2">
+                        <label for="preferredSku" class="col-11 col-form-label text-right">Select Preferred SKU</label>
+                        <div class="col-1">
+                            <g:select name="preferredSku" from="${skuList}" value="${product?.preferredSku}" optionKey="sku" optionValue="sku" class="form-control select-border" onchange="updatePreferredSku(this.value)"/>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-body py-5">
                     <g:hiddenField name="relevantVariant" value="" />
 
@@ -117,7 +127,8 @@
                         <div class="col-2 font-weight-bold">Cost Price</div>
                         <div class="col-2 font-weight-bold">Barcodes</div>
                         <div class="col-2 font-weight-bold">Packs</div>
-                        <div class="col-2 font-weight-bold">&nbsp;</div>
+                        <div class="col-1 font-weight-bold">Preferred SKU</div>
+                        <div class="col-1 font-weight-bold">&nbsp;</div>
                     </div>
 
                     <div id="variantsContainer">
