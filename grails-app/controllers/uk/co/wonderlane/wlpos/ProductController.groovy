@@ -483,6 +483,8 @@ class ProductController extends BaseController {
             product.retailerId = springSecurityService.principal.retailerId
             product.restrictions = new Restrictions()
 
+            product.selDescription = product.selDescription ?: product.receiptDescription?.take(16)
+
             copyRestrictions(editedProduct.restrictions, product.restrictions)
 
             product.variants?.each { variant ->
@@ -540,7 +542,7 @@ class ProductController extends BaseController {
             product.retailerProductId = editedProduct.retailerProductId
             product.stockSale = editedProduct.stockSale
             product.selType = editedProduct.selType
-            product.selDescription = editedProduct.selDescription
+            product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
@@ -719,7 +721,6 @@ class ProductController extends BaseController {
 
             def ranges = []
             def priceBands = []
-            def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
             def editedPrices = []
 
             def userRoles = springSecurityService.principal.authorities*.authority
@@ -735,6 +736,7 @@ class ProductController extends BaseController {
             product.discard()
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+            def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
 
             render(view: "add", model: [product            : product,
                                         storeId            : springSecurityService.principal.storeId,
