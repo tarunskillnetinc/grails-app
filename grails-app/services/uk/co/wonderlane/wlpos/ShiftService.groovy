@@ -414,8 +414,8 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser) // Audit for cash lift action in rolling float action
             addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser) // Audit for add float action in rolling float action
-            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, BigDecimal.ZERO, BigDecimal.ZERO)
-            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, BigDecimal.ZERO, BigDecimal.ZERO)
+            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, oldShift.autoFloatOut, BigDecimal.ZERO)
+            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, newShift.autoFloatIn, BigDecimal.ZERO)
             return true
         }
         return false
