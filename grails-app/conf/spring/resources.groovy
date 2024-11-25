@@ -242,6 +242,7 @@ beans = {
         userService = ref('userService')
         commonService = ref("commonService")
         financialWeekService = ref("financialWeekService")
+        cashManagementService = ref("cashManagementService")
 
     }
 

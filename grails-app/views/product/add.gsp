@@ -359,6 +359,13 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
+
+                    const isPriceMarked = $(packSelector + "\\.priceMarked").val();
+                    params["packs[" +loopIndex +"].priceMarked"] = isPriceMarked;
+                    if (isPriceMarked) {
+                        params["packs[" + loopIndex + "].priceMarkedValue"] = $(packSelector + "\\.priceMarkedValue").val();
+                        params["packs[" + loopIndex + "].priceMarkedType"] = $(packSelector + "\\.priceMarkedType").val();
+                    }
                 });
 
                 var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
@@ -614,6 +621,11 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
+                    params["packs[" +loopIndex +"].priceMarkedValue"] = $(packSelector +"\\.priceMarkedValue").val();
+                    params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
+                    params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
+                    params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
+                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
 
                     var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
                     barcodeContainers.each(function(BarcodeLoopIndex) {
@@ -794,6 +806,13 @@
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCaseValue").prop("checked");
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
+
+                    const isPriceMarked = $(packSelector + "\\.priceMarked").prop("checked");
+                    params["packs[" + loopIndex + "].priceMarked"] = isPriceMarked;
+                    if (isPriceMarked) {
+                        params["packs[" + loopIndex + "].priceMarkedValue"] = $(packSelector + "\\.priceMarkedValue").val();
+                        params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
+                    }
 
                     var addBarcodeContainers = $("#addBarcodesContainer" + packIndex + " > div");
                     var barcodes = []; // To store the barcode values for validation
@@ -1003,8 +1022,29 @@
                 })
             })
 
+            function updatePriceMarkedType(packIndex, value) {
+                $('#addPack\\[' + packIndex + '\\]\\.priceMarkedType').val(value);
+            }
 
-        </script>
+            function togglePriceMarkedFields(packIndex) {
+                var isChecked =  $('input[name="addPack[' + packIndex + '].priceMarked"]').is(':checked');
+
+                // Toggle Price Marked Type radio buttons
+                $('input[name="addPack[' + packIndex + '].priceMarkedTypeDummy"]').prop('disabled', !isChecked);
+
+                // Toggle Price Marked Value input
+                $('input[name="addPack[' + packIndex + '].priceMarkedValue"]').prop('disabled', !isChecked);
+
+                // Visually indicate the disabled state
+                if (isChecked) {
+                    $('input[name="addPack[' + packIndex + '].priceMarkedTypeDummy"]').closest('.col-4').removeClass('text-muted');
+                    $('input[name="addPack[' + packIndex + '].priceMarkedValue"]').closest('.col-4').removeClass('text-muted');
+                } else {
+                    $('input[name="addPack[' + packIndex + '].priceMarkedTypeDummy"]').closest('.col-4').addClass('text-muted');
+                    $('input[name="addPack[' + packIndex + '].priceMarkedValue"]').closest('.col-4').addClass('text-muted');
+                }
+            }
+    </script>
     </head>
 
     <body>
