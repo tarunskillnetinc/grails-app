@@ -16,9 +16,9 @@ function getSafeSessions() {
 }
 
 
-function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescription, recountAttempt) {
+function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescription, configuredRecountAttempt, currentRecountAttempt) {
     var proceedWithWarning = true;
-    if (!isRecount && !isRecount && recountAttempt === 0) { //This is only for reconcile actions to show warning
+    if ((!isRecount && configuredRecountAttempt === 0) || (isRecount && configuredRecountAttempt === currentRecountAttempt + 1)) { //This is only for reconcile actions to show warning
         proceedWithWarning = confirm("Warning! This is your last available chance to count the safe");
     }
     if (proceedWithWarning) {
@@ -97,7 +97,7 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise) {
     }
     if (proceedWithSubmission) {
         var formValues = $("#safeSessionVarianceForm").serialize();
-        formValues = formValues + "&safeSessionId=" + safeSessionId + "&isFinalise=" + isFinalise + "&isRecount" + isRecount
+        formValues = formValues + "&safeSessionId=" + safeSessionId + "&isFinalise=" + isFinalise + "&isRecount=" + isRecount
         $.ajax({
             url: SafeManagementUrls.getSafeSessionSaveUrl(),
             method: "POST",
