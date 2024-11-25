@@ -86,7 +86,7 @@
                                 <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;">Spot check</button>
                                 <g:if test="${safeSession.sessionStatus == uk.co.wonderlane.wlpos.enums.SafeSessionStatus.OPEN}">
                                     <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9em;"
-                                            onclick="showSafeSessionReconcileModal(${safeSession.id}, false, false, `${safe.description}`, ${configuredRecountLimit}, ${safeSession.totalRecountAttempts});">Reconcile</button>
+                                            onclick="showSafeSessionReconcileModal(${safeSession.id}, false, false, `${safe.description}`, ${configuredRecountLimit}, ${safeSession.totalRecountAttempts ?: 0});">Reconcile</button>
                                 </g:if>
                                 <g:if test="${safeSession.sessionStatus == uk.co.wonderlane.wlpos.enums.SafeSessionStatus.RECONCILED && configuredRecountLimit > (safeSession.totalRecountAttempts ?: 0)}">
                                     <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;"
