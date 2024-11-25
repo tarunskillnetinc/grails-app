@@ -402,8 +402,6 @@ class ShiftService extends MySqlPoolDal {
             BigDecimal rollingFloatAmount = calculateMovingRollingFloat(oldTotal.value, cashManagementConfig.rollingFloatValue)
             moveRollingFloatToNewShift(newShift, rollingFloatAmount)
             updateRollingFloatToOldShift(oldShift, rollingFloatAmount)
-            addAudit(oldShift, ShiftAction.CASH_LIFT, false, loggedInUser) //Add cash lift audit from old shift
-            addAudit(newShift, ShiftAction.ADD_FLOAT, false, loggedInUser) //Add cash lift audit from old shift
         }
         return newShift
     }
