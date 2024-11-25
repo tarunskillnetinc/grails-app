@@ -13,7 +13,7 @@
             $("#messages-container").html('');
         }
 
-        if(isRollingFloatSuccess){
+        if(isRollingFloatSuccess && rollingFloatMessage != null && rollingFloatMessage !== ''){
             alert(rollingFloatMessage)
         }
 
