@@ -331,6 +331,7 @@ class ShiftController {
                 //Check if shift auto open is configured if yes then open new one
                 boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(shift)
 
+
                 //Construct flash messages appropriately
                 def messageBuilder = new StringBuilder()
                 messageBuilder.append("Shift ${shift.getShiftNumber()} for Till ${tillId} has been successfully closed")
