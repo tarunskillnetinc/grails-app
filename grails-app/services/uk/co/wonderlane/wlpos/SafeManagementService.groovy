@@ -330,6 +330,9 @@ class SafeManagementService extends MySqlPoolDal {
                 safeSession.getPendingReconciliationTotals().clear()
             } else {
                 safeSession.sessionStatus = SafeSessionStatus.FINALISED
+                safeSession.finalisedTime = commonService.convertDateTimeToString(DateTime.now())
+                safeSession.finalisedUserId = loggedInUser.getId()
+                safeSession.finalisedUsername = loggedInUser.getUsername()
             }
         }
     }

@@ -94,7 +94,7 @@ class ShiftService extends MySqlPoolDal {
                 log.warn("No open safe session available for move tender for retailer: ${shift.getRetailerId()} store: ${shift.getStoreId()} safeId: ${safeId} ")
             }
         } catch (Exception ex) {
-            log.error("Error taking shift snapshot for retailer id: ${shift.getRetailerId()} store id: ${shift.getStoreId()} safe id: ${safeId} error: ${ex.getMessage()}", ex)
+            log.error("Error moving shift to safe session for retailer id: ${shift.getRetailerId()} store id: ${shift.getStoreId()} safe id: ${safeId} error: ${ex.getMessage()}", ex)
         }
 
     }

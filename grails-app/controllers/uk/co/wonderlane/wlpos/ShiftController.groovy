@@ -14,7 +14,6 @@ class ShiftController {
 
     def springSecurityService
     def shiftService
-    def snapshotService
     def reportingService
     def cashManagementService
     def reasonCodeService
@@ -237,7 +236,6 @@ class ShiftController {
                     }
                     //If any till id added into filter then pass it
                     Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
-                    shiftService.processTakeSnapshot(shift, saveShiftCommand.safeId) //Take snapshot
                     shiftService.updateFinaliseTenderMovement(shift, saveShiftCommand.safeId) //Move into update tender movement
                     shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])

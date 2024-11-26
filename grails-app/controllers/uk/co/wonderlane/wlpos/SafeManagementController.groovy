@@ -21,6 +21,8 @@ class SafeManagementController {
 
     // This will load all available safe sessions and parsing to view to display
     def ajaxGetSafeSessions() {
+        def successMessage = params.successMessage
+        def errorMessage = params.errorMessage
         try {
             //Load existing active safe sessions -> At the moment since there is no ant filters pass null as safeId
             List<SafeSession> safeSessions = safeManagementService.getActiveSafeSession(null)
@@ -45,10 +47,13 @@ class SafeManagementController {
 
             int configuredRecountLimit = safeManagementService.getConfiguredRecountAttempts()
 
-            render(template: "safeSessionViewerResults", model: [safeSessions : safeSessions, safeList: safeList, isFinancialWeekExists: isFinancialWeekExists, configuredRecountLimit: configuredRecountLimit])
+            render(template: "safeSessionViewerResults", model: [safeSessions : safeSessions, safeList: safeList, isFinancialWeekExists: isFinancialWeekExists,
+                                                                 configuredRecountLimit: configuredRecountLimit,  successMessage: successMessage, errorMessage: errorMessage])
 
         } catch (Exception ex) {
-            var errorMessage = "Error loading safe session list"
+            if (errorMessage == null || errorMessage == '') {
+                errorMessage = "Error loading safe session list"
+            }
             log.error("Safe session loading error error: ${ex.getMessage()}", ex)
             if (errorMessage == null || errorMessage == '') {
                 errorMessage = "Unexpected error loading safe sessions"
@@ -127,6 +132,13 @@ class SafeManagementController {
                 if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
                     //Add safe session finalise logic here
                     //Redirect to ajaxGetSafeSessions to reload safe session view
+                    Safe safe = safeService.getSafeById(safeSession.safeId)
+                    if (safe.active){ //If safe is active then create new safe session
+                        safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
+                    } else {
+
+                    }
+                    redirect(action: "ajaxGetSafeSessions", params: [successMessage: "Successfully finalised safe ${safeSessionSaveCommand.safeDescription}."])
                     return
                 }
                 def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)

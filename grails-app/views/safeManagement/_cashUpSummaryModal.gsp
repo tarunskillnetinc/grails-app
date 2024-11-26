@@ -136,10 +136,10 @@
 <div class="modal-footer">
     <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
     <g:if test="${!isSafeSessionFinalizeMode}">
-        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, ${safeSession.reconciledDate != null}, false)" >Save</button>
+        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, ${safeSession.reconciledDate != null}, false, '${safeDescription}')" >Save</button>
     </g:if>
     <g:else>
         %{-- Here can use same `submitSafeSession` action--}%
-        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success">Finalise</button>
+        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, false, true, '${safeDescription}')">Finalise</button>
     </g:else>
 </div>

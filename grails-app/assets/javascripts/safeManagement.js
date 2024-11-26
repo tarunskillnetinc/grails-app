@@ -68,7 +68,7 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
             $("#modal-content").html(resp);
             $("#saveSafeSessionButton").prop("onclick", null).off("click");
             $("#saveSafeSessionButton").click(function() {
-                submitSafeSession(safeSessionId, isRecount, false);
+                submitSafeSession(safeSessionId, isRecount, false, safeDescription);
             });
         },
         error: function (resp) {
@@ -90,14 +90,14 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
     });
 }
 
-function submitSafeSession(safeSessionId, isRecount, isFinalise) {
+function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription) {
     var proceedWithSubmission = true;
     if (isFinalise) {
         proceedWithSubmission = confirm("Are you sure you want to finalise the safe session?");
     }
     if (proceedWithSubmission) {
         var formValues = $("#safeSessionVarianceForm").serialize();
-        formValues = formValues + "&safeSessionId=" + safeSessionId + "&isFinalise=" + isFinalise + "&isRecount=" + isRecount
+        formValues = formValues + "&safeSessionId=" + safeSessionId + "&isFinalise=" + isFinalise + "&isRecount=" + isRecount + "&safeDescription=" + safeDescription
         $.ajax({
             url: SafeManagementUrls.getSafeSessionSaveUrl(),
             method: "POST",
@@ -124,7 +124,7 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise) {
                 }
                 $('body').removeClass('modal-open');
                 var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                    resp.responseJSON.message : "Action failed";
+                    resp.responseJSON.message : "Action failed for safe " + safeDescription;
                 $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
             }
         });
