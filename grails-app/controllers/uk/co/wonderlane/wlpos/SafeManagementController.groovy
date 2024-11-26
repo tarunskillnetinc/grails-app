@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import uk.co.wonderlane.wlpos.entities.cash.SafeSession
+import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SafeSessionStatus
 
@@ -75,6 +76,8 @@ class SafeManagementController {
             if (safeSession != null && ((!isRecount && !isFinalise && safeSession.getSessionStatus() == SafeSessionStatus.OPEN) || ((isRecount || isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
                 if (safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED && isFinalise) { // If the safe request is finalise show summary modal
                     def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
+                    Safe safe = safeService.getSafeById(safeSession.safeId)
+                    List<TenderTotal> tenderTotalsToMove = safeManagementService.getTendersToMoveIntoNewSafeSession(safeSession)
                     render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons,
                                                                    safeDescription: safeDescription])
                     return
@@ -109,6 +112,7 @@ class SafeManagementController {
                 safeManagementService.processSafeSessionPendingTenderSave(safeSessionCashUpCommand, safeSession)
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(safeSession.getRetailerId(), safeSession.getStoreId())
                 def tillSafeSessionVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getSafeVarianceLimit()).movePointLeft(2):0.00
+
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into safe session's reconciliationTotals values
                 render(template: "cashUpSummaryModal", model: [safeSession: safeSession, varianceReasons: varianceReasons, isSafeSessionFinalizeMode: false,
@@ -129,12 +133,15 @@ class SafeManagementController {
             if (safeSession != null && ((!safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() == SafeSessionStatus.OPEN) ||
                     ((safeSessionSaveCommand.isRecount || safeSessionSaveCommand.isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
                 safeManagementService.processSafeSessionDataSave(safeSessionSaveCommand, safeSession)
+                Safe safe = safeService.getSafeById(safeSession.safeId)
+                List<TenderTotal> tenderTotalsToMove = safeManagementService.getTendersToMoveIntoNewSafeSession(safeSession)
                 if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
                     //Add safe session finalise logic here
                     //Redirect to ajaxGetSafeSessions to reload safe session view
-                    Safe safe = safeService.getSafeById(safeSession.safeId)
+                    SafeSession newSafeSession = null
                     if (safe.active){ //If safe is active then create new safe session
-                        safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
+                        newSafeSession = safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
+                        newSafeSession.setTenderTotals(tenderTotalsToMove)
                     } else {
 
                     }
