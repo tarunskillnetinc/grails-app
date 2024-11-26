@@ -52,7 +52,7 @@ class CashManagementController {
         }
         if (storeId != null && (!isStoreLevelLogin || params.isStoreLevelLogin==null)) {
             // Render the example template when storeLevelExist is false
-            render(template: "/cashManagement/cashManagementTemp", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId, storeNumber:storeNumber, storeName:storeName])
+            render(template: "/cashManagement/cashManagement", model: [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: false, storeId:storeId, storeNumber:storeNumber, storeName:storeName])
         } else {
             [config: cashManagementConfigViewAdapter, storeLevelExist: storeLevelExist, onlyRetailerLevel: onlyRetailerLevel, isStoreLevelLogin:isStoreLevelLogin,  storeId:storeId, storeNumber:storeNumber, storeName:storeName]
         }
