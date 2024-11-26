@@ -135,8 +135,9 @@ class SafeManagementController {
                     ((safeSessionSaveCommand.isRecount || safeSessionSaveCommand.isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
                 safeManagementService.processSafeSessionDataSave(safeSessionSaveCommand, safeSession)
                 if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
-                    //Add safe session finalise logic here
-                    //Redirect to ajaxGetSafeSessions to reload safe session view
+                    //Safe session finalise logic
+                    //If safe is active then create new safe and move all reconcile amounts into tender totals
+                    //If safe is in active but have cash in it then also create new safe and move all reconcile amounts into tender totals
                     Safe safe = safeService.getSafeById(safeSession.safeId)
                     List<TenderTotal> tenderTotalsToMove = safeManagementService.getTendersToMoveIntoNewSafeSession(safeSession)
                     if (safe.active || (!safe.active && (!tenderTotalsToMove.isEmpty() && tenderTotalsToMove.size() > 0))){ //If safe is active then create new safe session
@@ -144,6 +145,8 @@ class SafeManagementController {
                         newSafeSession.setTenderTotals(tenderTotalsToMove)
                         safeManagementService.saveSafeSession(newSafeSession)
                     }
+
+                    //Redirect to ajaxGetSafeSessions to reload safe session view
                     redirect(action: "ajaxGetSafeSessions", params: [successMessage: "Successfully finalised safe ${safeSessionSaveCommand.safeDescription}."])
                     return
                 }
