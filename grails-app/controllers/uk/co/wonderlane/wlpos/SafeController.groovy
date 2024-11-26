@@ -42,7 +42,7 @@ class SafeController {
             String safeType = params?.type as SafeType
             boolean safeStatus = params?.active ? Boolean.parseBoolean(params.active) : false
             existingSafe = safeService.getSafeById(safeId)
-            boolean currentlyActive = existingSafe.active
+            boolean currentlyActive = existingSafe?.active ?: false
             if (isUpdate && existingSafe && existingSafe.primary && !safeStatus) {
                 //Check if it try to inactive primary safe (not allowed)
                 flash.error = String.format("Primary safe can not be disabled.")
