@@ -25,6 +25,6 @@
         </div>
     </nav>
 </section>
-<g:render template="cashManagement" model='[config:config, onlyRetailerLevel:onlyRetailerLevel]'/>
+<g:render template="cashManagementTemp" model='[config:config,onlyRetailerLevel:onlyRetailerLevel]'/>
 </body>
 </html>
