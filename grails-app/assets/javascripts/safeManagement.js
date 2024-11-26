@@ -90,10 +90,10 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
     });
 }
 
-function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription) {
+function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription, isSafeFinalisingWarningRequired) {
     var proceedWithSubmission = true;
-    if (isFinalise) {
-        proceedWithSubmission = confirm("Are you sure you want to finalise the safe session?");
+    if (isFinalise && isSafeFinalisingWarningRequired) {
+        proceedWithSubmission = confirm("Safe is in inactive and still contain tender value. Are you sure you want to finalise the safe?");
     }
     if (proceedWithSubmission) {
         var formValues = $("#safeSessionVarianceForm").serialize();
