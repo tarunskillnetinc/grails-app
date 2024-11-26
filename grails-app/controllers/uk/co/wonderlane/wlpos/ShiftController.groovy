@@ -18,6 +18,7 @@ class ShiftController {
     def cashManagementService
     def reasonCodeService
     def safeService
+    def safeManagementService
 
     def index() {
         if (!springSecurityService.principal.storeId) {
@@ -221,7 +222,7 @@ class ShiftController {
     //    1. save shift to temporary save variable `pending` into actual cash and voucher total's in shift object
     //    2. Add audit entry
     // If the request is for finalise then specifically need to
-    //    1. Create safe snapshot
+    //    1. move shift data to safe session
     //    2. update tender movements
     def ajaxSaveShift(SaveShiftCommand saveShiftCommand) {
         try {
@@ -442,17 +443,17 @@ class ShiftController {
                 // 1. Update shift balances
                 //    (If add float -> add cash and voucher amounts in tender and cash drawer)
                 //    (If cash lift -> deduct cash amounts in tender and cash drawer)
-                // 2. Update snapshot balances
+                // 2. Update safe session balances
                 //    (If add float -> deduct cash and voucher amounts from totals)
                 //    (If cash lift -> add cash amounts from totals)
                 // 3. Create tender movements
                 // 4. Add audit
-                if (snapshotService.getSnapshotForSafe(safeId)) {
+                if (safeManagementService.getOpenSafeSession(safeId)) {
                     shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
                     render "OK"
                 } else {
-                    flash.error = "No snapshot available for safe id ${safeId}"
-                    throw new RuntimeException("No snapshot location available for safe id ${safeId}")
+                    flash.error = "No open safe session available for safe id ${safeId}"
+                    throw new RuntimeException("No open safe session available for safe id ${safeId}")
                 }
             } else {
                 flash.error = "No shift exists anymore"
