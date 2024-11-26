@@ -283,7 +283,7 @@ class ShiftController {
             def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing open shift
             if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
                 // Check shift is null or not open if so then proceed to create new shift
-                shift = shiftService.createNewShift(retailerId, storeId, tillId, false) //call function to open shift
+                shift = shiftService.createNewShift(null, retailerId, storeId, tillId, false) //call function to open shift
                 flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getShiftNumber(), tillId)
             } else {
                 flash.message = String.format("Till %d's shift was already open", tillId)
