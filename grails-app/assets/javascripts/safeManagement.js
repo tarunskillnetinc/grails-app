@@ -25,7 +25,7 @@ function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescri
         $.ajax({
             url: SafeManagementUrls.getSafeSessionCashUpUrl(),
             method: "POST",
-            data: { sessionId: sessionId, isRecount: isRecount, isFinal: isFinal, safeDescription: safeDescription },
+            data: { sessionId: sessionId, isRecount: isRecount, isFinalise: isFinal, safeDescription: safeDescription },
             success: function(resp) {
                 $('#sessionModal').modal({ show: true, backdrop: 'static', keyboard: false });
                 $("#modal-content").html(resp);
