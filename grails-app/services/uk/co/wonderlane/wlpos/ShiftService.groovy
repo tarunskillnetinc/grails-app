@@ -433,18 +433,6 @@ class ShiftService extends MySqlPoolDal {
         newShift.autoFloatIn = rollingFloatAmount
     }
 
-    private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
-        def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
-        oldTotal.value = oldTotal.value.subtract(rollingFloatAmount)
-        oldShift.cashInDrawer = oldShift.cashInDrawer.subtract(rollingFloatAmount)
-        oldShift.autoFloatOut = rollingFloatAmount
-    }
-
-    private BigDecimal calculateMovingRollingFloat(BigDecimal expectedValue, int rollingFloatValue) {
-        BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue);
-        return expectedValue.min(rollingFloatBigDecimal);
-    }
-
     private Shift populateNewShift(int retailerId, int storeId, int tillId, User loggedInUser) throws Exception {
         int shiftNumber = getLastShiftNumber(retailerId, storeId, tillId) + 1
         FinancialWeek financialWeek = financialWeekService.getFinancialWeek(retailerId)
@@ -886,5 +874,18 @@ class ShiftService extends MySqlPoolDal {
             expected.quantity = expected.quantity + 1
         }
     }
+
+    private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
+        def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
+        oldTotal.value = oldTotal.value.subtract(rollingFloatAmount)
+        oldShift.cashInDrawer = oldShift.cashInDrawer.subtract(rollingFloatAmount)
+        oldShift.autoFloatOut = rollingFloatAmount
+    }
+
+    private BigDecimal calculateMovingRollingFloat(BigDecimal expectedValue, int rollingFloatValue) {
+        BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue);
+        return expectedValue.min(rollingFloatBigDecimal);
+    }
+
 
 }
