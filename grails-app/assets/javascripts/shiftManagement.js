@@ -241,12 +241,8 @@ function closeShifts(retailerId, storeId, tillId, shiftId) {
         url: ShiftUrls.closeShiftUrl(),
         method: "POST",
         data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
-        success: function(resp, textStatus, xhr) {
+        success: function(resp) {
             $("#results-container").html(resp);
-            console.log(xhr)
-            if (xhr.getResponseHeader("X-New-Shift-Created") === "true") {
-                alert("A new shift has been created.");
-            }
         },
         error: function() {
             $("#loading-indicator").hide();
