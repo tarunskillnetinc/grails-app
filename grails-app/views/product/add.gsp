@@ -252,6 +252,7 @@
                     params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
                     params["zeroPrice"] = $("#zeroPrice").prop("checked");
                     params["effectiveDate"] = $(selector + "effectiveDate").val();
+                    params["preferredSku"] = $(selector + "preferredSku").val();
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -298,6 +299,8 @@
                     alert("SKU cannot be a negative number.")
                     return
                 }
+
+                var preferredSku = $('#preferredSkuId').is(":checked");
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -311,7 +314,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: preferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
@@ -388,6 +391,9 @@
                     params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
                 });
 
+                /* Add sku to the preferred dropdown */
+                updateSkuDropdown(sku);
+
                 if(!error){
                     $.ajax({
                     url: saveVariantUrl,
@@ -405,6 +411,12 @@
                         variantContainer.html(resp);
 
                         $('#addVariantModal').modal("hide");
+
+                        variantContainer.promise().done(function() {
+                            if (preferredSku) {
+                                updatePreferredSku(sku);
+                            }
+                        });
                     }
                 });}
             }
@@ -1012,6 +1024,39 @@
                         $("#productHistoryContainer").html(resp);
                     }
                 });
+            }
+
+            function updatePreferredSku(selectedValue) {
+                const dropdownSelection = document.querySelector('select[name="preferredSku"]');
+                const variantContainers = document.querySelectorAll('#variantsContainer > div[id^="variant-"]');
+
+                variantContainers.forEach(container => {
+
+                    const preferredSku = container.querySelector('input[name$=".preferredSku"]');
+                    const sku = container.querySelector('input[name$=".sku"]');
+                    const text = container.querySelector('div[id$=".preferredSku"]');
+
+                    if (sku.value === selectedValue) {
+                        preferredSku.value = 'true';
+                        dropdownSelection.value = selectedValue;
+                        text.textContent = 'Yes';
+                    } else {
+                        preferredSku.value = 'false';
+                        text.textContent = '';
+                    }
+                });
+            }
+
+            function updateSkuDropdown(selectedValue) {
+                const selectElement = document.querySelector('select[name="preferredSku"]');
+                const optionExists = Array.from(selectElement.options).some(option => option.value === selectedValue);
+
+                if (!optionExists) {
+                    const newOption = document.createElement('option');
+                    newOption.value = selectedValue;
+                    newOption.textContent = selectedValue;
+                    selectElement.appendChild(newOption);
+                }
             }
 
             $(function() {

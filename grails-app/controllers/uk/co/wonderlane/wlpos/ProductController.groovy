@@ -41,6 +41,18 @@ class ProductController extends BaseController {
         [userColumns: productService.getColumns()]
     }
 
+    def skuList(Product product) {
+        def groupedBySku = product?.variants.groupBy { it.sku }
+
+        def uniqueVariants = groupedBySku.collectEntries { sku, variants ->
+            [sku, variants.max { it.effectiveDate }]
+        }
+
+        def result = uniqueVariants.values().collect { it }
+
+        return result
+    }
+
     def show(int id) {
         setEffectiveDate()
 
@@ -76,6 +88,7 @@ class ProductController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "add", model: [product            : product,
+                                    skuList            : skuList(product),
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
                                     selTypeValues      : selTypeValues,
@@ -483,6 +496,8 @@ class ProductController extends BaseController {
             product.retailerId = springSecurityService.principal.retailerId
             product.restrictions = new Restrictions()
 
+            product.selDescription = product.selDescription ?: product.receiptDescription?.take(16)
+
             copyRestrictions(editedProduct.restrictions, product.restrictions)
 
             product.variants?.each { variant ->
@@ -537,10 +552,11 @@ class ProductController extends BaseController {
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
             product.discreetMessage = editedProduct.discreetMessage
             product.status = editedProduct.status
+            product.preferredSku = editedProduct.preferredSku
             product.retailerProductId = editedProduct.retailerProductId
             product.stockSale = editedProduct.stockSale
             product.selType = editedProduct.selType
-            product.selDescription = editedProduct.selDescription
+            product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
@@ -719,7 +735,6 @@ class ProductController extends BaseController {
 
             def ranges = []
             def priceBands = []
-            def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
             def editedPrices = []
 
             def userRoles = springSecurityService.principal.authorities*.authority
@@ -735,8 +750,10 @@ class ProductController extends BaseController {
             product.discard()
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+            def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
 
             render(view: "add", model: [product            : product,
+                                        skuList            : skuList(product),
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
                                         selTypeValues      : selTypeValues,
@@ -1310,6 +1327,7 @@ class ProductController extends BaseController {
         builder.compare("vatPercentageOverride", product.vatPercentageOverride == null ? BigDecimal.ZERO.setScale(2) : product.vatPercentageOverride, editedProduct.vatPercentageOverride)
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
+        builder.compare("preferredSku", product.preferredSku, editedProduct.preferredSku, ProductHistoryType.PREFERRED_SKU)
 
         builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
 
@@ -1973,6 +1991,7 @@ class AddVariantCommand {
     int operationMode
     Integer shelfCapacity
     Integer minimumDisplayQuantity
+    boolean preferredSku
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
@@ -2125,6 +2144,7 @@ class SupplierCommand {
 class ProductCommand {
     int id
     int retailerId
+    Long preferredSku
     String itemCode
     String description
     String receiptDescription
@@ -2203,6 +2223,7 @@ class ProductVariantCommand {
     DateTime updatedDatetime
     int updatedUserId
     boolean delete
+    boolean preferredSku
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
