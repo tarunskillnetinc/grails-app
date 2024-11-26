@@ -310,8 +310,8 @@ class ShiftController {
             storeId = Integer.parseInt(params.storeId)
             tillId = Integer.parseInt(params.tillId)
             int shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
-            tillIdFilter = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
             //If any till id added into filter then pass it
+            tillIdFilter = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
             if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) { // Check shift is not null and open if not show appropriate message
 
@@ -336,10 +336,11 @@ class ShiftController {
                     }
                 }
 
-                //Check if shift auto open is configured if yes then open new one
+                //Initially pass newShift populated from rolling float and if it exists then save it
+                //Else check if shift auto open is configured if yes then open new one
                 boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(newShift, shift)
 
-                //Persists rolling float related
+                //Persists rolling float related entries
                 //1. CASH_LIFT and ADD_FLOAT audit entry
                 //2. Tender movements
                 isRollingFloatSuccess = shiftService.addRollingFloatAuditAndTenderMovements(shift, newShift)
@@ -352,7 +353,7 @@ class ShiftController {
                 messageBuilder.append(".")
                 flash.message = messageBuilder.toString()
 
-                if (isRollingFloatSuccess){
+                if (isRollingFloatSuccess){ // If rolling float is success then prepare rolling float message to display as alert
                     flash.rollingFloatMessage = "A Cash amount of £${newShift.autoFloatIn} has been allocated to the next shift. Exclude this from the reconciliation and place that amount into the next shift"
                 }
 

@@ -396,6 +396,11 @@ class ShiftService extends MySqlPoolDal {
         Shift newShift = null
         def cashManagementConfig = cashManagementService.getCashManagementConfig(oldShift.getRetailerId(), oldShift.getStoreId())
         def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
+        //Following conditions were considered when checking rolling float
+        //1. Auto float cash management flag should be enable
+        //2. Configured rolling float value should be positive
+        //3. Till should be enabled to handle cash management
+        //4. Current shift should have positive value (zero or greater)
         if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && oldTotal != null && oldTotal.value.compareTo(BigDecimal.ZERO) >= 0 && isCashManagementEnable(oldShift.tillId)) {
             User loggedInUser = loadLoggedInUser()
             newShift = populateNewShift(oldShift.retailerId, oldShift.storeId, oldShift.tillId,loggedInUser) //call function to open shift
@@ -407,13 +412,14 @@ class ShiftService extends MySqlPoolDal {
     }
 
     boolean addRollingFloatAuditAndTenderMovements(Shift oldShift, Shift newShift){
+        //This exists mean rolling float is enabled and action succeeded
         if (newShift != null) {
             Safe primarySafe = safeService.getPrimaryStoreSafes()
             User loggedInUser = loadLoggedInUser()
-            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser) // Audit for cash lift action in rolling float action
-            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser) // Audit for add float action in rolling float action
-            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, oldShift.autoFloatOut, BigDecimal.ZERO)
-            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, newShift.autoFloatIn, BigDecimal.ZERO)
+            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser)// Add audit for cash lift from old shift action in rolling float action
+            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser)// Add audit for add float to new shift action in rolling float action
+            shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, oldShift.autoFloatOut, BigDecimal.ZERO)// Add tender movement for cash moving into safe
+            shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, newShift.autoFloatIn, BigDecimal.ZERO)// Add tender movement for cash moving out safe
             return true
         }
         return false
