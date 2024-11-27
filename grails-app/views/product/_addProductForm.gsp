@@ -47,7 +47,7 @@
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="selDescription" class="col-3 col-form-label text-right pr-4">SEL Description</label>
-                                <g:textField maxLength="50" name="selDescription" value="${product?.selDescription}" class="col-5 form-control bottom-border" required="true" />
+                                <g:textField maxLength="16" name="selDescription" value="${product?.selDescription}" class="col-5 form-control bottom-border" required="true" />
                             </div>
                             <div class="row form-group mb-3">
                                 <label for="selType" class="col-3 col-form-label text-right pr-4">SEL type</label>
@@ -79,7 +79,7 @@
                             <div class="row form-group mb-3">
                                 <label for="productImgUrl" class="col-3 col-form-label text-right pr-4">Image URL</label>
                                 <g:textField
-                                        maxLength="255"
+                                        maxLength="150"
                                         name="productImgUrl"
                                         value="${product?.productImgUrl}"
                                         class="col-7 form-control bottom-border"
@@ -108,6 +108,16 @@
             </div>
 
             <div id="collapseProductVariants" class="collapse" aria-labelledby="productVariants" data-parent="#accordion">
+
+                <div id="preferredSkuSelect">
+                    <div class="row mx-4 pt-3 pb-2">
+                        <label for="preferredSku" class="col-11 col-form-label text-right">Select Preferred SKU</label>
+                        <div class="col-1">
+                            <g:select name="preferredSku" from="${skuList}" value="${product?.preferredSku}" optionKey="sku" optionValue="sku" class="form-control select-border" onchange="updatePreferredSku(this.value)"/>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-body py-5">
                     <g:hiddenField name="relevantVariant" value="" />
 
@@ -117,7 +127,8 @@
                         <div class="col-2 font-weight-bold">Cost Price</div>
                         <div class="col-2 font-weight-bold">Barcodes</div>
                         <div class="col-2 font-weight-bold">Packs</div>
-                        <div class="col-2 font-weight-bold">&nbsp;</div>
+                        <div class="col-1 font-weight-bold">Preferred SKU</div>
+                        <div class="col-1 font-weight-bold">&nbsp;</div>
                     </div>
 
                     <div id="variantsContainer">
@@ -178,13 +189,11 @@
                                     <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
                                 </div>
                             </fieldset>
-                            <div class="row mt-1 pl-0 form-group">
-                                <div class="col-3 mt-2">
-                                    <span class="text-right pr-4">Stock Management</span>
-                                </div>
+                            <div class="row mt-1 form-group">
+                                <span class="col-3 col-form-label text-right pr-4">Stock Management</span>
                                 <div class="col-9">
                                     <div class="form-check d-flex align-items-center">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="stock" value="STOCK" checked="${product?.stockSale?.name() == 'STOCK'}" valueMessagePrefix="StockSale"/>
+                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="stock" value="STOCK" checked="${product?.stockSale?.name() == 'STOCK' ?: product == null}" valueMessagePrefix="StockSale"/>
                                         <label class="form-check-label mb-0 mt-2 ml-2" for="stock">Standard stock</label>
                                     </div>
                                     <div class="form-check d-flex align-items-center py-1">

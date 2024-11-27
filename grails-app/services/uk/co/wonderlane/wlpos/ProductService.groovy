@@ -887,7 +887,6 @@ class ProductService extends MySqlDal {
         def rawResults = query.list()
 
         def results = rawResults.collect { row ->
-            println "Row: ${row}"
             def selType = new SelType()
             selType.id = row[0] as Integer
             selType.name = row[1] as String

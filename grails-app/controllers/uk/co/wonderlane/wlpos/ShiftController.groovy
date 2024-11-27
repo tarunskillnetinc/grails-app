@@ -39,6 +39,8 @@ class ShiftController {
     def ajaxGetShifts() { //Method to load all shifts
         def successMessage = params.successMessage
         def errorMessage = params.errorMessage
+        def isRollingFloatSuccess = params.isRollingFloatSuccess
+        def rollingFloatMessage = params.rollingFloatMessage
         Integer tillId = null
         try {
             if (params.tillId) { //Check request contains till number and try to pass it
@@ -83,7 +85,7 @@ class ShiftController {
             int configuredRetryAttempts = shiftService.getConfiguredRecountAttempts(springSecurityService.principal.retailerId, springSecurityService.principal.storeId)
 
             render(template: "shiftViewerResults", model: [shiftMap      : sortedShiftMap, isFinancialWeekExists: isFinancialWeekExists, lastRefreshDate: new DateTime(), configuredRetryAttempts: configuredRetryAttempts,
-                                                           successMessage: successMessage, errorMessage: errorMessage])
+                                                           successMessage: successMessage, errorMessage: errorMessage, isRollingFloatSuccess: isRollingFloatSuccess, rollingFloatMessage: rollingFloatMessage])
 
         } catch (Exception ex) {
             log.error(String.format("Shift loading error for tillId: %d error: %s", tillId, ex.getMessage()), ex)
@@ -280,7 +282,7 @@ class ShiftController {
             def shift = shiftService.getOpenShift(retailerId, storeId, tillId) //Load existing open shift
             if (shift == null || !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
                 // Check shift is null or not open if so then proceed to create new shift
-                shift = shiftService.createNewShift(retailerId, storeId, tillId, false) //call function to open shift
+                shift = shiftService.createNewShift(null, retailerId, storeId, tillId, false) //call function to open shift
                 flash.message = String.format("Shift %d has successfully been opened for till %d", shift.getShiftNumber(), tillId)
             } else {
                 flash.message = String.format("Till %d's shift was already open", tillId)
@@ -300,21 +302,27 @@ class ShiftController {
         Integer storeId = null
         Integer tillId = null
         Integer tillIdFilter = null //If any till id added into filter then pass it
+        boolean isRollingFloatSuccess = false
         try {
             shiftService.validateParams(params)
             retailerId = Integer.parseInt(params.retailerId)
             storeId = Integer.parseInt(params.storeId)
             tillId = Integer.parseInt(params.tillId)
             int shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
-            tillIdFilter = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
             //If any till id added into filter then pass it
+            tillIdFilter = params.tillIdFilter ? Integer.parseInt(params.tillIdFilter) : null
             def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
-            if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) {
-                // Check shift is null or not open if so then proceed to create new shift
+            if (shift != null && shift.getShiftStatus() == ShiftStatus.OPEN) { // Check shift is not null and open if not show appropriate message
+
+                //Check if configs are enable for rolling float if so then do all necessary calculations
+                //1. Update current shift values
+                //2. Populate new shift and update it's values -> But no db insert
+                Shift newShift = shiftService.updateRollingFloatCalculations(shift)
+
                 shiftService.processShiftClose(shift) //call function to close shift
 
-                boolean isDirectShiftFinalise = false
                 //Directly process for reconcile and finalise actions if cash management flag is not enable
+                boolean isDirectShiftFinalise = false
                 if (!shiftService.isCashManagementEnable(shift.tillId)){
                     Safe primarySafe = safeService.getPrimaryStoreSafes()
                     if (primarySafe != null) {
@@ -327,8 +335,14 @@ class ShiftController {
                     }
                 }
 
-                //Check if shift auto open is configured if yes then open new one
-                boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(shift)
+                //Initially pass newShift populated from rolling float and if it exists then save it
+                //Else check if shift auto open is configured if yes then open new one
+                boolean isNewShiftOpen = shiftService.handleShiftAutoOpen(newShift, shift)
+
+                //Persists rolling float related entries
+                //1. CASH_LIFT and ADD_FLOAT audit entry
+                //2. Tender movements
+                isRollingFloatSuccess = shiftService.addRollingFloatAuditAndTenderMovements(shift, newShift)
 
                 //Construct flash messages appropriately
                 def messageBuilder = new StringBuilder()
@@ -338,6 +352,10 @@ class ShiftController {
                 messageBuilder.append(".")
                 flash.message = messageBuilder.toString()
 
+                if (isRollingFloatSuccess){ // If rolling float is success then prepare rolling float message to display as alert
+                    flash.rollingFloatMessage = "A Cash amount of £${newShift.autoFloatIn} has been allocated to the next shift. Exclude this from the reconciliation and place that amount into the next shift"
+                }
+
             } else if (shift != null && !(shift.getShiftStatus() == ShiftStatus.OPEN)) {
                 //If there is no open shift mean shift should already be closed
                 flash.message = String.format("Shift %d for Till %d has already been closed.", shift.getShiftNumber(), tillId)
@@ -346,8 +364,10 @@ class ShiftController {
             flash.error = String.format("Till %d's shift close failed", tillId)
             log.error(String.format("Shift close error: %d store: %d tillId: %d error: %s", retailerId, storeId, tillId, ex.getMessage()), ex)
         }
+
         //Once done redirect to process get shift action
-        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: flash.message, errorMessage: flash.error])
+        redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, isRollingFloatSuccess: isRollingFloatSuccess, rollingFloatMessage: flash.rollingFloatMessage,
+                                                   successMessage: flash.message, errorMessage: flash.error])
     }
 
     // This is method to spot check this will popup dialog box which have values each tender types

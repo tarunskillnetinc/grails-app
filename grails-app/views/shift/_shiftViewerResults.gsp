@@ -1,6 +1,8 @@
 <script>
     var successMessage = "${successMessage}";
     var errorMessage = "${errorMessage}";
+    var isRollingFloatSuccess = "${isRollingFloatSuccess}";
+    var rollingFloatMessage = "${rollingFloatMessage}";
 
     $(document).ready(function () {
         if(successMessage != null && successMessage !== ''){
@@ -9,6 +11,10 @@
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         } else {
             $("#messages-container").html('');
+        }
+
+        if(isRollingFloatSuccess && rollingFloatMessage != null && rollingFloatMessage !== ''){
+            alert(rollingFloatMessage)
         }
 
     });
