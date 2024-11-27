@@ -57,8 +57,11 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
     if (cashUpBy === "VALUE" && !isFormValid()) {
         return;
     }
-    var formValues = $("#cashUpForm").serialize();
-    formValues = formValues + "&safeSessionId=" + safeSessionId + "&isRecount=" + isRecount + "&safeDescription=" + safeDescription
+    var formValues = $("#cashUpForm").serializeArray();
+    formValues.push({name:'safeSessionId', value: safeSessionId})
+    formValues.push({name:'isRecount', value: isRecount})
+    formValues.push({name:'safeDescription', value: safeDescription})
+
 
     $.ajax({
         url: SafeManagementUrls.getUpdateSafeSessionReconcileUrl(),
@@ -92,8 +95,13 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription
         proceedWithSubmission = confirm("Safe is in inactive and still contain tender value. Are you sure you want to finalise the safe?");
     }
     if (proceedWithSubmission) {
-        var formValues = $("#safeSessionVarianceForm").serialize();
-        formValues = formValues + "&safeSessionId=" + safeSessionId + "&isFinalise=" + isFinalise + "&isRecount=" + isRecount + "&safeDescription=" + safeDescription
+
+        var formValues = $("#safeSessionVarianceForm").serializeArray();
+        formValues.push({name:'safeSessionId', value: safeSessionId})
+        formValues.push({name:'isRecount', value: isRecount})
+        formValues.push({name:'isFinalise', value: isFinalise})
+        formValues.push({name:'safeDescription', value: safeDescription})
+
         $.ajax({
             url: SafeManagementUrls.getSafeSessionSaveUrl(),
             method: "POST",
