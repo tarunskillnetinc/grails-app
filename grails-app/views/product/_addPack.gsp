@@ -138,10 +138,17 @@
         </div>
         <div class="input-group col-4 my-auto">
             <div class="input-group-prepend">
-                <span class="input-group-text">&pound;</span>
+                <span class="input-group-text" id="priceMarkedSymbolPrefix${packIndex}" style="${(pack?.priceMarkedType == null || pack?.priceMarkedType?.name() == 'VALUE') ? '' : 'display: none;'}">
+                    £
+                </span>
             </div>
             <g:textField name="addPack[${packIndex}].priceMarkedValue" value="${pack?.priceMarkedValue}"
                          class="form-control mask-money disabled-input" maxlength="10"/>
+            <div class="input-group-append">
+                <span class="input-group-text" id="priceMarkedSymbolSuffix${packIndex}" style="${(pack?.priceMarkedType != null && pack?.priceMarkedType?.name() == 'PERCENTAGE') ? '' : 'display: none;'}">
+                    %
+                </span>
+            </div>
         </div>
     </div>
 
