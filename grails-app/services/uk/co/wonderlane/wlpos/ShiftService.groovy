@@ -404,7 +404,7 @@ class ShiftService extends MySqlPoolDal {
         //2. Configured rolling float value should be positive
         //3. Till should be enabled to handle cash management
         //4. Current shift should have positive value (zero or greater)
-        if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && oldTotal != null && oldTotal.value.compareTo(BigDecimal.ZERO) >= 0 && isCashManagementEnable(oldShift.tillId)) {
+        if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && oldTotal != null && oldTotal.value.compareTo(BigDecimal.ZERO) > 0 && isCashManagementEnable(oldShift.tillId)) {
             User loggedInUser = loadLoggedInUser()
             newShift = populateNewShift(oldShift.retailerId, oldShift.storeId, oldShift.tillId,loggedInUser) //call function to open shift
             BigDecimal rollingFloatAmount = calculateMovingRollingFloat(oldTotal.value, cashManagementConfig.rollingFloatValue)
