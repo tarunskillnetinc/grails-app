@@ -1,7 +1,8 @@
 <script>
+
     var reasonPromptMap = {};
     <g:each in="${varianceReasons}" var="reason">
-    reasonPromptMap['${reason.code}'] = ${reason.promptForText};
+        reasonPromptMap['${reason.code}'] = ${reason.promptForText};
     </g:each>
 
     function toggleAdditionalTextBox(select) {
