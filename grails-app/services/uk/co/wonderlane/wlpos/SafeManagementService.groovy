@@ -196,7 +196,7 @@ class SafeManagementService extends MySqlPoolDal {
     }
 
     boolean isTenderAvailableToMove(List<TenderTotal> tenderTotalsToMove){
-        if (tenderTotalsToMove != null && tenderTotalsToMove.isEmpty() && tenderTotalsToMove.size() > 0){
+        if (tenderTotalsToMove != null && !tenderTotalsToMove.isEmpty() && tenderTotalsToMove.size() > 0){
             for (TenderTotal tenderTotal : tenderTotalsToMove) {
                 if (tenderTotal.value.compareTo(BigDecimal.ZERO) > 0) {
                     return true

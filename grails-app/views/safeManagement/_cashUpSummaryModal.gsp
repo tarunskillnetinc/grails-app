@@ -49,7 +49,6 @@
             <g:if test="${!isSafeSessionFinalizeMode}">
                 <g:form name="safeSessionVarianceForm">
                     <g:hiddenField name="safeSessionId" value="${safeSession.id}" />
-                    <g:hiddenField name="safeDescription" value="${safeDescription}" />
                     <g:set var="reconciliationTotalsSum" value="${reconciliationTotals.sum { it.variance.abs() } }" />
 
                     <g:if test="${reconciliationTotals.sum { it.variance } ?: 0 != 0}">

@@ -66,10 +66,6 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
         data: formValues,
         success: function(resp) {
             $("#modal-content").html(resp);
-            $("#saveSafeSessionButton").prop("onclick", null).off("click");
-            $("#saveSafeSessionButton").click(function() {
-                submitSafeSession(safeSessionId, isRecount, false, safeDescription);
-            });
         },
         error: function (resp) {
             if ($("#modal-content").length) {
