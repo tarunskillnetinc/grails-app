@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import uk.co.wonderlane.wlpos.entities.cash.SafeSession
+import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SafeSessionStatus
 
@@ -21,6 +22,8 @@ class SafeManagementController {
 
     // This will load all available safe sessions and parsing to view to display
     def ajaxGetSafeSessions() {
+        def successMessage = params.successMessage
+        def errorMessage = params.errorMessage
         try {
             //Load existing active safe sessions -> At the moment since there is no ant filters pass null as safeId
             List<SafeSession> safeSessions = safeManagementService.getActiveSafeSession(null)
@@ -45,10 +48,13 @@ class SafeManagementController {
 
             int configuredRecountLimit = safeManagementService.getConfiguredRecountAttempts()
 
-            render(template: "safeSessionViewerResults", model: [safeSessions : safeSessions, safeList: safeList, isFinancialWeekExists: isFinancialWeekExists, configuredRecountLimit: configuredRecountLimit])
+            render(template: "safeSessionViewerResults", model: [safeSessions : safeSessions, safeList: safeList, isFinancialWeekExists: isFinancialWeekExists,
+                                                                 configuredRecountLimit: configuredRecountLimit,  successMessage: successMessage, errorMessage: errorMessage])
 
         } catch (Exception ex) {
-            var errorMessage = "Error loading safe session list"
+            if (errorMessage == null || errorMessage == '') {
+                errorMessage = "Error loading safe session list"
+            }
             log.error("Safe session loading error error: ${ex.getMessage()}", ex)
             if (errorMessage == null || errorMessage == '') {
                 errorMessage = "Unexpected error loading safe sessions"
@@ -70,8 +76,9 @@ class SafeManagementController {
             if (safeSession != null && ((!isRecount && !isFinalise && safeSession.getSessionStatus() == SafeSessionStatus.OPEN) || ((isRecount || isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
                 if (safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED && isFinalise) { // If the safe request is finalise show summary modal
                     def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
+                    boolean isSafeFinalisingWarningRequired = safeManagementService.isSafeFinalisingWarningRequired(safeSession)
                     render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons,
-                                                                   safeDescription: safeDescription])
+                                                                   safeDescription: safeDescription, isSafeFinalisingWarningRequired: isSafeFinalisingWarningRequired])
                     return
                 }
                 render(template: "cashUpModal", model: [safeSession: safeSession, safeDescription: safeDescription])
@@ -104,10 +111,13 @@ class SafeManagementController {
                 safeManagementService.processSafeSessionPendingTenderSave(safeSessionCashUpCommand, safeSession)
                 def cashManagementConfig = cashManagementService.getCashManagementConfig(safeSession.getRetailerId(), safeSession.getStoreId())
                 def tillSafeSessionVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getSafeVarianceLimit()).movePointLeft(2):0.00
+                boolean isSafeFinalisingWarningRequired = safeManagementService.isSafeFinalisingWarningRequired(safeSession)
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into safe session's reconciliationTotals values
                 render(template: "cashUpSummaryModal", model: [safeSession: safeSession, varianceReasons: varianceReasons, isSafeSessionFinalizeMode: false,
-                                                               tillSafeSessionVarianceLimit : tillSafeSessionVarianceLimit, safeDescription: safeSessionCashUpCommand.safeDescription])
+                                                               tillSafeSessionVarianceLimit : tillSafeSessionVarianceLimit,
+                                                               safeDescription: safeSessionCashUpCommand.safeDescription,
+                                                               isSafeFinalisingWarningRequired : isSafeFinalisingWarningRequired ])
             }
         } catch (Exception ex) {
             log.error("Safe sessions cash save error for safe session id: ${safeSessionCashUpCommand.safeSessionId} error: ${ex.getMessage()}", ex)
@@ -125,13 +135,31 @@ class SafeManagementController {
                     ((safeSessionSaveCommand.isRecount || safeSessionSaveCommand.isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
                 safeManagementService.processSafeSessionDataSave(safeSessionSaveCommand, safeSession)
                 if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
-                    //Add safe session finalise logic here
+                    //Safe session finalise logic
+                    //If safe is active then create new safe and move all reconcile amounts into tender totals
+                    //If safe is in active but have cash in it then also create new safe and move all reconcile amounts into tender totals
+                    Safe safe = safeService.getSafeById(safeSession.safeId)
+                    List<TenderTotal> tenderTotalsToMove = safeManagementService.getTendersToMoveIntoNewSafeSession(safeSession)
+                    boolean isTenderAvailableToMove = safeManagementService.isTenderAvailableToMove(tenderTotalsToMove)
+                    if (safe.active || (!safe.active && isTenderAvailableToMove)){
+                        //If safe is active or if save is inactive but have cash to move then create new safe session and assign counted values to new session
+                        SafeSession newSafeSession = safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
+                        if (isTenderAvailableToMove) {
+                            newSafeSession.setTenderTotals(tenderTotalsToMove)
+                            safeManagementService.saveSafeSession(newSafeSession)
+                        }
+                    }
+
                     //Redirect to ajaxGetSafeSessions to reload safe session view
+                    redirect(action: "ajaxGetSafeSessions", params: [successMessage: "Successfully finalised safe ${safeSessionSaveCommand.safeDescription}."])
                     return
                 }
+                boolean isSafeFinalisingWarningRequired = safeManagementService.isSafeFinalisingWarningRequired(safeSession)
                 def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
                 //Here this will load cash up summary with actual session's reconciliationTotals values because that is now confirmed
-                render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons, safeDescription: safeSessionSaveCommand.safeDescription])
+                render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons,
+                                                               safeDescription: safeSessionSaveCommand.safeDescription,
+                                                               isSafeFinalisingWarningRequired: isSafeFinalisingWarningRequired])
             } else if (safeSession != null && !safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeSessionSaveCommand.safeDescription}. Already reconciled.")

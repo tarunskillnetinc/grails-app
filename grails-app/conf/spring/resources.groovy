@@ -95,25 +95,12 @@ beans = {
         storeService = ref('storeService')
         userService = ref('userService')
         cashManagementService = ref('cashManagementService')
-        snapshotService = ref('snapshotService')
         locationService = ref('locationService')
         reportingService = ref('reportingService')
         safeService = ref('safeService')
         safeManagementService = ref("safeManagementService")
         commonService = ref("commonService")
         financialWeekService = ref("financialWeekService")
-    }
-
-    snapshotService(SnapshotService,
-            new DatabaseCredentials(grailsApplication.config.getProperty('mysql.transactions.host'),
-                    Integer.parseInt(grailsApplication.config.getProperty('mysql.transactions.port')),
-                    grailsApplication.config.getProperty('mysql.transactions.username'),
-                    grailsApplication.config.getProperty('mysql.transactions.password'),
-                    grailsApplication.config.getProperty('mysql.transactions.database'))) {
-
-        springSecurityService = ref('springSecurityService')
-        gsonProvider = ref("gsonProvider")
-        safeService = ref("safeService")
     }
 
     rabbitService(BackOfficeRabbitService,
@@ -256,6 +243,7 @@ beans = {
         commonService = ref("commonService")
         financialWeekService = ref("financialWeekService")
         cashManagementService = ref("cashManagementService")
+        safeService = ref("safeService")
 
     }
 

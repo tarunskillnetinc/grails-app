@@ -25,7 +25,7 @@ function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescri
         $.ajax({
             url: SafeManagementUrls.getSafeSessionCashUpUrl(),
             method: "POST",
-            data: { sessionId: sessionId, isRecount: isRecount, isFinal: isFinal, safeDescription: safeDescription },
+            data: { sessionId: sessionId, isRecount: isRecount, isFinalise: isFinal, safeDescription: safeDescription },
             success: function(resp) {
                 $('#sessionModal').modal({ show: true, backdrop: 'static', keyboard: false });
                 $("#modal-content").html(resp);
@@ -57,8 +57,11 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
     if (cashUpBy === "VALUE" && !isFormValid()) {
         return;
     }
-    var formValues = $("#cashUpForm").serialize();
-    formValues = formValues + "&safeSessionId=" + safeSessionId + "&isRecount=" + isRecount + "&safeDescription=" + safeDescription
+    var formValues = $("#cashUpForm").serializeArray();
+    formValues.push({name:'safeSessionId', value: safeSessionId})
+    formValues.push({name:'isRecount', value: isRecount})
+    formValues.push({name:'safeDescription', value: safeDescription})
+
 
     $.ajax({
         url: SafeManagementUrls.getUpdateSafeSessionReconcileUrl(),
@@ -66,10 +69,6 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
         data: formValues,
         success: function(resp) {
             $("#modal-content").html(resp);
-            $("#saveSafeSessionButton").prop("onclick", null).off("click");
-            $("#saveSafeSessionButton").click(function() {
-                submitSafeSession(safeSessionId, isRecount, false);
-            });
         },
         error: function (resp) {
             if ($("#modal-content").length) {
@@ -90,14 +89,19 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
     });
 }
 
-function submitSafeSession(safeSessionId, isRecount, isFinalise) {
+function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription, isSafeFinalisingWarningRequired) {
     var proceedWithSubmission = true;
-    if (isFinalise) {
-        proceedWithSubmission = confirm("Are you sure you want to finalise the safe session?");
+    if (isFinalise && isSafeFinalisingWarningRequired) {
+        proceedWithSubmission = confirm("Safe is in inactive and still contain tender value. Are you sure you want to finalise the safe?");
     }
     if (proceedWithSubmission) {
-        var formValues = $("#safeSessionVarianceForm").serialize();
-        formValues = formValues + "&safeSessionId=" + safeSessionId + "&isFinalise=" + isFinalise + "&isRecount=" + isRecount
+
+        var formValues = $("#safeSessionVarianceForm").serializeArray();
+        formValues.push({name:'safeSessionId', value: safeSessionId})
+        formValues.push({name:'isRecount', value: isRecount})
+        formValues.push({name:'isFinalise', value: isFinalise})
+        formValues.push({name:'safeDescription', value: safeDescription})
+
         $.ajax({
             url: SafeManagementUrls.getSafeSessionSaveUrl(),
             method: "POST",
@@ -124,7 +128,7 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise) {
                 }
                 $('body').removeClass('modal-open');
                 var errorMessage = resp.responseJSON && resp.responseJSON.message ?
-                    resp.responseJSON.message : "Action failed";
+                    resp.responseJSON.message : "Action failed for safe " + safeDescription;
                 $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
             }
         });

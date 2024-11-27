@@ -49,7 +49,6 @@
             <g:if test="${!isSafeSessionFinalizeMode}">
                 <g:form name="safeSessionVarianceForm">
                     <g:hiddenField name="safeSessionId" value="${safeSession.id}" />
-                    <g:hiddenField name="safeDescription" value="${safeDescription}" />
                     <g:set var="reconciliationTotalsSum" value="${reconciliationTotals.sum { it.variance.abs() } }" />
 
                     <g:if test="${reconciliationTotals.sum { it.variance } ?: 0 != 0}">
@@ -134,12 +133,12 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
+    <button type="button" id="cancelSafeSessionButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
     <g:if test="${!isSafeSessionFinalizeMode}">
-        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, ${safeSession.reconciledDate != null}, false)" >Save</button>
+        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, ${safeSession.reconciledDate != null}, false, '${safeDescription}', ${isSafeFinalisingWarningRequired})" >Save</button>
     </g:if>
     <g:else>
         %{-- Here can use same `submitSafeSession` action--}%
-        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success">Finalise</button>
+        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, false, true, '${safeDescription}', ${isSafeFinalisingWarningRequired})">Finalise</button>
     </g:else>
 </div>

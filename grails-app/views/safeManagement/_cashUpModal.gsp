@@ -41,6 +41,6 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveSnapshotButton" class="btn btn-success" onclick="saveSafeSessionCashUrl(${safeSession.id}, ${safeSession.reconciledDate != null}, `${safeDescription}`)">Save</button>
+    <button type="button" id="cancelSafeSessionButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="saveSafeSessionCashUrl(${safeSession.id}, ${safeSession.reconciledDate != null}, `${safeDescription}`)">Save</button>
 </div>
