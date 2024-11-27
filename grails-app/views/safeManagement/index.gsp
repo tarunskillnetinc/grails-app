@@ -8,7 +8,6 @@
         <asset:stylesheet src="bootstrap-datepicker3.min.css" />
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="money-mask.js" />
-        <asset:javascript src="safeCount.js"/>
         <asset:javascript src="date-pickers.js"/>
         <asset:javascript src="co-utils.js"/>
         <asset:javascript src="input-validator.js" />

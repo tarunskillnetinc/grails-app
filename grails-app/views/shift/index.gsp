@@ -9,9 +9,7 @@
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="money-mask.js" />
         <asset:javascript src="shiftUrls.js"/>
-        <asset:javascript src="snapshotUrls.js"/>
         <asset:javascript src="shiftManagement.js"/>
-        <asset:javascript src="safeCount.js"/>
         <asset:javascript src="date-pickers.js"/>
         <asset:javascript src="co-utils.js"/>
         <asset:javascript src="validators/input-validator.js" />
@@ -31,19 +29,6 @@
                     "${createLink(controller: 'shift', action: 'ajaxSaveCashUpdate')}"
                 );
 
-                SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxCashLift')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxBanking')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveBanking')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxCashInbound')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveCashInbound')}",
-                );
-
                 initDatePickers(
                     'startDate',
                     'endDate',
@@ -51,21 +36,6 @@
                     "${new Date().format("dd/MM/yyyy")}"
                 );
                 getShifts();
-
-                function updateSnapshotLink() {
-                    let startDate = document.getElementById('startDate').value;
-                    let endDate = document.getElementById('endDate').value;
-                    let tillId = document.getElementById('tillId').value;
-                    let snapShotLink = document.getElementById('snapShotLink');
-                    let url = "/snapshot/index?shiftStartDate=" + encodeURIComponent(startDate) + "&shiftEndDate=" +
-                        encodeURIComponent(endDate) + "&shiftTillId=" + tillId;
-                    snapShotLink.href = url;
-                }
-
-                $('#startDate').on('change', updateSnapshotLink);
-                $('#endDate').on('change', updateSnapshotLink);
-                document.getElementById('tillId').addEventListener('change', updateSnapshotLink);
-                updateSnapshotLink()
 
             });
 

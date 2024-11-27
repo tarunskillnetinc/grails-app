@@ -134,7 +134,7 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" id="cancelSnapshotButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
+    <button type="button" id="cancelSafeSessionButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
     <g:if test="${!isSafeSessionFinalizeMode}">
         <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, ${safeSession.reconciledDate != null}, false, '${safeDescription}', ${isSafeFinalisingWarningRequired})" >Save</button>
     </g:if>
