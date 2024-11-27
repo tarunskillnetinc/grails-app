@@ -140,10 +140,14 @@ class SafeManagementController {
                     //If safe is in active but have cash in it then also create new safe and move all reconcile amounts into tender totals
                     Safe safe = safeService.getSafeById(safeSession.safeId)
                     List<TenderTotal> tenderTotalsToMove = safeManagementService.getTendersToMoveIntoNewSafeSession(safeSession)
-                    if (safe.active || (!safe.active && (!tenderTotalsToMove.isEmpty() && tenderTotalsToMove.size() > 0))){ //If safe is active then create new safe session
+                    boolean isTenderAvailableToMove = safeManagementService.isTenderAvailableToMove(tenderTotalsToMove)
+                    if (safe.active || (!safe.active && isTenderAvailableToMove)){
+                        //If safe is active or if save is inactive but have cash to move then create new safe session and assign counted values to new session
                         SafeSession newSafeSession = safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
-                        newSafeSession.setTenderTotals(tenderTotalsToMove)
-                        safeManagementService.saveSafeSession(newSafeSession)
+                        if (isTenderAvailableToMove) {
+                            newSafeSession.setTenderTotals(tenderTotalsToMove)
+                            safeManagementService.saveSafeSession(newSafeSession)
+                        }
                     }
 
                     //Redirect to ajaxGetSafeSessions to reload safe session view
