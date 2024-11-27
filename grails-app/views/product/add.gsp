@@ -1069,6 +1069,18 @@
 
             function updatePriceMarkedType(packIndex, value) {
                 $('#addPack\\[' + packIndex + '\\]\\.priceMarkedType').val(value);
+
+                // Update the symbols
+                const $prefixElement = $('#priceMarkedSymbolPrefix'+packIndex);
+                const $suffixElement = $('#priceMarkedSymbolSuffix'+packIndex);
+
+                if (value === 'VALUE') {
+                    $prefixElement.text('£').show();
+                    $suffixElement.hide();
+                } else if (value === 'PERCENTAGE') {
+                    $prefixElement.hide();
+                    $suffixElement.text('%').show();
+                }
             }
 
             function togglePriceMarkedFields(packIndex) {
