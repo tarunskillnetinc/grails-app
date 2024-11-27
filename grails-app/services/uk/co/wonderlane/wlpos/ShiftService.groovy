@@ -888,11 +888,9 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private BigDecimal calculateMovingRollingFloat(BigDecimal expectedValue, int rollingFloatValue) {
-        BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue)
-        if (rollingFloatBigDecimal.compareTo(expectedValue) > 0){
-            rollingFloatBigDecimal = expectedValue
-        }
-        return rollingFloatBigDecimal
+        // Convert rollingFloatValue from pence to pounds by moving the decimal point
+        BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue).movePointLeft(2)
+        return rollingFloatBigDecimal.min(expectedValue)
     }
 
 }
