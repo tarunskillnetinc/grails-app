@@ -335,12 +335,12 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
 
 
         where:
-        reconciledDate || snapshotCashTotal || snapshotVoucherTotal
-        null           || 1000              || 500
-        new DateTime() || 1000              || 500
-        new DateTime() || 1000              || null
-        new DateTime() || null              || 500
-        new DateTime() || null              || null
+        reconciledDate || shiftCashTotal || shiftVoucherTotal
+        null           || 1000           || 500
+        new DateTime() || 1000           || 500
+        new DateTime() || 1000           || null
+        new DateTime() || null           || 500
+        new DateTime() || null           || null
     }
 
     private Shift getNewShiftObject(int id) {
