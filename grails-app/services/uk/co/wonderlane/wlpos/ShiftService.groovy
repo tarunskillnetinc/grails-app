@@ -383,16 +383,16 @@ class ShiftService extends MySqlPoolDal {
     Shift updateRollingFloatCalculations(Shift oldShift){
         Shift newShift = null
         def cashManagementConfig = cashManagementService.getCashManagementConfig(oldShift.getRetailerId(), oldShift.getStoreId())
-        def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
+        BigDecimal currentCashTotal = oldShift.cashInDrawer
         //Following conditions were considered when checking rolling float
         //1. Auto float cash management flag should be enable
         //2. Configured rolling float value should be positive
         //3. Till should be enabled to handle cash management
         //4. Current shift should have positive value (zero or greater)
-        if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && oldTotal != null && oldTotal.value.compareTo(BigDecimal.ZERO) >= 0 && isCashManagementEnable(oldShift.tillId)) {
+        if (cashManagementConfig.rollingFloatEnabled && cashManagementConfig.rollingFloatValue > 0 && currentCashTotal != null && currentCashTotal.compareTo(BigDecimal.ZERO) > 0 && isCashManagementEnable(oldShift.tillId)) {
             User loggedInUser = loadLoggedInUser()
             newShift = populateNewShift(oldShift.retailerId, oldShift.storeId, oldShift.tillId,loggedInUser) //call function to open shift
-            BigDecimal rollingFloatAmount = calculateMovingRollingFloat(oldTotal.value, cashManagementConfig.rollingFloatValue)
+            BigDecimal rollingFloatAmount = calculateMovingRollingFloat(currentCashTotal, cashManagementConfig.rollingFloatValue)
             moveRollingFloatToNewShift(newShift, rollingFloatAmount)
             updateRollingFloatToOldShift(oldShift, rollingFloatAmount)
         }
@@ -838,11 +838,9 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private BigDecimal calculateMovingRollingFloat(BigDecimal expectedValue, int rollingFloatValue) {
-        BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue)
-        if (rollingFloatBigDecimal.compareTo(expectedValue) > 0){
-            rollingFloatBigDecimal = expectedValue
-        }
-        return rollingFloatBigDecimal
+        // Convert rollingFloatValue from pence to pounds by moving the decimal point
+        BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue).movePointLeft(2)
+        return rollingFloatBigDecimal.min(expectedValue)
     }
 
 }
