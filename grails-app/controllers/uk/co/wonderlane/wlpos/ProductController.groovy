@@ -1612,8 +1612,8 @@ class ProductController extends BaseController {
         render(template: "categorySelectInputs", model: [categories: category?.childCategories, level: level, selectedCategoryId: selectedCategoryId, triggerOnCategoryChange: triggerOnCategoryChange])
     }
 
-    def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant) {
-        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant])
+    def ajaxAddVariant(AddVariantCommand cmd, boolean isNewVariant, boolean isPreferredSkuEditable) {
+        render(template: "addVariant", model: [variant: cmd, zeroPrice: cmd.zeroPrice, isEditMode: cmd.operationMode == OperationMode.EDIT.value, isNewVariant: isNewVariant, isPreferredSkuEditable: isPreferredSkuEditable])
     }
 
     def ajaxAddBarcode(int index, String selector) {

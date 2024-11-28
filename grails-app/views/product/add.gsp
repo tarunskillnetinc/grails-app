@@ -281,6 +281,10 @@
                 params["index"] = index;
                 params["isNewVariant"] = isNewVariant;
 
+                const variants = $('#variantsContainer > div[id^="variant-"]');
+                var editPreferredSku = isNewVariant || variants.length > 1;
+                params["isPreferredSkuEditable"] = editPreferredSku;
+
                 $.ajax({
                     url: addVariantUrl,
                     method: "POST",

@@ -24,7 +24,7 @@
             <label for="preferredSku" class="col-3 offset-1 col-form-label text-right">Preferred SKU</label>
 
             <div class="input-group col-4">
-                <g:checkBox id="preferredSkuId" name="preferredSku" value="${variant?.preferredSku}" class="wl-checkbox" style="margin-left: 0"/>
+                <g:checkBox id="preferredSkuId" name="preferredSku" value="${variant?.preferredSku}" class="wl-checkbox" style="margin-left: 0" disabled="${!isPreferredSkuEditable}" />
             </div>
         </div>
 
