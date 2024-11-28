@@ -196,6 +196,9 @@
                             $(this).val(itemCode);
                         })
                     }
+
+                    updateSkuDropdown(itemCode);
+                    updatePreferredSku(itemCode);
                 }
             }
 
