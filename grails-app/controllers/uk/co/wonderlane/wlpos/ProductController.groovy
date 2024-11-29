@@ -18,8 +18,10 @@ import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
+import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.StockSale
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -39,6 +41,18 @@ class ProductController extends BaseController {
         [userColumns: productService.getColumns()]
     }
 
+    def skuList(Product product) {
+        def groupedBySku = product?.variants.groupBy { it.sku }
+
+        def uniqueVariants = groupedBySku.collectEntries { sku, variants ->
+            [sku, variants.max { it.effectiveDate }]
+        }
+
+        def result = uniqueVariants.values().collect { it }
+
+        return result
+    }
+
     def show(int id) {
         setEffectiveDate()
 
@@ -55,6 +69,7 @@ class ProductController extends BaseController {
         def ranges = []
         def priceBands = []
         def productCategoryList = []
+        def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
         def category = product.category
 
         while (category) {
@@ -73,8 +88,10 @@ class ProductController extends BaseController {
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
 
         render(view: "add", model: [product            : product,
+                                    skuList            : skuList(product),
                                     storeId            : springSecurityService.principal.storeId,
                                     statusValues       : ProductStatus.values(),
+                                    selTypeValues      : selTypeValues,
                                     categoryValues     : categoryService.getTopLevelCategories(),
                                     productCategoryList: productCategoryList,
                                     vatValues          : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
@@ -111,6 +128,7 @@ class ProductController extends BaseController {
 
         def ranges = []
         def priceBands = []
+        def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
         def userRoles = springSecurityService.principal.authorities*.authority
 
         if (userRoles.contains("ROLE_HEAD_OFFICE") || userRoles.contains("ROLE_ENGINEER")) {
@@ -123,6 +141,7 @@ class ProductController extends BaseController {
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
+                                    selTypeValues   : selTypeValues,
                                     categoryValues  : categoryService.getTopLevelCategories(),
                                     vatValues       : VatCode.findAllByRetailerId(springSecurityService.principal.retailerId),
                                     ranges          : ranges,
@@ -477,6 +496,8 @@ class ProductController extends BaseController {
             product.retailerId = springSecurityService.principal.retailerId
             product.restrictions = new Restrictions()
 
+            product.selDescription = product.selDescription ?: product.receiptDescription?.take(16)
+
             copyRestrictions(editedProduct.restrictions, product.restrictions)
 
             product.variants?.each { variant ->
@@ -531,7 +552,12 @@ class ProductController extends BaseController {
             product.vatPercentageOverride = editedProduct.vatPercentageOverride
             product.discreetMessage = editedProduct.discreetMessage
             product.status = editedProduct.status
+            product.preferredSku = editedProduct.preferredSku
             product.retailerProductId = editedProduct.retailerProductId
+            product.stockSale = editedProduct.stockSale
+            product.selType = editedProduct.selType
+            product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
+            product.productImgUrl = editedProduct.productImgUrl
 
             if (isRestrictionsChanged(editedProduct.restrictions, product.restrictions)) {
                 if (product.category != null) {
@@ -724,10 +750,13 @@ class ProductController extends BaseController {
             product.discard()
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+            def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
 
             render(view: "add", model: [product            : product,
+                                        skuList            : skuList(product),
                                         storeId            : springSecurityService.principal.storeId,
                                         statusValues       : ProductStatus.values(),
+                                        selTypeValues      : selTypeValues,
                                         categoryValues     : topLevelCategories,
                                         productCategoryList: productCategoryList,
                                         effectiveDateIndex : session.effectiveDate,
@@ -1001,7 +1030,7 @@ class ProductController extends BaseController {
 
     private boolean doesBarcodeExistForSupplier(String barcode, def packId, int supplierId, def packs, int variantId) {
         boolean existsInPacks = packs.any { pack ->
-            if (pack.id != packId && pack.supplier.id == supplierId) {
+            if (pack != null && pack.id != packId && pack.supplier.id == supplierId) {
                 pack.barcodez.any { packBarcode ->
                     return packBarcode.barcode == barcode
                 }
@@ -1112,44 +1141,48 @@ class ProductController extends BaseController {
         List<Integer> newPacksIds = new ArrayList<>()
 
         editedVariant.packs?.each { editedPack ->
-            def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
+            if (editedPack != null) {
+                def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
 
-            if (existingPack && packChanged(editedPack, existingPack)) {
-                updatePack(existingPack, editedPack, now)
-                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
-            } else if (!existingPack) {
-                Pack newPack = new Pack()
-                editedPack.barcodez.each { barcode ->
-                    Barcode newBarcode = new Barcode()
-                    newBarcode.retailerId = springSecurityService.principal.retailerId
-                    newBarcode.effectiveDate = effectiveDate
-                    newBarcode.pack = newPack
-                    newBarcode.barcode = barcode.barcode
-                    newBarcode.recordStatus = 'C'
-                    newPack.barcodez.add(newBarcode)
+                if (existingPack && packChanged(editedPack, existingPack)) {
+                    updatePack(existingPack, editedPack, now)
+                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
+                } else if (!existingPack) {
+                    Pack newPack = new Pack()
+                    editedPack.barcodez.each { barcode ->
+                        Barcode newBarcode = new Barcode()
+                        newBarcode.retailerId = springSecurityService.principal.retailerId
+                        newBarcode.effectiveDate = effectiveDate
+                        newBarcode.pack = newPack
+                        newBarcode.barcode = barcode.barcode
+                        newBarcode.recordStatus = 'C'
+                        newPack.barcodez.add(newBarcode)
+                    }
+                    updatePack(newPack, editedPack, now)
+                    existingVariant.addToPacks(newPack)
+                    checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
+                    if (newPack.id > 0) {
+                        // New pack id got set when retrieving barcodes from DB
+                        newPacksIds.add(newPack.id)
+                    }
+                } else {
+                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
                 }
-                updatePack(newPack, editedPack, now)
-                existingVariant.addToPacks(newPack)
-                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
-                if (newPack.id > 0) {
-                    // New pack id got set when retrieving barcodes from DB
-                    newPacksIds.add(newPack.id)
-                }
-            } else {
-                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
         def packsToRemove = []
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
-            if (existingPack.isActive()) {
-                // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
-                if (existingPack.id > 0 && !newPacksIds.contains(existingPack.id)) {
-                    def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+            if (existingPack != null) {
+                if (existingPack.isActive()) {
+                    // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
+                    if (existingPack.id > 0 && !newPacksIds.contains(existingPack.id)) {
+                        def editedPack = editedVariant.packs?.find { editedPack ->  editedPack != null && editedPack.id == existingPack.id }
 
-                    if (!editedPack) {
-                        packsToRemove << existingPack
+                        if (!editedPack) {
+                            packsToRemove << existingPack
+                        }
                     }
                 }
             }
@@ -1224,6 +1257,9 @@ class ProductController extends BaseController {
                 || newPack.recommendedRetailPrice != existingPack.recommendedRetailPrice
                 || newPack.status != existingPack.status
                 || newPack.maximumOrderQuantity != existingPack.maximumOrderQuantity
+                || newPack.priceMarked != existingPack.priceMarked
+                || newPack.priceMarkedType != existingPack.priceMarkedType
+                || newPack.priceMarkedValue != existingPack.priceMarkedValue
     }
 
     def locationChanged(def newLocation, def existingLocation) {
@@ -1251,6 +1287,11 @@ class ProductController extends BaseController {
         packToBeUpdated.maximumOrderQuantity = editedPack.maximumOrderQuantity
         packToBeUpdated.allowSubstitutes = editedPack.allowSubstitutes
         packToBeUpdated.primaryCase = editedPack.primaryCase
+        packToBeUpdated.priceMarked = editedPack.priceMarked
+        if (editedPack.priceMarked) {
+            packToBeUpdated.priceMarkedType = editedPack.priceMarkedType
+            packToBeUpdated.priceMarkedValue = editedPack.priceMarkedValue
+        }
 
         if (packToBeUpdated.hasProperty('updateDatetime')) {
             packToBeUpdated.updateDatetime = now
@@ -1290,6 +1331,13 @@ class ProductController extends BaseController {
         builder.compare("vatPercentageOverride", product.vatPercentageOverride == null ? BigDecimal.ZERO.setScale(2) : product.vatPercentageOverride, editedProduct.vatPercentageOverride)
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
+        builder.compare("preferredSku", product.preferredSku, editedProduct.preferredSku, ProductHistoryType.PREFERRED_SKU)
+
+        builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
+
+        builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
+        builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
+        builder.compare("productImgUrl", product.productImgUrl, editedProduct.productImgUrl)
 
         builder.compare("category", product.category?.description, editedProduct.category?.description)
 
@@ -1391,22 +1439,26 @@ class ProductController extends BaseController {
         //---------------------------- Update history for pack fields --------------------------------//
 
         variant?.packs?.each { editedPack ->
-            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
-            
-            if (existingPack) { //Pack already existed
-                comparePackFields(builder, existingPack, editedPack)
-            } else { //Pack newly added
-                comparePackFields(builder, new Pack(), editedPack)
+            if (editedPack != null) {
+                def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+
+                if (existingPack) { //Pack already existed
+                    comparePackFields(builder, existingPack, editedPack)
+                } else { //Pack newly added
+                    comparePackFields(builder, new Pack(), editedPack)
+                }
             }
         }
 
         // Remove any packs which no longer exist.
         oldVariant?.packs?.each { existingPack ->
-            // If the ID is not set then this must be a new pack added as part of this save
-            if (existingPack.id > 0) {
-                def editedPack = variant?.packs?.find { editedPack -> editedPack.id == existingPack.id }
-                if (!editedPack) { //Pack is removed
-                    comparePackFields(builder, existingPack, new PackCommand())
+            if (existingPack != null) {
+                // If the ID is not set then this must be a new pack added as part of this save
+                if (existingPack.id > 0) {
+                    def editedPack = variant?.packs?.find { editedPack ->  editedPack != null && editedPack.id == existingPack.id }
+                    if (!editedPack) { //Pack is removed
+                        comparePackFields(builder, existingPack, new PackCommand())
+                    }
                 }
             }
         }
@@ -1421,6 +1473,9 @@ class ProductController extends BaseController {
         builder.compare("packRecommendedRetailPrice", oldPack.recommendedRetailPrice, pack.recommendedRetailPrice)
         builder.compare("packStatus", oldPack.status, pack.status)
         builder.compare("packMaximumOrderQuantity", oldPack.maximumOrderQuantity, pack.maximumOrderQuantity)
+        builder.compare("packPriceMarked", oldPack.priceMarked, pack.priceMarked)
+        builder.compare("packPriceMarkedType", oldPack.priceMarkedType, pack.priceMarkedType)
+        builder.compare("packPriceMarkedValue", oldPack.priceMarkedValue, pack.priceMarkedValue)
     }
 
     void compareLocationFields(ProductHistoryBuilder builder, Location oldLocation, def location, ProductHistoryType productHistoryType) {
@@ -1944,6 +1999,7 @@ class AddVariantCommand {
     int operationMode
     Integer shelfCapacity
     Integer minimumDisplayQuantity
+    boolean preferredSku
 
     BigDecimal getCurrentPrice() {
         if (retailPrice != null) {
@@ -1989,6 +2045,11 @@ class AddPackCommand implements Validateable {
     boolean isWeighted = false
     Integer productVariantId
     List<AddBarcodeCommand> barcodez
+    BigDecimal minAlcoholUnitPrice
+    BigDecimal weightedAverageCost
+    boolean priceMarked = false
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack
@@ -1996,6 +2057,7 @@ class AddPackCommand implements Validateable {
         productVariantId nullable: true
         allowSubstitutes nullable: true
         primaryCase nullable: true
+        priceMarked nullable: true
         supplier nullable: false, blank: false, validator: { supplier, pack ->
             if (!supplier.id) return ["addPackCommand.supplier.empty"]
         }
@@ -2014,6 +2076,18 @@ class AddPackCommand implements Validateable {
         }
         maximumOrderQuantity validator: {
             if (it >= 100000) return ['addPackCommand.maxOrderQuantity.maxValue']
+        }
+        priceMarkedValue nullable: true, blank: true,validator: {val, obj ->
+            if (obj.priceMarked) {
+                if (val == null) return ['addPackCommand.priceMarkedValue.nullable']
+                if (BigDecimal.ZERO == val) return ['addPackCommand.priceMarkedValue.zero']
+                if (val >= 1.0E9) return ['addPackCommand.priceMarkedValue.max']
+            }
+        }
+        priceMarkedType nullable: true, blank: true, validator: {val, obj ->
+            if (obj.priceMarked) {
+                if (val == null) return ['addPackCommand.priceMarkedType.nullable']
+            }
         }
     }
 
@@ -2078,6 +2152,7 @@ class SupplierCommand {
 class ProductCommand {
     int id
     int retailerId
+    Long preferredSku
     String itemCode
     String description
     String receiptDescription
@@ -2097,6 +2172,10 @@ class ProductCommand {
     ProductStatus status
     String retailerProductId
     DateTime effectiveDate
+    StockSale stockSale
+    String selDescription
+    SelType selType
+    String productImgUrl
 
     List<SavePriceChangesCommand> priceChanges // When editing price bands as a head office user or engineer.
     int[] rangeId // When editing the ranges this product is in as a head office user or engineer.
@@ -2152,6 +2231,7 @@ class ProductVariantCommand {
     DateTime updatedDatetime
     int updatedUserId
     boolean delete
+    boolean preferredSku
 
     Collection<PackCommand> packs = new ArrayList<>()
     Collection<BarcodeCommand> barcodez = new ArrayList<>()
@@ -2171,7 +2251,10 @@ class PackCommand {
     PackStatus status
     Integer maximumOrderQuantity
     boolean allowSubstitutes
-    boolean primaryCase
+    boolean primaryCase = false
+    boolean priceMarked = false
+    PriceMarkedType priceMarkedType
+    BigDecimal priceMarkedValue
 
     static constraints = {
         importFrom Pack

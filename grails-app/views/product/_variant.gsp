@@ -8,6 +8,7 @@
     <g:hiddenField name="variants[${index}].shelfCapacity" value="${variant?.shelfCapacity}" />
     <g:hiddenField name="variants[${index}].minimumDisplayQuantity" value="${variant?.minimumDisplayQuantity}" />
     <g:hiddenField name="variants[${index}].effectiveDate" value="${variant?.effectiveDate}" />
+    <g:hiddenField name="variants[${index}].preferredSku" value="${variant?.preferredSku}" />
 
     <div class="col-2 my-auto" id="variants[${index}].skuText">${variant?.sku ?: 0}</div>
     <div class="col-2 my-auto" id="variants[${index}].retailPriceText"><g:formatNumber number="${variant?.currentPrice}" type="currency" /> (${variant?.retailPrice ? "store override" : "price band"})</div>
@@ -25,7 +26,11 @@
         <g:render template="packs" model="[variantIndex: index, packs: variant?.packs, defaultSupplier:variant?.defaultSupplierId]" />
     </div>
 
-    <div class="col-2 my-auto text-right">
+    <div id="variants[${index}].preferredSku" class="col-1 my-auto">
+        ${variant?.preferredSku ? 'Yes' : ''}
+    </div>
+
+    <div class="col-1 my-auto text-right">
         <a id="variant-${index}-suppliers-btn" href="#" onclick="event.stopPropagation(); showSuppliersModal(${index});" class="btn btn-wl">Suppliers</a>
     </div>
 </div>

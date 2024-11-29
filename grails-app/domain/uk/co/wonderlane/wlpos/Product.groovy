@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.springframework.context.i18n.LocaleContextHolder
 import uk.co.wonderlane.wlpos.enums.ProductStatus
+import uk.co.wonderlane.wlpos.enums.StockSale
 
 import java.math.RoundingMode
 
@@ -31,6 +32,8 @@ class Product {
     String discreetMessage
     ProductStatus status
     String retailerProductId
+    StockSale stockSale
+    Long preferredSku
 
     Collection<Message> saleMessages = new ArrayList<>()
     Collection<Message> refundMessages = new ArrayList<>()
@@ -39,7 +42,12 @@ class Product {
     BigDecimal retailPrice
     BigDecimal costPrice
 
+    String selDescription
+    SelType selType
+    String productImgUrl
+
     static hasMany = [ saleMessages: Message, refundMessages: Message, variants: ProductVariant ]
+    static belongsTo = [selType: SelType]
 
     static transients = ['retailPrice', 'costPrice']
 
@@ -69,7 +77,12 @@ class Product {
         discreetMessage column: "discreetMessage"
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
+        stockSale column: "stockSale", sqlType: "enum", enumType: "string"
         variants cascade: "save-update,delete"
+        selDescription column: "selDescription"
+        selType column: "selType"
+        productImgUrl column: "productImgUrl"
+        preferredSku column: "preferredSku"
 
         saleMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
         refundMessages joinTable: [name: 'productmessage', key: 'productId', column: 'messageId']
@@ -87,6 +100,7 @@ class Product {
         vatCode nullable: false
         status nullable: false
         category nullable: false
+        stockSale nullable: false
         retailerProductId nullable: true
         restrictions validator: {val, obj ->
             return val?.validate() ? true : ["error.Product.badRestrictions"]
@@ -106,6 +120,10 @@ class Product {
 //            return noError ? true : ["error.Product.badVariants"]
             return true
         }
+        selDescription nullable: true, blank: true
+        selType nullable: true
+        productImgUrl nullable: true, blank: true, url: true
+        preferredSku nullable: true
     }
 
     List<RangeProduct> getRanges() {
@@ -244,6 +262,7 @@ class Product {
         product.setRestrictions(restrictions.getRestrictions())
         product.setDiscreetMessage(discreetMessage)
         product.setStatus(status)
+        product.setStockSale(stockSale)
         variants.each {
             if (it.storeId == null || it.storeId == storeId) {
                 product.getVariants().add(it.getProductVariant(priceBand))
@@ -257,6 +276,13 @@ class Product {
         }
         product.setRetailerItemId(retailerProductId)
         product.setLocal(false)
+
+        product.setSelDescription(selDescription)
+        uk.co.wonderlane.wlpos.entities.SelType selTypeCommon = new uk.co.wonderlane.wlpos.entities.SelType();
+        selTypeCommon.setId(selType?.id)
+        selTypeCommon.setName(selType?.name)
+        product.setSelType(selTypeCommon)
+        product.setProductImgUrl(productImgUrl)
 
         return product
     }

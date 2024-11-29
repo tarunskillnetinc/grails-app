@@ -90,12 +90,12 @@ p {
     padding: 0 1rem;
     background: #575756;
     color: #FFFFFF;
-    font-size: 24px;
+    font-size: 1.15rem;
 }
 
 .nav-wl .nav-item {
-    padding-left: 50px;
-    padding-right: 50px;
+    padding-left: 1.7vw;
+    padding-right: 1.7vw;
 }
 
 .nav-wl .nav-item:hover {
