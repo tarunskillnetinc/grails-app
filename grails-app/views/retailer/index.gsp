@@ -616,6 +616,15 @@
                                     <div class="btn btn-danger" id="reset-stock-room-abbreviated-term-button" onclick="$('#stockRoomAbbreviatedTerm').val('S/R')">Reset</div>
                                 </div>
                             </div>
+                            <div class="form-group row">
+                                <label for="unexpectedCageInDeliveryTerm" class="col-5 col-lg-3 offset-lg-2 col-form-label text-right pr-4">Unexpected Cage in Delivery</label>
+                                <div class="col-7 col-lg-4">
+                                    <input type="text" class="col-5 form-control bottom-border" name="retailerTerminologyConfig.unexpectedCageInDeliveryTerm" id="unexpectedCageInDeliveryTerm" value="${retailer?.config?.retailerTerminologyConfig.unexpectedCageInDeliveryTerm}" />
+                                </div>
+                                <div class="form-group row">
+                                    <div class="btn btn-danger" id="resetUnexpectedCageInDeliveryButton" onclick="$('#unexpectedCageInDeliveryTerm').val('Scanned cage does not belong to this delivery')">Reset</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
