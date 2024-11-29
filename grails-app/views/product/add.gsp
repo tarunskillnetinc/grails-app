@@ -281,10 +281,6 @@
                 params["index"] = index;
                 params["isNewVariant"] = isNewVariant;
 
-                const variants = $('#variantsContainer > div[id^="variant-"]');
-                var editPreferredSku = isNewVariant || variants.length > 1;
-                params["isPreferredSkuEditable"] = editPreferredSku;
-
                 $.ajax({
                     url: addVariantUrl,
                     method: "POST",
@@ -307,7 +303,13 @@
                     return
                 }
 
-                var preferredSku = $('#preferredSkuId').is(":checked");
+                var isPreferredSku = false;
+                var preferredSku = $('#preferredSku').val();
+
+                if (sku === preferredSku) {
+                    isPreferredSku = true;
+                }
+
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -321,7 +323,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: preferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
@@ -418,12 +420,6 @@
                         variantContainer.html(resp);
 
                         $('#addVariantModal').modal("hide");
-
-                        variantContainer.promise().done(function() {
-                            if (preferredSku) {
-                                updatePreferredSku(sku);
-                            }
-                        });
                     }
                 });}
             }
@@ -1066,44 +1062,6 @@
                 }
             }
 
-            function displayClientSideError(message) {
-                const errorContainer = document.getElementById('client-side-errors');
-                errorContainer.innerHTML = '';
-                const errorMessage = document.createElement('li');
-                errorMessage.innerText = message;
-                errorContainer.appendChild(errorMessage);
-
-                // Show the client-side error section
-                const clientSideErrorsContainer = document.getElementById('client-side-errors-container');
-                clientSideErrorsContainer.style.display = 'block';
-            }
-
-            function validateForm(event) {
-                event.preventDefault();
-
-                var form = document.forms['add-product-form'];
-                var formData = new FormData(form);
-                
-                var preferredSkuCount = 0;
-
-                for (var pair of formData.entries()) {
-                    var fieldName = pair[0];
-                    var fieldValue = pair[1];
-
-                    if (fieldName.match(/^variants\[\d+\]\.preferredSku$/) && fieldValue === 'true') {
-                        preferredSkuCount++;
-                    }
-                }
-
-                if (preferredSkuCount !== 1) {
-                    displayClientSideError('Exactly one SKU must be set as preferred.');
-                    return false;
-                }
-
-                form.submit();
-                return true;
-            }
-
             $(function() {
                 ['#itemCode', '#description', '#receiptDescription', '#unitSize'].forEach((textField) => {
                     $(textField).on('input', function () {
@@ -1206,12 +1164,6 @@
                 </div>
             </section>
         </g:hasErrors>
-
-        <section id="client-side-errors-container" class="container-fluid" style="display: none;">
-            <div class="alert alert-danger alert-wl mx-0" role="alert">
-                <ul id="client-side-errors" class="client-side-errors"></ul>
-            </div>
-        </section>
 
         <g:if test="${flash.message}">
             <section id="errors-container2" class="container-fluid">

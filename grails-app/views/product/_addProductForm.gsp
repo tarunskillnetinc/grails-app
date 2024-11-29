@@ -1,6 +1,6 @@
 <%@ page import="java.math.RoundingMode" %>
 
-<g:form name="add-product-form" method="post" onsubmit="return validateForm(event);" action="save">
+<g:form name="add-product-form" method="post" action="save">
     <g:hiddenField name="id" value="${product?.id}"/>
 
     <g:if test="${product?.getEffectiveDatesForFutureChanges()?.size() > 1}">
