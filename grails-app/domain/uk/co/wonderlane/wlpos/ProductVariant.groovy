@@ -44,6 +44,11 @@ class ProductVariant implements Serializable {
     // This constructor is required or dependency injection (springSecurityService) breaks. Don't forget "autowire true" in the mappings as well.
     public ProductVariant() { }
 
+    boolean getPreferredSku() {
+        // Indicates if this variant has the preferred sku for the product
+        return sku == product?.preferredSku
+    }
+
     static mapping = {
         autowire true
         table "productvariant"

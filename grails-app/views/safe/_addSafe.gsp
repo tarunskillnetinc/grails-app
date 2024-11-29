@@ -11,14 +11,14 @@
     <asset:javascript src="money-mask.js"/>
     <asset:javascript src="bootstrap-datepicker.min.js"/>
     <asset:javascript src="safeUrls.js"/>
-    <asset:javascript src="safeManagement.js"/>
+    <asset:javascript src="safeConfiguration.js"/>
 
     <script type="text/javascript">
 
         $(document).ready(function () {
             $("#messages-container").html('');
 
-            document.querySelector('.safe-management-link').addEventListener('click', function(event) {
+            document.querySelector('.safe-configuration-link').addEventListener('click', function(event) {
                 event.preventDefault();
                 cancelAddSafeView('${createLink(action:'closeSafeAdd')}');
             });
@@ -36,7 +36,7 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="safe-management-link">Safe Management</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="safe-configuration-link">Safe Configuration</g:link></li>
                     <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${isUpdate ? 'Edit Safe' : 'Add Safe'}</li>
                 </ol>
             </div>

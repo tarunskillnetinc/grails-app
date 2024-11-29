@@ -7,12 +7,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import spock.lang.Specification
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.Shift
-import uk.co.wonderlane.wlpos.entities.cash.Snapshot
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
-import uk.co.wonderlane.wlpos.enums.LocationType
 import uk.co.wonderlane.wlpos.enums.TenderReconciliationVarianceReason
 import uk.co.wonderlane.wlpos.enums.TenderType
-import uk.co.wonderlane.wlpos.reporting.Location
 
 class ShiftControllerSpec extends Specification implements ControllerUnitTest<ShiftController> {
 
@@ -295,9 +292,6 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
                 1, TenderReconciliationVarianceReason.TILL_OVERS_UNDERS, "TILL_OVERS_UNDERS", 1)
 
         Shift _shift = getNewShiftObject(1)
-        Location _safeLocation = getLocation(1, 1, 1, null, 1)
-        Location _tillLocation = getLocation(2, 1, 1, _shift.tillId, null)
-        Snapshot _latestSafeSnapshot = getSafeSnapshot(1, 1, 1, _safeLocation.id)
 
         controller.shiftService = Stub(ShiftService) {
             _shift.setReconciledDate(reconciledDate)
@@ -307,26 +301,6 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             _shift.setTenderTotals(List.of(getTenderTotal(TenderType.CASH, 10)))
 
             getShift(saveShiftCommand.getShiftId(), -1, -1) >> _shift
-        }
-
-        controller.locationService = Stub(LocationService) {
-            getTillLocation(_shift.tillId) >> _tillLocation
-            getLocation(_latestSafeSnapshot.locationId) >> _safeLocation
-        }
-
-        controller.snapshotService = Stub(SnapshotService) {
-            List<TenderTotal> tenderTotals = new ArrayList<>();
-
-            if (snapshotCashTotal != null) {
-                tenderTotals.add(getTenderTotal(TenderType.CASH, BigDecimal.valueOf(snapshotCashTotal)))
-            }
-
-            if (snapshotVoucherTotal != null) {
-                tenderTotals.add(getTenderTotal(TenderType.VOUCHER, BigDecimal.valueOf(snapshotVoucherTotal)))
-            }
-
-            _latestSafeSnapshot.setExpectedTotals(tenderTotals)
-            getSnapshotForSafe(1) >> _latestSafeSnapshot
         }
 
         controller.reportingService = Stub(ReportingService) {}
@@ -359,29 +333,14 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
             _shift.getReReconciledByUsersName() == "TEST_USER"
         }
 
-        _latestSafeSnapshot
-        if (snapshotCashTotal != null && snapshotVoucherTotal != null) {
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH }.getValue() == BigDecimal.valueOf(1500)
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER }.getValue() == BigDecimal.valueOf(600)
-        } else if (snapshotCashTotal != null) {
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH }.getValue() == BigDecimal.valueOf(1500)
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER }.getValue() == BigDecimal.valueOf(100)
-        } else if (snapshotVoucherTotal != null) {
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH }.getValue() == BigDecimal.valueOf(500)
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER }.getValue() == BigDecimal.valueOf(600)
-        } else {
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.CASH }.getValue() == BigDecimal.valueOf(500)
-            _latestSafeSnapshot.expectedTotals.find { it.tenderType == TenderType.VOUCHER }.getValue() == BigDecimal.valueOf(100)
-        }
-
 
         where:
-        reconciledDate || snapshotCashTotal || snapshotVoucherTotal
-        null           || 1000              || 500
-        new DateTime() || 1000              || 500
-        new DateTime() || 1000              || null
-        new DateTime() || null              || 500
-        new DateTime() || null              || null
+        reconciledDate || shiftCashTotal || shiftVoucherTotal
+        null           || 1000           || 500
+        new DateTime() || 1000           || 500
+        new DateTime() || 1000           || null
+        new DateTime() || null           || 500
+        new DateTime() || null           || null
     }
 
     private Shift getNewShiftObject(int id) {
@@ -458,27 +417,4 @@ class ShiftControllerSpec extends Specification implements ControllerUnitTest<Sh
         return saveShiftCommand
     }
 
-    private Snapshot getSafeSnapshot(int id, int retailerId, int storeId, int locationId) {
-        Snapshot snapshot = new Snapshot()
-
-        snapshot.setId(id)
-        snapshot.setRetailerId(retailerId)
-        snapshot.setStoreId(storeId)
-        snapshot.setLocationId(locationId)
-
-        return snapshot
-    }
-
-    private Location getLocation(int id, int retailerId, int storeId, Integer tillId, Integer safeId) {
-        Location location = new Location()
-
-        location.setId(id)
-        location.setRetailerId(retailerId)
-        location.setStoreId(storeId)
-        location.setTillId(tillId)
-        location.setSafeId(safeId)
-        location.setType(safeId != null ? LocationType.SAFE : LocationType.TILL)
-
-        return location
-    }
 }

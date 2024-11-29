@@ -9,9 +9,7 @@
         <asset:javascript src="bootstrap-datepicker.min.js" />
         <asset:javascript src="money-mask.js" />
         <asset:javascript src="shiftUrls.js"/>
-        <asset:javascript src="snapshotUrls.js"/>
         <asset:javascript src="shiftManagement.js"/>
-        <asset:javascript src="safeCount.js"/>
         <asset:javascript src="date-pickers.js"/>
         <asset:javascript src="co-utils.js"/>
         <asset:javascript src="validators/input-validator.js" />
@@ -31,19 +29,6 @@
                     "${createLink(controller: 'shift', action: 'ajaxSaveCashUpdate')}"
                 );
 
-                SnapshotUrls.init("${createLink(controller: 'snapshot', action: 'ajaxGetSafe')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshots')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxGetSnapshot')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSafeCount')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveSnapshot')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxCashLift')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveCashLift')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxBanking')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveBanking')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxCashInbound')}",
-                    "${createLink(controller: 'snapshot', action: 'ajaxSaveCashInbound')}",
-                );
-
                 initDatePickers(
                     'startDate',
                     'endDate',
@@ -51,21 +36,6 @@
                     "${new Date().format("dd/MM/yyyy")}"
                 );
                 getShifts();
-
-                function updateSnapshotLink() {
-                    let startDate = document.getElementById('startDate').value;
-                    let endDate = document.getElementById('endDate').value;
-                    let tillId = document.getElementById('tillId').value;
-                    let snapShotLink = document.getElementById('snapShotLink');
-                    let url = "/snapshot/index?shiftStartDate=" + encodeURIComponent(startDate) + "&shiftEndDate=" +
-                        encodeURIComponent(endDate) + "&shiftTillId=" + tillId;
-                    snapShotLink.href = url;
-                }
-
-                $('#startDate').on('change', updateSnapshotLink);
-                $('#endDate').on('change', updateSnapshotLink);
-                document.getElementById('tillId').addEventListener('change', updateSnapshotLink);
-                updateSnapshotLink()
 
             });
 
@@ -105,7 +75,7 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Shift Viewer</li>
+                            <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page">Shift Management</li>
                         </ol>
                     </div>
                 </div>
@@ -114,7 +84,7 @@
 
         <section id="shifts-container" class="container-fluid">
             <div class="header-wl mt-3">
-                <h2 id="page-title" class="mx-auto">Shift Viewer</h2>
+                <h2 id="page-title" class="mx-auto">Shift Management</h2>
             </div>
 
             <div id="messages-container"></div>
@@ -153,14 +123,6 @@
                                 </div>
                             </g:form>
                         </div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="d-flex justify-content-end">
-                        <button id="count-safe-button" type="button" class="btn btn-wl text-center mr-2" onclick="showSafeModal(0)" style="width: 200px; min-width: 150px;">Count Safe</button>
-                        <g:link elementId="snapShotLink" controller="snapshot" action="index" class="btn btn-wl text-center" style="width: 200px; min-width: 150px;">
-                            Snapshot Viewer
-                        </g:link>
                     </div>
                 </div>
             </div>

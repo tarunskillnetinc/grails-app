@@ -252,6 +252,7 @@
                     params["minimumDisplayQuantity"] = $(selector + "minimumDisplayQuantity").val();
                     params["zeroPrice"] = $("#zeroPrice").prop("checked");
                     params["effectiveDate"] = $(selector + "effectiveDate").val();
+                    params["preferredSku"] = $(selector + "preferredSku").val();
 
                     var barcodeContainers = $($(selector + "barcodesContainer > div"));
                     barcodeContainers.each(function(loopIndex) {
@@ -298,6 +299,8 @@
                     alert("SKU cannot be a negative number.")
                     return
                 }
+
+                var preferredSku = $('#preferredSkuId').is(":checked");
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -311,7 +314,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: preferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
@@ -359,6 +362,13 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
+
+                    const isPriceMarked = $(packSelector + "\\.priceMarked").val();
+                    params["packs[" +loopIndex +"].priceMarked"] = isPriceMarked;
+                    if (isPriceMarked) {
+                        params["packs[" + loopIndex + "].priceMarkedValue"] = $(packSelector + "\\.priceMarkedValue").val();
+                        params["packs[" + loopIndex + "].priceMarkedType"] = $(packSelector + "\\.priceMarkedType").val();
+                    }
                 });
 
                 var locationContainers = $("#variants\\[" +index +"\\]\\.locationsContainer > div");
@@ -381,6 +391,9 @@
                     params["locationz[" +loopIndex +"].locationHierarchy"] = $(locationSelector +"\\.locationHierarchy").val();
                 });
 
+                /* Add sku to the preferred dropdown */
+                updateSkuDropdown(sku);
+
                 if(!error){
                     $.ajax({
                     url: saveVariantUrl,
@@ -398,6 +411,12 @@
                         variantContainer.html(resp);
 
                         $('#addVariantModal').modal("hide");
+
+                        variantContainer.promise().done(function() {
+                            if (preferredSku) {
+                                updatePreferredSku(sku);
+                            }
+                        });
                     }
                 });}
             }
@@ -614,6 +633,11 @@
                     params["packs[" +loopIndex +"].maximumOrderQuantity"] = $(packSelector +"\\.maximumOrderQuantity").val();
                     params["packs[" +loopIndex +"].allowSubstitutes"] = $(packSelector +"\\.allowSubstitutes").val();
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCase").val();
+                    params["packs[" +loopIndex +"].priceMarkedValue"] = $(packSelector +"\\.priceMarkedValue").val();
+                    params["packs[" +loopIndex +"].priceMarked"] = $(packSelector +"\\.priceMarked").val();
+                    params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
+                    params["packs[" +loopIndex +"].minAlcoholUnitPrice"] = $(packSelector +"\\.minAlcoholUnitPrice").val();
+                    params["packs[" +loopIndex +"].weightedAverageCost"] = $(packSelector +"\\.weightedAverageCost").val();
 
                     var barcodeContainers = $(packSelector +"\\.barcodesContainer > div");
                     barcodeContainers.each(function(BarcodeLoopIndex) {
@@ -794,6 +818,13 @@
                     params["packs[" +loopIndex +"].primaryCase"] = $(packSelector +"\\.primaryCaseValue").prop("checked");
                     params["packs[" +loopIndex +"].productVariantId"] = $(packSelector +"\\.productVariantId").val();
                     params["packs[" +loopIndex +"].isWeighted"] = isWeighted;
+
+                    const isPriceMarked = $(packSelector + "\\.priceMarked").prop("checked");
+                    params["packs[" + loopIndex + "].priceMarked"] = isPriceMarked;
+                    if (isPriceMarked) {
+                        params["packs[" + loopIndex + "].priceMarkedValue"] = $(packSelector + "\\.priceMarkedValue").val();
+                        params["packs[" +loopIndex +"].priceMarkedType"] = $(packSelector +"\\.priceMarkedType").val();
+                    }
 
                     var addBarcodeContainers = $("#addBarcodesContainer" + packIndex + " > div");
                     var barcodes = []; // To store the barcode values for validation
@@ -995,6 +1026,39 @@
                 });
             }
 
+            function updatePreferredSku(selectedValue) {
+                const dropdownSelection = document.querySelector('select[name="preferredSku"]');
+                const variantContainers = document.querySelectorAll('#variantsContainer > div[id^="variant-"]');
+
+                variantContainers.forEach(container => {
+
+                    const preferredSku = container.querySelector('input[name$=".preferredSku"]');
+                    const sku = container.querySelector('input[name$=".sku"]');
+                    const text = container.querySelector('div[id$=".preferredSku"]');
+
+                    if (sku.value === selectedValue) {
+                        preferredSku.value = 'true';
+                        dropdownSelection.value = selectedValue;
+                        text.textContent = 'Yes';
+                    } else {
+                        preferredSku.value = 'false';
+                        text.textContent = '';
+                    }
+                });
+            }
+
+            function updateSkuDropdown(selectedValue) {
+                const selectElement = document.querySelector('select[name="preferredSku"]');
+                const optionExists = Array.from(selectElement.options).some(option => option.value === selectedValue);
+
+                if (!optionExists) {
+                    const newOption = document.createElement('option');
+                    newOption.value = selectedValue;
+                    newOption.textContent = selectedValue;
+                    selectElement.appendChild(newOption);
+                }
+            }
+
             $(function() {
                 ['#itemCode', '#description', '#receiptDescription', '#unitSize'].forEach((textField) => {
                     $(textField).on('input', function () {
@@ -1003,8 +1067,41 @@
                 })
             })
 
+            function updatePriceMarkedType(packIndex, value) {
+                $('#addPack\\[' + packIndex + '\\]\\.priceMarkedType').val(value);
 
-        </script>
+                // Update the symbols
+                const $prefixElement = $('#priceMarkedSymbolPrefix'+packIndex);
+                const $suffixElement = $('#priceMarkedSymbolSuffix'+packIndex);
+
+                if (value === 'VALUE') {
+                    $prefixElement.text('£').show();
+                    $suffixElement.hide();
+                } else if (value === 'PERCENTAGE') {
+                    $prefixElement.hide();
+                    $suffixElement.text('%').show();
+                }
+            }
+
+            function togglePriceMarkedFields(packIndex) {
+                var isChecked =  $('input[name="addPack[' + packIndex + '].priceMarked"]').is(':checked');
+
+                // Toggle Price Marked Type radio buttons
+                $('input[name="addPack[' + packIndex + '].priceMarkedTypeDummy"]').prop('disabled', !isChecked);
+
+                // Toggle Price Marked Value input
+                $('input[name="addPack[' + packIndex + '].priceMarkedValue"]').prop('disabled', !isChecked);
+
+                // Visually indicate the disabled state
+                if (isChecked) {
+                    $('input[name="addPack[' + packIndex + '].priceMarkedTypeDummy"]').closest('.col-4').removeClass('text-muted');
+                    $('input[name="addPack[' + packIndex + '].priceMarkedValue"]').closest('.col-4').removeClass('text-muted');
+                } else {
+                    $('input[name="addPack[' + packIndex + '].priceMarkedTypeDummy"]').closest('.col-4').addClass('text-muted');
+                    $('input[name="addPack[' + packIndex + '].priceMarkedValue"]').closest('.col-4').addClass('text-muted');
+                }
+            }
+    </script>
     </head>
 
     <body>
