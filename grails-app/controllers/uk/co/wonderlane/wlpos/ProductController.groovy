@@ -1030,7 +1030,7 @@ class ProductController extends BaseController {
 
     private boolean doesBarcodeExistForSupplier(String barcode, def packId, int supplierId, def packs, int variantId) {
         boolean existsInPacks = packs.any { pack ->
-            if (pack.id != packId && pack.supplier.id == supplierId) {
+            if (pack != null && pack.id != packId && pack.supplier.id == supplierId) {
                 pack.barcodez.any { packBarcode ->
                     return packBarcode.barcode == barcode
                 }
@@ -1141,44 +1141,48 @@ class ProductController extends BaseController {
         List<Integer> newPacksIds = new ArrayList<>()
 
         editedVariant.packs?.each { editedPack ->
-            def existingPack = existingVariant.packs?.find { existingPack -> existingPack.id == editedPack.id }
+            if (editedPack != null) {
+                def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
 
-            if (existingPack && packChanged(editedPack, existingPack)) {
-                updatePack(existingPack, editedPack, now)
-                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
-            } else if (!existingPack) {
-                Pack newPack = new Pack()
-                editedPack.barcodez.each { barcode ->
-                    Barcode newBarcode = new Barcode()
-                    newBarcode.retailerId = springSecurityService.principal.retailerId
-                    newBarcode.effectiveDate = effectiveDate
-                    newBarcode.pack = newPack
-                    newBarcode.barcode = barcode.barcode
-                    newBarcode.recordStatus = 'C'
-                    newPack.barcodez.add(newBarcode)
+                if (existingPack && packChanged(editedPack, existingPack)) {
+                    updatePack(existingPack, editedPack, now)
+                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
+                } else if (!existingPack) {
+                    Pack newPack = new Pack()
+                    editedPack.barcodez.each { barcode ->
+                        Barcode newBarcode = new Barcode()
+                        newBarcode.retailerId = springSecurityService.principal.retailerId
+                        newBarcode.effectiveDate = effectiveDate
+                        newBarcode.pack = newPack
+                        newBarcode.barcode = barcode.barcode
+                        newBarcode.recordStatus = 'C'
+                        newPack.barcodez.add(newBarcode)
+                    }
+                    updatePack(newPack, editedPack, now)
+                    existingVariant.addToPacks(newPack)
+                    checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
+                    if (newPack.id > 0) {
+                        // New pack id got set when retrieving barcodes from DB
+                        newPacksIds.add(newPack.id)
+                    }
+                } else {
+                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
                 }
-                updatePack(newPack, editedPack, now)
-                existingVariant.addToPacks(newPack)
-                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
-                if (newPack.id > 0) {
-                    // New pack id got set when retrieving barcodes from DB
-                    newPacksIds.add(newPack.id)
-                }
-            } else {
-                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
         def packsToRemove = []
 
         // Remove any packs which no longer exist.
         existingVariant.packs?.each { existingPack ->
-            if (existingPack.isActive()) {
-                // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
-                if (existingPack.id > 0 && !newPacksIds.contains(existingPack.id)) {
-                    def editedPack = editedVariant.packs?.find { editedPack -> editedPack.id == existingPack.id }
+            if (existingPack != null) {
+                if (existingPack.isActive()) {
+                    // If the ID is not set then this must be a new pack added as part of this save, so don't remove it!
+                    if (existingPack.id > 0 && !newPacksIds.contains(existingPack.id)) {
+                        def editedPack = editedVariant.packs?.find { editedPack ->  editedPack != null && editedPack.id == existingPack.id }
 
-                    if (!editedPack) {
-                        packsToRemove << existingPack
+                        if (!editedPack) {
+                            packsToRemove << existingPack
+                        }
                     }
                 }
             }
@@ -1435,22 +1439,26 @@ class ProductController extends BaseController {
         //---------------------------- Update history for pack fields --------------------------------//
 
         variant?.packs?.each { editedPack ->
-            def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
-            
-            if (existingPack) { //Pack already existed
-                comparePackFields(builder, existingPack, editedPack)
-            } else { //Pack newly added
-                comparePackFields(builder, new Pack(), editedPack)
+            if (editedPack != null) {
+                def existingPack = oldVariant?.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+
+                if (existingPack) { //Pack already existed
+                    comparePackFields(builder, existingPack, editedPack)
+                } else { //Pack newly added
+                    comparePackFields(builder, new Pack(), editedPack)
+                }
             }
         }
 
         // Remove any packs which no longer exist.
         oldVariant?.packs?.each { existingPack ->
-            // If the ID is not set then this must be a new pack added as part of this save
-            if (existingPack.id > 0) {
-                def editedPack = variant?.packs?.find { editedPack -> editedPack.id == existingPack.id }
-                if (!editedPack) { //Pack is removed
-                    comparePackFields(builder, existingPack, new PackCommand())
+            if (existingPack != null) {
+                // If the ID is not set then this must be a new pack added as part of this save
+                if (existingPack.id > 0) {
+                    def editedPack = variant?.packs?.find { editedPack ->  editedPack != null && editedPack.id == existingPack.id }
+                    if (!editedPack) { //Pack is removed
+                        comparePackFields(builder, existingPack, new PackCommand())
+                    }
                 }
             }
         }

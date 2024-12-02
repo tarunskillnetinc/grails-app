@@ -151,7 +151,6 @@ class TillAssignmentController {
             till.tillId = addEditTillCommand.tillId
             till.description = addEditTillCommand.description
             till.serialNumber = addEditTillCommand.serialNumber
-            till.pinExpiry = DateTime.now(DateTimeZone.UTC)
             till.dateTimeUpdated = DateTime.now(DateTimeZone.UTC)
             till.cashManagementEnabled = ("on" == addEditTillCommand.cashManagementEnabled)
 
