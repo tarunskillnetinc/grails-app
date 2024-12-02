@@ -53,7 +53,7 @@ class ShiftServiceSpec extends Specification implements ServiceUnitTest<ShiftSer
         when:
         List<Shift> shiftsReturned = shiftServiceHelper.getShifts(tillId)
 
-        then: 'successfully get snapshot'
+        then: 'successfully get shift'
         shiftsReturned.size() == returnListSize
 
 
