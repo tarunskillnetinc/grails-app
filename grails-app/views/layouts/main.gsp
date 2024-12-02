@@ -122,7 +122,6 @@
                                 </div>
                             </div>
 
-                            <g:link elementId="tags-dropdown" controller="tag" class="dropdown-item">Tags</g:link>
                             <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="shelf-edge-labels-dropdown" controller="shelfEdgeLabel" class="dropdown-item">Shelf Edge Labels</g:link>
                             </g:if>
@@ -233,6 +232,7 @@
                             </sec:ifAnyGranted>
 
                             <g:link elementId="supplier-affiliations-dropdown" controller="supplier" class="dropdown-item" action="subscriptions">Supplier Affiliations</g:link>
+                            <g:link elementId="product-groups-dropdown" controller="tag" class="dropdown-item">Product Groups</g:link>
                             <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
                                 <g:link elementId="central-counts-dropdown" controller="productList" class="dropdown-item">Central Counts</g:link>
                             </g:if>
@@ -243,7 +243,7 @@
 
                                     <span id="retailer-configuration" class="dropdown-header">Retailer Configuration</span>
 
-                                    <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
+
                                     <g:link elementId="cash-management-dropdown" controller="cashManagement" class="dropdown-item">Cash Management</g:link>
                                     <g:link elementId="reason-code-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
                                     <g:link elementId="user-groups-dropdown" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
@@ -257,6 +257,15 @@
                                 </g:if>
 
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
+                                    <div class="dropdown-divider"></div>
+
+                                    <span id="product-configuration" class="dropdown-header">Product Configuration</span>
+
+                                    <g:link elementId="category-maintenance-dropdown" controller="category" class="dropdown-item">Departments & Categories</g:link>
+                                    <g:link elementId="product-groups-dropdown" controller="tag" class="dropdown-item">Product Groups</g:link>
+                                    <g:link elementId="partner-category-dropdown" class="dropdown-item">Partner Category Managment</g:link>
+                                    <g:link elementId="retailer-product-attributes-dropdown" class="dropdown-item">Retailer Product Attibutes</g:link>
+
                                     <div class="dropdown-divider"></div>
 
                                     <span id="engineer-functions" class="dropdown-header">Engineer Functions</span>
