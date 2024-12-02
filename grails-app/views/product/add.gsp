@@ -196,6 +196,9 @@
                             $(this).val(itemCode);
                         })
                     }
+
+                    updateSkuDropdown(itemCode);
+                    updatePreferredSku(itemCode);
                 }
             }
 
@@ -300,7 +303,13 @@
                     return
                 }
 
-                var preferredSku = $('#preferredSkuId').is(":checked");
+                var isPreferredSku = false;
+                var preferredSku = $('#preferredSku').val();
+
+                if (sku === preferredSku) {
+                    isPreferredSku = true;
+                }
+
                 var retailPrice = $("#addVariantRetailPrice").val();
                 var costPrice = $("#addVariantCostPrice").val();
                 var shelfLifeDays = $("#addVariantShelfLifeDays").val();
@@ -314,7 +323,7 @@
                     return;
                 }
 
-                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: preferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
+                var params = { index: index, id: id, storeId: storeId, sku: sku, preferredSku: isPreferredSku, retailPrice: retailPrice, costPrice: costPrice, shelfLifeDays: shelfLifeDays, shelfCapacity: shelfCapacity, minimumDisplayQuantity: minimumDisplayQuantity, defaultSupplierId: defaultSupplierId, effectiveDate: effectiveDate };
 
                 var addBarcodeContainers = $("#addBarcodesContainer > div");
                 var barcodes = []; // To store the barcode values for validation
@@ -411,12 +420,6 @@
                         variantContainer.html(resp);
 
                         $('#addVariantModal').modal("hide");
-
-                        variantContainer.promise().done(function() {
-                            if (preferredSku) {
-                                updatePreferredSku(sku);
-                            }
-                        });
                     }
                 });}
             }

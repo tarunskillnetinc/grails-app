@@ -138,6 +138,10 @@ class RetailerController {
             }
         }
 
+        if (retailerCommand?.retailerTerminologyConfig?.unexpectedCageInDeliveryTerm == "" || retailerCommand?.retailerTerminologyConfig?.unexpectedCageInDeliveryTerm == null) {
+            errorMessages << "Unexpected Cage In Delivery Term is empty. Should not be null."
+        }
+
         if (retailerCommand.retailerFunctionConfig.shelfEdgeVisibility == null) {
             retailerCommand.retailerFunctionConfig.shelfEdgeVisibility = Visibility.ENABLED
         }
@@ -262,6 +266,7 @@ class RetailerTerminologyCommand {
     RetailerTerminologyLocationsTableConfigCommand locationsTableConfig
     String stockRoomTerm
     String stockRoomAbbreviatedTerm
+    String unexpectedCageInDeliveryTerm
 }
 
 class RetailerTerminologyLocationsTableConfigCommand {
