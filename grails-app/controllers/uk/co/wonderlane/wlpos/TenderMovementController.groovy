@@ -4,17 +4,29 @@ class TenderMovementController {
 
     def index() {}
 
-    def issueFloat(){}
+    def issueFloat(){
+        [pageName : "Issue Float"]
+    }
 
-    def tenderLift(){}
+    def tenderLift(){
+        [pageName : "Tender Lift"]
+    }
 
-    def payIn(){}
+    def payIn(){
+        [pageName : "Pay In"]
+    }
 
-    def payOut(){}
+    def payOut(){
+        [pageName : "Pay Out"]
+    }
 
-    def bankDeposit(){}
+    def bankDeposit(){
+        [pageName : "Bank Deposit"]
+    }
 
-    def bankReceipt(){}
+    def bankReceipt(){
+        [pageName : "Bank Receipt"]
+    }
 
 
 }
