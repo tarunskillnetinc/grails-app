@@ -23,7 +23,18 @@
                 <div class="col-2 my-auto text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
                 <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
                 <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
-                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.variance}" type="currency" /></div>
+                <div class="col-3 my-auto text-right text-truncate">
+                    <g:if test="${reconciliationTotal.variance >= 0}">
+                        <span style="font-weight: bold; color: black;">
+                            <g:formatNumber number="${reconciliationTotal.variance}" type="currency" />
+                        </span>
+                    </g:if>
+                    <g:else>
+                        <span style="font-weight: bold; color: red;">
+                            <g:formatNumber number="${reconciliationTotal.variance}" type="currency" />
+                        </span>
+                    </g:else>
+                </div>
             </div>
         </g:each>
 
@@ -64,9 +75,20 @@
                 <g:if test="${reconciliationTotalsSum ?: 0 != 0}">
                     <div class="container">
                         <div class="row pt-5 pb-2">
-                            <div class="col-10 offset-1">
-                                <p>You are about to declare a shift variance of <g:formatNumber number="${reconciliationTotals.sum { it.variance.abs() }}" type="currency" /></p>
-                            </div>
+                            <p id="safe-variance-message" class="mx-auto">
+                                You are about to declare a shift variance of
+                                <g:if test="${reconciliationTotals.sum { it.variance } < 0}">
+                                    <span style="font-weight: bold; color: red;">
+                                        <g:formatNumber number="${reconciliationTotals.sum { it.variance }}" type="currency" />
+                                    </span>
+                                </g:if>
+                                <g:else>
+                                    <span style="font-weight: bold; color: black;">
+                                        <g:formatNumber number="${reconciliationTotals.sum { it.variance }}" type="currency" />
+                                    </span>
+                                </g:else>
+                                .
+                            </p>
                         </div>
 
                         <g:if test="${reconciliationTotalsSum >  tillShiftVarianceLimit}">
