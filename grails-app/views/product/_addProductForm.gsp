@@ -188,23 +188,6 @@
                                     <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
                                 </div>
                             </fieldset>
-                            <div class="row mt-1 form-group">
-                                <span class="col-3 col-form-label text-right pr-4">Stock Management</span>
-                                <div class="col-9">
-                                    <div class="form-check d-flex align-items-center">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="stock" value="STOCK" checked="${product?.stockSale?.name() == 'STOCK' ?: product == null}" valueMessagePrefix="StockSale"/>
-                                        <label class="form-check-label mb-0 mt-2 ml-2" for="stock">Standard stock</label>
-                                    </div>
-                                    <div class="form-check d-flex align-items-center py-1">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="noStockSale" value="NO_STOCK_SALE" checked="${product?.stockSale?.name() == 'NO_STOCK_SALE'}"  valueMessagePrefix="StockSale"/>
-                                        <label class="form-check-label mb-0 mt-2 ml-2" for="noStockSale">No stock, Allowed for sale</label>
-                                    </div>
-                                    <div class="form-check d-flex align-items-center py-1">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="noStockNoSale" value="NO_STOCK_NO_SALE" checked="${product?.stockSale?.name() == 'NO_STOCK_NO_SALE'}"  valueMessagePrefix="StockSale"/>
-                                        <label class="form-check-label mb-0 mt-2 ml-2" for="noStockNoSale">No stock, Not allowed for sale</label>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="col-12 col-lg-6">
