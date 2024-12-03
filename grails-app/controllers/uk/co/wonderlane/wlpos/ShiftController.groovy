@@ -468,11 +468,11 @@ class ShiftController {
                 //    (If cash lift -> add cash amounts from totals)
                 // 3. Create tender movements
                 // 4. Add audit
-                if (safeManagementService.getOpenSafeSession(safeId)) {
+                if (safeManagementService.hasActiveSafeSession(safeId)) {
                     shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
                     render "OK"
                 } else {
-                    flash.error = "No open safe session available for safe id ${safeId}"
+                    flash.error = "No active safe session available for safe id ${safeId}"
                     throw new RuntimeException("No open safe session available for safe id ${safeId}")
                 }
             } else {

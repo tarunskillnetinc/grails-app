@@ -26,7 +26,7 @@ class SafeManagementController {
         def errorMessage = params.errorMessage
         try {
             //Load existing active safe sessions -> At the moment since there is no ant filters pass null as safeId
-            List<SafeSession> safeSessions = safeManagementService.getActiveSafeSession(null)
+            List<SafeSession> safeSessions = safeManagementService.getActiveSafeSessions(null)
 
             //Load all safes -> Which requires to check safe type and primary status
             List<Safe> safeList = safeService.getStoreSafes()
@@ -139,15 +139,12 @@ class SafeManagementController {
                     //If safe is active then create new safe and move all reconcile amounts into tender totals
                     //If safe is in active but have cash in it then also create new safe and move all reconcile amounts into tender totals
                     Safe safe = safeService.getSafeById(safeSession.safeId)
-                    List<TenderTotal> tenderTotalsToMove = safeManagementService.getTendersToMoveIntoNewSafeSession(safeSession)
-                    boolean isTenderAvailableToMove = safeManagementService.isTenderAvailableToMove(tenderTotalsToMove)
-                    if (safe.active || (!safe.active && isTenderAvailableToMove)){
-                        //If safe is active or if save is inactive but have cash to move then create new safe session and assign counted values to new session
-                        SafeSession newSafeSession = safeManagementService.createNewSafeSession(safe.retailerId, safe.storeId, safe.id, false)
-                        if (isTenderAvailableToMove) {
-                            newSafeSession.setTenderTotals(tenderTotalsToMove)
-                            safeManagementService.saveSafeSession(newSafeSession)
-                        }
+                    List<TenderTotal> tenderTotals = safeSession.getCombinedReconciledAndPendingTotals()
+                    //If safe is active or if save is inactive but have cash to move then create new safe session and assign counted values to new session
+                    if (safe.active || !tenderTotals.isEmpty()){
+                        safeManagementService.createNewSafeSessionWithTenderTotals(
+                                safe.retailerId, safe.storeId, safe.id,
+                                tenderTotals, false)
                     }
 
                     //Redirect to ajaxGetSafeSessions to reload safe session view
