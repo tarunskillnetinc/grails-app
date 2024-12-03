@@ -545,7 +545,7 @@ class ShiftService extends MySqlPoolDal {
     }
 
     private void saveShiftAudit(ShiftAudit shiftAudit){
-        try (Connection conn = getConnection(); CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShiftAudit(?, ?, ?, ?, ?, ?, ?, ?) }")) {
+        try (Connection conn = getConnection(); CallableStatement saveShiftStatement = conn.prepareCall("{ call saveShiftAudit(?, ?, ?, ?, ?, ?, ?, ?, ?) }")) {
             if (shiftAudit.getId() > 0) {
                 saveShiftStatement.setInt(1, shiftAudit.getId())
             } else {
@@ -558,6 +558,11 @@ class ShiftService extends MySqlPoolDal {
             saveShiftStatement.setString(6, shiftAudit.getUsername())
             saveShiftStatement.setTimestamp(7, commonService.convertToSqlTimestamp(shiftAudit.getTimestamp()))
             saveShiftStatement.setString(8, gsonProvider?.gson?.toJson(shiftAudit?.extras) ?: null)
+            if (shiftAudit.getTenderMovementId() > 0) {
+                saveShiftStatement.setInt(9, shiftAudit.getTenderMovementId())
+            } else {
+                saveShiftStatement.setNull(9, Types.INTEGER)
+            }
             saveShiftStatement.executeUpdate();
         } catch (SQLException ex) {
             log.error(String.format("Sql error saving shift audit for shift id: %s error: %s", shiftAudit.getShiftId(), ex.getMessage()), ex)

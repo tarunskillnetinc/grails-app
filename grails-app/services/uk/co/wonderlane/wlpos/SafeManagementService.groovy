@@ -311,7 +311,7 @@ class SafeManagementService extends MySqlPoolDal {
 
 
     private void saveSafeSessionAudit(SafeSessionAudit safeSessionAudit){
-        try (Connection conn = getConnection(); CallableStatement saveSafeSessionStatement = conn.prepareCall("{ call saveSafeSessionAudit(?, ?, ?, ?, ?, ?, ?, ?) }")) {
+        try (Connection conn = getConnection(); CallableStatement saveSafeSessionStatement = conn.prepareCall("{ call saveSafeSessionAudit(?, ?, ?, ?, ?, ?, ?, ?, ?) }")) {
             if (safeSessionAudit.getId() > 0) {
                 saveSafeSessionStatement.setInt(1, safeSessionAudit.getId())
             } else {
@@ -324,6 +324,11 @@ class SafeManagementService extends MySqlPoolDal {
             saveSafeSessionStatement.setString(6, safeSessionAudit.getUsername())
             saveSafeSessionStatement.setTimestamp(7, commonService.convertToSqlTimestamp(safeSessionAudit.getTimestamp()))
             saveSafeSessionStatement.setString(8, gsonProvider?.gson?.toJson(safeSessionAudit?.extras) ?: null)
+            if (safeSessionAudit.getTenderMovementId() > 0) {
+                saveSafeSessionStatement.setInt(9, safeSessionAudit.getTenderMovementId())
+            } else {
+                saveSafeSessionStatement.setNull(9, Types.INTEGER)
+            }
             saveSafeSessionStatement.executeUpdate();
         } catch (SQLException ex) {
             log.error("Sql error saving safe session audit for safe session id: ${safeSessionAudit.getSessionId()} error: ${ex.getMessage()}", ex)
