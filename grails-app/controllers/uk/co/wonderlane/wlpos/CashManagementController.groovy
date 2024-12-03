@@ -112,7 +112,7 @@ class CashManagementController {
             if (cashManagementFormData.safeVarianceLimit != null && (cashManagementFormData.safeVarianceLimit < 0 || cashManagementFormData.safeVarianceLimit > 999.99)) {
                 errorMessages << "Safe variance limit must have a value between 0.00 and 999.99."
             }
-            if (cashManagementFormData.tillCashHoldingLimit != null && (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
+            if (cashManagementFormData.tillCashHoldingLimit == null || (cashManagementFormData.tillCashHoldingLimit < 1 || cashManagementFormData.tillCashHoldingLimit > 9999.99)) {
                 errorMessages << "Till cash holding limit must have a value between 1.00 and 9999.99."
             }
             if (cashManagementFormData.tillShiftRecountLimit == null) {
