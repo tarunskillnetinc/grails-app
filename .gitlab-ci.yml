@@ -12,10 +12,11 @@ stages:
 
 ## before_script configuration added to resolve 'Author Identity Unknown' error for git commands
 before_script:
-    - GIT_USER_EMAIL=$(git log -1 --pretty=format:"%ae")
-    - GIT_USER_NAME=$(git log -1 --pretty=format:"%an")
+    - export GIT_USER_EMAIL=$(git log -1 --pretty=format:"%ae")
+    - export GIT_USER_NAME=$(git log -1 --pretty=format:"%an")
     - git config user.email "$GIT_USER_EMAIL"
     - git config user.name "$GIT_USER_NAME"
+    - echo "Running before_script"
 
 default_build:
     stage: default
