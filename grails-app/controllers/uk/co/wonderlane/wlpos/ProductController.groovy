@@ -21,7 +21,6 @@ import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.enums.StockSale
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -554,7 +553,6 @@ class ProductController extends BaseController {
             product.status = editedProduct.status
             product.preferredSku = editedProduct.preferredSku
             product.retailerProductId = editedProduct.retailerProductId
-            product.stockSale = editedProduct.stockSale
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
@@ -1332,8 +1330,6 @@ class ProductController extends BaseController {
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
         builder.compare("preferredSku", product.preferredSku, editedProduct.preferredSku, ProductHistoryType.PREFERRED_SKU)
-
-        builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
 
         builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
         builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
@@ -2172,7 +2168,6 @@ class ProductCommand {
     ProductStatus status
     String retailerProductId
     DateTime effectiveDate
-    StockSale stockSale
     String selDescription
     SelType selType
     String productImgUrl
