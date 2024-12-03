@@ -131,7 +131,7 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
                     </ol>
                 </div>
             </div>
