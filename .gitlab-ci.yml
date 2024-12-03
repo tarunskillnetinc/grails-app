@@ -16,7 +16,9 @@ before_script:
     - export GIT_USER_NAME=$(git log -1 --pretty=format:"%an")
     - git config user.email "$GIT_USER_EMAIL"
     - git config user.name "$GIT_USER_NAME"
-    - echo "Running before_script"
+    - echo "https://$DEPLOY_TOKEN_USER:$DEPLOY_TOKEN_PASS@gitlab.com" > ~/.git-credentials
+    - git config --global credential.helper store
+
 
 default_build:
     stage: default
