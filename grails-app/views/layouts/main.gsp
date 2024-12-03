@@ -137,7 +137,10 @@
                                     <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                         <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
                                         <g:link elementId="shift-management-dropdown" controller="safeManagement" class="dropdown-item">Safe Management</g:link>
-                                        <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item disabled">Tender Movement</g:link>
+                                        <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
+                                            <g:link elementId="shift-management-dropdown" controller="tenderMovement" class="dropdown-item">Tender Movement</g:link>
+                                        </sec:ifAnyGranted>
+
                                     </g:if>
                             </div>
                         </li>
