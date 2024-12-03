@@ -6,7 +6,6 @@ cache:
 
 stages:
     - default
-    - develop
     - release
     - tags
 
@@ -29,22 +28,6 @@ default_build:
         - bash doGrailsBuild.sh development $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
     rules:
          - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_MESSAGE =~ /^Merge branch/ || $CI_COMMIT_REF_NAME =~ /^(sprint|feature)/'
-
-
-build_develop_branch:
-    stage: develop
-    script:
-        - apk update
-        - apk upgrade
-        - apk add zip curl bash
-        - bash doGrailsBuild.sh prestage $ARTIFACTORY_USERNAME $ARTIFACTORY_PASSWORD
-        - export BUILD_VERSION=$(grep 'version[a-zA-Z0-9,-]*' build.gradle | head -1 | cut -d " " -f 2 | sed 's/^.//;s/.$//')
-        - git add build.gradle
-        - git commit -m "Tagging build $BUILD_VERSION for release"
-        - git tag -am "Tagging for release $BUILD_VERSION" $BUILD_VERSION
-        - git push origin $BUILD_VERSION
-    rules:
-        - if: '$CI_COMMIT_BRANCH == "develop"'
 
 build_release_branches:
     stage: release
