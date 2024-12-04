@@ -1,6 +1,9 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.util.stream.Collectors
@@ -10,6 +13,8 @@ class TenderMovementService {
 
     def springSecurityService
     def storeService
+    def reportingService
+    def locationService
 
     List<TillConfiguration> getAllActiveTills() {
         Integer retailerId =  springSecurityService.principal.retailerId
@@ -38,4 +43,62 @@ class TenderMovementService {
                 .filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
                 .collect(Collectors.toList());
     }
+
+    void updateTenderLiftShiftTotals(Shift shift, TenderType tenderType, BigDecimal updateAmount){
+        BigDecimal adjustedCashAmount = updateAmount.negate()
+        updateShiftBalance(shift, tenderType, adjustedCashAmount)
+    }
+
+    void shiftCashTenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount){
+        uk.co.wonderlane.wlpos.reporting.Location tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
+        uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
+        createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, tenderType, adjustAmount)
+    }
+
+    // This method can generally use for shift balance update
+    private void updateShiftBalance(Shift shift, TenderType tenderType, BigDecimal updateAmount){
+        updateShiftTenderTotals(shift, tenderType, updateAmount)
+        if (tenderType.equals(TenderType.CASH)){
+            updateCashDrawer(shift, updateAmount)
+        }
+    }
+
+    // Generic method for shift's tender total update
+    private void updateShiftTenderTotals(Shift shift, TenderType tenderType, BigDecimal updateAmount){
+        if (updateAmount != 0) { //update amount either can be negative or positive
+            TenderTotal tenderTotal = shift.getTenderTotals().stream()
+                    .filter(tt -> tt.getTenderType() == tenderType).findFirst()
+                    .orElseGet(() -> {
+                        TenderTotal newTenderTotal = new TenderTotal(tenderType);
+                        shift.getTenderTotals().add(newTenderTotal);
+                        return newTenderTotal;
+                    });
+
+            tenderTotal.setQuantity(tenderTotal.getQuantity() + 1);
+            tenderTotal.setValue(tenderTotal.getValue().add(updateAmount));
+        }
+    }
+
+    // Generic method for shift's cash drawer update
+    private void updateCashDrawer(Shift shift, BigDecimal cashAmount){
+        if (cashAmount != null){
+            BigDecimal currentCash = shift.getCashInDrawer();
+            if (currentCash == null) {
+                currentCash = BigDecimal.ZERO;
+            }
+            BigDecimal newCashAmount = currentCash.add(cashAmount);
+            shift.setCashInDrawer(newCashAmount);
+        }
+    }
+
+    private void createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location tillLocation, uk.co.wonderlane.wlpos.reporting.Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
+        if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
+            reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+                    tenderType,
+                    tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                    safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                    updateAmount))
+        }
+    }
+
 }

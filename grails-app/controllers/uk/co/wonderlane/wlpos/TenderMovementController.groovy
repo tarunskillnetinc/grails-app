@@ -1,5 +1,7 @@
 package uk.co.wonderlane.wlpos
 
+import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.text.NumberFormat
@@ -8,6 +10,8 @@ class TenderMovementController {
 
     def tenderMovementService
     def safeService
+    def shiftService
+    def springSecurityService
 
 
     def index() {}
@@ -38,25 +42,27 @@ class TenderMovementController {
         Integer safeId = null
         Integer tillId = null
         TenderType tender = null
-        BigDecimal amount = null
         try {
             NumberFormat format = NumberFormat.getInstance(Locale.UK)
             safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
             tillId = Integer.parseInt(params.tillNo)
             tender = TenderType.valueOf(params.tender)
-            amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
-
-            //update shift values
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
             //update safe session value
 
+            //update shift values
+            Shift openShift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
+            tenderMovementService.updateTenderLiftShiftTotals(openShift, tender, amount)
+
             //create tender totals
+            tenderMovementService.shiftCashTenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
 
             //create audit
 
             redirect(action: "tenderLift", params: [success: "Successfully process tender lift"])
         } catch (Exception ex) {
-            log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} error: ${ex.getMessage()}", ex)
+            log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Tender lift action failed. "
             redirect(action: "tenderLift", params: [error: error])
         }

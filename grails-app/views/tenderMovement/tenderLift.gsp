@@ -71,7 +71,7 @@
     </section>
 
     <section class="mt-1 pt-5">
-        <g:form method="post" action="processTenderLift" class="mt-5" name="processTenderLift">
+        <g:form method="post" action="processTenderLift" class="mt-1" name="processTenderLift">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6 col-lg-5 offset-md-1">
@@ -121,7 +121,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">&pound;</span>
                                         </div>
-                                        <g:textField id="amount" name="amount" value="${0.01}" min="0.01" max="999999.99" class="form-control mask-money"/>
+                                        <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="999999.99" class="form-control mask-money"/>
                                     </div>
                                 </div>
                             </div>
