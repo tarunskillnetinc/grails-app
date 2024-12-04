@@ -9,10 +9,17 @@
     <asset:javascript src="popper.min.js"/>
     <asset:javascript src="multi-select-checks.js"/>
     <asset:javascript src="money-mask.js"/>
+    <asset:javascript src="tenderMovementUrls.js"/>
+    <asset:javascript src="tenderMovement.js"/>
 
     <script type="text/javascript">
 
         $(document).ready(function () {
+
+            TenderMovementUrls.init(
+                "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}"
+            );
+
             // Select the first tab by default if none are active
             if (!$('.nav-link.active').length) {
                 $('#issue-float-tab').addClass('active');
@@ -41,6 +48,7 @@
                 $.get(action, function (data) {
                     $('#tender-movement-container').html(data);
                 });
+
             });
 
 
@@ -63,8 +71,6 @@
                         return 'index';  // Default action if tab ID is not recognized
                 }
             }
-
-
         });
 
 
