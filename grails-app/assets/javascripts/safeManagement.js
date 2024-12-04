@@ -107,13 +107,9 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription
             method: "POST",
             data: formValues,
             success: function(resp) {
-                if (isFinalise){
-                    $("#modal-content").html('')
-                    $('#sessionModal').modal('hide'); // This line hides the modal
-                    $("#results-container").html(resp);
-                } else {
-                    $("#modal-content").html(resp);
-                }
+                $("#modal-content").html('')
+                $('#sessionModal').modal('hide'); // This line hides the modal
+                $("#results-container").html(resp);
             },
             error: function (resp) {
                 if ($("#modal-content").length) {
