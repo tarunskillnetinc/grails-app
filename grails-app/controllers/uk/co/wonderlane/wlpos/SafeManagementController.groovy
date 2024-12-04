@@ -156,13 +156,10 @@ class SafeManagementController {
                     //Redirect to ajaxGetSafeSessions to reload safe session view
                     redirect(action: "ajaxGetSafeSessions", params: [successMessage: "Successfully finalised safe ${safeSessionSaveCommand.safeDescription}."])
                     return
+                } else {
+                    redirect(action: "ajaxGetSafeSessions")
+                    return
                 }
-                boolean isSafeFinalisingWarningRequired = safeManagementService.isSafeFinalisingWarningRequired(safeSession)
-                def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
-                //Here this will load cash up summary with actual session's reconciliationTotals values because that is now confirmed
-                render(template: "cashUpSummaryModal", model: [safeSession: safeSession, isSafeSessionFinalizeMode: true, varianceReasons:varianceReasons,
-                                                               safeDescription: safeSessionSaveCommand.safeDescription,
-                                                               isSafeFinalisingWarningRequired: isSafeFinalisingWarningRequired])
             } else if (safeSession != null && !safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeSessionSaveCommand.safeDescription}. Already reconciled.")
