@@ -185,6 +185,8 @@ class SafeManagementController {
             def safeSession = safeManagementService.getSafeSession(safeSessionId)
             if (safeSession != null) { // If safe not exists then process the action
                 safeManagementService.addSpotCheckAudit(safeSession) // Add audit for spot check
+                safeSession.transferPendingTotals() // combine totals for spot check, but not the audit
+                safeSession.setVersionId("LOCAL CHANGES") // prevent accidental saving
                 render(template: "spotCheck", model: [safeSession: safeSession, fetchTime: new DateTime()]) //Load spot check template
             } else {
                 render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Safe Session not available for safe session id %d", safeSessionId))

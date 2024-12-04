@@ -286,6 +286,7 @@ class SafeManagementService extends MySqlPoolDal {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)
+            addJsonFieldToObject(jsonObject, "pendingTenderTotals", safeSession.pendingTenderTotals)
 
             if (safeSessionAction in [SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE]) {
                 addJsonFieldToObject(jsonObject, "reconciliationTotals", safeSession.reconciliationTotals)
