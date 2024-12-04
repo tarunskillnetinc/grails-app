@@ -1,6 +1,9 @@
 package uk.co.wonderlane.wlpos
 
+import uk.co.wonderlane.wlpos.entities.cash.SafeSession
 import uk.co.wonderlane.wlpos.entities.cash.Shift
+import uk.co.wonderlane.wlpos.enums.SafeSessionAction
+import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
@@ -10,7 +13,6 @@ class TenderMovementController {
 
     def tenderMovementService
     def safeService
-    def shiftService
     def springSecurityService
 
 
@@ -49,17 +51,19 @@ class TenderMovementController {
             tender = TenderType.valueOf(params.tender)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
-            //update safe session value
+            //create tender totals
+            int tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+
+            //update safe session values
+            //update safe session tender totals
+            //add safe session audit
+            tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.OPEN, tender, amount, tenderMovementId)
 
             //update shift values
-            Shift openShift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
-            tenderMovementService.updateTenderLiftShiftTotals(openShift, tender, amount)
-
-            //create tender totals
-            tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
-
-            //create audit
-
+            //update shift cash in drawer
+            //update shift tender totals
+            //add shift audit
+            tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
 
             redirect(action: "tenderLift", params: [success: "Successfully process tender lift"])
         } catch (Exception ex) {

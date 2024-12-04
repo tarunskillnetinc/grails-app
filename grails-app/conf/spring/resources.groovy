@@ -253,6 +253,7 @@ beans = {
         reportingService = ref('reportingService')
         locationService = ref('locationService')
         safeManagementService = ref('safeManagementService')
+        shiftService = ref('shiftService')
     }
 
 
