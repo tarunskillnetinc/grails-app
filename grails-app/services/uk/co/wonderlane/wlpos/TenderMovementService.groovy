@@ -15,6 +15,7 @@ class TenderMovementService {
     def storeService
     def reportingService
     def locationService
+    def safeManagementService
 
     List<TillConfiguration> getAllActiveTills() {
         Integer retailerId =  springSecurityService.principal.retailerId
@@ -39,8 +40,7 @@ class TenderMovementService {
     }
 
     List<TenderType> getEligibleTendersForTenderLift() {
-        return Arrays.stream(TenderType.values())
-                .filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
+        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
                 .collect(Collectors.toList());
     }
 
@@ -91,6 +91,7 @@ class TenderMovementService {
         }
     }
 
+    // Method to create new tender movement
     private void createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location tillLocation, uk.co.wonderlane.wlpos.reporting.Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,

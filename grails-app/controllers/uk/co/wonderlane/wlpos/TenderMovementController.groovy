@@ -60,6 +60,7 @@ class TenderMovementController {
 
             //create audit
 
+
             redirect(action: "tenderLift", params: [success: "Successfully process tender lift"])
         } catch (Exception ex) {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
