@@ -193,13 +193,9 @@ function submitShift(shiftId, isRecount, isFinalise) {
             method: "POST",
             data: formValues,
             success: function(resp) {
-                if (isFinalise){
-                    $("#modal-content").html('')
-                    $('#shiftModal').modal('hide'); // This line hides the modal
-                    $("#results-container").html(resp);
-                } else {
-                    $("#modal-content").html(resp);
-                }
+                $("#modal-content").html('')
+                $('#shiftModal').modal('hide');
+                $("#results-container").html(resp);
             },
             error: function (resp) {
                 if ($("#modal-content").length) {

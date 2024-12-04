@@ -243,11 +243,11 @@ class ShiftController {
                     shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
                     return
+                } else {
+                    Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
+                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter])
+                    return
                 }
-                def safes = safeService.getStoreSafes()
-                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
-                //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
-                render(template: "cashUpSummaryModal", model: [shift: shift,  safes: safes, isShiftFinalizeMode: true, varianceReasons:varianceReasons])
             } else if (shift != null && !saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
