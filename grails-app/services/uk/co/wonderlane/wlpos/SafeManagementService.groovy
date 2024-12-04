@@ -5,16 +5,12 @@ import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlPoolDal
-import uk.co.wonderlane.wlpos.entities.cash.FinancialWeek
-import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
-import uk.co.wonderlane.wlpos.entities.cash.SafeSession
-import uk.co.wonderlane.wlpos.entities.cash.SafeSessionAudit
-import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.entities.cash.*
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.SafeSessionStatus
-import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.exception.SafeSessionUpdateException
 
 import java.sql.*
 
@@ -97,10 +93,12 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    // todo timmy - callers of this need to also handle retries
-     def saveSafeSession(SafeSession safeSession) {
+     def saveSafeSession(SafeSession safeSession) throws SafeSessionUpdateException {
          try (Connection conn = getConnection()) {
-             saveSafeSessionUsingConnection(conn, safeSession)
+             int savedId = saveSafeSessionUsingConnection(conn, safeSession)
+             if (savedId < 0) {
+                 throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process.")
+             }
          }
      }
 
@@ -198,18 +196,36 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    void processSafeSessionPendingTenderSave(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession){
+    void processInterimReconciliationSave(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession) throws SafeSessionUpdateException {
+        // This will called session save method to process on hold Reconciliation values
         try {
-            updatePendingCashTotal(safeSessionCashUpCommand, safeSession) //This will update pending cash attribute on session object for temporary
-            updatePendingVoucherTotal(safeSessionCashUpCommand, safeSession) //This will update pending voucher attribute on session object for temporary
-            saveSafeSession(safeSession) //This will called session save method to process on hold cash and voucher values
+            List<ReconciliationTotal> totals = new ArrayList<ReconciliationTotal>()
+            // todo this will need updating to use generic field attributes when using tender configs
+            totals.add(populateReconciliationTotal(
+                    TenderType.CASH, calculateCashTotal(safeSessionCashUpCommand), safeSession
+            ))
+            totals.add(populateReconciliationTotal(
+                    TenderType.VOUCHER, safeSessionCashUpCommand.vouchersTotal, safeSession
+            ))
+            safeSession.setPendingReconciliationTotals(totals)
+            saveSafeSession(safeSession)
+        } catch (SafeSessionUpdateException ex) {
+            throw ex
         } catch (Exception ex) {
             log.error("Error closing safe session for retailer id: ${safeSession.getRetailerId()} store id: ${safeSession.getRetailerId()} safe id: ${safeSession.getSafeId()} error: ${ex.getMessage()}", ex)
             throw new RuntimeException("Error closing safe session for retailer id: ${safeSession.getRetailerId()} store id: ${safeSession.getRetailerId()} safe id: ${safeSession.getSafeId()} error: ${ex.getMessage()}", ex)
         }
     }
 
-    void processSafeSessionDataSave(SafeSessionSaveCommand safeSessionSaveCommand, SafeSession safeSession) {
+    private static ReconciliationTotal populateReconciliationTotal(TenderType type, BigDecimal value, SafeSession session) {
+        BigDecimal expectedTotal = (session.tenderTotals.findAll { it.tenderType == type }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        ReconciliationTotal total = new ReconciliationTotal(type)
+        total.setValue(value ?: BigDecimal.ZERO)
+        total.setVariance(expectedTotal.subtract(total.getValue()))
+        return total
+    }
+
+    void processDataSave(SafeSessionSaveCommand safeSessionSaveCommand, SafeSession safeSession) {
         try {
             User loggedInUser = loadLoggedInUser()
             // This method will populate session data corresponding at action requested
@@ -218,6 +234,8 @@ class SafeManagementService extends MySqlPoolDal {
             saveSafeSession(safeSession) //This will called session save method to process close
             SafeSessionAction auditSafeSessionAction = safeSessionSaveCommand.isRecount ? SafeSessionAction.RECOUNT : safeSessionSaveCommand.isFinalise ? SafeSessionAction.FINALISE : SafeSessionAction.RECONCILE
             addAudit(safeSession, auditSafeSessionAction, false, loggedInUser)
+        } catch (SafeSessionUpdateException ex) {
+            throw ex
         } catch (Exception ex) {
             log.error("Error processing safe session summary for retailer id: ${safeSession.retailerId} store id: ${safeSession.storeId} session id: ${safeSession.id} error: ${ex.getMessage()}", ex)
             throw new RuntimeException("Error processing safe session summary for retailer id: ${safeSession.retailerId} store id: ${safeSession.storeId} session id: ${safeSession.id} error: ${ex.getMessage()}", ex)
@@ -378,17 +396,14 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    // todo timmy - EVERYTHING reconciliation!
     private void updateSafeSessionSaveFields(SafeSessionSaveCommand safeSessionSaveCommand, SafeSession safeSession, User loggedInUser){
         if (safeSession.sessionStatus == SafeSessionStatus.OPEN || safeSession.sessionStatus == SafeSessionStatus.RECONCILED){
             if (!safeSessionSaveCommand.isFinalise){
                 // If the request is not a final request (Intermediate --> reconcile or recount)
-                // Then should
-                //   1. Move on hold cash values into session cash value
-                //   2. Move on hold voucher values into session voucher value
-                //   3. Update variance reason and reason text
-                updatePendingToCashTotal(safeSession) // Update on hold cash into actual session object cash
-                updatePendingToVoucherTotal(safeSession) // Update on hold voucher into actual session object voucher
+                // Then should move on pending reconciliation totals into actual reconciliation totals
+                // And update variance reason and reason text
+                safeSession.setReconciliationTotals(safeSession.getPendingReconciliationTotals())
+                safeSession.setPendingReconciliationTotals(new ArrayList<ReconciliationTotal>())
                 if (safeSessionSaveCommand.tenderReconciliationVarianceReason != null) { // Update variance and variance text
                     safeSession.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
                         it.varianceReason = safeSessionSaveCommand.tenderReconciliationVarianceReason
@@ -407,8 +422,6 @@ class SafeManagementService extends MySqlPoolDal {
                     safeSession.reReconciledByUsersName = loggedInUser.getUsername()
                     safeSession.totalRecountAttempts = (safeSession.totalRecountAttempts ?: 0) + 1
                 }
-                // Once update done clear `pending` list
-                safeSession.getPendingReconciliationTotals().clear()
             } else {
                 safeSession.sessionStatus = SafeSessionStatus.FINALISED
                 safeSession.finalisedTime = commonService.convertDateTimeToString(DateTime.now())
@@ -416,46 +429,6 @@ class SafeManagementService extends MySqlPoolDal {
                 safeSession.finalisedUsername = loggedInUser.getUsername()
             }
         }
-    }
-
-    private void updatePendingToCashTotal(SafeSession safeSession) {
-        //Load on hold cash total values --> Saved at cash up view
-        def cashPendingTotal = safeSession.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH }
-
-        //Then update pending cash value to session actual cash value
-        def cashTotal = safeSession.reconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { safeSession.reconciliationTotals << it }
-        cashTotal.value = cashPendingTotal?.value ?: BigDecimal.ZERO
-        cashTotal.variance = cashPendingTotal?.variance ?: BigDecimal.ZERO
-    }
-
-    private void updatePendingToVoucherTotal(SafeSession safeSession) {
-        //Load on hold voucher total values --> Saved at cash up view
-        def vouchersPendingTotal = safeSession.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER }
-
-        //Then update pending voucher value to session actual voucher value
-        def vouchersTotal = safeSession.reconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { safeSession.reconciliationTotals << it }
-        vouchersTotal.value = vouchersPendingTotal?.value ?: BigDecimal.ZERO
-        vouchersTotal.variance = vouchersPendingTotal?.variance ?: BigDecimal.ZERO
-    }
-
-    private void updatePendingCashTotal(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession) {
-        def cashTotal = safeSession.pendingReconciliationTotals.find { it.tenderType == TenderType.CASH } ?:
-                new ReconciliationTotal(TenderType.CASH).tap { safeSession.pendingReconciliationTotals << it }
-        cashTotal.value = calculateCashTotal(safeSessionCashUpCommand)
-        BigDecimal currentCashTotal = (cashTotal.value ?: BigDecimal.ZERO)
-        BigDecimal currentTenderTotal = (safeSession.tenderTotals.findAll { it.tenderType == TenderType.CASH }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
-        cashTotal.variance = currentCashTotal.subtract(currentTenderTotal)
-    }
-
-    private void updatePendingVoucherTotal(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession) {
-        def vouchersTotal = safeSession.pendingReconciliationTotals.find { it.tenderType == TenderType.VOUCHER } ?:
-                new ReconciliationTotal(TenderType.VOUCHER).tap { safeSession.pendingReconciliationTotals << it }
-        vouchersTotal.value = safeSessionCashUpCommand.vouchersTotal
-        BigDecimal currentVoucherTotal = (vouchersTotal.value ?: BigDecimal.ZERO)
-        BigDecimal currentTenderTotal = (safeSession.tenderTotals.findAll { it.tenderType == TenderType.VOUCHER }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
-        vouchersTotal.variance = currentVoucherTotal.subtract(currentTenderTotal)
     }
 
     private BigDecimal calculateCashTotal(SafeSessionCashUpCommand safeSessionCashUpCommand) {
@@ -469,12 +442,12 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    private BigDecimal sumDenominations(SafeSessionCashUpCommand cmd) {
+    private static BigDecimal sumDenominations(SafeSessionCashUpCommand cmd) {
         ([cmd.fiftyPounds, cmd.twentyPounds, cmd.tenPounds, cmd.fivePounds, cmd.twoPounds, cmd.onePounds, cmd.fiftyPences, cmd.twentyPences, cmd.tenPences,
           cmd.fivePences, cmd.twoPences, cmd.onePences].sum() ?: 0) as BigDecimal
     }
 
-    private BigDecimal sumDenominationsWithMultipliers(SafeSessionCashUpCommand cmd) {
+    private static BigDecimal sumDenominationsWithMultipliers(SafeSessionCashUpCommand cmd) {
         ([cmd.fiftyPounds * 50, cmd.twentyPounds * 20, cmd.tenPounds * 10, cmd.fivePounds * 5, cmd.twoPounds * 2, cmd.onePounds, cmd.fiftyPences * 0.50, cmd.twentyPences * 0.20,
           cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
     }
