@@ -56,7 +56,7 @@ class TenderMovementController {
             tenderMovementService.updateTenderLiftShiftTotals(openShift, tender, amount)
 
             //create tender totals
-            tenderMovementService.shiftCashTenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+            tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
 
             //create audit
 
