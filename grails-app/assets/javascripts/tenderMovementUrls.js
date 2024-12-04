@@ -1,14 +1,19 @@
-function processTenderLift() {
-    $.ajax({
-        url: TenderMovementUrls.getProcessTenderLift(),
-        method: "POST",
-        data: $("#processTenderLift").serialize(),
-        success: updateTenderMovementContainer,
-        error: updateTenderMovementContainer
-    });
-}
+var TenderMovementUrls = TenderMovementUrls || (function () {
+    var _processTenderLift;
+    var _getTillAvailableBalance;
 
-function updateTenderMovementContainer(resp) {
-    $("#tender-movement-container").html(resp);
-    $(".mask-money").maskMoney({allowZero: true}).maskMoney('mask');
-}
+    return {
+        init : function (processTenderLift, getTillAvailableBalance) {
+            _processTenderLift = processTenderLift;
+            _getTillAvailableBalance = getTillAvailableBalance;
+        },
+
+        getProcessTenderLift : function () {
+            return _processTenderLift;
+        },
+
+        getTillAvailableBalance : function () {
+            return _getTillAvailableBalance;
+        }
+    }
+} ());

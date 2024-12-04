@@ -75,7 +75,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6 col-lg-5 offset-md-1">
-                        <div class="form-group mb-5">  <!-- Increased margin-bottom -->
+                        <div class="form-group mb-5">
                             <div class="d-flex align-items-center">
                                 <label for="safe" class="col-form-label mb-0 mr-2" style="width: 5rem;">Safe</label>
                                 <div class="flex-grow-1" style="max-width: 15rem;">
@@ -89,7 +89,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-5">  <!-- Increased margin-bottom -->
+                        <div class="form-group mb-5">
                             <div class="d-flex align-items-center">
                                 <label for="tillNo" class="col-form-label mb-0 mr-2" style="width: 5rem;">Till No</label>
                                 <div class="flex-grow-1" style="max-width: 15rem;">
@@ -102,18 +102,19 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-5">  <!-- Increased margin-bottom -->
+                        <div class="form-group mb-5">
                             <div class="d-flex align-items-center">
                                 <label for="tenders" class="col-form-label mb-0 mr-2" style="width: 5rem;">Tender</label>
                                 <div class="flex-grow-1" style="max-width: 15rem;">
                                     <g:select name="tender"
                                               from="${tenders}"
+                                              optionValue="${{ it.toString().toLowerCase().capitalize() }}"
                                               class="form-control select-border"/>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group mb-5">  <!-- Increased margin-bottom -->
+                        <div class="form-group mb-5">
                             <div class="d-flex align-items-center">
                                 <label for="amount" class="col-form-label mb-0 mr-2" style="width: 5rem;">Amount</label>
                                 <div class="flex-grow-1" style="max-width: 15rem;">

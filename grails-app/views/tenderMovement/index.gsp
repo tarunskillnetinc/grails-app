@@ -17,7 +17,8 @@
         $(document).ready(function () {
 
             TenderMovementUrls.init(
-                "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}"
+                "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}",
+                "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}"
             );
 
             // Select the first tab by default if none are active

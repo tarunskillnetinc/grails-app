@@ -254,6 +254,7 @@ beans = {
         locationService = ref('locationService')
         safeManagementService = ref('safeManagementService')
         shiftService = ref('shiftService')
+        userService = ref('userService')
     }
 
 

@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import uk.co.wonderlane.wlpos.entities.cash.SafeSession
-import uk.co.wonderlane.wlpos.entities.cash.Shift
+import groovy.json.JsonOutput
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
@@ -13,7 +12,6 @@ class TenderMovementController {
 
     def tenderMovementService
     def safeService
-    def springSecurityService
 
 
     def index() {}
@@ -25,10 +23,8 @@ class TenderMovementController {
         String error = params.error
         List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safeLocations.find { it.primary }
-
         List<TillConfiguration> tills =  tenderMovementService.getAllActiveTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
-
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
@@ -39,6 +35,27 @@ class TenderMovementController {
     def bankDeposit(){}
 
     def bankReceipt(){}
+
+    def getTillAvailableBalance(){
+        try {
+            Integer tillId = Integer.parseInt(params.tillNo)
+            TenderType tender = TenderType.valueOf(params.tender)
+
+            //create tender totals
+            BigDecimal availableBalance = tenderMovementService.getAvailableTillBalance(tillId,tender)
+
+            // Convert response to JSON string
+            String jsonResponse = JsonOutput.toJson([
+                    success: true,
+                    availableAmount: availableBalance
+            ])
+
+            // Return as plain JSON string
+            render(contentType: 'application/json', text: jsonResponse)
+        } catch (Exception ex) {
+            render(status: 500, text: "Error fetching till balance: ${ex.message}")
+        }
+    }
 
     def processTenderLift(){
         Integer safeId = null
