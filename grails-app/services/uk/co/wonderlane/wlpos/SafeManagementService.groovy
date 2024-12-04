@@ -13,6 +13,7 @@ import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.SafeSessionStatus
+import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.sql.*
@@ -188,6 +189,15 @@ class SafeManagementService extends MySqlPoolDal {
         return null
     }
 
+    def addSpotCheckAudit(SafeSession safeSession) {
+        try {
+            User loggedInUser = loadLoggedInUser()
+            addAudit(safeSession, SafeSessionAction.SPOT_CHECK, false, loggedInUser)
+        } catch (Exception ex) {
+            log.error(String.format("Error adding spot check audit for retailer id: %s store id: %s error: %s", safeSession.getRetailerId(), safeSession.getStoreId(), ex.getMessage()), ex)
+        }
+    }
+
     void processSafeSessionPendingTenderSave(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession){
         try {
             updatePendingCashTotal(safeSessionCashUpCommand, safeSession) //This will update pending cash attribute on session object for temporary
@@ -277,6 +287,7 @@ class SafeManagementService extends MySqlPoolDal {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)
+            addJsonFieldToObject(jsonObject, "pendingTenderTotals", safeSession.pendingTenderTotals)
 
             if (safeSessionAction in [SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE]) {
                 addJsonFieldToObject(jsonObject, "reconciliationTotals", safeSession.reconciliationTotals)
@@ -468,6 +479,5 @@ class SafeManagementService extends MySqlPoolDal {
         ([cmd.fiftyPounds * 50, cmd.twentyPounds * 20, cmd.tenPounds * 10, cmd.fivePounds * 5, cmd.twoPounds * 2, cmd.onePounds, cmd.fiftyPences * 0.50, cmd.twentyPences * 0.20,
           cmd.tenPences * 0.10, cmd.fivePences * 0.05, cmd.twoPences * 0.02, cmd.onePences * 0.01].sum() ?: 0) as BigDecimal
     }
-
 }
 
