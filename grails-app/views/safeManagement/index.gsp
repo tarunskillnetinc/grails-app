@@ -23,6 +23,7 @@
                     "${createLink(controller: 'SafeManagement', action: 'ajaxGetSafeSessionCashUpModal')}",
                     "${createLink(controller: 'SafeManagement', action: 'ajaxUpdateSafeSessionReconcileData')}",
                     "${createLink(controller: 'SafeManagement', action: 'ajaxSaveSafeSessionCashData')}",
+                    "${createLink(controller: 'SafeManagement', action: 'ajaxSpotCheck')}",
                 );
                 ShiftUrls.init("${createLink(controller: 'shift', action: 'ajaxGetShifts')}",
                     "${createLink(controller: 'shift', action: 'ajaxGetCashDetails')}",
