@@ -1,9 +1,12 @@
 package uk.co.wonderlane.wlpos
 
+import org.joda.time.DateTime
+import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.SafeSession
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SafeSessionStatus
+import uk.co.wonderlane.wlpos.enums.TenderType
 
 class SafeManagementController {
 
@@ -172,6 +175,23 @@ class SafeManagementController {
         } catch (Exception ex) {
             log.error("Safe session reconciliation error for session id: ${safeSessionSaveCommand.safeSessionId} error: ${ex.getMessage()}", ex)
             render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionSaveCommand.safeDescription}.")
+        }
+    }
+
+    // This is method to spot check this will popup dialog box which have values each tender types
+    def ajaxSpotCheck(){
+        Integer safeSessionId = params.safeSessionId ? Integer.parseInt(params.safeSessionId) : -1
+        try {
+            def safeSession = safeManagementService.getSafeSession(safeSessionId)
+            if (safeSession != null) { // If safe not exists then process the action
+                safeManagementService.addSpotCheckAudit(safeSession) // Add audit for spot check
+                render(template: "spotCheck", model: [safeSession: safeSession, fetchTime: new DateTime()]) //Load spot check template
+            } else {
+                render(status: 400, contentType: 'application/json', message: String.format("Spot check action failed. Safe Session not available for safe session id %d", safeSessionId))
+            }
+        } catch (Exception ex) {
+            log.error(String.format("Spot check error for Safe Session id: %d error: %s", safeSessionId, ex.getMessage()), ex)
+            render(status: 400, contentType: 'application/json', message: String.format("Action failed for spot check for safe session id: %d ", safeSessionId))
         }
     }
 

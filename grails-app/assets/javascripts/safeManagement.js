@@ -134,3 +134,20 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription
         });
     }
 }
+
+function safeSpotCheck(safeSessionId) {
+    $.ajax({
+        url: SafeManagementUrls.spotCheckUrl(),
+        method: "POST",
+        data: {safeSessionId: safeSessionId},
+        success: function(resp) {
+            $('#sessionModal').modal({ show: true });
+            $("#modal-content").html(resp);
+        },
+        error: function(resp) {
+            $("#search-results").show();
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        },
+    });
+}
