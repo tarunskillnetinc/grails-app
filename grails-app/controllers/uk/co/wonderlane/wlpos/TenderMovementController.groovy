@@ -23,7 +23,13 @@ class TenderMovementController {
         String success = params.success
         String error = params.error
         List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
-        Safe primarySafe = safeLocations.find { it.primary }
+        Safe primarySafe = safeLocations?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
+        } else {
+            safeLocations = safeLocations?.sort { it.id }
+        }
         List<TillConfiguration> tills =  tenderMovementService.getAllActiveTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]

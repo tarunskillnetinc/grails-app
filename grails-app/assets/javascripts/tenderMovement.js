@@ -46,7 +46,7 @@ function processTenderLift() {
                 submitTenderLift();
             } else {
                 $("#messages-container").html('');
-                amountElement.val('').focus();
+                amountElement.focus();
             }
         } else {
             submitTenderLift();
