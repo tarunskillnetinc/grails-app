@@ -166,8 +166,8 @@
 
                         <!-- Buttons Row -->
                         <div class="mt-5 d-flex justify-content-end" style="max-width: 20.5rem;">  <!-- Increased margin-top -->
-                            <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelAddSafe('${createLink(action:'closeSafeAdd')}')" class="btn btn-wl mr-2">Cancel</button>
-                            <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button>
+                            <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderLift('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                            <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton->
                         </div>
                     </div>
                 </div>

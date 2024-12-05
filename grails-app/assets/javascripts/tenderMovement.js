@@ -83,7 +83,20 @@ function submitTenderLift() {
     });
 }
 
+function handleCancelTenderLift(url) {
+    confirmAndSubmit("Are you sure you want to cancel ?", function() {
+        window.location.href = '/';
+    });
+}
+
 function updateTenderMovementContainer(resp) {
     $("#tender-movement-container").html(resp);
     $(".mask-money").maskMoney({allowZero: true}).maskMoney('mask');
+}
+
+function confirmAndSubmit(message, yesCallBack) {
+    let result = confirm(message);
+    if (result) {
+        yesCallBack();
+    }
 }
