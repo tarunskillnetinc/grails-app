@@ -55,14 +55,14 @@
             <div class="spot-check-row">
                 <span>Cash</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${(safeSession?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO).add(safeSession?.pendingTenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO)}" type="currency" />
+                    <g:formatNumber number="${safeSession?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
             <div class="spot-check-row">
                 <span>Voucher</span>
                 <span class="spot-check-value">
-                    <g:formatNumber number="${(safeSession?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO).add(safeSession?.pendingTenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO)}" type="currency" />
+                    <g:formatNumber number="${safeSession?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO}" type="currency" />
                 </span>
             </div>
 
@@ -70,7 +70,7 @@
             <div class="spot-check-row spot-check-total">
                 <span style="font-weight: bold;">Total</span> <!-- Keeping the font weight bold -->
                 <span class="spot-check-value">
-                    <g:formatNumber number="${(safeSession?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO).add(safeSession?.pendingTenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO).add((safeSession?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO).add(safeSession?.pendingTenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO))}" type="currency" />
+                    <g:formatNumber number="${(safeSession?.tenderTotals?.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO).add(safeSession?.tenderTotals?.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO)}" type="currency" />
                 </span>
             </div>
         </div>
