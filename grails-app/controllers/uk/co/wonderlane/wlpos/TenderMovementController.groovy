@@ -105,22 +105,25 @@ class TenderMovementController {
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
             //todo check safe is active if not show safe is not active
+            if (tenderMovementService.isSafeActive(safeId)){
+                //create tender totals
+                int tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
 
-            //create tender totals
-            int tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
 
-            //update safe session values
-            //update safe session tender totals
-            //add safe session audit
-            tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
+                //update shift values
+                //update shift cash in drawer
+                //update shift tender totals
+                //add shift audit
+                tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
 
-            //update shift values
-            //update shift cash in drawer
-            //update shift tender totals
-            //add shift audit
-            tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
-
-            redirect(action: "tenderLift", params: [success: "Successfully process tender lift for till ${tillId}"])
+                redirect(action: "tenderLift", params: [success: "Successfully process tender lift for till ${tillId}"])
+            } else {
+                redirect(action: "tenderLift", params: [error: "Selected Safe not active please try with another"])
+            }
         } catch (Exception ex) {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Tender lift action failed. "

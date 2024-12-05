@@ -255,6 +255,7 @@ beans = {
         safeManagementService = ref('safeManagementService')
         shiftService = ref('shiftService')
         userService = ref('userService')
+        safeService = ref('safeService')
     }
 
 
