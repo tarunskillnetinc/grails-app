@@ -30,6 +30,7 @@ class TenderMovementController {
         } else {
             safeLocations = safeLocations?.sort { it.id }
         }
+        //todo - make sure to load tills having  open shift
         List<TillConfiguration> tills =  tenderMovementService.getAllActiveTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
@@ -102,6 +103,8 @@ class TenderMovementController {
             tillId = Integer.parseInt(params.tillNo)
             tender = TenderType.valueOf(params.tender)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+
+            //todo check safe is active if not show safe is not active
 
             //create tender totals
             int tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
