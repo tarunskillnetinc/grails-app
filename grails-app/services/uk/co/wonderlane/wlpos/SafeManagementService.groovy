@@ -126,6 +126,12 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
+    SafeSession getActiveSafeSession(Integer safeId) {
+        try (Connection conn = getConnection()) {
+            return getActiveSession(conn, safeId)
+        }
+    }
+
     private SafeSession getActiveSession(Connection conn, int safeId) {
         getActiveSafeSessionsUsingConnection(conn, safeId).stream().findFirst().orElse(null)
     }
@@ -190,7 +196,7 @@ class SafeManagementService extends MySqlPoolDal {
     def addSpotCheckAudit(SafeSession safeSession) {
         try {
             User loggedInUser = loadLoggedInUser()
-            addAudit(safeSession, SafeSessionAction.SPOT_CHECK, false, loggedInUser)
+            addAudit(safeSession, SafeSessionAction.SPOT_CHECK, false, loggedInUser, 0)
         } catch (Exception ex) {
             log.error(String.format("Error adding spot check audit for retailer id: %s store id: %s error: %s", safeSession.getRetailerId(), safeSession.getStoreId(), ex.getMessage()), ex)
         }

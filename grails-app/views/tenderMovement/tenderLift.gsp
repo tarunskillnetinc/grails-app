@@ -13,7 +13,12 @@
         var errorMessage = "${error}";
 
         $(document).ready(function () {
+            addMoneyMaskLogic()
+            processTenderLiftActionButton()
+            handleResponseMessages(successMessage, errorMessage)
+        });
 
+        function addMoneyMaskLogic(){
             $('.mask-money').maskMoney({
                 prefix: '',
                 allowNegative: false,
@@ -24,32 +29,64 @@
             });
 
             $('.mask-money').on('keydown', function(e) {
-                // Allow navigation keys, backspace, delete, tab, enter keys
-                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight']) !== -1) {
+                // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
+                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
                     return;
                 }
 
-                var currentValue = $(this).val();
-                currentValue = currentValue.replace(",", "").replace(".","") + e.key
+                let currentValue = $(this).val();
+                currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
 
-                if (
-                    ((this.id +'') === "rollingFloatValue" ||
-                        (this.id +'') === "tillShiftVarianceLimit" ||
-                        (this.id +'') === "safeVarianceLimit"
-                    )
-                    && parseFloat(currentValue) > 99999) {
-                    e.preventDefault();
-                } else if( (this.id +'') === 'tillCashHoldingLimit' && parseFloat(currentValue) > 999999) {
-                    e.preventDefault();
-                } else if (parseFloat(currentValue) > 150000) {
+                const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
+                const maxValue = 999999.99;
+                const minValue = 0.01;
+
+                if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
                     e.preventDefault();
                 }
             });
 
-            $(document).on('click', '#tender-lift-save', function() {
-                processTenderLift();
+            // Ensure proper formatting on blur
+            $('.mask-money').on('blur', function() {
+                let value = $(this).val();
+                value = value.replace(/,/g, ''); // Remove commas for parsing
+                const parsedValue = parseFloat(value);
+
+                if (isNaN(parsedValue) || parsedValue < 0.01) {
+                    $(this).val('0.01');
+                } else if (parsedValue > 999999.99) {
+                    $(this).val('999999.99');
+                } else {
+                    $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
+                }
             });
 
+        }
+
+        function processTenderLiftActionButton(){
+            // Remove any existing click handlers for #tender-lift-save
+            $(document).off('click', '#tender-lift-save');
+
+            // Add the click handler once
+            $(document).on('click', '#tender-lift-save', function(e) {
+                e.preventDefault(); // Prevent default button action if it's a submit button
+
+                // Disable the button to prevent multiple clicks
+                var $button = $(this);
+                if ($button.prop('disabled')) return;
+                $button.prop('disabled', true);
+
+                // Call the processTenderLift function
+                processTenderLift();
+
+                // Re-enable the button after a short delay
+                setTimeout(function() {
+                    $button.prop('disabled', false);
+                }, 1000); // Adjust the delay as needed
+            });
+        }
+
+        function handleResponseMessages(successMessage, errorMessage){
             if(successMessage != null && successMessage !== ''){
                 $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
             } else if (errorMessage != null && errorMessage !== '') {
@@ -57,8 +94,7 @@
             } else {
                 $("#messages-container").html('');
             }
-
-        });
+        }
 
 
     </script>
@@ -95,7 +131,7 @@
                                 <div class="flex-grow-1" style="max-width: 15rem;">
                                     <g:select name="tillNo"
                                               from="${tills}"
-                                              optionKey="id"
+                                              optionKey="tillId"
                                               optionValue="tillId"
                                               class="form-control select-border"/>
                                 </div>

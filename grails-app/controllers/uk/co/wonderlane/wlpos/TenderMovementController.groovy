@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
@@ -36,18 +37,46 @@ class TenderMovementController {
 
     def bankReceipt(){}
 
+    //This is generic method of checking till balances
     def getTillAvailableBalance(){
         try {
-            Integer tillId = Integer.parseInt(params.tillNo)
             TenderType tender = TenderType.valueOf(params.tender)
+            List<Integer> tillNos = [] //Declare tillNos as a List of Integers
+            if (params.tillNos) { //Parse tillNos into list of till nos
+                if (params.tillNos instanceof String) {
+                    // Parse JSON string into a list of integers
+                    tillNos = new JsonSlurper().parseText(params.tillNos).collect { it.toInteger() } as List<Integer>
+                } else if (params.tillNos instanceof Collection) {
+                    // Convert collection to a list of integers
+                    tillNos = params.tillNos.collect { it.toInteger() } as List<Integer>
+                } else {
+                    // Handle single string value as integer list
+                    tillNos = [params.tillNos.toInteger()] as List<Integer>
+                }
+            } else if (params.tillNo) {
+                // Handle single tillNo as integer
+                tillNos = [params.tillNo.toInteger()] as List<Integer>
+            }
+            BigDecimal enteredAmount = new BigDecimal(params.enteredAmount) //Get entered amount
+
+            BigDecimal totalAvailableBalance = 0
+            boolean isTillAmountLessThanEntered = false
 
             //create tender totals
-            BigDecimal availableBalance = tenderMovementService.getAvailableTillBalance(tillId,tender)
+            for (tillNo in tillNos) { //Loop over passed till nos to check available till balance is less than of entered amount
+                BigDecimal availableBalance = tenderMovementService.getAvailableTillBalance(tillNo, tender)
+                if (availableBalance.compareTo(enteredAmount) < 0) {
+                    isTillAmountLessThanEntered = true
+                    totalAvailableBalance = availableBalance
+                    break  // This will break the loop
+                }
+            }
 
             // Convert response to JSON string
             String jsonResponse = JsonOutput.toJson([
                     success: true,
-                    availableAmount: availableBalance
+                    availableAmount: totalAvailableBalance,
+                    isTillAmountLessThanEntered: isTillAmountLessThanEntered
             ])
 
             // Return as plain JSON string
@@ -74,7 +103,8 @@ class TenderMovementController {
             //update safe session values
             //update safe session tender totals
             //add safe session audit
-            tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.OPEN, tender, amount, tenderMovementId)
+            //todo make sure to identify safe session action type of tender lift
+            tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.OPEN, tender, amount, tenderMovementId, safeId)
 
             //update shift values
             //update shift cash in drawer
@@ -82,7 +112,7 @@ class TenderMovementController {
             //add shift audit
             tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
 
-            redirect(action: "tenderLift", params: [success: "Successfully process tender lift"])
+            redirect(action: "tenderLift", params: [success: "Successfully process tender lift for till ${tillId}"])
         } catch (Exception ex) {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Tender lift action failed. "
