@@ -123,7 +123,7 @@
                 var selectedPromotionDescription = "";
                 for (var i = 0; i < promotions.length; i++) { // Use promotions.length to iterate over promotions
                     var promotion = promotions[i];
-                    if (promotion.id == selectedPromotionId) {
+                    if (promotion.id == selectedPromotionId && promotion.) {
                         selectedPromotionDescription = promotion.description;
                         break;
                     }
