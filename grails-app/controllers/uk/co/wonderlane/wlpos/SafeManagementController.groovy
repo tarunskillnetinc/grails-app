@@ -81,7 +81,7 @@ class SafeManagementController {
             // If it is RECOUNT or FINALISED request -> Session status must be RECONCILED
             def isReconcile = !isRecount && !isFinalise
             def validStatus = (safeSession.getSessionStatus() == SafeSessionStatus.OPEN && isReconcile)
-                    || (safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED && !isReconcile);
+                    || (safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED && !isReconcile)
 
             if (validStatus) {
                 if (isFinalise) { // If the safe request is finalise show summary modal
@@ -93,13 +93,11 @@ class SafeManagementController {
                     render(template: "cashUpModal", model: [safeSession: safeSession, safeDescription: safeDescription])
                 }
             } else {
-                String errorMsg = "Safe ${safeDescription} is in an invalid status to "
-                if (isFinalise) {
-                    errorMsg += "finalise."
-                } else if (isRecount) {
-                    errorMsg += "recount."
-                } else {
-                    errorMsg += "reconcile."
+                String errorMsg = "Failed to reconcile safe ${safeDescription}. Already reconciled."
+                if (isRecount) {
+                    errorMsg = "Failed to recount safe ${safeDescription}. Already recounted."
+                } else if (isFinalise) {
+                    errorMsg = "Failed to finalise safe ${safeDescription}. Already finalised."
                 }
                 render(status: 400, contentType: 'application/json', message: errorMsg)
             }
@@ -143,8 +141,17 @@ class SafeManagementController {
     def ajaxSaveSafeSessionCashData(SafeSessionSaveCommand safeSessionSaveCommand) {
         try {
             def safeSession = safeManagementService.getSafeSession(safeSessionSaveCommand.safeSessionId)
-            if (safeSession != null && ((!safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() == SafeSessionStatus.OPEN) ||
-                    ((safeSessionSaveCommand.isRecount || safeSessionSaveCommand.isFinalise) && safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED))) {
+            if (safeSession == null) {
+                render(status: 400, contentType: 'application/json', message: "Safe session not found for ${safeDescription}.")
+                return
+            }
+            // If it is RECONCILE request -> Session status must be OPEN
+            // If it is RECOUNT or FINALISED request -> Session status must be RECONCILED
+            def isReconcile = !safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise
+            def validStatus = (safeSession.getSessionStatus() == SafeSessionStatus.OPEN && isReconcile)
+                    || (safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED && !isReconcile)
+
+            if (validStatus) {
                 safeManagementService.processDataSave(safeSessionSaveCommand, safeSession)
                 if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
                     //Safe session finalise logic
@@ -158,25 +165,19 @@ class SafeManagementController {
                                 safe.retailerId, safe.storeId, safe.id,
                                 tenderTotals, false)
                     }
-
                     //Redirect to ajaxGetSafeSessions to reload safe session view
                     redirect(action: "ajaxGetSafeSessions", params: [successMessage: "Successfully finalised safe ${safeSessionSaveCommand.safeDescription}."])
-                    return
                 } else {
                     redirect(action: "ajaxGetSafeSessions")
-                    return
                 }
-            } else if (safeSession != null && !safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
-                // Request is for reconcile but already reconciled
-                render(status: 400, contentType: 'application/json', message: "Failed to reconcile safe ${safeSessionSaveCommand.safeDescription}. Already reconciled.")
-            } else if (safeSession != null && safeSessionSaveCommand.isRecount && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
-                // Request is for recount but already recounted
-                render(status: 400, contentType: 'application/json', message: "Failed to recount safe ${safeSessionSaveCommand.safeDescription}. Already recounted.")
-            } else if (safeSession != null && safeSessionSaveCommand.isFinalise && safeSession.getSessionStatus() != SafeSessionStatus.RECONCILED) {
-                // Request is for finalise but already finalised
-                render(status: 400, contentType: 'application/json', message: "Failed to finalise safe ${safeSessionSaveCommand.safeDescription}. Already finalised.")
             } else {
-                render(status: 400, contentType: 'application/json', message: "Action failed for safe ${safeSessionSaveCommand.safeDescription}.")
+                String errorMsg = "Failed to reconcile safe ${safeSessionSaveCommand.safeDescription}. Already reconciled."
+                if (safeSessionSaveCommand.isRecount) {
+                    errorMsg = "Failed to recount safe ${safeSessionSaveCommand.safeDescription}. Already recounted."
+                } else if (safeSessionSaveCommand.isFinalise) {
+                    errorMsg = "Failed to finalise safe ${safeSessionSaveCommand.safeDescription}. Already finalised."
+                }
+                render(status: 400, contentType: 'application/json', message: errorMsg)
             }
         } catch (SafeSessionUpdateException ex) {
             log.info("Safe session reconciliation error for session id: ${safeSessionSaveCommand.safeSessionId} error: ${ex.getMessage()}", ex)
