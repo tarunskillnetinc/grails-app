@@ -109,8 +109,7 @@ class TenderMovementController {
             //update safe session values
             //update safe session tender totals
             //add safe session audit
-            //todo make sure to identify safe session action type of tender lift
-            tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.OPEN, tender, amount, tenderMovementId, safeId)
+            tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
 
             //update shift values
             //update shift cash in drawer
