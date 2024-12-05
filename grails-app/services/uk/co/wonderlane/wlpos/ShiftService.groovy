@@ -87,19 +87,16 @@ class ShiftService extends MySqlPoolDal {
     }
 
     void updateFinaliseShiftToSafeSessionMovements(Shift shift, int safeId){
-        try {
-            SafeSession safeSession = safeManagementService.getOpenSafeSession(safeId)
-            if (safeSession != null){
-                processSafeSessionCalculation(safeSession, shift, TenderType.CASH)
-                processSafeSessionCalculation(safeSession, shift, TenderType.VOUCHER)
-                safeManagementService.saveSafeSession(safeSession)
-            }  else {
-                log.warn("No open safe session available for move tender for retailer: ${shift.getRetailerId()} store: ${shift.getStoreId()} safeId: ${safeId} ")
+        Map<TenderType, BigDecimal> addedTenderAmounts = new HashMap<>()
+        if (shift.reconciliationTotals) {
+            for (tender in shift.reconciliationTotals) {
+                def value = tender.value
+                if (tender.tenderType != null && value != null && value != BigDecimal.ZERO) {
+                    addedTenderAmounts.put(tender.tenderType, value)
+                }
             }
-        } catch (Exception ex) {
-            log.error("Error moving shift to safe session for retailer id: ${shift.getRetailerId()} store id: ${shift.getStoreId()} safe id: ${safeId} error: ${ex.getMessage()}", ex)
         }
-
+        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
     }
 
     void updateFinaliseTenderMovement(Shift shift, int safeId){
@@ -807,41 +804,17 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    //This is for moving tender to safe session when shift finalising
-    private void processSafeSessionCalculation(SafeSession safeSession, Shift shift, TenderType type) {
-        ReconciliationTotal reconciliationTotal = shift.reconciliationTotals.find { it.tenderType == type }
-        if(reconciliationTotal != null && reconciliationTotal.value.compareTo(BigDecimal.ZERO) != 0){
-            updateSafeSession(safeSession, reconciliationTotal.value, type)
-        }
-    }
-
     //This is for moving tender to safe session when add float and cash lift
     private shiftSafeSessionUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount) {
-        // If this is add float action then amounts need to be deduct on safe session if cash lift then need to sum up for safe session
-        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount.negate() : cashAmount
-        SafeSession safeSession = safeManagementService.getOpenSafeSession(safeId)
-        if (safeSession) { // Get available open session for safe id
-            updateSafeSession(safeSession, adjustedCashAmount, TenderType.CASH)
-            if (isAddFloat) {
-                updateSafeSession(safeSession, voucherAmount.negate(), TenderType.VOUCHER)
-            }
-            safeManagementService.saveSafeSession(safeSession)
-        } else { // If no any open safe session then add warning log
-            log.warn("No open safe session available for move tender for action ${isAddFloat ? "add float" : "cash lift"} for safeId: ${safeId} ")
+        // todo this will need refactoring more with tender configs
+        Map<TenderType, BigDecimal> addedTenderAmounts = new HashMap<>()
+        if (cashAmount != null && cashAmount != BigDecimal.ZERO) {
+            addedTenderAmounts.put(TenderType.CASH, isAddFloat ? cashAmount.negate() : cashAmount)
         }
-    }
-
-
-    private void updateSafeSession(SafeSession safeSession, BigDecimal amount, TenderType type){
-        if (amount) {
-            def expected = safeSession.tenderTotals.find { it.tenderType == type }
-            if (!expected) {
-                expected = new TenderTotal(type)
-                safeSession.tenderTotals.add(expected)
-            }
-            expected.value = expected.value.add(amount)
-            expected.quantity = expected.quantity + 1
+        if (voucherAmount != null && voucherAmount != BigDecimal.ZERO) {
+            addedTenderAmounts.put(TenderType.VOUCHER, isAddFloat ? voucherAmount.negate() : voucherAmount)
         }
+        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
     }
 
     private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
