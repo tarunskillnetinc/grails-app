@@ -19,7 +19,6 @@ class TenderMovementController {
     def shiftService
     def springSecurityService
 
-
     def index() {}
 
     def issueFloat(){}
@@ -48,60 +47,6 @@ class TenderMovementController {
     def bankDeposit(){}
 
     def bankReceipt(){}
-
-    //This is generic method of checking till balances
-//    def getTillAvailableBalance(){
-//        try {
-//            TenderType tender = TenderType.valueOf(params.tender)
-//            List<Integer> tillNos = [] //Declare tillNos as a List of Integers
-//            if (params.tillNos) { //Parse tillNos into list of till nos
-//                if (params.tillNos instanceof String) {
-//                    // Parse JSON string into a list of integers
-//                    tillNos = new JsonSlurper().parseText(params.tillNos).collect { it.toInteger() } as List<Integer>
-//                } else if (params.tillNos instanceof Collection) {
-//                    // Convert collection to a list of integers
-//                    tillNos = params.tillNos.collect { it.toInteger() } as List<Integer>
-//                } else {
-//                    // Handle single string value as integer list
-//                    tillNos = [params.tillNos.toInteger()] as List<Integer>
-//                }
-//            } else if (params.tillNo) {
-//                // Handle single tillNo as integer
-//                tillNos = [params.tillNo.toInteger()] as List<Integer>
-//            }
-//            BigDecimal enteredAmount = new BigDecimal(params.enteredAmount) //Get entered amount
-//
-//            BigDecimal totalAvailableBalance = BigDecimal.ZERO
-//            boolean isTillAmountLessThanEntered = false
-//
-//            //create tender totals
-//            for (tillNo in tillNos) { //Loop over passed till nos to check available till balance is less than of entered amount
-//                Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
-//                if (shift != null) {
-//                    BigDecimal tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tenderType).findFirst()
-//                            .map(TenderTotal::getValue).orElse(BigDecimal.ZERO)
-//                    if (tenderValue.compareTo(enteredAmount) < 0) {
-//                        isTillAmountLessThanEntered = true
-//                        totalAvailableBalance = tenderValue
-//                        break  // This will break the loop
-//                    }
-//                } else {
-//
-//                }
-//            }
-//
-//            // Convert response to JSON string
-//            String jsonResponse = JsonOutput.toJson([
-//                    success: true,
-//                    availableAmount: totalAvailableBalance,
-//                    isTillAmountLessThanEntered: isTillAmountLessThanEntered
-//            ])
-//            // Return as plain JSON string
-//            render(contentType: 'application/json', text: jsonResponse)
-//        } catch (Exception ex) {
-//            render(status: 500, text: "Error fetching till balance: ${ex.message}")
-//        }
-//    }
 
     def getTillAvailableBalance() {
         try {
