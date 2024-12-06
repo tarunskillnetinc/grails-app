@@ -16,6 +16,8 @@
 
         $(document).ready(function () {
 
+            addMoneyMaskLogic();
+
             TenderMovementUrls.init(
                 "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}",
                 "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}"
@@ -52,7 +54,6 @@
 
             });
 
-
             // Function to determine the action based on the tab ID
             function getControllerLinkForTabId(tabId) {
                 switch (tabId) {
@@ -74,6 +75,50 @@
             }
         });
 
+        function addMoneyMaskLogic(){
+            $('.mask-money').maskMoney({
+                prefix: '',
+                allowNegative: false,
+                thousands: ',',
+                decimal: '.',
+                affixesStay: true,
+                precision: 2,
+            });
+
+            $('.mask-money').on('keydown', function(e) {
+                // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
+                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
+                    return;
+                }
+
+                let currentValue = $(this).val();
+                currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
+
+                const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
+                const maxValue = 9999.99;
+                const minValue = 0.01;
+
+                if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
+                    e.preventDefault();
+                }
+            });
+
+            // Ensure proper formatting on blur
+            $('.mask-money').on('blur', function() {
+                let value = $(this).val();
+                value = value.replace(/,/g, ''); // Remove commas for parsing
+                const parsedValue = parseFloat(value);
+
+                if (isNaN(parsedValue) || parsedValue < 0.01) {
+                    $(this).val('0.01');
+                } else if (parsedValue > 999999.99) {
+                    $(this).val('9999.99');
+                } else {
+                    $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
+                }
+            });
+
+        }
 
         function updateBreadcrumb(tabName) {
             $('#current-page-name').text(tabName);
@@ -138,7 +183,8 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link uri="/tenderMovement/index">Tender Movement</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
                     </ol>
                 </div>
             </div>

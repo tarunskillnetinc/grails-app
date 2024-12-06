@@ -1,67 +1,7 @@
-<!doctype html>
-<html>
-<head>
-
-    <title>Tender Lift</title>
-
-    <asset:javascript src="validators/input-validator.js" />
-    <asset:javascript src="money-mask.js" />
-
     <script type="text/javascript">
 
         var successMessage = "${success}";
         var errorMessage = "${error}";
-
-        $(document).ready(function () {
-            addMoneyMaskLogic()
-            processTenderLiftActionButton()
-            handleResponseMessages(successMessage, errorMessage)
-        });
-
-        function addMoneyMaskLogic(){
-            $('.mask-money').maskMoney({
-                prefix: '',
-                allowNegative: false,
-                thousands: ',',
-                decimal: '.',
-                affixesStay: true,
-                precision: 2,
-            });
-
-            $('.mask-money').on('keydown', function(e) {
-                // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
-                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
-                    return;
-                }
-
-                let currentValue = $(this).val();
-                currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
-
-                const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
-                const maxValue = 9999.99;
-                const minValue = 0.01;
-
-                if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
-                    e.preventDefault();
-                }
-            });
-
-            // Ensure proper formatting on blur
-            $('.mask-money').on('blur', function() {
-                let value = $(this).val();
-                value = value.replace(/,/g, ''); // Remove commas for parsing
-                const parsedValue = parseFloat(value);
-
-                if (isNaN(parsedValue) || parsedValue < 0.01) {
-                    $(this).val('0.01');
-                } else if (parsedValue > 999999.99) {
-                    $(this).val('9999.99');
-                } else {
-                    $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
-                }
-            });
-
-        }
 
         function processTenderLiftActionButton(){
             // Remove any existing click handlers for #tender-lift-save
@@ -96,11 +36,12 @@
             }
         }
 
-
+        $(document).ready(function () {
+            addMoneyMaskLogic()
+            processTenderLiftActionButton()
+            handleResponseMessages(successMessage, errorMessage)
+        });
     </script>
-</head>
-
-<body>
 
     <section id="segment-details" class="container-fluid">
         <div id="messages-container"></div>
@@ -167,12 +108,10 @@
                         <!-- Buttons Row -->
                         <div class="mt-5 d-flex justify-content-end" style="max-width: 20.5rem;">  <!-- Increased margin-top -->
                             <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderLift('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
-                            <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton->
+                            <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton-->
                         </div>
                     </div>
                 </div>
             </div>
         </g:form>
     </section>
-</body>
-</html>
