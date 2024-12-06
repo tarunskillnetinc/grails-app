@@ -231,7 +231,7 @@ class SafeManagementService extends MySqlPoolDal {
         BigDecimal expectedTotal = (session.tenderTotals.findAll { it.tenderType == type }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
         ReconciliationTotal total = new ReconciliationTotal(type)
         total.setValue(value ?: BigDecimal.ZERO)
-        total.setVariance(expectedTotal.subtract(total.getValue()))
+        total.setVariance(total.getValue().subtract(expectedTotal))
         return total
     }
 
@@ -391,7 +391,7 @@ class SafeManagementService extends MySqlPoolDal {
             saveSafeSessionStatement.setInt(5, safeSessionAudit.getUserId())
             saveSafeSessionStatement.setString(6, safeSessionAudit.getUsername())
             saveSafeSessionStatement.setTimestamp(7, commonService.convertToSqlTimestamp(safeSessionAudit.getTimestamp()))
-            saveSafeSessionStatement.setString(8, gsonProvider?.gson?.toJson(safeSessionAudit?.extras) ?: null)
+            saveSafeSessionStatement.setString(8, (safeSessionAudit?.extras != null) ? gsonProvider.gson.toJson(safeSessionAudit.extras) : null)
             if (safeSessionAudit.getTenderMovementId()) {
                 saveSafeSessionStatement.setInt(9, safeSessionAudit.getTenderMovementId())
             } else {
