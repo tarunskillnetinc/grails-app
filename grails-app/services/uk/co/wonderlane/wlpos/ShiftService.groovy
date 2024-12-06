@@ -656,12 +656,21 @@ class ShiftService extends MySqlPoolDal {
                 //   4. Safe location to move
                 updateCashTotal(shift) // Update on hold cash into actual shift object cash
                 updateVoucherTotal(shift) // Update on hold voucher into actual shift object voucher
-                if (saveShiftCommand.tenderReconciliationVarianceReason != null) { // Update variance and variance text
-                    shift.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {
+
+                shift.reconciliationTotals.each {
+                    // Handle reset of tenderReconciliationVarianceReason when no variance exists at the middle of reconciliation,
+                    // and update variance reason if variance is greater than 0
+                    if (it.variance > 0 || saveShiftCommand.tenderReconciliationVarianceReason == null) {
                         it.varianceReason = saveShiftCommand.tenderReconciliationVarianceReason
+                    }
+
+                    // Handle reset of tenderReconciliationVarianceReasonText when no variance exists at the middle of reconciliation,
+                    // and update variance reason text if variance is greater than 0
+                    if (it.variance > 0 || saveShiftCommand.tenderReconciliationVarianceReasonText == null) {
                         it.varianceReasonText = saveShiftCommand.tenderReconciliationVarianceReasonText
                     }
                 }
+
                 if (!saveShiftCommand.isRecount){
                     shift.reconciledDate = DateTime.now()
                     shift.reconciledByUserId = loggedInUser.getId()

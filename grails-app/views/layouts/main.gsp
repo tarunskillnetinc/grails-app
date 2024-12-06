@@ -136,9 +136,9 @@
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cashManagementMenuDropdown">
                                     <g:if test="${sec.loggedInUserInfo(field: 'storeId')}">
                                         <g:link elementId="shift-management-dropdown" controller="shift" class="dropdown-item">Shift Management</g:link>
-                                        <g:link elementId="shift-management-dropdown" controller="safeManagement" class="dropdown-item">Safe Management</g:link>
+                                        <g:link elementId="safe-management-dropdown" controller="safeManagement" class="dropdown-item">Safe Management</g:link>
                                         <sec:ifAnyGranted roles='ROLE_ENGINEER, ROLE_HEAD_OFFICE, ROLE_STORE_MANAGER, ROLE_SUPERVISOR'>
-                                            <g:link elementId="shift-management-dropdown" controller="tenderMovement" class="dropdown-item">Tender Movement</g:link>
+                                            <g:link elementId="tender-movement-dropdown" controller="tenderMovement" class="dropdown-item">Tender Movement</g:link>
                                         </sec:ifAnyGranted>
 
                                     </g:if>
@@ -249,14 +249,14 @@
 
                                     <g:link elementId="cash-management-dropdown" controller="cashManagement" class="dropdown-item">Cash Management</g:link>
                                     <g:link elementId="reason-code-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
-                                    <g:link elementId="user-groups-dropdown" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
+                                    <g:link elementId="barcode-config-dropdown" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>
 
                             <sec:ifAnyGranted roles='ROLE_ENGINEER'>
 
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
-                                    <g:link elementId="user-groups-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
+                                    <g:link elementId="financial-week-dropdown" controller="financialWeek" class="dropdown-item">Financial Weeks</g:link>
                                 </g:if>
 
                                 <g:if test="${!sec.loggedInUserInfo(field: 'storeId')}">
