@@ -25,7 +25,17 @@ class TenderMovementController {
     def tenderLift(){
         String success = params.success
         String error = params.error
-        List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
+
+        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
+
+        //Load and return tills having  open shift + Cash management enable + Serial number available
+        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
+    }
+
+    private List fetchSafeLocations() {
+        List<Safe> safeLocations = safeService.getStoreSafes()?.findAll { it.active }
         Safe primarySafe = safeLocations?.find { it.primary }
         // Place primary safe at the top and sort remaining safes by id
         if (primarySafe) {
@@ -33,13 +43,20 @@ class TenderMovementController {
         } else {
             safeLocations = safeLocations?.sort { it.id }
         }
+        return [safeLocations, primarySafe]
+    }
+
+    def payIn(){
+        String success = params.success
+        String error = params.error
+
+        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
+
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
-
-    def payIn(){}
 
     def payOut(){}
 
