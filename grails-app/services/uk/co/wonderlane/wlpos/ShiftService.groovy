@@ -554,7 +554,8 @@ class ShiftService extends MySqlPoolDal {
             saveShiftStatement.setInt(5, shiftAudit.getUserId())
             saveShiftStatement.setString(6, shiftAudit.getUsername())
             saveShiftStatement.setTimestamp(7, commonService.convertToSqlTimestamp(shiftAudit.getTimestamp()))
-            saveShiftStatement.setString(8, gsonProvider?.gson?.toJson(shiftAudit?.extras) ?: null)
+            saveShiftStatement.setString(8,  (shiftAudit?.extras != null) ? gsonProvider.gson.toJson(shiftAudit.extras) : null)
+
             if (shiftAudit.getTenderMovementId() > 0) {
                 saveShiftStatement.setInt(9, shiftAudit.getTenderMovementId())
             } else {
