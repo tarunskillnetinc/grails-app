@@ -221,7 +221,7 @@ class SafeManagementService extends MySqlPoolDal {
         BigDecimal expectedTotal = (session.tenderTotals.findAll { it.tenderType == type }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
         ReconciliationTotal total = new ReconciliationTotal(type)
         total.setValue(value ?: BigDecimal.ZERO)
-        total.setVariance(expectedTotal.subtract(total.getValue()))
+        total.setVariance(total.getValue().subtract(expectedTotal))
         return total
     }
 
