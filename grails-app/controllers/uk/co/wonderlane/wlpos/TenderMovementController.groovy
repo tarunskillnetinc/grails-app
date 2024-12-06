@@ -127,7 +127,7 @@ class TenderMovementController {
                 redirect(action: "tenderLift", params: [error: "Selected safe not active please try with another"])
             } else {
                 //create tender totals
-                int tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
 
                 //update safe session values
                 //update safe session tender totals

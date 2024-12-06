@@ -53,7 +53,7 @@ class ShiftService extends MySqlPoolDal {
             User loggedInUser = loadLoggedInUser()
             populateShiftCloseFields(shift, loggedInUser) //Update status of current shift if
             saveShift(shift) //This will called shift save method to process close
-            addAudit(shift, ShiftAction.CLOSE, false, loggedInUser, 0) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.CLOSE, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error closing shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error creating shift for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -79,7 +79,7 @@ class ShiftService extends MySqlPoolDal {
             updateShiftSaveFields(saveShiftCommand, shift, loggedInUser)
             saveShift(shift) //This will called shift save method to process close
             ShiftAction auditShiftAction = saveShiftCommand.isFinalise ? ShiftAction.FINALISE : saveShiftCommand.isRecount ? ShiftAction.RECOUNT : ShiftAction.RECONCILE
-            addAudit(shift, auditShiftAction, false, loggedInUser, 0) //Add shift audit for shift close
+            addAudit(shift, auditShiftAction, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error processing shift summary for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
@@ -322,7 +322,7 @@ class ShiftService extends MySqlPoolDal {
     void addSpotCheckAudit(Shift shift){
         try {
             User loggedInUser = loadLoggedInUser()
-            addAudit(shift, ShiftAction.SPOT_CHECK, false, loggedInUser, 0) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.SPOT_CHECK, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error adding spot check audit for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
         }
@@ -336,7 +336,7 @@ class ShiftService extends MySqlPoolDal {
             shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
             shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
             shiftSafeSessionUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //Move tender to safe session for add float or cash lift
-            addAudit(shift, shiftAction, false, loggedInUser, 0) //Add shift audit for shift close
+            addAudit(shift, shiftAction, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for shift id ${shift.getId()}, safe id ${safeId} error: ${ex.getMessage()}"), ex)
@@ -348,7 +348,7 @@ class ShiftService extends MySqlPoolDal {
         try {
             User loggedInUser = loadLoggedInUser()
             updateAutoShiftDataFields(shift, loggedInUser, false)
-            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser, 0) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.RECONCILE, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
@@ -362,7 +362,7 @@ class ShiftService extends MySqlPoolDal {
             updateAutoShiftDataFields(shift, loggedInUser, true);
             updateFinaliseTenderMovement(shift, primarySafeId)
             updateFinaliseShiftToSafeSessionMovements(shift, primarySafeId)
-            addAudit(shift, ShiftAction.FINALISE, false, loggedInUser, 0) //Add shift audit for shift close
+            addAudit(shift, ShiftAction.FINALISE, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
             throw new RuntimeException(String.format("Error completing direct finalise for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()) , ex);
@@ -401,8 +401,8 @@ class ShiftService extends MySqlPoolDal {
         if (newShift != null) {
             Safe primarySafe = safeService.getPrimaryStoreSafes()
             User loggedInUser = loadLoggedInUser()
-            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, 0)// Add audit for cash lift from old shift action in rolling float action
-            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, 0)// Add audit for add float to new shift action in rolling float action
+            addAudit(oldShift, ShiftAction.CASH_LIFT, true, loggedInUser, null)// Add audit for cash lift from old shift action in rolling float action
+            addAudit(newShift, ShiftAction.ADD_FLOAT, true, loggedInUser, null)// Add audit for add float to new shift action in rolling float action
             shiftCashTenderMovementUpdate(oldShift, primarySafe.id, false, oldShift.autoFloatOut, BigDecimal.ZERO)// Add tender movement for cash moving into safe
             shiftCashTenderMovementUpdate(newShift, primarySafe.id, true, newShift.autoFloatIn, BigDecimal.ZERO)// Add tender movement for cash moving out safe
             return true
@@ -441,11 +441,11 @@ class ShiftService extends MySqlPoolDal {
             newShift = populateNewShift(retailerId, storeId, tillId, loggedInUser)
         }
         saveShift(newShift) // Save shift
-        addAudit(newShift, ShiftAction.OPEN, isAutoGenerated, loggedInUser, 0) // Audit for shift open action
+        addAudit(newShift, ShiftAction.OPEN, isAutoGenerated, loggedInUser, null) // Audit for shift open action
         return newShift;
     }
 
-    void addAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, int tenderMovementId){
+    void addAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, Integer tenderMovementId){
         try {
             ShiftAudit shiftAudit = initializeShiftAudit(shift, shiftAction, isAutoGenerated, loggedInUser, tenderMovementId)
             saveShiftAudit(shiftAudit)
@@ -454,7 +454,7 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private ShiftAudit initializeShiftAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, int tenderId) {
+    private ShiftAudit initializeShiftAudit(Shift shift, ShiftAction shiftAction, boolean isAutoGenerated, User loggedInUser, Integer tenderId) {
         ShiftAudit shiftAudit = new ShiftAudit()
         shiftAudit.with {
             shiftId = shift.id
@@ -556,7 +556,7 @@ class ShiftService extends MySqlPoolDal {
             saveShiftStatement.setString(6, shiftAudit.getUsername())
             saveShiftStatement.setTimestamp(7, commonService.convertToSqlTimestamp(shiftAudit.getTimestamp()))
             saveShiftStatement.setString(8, gsonProvider?.gson?.toJson(shiftAudit?.extras) ?: null)
-            if (shiftAudit.getTenderMovementId() > 0) {
+            if (shiftAudit.getTenderMovementId()) {
                 saveShiftStatement.setInt(9, shiftAudit.getTenderMovementId())
             } else {
                 saveShiftStatement.setNull(9, Types.INTEGER)
