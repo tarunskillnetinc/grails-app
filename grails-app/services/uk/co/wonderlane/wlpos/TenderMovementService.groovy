@@ -64,7 +64,7 @@ class TenderMovementService {
     //Update safe session values and add a audit for tender lift
     void updateTenderLiftSafeSessionTotals(SafeSessionAction safeSessionAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
         User loggedInUser = loadLoggedInUser()
-        SafeSession safeSession =  shiftSafeSessionUpdate(safeId, tenderType, updateAmount) //Update safe session
+        SafeSession safeSession =  safeSessionUpdate(safeId, tenderType, updateAmount) //Update safe session
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
     }
 
@@ -117,7 +117,7 @@ class TenderMovementService {
         shiftService.saveShift(shift)
     }
 
-    SafeSession shiftSafeSessionUpdate(int safeId, TenderType tenderType, BigDecimal cashAmount) {
+    SafeSession safeSessionUpdate(int safeId, TenderType tenderType, BigDecimal cashAmount) {
         List<TenderTotal> addedTenderAmounts = new ArrayList<>()
         if (cashAmount != null && cashAmount.compareTo(BigDecimal.ZERO) > 0) {
             TenderTotal tenderTotal = new TenderTotal(tenderType)
