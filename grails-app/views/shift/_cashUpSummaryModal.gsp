@@ -21,8 +21,7 @@
         <g:each in="${reconciliationTotals}" var="reconciliationTotal">
             <div class="row ml-0 mr-0 pt-2 pb-2">
                 <div class="col-2 my-auto text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
-                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber
-                        number="${shift?.tenderTotals?.find { it.tenderType == reconciliationTotal.tenderType }?.value ?: BigDecimal.ZERO}" type="currency" /></div>
+                <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
                 <div class="col-3 my-auto text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
                 <div class="col-3 my-auto text-right text-truncate">
                     <g:if test="${reconciliationTotal.variance >= 0}">
