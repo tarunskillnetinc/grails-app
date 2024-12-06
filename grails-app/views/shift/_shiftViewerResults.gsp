@@ -107,7 +107,6 @@
                                 <div class="col-1">
                                     <div class="button-container d-flex justify-content-center align-items-center">
                                         <button class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashUpdateModal(${true}, ${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Add Float</button>
-                                        <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashUpdateModal(${false}, ${shift.retailerId}, ${shift.storeId}, ${shift.tillId},  ${shift.id});">Cash Lift</button>
                                     </div>
                                 </div>
 

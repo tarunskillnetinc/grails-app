@@ -352,13 +352,13 @@ class ReportingService {
 
     def saveTenderMovement(TenderMovement tenderMovement) {
         if (tenderMovement.validate()) {
-            tenderMovement.save()
-            return true
+            tenderMovement.save(flush: true)
+            return Integer.valueOf(tenderMovement.id)
         } else {
             tenderMovement.errors.each {
                 System.out.println(it.toString())
             }
-            return false
+            return -1
         }
     }
 
