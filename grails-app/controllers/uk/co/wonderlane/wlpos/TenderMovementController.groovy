@@ -128,7 +128,7 @@ class TenderMovementController {
             boolean isTillAmountLessThanEntered = false
             List<String> errorMessages = []
 
-            //create tender totals
+            //Check balances and till exists
             for (tillNo in tillNos) {
                 Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
                 if (shift != null) {
