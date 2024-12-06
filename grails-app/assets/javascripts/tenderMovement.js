@@ -34,8 +34,13 @@ function processTenderLift() {
 
     // Proceed with getTillBalance
     getTillBalance(tillNos, tender, amount, (error, result) => {
-        if (error) {
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Error fetching till balance. Please try again.</div>');
+        if (error) { //Handle if server send an error
+            if (error.errorMessages && error.errorMessages.length > 0) {// Display specific error messages from the server
+                const errorMessage = error.errorMessages.join("<br>");
+                $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+            } else {  // Fallback to generic error message if no specific messages are available
+                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Error fetching till balance. Please try again.</div>');
+            }
             return;
         }
 
@@ -61,14 +66,32 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
         data: { tillNos: JSON.stringify(tillNos), tender: tender, enteredAmount: enteredAmount },
         dataType: 'json',
         success: function(response) {
-            console.log(response)
-            callback(null, {
-                availableAmount: response.availableAmount,
-                isTillAmountLessThanEntered: response.isTillAmountLessThanEntered
-            });
+            console.log(response);
+            if (response.success) {
+                callback(null, {
+                    availableAmount: response.availableAmount,
+                    isTillAmountLessThanEntered: response.isTillAmountLessThanEntered
+                });
+            } else {
+                // If the response indicates an error, pass the error messages to the callback
+                callback({
+                    errorMessages: response.errorMessages || ["Unknown error occurred"]
+                });
+            }
         },
         error: function(xhr, status, error) {
-            callback(error);
+            try {
+                // Try to parse the error response
+                const errorResponse = JSON.parse(xhr.responseText);
+                callback({
+                    errorMessages: errorResponse.errorMessages || [error]
+                });
+            } catch (e) {
+                // If parsing fails, return the original error
+                callback({
+                    errorMessages: [error]
+                });
+            }
         }
     });
 }

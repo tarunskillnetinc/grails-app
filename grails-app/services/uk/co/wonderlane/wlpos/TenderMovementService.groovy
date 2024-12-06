@@ -6,6 +6,7 @@ import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
+import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
@@ -54,12 +55,10 @@ class TenderMovementService {
     //Update shift values and add a audit for tender lift
     void updateTenderLiftShiftTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, int tenderMovementId, int tillId){
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
-        if (shift != null) { //check if shift exists
-            User loggedInUser = loadLoggedInUser()
-            BigDecimal adjustedCashAmount = updateAmount.negate()
-            updateShiftBalance(shift, tenderType, adjustedCashAmount)
-            addShiftAudit(shift, shiftAction, true,  loggedInUser, tenderMovementId)
-        }
+        User loggedInUser = loadLoggedInUser()
+        BigDecimal adjustedCashAmount = updateAmount.negate()
+        updateShiftBalance(shift, tenderType, adjustedCashAmount)
+        addShiftAudit(shift, shiftAction, true,  loggedInUser, tenderMovementId)
     }
 
     //Update safe session values and add a audit for tender lift
@@ -89,15 +88,21 @@ class TenderMovementService {
         return safe != null && safe.active
     }
 
-
-    BigDecimal getAvailableTillBalance(int tillId, TenderType tenderType){
+    boolean isOpenShiftAvailable(int tillId){
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
-        BigDecimal tenderValue = BigDecimal.ZERO
-        if (shift != null) {
-            tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tenderType).findFirst()
-                    .map(TenderTotal::getValue).orElse(BigDecimal.ZERO)
+        return shift != null
+    }
+
+    List<TillConfiguration> returnAllActiveOpenTills(){
+        List<Shift> shiftList = shiftService.getShifts(null) //Load existing active shifts
+        List<TillConfiguration> allTills =  getAllActiveTills()
+        List<TillConfiguration> openTills = allTills.findAll { till ->
+            shiftList.any { shift ->
+                shift?.tillId == till?.tillId &&
+                        shift?.shiftStatus == ShiftStatus.OPEN
+            }
         }
-        return tenderValue
+        return openTills
     }
 
     // This method can generally use for shift balance update
