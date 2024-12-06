@@ -380,7 +380,7 @@ class SafeManagementService extends MySqlPoolDal {
             saveSafeSessionStatement.setInt(5, safeSessionAudit.getUserId())
             saveSafeSessionStatement.setString(6, safeSessionAudit.getUsername())
             saveSafeSessionStatement.setTimestamp(7, commonService.convertToSqlTimestamp(safeSessionAudit.getTimestamp()))
-            saveSafeSessionStatement.setString(8, gsonProvider?.gson?.toJson(safeSessionAudit?.extras) ?: null)
+            saveSafeSessionStatement.setString(8, (safeSessionAudit?.extras != null) ? gsonProvider.gson.toJson(safeSessionAudit.extras) : null)
             if (safeSessionAudit.getTenderMovementId() > 0) {
                 saveSafeSessionStatement.setInt(9, safeSessionAudit.getTenderMovementId())
             } else {
