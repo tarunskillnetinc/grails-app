@@ -50,7 +50,8 @@
             <g:each in="${reconciliationTotals}" var="reconciliationTotal" status="i">
                 <div class="row pt-2 pb-2">
                     <div class="col-2 text-right"><g:message code="TenderType.${reconciliationTotal.tenderType}" /></div>
-                    <div id="expected-${i + 1}" class="col-3 text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value - reconciliationTotal.variance}" type="currency" /></div>
+                    <div id="expected-${i + 1}" class="col-3 text-right text-truncate"><g:formatNumber
+                            number="${safeSession?.tenderTotals?.find { it.tenderType == reconciliationTotal.tenderType }?.value ?: BigDecimal.ZERO}" type="currency" /></div>
                     <div id="counted-${i + 1}" class="col-3 text-right text-truncate"><g:formatNumber number="${reconciliationTotal.value}" type="currency" /></div>
                     <div id="diff-${i + 1}" class="col-3 text-right text-truncate">
                         <g:if test="${reconciliationTotal.variance >= 0}">

@@ -311,7 +311,7 @@ class SafeManagementService extends MySqlPoolDal {
             tenderMovementId = tenderId
         }
 
-        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE]) {
+        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT]) {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)
