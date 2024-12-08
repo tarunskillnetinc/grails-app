@@ -3,12 +3,6 @@
 <head>
     <meta name="layout" content="main"/>
     <title>Tender Movement</title>
-
-    <asset:stylesheet src="multi-select-checks.css"/>
-    <asset:javascript src="validators/input-validator.js"/>
-    <asset:javascript src="popper.min.js"/>
-    <asset:javascript src="multi-select-checks.js"/>
-    <asset:javascript src="money-mask.js"/>
     <asset:javascript src="tenderMovementUrls.js"/>
     <asset:javascript src="tenderMovement.js"/>
 
@@ -32,9 +26,7 @@
             var initialAction = getControllerLinkForTabId(firstTab.attr('id'));
             var initialTabName = $('a[data-toggle="tab"].active').data('tab-name');
             updateBreadcrumb(initialTabName);
-            $.get(initialAction, function (data) {
-                $('#tender-movement-container').html(data);
-            });
+            initialiseContentTab(initialAction)
 
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -46,9 +38,7 @@
                 updateBreadcrumb(tabName);
 
                 // Make AJAX call to load content for the selected tab
-                $.get(action, function (data) {
-                    $('#tender-movement-container').html(data);
-                });
+                initialiseContentTab(action);
 
             });
 
@@ -77,6 +67,12 @@
 
         function updateBreadcrumb(tabName) {
             $('#current-page-name').text(tabName);
+        }
+
+        function initialiseContentTab(action){
+            $.get(action, function (data) {
+                $('#tender-movement-container').html(data);
+            });
         }
 
     </script>
