@@ -100,7 +100,7 @@
         const tillIds = JSON.parse(tillIdsJson.replace(/&quot;/g, '"'));
 
         // Now use the tillIds array
-        createMultiSelectorChecks('tillNoSelector', 'tillNos', tillIds, "Select Till No's", false);
+        createMultiSelectorChecks('issue-float-till-no-selector', 'issue-float-tillNo', tillIds, "Select Till No's", false);
     }
 
 </script>
@@ -134,8 +134,8 @@
                         <div class="d-flex align-items-center">
                             <label for="tillNo" class="col-form-label mb-0 mr-2" style="width: 5rem;">Till No</label>
                             <div class="flex-grow-1" style="max-width: 20rem;">
-                                <input type="hidden" id="tillNos" name="tillNos"/>
-                                <div id="tillNoSelector"></div>
+                                <input type="hidden" id="issue-float-tillNo" name="issue-float-tillNo"/>
+                                <div id="issue-float-till-no-selector"></div>
                             </div>
                         </div>
                     </div>

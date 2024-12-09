@@ -13,7 +13,7 @@
 
             TenderMovementUrls.init(
                 "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}",
-                "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}"
+                "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}",
                 "${createLink(controller: 'TenderMovement', action: 'processIssueFloat')}"
             );
 
