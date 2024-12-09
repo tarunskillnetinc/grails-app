@@ -66,7 +66,6 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
         data: { tillNos: JSON.stringify(tillNos), tender: tender, enteredAmount: enteredAmount },
         dataType: 'json',
         success: function(response) {
-            console.log(response);
             if (response.success) {
                 callback(null, {
                     availableAmount: response.availableAmount,
