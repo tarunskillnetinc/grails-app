@@ -130,7 +130,50 @@ class TenderMovementController {
     }
 
     def processPayIn() {
-        // TODO: In STMP-614
+        Integer safeId = null
+        Integer tillId = null
+        TenderType tender = null
+        try {
+            NumberFormat format = NumberFormat.getInstance(Locale.UK)
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+
+            tender = TenderType.valueOf(params.tender)
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+
+            BigDecimal maxValue = BigDecimal.valueOf(9999.99)
+
+            if (val <= BigDecimal.ZERO) {
+                redirect(action: "payIn", params: [error: "Tender value cannot be less than 0.01"])
+            } else if (val > maxValue) {
+                redirect(action: "payIn", params: [error: "Tender value cannot be more than ${maxValue}"])
+            }
+
+            if (!tenderMovementService.isOpenShiftAvailable(tillId)){
+                redirect(action: "payIn", params: [error: "Tills shift for till no ${tillId} not in progress status to perform tender lift"])
+            } else if (!tenderMovementService.isSafeActive(safeId)){
+                redirect(action: "payIn", params: [error: "Selected safe not active please try with another"])
+            } else {
+                //create tender totals
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
+
+                //update shift values
+                //update shift cash in drawer
+                //update shift tender totals
+                //add shift audit
+                tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
+
+                redirect(action: "payIn", params: [success: "Successfully process tender lift for till ${tillId}"])
+            }
+        } catch (Exception ex) {
+            log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Tender lift action failed. "
+            redirect(action: "payIn", params: [error: error])
+        }
     }
 
     def processTenderLift(){

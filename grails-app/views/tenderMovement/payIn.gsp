@@ -9,7 +9,41 @@
 <script type="text/javascript">
     $(document).ready(function () {
         addMoneyMaskLogic()
+        processPayInActionButton();
+        handleResponseMessages("${success}", "${error}");
     });
+
+    function processPayInActionButton(){
+        // Remove any existing click handlers for #tender-lift-save
+        $(document).off('click', '#payin-save');
+
+        // Add the click handler once
+        $(document).on('click', '#payin-save', function(e) {
+            e.preventDefault(); // Prevent default button action if it's a submit button
+
+            // Disable the button to prevent multiple clicks
+            var $button = $(this);
+            if ($button.prop('disabled')) return;
+            $button.prop('disabled', true);
+
+            processPayIn();
+
+            // Re-enable the button after a short delay
+            setTimeout(function() {
+                $button.prop('disabled', false);
+            }, 1000); // Adjust the delay as needed
+        });
+    }
+
+    function handleResponseMessages(successMessage, errorMessage){
+        if(successMessage != null && successMessage !== ''){
+            $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
+        } else if (errorMessage != null && errorMessage !== '') {
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        } else {
+            $("#messages-container").html('');
+        }
+    }
 </script>
 
 <section class="mt-1">
@@ -82,8 +116,8 @@
 
                     <!-- Buttons Row -->
                     <div class="mt-5 d-flex justify-content-end" style="max-width: 20.5rem;">  <!-- Increased margin-top -->
-                        <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderLift('${createLink(action: '/home')}')" class="btn btn-wl mr-2">Cancel</button>
-                        <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton-->
+                        <button id="payin-cancel" type="button" name="safe-save-button" onclick="handleCancelPayIn('${createLink(action: '/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                        <button id="payin-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton-->
                     </div>
                 </div>
             </div>

@@ -59,6 +59,41 @@ function processTenderLift() {
     });
 }
 
+function processPayIn() {
+    // Get form elements
+    const safeIdElement = $("select[name='safeId']");
+    const tenderElement = $("select[name='tender']");
+    const reasonCodeElement = $("select[name='reasoncode']");
+    const amountElement = $("#amount");
+
+    // Get form values
+    const safeId = safeIdElement.val();
+    const tender = tenderElement.val();
+    const reasonCode = reasonCodeElement.val();
+    const amount = parseFloat(amountElement.val());
+
+    // Reset validation styles
+    [safeIdElement, tenderElement, reasonCodeElement, amountElement].forEach(el => el.removeClass("is-invalid"));
+
+    // Validation
+    const validationErrors = [];
+
+    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
+    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
+    if (!reasonCode) validationErrors.push({ element: reasonCodeElement, message: "Please select a Reason Code." });
+
+    if (isNaN(amount) || amount < 0.01 || amount > 9999.99) {
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9,999.99." });
+    }
+
+    if (validationErrors.length > 0) {
+        validationErrors.forEach(error => error.element.addClass("is-invalid"));
+        const errorMessage = validationErrors.map(error => error.message).join("<br>");
+        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+        return;
+    }
+}
+
 function getTillBalance(tillNos, tender, enteredAmount, callback) {
     $.ajax({
         url: TenderMovementUrls.getTillAvailableBalance(),
@@ -94,6 +129,8 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
         }
     });
 }
+
+
 
 function submitTenderLift() {
     $.ajax({
