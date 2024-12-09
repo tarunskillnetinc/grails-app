@@ -2,6 +2,52 @@
 <asset:javascript src="money-mask.js"/>
 <asset:javascript src="multi-select-checks.js" />
 
+<style>
+    .dropdown-menu {
+        display: none;
+    }
+    .dropdown-menu.show {
+        display: block;
+    }
+    .dropdown {
+        position: relative;
+    }
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        float: left;
+        min-width: 10rem;
+        padding: .5rem 0;
+        margin: .125rem 0 0;
+        font-size: 1rem;
+        color: #212529;
+        text-align: left;
+        list-style: none;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0,0,0,.15);
+        border-radius: .25rem;
+    }
+    .caret {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin-left: 0.255em;
+        vertical-align: 0.255em;
+        content: "";
+        border-top: 0.3em solid;
+        border-right: 0.3em solid transparent;
+        border-bottom: 0;
+        border-left: 0.3em solid transparent;
+    }
+
+    .dropdown.show .caret {
+        transform: rotate(180deg);
+    }
+</style>
+
 <script type="text/javascript">
 
     var successMessage = "${success}";
@@ -12,6 +58,7 @@
         processIssueFloatActionButton();
         handleResponseMessages("${success}", "${error}");
         initializeMultiSelect();
+
     });
 
     function processIssueFloatActionButton(){
@@ -93,14 +140,37 @@
     }
 
     function initializeMultiSelect() {
-        // Convert the list of till IDs to a JSON string
-        const tillIdsJson = '${tills.collect { it.tillId }.toString()}';
+        // Attach event listener for dynamically generated checkboxes
+        $(document).on('change', 'input[name="tillNos"]', function() {
+            updateSelectedTills();
+        });
 
-        // Parse the JSON string to create a JavaScript array
-        const tillIds = JSON.parse(tillIdsJson.replace(/&quot;/g, '"'));
+        // Update selected tills on page load
+        updateSelectedTills();
 
-        // Now use the tillIds array
-        createMultiSelectorChecks('issue-float-till-no-selector', 'issue-float-tillNo', tillIds, "Select Till No's", false);
+        $('#tillNo').on('click', function () {
+            $(this).parent().toggleClass('show');
+            $(this).next('.dropdown-menu').toggleClass('show');
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown-menu').removeClass('show');
+                $('.dropdown').removeClass('show');
+            }
+        });
+
+        function updateSelectedTills() {
+            const selected = $('input[name="tillNos"]:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            if (selected.length > 0) {
+                $('#selectedTills').text(selected.join(', '));
+            } else {
+                $('#selectedTills').text('Select Till Numbers');
+            }
+        }
     }
 
 </script>
@@ -133,9 +203,22 @@
                     <div class="form-group mb-5">
                         <div class="d-flex align-items-center">
                             <label for="tillNo" class="col-form-label mb-0 mr-2" style="width: 5rem;">Till No</label>
-                            <div class="flex-grow-1" style="max-width: 20rem;">
-                                <input type="hidden" id="issue-float-tillNo" name="issue-float-tillNo"/>
-                                <div id="issue-float-till-no-selector"></div>
+                            <div class="flex-grow-1" style="max-width: 15rem;">
+                                <div class="dropdown">
+                                    <div class="form-control select-border d-flex justify-content-between align-items-center" id="tillNo">
+                                        <span id="selectedTills">Select Till Numbers</span>
+                                        <span class="caret"></span>
+                                    </div>
+                                    <div class="dropdown-menu w-100">
+                                        <g:each in="${tills}" var="till">
+                                            <div class="dropdown-item">
+                                                <label class="mb-0 w-100">
+                                                    <input type="checkbox" name="tillNos" value="${till.tillId}"> ${till.tillId}
+                                                </label>
+                                            </div>
+                                        </g:each>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

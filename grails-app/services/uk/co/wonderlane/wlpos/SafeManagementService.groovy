@@ -123,7 +123,7 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    private SafeSession getActiveSession(int safeId) {
+    SafeSession getActiveSession(int safeId) {
         try (Connection conn = getConnection()) {
             return getActiveSessionUsingConnection(conn, safeId)
         }
