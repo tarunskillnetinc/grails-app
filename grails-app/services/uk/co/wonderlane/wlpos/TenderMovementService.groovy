@@ -68,8 +68,11 @@ class TenderMovementService {
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
     }
 
-   Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount){
-        uk.co.wonderlane.wlpos.reporting.Location tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
+    Integer tenderMovementUpdate(Integer tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount) {
+        uk.co.wonderlane.wlpos.reporting.Location tillLocation = null
+        if (tillId != null) {
+            tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
+        }
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
         return createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, tenderType, adjustAmount)
     }
@@ -174,5 +177,4 @@ class TenderMovementService {
         User loggedInUser = userService.getUser(id)
         return loggedInUser
     }
-
 }
