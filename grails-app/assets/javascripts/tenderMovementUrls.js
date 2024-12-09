@@ -1,11 +1,13 @@
 var TenderMovementUrls = TenderMovementUrls || (function () {
     var _processTenderLift;
     var _getTillAvailableBalance;
+    var _processIssueFloat;
 
     return {
-        init : function (processTenderLift, getTillAvailableBalance) {
+        init : function (processTenderLift, getTillAvailableBalance, processIssueFloat) {
             _processTenderLift = processTenderLift;
             _getTillAvailableBalance = getTillAvailableBalance;
+            _processIssueFloat = processIssueFloat;
         },
 
         getProcessTenderLift : function () {
@@ -14,6 +16,10 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
 
         getTillAvailableBalance : function () {
             return _getTillAvailableBalance;
+        },
+
+        getProcessIssueFloat : function () {
+            return _processIssueFloat;
         }
     }
 } ());

@@ -20,7 +20,22 @@ class TenderMovementController {
 
     def index() {}
 
-    def issueFloat(){}
+    def issueFloat(){
+        String success = params.success
+        String error = params.error
+        List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
+        Safe primarySafe = safeLocations?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
+        } else {
+            safeLocations = safeLocations?.sort { it.id }
+        }
+        //Load and return tills having  open shift + Cash management enable + Serial number available
+        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
+    }
 
     def tenderLift(){
         String success = params.success
@@ -145,6 +160,45 @@ class TenderMovementController {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Tender lift action failed. "
             redirect(action: "tenderLift", params: [error: error])
+        }
+    }
+
+    def processIssueFloat(){
+        Integer safeId = null
+        Integer tillId = null
+        TenderType tender = null
+        try {
+            NumberFormat format = NumberFormat.getInstance(Locale.UK)
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+            tillId = Integer.parseInt(params.tillNo)
+            tender = TenderType.valueOf(params.tender)
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+
+            if (!tenderMovementService.isOpenShiftAvailable(tillId)){
+                redirect(action: "issueFloat", params: [error: "Tills shift for till no ${tillId} not in progress status to perform issue float"])
+            } else if (!tenderMovementService.isSafeActive(safeId)){
+                redirect(action: "issueFloat", params: [error: "Selected safe not active please try with another"])
+            } else {
+                //create tender totals
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
+
+                //update shift values
+                //update shift cash in drawer
+                //update shift tender totals
+                //add shift audit
+                tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
+
+                redirect(action: "issueFloat", params: [success: "Successfully process issue float for till ${tillId}"])
+            }
+        } catch (Exception ex) {
+            log.error("Issue float saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Issue float action failed. "
+            redirect(action: "issueFloat", params: [error: error])
         }
     }
 
