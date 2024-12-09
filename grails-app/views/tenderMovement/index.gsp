@@ -115,8 +115,8 @@
                 const parsedValue = parseFloat(value);
 
                 if (isNaN(parsedValue) || parsedValue < 0.01) {
-                    $(this).val('0.01');
-                } else if (parsedValue > 999999.99) {
+                    $(this).val('0').focus();
+                } else if (parsedValue > 9999.99) {
                     $(this).val('9999.99');
                 } else {
                     $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
