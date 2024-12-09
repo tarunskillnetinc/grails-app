@@ -10,7 +10,7 @@
     $(document).ready(function () {
         addMoneyMaskLogic()
         processPayInActionButton();
-        handleResponseMessages("${success}", "${error}");
+        handlePayInResponseMessages("${success}", "${error}");
     });
 
     function processPayInActionButton(){
@@ -35,7 +35,7 @@
         });
     }
 
-    function handleResponseMessages(successMessage, errorMessage){
+    function handlePayInResponseMessages(successMessage, errorMessage){
         if(successMessage != null && successMessage !== ''){
             $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
         } else if (errorMessage != null && errorMessage !== '') {
@@ -77,7 +77,7 @@
                                           optionValue="${{ it.toString().toLowerCase().capitalize() }}"
                                           class="form-control select-border"
                                             title="list of tenders"
-                                            disabled="true"
+                                            readonly="true"
                                             />
                             </div>
                         </div>
@@ -85,10 +85,10 @@
 
                     <div class="form-group mb-5">
                         <div class="d-flex align-items-center">
-                            <label for="reasoncode" class="col-form-label mb-0 mr-2" style="width: 5rem;">Reason Code</label>
+                            <label for="reasoncodeId" class="col-form-label mb-0 mr-2" style="width: 5rem;">Reason Code</label>
 
                             <div class="flex-grow-1" style="max-width: 15rem;">
-                                <g:select name="reasoncode"
+                                <g:select name="reasoncodeId"
                                                from="${reasonCodes}"
                                                optionKey="id"
                                                optionValue="${{ it.description.toLowerCase().capitalize() }}"

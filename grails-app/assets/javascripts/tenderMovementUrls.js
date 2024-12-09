@@ -1,11 +1,13 @@
 var TenderMovementUrls = TenderMovementUrls || (function () {
     var _processTenderLift;
     var _getTillAvailableBalance;
+    var _processPayIn;
 
     return {
-        init : function (processTenderLift, getTillAvailableBalance) {
+        init : function (processTenderLift, getTillAvailableBalance, processPayIn) {
             _processTenderLift = processTenderLift;
             _getTillAvailableBalance = getTillAvailableBalance;
+            _processPayIn = processPayIn
         },
 
         getProcessTenderLift : function () {
@@ -14,6 +16,10 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
 
         getTillAvailableBalance : function () {
             return _getTillAvailableBalance;
+        },
+
+        getProcessPayIn : function() {
+            return _processPayIn;
         }
     }
 } ());

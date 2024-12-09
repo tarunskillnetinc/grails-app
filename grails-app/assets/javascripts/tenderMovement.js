@@ -60,10 +60,12 @@ function processTenderLift() {
 }
 
 function processPayIn() {
+    $("#messages-container").html('');
+
     // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const tenderElement = $("select[name='tender']");
-    const reasonCodeElement = $("select[name='reasoncode']");
+    const reasonCodeElement = $("select[name='reasoncodeId']");
     const amountElement = $("#amount");
 
     // Get form values
@@ -92,6 +94,8 @@ function processPayIn() {
         $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
         return;
     }
+
+    submitPayIn();
 }
 
 function getTillBalance(tillNos, tender, enteredAmount, callback) {
@@ -130,7 +134,15 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
     });
 }
 
-
+function submitPayIn() {
+    $.ajax({
+        url: TenderMovementUrls.getProcessPayIn(),
+        method: "POST",
+        data: $("#processPayIn").serialize(),
+        success: updateTenderMovementContainer,
+        error: updateTenderMovementContainer
+    });
+}
 
 function submitTenderLift() {
     $.ajax({
