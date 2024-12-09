@@ -1,7 +1,6 @@
 package uk.co.wonderlane.wlpos
 
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import uk.co.wonderlane.wlpos.entities.cash.SafeSession
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
@@ -133,13 +132,13 @@ class TenderMovementController {
                 //update safe session values
                 //update safe session tender totals
                 //add safe session audit
-                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
 
                 //update shift values
                 //update shift cash in drawer
                 //update shift tender totals
                 //add shift audit
-                tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
+                tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tender, amount.negate(), tenderMovementId, tillId)
 
                 redirect(action: "tenderLift", params: [success: "Successfully process tender lift for till ${tillId}"])
             }
@@ -220,22 +219,36 @@ class TenderMovementController {
             if (!shiftOpenError.isEmpty()) {
                 redirect(action: "issueFloat", params: [error: shiftOpenError])
             } else {
+                String error = null
                 for (Integer tillId : tillNos) {
-                    //create tender totals
-                    Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.ADD_FLOAT, tender, amount)
+                    try {
+                        //create tender totals
+                        Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.ADD_FLOAT, tender, amount)
 
-                    //update safe session values
-                    //update safe session tender totals
-                    //add safe session audit
-                    tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.ADD_FLOAT, tender, amount, tenderMovementId, safeId)
+                        //update safe session values
+                        //update safe session tender totals
+                        //add safe session audit
+                        tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.ADD_FLOAT, tender, amount.negate(), tenderMovementId, safeId)
 
-                    //update shift values
-                    //update shift cash in drawer
-                    //update shift tender totals
-                    //add shift audit
-                    tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
+                        //update shift values
+                        //update shift cash in drawer
+                        //update shift tender totals
+                        //add shift audit
+                        tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
+                    } catch (Exception ex) {
+                        StringBuilder errorMessage = new StringBuilder()
+                        if (errorMessage.length() > 0) {
+                            errorMessage.append("\n")
+                        }
+                        errorMessage.append("Failed to update balances for till no ").append(tillId)
+                        error = errorMessage.toString()
+                    }
                 }
-                redirect(action: "issueFloat", params: [success: "Successfully process issue float"])
+                if (!error.isEmpty()) {
+                    redirect(action: "issueFloat", params: [error: error])
+                } else {
+                    redirect(action: "issueFloat", params: [success: "Successfully processed issue float"])
+                }
             }
         } catch (Exception ex) {
             log.error("Issue float saving error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)

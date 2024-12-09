@@ -54,7 +54,7 @@ class TenderMovementService {
     }
 
     //Update shift values and add a audit for tender lift
-    void updateTenderLiftShiftTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int tillId){
+    void updateShiftBalanceTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int tillId){
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
         User loggedInUser = loadLoggedInUser()
         BigDecimal adjustedCashAmount = updateAmount.negate()
@@ -63,7 +63,7 @@ class TenderMovementService {
     }
 
     //Update safe session values and add a audit for tender lift
-    void updateTenderLiftSafeSessionTotals(SafeSessionAction safeSessionAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
+    void updateSafeSessionBalanceTotals(SafeSessionAction safeSessionAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
         User loggedInUser = loadLoggedInUser()
         SafeSession safeSession =  safeSessionUpdate(safeId, tenderType, updateAmount) //Update safe session
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
@@ -98,7 +98,7 @@ class TenderMovementService {
     }
 
     String checkOpenShiftAvailability(List<Integer> tillIdList) {
-        StringBuilder errorMessage = new StringBuilder();
+        StringBuilder errorMessage = new StringBuilder()
 
         for (Integer tillId : tillIdList) {
             if (!isOpenShiftAvailable(tillId)) {
@@ -109,7 +109,7 @@ class TenderMovementService {
             }
         }
 
-        return errorMessage.toString();
+        return errorMessage.toString()
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
