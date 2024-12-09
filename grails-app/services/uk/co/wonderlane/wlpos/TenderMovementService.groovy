@@ -52,6 +52,11 @@ class TenderMovementService {
                 .collect(Collectors.toList());
     }
 
+    List<TenderType> getCashOnlyTenders() {
+        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
+                .collect(Collectors.toList());
+    }
+
     //Update shift values and add a audit for tender lift
     void updateTenderLiftShiftTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int tillId){
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)

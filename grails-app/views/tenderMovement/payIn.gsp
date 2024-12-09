@@ -9,7 +9,6 @@
 <script type="text/javascript">
     $(document).ready(function () {
         addMoneyMaskLogic()
-
     });
 </script>
 
@@ -27,7 +26,9 @@
                                       optionKey="id"
                                       optionValue="description"
                                       value="${primarySafe?.id}"
-                                      class="form-control select-border"/>
+                                      class="form-control select-border"
+                                    title="list of safes"
+                                    />
                             </div>
                         </div>
                     </div>
@@ -37,13 +38,13 @@
                             <label class="col-form-label mb-0 mr-2" style="width: 5rem;">Tender</label>
 
                             <div class="flex-grow-1" style="max-width: 15rem;">
-                                <!-- <g:select name="tender"
+                                <g:select name="tender"
                                           from="${tenders}"
                                           optionValue="${{ it.toString().toLowerCase().capitalize() }}"
                                           class="form-control select-border"
-                                            title="tenders"
-                                            /> -->
-                                Cash <!-- TODO: This might need to be hidden field but leave it as straight text for now -->
+                                            title="list of tenders"
+                                            disabled="true"
+                                            />
                             </div>
                         </div>
                     </div>
@@ -54,10 +55,11 @@
 
                             <div class="flex-grow-1" style="max-width: 15rem;">
                                 <g:select name="reasoncode"
-                                               from="${reasoncodes}"
-                                               optionValue="${{ it.toString().toLowerCase().capitalize() }}"
+                                               from="${reasonCodes}"
+                                               optionKey="id"
+                                               optionValue="${{ it.description.toLowerCase().capitalize() }}"
                                                class="form-control select-border"
-                                                title="reasoncodes"
+                                                title="cash reasoncode"
                                 />
                             </div>
                         </div>

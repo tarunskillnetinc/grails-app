@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import uk.co.wonderlane.wlpos.entities.cash.Shift
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
+import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
@@ -17,6 +18,7 @@ class TenderMovementController {
     def safeService
     def shiftService
     def springSecurityService
+    def reasonCodeService
 
     def index() {}
 
@@ -54,8 +56,9 @@ class TenderMovementController {
 
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
-        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
+        List<TenderType> tenders = tenderMovementService.getCashOnlyTenders()
+        List<ReasonCode> reasonCodes = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_IN)
+        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, reasonCodes:reasonCodes, success: success, error: error]
     }
 
     def payOut(){}
