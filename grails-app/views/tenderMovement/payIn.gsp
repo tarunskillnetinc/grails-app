@@ -13,7 +13,7 @@
 </script>
 
 <section class="mt-1">
-    <g:form method="post" action="processTenderLift" class="mt-1" name="processTenderLift">
+    <g:form method="post" action="processPayIn" class="mt-1" name="processPayIn">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6 col-lg-5 offset-md-1">

@@ -129,6 +129,10 @@ class TenderMovementController {
         }
     }
 
+    def processPayIn() {
+        // TODO: In STMP-614
+    }
+
     def processTenderLift(){
         Integer safeId = null
         Integer tillId = null
