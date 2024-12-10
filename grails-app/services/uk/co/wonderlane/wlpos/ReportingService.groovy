@@ -335,7 +335,7 @@ class ReportingService {
         return results
     }
 
-    def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation, BigDecimal amount) {
+    def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation, BigDecimal amount, String reason) {
         TenderMovement tenderMovement = new TenderMovement()
         tenderMovement.retailerId = springSecurityService.principal.retailerId
         tenderMovement.storeId = springSecurityService.principal.storeId
@@ -347,6 +347,7 @@ class ReportingService {
         tenderMovement.toLocation = toLocation
         tenderMovement.amount = amount
         tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+        tenderMovement.reason = reason
         return tenderMovement
     }
 

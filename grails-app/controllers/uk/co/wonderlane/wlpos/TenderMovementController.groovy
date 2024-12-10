@@ -158,18 +158,18 @@ class TenderMovementController {
                 redirect(action: "payIn", params: [error: "Selected safe not active please try with another."])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.PAID_IN, tender, amount)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId, TenderMovementType.PAID_IN, tender, amount, reasonCode)
 
                 //update safe session values
                 //update safe session tender totals
                 //add safe session audit
-                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.PAY_IN, tender, amount, tenderMovementId, safeId)
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.PAID_IN, tender, amount, tenderMovementId, safeId)
 
                 //update shift values
                 //update shift cash in drawer
                 //update shift tender totals
                 //add shift audit
-                //tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.PAID_IN, tender, amount, tenderMovementId, tillId)
+                //tenderMovementService.updateShiftBalanceTotals(ShiftAction.PAID_IN, tender, amount, tenderMovementId, tillId)
 
                 redirect(action: "payIn", params: [success: "Successfully process tender lift for safe '${safe?.description}'"])
             }
@@ -197,18 +197,18 @@ class TenderMovementController {
                 redirect(action: "tenderLift", params: [error: "Selected safe not active please try with another"])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount, null)
 
                 //update safe session values
                 //update safe session tender totals
                 //add safe session audit
-                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
 
                 //update shift values
                 //update shift cash in drawer
                 //update shift tender totals
                 //add shift audit
-                tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
+                tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
 
                 redirect(action: "tenderLift", params: [success: "Successfully process Pay In for safe ${safeId}"])
             }
