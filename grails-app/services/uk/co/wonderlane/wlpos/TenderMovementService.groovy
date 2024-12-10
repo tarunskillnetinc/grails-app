@@ -52,6 +52,12 @@ class TenderMovementService {
                 .collect(Collectors.toList());
     }
 
+    //Return eligible tenders for Pay Out (Here it is only CASH)
+    List<TenderType> getEligibleTendersForPayOut() {
+        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
+                .collect(Collectors.toList());
+    }
+
     //Update shift values and add a audit for tender lift
     void updateTenderLiftShiftTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int tillId){
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
@@ -62,7 +68,7 @@ class TenderMovementService {
     }
 
     //Update safe session values and add a audit for tender lift
-    void updateTenderLiftSafeSessionTotals(SafeSessionAction safeSessionAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
+    void updateSafeSessionBalanceTotals(SafeSessionAction safeSessionAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int safeId){
         User loggedInUser = loadLoggedInUser()
         SafeSession safeSession =  safeSessionUpdate(safeId, tenderType, updateAmount) //Update safe session
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
@@ -70,9 +76,7 @@ class TenderMovementService {
 
     Integer tenderMovementUpdate(Integer tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount) {
         uk.co.wonderlane.wlpos.reporting.Location tillLocation = null
-        if (tillId != null) {
-            tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
-        }
+        tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
         return createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, tenderType, adjustAmount)
     }

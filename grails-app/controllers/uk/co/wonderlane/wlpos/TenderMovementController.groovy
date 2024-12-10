@@ -21,7 +21,7 @@ class TenderMovementController {
     def springSecurityService
 
     private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
+    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("99999.99")
 
     def index() {}
 
@@ -58,7 +58,7 @@ class TenderMovementController {
             safes = safes?.sort { it.id }
         }
         def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForPayOut()
         [safes: safes, primarySafe: primarySafe, tenders:tenders, varianceReasons:varianceReasons, success: success, error: error]
     }
 
@@ -150,7 +150,7 @@ class TenderMovementController {
                 //update safe session values
                 //update safe session tender totals
                 //add safe session audit
-                tenderMovementService.updateTenderLiftSafeSessionTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.CASH_LIFT, tender, amount, tenderMovementId, safeId)
 
                 //update shift values
                 //update shift cash in drawer
@@ -187,7 +187,15 @@ class TenderMovementController {
             if (!tenderMovementService.isSafeActive(safeId)){
                 redirect(action: "payOut", params: [error: "Selected safe not active please try with another"])
             } else {
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate( safeId.intValue(), TenderMovementType.PAID_OUT, tender, reasonCode, amount)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate( safeId.intValue(),
+                        TenderMovementType.PAID_OUT, tender, reasonCode, amount)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.CASH_LIFT, tender,
+                        amount.negate(), tenderMovementId, safeId)
+
                 redirect(action: "payOut", params: [success: "Pay Out successfully processed. Funds deducted from safe."])
             }
 
