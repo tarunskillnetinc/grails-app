@@ -212,6 +212,8 @@ class TenderMovementController {
             if (!shiftOpenError.isEmpty()) { //Check if any selected tills have close shifts
                 redirect(action: "issueFloat", params: [error: shiftOpenError])
             } else {
+                List<String> successMessages = []
+                List<String> failureMessages = []
                 List<Integer> failedTills = new ArrayList<>()
                 for (Integer tillId : tillNos) {
                     try {
@@ -228,19 +230,25 @@ class TenderMovementController {
                         //update shift tender totals
                         //add shift audit
                         tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
+
+                        successMessages.add("Successfully processed issue float for Till ${tillId}")
                     } catch (Exception ex) {
                         log.error("Issue float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
                         failedTills.add(tillId)
+                        failureMessages.add("Failed to update balances for Till ${tillId}")
                     }
                 }
 
-                if (!failedTills.isEmpty()) {
-                    String failedTillNumbers = failedTills.join(", ")
-                    String error = "Failed to update balances for till no ${failedTillNumbers}"
-                    redirect(action: "issueFloat", params: [error: error])
-                } else {
-                    redirect(action: "issueFloat", params: [success: "Successfully processed issue float"])
+                // Combine success and failure messages
+                def resultParams = [:]
+                if (!successMessages.isEmpty()) {
+                    resultParams.success = successMessages.join("<br>")
                 }
+                if (!failureMessages.isEmpty()) {
+                    resultParams.error = failureMessages.join("<br>")
+                }
+
+                redirect(action: "issueFloat", params: [success: resultParams.success, error: resultParams.error])
             }
         } catch (Exception ex) {
             log.error("Issue float action failed error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)
