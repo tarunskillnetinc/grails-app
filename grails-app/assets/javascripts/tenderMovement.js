@@ -233,8 +233,8 @@ function processPayOut() {
     if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
     if (!reasonCode) validationErrors.push({ element: reasonCodeElement, message: "Please select a reason code" });
     if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
-    if (isNaN(amount) || amount < 0.01 || amount > 9999.99) {
-        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9999.99." });
+    if (isNaN(amount) || amount < 0.01 || amount > 99999.99) {
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £99,999.99." });
     }
 
     if (validationErrors.length > 0) {
