@@ -171,14 +171,13 @@ class TenderMovementController {
         Integer safeId = null
         TenderType tender = null
         String reasonCode = null
-        BigDecimal amount = null
 
         try {
             NumberFormat format = NumberFormat.getInstance(Locale.UK)
             safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
             tender = TenderType.valueOf(params.tender)
             reasonCode = params.reasonCode
-            amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
             if (!isAPayOutValidAmount(amount)) {
                 def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
                 log.error(errorMessage)
@@ -188,7 +187,8 @@ class TenderMovementController {
             if (!tenderMovementService.isSafeActive(safeId)){
                 redirect(action: "payOut", params: [error: "Selected safe not active please try with another"])
             } else {
-                tenderMovementService.tenderMovementUpdate(null, safeId.intValue(), TenderMovementType.PAID_OUT, amount)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate( safeId.intValue(), TenderMovementType.PAID_OUT, tender, reasonCode, amount)
+                redirect(action: "payOut", params: [success: "Pay Out successfully processed. Funds deducted from safe."])
             }
 
         } catch (Exception ex) {
