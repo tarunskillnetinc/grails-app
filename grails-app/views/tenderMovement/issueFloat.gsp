@@ -1,14 +1,14 @@
 <style>
-    .dropdown-menu {
+    #issue-float-form-container .dropdown-menu {
         display: none;
     }
-    .dropdown-menu.show {
+    #issue-float-form-container .dropdown-menu.show {
         display: block;
     }
-    .dropdown {
+    #issue-float-form-container .dropdown {
         position: relative;
     }
-    .dropdown-menu {
+    #issue-float-form-container .dropdown-menu {
         position: absolute;
         top: 100%;
         left: 0;
@@ -26,7 +26,7 @@
         border: 1px solid rgba(0,0,0,.15);
         border-radius: .25rem;
     }
-    .caret {
+    #issue-float-form-container .caret {
         display: inline-block;
         width: 0;
         height: 0;
@@ -39,7 +39,7 @@
         border-left: 0.3em solid transparent;
     }
 
-    .dropdown.show .caret {
+    #issue-float-form-container .dropdown.show .caret {
         transform: rotate(180deg);
     }
 </style>
@@ -177,7 +177,7 @@
 
 <section class="mt-1 pt-5">
     <g:form method="post" action="processIssueFloat" class="mt-1" name="processIssueFloat">
-        <div class="container-fluid">
+        <div class="container-fluid" id ="issue-float-form-container">
             <div class="row">
                 <div class="col-md-6 col-lg-5 offset-md-1">
                     <div class="form-group mb-5">

@@ -17,7 +17,7 @@ function processTenderLift() {
     const tillNos = [tillNoElement.val()];
 
     getTillBalance(tillNos, tenderElement.val(), amount, (error, result) => {
-        handleBalanceCheck(error, result, amount, submitTenderLift);
+        handleBalanceCheck(error, result, amount, true, submitTenderLift);
     });
 }
 
@@ -42,7 +42,7 @@ function processIssueFloat() {
     const amount = parseFloat(amountElement.val());
 
     getSafeBalance(tillNos, tenderElement.val(), amount, safeIdElement.val(), (error, result) => {
-        handleBalanceCheck(error, result, amount, submitIssueFloat);
+        handleBalanceCheck(error, result, amount, false, submitIssueFloat);
     });
 }
 
@@ -72,7 +72,7 @@ function validateForm(formElements, requiredFields) {
     return true;
 }
 
-function handleBalanceCheck(error, result, amount, submitFunction) {
+function handleBalanceCheck(error, result, amount, isTillBalanceCheck, submitFunction) {
     if (error) {
         const errorMessage = error.errorMessages && error.errorMessages.length > 0
             ? error.errorMessages.join("<br>")
@@ -84,7 +84,14 @@ function handleBalanceCheck(error, result, amount, submitFunction) {
     const { availableAmount, isAmountLessThanEntered } = result;
 
     if (isAmountLessThanEntered) {
-        if (confirm(`Entered amount £${amount.toFixed(2)} is more than available amount £${availableAmount.toFixed(2)}. Do you want to continue?`)) {
+        let confirmMessage;
+        if (isTillBalanceCheck) {
+            confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in till. Do you want to continue?`;
+        } else {
+            confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
+        }
+
+        if (confirm(confirmMessage)) {
             submitFunction();
         } else {
             $("#messages-container").html('');
@@ -105,7 +112,7 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
             if (response.success) {
                 callback(null, {
                     availableAmount: response.availableAmount,
-                    isTillAmountLessThanEntered: response.isTillAmountLessThanEntered
+                    isAmountLessThanEntered: response.isTillAmountLessThanEntered
                 });
             } else {
                 // If the response indicates an error, pass the error messages to the callback
@@ -141,7 +148,7 @@ function getSafeBalance(tillNos, tender, enteredAmount, safeId, callback) {
             if (response.success) {
                 callback(null, {
                     availableAmount: response.availableAmount,
-                    isSafeAmountLessThanEntered: response.isSafeAmountLessThanEntered
+                    isAmountLessThanEntered: response.isSafeAmountLessThanEntered
                 });
             } else {
                 // If the response indicates an error, pass the error messages to the callback

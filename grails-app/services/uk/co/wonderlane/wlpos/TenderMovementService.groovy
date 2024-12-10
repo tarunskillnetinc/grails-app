@@ -57,8 +57,7 @@ class TenderMovementService {
     void updateShiftBalanceTotals(ShiftAction shiftAction, TenderType tenderType, BigDecimal updateAmount, Integer tenderMovementId, int tillId){
         Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillId)
         User loggedInUser = loadLoggedInUser()
-        BigDecimal adjustedCashAmount = updateAmount.negate()
-        updateShiftBalance(shift, tenderType, adjustedCashAmount)
+        updateShiftBalance(shift, tenderType, updateAmount)
         addShiftAudit(shift, shiftAction, true,  loggedInUser, tenderMovementId)
     }
 
@@ -158,7 +157,7 @@ class TenderMovementService {
 
     SafeSession safeSessionUpdate(int safeId, TenderType tenderType, BigDecimal cashAmount) {
         List<TenderTotal> addedTenderAmounts = new ArrayList<>()
-        if (cashAmount != null && cashAmount.compareTo(BigDecimal.ZERO) > 0) {
+        if (cashAmount != null && cashAmount.compareTo(BigDecimal.ZERO) != 0) {
             TenderTotal tenderTotal = new TenderTotal(tenderType)
             tenderTotal.value = cashAmount
             tenderTotal.quantity = 1
