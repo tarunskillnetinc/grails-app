@@ -435,61 +435,6 @@ class ShiftController {
         }
     }
 
-    // This will update cash based on add float and cash lift
-    def ajaxSaveCashUpdate(){
-        boolean isAddFloat = false
-        Integer retailerId = null
-        Integer storeId = null
-        Integer tillId = null
-        Integer shiftId = null
-        BigDecimal cashAmount = null
-        BigDecimal voucherAmount = null
-        Integer safeId = null
-        try {
-            NumberFormat format = NumberFormat.getInstance(Locale.UK)
-            isAddFloat = Boolean.parseBoolean(params.isAddFloat)
-            shiftService.validateParams(params)
-            retailerId = Integer.parseInt(params.retailerId)
-            storeId = Integer.parseInt(params.storeId)
-            tillId = Integer.parseInt(params.tillId)
-            shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
-            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
-            cashAmount = params.cashTotal ? new BigDecimal(format.parse(params.cashTotal)?.toString()) : BigDecimal.ZERO
-            voucherAmount = params.vouchersTotal ? new BigDecimal(format.parse(params.vouchersTotal)?.toString()) : BigDecimal.ZERO
-            def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
-            if (shift != null) { // If shift not exists then process the action
-                // Process save cash update based on cash lift and add float logic
-                // This will
-                // 1. Update shift balances
-                //    (If add float -> add cash and voucher amounts in tender and cash drawer)
-                //    (If cash lift -> deduct cash amounts in tender and cash drawer)
-                // 2. Update safe session balances
-                //    (If add float -> deduct cash and voucher amounts from totals)
-                //    (If cash lift -> add cash amounts from totals)
-                // 3. Create tender movements
-                // 4. Add audit
-                if (safeManagementService.hasActiveSafeSession(safeId)) {
-                    shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
-                    render "OK"
-                } else {
-                    flash.error = "No active safe session available for safe id ${safeId}"
-                    throw new RuntimeException("No open safe session available for safe id ${safeId}")
-                }
-            } else {
-                flash.error = "No shift exists anymore"
-                throw new RuntimeException("No shift exists anymore")
-            }
-        } catch (Exception ex) {
-            log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} saving error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            String error =  "${isAddFloat ? 'Add float ' : 'Cash lift '} action failed. "
-            if (flash.error) {
-                error = error + flash.error
-            }
-            redirect(action: "ajaxCashUpdateModal", params: [tillId: tillId, isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId, shiftId: shiftId, safeId: safeId, cashAmount: cashAmount, voucherAmount: voucherAmount, error: error])
-        }
-    }
-
-
 }
 
 class CashUpCommand {
