@@ -47,8 +47,8 @@ class TenderMovementService {
         } as List<TillConfiguration>
     }
 
-    //Return eligible tenders for tender lift (Here it is only CASH and VOUCHER)
-    List<TenderType> getEligibleTendersForTenderLift() {
+    //Return eligible tenders for tender lift and Issue float (Here it is only CASH and VOUCHER)
+    List<TenderType> getEligibleTendersForTenderUpdate() {
         return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
                 .collect(Collectors.toList());
     }

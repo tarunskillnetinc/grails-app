@@ -34,7 +34,7 @@ class TenderMovementController {
         }
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
@@ -51,7 +51,7 @@ class TenderMovementController {
         }
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
