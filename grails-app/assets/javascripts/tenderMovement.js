@@ -17,7 +17,9 @@ function processTenderLift() {
     const tillNos = [tillNoElement.val()];
 
     getTillBalance(tillNos, tenderElement.val(), amount, (error, result) => {
-        handleBalanceCheck(error, result, amount, true, submitTenderLift);
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in till. Do you want to continue?`;
+        alert("hiiii")
+        handleBalanceCheck(error, result, confirmMessage, submitTenderLift);
     });
 }
 
@@ -41,8 +43,13 @@ function processIssueFloat() {
 
     const amount = parseFloat(amountElement.val());
 
-    getSafeBalance(tillNos, tenderElement.val(), amount, safeIdElement.val(), (error, result) => {
-        handleBalanceCheck(error, result, amount, false, submitIssueFloat);
+    // Multiply the amount by the number of tills
+    const totalAmountToBeDistributed = amount * tillNos.length;
+
+
+    getSafeBalance(totalAmountToBeDistributed, tenderElement.val(), safeIdElement.val(), (error, result) => {
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
+        handleBalanceCheck(error, result, confirmMessage, submitIssueFloat);
     });
 }
 
@@ -72,7 +79,7 @@ function validateForm(formElements, requiredFields) {
     return true;
 }
 
-function handleBalanceCheck(error, result, amount, isTillBalanceCheck, submitFunction) {
+function handleBalanceCheck(error, result, confirmMessage,  submitFunction) {
     if (error) {
         const errorMessage = error.errorMessages && error.errorMessages.length > 0
             ? error.errorMessages.join("<br>")
@@ -84,13 +91,6 @@ function handleBalanceCheck(error, result, amount, isTillBalanceCheck, submitFun
     const { availableAmount, isAmountLessThanEntered } = result;
 
     if (isAmountLessThanEntered) {
-        let confirmMessage;
-        if (isTillBalanceCheck) {
-            confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in till. Do you want to continue?`;
-        } else {
-            confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
-        }
-
         if (confirm(confirmMessage)) {
             submitFunction();
         } else {
@@ -138,11 +138,11 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
     });
 }
 
-function getSafeBalance(tillNos, tender, enteredAmount, safeId, callback) {
+function getSafeBalance(totalAmountToBeDistributed, tender, safeId, callback) {
     $.ajax({
         url: TenderMovementUrls.getSafeAvailableBalance(),
         method: 'GET',
-        data: { tillNos: JSON.stringify(tillNos), tender: tender, enteredAmount: enteredAmount, safeId: safeId },
+        data: { totalAmountToBeDistributed: totalAmountToBeDistributed, tender: tender, safeId: safeId },
         dataType: 'json',
         success: function(response) {
             if (response.success) {

@@ -152,19 +152,12 @@ class TenderMovementController {
     def getSafeAvailableBalance() {
         try {
             TenderType tender = TenderType.valueOf(params.tender)
-            List<Integer> tillNos = tenderMovementService.returnRequestedTillIds(params)
-            BigDecimal enteredAmount = new BigDecimal(params.enteredAmount) //Get entered amount
+            BigDecimal totalAmountToBeDistributed = new BigDecimal(params.totalAmountToBeDistributed) //Get entered amount
             Integer safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
-            BigDecimal totalAmountToBeDistributed = BigDecimal.ZERO
 
             BigDecimal totalAvailableBalance = BigDecimal.ZERO
             boolean isSafeAmountLessThanEntered = false
             List<String> errorMessages = []
-
-            //Check balances and till exists
-            for (tillNo in tillNos) {
-                totalAmountToBeDistributed = totalAmountToBeDistributed.add(enteredAmount)
-            }
 
             SafeSession safeSession = safeManagementService.getActiveSession(safeId)
             if (safeSession != null) {
