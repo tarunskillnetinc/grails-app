@@ -215,7 +215,7 @@ function processPayOut() {
     // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const reasonCodeElement = $("select[name='reasonCode']");
-    const tenderElement = $("select[name='tender']");
+    const tenderElement = $("#tender");
     const amountElement = $("#amount");
 
     // Get form values

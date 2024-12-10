@@ -145,10 +145,13 @@
 
                 <div class="form-group">
                     <label for="tender">Tender</label>
-                    <g:select name="tender"
+                    <g:select
+                        name="tempTenderField"
                               from="${tenders}"
+                              disabled="disabled"
                               optionValue="${{ it.toString().toLowerCase().capitalize() }}"
                               class="form-control select-border"/>
+                    <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
                 </div>
             </div>
 
