@@ -142,6 +142,7 @@ class TenderMovementController {
             tender = TenderType.valueOf(params.tender)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
+            // Check amount is within range.
             BigDecimal maxValue = BigDecimal.valueOf(9999.99)
             if (amount <= BigDecimal.ZERO) {
                 redirect(action: "payIn", params: [error: "Tender value cannot be less than 0.01"])
@@ -152,7 +153,9 @@ class TenderMovementController {
             reasonCode = ReasonCode.findByIdAndRetailerId(params.reasoncodeId ? Integer.parseInt(params.reasoncodeId) : -1, springSecurityService.principal.retailerId) // validate the reasoncode exists within this retailer
             safe = Safe.findByIdAndRetailerId(params.safeId, springSecurityService.principal.retailerId) // validate the safe exists and is a safe within this retailer.
 
-            if( safe == null ) {
+            if( reasonCode == null ) {
+                redirect(action: "payIn", params: [error: "Selected reason code doesnt exist."])
+            } else if( safe == null ) {
                 redirect(action: "payIn", params: [error: "Selected safe doesnt exist."])
             } else if (!tenderMovementService.isSafeActive(safeId)){
                 redirect(action: "payIn", params: [error: "Selected safe not active please try with another."])
@@ -165,13 +168,7 @@ class TenderMovementController {
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.PAID_IN, tender, amount, tenderMovementId, safeId)
 
-                //update shift values
-                //update shift cash in drawer
-                //update shift tender totals
-                //add shift audit
-                //tenderMovementService.updateShiftBalanceTotals(ShiftAction.PAID_IN, tender, amount, tenderMovementId, tillId)
-
-                redirect(action: "payIn", params: [success: "Successfully process tender lift for safe '${safe?.description}'"])
+                redirect(action: "payIn", params: [success: "Successfully process Pay In for safe '${safe?.description}'"])
             }
         } catch (Exception ex) {
             log.error("Pay In saving error for safe id : ${safeId} reason code: ${reasonCode} tender type: ${tender} error: ${ex.getMessage()}", ex)
