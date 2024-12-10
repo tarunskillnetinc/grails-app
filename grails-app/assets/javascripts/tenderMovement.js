@@ -108,8 +108,6 @@ function processIssueFloat() {
 
         const { availableAmount, isSafeAmountLessThanEntered } = result;
 
-        alert(availableAmount)
-
         if (isSafeAmountLessThanEntered) {
             if (confirm(`Entered amount £${amount.toFixed(2)} is more than available amount £${availableAmount.toFixed(2)} in the safe. Do you want to continue?`)) {
                 submitIssueFloat();

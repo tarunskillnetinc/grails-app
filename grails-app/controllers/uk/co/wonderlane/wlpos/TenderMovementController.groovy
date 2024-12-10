@@ -216,10 +216,10 @@ class TenderMovementController {
             }
 
             String shiftOpenError = tenderMovementService.checkOpenShiftAvailability(tillNos)
-            if (!shiftOpenError.isEmpty()) {
+            if (!shiftOpenError.isEmpty()) { //Check if any selected tills have close shifts
                 redirect(action: "issueFloat", params: [error: shiftOpenError])
             } else {
-                String error = null
+                List<Integer> failedTills = new ArrayList<>()
                 for (Integer tillId : tillNos) {
                     try {
                         //create tender totals
@@ -236,22 +236,21 @@ class TenderMovementController {
                         //add shift audit
                         tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
                     } catch (Exception ex) {
-                        StringBuilder errorMessage = new StringBuilder()
-                        if (errorMessage.length() > 0) {
-                            errorMessage.append("\n")
-                        }
-                        errorMessage.append("Failed to update balances for till no ").append(tillId)
-                        error = errorMessage.toString()
+                        log.error("Issue float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+                        failedTills.add(tillId)
                     }
                 }
-                if (!error.isEmpty()) {
+
+                if (!failedTills.isEmpty()) {
+                    String failedTillNumbers = failedTills.join(", ")
+                    String error = "Failed to update balances for till no ${failedTillNumbers}"
                     redirect(action: "issueFloat", params: [error: error])
                 } else {
                     redirect(action: "issueFloat", params: [success: "Successfully processed issue float"])
                 }
             }
         } catch (Exception ex) {
-            log.error("Issue float saving error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)
+            log.error("Issue float action failed error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Issue float action failed. "
             redirect(action: "issueFloat", params: [error: error])
         }

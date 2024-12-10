@@ -1,7 +1,3 @@
-<asset:stylesheet src="multi-select-checks.css" />
-<asset:javascript src="money-mask.js"/>
-<asset:javascript src="multi-select-checks.js" />
-
 <style>
     .dropdown-menu {
         display: none;
@@ -58,7 +54,6 @@
         processIssueFloatActionButton();
         handleResponseMessages("${success}", "${error}");
         initializeMultiSelect();
-
     });
 
     function processIssueFloatActionButton(){
@@ -176,7 +171,6 @@
 </script>
 
 
-
 <section id="segment-details" class="container-fluid">
     <div id="messages-container"></div>
 </section>
@@ -259,3 +253,5 @@
         </div>
     </g:form>
 </section>
+
+

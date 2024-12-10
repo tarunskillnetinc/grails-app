@@ -98,18 +98,18 @@ class TenderMovementService {
     }
 
     String checkOpenShiftAvailability(List<Integer> tillIdList) {
-        StringBuilder errorMessage = new StringBuilder()
-
+        List<Integer> unavailableTills = new ArrayList<>();
         for (Integer tillId : tillIdList) {
             if (!isOpenShiftAvailable(tillId)) {
-                if (errorMessage.length() > 0) {
-                    errorMessage.append("\n");
-                }
-                errorMessage.append("Tills shift for till no ").append(tillId).append(" not in progress status to perform issue float");
+                unavailableTills.add(tillId);
             }
         }
+        if (!unavailableTills.isEmpty()) {
+            String tillNumbers = String.join(", ", unavailableTills.stream().map(Object::toString).collect(Collectors.toList()));
+            return "Till shift for till no " + tillNumbers + " not in open status to perform issue float";
+        }
 
-        return errorMessage.toString()
+        return null // Return empty string if all tills are available
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
