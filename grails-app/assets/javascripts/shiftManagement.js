@@ -279,30 +279,6 @@ function spotCheck(retailerId, storeId, tillId, shiftId) {
     });
 }
 
-function cashUpdateModal(isAddFloat, retailerId, storeId, tillId, shiftId) {
-    $.ajax({
-        url: ShiftUrls.cashUpdateModal(),
-        method: "POST",
-        data: {isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId, tillId: tillId, shiftId: shiftId},
-        success: function(resp) {
-
-            if ($('#shiftModal').length) {
-                $('#shiftModal').data('bs.modal',null); // this clears the BS modal data if already configured
-            }
-            $('#shiftModal').modal({ show: true });
-
-            $("#modal-content").html(resp);
-            $(".mask-money").maskMoney({ allowZero: true });
-            $(".mask-money").maskMoney('mask');
-        },
-        error: function(resp) {
-            $('#search-results').show();
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
-        },
-    });
-}
-
 function saveCashUpdate() {
     let formValues = $("#modal-form").serialize();
     tillIdFilter = $("#tillId").val();

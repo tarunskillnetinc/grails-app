@@ -18,7 +18,6 @@ function processTenderLift() {
 
     getTillBalance(tillNos, tenderElement.val(), amount, (error, result) => {
         let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in till. Do you want to continue?`;
-        alert("hiiii")
         handleBalanceCheck(error, result, confirmMessage, submitTenderLift);
     });
 }
@@ -194,7 +193,7 @@ function submitIssueFloat() {
     });
 }
 
-function handleCancelTenderLift(url) {
+function handleCancelTenderUpdate(url) {
     confirmAndSubmit("Are you sure you want to cancel ?", function() {
         window.location.href = '/';
     });
