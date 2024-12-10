@@ -133,8 +133,8 @@ class TenderMovementController {
         Integer safeId = null
         Integer tillId = null
         TenderType tender = null
-        ReasonCode reasonCode = null;
-
+        ReasonCode reasonCode = null
+        Safe safe = null
         try {
             NumberFormat format = NumberFormat.getInstance(Locale.UK)
             safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
@@ -149,12 +149,13 @@ class TenderMovementController {
                 redirect(action: "payIn", params: [error: "Tender value cannot be more than ${maxValue}"])
             }
 
-            reasonCode = ReasonCode.findById(params.reasoncodeId ? Integer.parseInt(params.reasoncodeId) : -1)
+            reasonCode = ReasonCode.findByIdAndRetailerId(params.reasoncodeId ? Integer.parseInt(params.reasoncodeId) : -1, springSecurityService.principal.retailerId) // validate the reasoncode exists within this retailer
+            safe = Safe.findByIdAndRetailerId(params.safeId, springSecurityService.principal.retailerId) // validate the safe exists and is a safe within this retailer.
 
-            if (!tenderMovementService.isOpenShiftAvailable(tillId)){
-                redirect(action: "payIn", params: [error: "Tills shift for till no ${tillId} not in progress status to perform tender lift"])
+            if( safe == null ) {
+                redirect(action: "payIn", params: [error: "Selected safe doesnt exist."])
             } else if (!tenderMovementService.isSafeActive(safeId)){
-                redirect(action: "payIn", params: [error: "Selected safe not active please try with another"])
+                redirect(action: "payIn", params: [error: "Selected safe not active please try with another."])
             } else {
                 //create tender totals
                 Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.PAID_IN, tender, amount)
@@ -168,9 +169,9 @@ class TenderMovementController {
                 //update shift cash in drawer
                 //update shift tender totals
                 //add shift audit
-                tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.PAID_IN, tender, amount, tenderMovementId, tillId)
+                //tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.PAID_IN, tender, amount, tenderMovementId, tillId)
 
-                redirect(action: "payIn", params: [success: "Successfully process tender lift for till ${tillId}"])
+                redirect(action: "payIn", params: [success: "Successfully process tender lift for safe '${safe?.description}'"])
             }
         } catch (Exception ex) {
             log.error("Pay In saving error for safe id : ${safeId} reason code: ${reasonCode} tender type: ${tender} error: ${ex.getMessage()}", ex)
@@ -209,7 +210,7 @@ class TenderMovementController {
                 //add shift audit
                 tenderMovementService.updateTenderLiftShiftTotals(ShiftAction.CASH_LIFT, tender, amount, tenderMovementId, tillId)
 
-                redirect(action: "tenderLift", params: [success: "Successfully process tender lift for till ${tillId}"])
+                redirect(action: "tenderLift", params: [success: "Successfully process Pay In for safe ${safeId}"])
             }
         } catch (Exception ex) {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
