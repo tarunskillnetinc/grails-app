@@ -210,7 +210,7 @@ class TenderMovementController {
             tender = TenderType.valueOf(params.tender)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
             List<Integer> tillNos = tenderMovementService.returnRequestedTillIds(params)
-            if (!tenderMovementService.isSafeActive(safeId)) {
+            if (!tenderMovementService.isSafeActive(safeId)) { //If safe trying to distribute money is inactive then throw error
                 redirect(action: "issueFloat", params: [error: "Selected safe not active please try with another"])
                 return
             }

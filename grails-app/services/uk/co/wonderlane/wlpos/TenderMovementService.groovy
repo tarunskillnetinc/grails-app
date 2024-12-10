@@ -109,7 +109,7 @@ class TenderMovementService {
             return "Till shift for till no " + tillNumbers + " not in open status to perform issue float";
         }
 
-        return null // Return empty string if all tills are available
+        return "" // Return empty string if all tills are available
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){

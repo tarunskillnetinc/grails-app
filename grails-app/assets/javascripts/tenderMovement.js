@@ -1,88 +1,63 @@
 function processTenderLift() {
-    // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const tillNoElement = $("select[name='tillNo']");
     const tenderElement = $("select[name='tender']");
     const amountElement = $("#amount");
 
-    // Get form values
-    const safeId = safeIdElement.val();
-    const tillNo = tillNoElement.val();
-    const tender = tenderElement.val();
+    const formElements = [safeIdElement, tillNoElement, tenderElement, amountElement];
+    const requiredFields = [
+        { element: safeIdElement, value: safeIdElement.val(), errorMessage: "Please select a Safe." },
+        { element: tillNoElement, value: tillNoElement.val(), errorMessage: "Please select a Till No." },
+        { element: tenderElement, value: tenderElement.val(), errorMessage: "Please select a Tender." }
+    ];
+
+    if (!validateForm(formElements, requiredFields)) return;
+
     const amount = parseFloat(amountElement.val());
-    const tillNos = [tillNo]; // For future use with multiple tills
+    const tillNos = [tillNoElement.val()];
 
-    // Reset validation styles
-    [safeIdElement, tillNoElement, tenderElement, amountElement].forEach(el => el.removeClass("is-invalid"));
-
-    // Validation
-    const validationErrors = [];
-
-    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
-    if (!tillNo) validationErrors.push({ element: tillNoElement, message: "Please select a Till No." });
-    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
-    if (isNaN(amount) || amount < 0.01 || amount > 999999.99) {
-        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £999,999.99." });
-    }
-
-    if (validationErrors.length > 0) {
-        validationErrors.forEach(error => error.element.addClass("is-invalid"));
-        const errorMessage = validationErrors.map(error => error.message).join("<br>");
-        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
-        return;
-    }
-
-    // Proceed with getTillBalance
-    getTillBalance(tillNos, tender, amount, (error, result) => {
-        if (error) { //Handle if server send an error
-            if (error.errorMessages && error.errorMessages.length > 0) {// Display specific error messages from the server
-                const errorMessage = error.errorMessages.join("<br>");
-                $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
-            } else {  // Fallback to generic error message if no specific messages are available
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Error fetching till balance. Please try again.</div>');
-            }
-            return;
-        }
-
-        const { availableAmount, isTillAmountLessThanEntered } = result;
-
-        if (isTillAmountLessThanEntered) {
-            if (confirm(`Entered amount £${amount.toFixed(2)} is more than available amount £${availableAmount.toFixed(2)} in till. Do you want to continue?`)) {
-                submitTenderLift();
-            } else {
-                $("#messages-container").html('');
-                amountElement.focus();
-            }
-        } else {
-            submitTenderLift();
-        }
+    getTillBalance(tillNos, tenderElement.val(), amount, (error, result) => {
+        handleBalanceCheck(error, result, amount, submitTenderLift);
     });
 }
 
 function processIssueFloat() {
-    // Get form elements
     const safeIdElement = $("select[name='safeId']");
     const tenderElement = $("select[name='tender']");
     const amountElement = $("#amount");
 
-    // Get form values
-    const safeId = safeIdElement.val();
-    const tender = tenderElement.val();
-    const amount = parseFloat(amountElement.val());
     const tillNos = $("input[name='tillNos']:checked").map(function() {
         return $(this).val();
     }).get();
 
-    // Reset validation styles
-    [safeIdElement, tenderElement, amountElement].forEach(el => el.removeClass("is-invalid"));
-    $("#tillNo").removeClass("is-invalid");
+    const formElements = [safeIdElement, tenderElement, amountElement, $("#tillNo")];
+    const requiredFields = [
+        { element: safeIdElement, value: safeIdElement.val(), errorMessage: "Please select a Safe." },
+        { element: $("#tillNo"), value: tillNos.length > 0, errorMessage: "Please select at least one Till No." },
+        { element: tenderElement, value: tenderElement.val(), errorMessage: "Please select a Tender." }
+    ];
 
-    // Validation
+    if (!validateForm(formElements, requiredFields)) return;
+
+    const amount = parseFloat(amountElement.val());
+
+    getSafeBalance(tillNos, tenderElement.val(), amount, safeIdElement.val(), (error, result) => {
+        handleBalanceCheck(error, result, amount, submitIssueFloat);
+    });
+}
+
+function validateForm(formElements, requiredFields) {
     const validationErrors = [];
+    formElements.forEach(el => el.removeClass("is-invalid"));
 
-    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
-    if (tillNos.length === 0) validationErrors.push({ element: $("#tillNo"), message: "Please select at least one Till No." });
-    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
+    requiredFields.forEach(field => {
+        if (!field.value) {
+            validationErrors.push({ element: field.element, message: field.errorMessage });
+        }
+    });
+
+    const amountElement = $("#amount");
+    const amount = parseFloat(amountElement.val());
     if (isNaN(amount) || amount < 0.01 || amount > 999999.99) {
         validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £999,999.99." });
     }
@@ -91,36 +66,34 @@ function processIssueFloat() {
         validationErrors.forEach(error => error.element.addClass("is-invalid"));
         const errorMessage = validationErrors.map(error => error.message).join("<br>");
         $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+        return false;
+    }
+
+    return true;
+}
+
+function handleBalanceCheck(error, result, amount, submitFunction) {
+    if (error) {
+        const errorMessage = error.errorMessages && error.errorMessages.length > 0
+            ? error.errorMessages.join("<br>")
+            : 'Error fetching balance. Please try again.';
+        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
         return;
     }
 
-    //Proceed with getTillBalance
-    getSafeBalance(tillNos, tender, amount, safeId,(error, result) => {
-        if (error) { //Handle if server send an error
-            if (error.errorMessages && error.errorMessages.length > 0) {// Display specific error messages from the server
-                const errorMessage = error.errorMessages.join("<br>");
-                $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
-            } else {  // Fallback to generic error message if no specific messages are available
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">Error fetching save balance. Please try again.</div>');
-            }
-            return;
-        }
+    const { availableAmount, isAmountLessThanEntered } = result;
 
-        const { availableAmount, isSafeAmountLessThanEntered } = result;
-
-        if (isSafeAmountLessThanEntered) {
-            if (confirm(`Entered amount £${amount.toFixed(2)} is more than available amount £${availableAmount.toFixed(2)} in the safe. Do you want to continue?`)) {
-                submitIssueFloat();
-            } else {
-                $("#messages-container").html('');
-                amountElement.focus();
-            }
+    if (isAmountLessThanEntered) {
+        if (confirm(`Entered amount £${amount.toFixed(2)} is more than available amount £${availableAmount.toFixed(2)}. Do you want to continue?`)) {
+            submitFunction();
         } else {
-            submitIssueFloat();
+            $("#messages-container").html('');
+            $("#amount").focus();
         }
-    });
+    } else {
+        submitFunction();
+    }
 }
-
 
 function getTillBalance(tillNos, tender, enteredAmount, callback) {
     $.ajax({
