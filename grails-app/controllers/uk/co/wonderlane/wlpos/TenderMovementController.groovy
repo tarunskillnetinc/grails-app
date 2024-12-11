@@ -122,9 +122,9 @@ class TenderMovementController {
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
             if (!tenderMovementService.isOpenShiftAvailable(tillId)){
-                redirect(action: "tenderLift", params: [error: "Tills shift for till no ${tillId} not in progress status to perform tender lift"])
+                redirect(action: "tenderLift", params: [error: "No open shift available for till ${tillId}"])
             } else if (!tenderMovementService.isSafeActive(safeId)){
-                redirect(action: "tenderLift", params: [error: "Selected safe not active please try with another"])
+                redirect(action: "tenderLift", params: [error: "Selected safe is not active please try with another"])
             } else {
                 //create tender totals
                 Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)

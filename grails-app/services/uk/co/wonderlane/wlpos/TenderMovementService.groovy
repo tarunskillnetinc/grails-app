@@ -111,18 +111,11 @@ class TenderMovementService {
     }
 
     void checkOpenShiftAvailability(List<Integer> tillIdList, List<String> failureMessages) {
-        //List<Integer> unavailableTills = new ArrayList<>();
         for (Integer tillId : tillIdList) {
             if (!isOpenShiftAvailable(tillId)) {
-                failureMessages.add("Till shift for till ${tillId} not in open status to perform issue float")
+                failureMessages.add("No open shift available for till ${tillId}.")
             }
         }
-//        if (!unavailableTills.isEmpty()) {
-//            String tillNumbers = String.join(", ", unavailableTills.stream().map(Object::toString).collect(Collectors.toList()));
-//            return "Till shift for till no " + tillNumbers + " not in open status to perform issue float";
-//        }
-
-       // return "" // Return empty string if all tills are available
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
@@ -234,14 +227,14 @@ class TenderMovementService {
     }
 
     private validateIssueAmount(BigDecimal amount, List<String> failureMessages){
-        if (isAIssueFloatValidAmount(amount)){
+        if (!isAIssueFloatValidAmount(amount)){
             failureMessages.add("Amount must be between £${MIN_AMOUNT_ISSUE_FLOAT} and £${MAX_AMOUNT_ISSUE_FLOAT}.")
         }
     }
 
     private validateSafeStatus(int safeId, List<String> failureMessages){
         if (!isSafeActive(safeId)) {
-            failureMessages.add("Selected safe not active please try with another")
+            failureMessages.add("Selected safe is not active please try with another")
         }
     }
 
