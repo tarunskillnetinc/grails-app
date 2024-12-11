@@ -370,7 +370,7 @@ class ReportingService {
         //TODO: Do it in better way
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
         try {
-            return formatter.parseDateTime(bankingDate)
+            tenderMovement.bankingDate = formatter.parseDateTime(bankingDate)
         } catch (IllegalArgumentException e) {
             //TODO: Please handle the error cc: Ishara
             return null

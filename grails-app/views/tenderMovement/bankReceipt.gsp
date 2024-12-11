@@ -89,7 +89,7 @@
                         </div>
                         <div class="form-group">
                             <label for="bank" class="col-form-label">Bank</label>
-                            <g:textField name="bank" value="${bank?.name}" class="form-control"/>
+                            <g:textField name="bank" value="${bank?.name}" class="form-control" maxlength="10"/>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="bagReferenceNumber" class="col-form-label">Bag Reference Number</label>
-                            <g:textField name="bagReferenceNumber" value="${bagReferenceNumber}" class="form-control"/>
+                            <g:textField name="bagReferenceNumber" value="${bagReferenceNumber}" class="form-control" maxlength="20"/>
                         </div>
                     </div>
                     <div class="form-col">
@@ -116,7 +116,7 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="comments" class="col-form-label">Comments</label>
-                            <textarea name="comments" class="form-control">${comments}</textarea>
+                            <textarea name="comments" class="form-control" maxlength="40">${comments}</textarea>
                         </div>
                     </div>
                 </div>

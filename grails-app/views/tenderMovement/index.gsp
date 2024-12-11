@@ -21,7 +21,9 @@
                 "${createLink(controller: 'TenderMovement', action: 'processIssueFloat')}",
                 "${createLink(controller: 'TenderMovement', action: 'getSafeAvailableBalance')}",
                 "${createLink(controller: 'TenderMovement', action: 'processPayIn')}",
-                "${createLink(controller: 'TenderMovement', action: 'processPayOut')}"
+                "${createLink(controller: 'TenderMovement', action: 'processPayOut')}",
+                "${createLink(controller: 'TenderMovement', action: 'processBankDeposit')}",
+                "${createLink(controller: 'TenderMovement', action: 'processBankReceipt')}"
             );
 
             // Select the first tab by default if none are active
