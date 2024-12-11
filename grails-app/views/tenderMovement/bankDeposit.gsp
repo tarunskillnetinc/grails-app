@@ -1,42 +1,17 @@
-<style>
-.centered-content {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding-top: 2rem;
-}
-.form-container {
-    width: 100%;
-    max-width: 800px;
-}
-.form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-}
-.form-col {
-    flex: 0 0 50%;
-    max-width: 50%;
-    padding-right: 15px;
-    padding-left: 15px;
-}
-.form-group {
-    margin-bottom: 1.5rem;
-}
-.form-control {
-    width: 100%;
-}
-.buttons-container {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin-top: 2rem;
-}
-</style>
-
-<div class="centered-content">
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.date-picker').datepicker({
+            format: "dd/mm/yyyy",
+            weekStart: 1,
+            endDate: new Date(),  // Set end date to today
+            todayHighlight: true,
+            autoclose: true,
+            todayBtn: "linked",
+            orientation: "bottom auto"
+        });
+    });
+</script>
+<div id="bankDeposit" class="centered-content">
     <div class="form-container">
         <section id="bank-deposit-details">
             <div id="messages-container"></div>
@@ -48,34 +23,35 @@
                         <div class="form-group">
                             <label for="safe" class="col-form-label">Safe</label>
                             <g:select name="safeId"
-                                      from="${safeLocations}"
+                                      from="${safes}"
                                       optionKey="id"
                                       optionValue="description"
                                       value="${selectedSafe?.id}"
                                       class="form-control select-border"/>
                         </div>
                         <div class="form-group">
-                            <label for="date" class="col-form-label">Date</label>
-                            <g:textField name="date"
+                            <label for="bankingDate" class="col-form-label">Date</label>
+                            <g:textField name="bankingDate"
                                          value="${currentDate}"
                                          class="form-control date-picker"/>
                         </div>
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="tender" class="col-form-label">Tender</label>
-                            <g:select name="tender"
-                                      from="${tenders}"
-                                      optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                      class="form-control select-border"/>
+                            <label for="tender">Tender</label>
+                            <g:select
+                                    name="tempTenderField"
+                                    from="${tenders}"
+                                    disabled="disabled"
+                                    optionValue="${{ it.toString().toLowerCase().capitalize() }}"
+                                    class="form-control select-border"/>
+                            <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
                         </div>
                         <div class="form-group">
                             <label for="bank" class="col-form-label">Bank</label>
-                            <g:select name="bankId"
-                                      from="${banks}"
-                                      optionKey="id"
-                                      optionValue="name"
-                                      class="form-control select-border"/>
+                            <g:textField name="bank"
+                                         value="${bank?.name}"
+                                         class="form-control"/>
                         </div>
                     </div>
                 </div>

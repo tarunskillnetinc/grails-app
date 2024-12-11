@@ -43,7 +43,21 @@ class TenderMovementController {
 
     def payOut(){}
 
-    def bankDeposit(){}
+    def bankDeposit(){
+        String success = params.success
+        String error = params.error
+        List<Safe> safes = safeService.getStoreSafes() ?.findAll { it.active }
+        Safe primarySafe = safes?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safes = [primarySafe] + (safes - primarySafe)?.sort { it.id }
+        } else {
+            safes = safes?.sort { it.id }
+        }
+
+        List<TenderType> tenders = tenderMovementService.getCashTenders()
+        [safes: safes, primarySafe: primarySafe, tenders:tenders, success: success, error: error]
+    }
 
     def bankReceipt(){}
 
@@ -145,6 +159,22 @@ class TenderMovementController {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Tender lift action failed. "
             redirect(action: "tenderLift", params: [error: error])
+        }
+    }
+
+    def processBankDeposit() {
+        Integer safeId = null
+        TenderType tender = null
+        String bankingDate = null;
+        String bank = null;
+
+
+        try {
+
+        } catch (Exception ex) {
+            log.error("Bank deposit saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Bank deposit action failed. "
+            redirect(action: "bankDeposit", params: [error: error])
         }
     }
 
