@@ -133,7 +133,7 @@ environments:
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3306/zagreus-wlpos"
+            url: "jdbc:mysql://localhost:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "root"
@@ -148,7 +148,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -162,7 +162,7 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -173,7 +173,7 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-transactions"
+                url: "jdbc:mysql://localhost:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -187,7 +187,7 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3306/zagreus-loyalty"
+                url: "jdbc:mysql://localhost:3306/loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -217,7 +217,7 @@ environments:
                 password: Pa**W0rd01
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: zagreus-wlpos
+                database: wlpos
             transactions:
                 host: localhost
                 port: 3306
@@ -225,7 +225,7 @@ environments:
                 password: Pa**W0rd01
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: zagreus-transactions
+                database: transactions
             loyalty:
                 host: localhost
                 port: 3306
@@ -233,7 +233,7 @@ environments:
                 password: Pa**W0rd01
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: zagreus-loyalty
+                database: loyalty
         wlpos:
             defaultImageBucket: "retail-platform-default-images-test"
             cfdImageBucket: "retail-platform-customer-display-images-test"
