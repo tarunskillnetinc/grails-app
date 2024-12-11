@@ -23,6 +23,7 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 
 class ProductController extends BaseController {
 
@@ -32,6 +33,7 @@ class ProductController extends BaseController {
     def storeService
     def tagService
     def productHistoryService
+    def productAttributesService
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -1973,6 +1975,54 @@ class ProductController extends BaseController {
     def isValidSku(long sku) {
         def existingVariant = ProductVariant.findBySku(sku)
         return existingVariant == null
+    }
+
+    def productAttributes() {
+
+        def attr = new ProductAttributes()
+
+/*
+        attr.retailerId = 9
+        attr.type = ProductAttributeType.LIST
+        attr.name =  "Fred 100"
+        attr.defaultValue = ""
+        attr.listValues = "[\"f\", \"g\"]"
+        attr.displayAttribute = false
+        productAttributesService.saveProductAttribute(attr)
+*/
+
+        [ProductAttributes: productAttributesService.serviceMethod()]
+    }
+
+    def ajaxSaveProductAttributeChanges() {
+        def a = params
+        return;
+    }
+
+    def addProductAttribute() {
+        def types = ProductAttributeType.values();
+        [attributeTypes : types]
+    }
+
+    def saveProductAttribute() {
+        def a = params
+        def b = 2
+
+      try {
+            def testAttributes = new ProductAttributes()
+            testAttributes.name = params.attributeName
+            testAttributes.type = ProductAttributeType.valueOf(params.type)
+            testAttributes.defaultValue = params.defaultValue
+            testAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false;
+            testAttributes.listValues = "[\"x\", \"y\"]";
+            productAttributesService.saveProductAttribute(testAttributes)
+            redirect("product": "category", action:"productAttributes")
+        } catch (ex) {
+          //TODO - How can an error be shown on the addProductAttribute page?
+          log.error("Error when attempting to save a new product attribute")
+          response.status = 400
+          return
+        }
     }
 }
 
