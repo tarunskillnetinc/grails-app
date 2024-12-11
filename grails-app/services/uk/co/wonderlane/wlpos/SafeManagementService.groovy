@@ -123,7 +123,7 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    private SafeSession getActiveSession(int safeId) {
+    SafeSession getActiveSession(int safeId) {
         try (Connection conn = getConnection()) {
             return getActiveSessionUsingConnection(conn, safeId)
         }
@@ -314,7 +314,7 @@ class SafeManagementService extends MySqlPoolDal {
             tenderMovementId = tenderId
         }
 
-        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT, SafeSessionAction.PAID_IN]) {
+        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT, SafeSessionAction.PAID_IN, SafeSessionAction.ADD_FLOAT]) {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)

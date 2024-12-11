@@ -328,21 +328,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    // This is method of processing ADD_FLOAT or CASH_LIFT request
-    void processShiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount, int safeId){
-        try {
-            ShiftAction shiftAction = isAddFloat ? ShiftAction.ADD_FLOAT : ShiftAction.CASH_LIFT
-            User loggedInUser = loadLoggedInUser()
-            shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
-            shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
-            shiftSafeSessionUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //Move tender to safe session for add float or cash lift
-            addAudit(shift, shiftAction, false, loggedInUser, null) //Add shift audit for shift close
-        } catch (Exception ex) {
-            log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-            throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for shift id ${shift.getId()}, safe id ${safeId} error: ${ex.getMessage()}"), ex)
-        }
-    }
-
     // This is method which reconcile shift if it is configured to auto reconcile at shift close
     void processShiftAutoReconcile(Shift shift){
         try {
@@ -704,14 +689,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void shiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        // If this is add float action then amounts need to be added on shift balances if cash lift then need to deduct from shift
-        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
-        shiftCashTenderUpdate(shift, isAddFloat, adjustedCashAmount, voucherAmount)
-        updateCashDrawer(shift, adjustedCashAmount)
-        saveShift(shift)
-    }
-
     private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
         TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
         Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
@@ -804,19 +781,6 @@ class ShiftService extends MySqlPoolDal {
             isNotNull("serialNumber")
             maxResults(1)
         }
-    }
-
-    //This is for moving tender to safe session when add float and cash lift
-    private shiftSafeSessionUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount) {
-        // todo this will need refactoring more with tender configs
-        Map<TenderType, BigDecimal> addedTenderAmounts = new HashMap<>()
-        if (cashAmount != null && cashAmount != BigDecimal.ZERO) {
-            addedTenderAmounts.put(TenderType.CASH, isAddFloat ? cashAmount.negate() : cashAmount)
-        }
-        if (voucherAmount != null && voucherAmount != BigDecimal.ZERO) {
-            addedTenderAmounts.put(TenderType.VOUCHER, isAddFloat ? voucherAmount.negate() : voucherAmount)
-        }
-        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
     }
 
     private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
