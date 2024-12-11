@@ -20,8 +20,12 @@ class TenderMovementController {
     def tenderMovementService
     def safeService
     def shiftService
+    def reasonCodeService
     def springSecurityService
     def safeManagementService
+
+    private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
+    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
 
     def index() {}
 
@@ -61,7 +65,21 @@ class TenderMovementController {
 
     def payIn(){}
 
-    def payOut(){}
+    def payOut(){
+        String success = params.success
+        String error = params.error
+        List<Safe> safes = safeService.getStoreSafes() ?.findAll { it.active }
+        Safe primarySafe = safes?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safes = [primarySafe] + (safes - primarySafe)?.sort { it.id }
+        } else {
+            safes = safes?.sort { it.id }
+        }
+        def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForPayOut()
+        [safes: safes, primarySafe: primarySafe, tenders:tenders, varianceReasons:varianceReasons, success: success, error: error]
+    }
 
     def bankDeposit(){
         String success = params.success
@@ -279,6 +297,61 @@ class TenderMovementController {
         }
     }
 
+    def processPayOut() {
+        Integer safeId = null
+        TenderType tender = null
+        String reasonCode = null
+
+        try {
+            NumberFormat format = NumberFormat.getInstance(Locale.UK)
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+            tender = TenderType.valueOf(params.tender)
+            reasonCode = params.reasonCode
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+
+            def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
+
+            if (!isAPayOutValidAmount(amount)) {
+                def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
+                log.error(errorMessage)
+                redirect(action: "payOut", params: [error: errorMessage])
+            } else if (!tenderMovementService.isSafeActive(safeId)){
+                redirect(action: "payOut", params: [error: "Selected safe not active please try with another"])
+            } else if(!isValidReasonCode(reasonCode, varianceReasons)) {
+                redirect(action: "payOut", params: [error: "Invalid reason code."])
+            } else if (tender != TenderType.CASH) {
+                redirect(action: "payOut", params: [error: "Invalid tender type."])
+            } else {
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(),
+                        TenderMovementType.PAID_OUT, tender, reasonCode, amount)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.CASH_LIFT, tender,
+                        amount.negate(), tenderMovementId, safeId)
+
+                redirect(action: "payOut", params: [success: "Pay Out successfully processed. Funds deducted from safe."])
+            }
+        } catch (Exception ex) {
+            def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
+            log.error("Pay Out saving error for safe id : ${safeId} tender type: ${tender} reason code: ${reasonCode}  error: ${ex.getMessage()}", ex)
+            String error =  "Pay Out action failed. "
+            redirect(action: "payOut", params: [error: error])
+        }
+
+    }
+
+
+    private boolean isAPayOutValidAmount(BigDecimal amount) {
+        amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
+    }
+
+    private def isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
+        return varianceReasons.stream()
+                .anyMatch(reasonCode -> reasonCode.getCode() != null &&
+                        reasonCode.getCode().equals(code));
+    }
     def processBankDeposit() {
         Integer safeId = null
         TenderType tender = null
