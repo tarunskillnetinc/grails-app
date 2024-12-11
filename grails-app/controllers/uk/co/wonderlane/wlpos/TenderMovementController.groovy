@@ -283,12 +283,14 @@ class TenderMovementController {
                 def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
                 log.error(errorMessage)
                 redirect(action: "payOut", params: [error: errorMessage])
-            }
-
-            if (!tenderMovementService.isSafeActive(safeId)){
+            } else if (!tenderMovementService.isSafeActive(safeId)){
                 redirect(action: "payOut", params: [error: "Selected safe not active please try with another"])
+            } else if(!isValidReasonCode(reasonCode)) {
+                redirect(action: "payOut", params: [error: "Invalid reason code."])
+            } else if (tender != TenderType.CASH) {
+                redirect(action: "payOut", params: [error: "Invalid tender type."])
             } else {
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate( safeId.intValue(),
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(),
                         TenderMovementType.PAID_OUT, tender, reasonCode, amount)
 
                 //update safe session values
@@ -299,7 +301,6 @@ class TenderMovementController {
 
                 redirect(action: "payOut", params: [success: "Pay Out successfully processed. Funds deducted from safe."])
             }
-
         } catch (Exception ex) {
             def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
             log.error("Pay Out saving error for safe id : ${safeId} tender type: ${tender} reason code: ${reasonCode}  error: ${ex.getMessage()}", ex)
@@ -312,6 +313,13 @@ class TenderMovementController {
 
     private boolean isAPayOutValidAmount(BigDecimal amount) {
         amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
+    }
+
+    private def isValidReasonCode(String code) {
+        def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
+        return varianceReasons.stream()
+                .anyMatch(reasonCode -> reasonCode.getCode() != null &&
+                        reasonCode.getCode().equals(code));
     }
 
 }

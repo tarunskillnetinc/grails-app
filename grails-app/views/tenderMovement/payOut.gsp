@@ -1,137 +1,81 @@
-<!doctype html>
-<html>
-<head>
-    <title>Tender Lift</title>
+<script type="text/javascript">
+    var successMessage = "${success}";
+    var errorMessage = "${error}";
 
-    <asset:javascript src="validators/input-validator.js"/>
-    <asset:javascript src="money-mask.js"/>
+    $(document).ready(function () {
+        processPayOutActionButton();
+        handleResponseMessages(successMessage, errorMessage);
+    });
 
-    <script type="text/javascript">
-        var successMessage = "${success}";
-        var errorMessage = "${error}";
+    function processPayOutActionButton() {
+        // Remove any existing click handlers for #tender-lift-save
+        $(document).off('click', '#pay-out-save');
 
-        $(document).ready(function () {
-            addMoneyMaskLogic();
-            processPayOutActionButton();
-            handleResponseMessages(successMessage, errorMessage);
+        // Add the click handler once
+        $(document).on('click', '#pay-out-save', function (e) {
+            e.preventDefault(); // Prevent default button action if it's a submit button
+
+            // Disable the button to prevent multiple clicks
+            var $button = $(this);
+            if ($button.prop('disabled')) return;
+            $button.prop('disabled', true);
+
+            // Call the processTenderLift function
+            processPayOut()
+
+            // Re-enable the button after a short delay
+            setTimeout(function () {
+                $button.prop('disabled', false);
+            }, 1000); // Adjust the delay as needed
         });
+    }
 
-        function addMoneyMaskLogic() {
-            $('.mask-money').maskMoney({
-                prefix: '',
-                allowNegative: false,
-                thousands: ',',
-                decimal: '.',
-                affixesStay: true,
-                precision: 2,
-            });
-
-            $('.mask-money').on('keydown', function (e) {
-                // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
-                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
-                    return;
-                }
-
-                let currentValue = $(this).val();
-                currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
-
-                const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
-                const maxValue = 99999.99;
-                const minValue = 0.01;
-
-                if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
-                    e.preventDefault();
-                }
-            });
-
-            // Ensure proper formatting on blur
-            $('.mask-money').on('blur', function () {
-                let value = $(this).val();
-                value = value.replace(/,/g, ''); // Remove commas for parsing
-                const parsedValue = parseFloat(value);
-
-                if (isNaN(parsedValue) || parsedValue < 0.01) {
-                    $(this).val('0.01');
-                } else if (parsedValue > 99999.99) {
-                    $(this).val('99999.99');
-                } else {
-                    $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
-                }
-            });
-
+    function handleResponseMessages(successMessage, errorMessage) {
+        if (successMessage != null && successMessage !== '') {
+            $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
+        } else if (errorMessage != null && errorMessage !== '') {
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        } else {
+            $("#messages-container").html('');
         }
-
-        function processPayOutActionButton() {
-            // Remove any existing click handlers for #tender-lift-save
-            $(document).off('click', '#pay-out-save');
-
-            // Add the click handler once
-            $(document).on('click', '#pay-out-save', function (e) {
-                e.preventDefault(); // Prevent default button action if it's a submit button
-
-                // Disable the button to prevent multiple clicks
-                var $button = $(this);
-                if ($button.prop('disabled')) return;
-                $button.prop('disabled', true);
-
-                // Call the processTenderLift function
-                processPayOut()
-
-                // Re-enable the button after a short delay
-                setTimeout(function () {
-                    $button.prop('disabled', false);
-                }, 1000); // Adjust the delay as needed
-            });
-        }
-
-        function handleResponseMessages(successMessage, errorMessage) {
-            if (successMessage != null && successMessage !== '') {
-                $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
-            } else if (errorMessage != null && errorMessage !== '') {
-                $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
-            } else {
-                $("#messages-container").html('');
-            }
-        }
-
-    </script>
-
-    <style>
-    .form-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        max-width: 800px;
-        margin: 0 auto;
     }
 
-    .form-row {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 20px;
-    }
+</script>
 
-    .form-group {
-        width: 48%;
-    }
+<style>
+#payout.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
 
-    .button-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-    </style>
-</head>
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
 
-<body>
+.form-group {
+    width: 48%;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+</style>
+
 <section id="segment-details" class="container-fluid">
     <div id="messages-container"></div>
 </section>
 
 <section class="mt-1 pt-5">
     <g:form method="post" action="processPayOut" class="mt-1" name="processPayOut">
-        <div class="form-container">
+        <div id="payout" class="form-container">
             <div class="form-row">
                 <div class="form-group">
                     <label for="safeId">Safe</label>
@@ -146,11 +90,11 @@
                 <div class="form-group">
                     <label for="tender">Tender</label>
                     <g:select
-                        name="tempTenderField"
-                              from="${tenders}"
-                              disabled="disabled"
-                              optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                              class="form-control select-border"/>
+                            name="tempTenderField"
+                            from="${tenders}"
+                            disabled="disabled"
+                            optionValue="${{ it.toString().toLowerCase().capitalize() }}"
+                            class="form-control select-border"/>
                     <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
                 </div>
             </div>
@@ -187,5 +131,3 @@
         </div>
     </g:form>
 </section>
-</body>
-</html>
