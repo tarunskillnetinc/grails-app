@@ -24,6 +24,9 @@ class TenderMovementController {
     private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
     private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
 
+    private static final BigDecimal MIN_AMOUNT_PAYIN = new BigDecimal("0.01")
+    private static final BigDecimal MAX_AMOUNT_PAYIN = new BigDecimal("9999.99")
+
     def index() {}
 
     def issueFloat(){
@@ -161,9 +164,10 @@ class TenderMovementController {
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
             // Check amount is within range.
-            BigDecimal maxValue = BigDecimal.valueOf(9999.99)
-            if (amount <= BigDecimal.ZERO) {
-                redirect(action: "payIn", params: [error: "Tender value cannot be less than 0.01"])
+            BigDecimal maxValue = BigDecimal.valueOf(MAX_AMOUNT_PAYIN)
+            BigDecimal minValue = BigDecimal.valueOf(MIN_AMOUNT_PAYIN)
+            if (amount < minValue) {
+                redirect(action: "payIn", params: [error: "Tender value cannot be less than ${minValue}"])
             } else if (amount > maxValue) {
                 redirect(action: "payIn", params: [error: "Tender value cannot be more than ${maxValue}"])
             }
