@@ -11,12 +11,12 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-
             TenderMovementUrls.init(
                 "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}",
                 "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}",
                 "${createLink(controller: 'TenderMovement', action: 'processIssueFloat')}",
                 "${createLink(controller: 'TenderMovement', action: 'getSafeAvailableBalance')}",
+                "${createLink(controller: 'TenderMovement', action: 'processPayIn')}",
                 "${createLink(controller: 'TenderMovement', action: 'processPayOut')}"
             );
 
@@ -46,7 +46,6 @@
                 initialiseContentTab(action);
 
             });
-
 
             // Function to determine the action based on the tab ID
             function getControllerLinkForTabId(tabId) {
@@ -186,7 +185,8 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link uri="/tenderMovement/index">Tender Movement</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
                     </ol>
                 </div>
             </div>

@@ -19,8 +19,7 @@
             var $button = $(this);
             if ($button.prop('disabled')) return;
             $button.prop('disabled', true);
-
-            // Call the processTenderLift function
+            
             processPayOut()
 
             // Re-enable the button after a short delay
@@ -101,7 +100,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="reasonCode">Reason code</label>
+                    <label for="reasonCode">Reason Code</label>
                     <g:select name="reasonCode"
                               from="${varianceReasons}"
                               optionKey="code"

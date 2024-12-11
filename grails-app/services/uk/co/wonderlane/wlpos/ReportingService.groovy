@@ -335,21 +335,6 @@ class ReportingService {
         return [totalCount: totalCount, tenderMovements: results]
     }
 
-    def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation, BigDecimal amount) {
-        TenderMovement tenderMovement = new TenderMovement()
-        tenderMovement.retailerId = springSecurityService.principal.retailerId
-        tenderMovement.storeId = springSecurityService.principal.storeId
-        tenderMovement.userId = springSecurityService.principal.id
-        tenderMovement.userName = springSecurityService.principal.usersName
-        tenderMovement.type = movementType
-        tenderMovement.tenderType = tenderType
-        tenderMovement.fromLocation = fromLocation
-        tenderMovement.toLocation = toLocation
-        tenderMovement.amount = amount
-        tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
-        return tenderMovement
-    }
-
     def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, String reasonCode, BigDecimal amount) {
         TenderMovement tenderMovement = new TenderMovement()
         tenderMovement.retailerId = springSecurityService.principal.retailerId
