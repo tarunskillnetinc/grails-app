@@ -1,12 +1,6 @@
-<div class="header-wl mt-3">
-    <h2 id="page-title" class="mx-auto">Pay In</h2>
-</div>
-
-<section id="segment-details" class="container-fluid">
-    <div id="messages-container"></div>
-</section>
-
 <script type="text/javascript">
+	var successMessage = "${success}";
+    var errorMessage = "${error}";
     $(document).ready(function () {
         addMoneyMaskLogic()
         processPayInActionButton();
@@ -46,81 +40,94 @@
     }
 </script>
 
-<section class="mt-1">
+<style>
+#payin.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    width: 48%;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+</style>
+
+<section id="segment-details" class="container-fluid">
+    <div id="messages-container"></div>
+</section>
+<section class="mt-1 pt-5">
     <g:form method="post" action="processPayIn" class="mt-1" name="processPayIn">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6 col-lg-5 offset-md-1">
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="safe" class="col-form-label mb-0 mr-2" style="width: 5rem;">Safe</label>
-                            <div class="flex-grow-1" style="max-width: 15rem;">
-                            <g:select name="safeId"
-                                      from="${safeLocations}"
-                                      optionKey="id"
-                                      optionValue="description"
-                                      value="${primarySafe?.id}"
-                                      class="form-control select-border"
-                                    title="list of safes"
-                                    />
-                            </div>
-                        </div>
+        <div id="payin" class="form-container">
+            <div class="form-row">                
+                    <div class="form-group">                        
+                        <label for="safeId">Safe</label>                            
+                        <g:select name="safeId"
+	                              from="${safeLocations}"
+	                              optionKey="id"
+	                              optionValue="description"
+	                              value="${primarySafe?.id}"
+	                              class="form-control select-border"
+	                            title="list of safes"
+	                            />                            
                     </div>
 
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label class="col-form-label mb-0 mr-2" style="width: 5rem;">Tender</label>
-
-                            <div class="flex-grow-1" style="max-width: 15rem;">
-                                <g:select name="tender"
+                    <div class="form-group">                        
+                            <label for="tender">Tender</label>                            
+                            <g:select name="tender"
                                           from="${tenders}"
                                           optionValue="${{ it.toString().toLowerCase().capitalize() }}"
                                           class="form-control select-border"
                                             title="list of tenders"
                                             readonly="true"
-                                            />
-                            </div>
+                                            />                            
                         </div>
                     </div>
 
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="reasoncodeId" class="col-form-label mb-0 mr-2" style="width: 5rem;">Reason Code</label>
-
-                            <div class="flex-grow-1" style="max-width: 15rem;">
-                                <g:select name="reasoncodeId"
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reasoncodeId" >Reason Code</label>                            
+                            <g:select name="reasoncodeId"
                                                from="${reasonCodes}"
                                                optionKey="id"
                                                optionValue="${{ it.description.toLowerCase().capitalize() }}"
                                                class="form-control select-border"
                                                 title="cash reasoncode"
-                                />
-                            </div>
+                                />                            
                         </div>
                     </div>
 
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="amount" class="col-form-label mb-0 mr-2" style="width: 5rem;">Amount</label>
-
-                            <div class="flex-grow-1" style="max-width: 15rem;">
+                    <div class="form-group">                        
+                            <label for="amount" >Amount</label>                            
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">&pound;</span>
                                     </div>
-                                    <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="999999.99" class="form-control mask-money"/>
-                                </div>
-                            </div>
+                                    <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99" 
+                                    		class="form-control mask-money"/>
+                                </div>                            
                         </div>
                     </div>
-
-                    <!-- Buttons Row -->
-                    <div class="mt-5 d-flex justify-content-end" style="max-width: 20.5rem;">  <!-- Increased margin-top -->
+                    
+                    <div class="button-container">
                         <button id="payin-cancel" type="button" name="safe-save-button" onclick="handleCancelPayIn('${createLink(action: '/home')}')" class="btn btn-wl mr-2">Cancel</button>
                         <button id="payin-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton-->
                     </div>
                 </div>
-            </div>
-        </div
+            </div>        
     </g:form>
 </section>
