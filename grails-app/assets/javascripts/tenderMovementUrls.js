@@ -3,6 +3,8 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
     var _getTillAvailableBalance;
     var _processIssueFloat;
     var _getSafeAvailableBalance;
+    var _processPayIn;
+    var _processPayOut;
 
     return {
         init : function (processTenderLift, getTillAvailableBalance, processIssueFloat, getSafeAvailableBalance, processPayIn, processPayOut) {

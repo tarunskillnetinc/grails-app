@@ -90,7 +90,7 @@ class TenderMovementService {
 
     Integer tenderMovementUpdate(int safeId, TenderMovementType tenderMovementType, TenderType tenderType, String reasonCode, BigDecimal adjustAmount){
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
-        return createNewTenderMovement(null, safeLocation, tenderMovementType, tenderType, adjustAmount, reasonCode)
+        return createNewTenderMovement(safeLocation, tenderMovementType, tenderType, reasonCode, adjustAmount)
     }
 
 

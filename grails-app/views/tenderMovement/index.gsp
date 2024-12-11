@@ -14,9 +14,9 @@
             TenderMovementUrls.init(
                 "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}",
                 "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}",
-                "${createLink(controller: 'TenderMovement', action: 'processPayIn')}",
                 "${createLink(controller: 'TenderMovement', action: 'processIssueFloat')}",
                 "${createLink(controller: 'TenderMovement', action: 'getSafeAvailableBalance')}",
+                "${createLink(controller: 'TenderMovement', action: 'processPayIn')}",
                 "${createLink(controller: 'TenderMovement', action: 'processPayOut')}"
             );
 

@@ -180,16 +180,17 @@ class TenderMovementController {
                 redirect(action: "payIn", params: [error: "Selected safe not active please try with another."])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId, TenderMovementType.PAID_IN, tender, amount, reasonCode)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId, TenderMovementType.PAID_IN, tender, reasonCode.description, amount)
 
                 //update safe session values
                 //update safe session tender totals
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.PAID_IN, tender, amount, tenderMovementId, safeId)
 
-                redirect(action: "payIn", params: [success: "Successfully process Pay In for safe '${safe?.description}'"])
+                redirect(action: "payIn", params: [success: "Pay In successfully processed. Funds added to safe '${safe?.description}'"])
             }
         } catch (Exception ex) {
+            ex.printStackTrace()
             log.error("Pay In saving error for safe id : ${safeId} reason code: ${reasonCode} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Pay In action failed. "
             redirect(action: "payIn", params: [error: error])
