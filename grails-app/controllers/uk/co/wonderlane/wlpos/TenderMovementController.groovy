@@ -83,12 +83,14 @@ class TenderMovementController {
         String error = params.error
         List<Safe> safes = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safes?.find { it.primary }
+
         // Place primary safe at the top and sort remaining safes by id
         if (primarySafe) {
             safes = [primarySafe] + (safes - primarySafe)?.sort { it.id }
         } else {
             safes = safes?.sort { it.id }
         }
+
         def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForPayOut()
         [safes: safes, primarySafe: primarySafe, tenders:tenders, varianceReasons:varianceReasons, success: success, error: error]

@@ -100,7 +100,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="reasonCode">Reason code</label>
+                    <label for="reasonCode">Reason Code</label>
                     <g:select name="reasonCode"
                               from="${varianceReasons}"
                               optionKey="code"
