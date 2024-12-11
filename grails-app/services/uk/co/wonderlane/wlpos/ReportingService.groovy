@@ -4,6 +4,8 @@ import grails.gorm.transactions.ReadOnly
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.enums.PromotionType
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
@@ -365,6 +367,32 @@ class ReportingService {
         return tenderMovement
     }
 
+    TenderMovement createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location location, String bankingDate,
+                                           String bank, String bankReferenceNumber, String comments, BigDecimal updatedAmount) {
+        TenderMovement tenderMovement = new TenderMovement()
+        tenderMovement.retailerId = springSecurityService.principal.retailerId
+        tenderMovement.storeId = springSecurityService.principal.storeId
+        tenderMovement.userId = springSecurityService.principal.id
+        tenderMovement.userName = springSecurityService.principal.usersName
+        tenderMovement.type = movementType
+        tenderMovement.tenderType = tenderType
+        tenderMovement.fromLocation = location
+        tenderMovement.amount = updatedAmount
+        tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
+        tenderMovement.bankName = bank
+        tenderMovement.bankReference = bankReferenceNumber
+        tenderMovement.comment = comments
+        //TODO: Do it in better way
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+        try {
+            return formatter.parseDateTime(bankingDate)
+        } catch (IllegalArgumentException e) {
+            //TODO: Please handle the error cc: Ishara
+            return null
+        }
+        return tenderMovement
+    }
+
     def saveTenderMovement(TenderMovement tenderMovement) {
         if (tenderMovement.validate()) {
             tenderMovement.save(flush: true)
@@ -385,4 +413,5 @@ class ReportingService {
     def saveReportColumns(ReportColumns reportColumns) {
         reportColumns.save()
     }
+
 }

@@ -11,6 +11,8 @@ import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.text.NumberFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
 
 class TenderMovementController {
 
@@ -352,29 +354,54 @@ class TenderMovementController {
                 .anyMatch(reasonCode -> reasonCode.getCode() != null &&
                         reasonCode.getCode().equals(code));
     }
+
     def processBankDeposit() {
         Integer safeId = null
         TenderType tender = null
-        String bankingDate = null
-        String bank = null
-        String bagReferenceNumber = null
-        String comment = null;
 
 
         try {
             safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
             tender = TenderType.valueOf(params.tender)
 
+            def  bankingDate = params.bankingDate
+            def bank = params.bank
+            def bagReferenceNumber = params.bagReferenceNumber
+            def comments = params.comments
+
             NumberFormat format = NumberFormat.getInstance(Locale.UK)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
-            if (!tenderMovementService.isSafeActive(safeId)){
-                redirect(action: "bankDeposit", params: [error: "Selected safe not active please try with another"])
-            }  else if (!isValidBankDepositReceiptAmount(amount)) {
-                def errorMessage = "Bank deposit amount must be between ${MIN_AMOUNT_BANK_DEPOSIT_RECEIPT} and ${MAX_AMOUNT_BANK_DEPOSIT_RECEIPT}."
-                log.error(errorMessage)
-                redirect(action: "bankDeposit", params: [error: errorMessage])
+            if (!tenderMovementService.isSafeActive(safeId)) {
+                return handleError("Selected safe not active please try with another")
             }
+
+            if (!isValidBankDepositReceiptAmount(amount)) {
+                return handleError("Bank deposit amount must be between ${MIN_AMOUNT_BANK_DEPOSIT_RECEIPT} and ${MAX_AMOUNT_BANK_DEPOSIT_RECEIPT}.")
+            }
+
+            if (tender != TenderType.CASH) {
+                return handleError("Invalid tender type.")
+            }
+
+            if (bankingDate == null) {
+                return handleError("Banking date cannot be empty.")
+            }
+
+            if (!isValidDateFormat(bankingDate)) {
+                return handleError("Invalid date format. Please enter the date in dd/MM/yyyy format (e.g., 31/12/2023).")
+            }
+
+            // If all validations pass, proceed with the tender movement update
+            Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(),
+                    TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
+
+            //update safe session values
+            //update safe session tender totals
+            //add safe session audit
+            tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.CASH_LIFT, tender,
+                    amount.negate(), tenderMovementId, safeId)
+
 
         } catch (Exception ex) {
             log.error("Bank deposit saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
@@ -386,5 +413,31 @@ class TenderMovementController {
 
     private boolean isValidBankDepositReceiptAmount(BigDecimal amount) {
         amount >= MIN_AMOUNT_BANK_DEPOSIT_RECEIPT && amount <= MAX_AMOUNT_BANK_DEPOSIT_RECEIPT
+    }
+
+    boolean isValidDateFormat(String dateStr) {
+        // Define the expected date format
+        def dateFormat = "dd/MM/yyyy"
+        def sdf = new SimpleDateFormat(dateFormat)
+        sdf.setLenient(false)  // This will enforce strict date parsing
+
+        // First, check if the string matches the expected pattern
+        if (!(dateStr =~ /\d{2}\/\d{2}\/\d{4}/)) {
+            return false
+        }
+
+        // If the pattern is correct, try to parse the date
+        try {
+            sdf.parse(dateStr)
+            return true
+        } catch (ParseException e) {
+            return false
+        }
+    }
+
+    private def handleError(String errorMessage) {
+        log.error(errorMessage)
+        redirect(action: "bankDeposit", params: [error: errorMessage])
+        return
     }
 }
