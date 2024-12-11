@@ -39,7 +39,7 @@ class TenderMovementController {
         }
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
@@ -56,7 +56,7 @@ class TenderMovementController {
         }
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
@@ -141,9 +141,9 @@ class TenderMovementController {
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
             if (!tenderMovementService.isOpenShiftAvailable(tillId)){
-                redirect(action: "tenderLift", params: [error: "Tills shift for till no ${tillId} not in progress status to perform tender lift"])
+                redirect(action: "tenderLift", params: [error: "No open shift available for till ${tillId}"])
             } else if (!tenderMovementService.isSafeActive(safeId)){
-                redirect(action: "tenderLift", params: [error: "Selected safe not active please try with another"])
+                redirect(action: "tenderLift", params: [error: "Selected safe is not active please try with another"])
             } else {
                 //create tender totals
                 Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
@@ -222,15 +222,21 @@ class TenderMovementController {
             tender = TenderType.valueOf(params.tender)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
             List<Integer> tillNos = tenderMovementService.returnRequestedTillIds(params)
-            if (!tenderMovementService.isSafeActive(safeId)) { //If safe trying to distribute money is inactive then throw error
-                redirect(action: "issueFloat", params: [error: "Selected safe not active please try with another"])
-                return
-            }
 
-            String shiftOpenError = tenderMovementService.checkOpenShiftAvailability(tillNos)
-            if (!shiftOpenError.isEmpty()) { //Check if any selected tills have close shifts
-                redirect(action: "issueFloat", params: [error: shiftOpenError])
+            //This will done all validations
+            //1. Validate safe is selected
+            //2. Validate enter amount is correct
+            //3. Validate any selected tills
+            //4. Validate tender is selected
+            //5. Validate selected safe is active
+            //6. Validate selected tills have open shift
+            List<String> validationFailureMessages = tenderMovementService.preValidateIssueFloatRequest(safeId, tillNos, amount, tender)
+            if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) { //If safe trying to distribute money is inactive then throw error
+                def errorParams  = validationFailureMessages.join("<br>")
+                redirect(action: "issueFloat", params: [error: errorParams])
             } else {
+                List<String> tillSuccessMessages = []
+                List<String> tillFailureMessages = []
                 List<Integer> failedTills = new ArrayList<>()
                 for (Integer tillId : tillNos) {
                     try {
@@ -247,19 +253,25 @@ class TenderMovementController {
                         //update shift tender totals
                         //add shift audit
                         tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
+
+                        tillSuccessMessages.add("Successfully processed issue float for Till ${tillId}")
                     } catch (Exception ex) {
                         log.error("Issue float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
                         failedTills.add(tillId)
+                        tillFailureMessages.add("Failed to update balances for Till ${tillId}")
                     }
                 }
 
-                if (!failedTills.isEmpty()) {
-                    String failedTillNumbers = failedTills.join(", ")
-                    String error = "Failed to update balances for till no ${failedTillNumbers}"
-                    redirect(action: "issueFloat", params: [error: error])
-                } else {
-                    redirect(action: "issueFloat", params: [success: "Successfully processed issue float"])
+                // Combine success and failure messages
+                def resultParams = [:]
+                if (!tillSuccessMessages.isEmpty()) {
+                    resultParams.success = tillSuccessMessages.join("<br>")
                 }
+                if (!tillFailureMessages.isEmpty()) {
+                    resultParams.error = tillFailureMessages.join("<br>")
+                }
+
+                redirect(action: "issueFloat", params: [success: resultParams.success, error: resultParams.error])
             }
         } catch (Exception ex) {
             log.error("Issue float action failed error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)

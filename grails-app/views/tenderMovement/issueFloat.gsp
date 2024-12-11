@@ -79,13 +79,21 @@
         });
     }
 
-    function handleResponseMessages(successMessage, errorMessage){
-        if(successMessage != null && successMessage !== ''){
-            $("#messages-container").html('<div class="alert alert-success alert-wl mx-0" role="alert">' + successMessage + '</div>');
-        } else if (errorMessage != null && errorMessage !== '') {
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
-        } else {
-            $("#messages-container").html('');
+    function handleResponseMessages(successMessage, errorMessage) {
+        $("#messages-container").empty();
+
+        if (successMessage && successMessage.trim() !== '') {
+            var decodedSuccessMessage = $("<textarea/>").html(successMessage).text(); // Decode escaped HTML
+            var successHtml = $('<div class="alert alert-success alert-wl mx-0" role="alert"></div>');
+            successHtml.html(decodedSuccessMessage); // Render decoded HTML
+            $("#messages-container").append(successHtml);
+        }
+
+        if (errorMessage && errorMessage.trim() !== '') {
+            var decodedErrorMessage = $("<textarea/>").html(errorMessage).text(); // Decode escaped HTML
+            var errorHtml = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+            errorHtml.html(decodedErrorMessage); // Render decoded HTML
+            $("#messages-container").append(errorHtml);
         }
     }
 

@@ -101,26 +101,37 @@
                                 <g:formatStringDate date="${shift?.shiftCloseTime}" inputFormat="yyyy-MM-dd HH:mm" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
                             </div>
                             <div class="col-2 text-center">${shift.shiftStatus}</div>
-                            <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
-                                <div class="button-container d-flex justify-content-end align-items-center">
-                                    <g:if test="${!shift.shiftStatus}">
-                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="openShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId});">Open</button>
-                                    </g:if>
-                                    <g:else>
+                            <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
+                                <!-- Adjusted column for other buttons -->
+                                <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
+                                    <div class="button-container d-flex justify-content-end align-items-center">
                                         <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="spotCheck(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Spot check</button>
-                                        <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
-                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false, false);">Reconcile</button>
-                                        </g:if>
-                                        <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
-                                            <%int currentTotalRecountAttempts = shift.totalRecountAttempts != null ? shift.totalRecountAttempts : 0 %>
-                                            <g:if test="${currentTotalRecountAttempts < configuredRetryAttempts}">
-                                                <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, true, false);">Recount</button>
-                                            </g:if>
-                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false, true);">Finalise</button>
-                                        </g:if>
-                                    </g:else>
+                                        <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="closeShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Close</button>
+                                    </div>
                                 </div>
-                            </div>
+                            </g:if>
+                            <g:else>
+                                <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
+                                    <div class="button-container d-flex justify-content-end align-items-center">
+                                        <g:if test="${!shift.shiftStatus}">
+                                            <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="openShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId});">Open</button>
+                                        </g:if>
+                                        <g:else>
+                                            <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="spotCheck(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Spot check</button>
+                                            <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.UNRECONCILED}">
+                                                <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false, false);">Reconcile</button>
+                                            </g:if>
+                                            <g:if test="${shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.RECONCILED}">
+                                                <%int currentTotalRecountAttempts = shift.totalRecountAttempts != null ? shift.totalRecountAttempts : 0 %>
+                                                <g:if test="${currentTotalRecountAttempts < configuredRetryAttempts}">
+                                                    <button class="btn btn-danger p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, true, false);">Recount</button>
+                                                </g:if>
+                                                <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="showCashModal(${shift.id}, false, true);">Finalise</button>
+                                            </g:if>
+                                        </g:else>
+                                    </div>
+                                </div>
+                            </g:else>
                         </div>
                     </g:each>
                 </div>

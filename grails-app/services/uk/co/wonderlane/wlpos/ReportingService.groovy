@@ -332,7 +332,7 @@ class ReportingService {
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
         int totalCount = TenderMovement.withTransaction { results.totalCount }
-        return results
+        return [totalCount: totalCount, tenderMovements: results]
     }
 
     def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation, BigDecimal amount) {
