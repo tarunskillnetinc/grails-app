@@ -203,17 +203,22 @@ class TenderMovementController {
             tender = TenderType.valueOf(params.tender)
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
             List<Integer> tillNos = tenderMovementService.returnRequestedTillIds(params)
-            if (!tenderMovementService.isSafeActive(safeId)) { //If safe trying to distribute money is inactive then throw error
-                redirect(action: "issueFloat", params: [error: "Selected safe not active please try with another"])
-                return
-            }
 
-            String shiftOpenError = tenderMovementService.checkOpenShiftAvailability(tillNos)
-            if (!shiftOpenError.isEmpty()) { //Check if any selected tills have close shifts
-                redirect(action: "issueFloat", params: [error: shiftOpenError])
-            } else {
-                List<String> successMessages = []
-                List<String> failureMessages = []
+            //This will done all validations
+            //1. Validate safe is selected
+            //2. Validate enter amount is correct
+            //3. Validate any selected tills
+            //4. Validate tender is selected
+            //5. Validate selected safe is active
+            //6. Validate selected tills have open shift
+            List<String> validationFailureMessages = tenderMovementService.preValidateIssueFloatRequest(safeId, tillNos, amount, tender)
+            if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) { //If safe trying to distribute money is inactive then throw error
+                def errorParams  = validationFailureMessages.join("<br>")
+                redirect(action: "issueFloat", params: [error: errorParams])
+            }
+            else {
+                List<String> tillSuccessMessages = []
+                List<String> tillFailureMessages = []
                 List<Integer> failedTills = new ArrayList<>()
                 for (Integer tillId : tillNos) {
                     try {
@@ -231,21 +236,21 @@ class TenderMovementController {
                         //add shift audit
                         tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
 
-                        successMessages.add("Successfully processed issue float for Till ${tillId}")
+                        tillSuccessMessages.add("Successfully processed issue float for Till ${tillId}")
                     } catch (Exception ex) {
                         log.error("Issue float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
                         failedTills.add(tillId)
-                        failureMessages.add("Failed to update balances for Till ${tillId}")
+                        tillFailureMessages.add("Failed to update balances for Till ${tillId}")
                     }
                 }
 
                 // Combine success and failure messages
                 def resultParams = [:]
-                if (!successMessages.isEmpty()) {
-                    resultParams.success = successMessages.join("<br>")
+                if (!tillSuccessMessages.isEmpty()) {
+                    resultParams.success = tillSuccessMessages.join("<br>")
                 }
-                if (!failureMessages.isEmpty()) {
-                    resultParams.error = failureMessages.join("<br>")
+                if (!tillFailureMessages.isEmpty()) {
+                    resultParams.error = tillFailureMessages.join("<br>")
                 }
 
                 redirect(action: "issueFloat", params: [success: resultParams.success, error: resultParams.error])

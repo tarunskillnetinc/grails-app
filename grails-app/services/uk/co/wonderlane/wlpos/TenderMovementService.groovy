@@ -25,6 +25,9 @@ class TenderMovementService {
     def userService
     def safeService
 
+    private static final BigDecimal MIN_AMOUNT_ISSUE_FLOAT = new BigDecimal("0.01")
+    private static final BigDecimal MAX_AMOUNT_ISSUE_FLOAT = new BigDecimal("99999.99")
+
     List<TillConfiguration> getAllActiveTills() {
         Integer retailerId =  springSecurityService.principal.retailerId
         Integer storeId = springSecurityService.principal.storeId
@@ -96,19 +99,30 @@ class TenderMovementService {
         return shift != null
     }
 
-    String checkOpenShiftAvailability(List<Integer> tillIdList) {
-        List<Integer> unavailableTills = new ArrayList<>();
+    List<String> preValidateIssueFloatRequest(int safeId, List<Integer> tillNos, BigDecimal amount, TenderType tenderType){
+        List<String> failureMessages = []
+        validateSafeId(safeId, failureMessages)
+        validateIssueAmount(amount, failureMessages)
+        validateSelectedTillIds(tillNos, failureMessages)
+        validateTender(tenderType, failureMessages)
+        validateSafeStatus(safeId, failureMessages)
+        checkOpenShiftAvailability(tillNos, failureMessages)
+        return failureMessages
+    }
+
+    void checkOpenShiftAvailability(List<Integer> tillIdList, List<String> failureMessages) {
+        //List<Integer> unavailableTills = new ArrayList<>();
         for (Integer tillId : tillIdList) {
             if (!isOpenShiftAvailable(tillId)) {
-                unavailableTills.add(tillId);
+                failureMessages.add("Till shift for till ${tillId} not in open status to perform issue float")
             }
         }
-        if (!unavailableTills.isEmpty()) {
-            String tillNumbers = String.join(", ", unavailableTills.stream().map(Object::toString).collect(Collectors.toList()));
-            return "Till shift for till no " + tillNumbers + " not in open status to perform issue float";
-        }
+//        if (!unavailableTills.isEmpty()) {
+//            String tillNumbers = String.join(", ", unavailableTills.stream().map(Object::toString).collect(Collectors.toList()));
+//            return "Till shift for till no " + tillNumbers + " not in open status to perform issue float";
+//        }
 
-        return "" // Return empty string if all tills are available
+       // return "" // Return empty string if all tills are available
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
@@ -211,6 +225,40 @@ class TenderMovementService {
         int id = springSecurityService.principal.id
         User loggedInUser = userService.getUser(id)
         return loggedInUser
+    }
+
+    private validateSafeId(int safeId, List<String> failureMessages){
+        if (safeId <= 0){
+            failureMessages.add("Please select a Safe.")
+        }
+    }
+
+    private validateIssueAmount(BigDecimal amount, List<String> failureMessages){
+        if (isAIssueFloatValidAmount(amount)){
+            failureMessages.add("Issue float amount must be between £${MIN_AMOUNT_ISSUE_FLOAT} and £${MAX_AMOUNT_ISSUE_FLOAT}.")
+        }
+    }
+
+    private validateSafeStatus(int safeId, List<String> failureMessages){
+        if (!isSafeActive(safeId)) {
+            failureMessages.add("Selected safe not active please try with another")
+        }
+    }
+
+    private validateSelectedTillIds(List<Integer> tillIds, List<String> failureMessages){
+        if (tillIds.isEmpty() || tillIds.size() == 0) {
+            failureMessages.add("Please select at least one Till No.")
+        }
+    }
+
+    private validateTender(TenderType tenderType, List<String> failureMessages){
+        if (tenderType == null) {
+            failureMessages.add("Please select a Tender.")
+        }
+    }
+
+    private boolean isAIssueFloatValidAmount(BigDecimal amount) {
+        amount >= MIN_AMOUNT_ISSUE_FLOAT && amount <= MAX_AMOUNT_ISSUE_FLOAT
     }
 
 }
