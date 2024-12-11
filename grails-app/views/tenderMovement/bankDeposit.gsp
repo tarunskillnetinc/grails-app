@@ -1,4 +1,8 @@
 <script type="text/javascript">
+
+    var successMessage = "${success}";
+    var errorMessage = "${error}";
+
     $(document).ready(function() {
         $('.date-picker').datepicker({
             format: "dd/mm/yyyy",
@@ -9,31 +13,72 @@
             todayBtn: "linked",
             orientation: "bottom auto"
         });
+
+        processBankDepositActionButton();
+        handleResponseMessages(successMessage, errorMessage);
     });
+
+    function processBankDepositActionButton(){
+        // Remove any existing click handlers for #tender-lift-save
+        $(document).off('click', '#bank-deposit-save');
+
+        // Add the click handler once
+        $(document).on('click', '#bank-deposit-save', function(e) {
+            e.preventDefault(); // Prevent default button action if it's a submit button
+
+            // Disable the button to prevent multiple clicks
+            var $button = $(this);
+            if ($button.prop('disabled')) return;
+            $button.prop('disabled', true);
+
+            // Call the processTenderLift function
+            processBankDeposit();
+
+            // Re-enable the button after a short delay
+            setTimeout(function() {
+                $button.prop('disabled', false);
+            }, 1000); // Adjust the delay as needed
+        });
+    }
+
+    function handleResponseMessages(successMessage, errorMessage) {
+        $("#messages-container").empty();
+
+        if (successMessage && successMessage.trim() !== '') {
+            var decodedSuccessMessage = $("<textarea/>").html(successMessage).text(); // Decode escaped HTML
+            var successHtml = $('<div class="alert alert-success alert-wl mx-0" role="alert"></div>');
+            successHtml.html(decodedSuccessMessage); // Render decoded HTML
+            $("#messages-container").append(successHtml);
+        }
+
+        if (errorMessage && errorMessage.trim() !== '') {
+            var decodedErrorMessage = $("<textarea/>").html(errorMessage).text(); // Decode escaped HTML
+            var errorHtml = $('<div class="alert alert-danger alert-wl mx-0" role="alert"></div>');
+            errorHtml.html(decodedErrorMessage); // Render decoded HTML
+            $("#messages-container").append(errorHtml);
+        }
+    }
+
 </script>
+
+
 <div id="bankDeposit" class="centered-content">
     <div class="form-container">
-        <section id="bank-deposit-details">
-            <div id="messages-container"></div>
-        </section>
+
+        <section id="bank-deposit-details"> <div id="messages-container"></div></section>
+
         <section class="mt-1">
             <g:form method="post" action="processBankDeposit" class="mt-1" name="processBankDeposit">
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
                             <label for="safe" class="col-form-label">Safe</label>
-                            <g:select name="safeId"
-                                      from="${safes}"
-                                      optionKey="id"
-                                      optionValue="description"
-                                      value="${selectedSafe?.id}"
-                                      class="form-control select-border"/>
+                            <g:select name="safeId" from="${safes}" optionKey="id" optionValue="description"
+                                      value="${selectedSafe?.id}" class="form-control select-border"/>
                         </div>
                         <div class="form-group">
                             <label for="bankingDate" class="col-form-label">Date</label>
-                            <g:textField name="bankingDate"
-                                         value="${currentDate}"
-                                         class="form-control date-picker"/>
+                            <g:textField name="bankingDate" value="${currentDate}" class="form-control date-picker"/>
                         </div>
                     </div>
                     <div class="form-col">
@@ -49,9 +94,7 @@
                         </div>
                         <div class="form-group">
                             <label for="bank" class="col-form-label">Bank</label>
-                            <g:textField name="bank"
-                                         value="${bank?.name}"
-                                         class="form-control"/>
+                            <g:textField name="bank" value="${bank?.name}" class="form-control"/>
                         </div>
                     </div>
                 </div>
@@ -59,9 +102,7 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="bagReferenceNumber" class="col-form-label">Bag Reference Number</label>
-                            <g:textField name="bagReferenceNumber"
-                                         value="${bagReferenceNumber}"
-                                         class="form-control"/>
+                            <g:textField name="bagReferenceNumber" value="${bagReferenceNumber}" class="form-control"/>
                         </div>
                     </div>
                     <div class="form-col">
@@ -71,12 +112,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">&pound;</span>
                                 </div>
-                                <g:textField id="amount"
-                                             name="amount"
-                                             value="${amount}"
-                                             min="0.01"
-                                             max="999999.99"
-                                             class="form-control mask-money"/>
+                                <g:textField id="amount" name="amount" value="${amount}"
+                                             min="0.01" max="999999.99" class="form-control mask-money"/>
                             </div>
                         </div>
                     </div>
@@ -90,11 +127,8 @@
                     </div>
                 </div>
                 <div class="buttons-container">
-                    <button id="bank-deposit-cancel" type="button" name="cancel-button"
-                            onclick="handleCancel('${createLink(action:'/home')}')"
-                            class="btn btn-wl mr-2">Cancel</button>
-                    <button id="bank-deposit-save" type="submit" name="save-button"
-                            class="btn btn-success">Save</button>
+                    <button id="bank-deposit-cancel" type="button" name="cancel-button" onclick="handleCancel('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="bank-deposit-save" type="submit" name="save-button" class="btn btn-success">Save</button>
                 </div>
             </g:form>
         </section>

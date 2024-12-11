@@ -52,6 +52,157 @@ function processIssueFloat() {
     });
 }
 
+function processPayIn() {
+    $("#messages-container").html('');
+
+    // Get form elements
+    const safeIdElement = $("select[name='safeId']");
+    const tenderElement = $("select[name='tender']");
+    const reasonCodeElement = $("select[name='reasoncodeId']");
+    const amountElement = $("#amount");
+
+    // Get form values
+    const safeId = safeIdElement.val();
+    const tender = tenderElement.val();
+    const reasonCode = reasonCodeElement.val();
+    const amount = parseFloat(amountElement.val());
+
+    // Reset validation styles
+    [safeIdElement, tenderElement, reasonCodeElement, amountElement].forEach(el => el.removeClass("is-invalid"));
+
+    // Validation
+    const validationErrors = [];
+
+    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
+    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
+    if (!reasonCode) validationErrors.push({ element: reasonCodeElement, message: "Please select a Reason Code." });
+
+    if (isNaN(amount) || amount < 0.01 || amount > 9999.99) {
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9,999.99." });
+    }
+
+    if (validationErrors.length > 0) {
+        validationErrors.forEach(error => error.element.addClass("is-invalid"));
+        const errorMessage = validationErrors.map(error => error.message).join("<br>");
+        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+        return;
+    }
+
+    submitPayIn();
+}
+
+function processPayOut() {
+    // Get form elements
+    const safeIdElement = $("select[name='safeId']");
+    const reasonCodeElement = $("select[name='reasonCode']");
+    const tenderElement = $("#tender");
+    const amountElement = $("#amount");
+
+    // Get form values
+    const safeId = safeIdElement.val();
+    const reasonCode = reasonCodeElement.val();
+    const tender = tenderElement.val();
+    const amount  = parseFloat(amountElement.val());
+
+    // Reset validation styles
+    [safeIdElement, reasonCodeElement, tenderElement, amountElement].forEach(el => el.removeClass("is-invalid"));
+
+    // Validation
+    const validationErrors = [];
+
+    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
+    if (!reasonCode) validationErrors.push({ element: reasonCodeElement, message: "Please select a reason code" });
+    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
+    if (isNaN(amount) || amount < 0.01 || amount > 9999.99) {
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9999.99." });
+    }
+
+    if (validationErrors.length > 0) {
+        validationErrors.forEach(error => error.element.addClass("is-invalid"));
+        const errorMessage = validationErrors.map(error => error.message).join("<br>");
+        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+        return;
+    }
+    getSafeBalance(amount, tender, safeId, (error, result) => {
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
+        handleBalanceCheck(error, result, confirmMessage, submitPayOut);
+    });
+}
+
+function processBankDeposit() {
+    // Get form elements
+    const safeIdElement = $("select[name='safeId']");
+    const bankingDateElement = $("input[name='bankingDate']");
+    const tenderElement = $("input[name='tender']");
+    const amountElement = $("#amount");
+
+    // Get form values
+    const safeId = safeIdElement.val();
+    const bankingDate = bankingDateElement.val();
+    const tender = tenderElement.val();
+    const amount = parseFloat(amountElement.val());
+
+    // Reset validation styles
+    [safeIdElement, bankingDateElement, tenderElement, amountElement].forEach(el => el.removeClass("is-invalid"));
+
+    // Validation
+    const validationErrors = [];
+
+    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
+    if (!bankingDate) validationErrors.push({ element: bankingDateElement, message: "Please enter a banking date." });
+    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
+    if (isNaN(amount) || amount < 0.01 || amount > 999999.99) {
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £999,999.99." });
+    }
+
+    if (validationErrors.length > 0) {
+        validationErrors.forEach(error => error.element.addClass("is-invalid"));
+        const errorMessage = validationErrors.map(error => error.message).join("<br>");
+        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+        return;
+    }
+
+    // If validation passes, submit the form
+    submitBankDeposit()
+}
+
+function processBankReceipt() {
+    // Get form elements
+    const safeIdElement = $("select[name='safeId']");
+    const bankingDateElement = $("input[name='bankingDate']");
+    const tenderElement = $("input[name='tender']");
+    const amountElement = $("#amount");
+
+    // Get form values
+    const safeId = safeIdElement.val();
+    const bankingDate = bankingDateElement.val();
+    const tender = tenderElement.val();
+    const amount = parseFloat(amountElement.val());
+
+    // Reset validation styles
+    [safeIdElement, bankingDateElement, tenderElement, amountElement].forEach(el => el.removeClass("is-invalid"));
+
+    // Validation
+    const validationErrors = [];
+
+    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
+    if (!bankingDate) validationErrors.push({ element: bankingDateElement, message: "Please enter a banking date." });
+    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
+    if (isNaN(amount) || amount < 0.01 || amount > 999999.99) {
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £999,999.99." });
+    }
+
+    if (validationErrors.length > 0) {
+        validationErrors.forEach(error => error.element.addClass("is-invalid"));
+        const errorMessage = validationErrors.map(error => error.message).join("<br>");
+        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
+        return;
+    }
+
+    // If validation passes, submit the form
+    submitBankReceipt();
+}
+
 function validateForm(formElements, requiredFields) {
     const validationErrors = [];
     formElements.forEach(el => el.removeClass("is-invalid"));
@@ -101,44 +252,7 @@ function handleBalanceCheck(error, result, confirmMessage,  submitFunction) {
     }
 }
 
-function processPayIn() {
-    $("#messages-container").html('');
 
-    // Get form elements
-    const safeIdElement = $("select[name='safeId']");
-    const tenderElement = $("select[name='tender']");
-    const reasonCodeElement = $("select[name='reasoncodeId']");
-    const amountElement = $("#amount");
-
-    // Get form values
-    const safeId = safeIdElement.val();
-    const tender = tenderElement.val();
-    const reasonCode = reasonCodeElement.val();
-    const amount = parseFloat(amountElement.val());
-
-    // Reset validation styles
-    [safeIdElement, tenderElement, reasonCodeElement, amountElement].forEach(el => el.removeClass("is-invalid"));
-
-    // Validation
-    const validationErrors = [];
-
-    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
-    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
-    if (!reasonCode) validationErrors.push({ element: reasonCodeElement, message: "Please select a Reason Code." });
-
-    if (isNaN(amount) || amount < 0.01 || amount > 9999.99) {
-        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9,999.99." });
-    }
-
-    if (validationErrors.length > 0) {
-        validationErrors.forEach(error => error.element.addClass("is-invalid"));
-        const errorMessage = validationErrors.map(error => error.message).join("<br>");
-        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
-        return;
-    }
-
-    submitPayIn();
-}
 
 function getTillBalance(tillNos, tender, enteredAmount, callback) {
     $.ajax({
@@ -242,6 +356,37 @@ function submitIssueFloat() {
     });
 }
 
+function submitPayOut() {
+    $.ajax({
+        url: TenderMovementUrls.getProcessPayOut(),
+        method: "POST",
+        data: $("#processPayOut").serialize(),
+        success: updateTenderMovementContainer,
+        error: updateTenderMovementContainer
+    });
+}
+
+function submitBankDeposit() {
+    $.ajax({
+        url: TenderMovementUrls.getProcessBankDeposit(),
+        method: "POST",
+        data: $("#processBankDeposit").serialize(),
+        success: updateTenderMovementContainer,
+        error: updateTenderMovementContainer
+    });
+}
+
+function submitBankReceipt() {
+    $.ajax({
+        url: TenderMovementUrls.getProcessBankReceipt(),
+        method: "POST",
+        data: $("#processBankReceipt").serialize(),
+        success: updateTenderMovementContainer,
+        error: updateTenderMovementContainer
+    });
+}
+
+
 function handleCancelTenderUpdate(url) {
     confirmAndSubmit("Are you sure you want to cancel ?", function() {
         window.location.href = '/';
@@ -258,52 +403,4 @@ function confirmAndSubmit(message, yesCallBack) {
     if (result) {
         yesCallBack();
     }
-}
-
-function processPayOut() {
-    // Get form elements
-    const safeIdElement = $("select[name='safeId']");
-    const reasonCodeElement = $("select[name='reasonCode']");
-    const tenderElement = $("#tender");
-    const amountElement = $("#amount");
-
-    // Get form values
-    const safeId = safeIdElement.val();
-    const reasonCode = reasonCodeElement.val();
-    const tender = tenderElement.val();
-    const amount  = parseFloat(amountElement.val());
-
-    // Reset validation styles
-    [safeIdElement, reasonCodeElement, tenderElement, amountElement].forEach(el => el.removeClass("is-invalid"));
-
-    // Validation
-    const validationErrors = [];
-
-    if (!safeId) validationErrors.push({ element: safeIdElement, message: "Please select a Safe." });
-    if (!reasonCode) validationErrors.push({ element: reasonCodeElement, message: "Please select a reason code" });
-    if (!tender) validationErrors.push({ element: tenderElement, message: "Please select a Tender." });
-    if (isNaN(amount) || amount < 0.01 || amount > 9999.99) {
-        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9999.99." });
-    }
-
-    if (validationErrors.length > 0) {
-        validationErrors.forEach(error => error.element.addClass("is-invalid"));
-        const errorMessage = validationErrors.map(error => error.message).join("<br>");
-        $("#messages-container").html(`<div class="alert alert-danger alert-wl mx-0" role="alert">${errorMessage}</div>`);
-        return;
-    }
-    getSafeBalance(amount, tender, safeId, (error, result) => {
-        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
-        handleBalanceCheck(error, result, confirmMessage, submitPayOut);
-    });
-}
-
-function submitPayOut() {
-    $.ajax({
-        url: TenderMovementUrls.getProcessPayOut(),
-        method: "POST",
-        data: $("#processPayOut").serialize(),
-        success: updateTenderMovementContainer,
-        error: updateTenderMovementContainer
-    });
 }

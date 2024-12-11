@@ -50,7 +50,6 @@
     var errorMessage = "${error}";
 
     $(document).ready(function () {
-        addMoneyMaskLogic();
         processIssueFloatActionButton();
         handleResponseMessages("${success}", "${error}");
         initializeMultiSelect();
@@ -95,51 +94,6 @@
             errorHtml.html(decodedErrorMessage); // Render decoded HTML
             $("#messages-container").append(errorHtml);
         }
-    }
-
-    function addMoneyMaskLogic(){
-        $('.mask-money').maskMoney({
-            prefix: '',
-            allowNegative: false,
-            thousands: ',',
-            decimal: '.',
-            affixesStay: true,
-            precision: 2,
-        });
-
-        $('.mask-money').on('keydown', function(e) {
-            // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
-            if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
-                return;
-            }
-
-            let currentValue = $(this).val();
-            currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
-
-            const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
-            const maxValue = 9999.99;
-            const minValue = 0.01;
-
-            if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
-                e.preventDefault();
-            }
-        });
-
-        // Ensure proper formatting on blur
-        $('.mask-money').on('blur', function() {
-            let value = $(this).val();
-            value = value.replace(/,/g, ''); // Remove commas for parsing
-            const parsedValue = parseFloat(value);
-
-            if (isNaN(parsedValue) || parsedValue < 0.01) {
-                $(this).val('0').focus();
-            } else if (parsedValue > 9999.99) {
-                $(this).val('9999.99');
-            } else {
-                $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
-            }
-        });
-
     }
 
     function initializeMultiSelect() {

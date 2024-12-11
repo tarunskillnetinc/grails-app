@@ -11,6 +11,8 @@ import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.stream.Collectors
 
 @Transactional
@@ -203,6 +205,18 @@ class TenderMovementService {
                 safeId, addedTenderAmounts as List<TenderTotal>, true)
     }
 
+    List<String> preValidateBankTransferRequest(int safeId, String bankDate, BigDecimal amount, TenderType tenderType){
+        List<String> failureMessages = []
+        validateSafeId(safeId, failureMessages)
+        validateBankTransferAmount(amount, failureMessages)
+        validateBankingDate(bankDate, failureMessages)
+        validateBankDateFormat(bankDate, failureMessages)
+        validateTender(tenderType, failureMessages)
+        validateBankTransferTenderType(tenderType, failureMessages)
+        validateSafeStatus(safeId, failureMessages)
+        return failureMessages
+    }
+
     // Generic method for shift's tender total update
     private void updateShiftTenderTotals(Shift shift, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount != 0) { //update amount either can be negative or positive
@@ -293,8 +307,53 @@ class TenderMovementService {
         }
     }
 
+    private validateBankingDate(String bankDate, List<String> failureMessages){
+        if (bankDate == null){
+            failureMessages.add("Banking date cannot be empty.")
+        }
+    }
+
+    private validateBankDateFormat(String bankDate, List<String> failureMessages){
+        if (!isValidDateFormat(bankDate)) {
+            failureMessages.add("Invalid date format. Please enter the date in dd/MM/yyyy format (e.g., 31/12/2023).")
+        }
+    }
+
     private boolean isAIssueFloatValidAmount(BigDecimal amount) {
         amount >= MIN_AMOUNT_ISSUE_FLOAT && amount <= MAX_AMOUNT_ISSUE_FLOAT
+    }
+
+    private validateBankTransferAmount(BigDecimal amount, List<String> failureMessages){
+        if (!isAIssueFloatValidAmount(amount)){
+            failureMessages.add("Bank deposit amount must be between ${MIN_AMOUNT_ISSUE_FLOAT} and ${MAX_AMOUNT_ISSUE_FLOAT}.")
+        }
+    }
+
+    private validateBankTransferTenderType(TenderType tenderType, List<String> failureMessages){
+        if (tenderType != TenderType.CASH){
+            failureMessages.add("Only cash tender type allowed.")
+        }
+    }
+
+
+    boolean isValidDateFormat(String dateStr) {
+        // Define the expected date format
+        def dateFormat = "dd/MM/yyyy"
+        def sdf = new SimpleDateFormat(dateFormat)
+        sdf.setLenient(false)  // This will enforce strict date parsing
+
+        // First, check if the string matches the expected pattern
+        if (!(dateStr =~ /\d{2}\/\d{2}\/\d{4}/)) {
+            return false
+        }
+
+        // If the pattern is correct, try to parse the date
+        try {
+            sdf.parse(dateStr)
+            return true
+        } catch (ParseException e) {
+            return false
+        }
     }
 
 
