@@ -130,12 +130,10 @@ databaseDefaultProperties: &databaseDefaultProperties
 
 environments:
     development:
-        server:
-            port: 8089
         dataSource:
             pooled: true
             dbCreate: "validate"
-            url: "jdbc:mysql://localhost:3308/wlpos"
+            url: "jdbc:mysql://localhost:3306/wlpos"
             driverClassName: "com.mysql.cj.jdbc.Driver"
             dialect: org.hibernate.dialect.MySQLInnoDBDialect
             username: "root"
@@ -150,7 +148,7 @@ environments:
             reporting:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3308/reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -164,7 +162,7 @@ environments:
             reportingReadOnly:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3308/reporting"
+                url: "jdbc:mysql://localhost:3306/reporting"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -175,7 +173,7 @@ environments:
             transactions:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3308/transactions"
+                url: "jdbc:mysql://localhost:3306/transactions"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -189,7 +187,7 @@ environments:
             loyalty:
                 pooled: true
                 dbCreate: "validate"
-                url: "jdbc:mysql://localhost:3308/loyalty"
+                url: "jdbc:mysql://localhost:3306/loyalty"
                 driverClassName: "com.mysql.cj.jdbc.Driver"
                 dialect: org.hibernate.dialect.MySQLInnoDBDialect
                 username: "root"
@@ -205,8 +203,8 @@ environments:
             port: 5672
             apiProtocol: http
             apiPort: 15672
-            username: root
-            password: root
+            username: rabbituser
+            password: Pa**W0rd01
             useSsl: false
             senderExchange: Processing
             exportExchange: Trigger
@@ -214,7 +212,7 @@ environments:
         mysql:
             wlpos:
                 host: localhost
-                port: 3308
+                port: 3306
                 username: root
                 password: Pa**W0rd01
                 #username: "wonderlane"
@@ -222,7 +220,7 @@ environments:
                 database: wlpos
             transactions:
                 host: localhost
-                port: 3308
+                port: 3306
                 username: root
                 password: Pa**W0rd01
                 #username: "wonderlane"
@@ -230,7 +228,7 @@ environments:
                 database: transactions
             loyalty:
                 host: localhost
-                port: 3308
+                port: 3306
                 username: root
                 password: Pa**W0rd01
                 #username: "wonderlane"
