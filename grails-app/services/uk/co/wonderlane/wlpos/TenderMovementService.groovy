@@ -235,7 +235,7 @@ class TenderMovementService {
 
     private validateIssueAmount(BigDecimal amount, List<String> failureMessages){
         if (isAIssueFloatValidAmount(amount)){
-            failureMessages.add("Issue float amount must be between £${MIN_AMOUNT_ISSUE_FLOAT} and £${MAX_AMOUNT_ISSUE_FLOAT}.")
+            failureMessages.add("Amount must be between £${MIN_AMOUNT_ISSUE_FLOAT} and £${MAX_AMOUNT_ISSUE_FLOAT}.")
         }
     }
 

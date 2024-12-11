@@ -215,8 +215,7 @@ class TenderMovementController {
             if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) { //If safe trying to distribute money is inactive then throw error
                 def errorParams  = validationFailureMessages.join("<br>")
                 redirect(action: "issueFloat", params: [error: errorParams])
-            }
-            else {
+            } else {
                 List<String> tillSuccessMessages = []
                 List<String> tillFailureMessages = []
                 List<Integer> failedTills = new ArrayList<>()
