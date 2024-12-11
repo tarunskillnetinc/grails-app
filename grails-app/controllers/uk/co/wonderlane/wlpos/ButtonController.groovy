@@ -300,7 +300,7 @@ class ButtonController {
 
         // Converted the ImageRecord to a normal entity that comes from the common library.
         // This ensures that the complex data set from the database entity is omitted.
-        syncMessage.setImageRecord(imageRecord.toEntity())
+        syncMessage.setImageRecord(imageRecord?.toEntity())
         if (button.imageDisplay) {
             syncMessage.setInsert(true)
         } else {
