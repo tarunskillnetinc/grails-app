@@ -279,13 +279,16 @@ class TenderMovementController {
             tender = TenderType.valueOf(params.tender)
             reasonCode = params.reasonCode
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+
+            def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
+
             if (!isAPayOutValidAmount(amount)) {
                 def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
                 log.error(errorMessage)
                 redirect(action: "payOut", params: [error: errorMessage])
             } else if (!tenderMovementService.isSafeActive(safeId)){
                 redirect(action: "payOut", params: [error: "Selected safe not active please try with another"])
-            } else if(!isValidReasonCode(reasonCode)) {
+            } else if(!isValidReasonCode(reasonCode, varianceReasons)) {
                 redirect(action: "payOut", params: [error: "Invalid reason code."])
             } else if (tender != TenderType.CASH) {
                 redirect(action: "payOut", params: [error: "Invalid tender type."])
@@ -315,8 +318,7 @@ class TenderMovementController {
         amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
     }
 
-    private def isValidReasonCode(String code) {
-        def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
+    private def isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
         return varianceReasons.stream()
                 .anyMatch(reasonCode -> reasonCode.getCode() != null &&
                         reasonCode.getCode().equals(code));
