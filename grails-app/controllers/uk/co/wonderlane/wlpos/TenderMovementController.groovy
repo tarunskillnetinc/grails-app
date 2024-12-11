@@ -32,14 +32,9 @@ class TenderMovementController {
     def issueFloat(){
         String success = params.success
         String error = params.error
-        List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
-        Safe primarySafe = safeLocations?.find { it.primary }
-        // Place primary safe at the top and sort remaining safes by id
-        if (primarySafe) {
-            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
-        } else {
-            safeLocations = safeLocations?.sort { it.id }
-        }
+
+        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
+
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
@@ -54,7 +49,7 @@ class TenderMovementController {
 
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderLift()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
