@@ -1,3 +1,5 @@
+<%@ page import="org.joda.time.DateTime" %>
+<%@ page import="org.joda.time.format.DateTimeFormat" %>
 <script type="text/javascript">
 
     var successMessage = "${success}";
@@ -73,12 +75,15 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="safe" class="col-form-label">Safe</label>
-                            <g:select name="safeId" from="${safes}" optionKey="id" optionValue="description"
-                                      value="${selectedSafe?.id}" class="form-control select-border"/>
+                            <g:select name="safeId"
+                                      from="${safes}"
+                                      optionKey="id"
+                                      optionValue="description"
+                                      class="form-control select-border"/>
                         </div>
                         <div class="form-group">
                             <label for="bankingDate" class="col-form-label">Date</label>
-                            <g:textField name="bankingDate" value="${currentDate}" class="form-control date-picker"/>
+                            <g:textField name="bankingDate" value="${DateTimeFormat.forPattern('dd/MM/yyyy').print(new DateTime().withTimeAtStartOfDay())}" class="form-control date-picker"/>
                         </div>
                     </div>
                     <div class="form-col">
@@ -94,7 +99,7 @@
                         </div>
                         <div class="form-group">
                             <label for="bank" class="col-form-label">Bank</label>
-                            <g:textField name="bank" value="${bank?.name}" class="form-control" maxlength="10"/>
+                            <g:textField name="bank"  class="form-control" maxlength="10"/>
                         </div>
                     </div>
                 </div>
@@ -102,7 +107,7 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="bagReferenceNumber" class="col-form-label">Bag Reference Number</label>
-                            <g:textField name="bagReferenceNumber" value="${bagReferenceNumber}" class="form-control" maxlength="20"/>
+                            <g:textField name="bagReferenceNumber"  class="form-control" maxlength="20"/>
                         </div>
                     </div>
                     <div class="form-col">
@@ -112,7 +117,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">&pound;</span>
                                 </div>
-                                <g:textField id="amount" name="amount" value="${amount}" min="0.01" max="999999.99" class="form-control mask-money"/>
+                                <g:textField id="amount" name="amount" min="0.01" max="999999.99" class="form-control mask-money"/>
                             </div>
                         </div>
                     </div>
@@ -121,7 +126,7 @@
                     <div class="form-col">
                         <div class="form-group">
                             <label for="comments" class="col-form-label">Comments</label>
-                            <textarea name="comments" class="form-control" maxlength="40">${comments}</textarea>
+                            <textarea name="comments" class="form-control" maxlength="40"></textarea>
                         </div>
                     </div>
                 </div>
