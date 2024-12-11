@@ -22,7 +22,7 @@ class TenderMovementController {
     def safeManagementService
 
     private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("99999.99")
+    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
 
     def index() {}
 
