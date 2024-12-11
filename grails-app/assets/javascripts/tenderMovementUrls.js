@@ -3,14 +3,14 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
     var _getTillAvailableBalance;
     var _processIssueFloat;
     var _getSafeAvailableBalance;
-    var _processPayIn;
 
     return {
-        init : function (processTenderLift, getTillAvailableBalance, processIssueFloat, getSafeAvailableBalance, processPayIn) {
+        init : function (processTenderLift, getTillAvailableBalance, processIssueFloat, getSafeAvailableBalance, processPayIn, processPayOut) {
             _processTenderLift = processTenderLift;
-            _getTillAvailableBalance = getTillAvailableBalance;
-            _processPayIn = processPayIn
             _processIssueFloat = processIssueFloat;
+            _processPayIn = processPayIn;
+            _processPayOut = processPayOut;
+            _getTillAvailableBalance = getTillAvailableBalance;
             _getSafeAvailableBalance = getSafeAvailableBalance;
         },
 
@@ -32,6 +32,10 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
 
         getSafeAvailableBalance : function () {
             return _getSafeAvailableBalance;
+        },
+
+        getProcessPayOut: function () {
+            return _processPayOut;
         }
     }
 } ());
