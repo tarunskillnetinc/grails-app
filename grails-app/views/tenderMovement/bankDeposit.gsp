@@ -38,7 +38,7 @@
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="tender">Tender</label>
+                            <label for="tender" class="col-form-label">Tender</label>
                             <g:select
                                     name="tempTenderField"
                                     from="${tenders}"

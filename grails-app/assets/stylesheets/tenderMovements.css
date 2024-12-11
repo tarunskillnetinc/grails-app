@@ -20,9 +20,14 @@
     max-width: 50%;
     padding-right: 15px;
     padding-left: 15px;
+    display: flex;
+    flex-direction: column;
 }
 .form-group {
     margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 .form-control {
     width: 100%;
@@ -32,4 +37,7 @@
     justify-content: center;
     width: 100%;
     margin-top: 2rem;
+}
+.col-form-label {
+    margin-bottom: 0.5rem;
 }
