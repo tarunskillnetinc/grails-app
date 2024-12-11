@@ -109,17 +109,17 @@
                                                 title="cash reasoncode"
                                 />                            
                         </div>
-                    </div>
 
-                    <div class="form-group">                        
-                            <label for="amount" >Amount</label>                            
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">&pound;</span>
+                        <div class="form-group">
+                                <label for="amount" >Amount</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">&pound;</span>
+                                        </div>
+                                        <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99"
+                                                class="form-control mask-money"/>
                                     </div>
-                                    <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99" 
-                                    		class="form-control mask-money"/>
-                                </div>                            
+                            </div>
                         </div>
                     </div>
                     
