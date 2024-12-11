@@ -56,6 +56,11 @@ class TenderMovementService {
                 .collect(Collectors.toList());
     }
 
+    List<TenderType> getCashOnlyTenders() {
+        return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
+                .collect(Collectors.toList());
+    }
+
     //Return eligible tenders for Pay Out (Here it is only CASH)
     List<TenderType> getEligibleTendersForPayOut() {
         return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH)
@@ -82,15 +87,15 @@ class TenderMovementService {
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
     }
 
-   Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount){
+   Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount, ReasonCode reasonCode){
         uk.co.wonderlane.wlpos.reporting.Location tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
-        return createNewTenderMovement(safeLocation, tillLocation, tenderMovementType, tenderType, adjustAmount)
+        return createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, tenderType, adjustAmount, reasonCode)
     }
 
-    Integer tenderMovementUpdate(int safeId, TenderMovementType tenderMovementType, TenderType tenderType, String reasonCode, BigDecimal adjustAmount) {
+    Integer tenderMovementUpdate(int safeId, TenderMovementType tenderMovementType, TenderType tenderType, String reasonCode, BigDecimal adjustAmount){
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
-        return createNewTenderMovement(safeLocation, tenderMovementType, tenderType, reasonCode, adjustAmount)
+        return createNewTenderMovement(null, safeLocation, tenderMovementType, tenderType, adjustAmount, reasonCode)
     }
 
     int tenderMovementUpdate(int safeId, TenderMovementType tenderMovementType, TenderType tenderType,String bankingDate,
@@ -233,9 +238,7 @@ class TenderMovementService {
                 tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
                 safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
                 updateAmount))
-
     }
-
 
     // Method to create new tender movement
     private Integer createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, String reasonCode, BigDecimal updateAmount){
@@ -244,7 +247,6 @@ class TenderMovementService {
                 safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
                 reasonCode,
                 updateAmount))
-
     }
 
     private Integer createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location location, TenderMovementType tenderMovementType, TenderType tenderType, String bankingDate,

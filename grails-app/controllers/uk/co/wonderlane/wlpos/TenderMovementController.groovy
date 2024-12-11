@@ -29,19 +29,17 @@ class TenderMovementController {
     private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
     private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
 
+    private static final BigDecimal MIN_AMOUNT_PAYIN = new BigDecimal("0.01")
+    private static final BigDecimal MAX_AMOUNT_PAYIN = new BigDecimal("9999.99")
+
     def index() {}
 
     def issueFloat(){
         String success = params.success
         String error = params.error
-        List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
-        Safe primarySafe = safeLocations?.find { it.primary }
-        // Place primary safe at the top and sort remaining safes by id
-        if (primarySafe) {
-            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
-        } else {
-            safeLocations = safeLocations?.sort { it.id }
-        }
+
+        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
+
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
@@ -51,6 +49,16 @@ class TenderMovementController {
     def tenderLift(){
         String success = params.success
         String error = params.error
+
+        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
+
+        //Load and return tills having  open shift + Cash management enable + Serial number available
+        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
+        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
+        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
+    }
+
+    private List fetchSafeLocations() {
         List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safeLocations?.find { it.primary }
         // Place primary safe at the top and sort remaining safes by id
@@ -59,25 +67,35 @@ class TenderMovementController {
         } else {
             safeLocations = safeLocations?.sort { it.id }
         }
-        //Load and return tills having  open shift + Cash management enable + Serial number available
-        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
-        List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
-        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
+        return [safeLocations, primarySafe]
     }
 
-    def payIn(){}
+    def payIn(){
+        String success = params.success
+        String error = params.error
+
+        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
+
+        //Load and return tills having  open shift + Cash management enable + Serial number available
+        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
+        List<TenderType> tenders = tenderMovementService.getCashOnlyTenders()
+        List<ReasonCode> reasonCodes = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_IN)
+        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, reasonCodes:reasonCodes, success: success, error: error]
+    }
 
     def payOut(){
         String success = params.success
         String error = params.error
         List<Safe> safes = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safes?.find { it.primary }
+
         // Place primary safe at the top and sort remaining safes by id
         if (primarySafe) {
             safes = [primarySafe] + (safes - primarySafe)?.sort { it.id }
         } else {
             safes = safes?.sort { it.id }
         }
+
         def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForPayOut()
         [safes: safes, primarySafe: primarySafe, tenders:tenders, varianceReasons:varianceReasons, success: success, error: error]
@@ -148,6 +166,55 @@ class TenderMovementController {
         }
     }
 
+    def processPayIn() {
+        Integer safeId = null
+        Integer tillId = null
+        TenderType tender = null
+        ReasonCode reasonCode = null
+        Safe safe = null
+        try {
+            NumberFormat format = NumberFormat.getInstance(Locale.UK)
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+
+            tender = TenderType.valueOf(params.tender)
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+
+            // Check amount is within range.
+            BigDecimal maxValue = BigDecimal.valueOf(MAX_AMOUNT_PAYIN)
+            BigDecimal minValue = BigDecimal.valueOf(MIN_AMOUNT_PAYIN)
+            if (amount < minValue) {
+                redirect(action: "payIn", params: [error: "Tender value cannot be less than ${minValue}"])
+            } else if (amount > maxValue) {
+                redirect(action: "payIn", params: [error: "Tender value cannot be more than ${maxValue}"])
+            }
+
+            reasonCode = ReasonCode.findByIdAndRetailerId(params.reasoncodeId ? Integer.parseInt(params.reasoncodeId) : -1, springSecurityService.principal.retailerId) // validate the reasoncode exists within this retailer
+            safe = Safe.findByIdAndRetailerId(params.safeId, springSecurityService.principal.retailerId) // validate the safe exists and is a safe within this retailer.
+
+            if( reasonCode == null ) {
+                redirect(action: "payIn", params: [error: "Selected reason code doesnt exist."])
+            } else if( safe == null ) {
+                redirect(action: "payIn", params: [error: "Selected safe doesnt exist."])
+            } else if (!tenderMovementService.isSafeActive(safeId)){
+                redirect(action: "payIn", params: [error: "Selected safe not active please try with another."])
+            } else {
+                //create tender totals
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId, TenderMovementType.PAID_IN, tender, amount, reasonCode)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.PAID_IN, tender, amount, tenderMovementId, safeId)
+
+                redirect(action: "payIn", params: [success: "Successfully process Pay In for safe '${safe?.description}'"])
+            }
+        } catch (Exception ex) {
+            log.error("Pay In saving error for safe id : ${safeId} reason code: ${reasonCode} tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Pay In action failed. "
+            redirect(action: "payIn", params: [error: error])
+        }
+    }
+
     def processTenderLift(){
         Integer safeId = null
         Integer tillId = null
@@ -165,7 +232,7 @@ class TenderMovementController {
                 redirect(action: "tenderLift", params: [error: "Selected safe is not active please try with another"])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount, null)
 
                 //update safe session values
                 //update safe session tender totals

@@ -19,8 +19,7 @@
             var $button = $(this);
             if ($button.prop('disabled')) return;
             $button.prop('disabled', true);
-
-            // Call the processTenderLift function
+            
             processPayOut()
 
             // Re-enable the button after a short delay
