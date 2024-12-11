@@ -461,7 +461,7 @@
                                 <label for="tillShiftRecountLimit" class="col-12 col-lg-4 text-right align-self-center">Till Shift Recount Limit</label>
                                 <div class="col-12 col-lg-6">
                                     <input type="number" class="col-5 form-control bottom-border" name="tillShiftRecountLimit" id="tillShiftRecountLimit"
-                                           value="${config?config.tillShiftRecountLimit? config.tillShiftRecountLimit:'' : 3}" oninput="validateInput(this);"
+                                           value="${config && config?.tillShiftRecountLimit >= 0 ? config.tillShiftRecountLimit : 3}" oninput="validateInput(this);"
                                            onkeydown="acceptMinMaxNumberValue(event, 0, 99);" min="0" max="99" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
                                 </div>
                             </div>
@@ -479,7 +479,7 @@
                                 <label for="safeRecountLimit" class="col-12 col-lg-4 text-right align-self-center">Safe Recount Limit</label>
                                 <div class="col-12 col-lg-6">
                                     <input type="number" class="col-5 form-control bottom-border" name="safeRecountLimit" id="safeRecountLimit"
-                                           value="${config?config.safeRecountLimit? config.safeRecountLimit:'':3}" onkeydown="acceptMinMaxNumberValue(event, 0, 99);" min="0" max="99" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
+                                           value="${config && config?.safeRecountLimit >= 0 ? config.safeRecountLimit : 3}" onkeydown="acceptMinMaxNumberValue(event, 0, 99);" min="0" max="99" ${(!onlyRetailerLevel || isStoreLevelLogin) && !storeLevelExist? "disabled" : ""}/>
                                 </div>
                             </div>
 
