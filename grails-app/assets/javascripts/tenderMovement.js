@@ -163,7 +163,10 @@ function processBankDeposit() {
     }
 
     // If validation passes, submit the form
-    submitBankDeposit()
+    getSafeBalance(amount, tender, safeId, (error, result) => {
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe for a Cash tender. Do you want to continue?`;
+        handleBalanceCheck(error, result, confirmMessage, submitBankDeposit);
+    });
 }
 
 function processBankReceipt() {

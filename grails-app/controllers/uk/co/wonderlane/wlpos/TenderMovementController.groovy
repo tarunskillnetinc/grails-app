@@ -14,20 +14,17 @@ import java.text.NumberFormat
 
 class TenderMovementController {
 
-    private static final MIN_AMOUNT_BANK_DEPOSIT_RECEIPT = new BigDecimal("0.01")
-    private static final MAX_AMOUNT_BANK_DEPOSIT_RECEIPT = new BigDecimal("999999.99")
-
     def tenderMovementService
     def shiftService
     def reasonCodeService
     def springSecurityService
     def safeManagementService
 
-    private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
+    private static final MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
+    private static final MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
 
-    private static final BigDecimal MIN_AMOUNT_PAYIN = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_PAYIN = new BigDecimal("9999.99")
+    public static final MIN_AMOUNT_PAYIN = new BigDecimal("0.01")
+    public static final MAX_AMOUNT_PAYIN = new BigDecimal("9999.99")
 
     def index() {}
 
@@ -339,7 +336,6 @@ class TenderMovementController {
         Integer safeId = null
         TenderType tender = null
         String reasonCode = null
-
         try {
             NumberFormat format = NumberFormat.getInstance(Locale.UK)
             safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
@@ -372,23 +368,10 @@ class TenderMovementController {
                 redirect(action: "payOut", params: [success: "Pay Out successfully processed. Funds deducted from safe."])
             }
         } catch (Exception ex) {
-            def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
             log.error("Pay Out saving error for safe id : ${safeId} tender type: ${tender} reason code: ${reasonCode}  error: ${ex.getMessage()}", ex)
             String error =  "Pay Out action failed. "
             redirect(action: "payOut", params: [error: error])
         }
-
-    }
-
-
-    private boolean isAPayOutValidAmount(BigDecimal amount) {
-        amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
-    }
-
-    private def isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
-        return varianceReasons.stream()
-                .anyMatch(reasonCode -> reasonCode.getCode() != null &&
-                        reasonCode.getCode().equals(code));
     }
 
     def processBankDeposit() {
@@ -408,6 +391,8 @@ class TenderMovementController {
                 def errorParams  = validationFailureMessages.join("<br>")
                 redirect(action: "bankDeposit", params: [error: errorParams])
             } else {
+                Safe safe = Safe.findByIdAndRetailerId(safeId, springSecurityService.principal.retailerId)
+
                 // If all validations pass, add tender movement entry
                 Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(), TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
 
@@ -416,7 +401,7 @@ class TenderMovementController {
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_DEPOSIT, tender, amount.negate(), tenderMovementId, safeId)
 
-                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit"])
+                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit. Funds move from ${safe.description}"])
             }
         } catch (Exception ex) {
             log.error("Bank deposit saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
@@ -442,6 +427,8 @@ class TenderMovementController {
                 def errorParams  = validationFailureMessages.join("<br>")
                 redirect(action: "bankReceipt", params: [error: errorParams])
             } else {
+                Safe safe = Safe.findByIdAndRetailerId(safeId, springSecurityService.principal.retailerId)
+
                 // If all validations pass, add tender movement entry
                 Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(), TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
 
@@ -450,13 +437,23 @@ class TenderMovementController {
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_RECEIPT, tender, amount, tenderMovementId, safeId)
 
-                redirect(action: "bankReceipt", params: [success: "Successfully completed bank receipt"])
+                redirect(action: "bankReceipt", params: [success: "Successfully completed bank receipt. Funds added to ${safe.description}"])
             }
         } catch (Exception ex) {
             log.error("Bank receipt saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
             String error =  "Bank receipt action failed. "
             redirect(action: "bankReceipt", params: [error: error])
         }
+    }
+
+    boolean isAPayOutValidAmount(BigDecimal amount) {
+        amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
+    }
+
+    boolean isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
+        return varianceReasons.stream()
+                .anyMatch(reasonCode -> reasonCode.getCode() != null &&
+                        reasonCode.getCode().equals(code));
     }
 
 }

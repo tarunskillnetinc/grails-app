@@ -27,8 +27,11 @@ class TenderMovementService {
     def userService
     def safeService
 
-    private static final BigDecimal MIN_AMOUNT_ISSUE_FLOAT = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_ISSUE_FLOAT = new BigDecimal("99999.99")
+    private static final MIN_AMOUNT_ISSUE_FLOAT = new BigDecimal("0.01")
+    private static final MAX_AMOUNT_ISSUE_FLOAT = new BigDecimal("99999.99")
+
+    private static final MIN_AMOUNT_BANK_TRANSFER = new BigDecimal("0.01")
+    private static final MAX_AMOUNT_BANK_TRANSFER = new BigDecimal("999999.99")
 
     List<TillConfiguration> getAllActiveTills() {
         Integer retailerId =  springSecurityService.principal.retailerId
@@ -101,7 +104,7 @@ class TenderMovementService {
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
     }
 
-   Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount){
+    Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount){
         uk.co.wonderlane.wlpos.reporting.Location tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
         return createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, tenderType, adjustAmount)
@@ -194,15 +197,6 @@ class TenderMovementService {
         return tillNos
     }
 
-    // This method can generally use for shift balance update
-    private void updateShiftBalance(Shift shift, TenderType tenderType, BigDecimal updateAmount){
-        updateShiftTenderTotals(shift, tenderType, updateAmount)
-        if (tenderType.equals(TenderType.CASH)){
-            updateCashDrawer(shift, updateAmount)
-        }
-        shiftService.saveShift(shift)
-    }
-
     SafeSession safeSessionUpdate(int safeId, TenderType tenderType, BigDecimal cashAmount) {
         List<TenderTotal> addedTenderAmounts = new ArrayList<>()
         if (cashAmount != null && cashAmount.compareTo(BigDecimal.ZERO) != 0) {
@@ -227,6 +221,16 @@ class TenderMovementService {
         validateBankTransferTenderType(tenderType, failureMessages)
         validateSafeStatus(safeId, failureMessages)
         return failureMessages
+    }
+
+
+    // This method can generally use for shift balance update
+    private void updateShiftBalance(Shift shift, TenderType tenderType, BigDecimal updateAmount){
+        updateShiftTenderTotals(shift, tenderType, updateAmount)
+        if (tenderType.equals(TenderType.CASH)){
+            updateCashDrawer(shift, updateAmount)
+        }
+        shiftService.saveShift(shift)
     }
 
     // Generic method for shift's tender total update
@@ -336,8 +340,8 @@ class TenderMovementService {
     }
 
     private validateBankTransferAmount(BigDecimal amount, List<String> failureMessages){
-        if (!isAIssueFloatValidAmount(amount)){
-            failureMessages.add("Bank deposit amount must be between ${MIN_AMOUNT_ISSUE_FLOAT} and ${MAX_AMOUNT_ISSUE_FLOAT}.")
+        if (!(amount >= MIN_AMOUNT_BANK_TRANSFER && amount <= MAX_AMOUNT_BANK_TRANSFER)){
+            failureMessages.add("Bank deposit amount must be between ${MIN_AMOUNT_BANK_TRANSFER} and ${MAX_AMOUNT_BANK_TRANSFER}.")
         }
     }
 
