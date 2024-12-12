@@ -15,26 +15,23 @@ import java.text.NumberFormat
 class TenderMovementController {
 
     def tenderMovementService
-    def safeService
     def shiftService
     def reasonCodeService
     def springSecurityService
     def safeManagementService
 
-    private static final BigDecimal MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
+    private static final MIN_AMOUNT_PAYOUT = new BigDecimal("0.01")
+    private static final MAX_AMOUNT_PAYOUT = new BigDecimal("9999.99")
 
-    private static final BigDecimal MIN_AMOUNT_PAYIN = new BigDecimal("0.01")
-    private static final BigDecimal MAX_AMOUNT_PAYIN = new BigDecimal("9999.99")
+    public static final MIN_AMOUNT_PAYIN = new BigDecimal("0.01")
+    public static final MAX_AMOUNT_PAYIN = new BigDecimal("9999.99")
 
     def index() {}
 
     def issueFloat(){
         String success = params.success
         String error = params.error
-
-        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
-
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
@@ -44,33 +41,17 @@ class TenderMovementController {
     def tenderLift(){
         String success = params.success
         String error = params.error
-
-        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
-
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
 
-    private List fetchSafeLocations() {
-        List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
-        Safe primarySafe = safeLocations?.find { it.primary }
-        // Place primary safe at the top and sort remaining safes by id
-        if (primarySafe) {
-            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
-        } else {
-            safeLocations = safeLocations?.sort { it.id }
-        }
-        return [safeLocations, primarySafe]
-    }
-
     def payIn(){
         String success = params.success
         String error = params.error
-
-        def (List<Safe> safeLocations, Safe primarySafe) = fetchSafeLocations()
-
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         //Load and return tills having  open shift + Cash management enable + Serial number available
         List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getCashOnlyTenders()
@@ -81,24 +62,27 @@ class TenderMovementController {
     def payOut(){
         String success = params.success
         String error = params.error
-        List<Safe> safes = safeService.getStoreSafes() ?.findAll { it.active }
-        Safe primarySafe = safes?.find { it.primary }
-
-        // Place primary safe at the top and sort remaining safes by id
-        if (primarySafe) {
-            safes = [primarySafe] + (safes - primarySafe)?.sort { it.id }
-        } else {
-            safes = safes?.sort { it.id }
-        }
-
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForPayOut()
-        [safes: safes, primarySafe: primarySafe, tenders:tenders, varianceReasons:varianceReasons, success: success, error: error]
+        [safes: safeLocations, primarySafe: primarySafe, tenders:tenders, varianceReasons:varianceReasons, success: success, error: error]
     }
 
-    def bankDeposit(){}
+    def bankDeposit(){
+        String success = params.success
+        String error = params.error
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
+        List<TenderType> tenders = tenderMovementService.getCashTenders()
+        [safes: safeLocations, primarySafe: primarySafe, tenders:tenders, success: success, error: error]
+    }
 
-    def bankReceipt(){}
+    def bankReceipt(){
+        String success = params.success
+        String error = params.error
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
+        List<TenderType> tenders = tenderMovementService.getCashTenders()
+        [safes: safeLocations, primarySafe: primarySafe, tenders:tenders, success: success, error: error]
+    }
 
     def getTillAvailableBalance() {
         try {
@@ -214,7 +198,7 @@ class TenderMovementController {
                 redirect(action: "tenderLift", params: [error: "Selected safe is not active please try with another"])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount, null)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
 
                 //update safe session values
                 //update safe session tender totals
@@ -352,7 +336,6 @@ class TenderMovementController {
         Integer safeId = null
         TenderType tender = null
         String reasonCode = null
-
         try {
             NumberFormat format = NumberFormat.getInstance(Locale.UK)
             safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
@@ -385,20 +368,89 @@ class TenderMovementController {
                 redirect(action: "payOut", params: [success: "Pay Out successfully processed. Funds deducted from safe."])
             }
         } catch (Exception ex) {
-            def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
             log.error("Pay Out saving error for safe id : ${safeId} tender type: ${tender} reason code: ${reasonCode}  error: ${ex.getMessage()}", ex)
             String error =  "Pay Out action failed. "
             redirect(action: "payOut", params: [error: error])
         }
-
     }
 
+    def processBankDeposit() {
+        Integer safeId = null
+        TenderType tender = null
+        try {
+            NumberFormat format = NumberFormat.getInstance(Locale.UK)
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+            tender = TenderType.valueOf(params.tender)
+            String bankingDate = params.bankingDate
+            String bank = params.bank
+            String bagReferenceNumber = params.bagReferenceNumber
+            String comments = params.comments
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+            List<String> validationFailureMessages = tenderMovementService.preValidateBankTransferRequest(safeId, bankingDate, amount, tender)
+            if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) {
+                def errorParams  = validationFailureMessages.join("<br>")
+                redirect(action: "bankDeposit", params: [error: errorParams])
+            } else {
+                Safe safe = Safe.findByIdAndRetailerId(safeId, springSecurityService.principal.retailerId)
 
-    private boolean isAPayOutValidAmount(BigDecimal amount) {
+                // If all validations pass, add tender movement entry
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(), TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_DEPOSIT, tender, amount.negate(), tenderMovementId, safeId)
+
+                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit. Funds move from ${safe.description} to bank"])
+            }
+        } catch (Exception ex) {
+            log.error("Bank deposit saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Bank deposit action failed. "
+            redirect(action: "bankDeposit", params: [error: error])
+        }
+    }
+
+    def processBankReceipt() {
+        Integer safeId = null
+        TenderType tender = null
+        try {
+            NumberFormat format = NumberFormat.getInstance(Locale.UK)
+            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
+            tender = TenderType.valueOf(params.tender)
+            String bankingDate = params.bankingDate
+            String bank = params.bank
+            String bagReferenceNumber = params.bagReferenceNumber
+            String comments = params.comments
+            BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
+            List<String> validationFailureMessages = tenderMovementService.preValidateBankTransferRequest(safeId, bankingDate, amount, tender)
+            if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) {
+                def errorParams  = validationFailureMessages.join("<br>")
+                redirect(action: "bankReceipt", params: [error: errorParams])
+            } else {
+                Safe safe = Safe.findByIdAndRetailerId(safeId, springSecurityService.principal.retailerId)
+
+                // If all validations pass, add tender movement entry
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(), TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
+
+                //update safe session values
+                //update safe session tender totals
+                //add safe session audit
+                tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_RECEIPT, tender, amount, tenderMovementId, safeId)
+
+                redirect(action: "bankReceipt", params: [success: "Successfully completed bank receipt. Funds added to ${safe.description} from bank"])
+            }
+        } catch (Exception ex) {
+            log.error("Bank receipt saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Bank receipt action failed. "
+            redirect(action: "bankReceipt", params: [error: error])
+        }
+    }
+
+    boolean isAPayOutValidAmount(BigDecimal amount) {
         amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
     }
 
-    private def isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
+    boolean isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
         return varianceReasons.stream()
                 .anyMatch(reasonCode -> reasonCode.getCode() != null &&
                         reasonCode.getCode().equals(code));

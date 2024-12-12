@@ -50,7 +50,6 @@
     var errorMessage = "${error}";
 
     $(document).ready(function () {
-        addMoneyMaskLogic();
         processIssueFloatActionButton();
         handleResponseMessages("${success}", "${error}");
         initializeMultiSelect();
@@ -97,51 +96,6 @@
         }
     }
 
-    function addMoneyMaskLogic(){
-        $('.mask-money').maskMoney({
-            prefix: '',
-            allowNegative: false,
-            thousands: ',',
-            decimal: '.',
-            affixesStay: true,
-            precision: 2,
-        });
-
-        $('.mask-money').on('keydown', function(e) {
-            // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
-            if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
-                return;
-            }
-
-            let currentValue = $(this).val();
-            currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
-
-            const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
-            const maxValue = 9999.99;
-            const minValue = 0.01;
-
-            if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
-                e.preventDefault();
-            }
-        });
-
-        // Ensure proper formatting on blur
-        $('.mask-money').on('blur', function() {
-            let value = $(this).val();
-            value = value.replace(/,/g, ''); // Remove commas for parsing
-            const parsedValue = parseFloat(value);
-
-            if (isNaN(parsedValue) || parsedValue < 0.01) {
-                $(this).val('0').focus();
-            } else if (parsedValue > 9999.99) {
-                $(this).val('9999.99');
-            } else {
-                $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
-            }
-        });
-
-    }
-
     function initializeMultiSelect() {
         // Attach event listener for dynamically generated checkboxes
         $(document).on('change', 'input[name="tillNos"]', function() {
@@ -178,20 +132,19 @@
 
 </script>
 
+<div class="centered-content">
+    <div class="form-container">
+        <section id="segment-details">
+            <div id="messages-container"></div>
+        </section>
 
-<section id="segment-details" class="container-fluid">
-    <div id="messages-container"></div>
-</section>
-
-<section class="mt-1 pt-5">
-    <g:form method="post" action="processIssueFloat" class="mt-1" name="processIssueFloat">
-        <div class="container-fluid" id ="issue-float-form-container">
-            <div class="row">
-                <div class="col-md-6 col-lg-5 offset-md-1">
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="safe" class="col-form-label mb-0 mr-2" style="width: 5rem;">Safe</label>
-                            <div class="flex-grow-1" style="max-width: 15rem;">
+        <section class="mt-1">
+            <g:form method="post" action="processIssueFloat" class="mt-1" name="processIssueFloat">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="safe" class="col-form-label">Safe</label>
+                            <div class="flex-grow-1">
                                 <g:select name="safeId"
                                           from="${safeLocations}"
                                           optionKey="id"
@@ -200,66 +153,56 @@
                                           class="form-control select-border"/>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="tillNo" class="col-form-label mb-0 mr-2" style="width: 5rem;">Till No</label>
-                            <div class="flex-grow-1" style="max-width: 15rem;">
-                                <div class="dropdown">
-                                    <div class="form-control select-border d-flex justify-content-between align-items-center" id="tillNo">
-                                        <span id="selectedTills">Select Till Numbers</span>
-                                        <span class="caret"></span>
-                                    </div>
-                                    <div class="dropdown-menu w-100">
-                                        <g:each in="${tills}" var="till">
-                                            <div class="dropdown-item">
-                                                <label class="mb-0 w-100">
-                                                    <input type="checkbox" name="tillNos" value="${till.tillId}"> ${till.tillId}
-                                                </label>
-                                            </div>
-                                        </g:each>
-                                    </div>
+                        <div class="form-group">
+                            <label for="tillNo" class="col-form-label">Till No</label>
+                            <div class="dropdown">
+                                <div class="form-control" id="tillNo">
+                                    <span id="selectedTills">Select Till Numbers</span>
+                                    <span class="caret"></span>
+                                </div>
+                                <div class="dropdown-menu">
+                                    <g:each in="${tills}" var="till">
+                                        <div class="dropdown-item">
+                                            <label class="mb-0">
+                                                <input type="checkbox" name="tillNos" value="${till.tillId}"> ${till.tillId}
+                                            </label>
+                                        </div>
+                                    </g:each>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="tenders" class="col-form-label mb-0 mr-2" style="width: 5rem;">Tender</label>
-                            <div class="flex-grow-1" style="max-width: 15rem;">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="tenders" class="col-form-label">Tender</label>
+                            <div class="flex-grow-1">
                                 <g:select name="tender"
                                           from="${tenders}"
                                           optionValue="${{ it.toString().toLowerCase().capitalize() }}"
                                           class="form-control select-border"/>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group mb-5">
-                        <div class="d-flex align-items-center">
-                            <label for="amount" class="col-form-label mb-0 mr-2" style="width: 5rem;">Amount</label>
-                            <div class="flex-grow-1" style="max-width: 15rem;">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">&pound;</span>
-                                    </div>
-                                    <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="999999.99" class="form-control mask-money"/>
+                        <div class="form-group">
+                            <label for="amount" class="col-form-label">Amount</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">&pound;</span>
                                 </div>
+                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="999999.99" class="form-control mask-money"/>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Buttons Row -->
-                    <div class="mt-5 d-flex justify-content-end" style="max-width: 20.5rem;">
-                        <button id="issue-float-cancel" type="button" name="issue-float-cancel-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
-                        <button id="issue-float-save" type="button" name="issue-float-save-button" class="btn btn-success">Save</button>
-                    </div>
                 </div>
-            </div>
-        </div>
-    </g:form>
-</section>
 
+                <div class="buttons-container">
+                    <button id="issue-float-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="issue-float-save" type="button" class="btn btn-success">Save</button>
+                </div>
+            </g:form>
+        </section>
+    </div>
+</div>
 
