@@ -97,7 +97,7 @@
 
                 <!-- Buttons Row -->
                 <div class="buttons-container">
-                    <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderLift('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
                     <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button>
                 </div>
             </g:form>

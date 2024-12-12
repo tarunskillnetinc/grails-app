@@ -198,7 +198,7 @@
                 </div>
 
                 <div class="buttons-container">
-                    <button id="issue-float-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderLift('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="issue-float-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
                     <button id="issue-float-save" type="button" class="btn btn-success">Save</button>
                 </div>
             </g:form>

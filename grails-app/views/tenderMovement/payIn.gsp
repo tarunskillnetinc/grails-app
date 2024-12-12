@@ -93,7 +93,7 @@
                 </div>
                 <div class="buttons-container">
                     <button id="payin-cancel" type="button" name="safe-cancel-button"
-                            onclick="handleCancelPayIn('${createLink(action: '/home')}')"
+                            onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')"
                             class="btn btn-wl mr-2">Cancel</button>
                     <button id="payin-save" type="button" name="safe-save-button"
                             class="btn btn-success">Save</button>

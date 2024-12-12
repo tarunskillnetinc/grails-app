@@ -80,12 +80,6 @@
                                       class="form-control select-border"/>
                         </div>
                         <div class="form-group">
-                            <label for="bankingDate" class="col-form-label">Date</label>
-                            <g:textField name="bankingDate" value="${DateTimeFormat.forPattern('dd/MM/yyyy').print(new DateTime().withTimeAtStartOfDay())}" class="form-control date-picker"/>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
                             <label for="tender" class="col-form-label">Tender</label>
                             <g:select name="tempTenderField" from="${tenders}"
                                       disabled="disabled"
@@ -93,9 +87,15 @@
                                       class="form-control select-border"/>
                             <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
                         </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="bankingDate" class="col-form-label">Date</label>
+                            <g:textField name="bankingDate" value="${DateTimeFormat.forPattern('dd/MM/yyyy').print(new DateTime().withTimeAtStartOfDay())}" class="form-control date-picker"/>
+                        </div>
                         <div class="form-group">
                             <label for="bank" class="col-form-label">Bank</label>
-                            <g:textField name="bank" class="form-control" maxlength="10"/>
+                            <g:textField name="bank" class="form-control" maxlength="10" oninput="enforceAlphanumeric(this)"/>
                         </div>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                     </div>
                 </div>
                 <div class="buttons-container">
-                    <button id="bank-Receipt-cancel" type="button" name="cancel-button" onclick="handleCancel('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="bank-Receipt-cancel" type="button" name="cancel-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
                     <button id="bank-Receipt-save" type="submit" name="save-button" class="btn btn-success">Save</button>
                 </div>
             </g:form>
