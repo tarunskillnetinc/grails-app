@@ -47,7 +47,7 @@
             <div id="messages-container"></div>
         </section>
 
-        <section class="mt-1 pt-5">
+        <section class="mt-1">
             <g:form method="post" action="processPayOut" class="mt-1" name="processPayOut">
                 <div class="form-row">
                     <div class="form-col">
@@ -61,7 +61,7 @@
                                       class="form-control select-border"/>
                         </div>
                         <div class="form-group">
-                            <label for="reasonCode" class="col-form-label">Reason code</label>
+                            <label for="reasonCode" class="col-form-label">Reason Code</label>
                             <g:select name="reasonCode"
                                       from="${varianceReasons}"
                                       optionKey="code"

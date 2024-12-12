@@ -45,7 +45,7 @@
             <div id="messages-container"></div>
         </section>
 
-        <section class="mt-1 pt-5">
+        <section class="mt-1">
             <g:form method="post" action="processPayIn" class="mt-1" name="processPayIn">
                 <div class="form-row">
                     <div class="form-col">
