@@ -11,11 +11,11 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
     return {
         init : function (processTenderLift, getTillAvailableBalance, processIssueFloat, getSafeAvailableBalance, processPayIn, processPayOut, processBankDeposit, processBankReceipt) {
             _processTenderLift = processTenderLift;
+            _getTillAvailableBalance = getTillAvailableBalance;
             _processIssueFloat = processIssueFloat;
+            _getSafeAvailableBalance = getSafeAvailableBalance;
             _processPayIn = processPayIn;
             _processPayOut = processPayOut;
-            _getTillAvailableBalance = getTillAvailableBalance;
-            _getSafeAvailableBalance = getSafeAvailableBalance;
             _processBankDeposit = processBankDeposit;
             _processBankReceipt = processBankReceipt;
         },

@@ -101,10 +101,10 @@ class TenderMovementService {
         addSafeSessionAudit(safeSession, safeSessionAction, true,  loggedInUser, tenderMovementId)
     }
 
-   Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount, ReasonCode reasonCode){
+   Integer tenderMovementUpdate(int tillId, int safeId, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal adjustAmount){
         uk.co.wonderlane.wlpos.reporting.Location tillLocation = locationService.getTillLocation(tillId) as uk.co.wonderlane.wlpos.reporting.Location
         uk.co.wonderlane.wlpos.reporting.Location safeLocation = locationService.getOrCreateLocationForSafe(safeId) as uk.co.wonderlane.wlpos.reporting.Location
-        return createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, tenderType, adjustAmount, reasonCode)
+        return createNewTenderMovement(tillLocation, safeLocation, tenderMovementType, tenderType, adjustAmount)
     }
 
     Integer tenderMovementUpdate(int safeId, TenderMovementType tenderMovementType, TenderType tenderType, String reasonCode, BigDecimal adjustAmount){

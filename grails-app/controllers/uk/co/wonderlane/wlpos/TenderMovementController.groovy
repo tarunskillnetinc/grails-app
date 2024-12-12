@@ -11,8 +11,6 @@ import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.text.NumberFormat
-import java.text.ParseException
-import java.text.SimpleDateFormat
 
 class TenderMovementController {
 
@@ -20,7 +18,6 @@ class TenderMovementController {
     private static final MAX_AMOUNT_BANK_DEPOSIT_RECEIPT = new BigDecimal("999999.99")
 
     def tenderMovementService
-    def safeService
     def shiftService
     def reasonCodeService
     def springSecurityService
@@ -204,7 +201,7 @@ class TenderMovementController {
                 redirect(action: "tenderLift", params: [error: "Selected safe is not active please try with another"])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount, null)
+                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
 
                 //update safe session values
                 //update safe session tender totals
