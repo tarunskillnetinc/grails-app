@@ -10,6 +10,7 @@ import uk.co.wonderlane.wlpos.enums.ShiftAction
 import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -262,29 +263,74 @@ class TenderMovementService {
     }
 
     // Method to create new tender movement
-    private Integer createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location tillLocation, uk.co.wonderlane.wlpos.reporting.Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
-        return reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+    private Integer createNewTenderMovement(
+            uk.co.wonderlane.wlpos.reporting.Location tillLocation,
+            uk.co.wonderlane.wlpos.reporting.Location safeLocation,
+            TenderMovementType tenderMovementType,
+            TenderType tenderType,
+            BigDecimal updateAmount) {
+
+        TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                tenderMovementType,
                 tenderType,
-                tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                updateAmount))
+                tillLocation,
+                safeLocation,
+                null,  // reasonCode
+                null,  // bankingDate
+                null,  // bank
+                null,  // bankReferenceNumber
+                null,  // comments
+                updateAmount
+        )
+        return reportingService.saveTenderMovement(tenderMovement)
     }
 
     // Method to create new tender movement
-    private Integer createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, String reasonCode, BigDecimal updateAmount){
-        return reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+    private Integer createNewTenderMovement(
+            uk.co.wonderlane.wlpos.reporting.Location safeLocation,
+            TenderMovementType tenderMovementType,
+            TenderType tenderType,
+            String reasonCode,
+            BigDecimal updateAmount) {
+
+        TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                tenderMovementType,
                 tenderType,
-                safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                safeLocation,
+                null,  // toLocation
                 reasonCode,
-                updateAmount))
+                null,  // bankingDate
+                null,  // bank
+                null,  // bankReferenceNumber
+                null,  // comments
+                updateAmount
+        )
+        return reportingService.saveTenderMovement(tenderMovement)
     }
 
-    private Integer createNewTenderMovement(uk.co.wonderlane.wlpos.reporting.Location location, TenderMovementType tenderMovementType, TenderType tenderType, String bankingDate,
-                                String bank, String bagReferenceNumber, String comments, BigDecimal adjustAmount) {
-        return reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+    private Integer createNewTenderMovement(
+            uk.co.wonderlane.wlpos.reporting.Location location,
+            TenderMovementType tenderMovementType,
+            TenderType tenderType,
+            String bankingDate,
+            String bank,
+            String bagReferenceNumber,
+            String comments,
+            BigDecimal adjustAmount) {
+
+        TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                tenderMovementType,
                 tenderType,
                 location,
-                bankingDate, bank, bagReferenceNumber, comments,adjustAmount))
+                null,  // toLocation
+                null,  // reasonCode
+                bankingDate,
+                bank,
+                bagReferenceNumber,
+                comments,
+                adjustAmount
+        )
+        return reportingService.saveTenderMovement(tenderMovement)
     }
 
     private User loadLoggedInUser(){

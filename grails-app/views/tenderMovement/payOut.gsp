@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class="buttons-container">
-                    <button id="tender-lift-cancel" type="button" name="safe-cancel-button"
+                    <button id="pay-out-cancel" type="button" name="safe-cancel-button"
                             onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')"
                             class="btn btn-wl mr-2">Cancel</button>
                     <button id="pay-out-save" type="button" name="pay-out-save"
