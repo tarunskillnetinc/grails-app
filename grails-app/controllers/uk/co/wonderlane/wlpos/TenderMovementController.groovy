@@ -401,7 +401,7 @@ class TenderMovementController {
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_DEPOSIT, tender, amount.negate(), tenderMovementId, safeId)
 
-                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit. Funds move from ${safe.description}"])
+                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit. Funds move from ${safe.description} to bank"])
             }
         } catch (Exception ex) {
             log.error("Bank deposit saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
@@ -437,7 +437,7 @@ class TenderMovementController {
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_RECEIPT, tender, amount, tenderMovementId, safeId)
 
-                redirect(action: "bankReceipt", params: [success: "Successfully completed bank receipt. Funds added to ${safe.description}"])
+                redirect(action: "bankReceipt", params: [success: "Successfully completed bank receipt. Funds added to ${safe.description} from bank"])
             }
         } catch (Exception ex) {
             log.error("Bank receipt saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
