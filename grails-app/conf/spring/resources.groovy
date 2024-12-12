@@ -247,6 +247,18 @@ beans = {
 
     }
 
+    tenderMovementService(TenderMovementService) {
+        springSecurityService = ref('springSecurityService')
+        storeService = ref('storeService')
+        reportingService = ref('reportingService')
+        locationService = ref('locationService')
+        safeManagementService = ref('safeManagementService')
+        shiftService = ref('shiftService')
+        userService = ref('userService')
+        safeService = ref('safeService')
+    }
+
+
 
     gsonProvider(GsonProvider)
 

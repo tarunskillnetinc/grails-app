@@ -127,8 +127,8 @@ function validateQuantity(input, min, max, weighted) {
 }
 
 function validateInput(input){
-    // Remove leading minus sign if present
-    input.value = input.value.replace(/^-/, '');
+    // Remove leading minus sign and leading zeros
+    input.value = input.value.replace(/^-|^0+(?=\d)/, '');
 
     // Ensure the value is greater than or equal to 0
     if (parseInt(input.value, 10) < 0 || input.value === '-') {

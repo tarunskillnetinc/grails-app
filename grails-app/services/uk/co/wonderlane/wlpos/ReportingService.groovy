@@ -332,10 +332,10 @@ class ReportingService {
         // I believe this may be related to the domain class being in an alternate datasource, but I think it's a bug in Grails. Actually, I think it's because the totalCount is lazily loaded
         // to prevent the double query immediately. But it's throwing a Hibernate session error if I don't request it here.
         int totalCount = TenderMovement.withTransaction { results.totalCount }
-        return results
+        return [totalCount: totalCount, tenderMovements: results]
     }
 
-    def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, uk.co.wonderlane.wlpos.reporting.Location toLocation, BigDecimal amount) {
+    def createNewTenderMovement(TenderMovementType movementType, TenderType tenderType, uk.co.wonderlane.wlpos.reporting.Location fromLocation, String reasonCode, BigDecimal amount) {
         TenderMovement tenderMovement = new TenderMovement()
         tenderMovement.retailerId = springSecurityService.principal.retailerId
         tenderMovement.storeId = springSecurityService.principal.storeId
@@ -344,7 +344,7 @@ class ReportingService {
         tenderMovement.type = movementType
         tenderMovement.tenderType = tenderType
         tenderMovement.fromLocation = fromLocation
-        tenderMovement.toLocation = toLocation
+        tenderMovement.reason = reasonCode
         tenderMovement.amount = amount
         tenderMovement.timestamp = DateTime.now(DateTimeZone.UTC)
         return tenderMovement
@@ -352,13 +352,13 @@ class ReportingService {
 
     def saveTenderMovement(TenderMovement tenderMovement) {
         if (tenderMovement.validate()) {
-            tenderMovement.save()
-            return true
+            tenderMovement.save(flush: true)
+            return Integer.valueOf(tenderMovement.id)
         } else {
             tenderMovement.errors.each {
                 System.out.println(it.toString())
             }
-            return false
+            return -1
         }
     }
 
