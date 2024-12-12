@@ -69,15 +69,17 @@
             var currentValue = $(this).val();
             currentValue = currentValue.replace(",", "").replace(".","") + e.key
 
-            if (
-                ((this.id +'') === "rollingFloatValue" ||
+            if ((this.id +'') === "rollingFloatValue" ||
                     (this.id +'') === "tillShiftVarianceLimit" ||
-                    (this.id +'') === "safeVarianceLimit"
-                )
-                && parseFloat(currentValue) > 99999) {
-                e.preventDefault();
-            } else if( (this.id +'') === 'tillCashHoldingLimit' && parseFloat(currentValue) > 999999) {
-                e.preventDefault();
+                    (this.id +'') === "safeVarianceLimit")
+            {
+                if (parseFloat(currentValue) > 99999) {
+                    e.preventDefault();
+                }
+            } else if( (this.id +'') === 'tillCashHoldingLimit') {
+                if (parseFloat(currentValue) > 999999) {
+                    e.preventDefault();
+                }
             } else if (parseFloat(currentValue) > 150000) {
                 e.preventDefault();
             }
