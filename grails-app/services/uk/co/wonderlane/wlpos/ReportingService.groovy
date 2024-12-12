@@ -367,13 +367,14 @@ class ReportingService {
         tenderMovement.bankName = bank
         tenderMovement.bankReference = bankReferenceNumber
         tenderMovement.comment = comments
-        //TODO: Do it in better way
         DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
         try {
-            tenderMovement.bankingDate = formatter.parseDateTime(bankingDate)
+            if (!bankingDate.isEmpty() && bankingDate != null){
+                tenderMovement.bankingDate = formatter.parseDateTime(bankingDate)
+            }
         } catch (IllegalArgumentException e) {
-            //TODO: Please handle the error cc: Ishara
-            return null
+            log.error("Failed to parse banking date: " + bankingDate, e);
+            throw new RuntimeException("Invalid banking date format. Expected dd/MM/yyyy", e);
         }
         return tenderMovement
     }

@@ -52,6 +52,18 @@ class TenderMovementService {
         } as List<TillConfiguration>
     }
 
+    List fetchSafeLocations() {
+        List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
+        Safe primarySafe = safeLocations?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
+        } else {
+            safeLocations = safeLocations?.sort { it.id }
+        }
+        return [safeLocations, primarySafe]
+    }
+
     //Return eligible tenders for tender lift and Issue float (Here it is only CASH and VOUCHER)
     List<TenderType> getEligibleTendersForTenderUpdate() {
         return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
