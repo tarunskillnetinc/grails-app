@@ -3,7 +3,6 @@
         <span class="sr-only">Loading...</span>
     </div>
 </div>
-${(Calendar.DST_OFFSET - Calendar.ZONE_OFFSET) * 60}
 <div id="search-results">
     <g:if test="${!rabbitQueues || rabbitQueues?.size() == 0}">
         <div id="noResultsRow" class="col pt-2 pb-2 text-center my-auto wl-striped0">No tills found.</div>

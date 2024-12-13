@@ -67,7 +67,7 @@ class BackOfficeRabbitService extends RabbitService {
 
             // Only return the queues for our retailer.
             allRabbitQueues?.each {
-                if (it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
+                if (it.vhost == springSecurityService.principal.retailer.config.rabbitMqVirtualHost && it.name?.startsWith("R${springSecurityService.principal.retailerId}_S") && it.name?.count("_") == 2) {
                     it.retailerId = Integer.parseInt(it.name.substring(1, it.name.indexOf("_")))
                     it.storeId = Integer.parseInt(it.name.substring(it.name.indexOf("_") + 2, it.name.lastIndexOf("_")))
                     it.tillId = Integer.parseInt(it.name.substring(it.name.lastIndexOf("_") + 2))
@@ -181,10 +181,10 @@ class BackOfficeRabbitService extends RabbitService {
         initVirtualHost(defaultVirtualHost)
 
         if (channel.isOpen()) {
-            sendExchangeMessage(senderExchange, json);
+            sendExchangeMessage(senderExchange, json)
         } else {
-            throw new RabbitServiceException(0, "Error sending rabbit message " + senderExchange + ": " + json);
+            throw new RabbitServiceException(0, "Error sending rabbit message " + senderExchange + ": " + json)
         }
-        logger.logInfo("Sending rabbit message " + senderExchange + ": ", json);
+        logger.logInfo("Sending rabbit message " + senderExchange + ": ", json)
     }
 }
