@@ -1978,20 +1978,27 @@ class ProductController extends BaseController {
     }
 
     def productAttributes() {
+        int max = params.int('max') ?: 50
+        int offset = params.int('offset') ?: 0
+        String sort = params.sort ?: 'name'
+        String order = params.order?.toLowerCase() ?: 'asc'
+        long retailerId = springSecurityService.principal.retailerId
 
-        def attr = new ProductAttributes()
+        def paginatedResults = productAttributesService.getProductAttributes(max, offset, sort, order, retailerId)
 
-/*
-        attr.retailerId = 9
-        attr.type = ProductAttributeType.LIST
-        attr.name =  "Fred 100"
-        attr.defaultValue = ""
-        attr.listValues = "[\"f\", \"g\"]"
-        attr.displayAttribute = false
-        productAttributesService.saveProductAttribute(attr)
-*/
+        [productAttributes: paginatedResults.list, productAttributesCount: paginatedResults.count]
+    }
 
-        [ProductAttributes: productAttributesService.serviceMethod()]
+    def ajaxProductAttributes() {
+        int max = params.int('max') ?: 50
+        int offset = params.int('offset') ?: 0
+        String sort = params.sort ?: 'name'
+        String order = params.order?.toLowerCase() ?: 'asc'
+        long retailerId = springSecurityService.principal.retailerId
+
+        def paginatedResults = productAttributesService.getProductAttributes(max, offset, sort, order, retailerId)
+
+        render(template: "productAttributesResultsView", model: [productAttributes: paginatedResults.list, productAttributesCount: paginatedResults.count])
     }
 
     def ajaxSaveProductAttributeChanges() {
@@ -2009,13 +2016,16 @@ class ProductController extends BaseController {
         def b = 2
 
       try {
-            def testAttributes = new ProductAttributes()
-            testAttributes.name = params.attributeName
-            testAttributes.type = ProductAttributeType.valueOf(params.type)
-            testAttributes.defaultValue = params.defaultValue
-            testAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false;
-            testAttributes.listValues = "[\"x\", \"y\"]";
-            productAttributesService.saveProductAttribute(testAttributes)
+            def productAttributes = new ProductAttributes()
+            productAttributes.name = params.attributeName
+            productAttributes.type = ProductAttributeType.valueOf(params.type)
+            if (productAttributes.type != ProductAttributeType.LIST) {
+                productAttributes.defaultValue = params.defaultValue
+            } else {
+                productAttributes.defaultValue = "[]";
+            }
+            productAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false;
+            productAttributesService.saveProductAttribute(productAttributes)
             redirect("product": "category", action:"productAttributes")
         } catch (ex) {
           //TODO - How can an error be shown on the addProductAttribute page?

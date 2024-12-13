@@ -6,8 +6,23 @@ import grails.gorm.transactions.Transactional
 class ProductAttributesService {
     def springSecurityService
 
-    def serviceMethod() {
-        ProductAttributes.findAllByRetailerId(springSecurityService.principal.retailerId)
+    def getProductAttributes(int max, int offset, String sort, String order, long retailerId) {
+        def query = ProductAttributes.where {
+            retailerId == retailerId
+        }
+
+        def totalCount = query.count()
+
+        def results = query.list(max: max, offset: offset)
+
+        if (sort) {
+            results = results.sort { it[sort] }
+            if (order?.equalsIgnoreCase('desc')) {
+                results = results.reverse()
+            }
+        }
+
+        return [list: results, count: totalCount]
     }
 
     def saveProductAttribute(ProductAttributes productAttribute) {

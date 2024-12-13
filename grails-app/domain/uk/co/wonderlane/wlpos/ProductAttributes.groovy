@@ -34,6 +34,13 @@ class ProductAttributes {
     }
 
     static constraints = {
+        id nullable: false
+        retailerId nullable: false
+        type nullable: false
+        name nullable: false
+        defaultValue nullable: false
+        listValues nullable: true
+        displayAttribute nullable: false
     }
 
     List<String> ListEntries() {
