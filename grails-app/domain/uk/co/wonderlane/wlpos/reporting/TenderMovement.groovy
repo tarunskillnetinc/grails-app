@@ -68,7 +68,7 @@ class TenderMovement {
         timestamp nullable: true
         bankName nullable: true
         bankReference nullable: true
-        bankingDate nullable: false  // Added constraint for bankingDate
+        bankingDate nullable: true  // Added constraint for bankingDate
         comment nullable: true
     }
 
