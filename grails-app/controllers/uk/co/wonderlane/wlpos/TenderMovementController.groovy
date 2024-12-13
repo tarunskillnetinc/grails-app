@@ -446,11 +446,10 @@ class TenderMovementController {
         }
     }
 
-    boolean isAPayOutValidAmount(BigDecimal amount) {
+    private boolean isAPayOutValidAmount(BigDecimal amount) {
         amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
     }
-
-    boolean isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
+    private boolean isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
         return varianceReasons.stream()
                 .anyMatch(reasonCode -> reasonCode.getCode() != null &&
                         reasonCode.getCode().equals(code));
