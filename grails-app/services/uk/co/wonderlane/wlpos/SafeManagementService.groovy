@@ -101,7 +101,7 @@ class SafeManagementService extends MySqlPoolDal {
             if (savedId > 0) {
                 return getSafeSessionUsingConnection(conn, savedId)
             }
-            throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process.")
+            throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process. Please try again.")
         }
     }
 
