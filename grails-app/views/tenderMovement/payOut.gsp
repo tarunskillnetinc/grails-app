@@ -41,92 +41,66 @@
 
 </script>
 
-<style>
-#payout.form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 800px;
-    margin: 0 auto;
-}
+<div id="payOut" class="centered-content">
+    <div class="form-container">
+        <section id="segment-details" class="container-fluid">
+            <div id="messages-container"></div>
+        </section>
 
-.form-row {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    width: 48%;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-</style>
-
-<section id="segment-details" class="container-fluid">
-    <div id="messages-container"></div>
-</section>
-
-<section class="mt-1 pt-5">
-    <g:form method="post" action="processPayOut" class="mt-1" name="processPayOut">
-        <div id="payout" class="form-container">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="safeId">Safe</label>
-                    <g:select name="safeId"
-                              from="${safes}"
-                              optionKey="id"
-                              optionValue="description"
-                              value="${primarySafe?.id}"
-                              class="form-control select-border"/>
-                </div>
-
-                <div class="form-group">
-                    <label for="tender">Tender</label>
-                    <g:select
-                            name="tempTenderField"
-                            from="${tenders}"
-                            disabled="disabled"
-                            optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                            class="form-control select-border"/>
-                    <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="reasonCode">Reason Code</label>
-                    <g:select name="reasonCode"
-                              from="${varianceReasons}"
-                              optionKey="code"
-                              optionValue="description"
-                              class="form-control select-border"/>
-                </div>
-
-                <div class="form-group">
-                    <label for="amount">Amount</label>
-
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">&pound;</span>
+        <section class="mt-1">
+            <g:form method="post" action="processPayOut" class="mt-1" name="processPayOut">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="safeId" class="col-form-label">Safe</label>
+                            <g:select name="safeId"
+                                      from="${safes}"
+                                      optionKey="id"
+                                      optionValue="description"
+                                      value="${primarySafe?.id}"
+                                      class="form-control select-border"/>
                         </div>
-                        <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99"
-                                     class="form-control mask-money"/>
+                        <div class="form-group">
+                            <label for="reasonCode" class="col-form-label">Reason Code</label>
+                            <g:select name="reasonCode"
+                                      from="${varianceReasons}"
+                                      optionKey="code"
+                                      optionValue="description"
+                                      class="form-control select-border"/>
+                        </div>
+
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="tender" class="col-form-label">Tender</label>
+                            <g:select
+                                    name="tempTenderField"
+                                    from="${tenders}"
+                                    disabled="disabled"
+                                    optionValue="${{ it.toString().toLowerCase().capitalize() }}"
+                                    class="form-control select-border"/>
+                            <g:hiddenField name="tender" value="${tenders.get(0).toString()}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount" class="col-form-label">Amount</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">&pound;</span>
+                                </div>
+                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99"
+                                             class="form-control mask-money"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="button-container">
-                <button id="tender-lift-cancel" type="button" name="safe-cancel-button"
-                        onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')"
-                        class="btn btn-wl mr-2">Cancel</button>
-                <button id="pay-out-save" type="button" name="pay-out-save" class="btn btn-success">Save</button>
-            </div>
-        </div>
-    </g:form>
-</section>
+                <div class="buttons-container">
+                    <button id="pay-out-cancel" type="button" name="safe-cancel-button"
+                            onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')"
+                            class="btn btn-wl mr-2">Cancel</button>
+                    <button id="pay-out-save" type="button" name="pay-out-save"
+                            class="btn btn-success">Save</button>
+                </div>
+            </g:form>
+        </section>
+    </div>
+</div>

@@ -101,7 +101,7 @@ class SafeManagementService extends MySqlPoolDal {
             if (savedId > 0) {
                 return getSafeSessionUsingConnection(conn, savedId)
             }
-            throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process.")
+            throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process. Please try again.")
         }
     }
 
@@ -314,7 +314,8 @@ class SafeManagementService extends MySqlPoolDal {
             tenderMovementId = tenderId
         }
 
-        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT, SafeSessionAction.PAID_IN, SafeSessionAction.ADD_FLOAT]) {
+        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT,
+                                  SafeSessionAction.PAID_IN, SafeSessionAction.ADD_FLOAT, SafeSessionAction.BANK_DEPOSIT, SafeSessionAction.BANK_RECEIPT]) {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)

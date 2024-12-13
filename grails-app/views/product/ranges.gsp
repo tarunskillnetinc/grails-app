@@ -127,9 +127,7 @@
 
                         $('#confirmModal').modal({ show: true });
 
-                        checkedBoxes.each(function(i, checkbox) {
-                            $(checkbox).prop("checked", false);
-                        });
+                        deselectAll();
 
                         saveButton.prop("disabled", false);
                     }

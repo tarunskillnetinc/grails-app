@@ -1141,33 +1141,31 @@ class ProductController extends BaseController {
         List<Integer> newPacksIds = new ArrayList<>()
 
         editedVariant.packs?.each { editedPack ->
-            if (editedPack != null) {
-                def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+            def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id != 0 && existingPack.id == editedPack.id }
 
-                if (existingPack && packChanged(editedPack, existingPack)) {
-                    updatePack(existingPack, editedPack, now)
-                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
-                } else if (!existingPack) {
-                    Pack newPack = new Pack()
-                    editedPack.barcodez.each { barcode ->
-                        Barcode newBarcode = new Barcode()
-                        newBarcode.retailerId = springSecurityService.principal.retailerId
-                        newBarcode.effectiveDate = effectiveDate
-                        newBarcode.pack = newPack
-                        newBarcode.barcode = barcode.barcode
-                        newBarcode.recordStatus = 'C'
-                        newPack.barcodez.add(newBarcode)
-                    }
-                    updatePack(newPack, editedPack, now)
-                    existingVariant.addToPacks(newPack)
-                    checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
-                    if (newPack.id > 0) {
-                        // New pack id got set when retrieving barcodes from DB
-                        newPacksIds.add(newPack.id)
-                    }
-                } else {
-                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
+            if (existingPack && packChanged(editedPack, existingPack)) {
+                updatePack(existingPack, editedPack, now)
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
+            } else if (!existingPack) {
+                Pack newPack = new Pack()
+                editedPack.barcodez.each { barcode ->
+                    Barcode newBarcode = new Barcode()
+                    newBarcode.retailerId = springSecurityService.principal.retailerId
+                    newBarcode.effectiveDate = effectiveDate
+                    newBarcode.pack = newPack
+                    newBarcode.barcode = barcode.barcode
+                    newBarcode.recordStatus = 'C'
+                    newPack.barcodez.add(newBarcode)
                 }
+                updatePack(newPack, editedPack, now)
+                existingVariant.addToPacks(newPack)
+                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
+                if (newPack.id > 0) {
+                    // New pack id got set when retrieving barcodes from DB
+                    newPacksIds.add(newPack.id)
+                }
+            } else {
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
         def packsToRemove = []

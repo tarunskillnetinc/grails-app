@@ -1,48 +1,9 @@
-<style>
-    .centered-content {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        min-height: 100vh;
-        padding-top: 2rem;
-    }
-    .form-container {
-        width: 100%;
-        max-width: 800px;
-    }
-    .form-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin-right: -15px;
-        margin-left: -15px;
-    }
-    .form-col {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding-right: 15px;
-        padding-left: 15px;
-    }
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    .form-control {
-        width: 100%;
-    }
-    .buttons-container {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-        margin-top: 2rem;
-    }
-</style>
-
 <script type="text/javascript">
 
     var successMessage = "${success}";
     var errorMessage = "${error}";
 
     $(document).ready(function () {
-        addMoneyMaskLogic();
         processTenderLiftActionButton();
         handleResponseMessages("${success}", "${error}");
     });
@@ -135,7 +96,7 @@
 
                 <!-- Buttons Row -->
                 <div class="buttons-container">
-                    <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderLift('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="tender-lift-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
                     <button id="tender-lift-save" type="button" name="safe-save-button" class="btn btn-success">Save</button>
                 </div>
             </g:form>

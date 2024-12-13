@@ -2,7 +2,6 @@
 	var successMessage = "${success}";
     var errorMessage = "${error}";
     $(document).ready(function () {
-        addMoneyMaskLogic()
         processPayInActionButton();
         handlePayInResponseMessages("${success}", "${error}");
     });
@@ -40,94 +39,66 @@
     }
 </script>
 
-<style>
-#payin.form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 800px;
-    margin: 0 auto;
-}
+<div id="payin" class="centered-content">
+    <div class="form-container">
+        <section id="segment-details" class="container-fluid">
+            <div id="messages-container"></div>
+        </section>
 
-.form-row {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    width: 48%;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-</style>
-
-<section id="segment-details" class="container-fluid">
-    <div id="messages-container"></div>
-</section>
-<section class="mt-1 pt-5">
-    <g:form method="post" action="processPayIn" class="mt-1" name="processPayIn">
-        <div id="payin" class="form-container">
-            <div class="form-row">                
-                    <div class="form-group">                        
-                        <label for="safeId">Safe</label>                            
-                        <g:select name="safeId"
-	                              from="${safeLocations}"
-	                              optionKey="id"
-	                              optionValue="description"
-	                              value="${primarySafe?.id}"
-	                              class="form-control select-border"
-	                            title="list of safes"
-	                            />                            
-                    </div>
-
-                    <div class="form-group">                        
-                            <label for="tender">Tender</label>                            
-                            <g:select name="tender"
-                                          from="${tenders}"
-                                          optionValue="${{ it.toString().toLowerCase().capitalize() }}"
-                                          class="form-control select-border"
-                                            title="list of tenders"
-                                            readonly="true"
-                                            />                            
-                        </div>
-                    </div>
-
-                    <div class="form-row">
+        <section class="mt-1">
+            <g:form method="post" action="processPayIn" class="mt-1" name="processPayIn">
+                <div class="form-row">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="reasoncodeId" >Reason Code</label>                            
+                            <label for="safeId" class="col-form-label">Safe</label>
+                            <g:select name="safeId"
+                                      from="${safeLocations}"
+                                      optionKey="id"
+                                      optionValue="description"
+                                      value="${primarySafe?.id}"
+                                      class="form-control select-border"
+                                      title="list of safes"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="reasoncodeId" class="col-form-label">Reason Code</label>
                             <g:select name="reasoncodeId"
-                                               from="${reasonCodes}"
-                                               optionKey="id"
-                                               optionValue="${{ it.description.toLowerCase().capitalize() }}"
-                                               class="form-control select-border"
-                                                title="cash reasoncode"
-                                />                            
+                                      from="${reasonCodes}"
+                                      optionKey="id"
+                                      optionValue="${{ it.description.toLowerCase().capitalize() }}"
+                                      class="form-control select-border"
+                                      title="cash reasoncode"/>
                         </div>
-
+                    </div>
+                    <div class="form-col">
                         <div class="form-group">
-                                <label for="amount" >Amount</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">&pound;</span>
-                                        </div>
-                                        <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99"
-                                                class="form-control mask-money"/>
-                                    </div>
+                            <label for="tender" class="col-form-label">Tender</label>
+                            <g:select name="tender"
+                                      from="${tenders}"
+                                      optionValue="${{ it.toString().toLowerCase().capitalize() }}"
+                                      class="form-control select-border"
+                                      title="list of tenders"
+                                      readonly="true"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount" class="col-form-label">Amount</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">&pound;</span>
+                                </div>
+                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99"
+                                             class="form-control mask-money"/>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="button-container">
-                        <button id="payin-cancel" type="button" name="safe-save-button" onclick="handleCancelPayIn('${createLink(action: '/home')}')" class="btn btn-wl mr-2">Cancel</button>
-                        <button id="payin-save" type="button" name="safe-save-button" class="btn btn-success">Save</button> <!-- Event Delegation button action added for this in function-processTenderLiftActionButton-->
-                    </div>
                 </div>
-            </div>        
-    </g:form>
-</section>
+                <div class="buttons-container">
+                    <button id="payin-cancel" type="button" name="safe-cancel-button"
+                            onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')"
+                            class="btn btn-wl mr-2">Cancel</button>
+                    <button id="payin-save" type="button" name="safe-save-button"
+                            class="btn btn-success">Save</button>
+                </div>
+            </g:form>
+        </section>
+    </div>
+</div>

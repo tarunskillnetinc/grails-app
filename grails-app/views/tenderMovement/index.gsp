@@ -4,9 +4,13 @@
     <meta name="layout" content="main"/>
     <title>Tender Movement</title>
 
+    <asset:stylesheet src="tenderMovements.css" />
+    <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+
     <asset:javascript src="money-mask.js"/>
     <asset:javascript src="tenderMovementUrls.js"/>
     <asset:javascript src="tenderMovement.js"/>
+    <asset:javascript src="bootstrap-datepicker.min.js" />
 
     <script type="text/javascript">
 
@@ -17,7 +21,9 @@
                 "${createLink(controller: 'TenderMovement', action: 'processIssueFloat')}",
                 "${createLink(controller: 'TenderMovement', action: 'getSafeAvailableBalance')}",
                 "${createLink(controller: 'TenderMovement', action: 'processPayIn')}",
-                "${createLink(controller: 'TenderMovement', action: 'processPayOut')}"
+                "${createLink(controller: 'TenderMovement', action: 'processPayOut')}",
+                "${createLink(controller: 'TenderMovement', action: 'processBankDeposit')}",
+                "${createLink(controller: 'TenderMovement', action: 'processBankReceipt')}"
             );
 
             // Select the first tab by default if none are active
@@ -117,7 +123,7 @@
                 const parsedValue = parseFloat(value);
 
                 if (isNaN(parsedValue) || parsedValue < 0.01) {
-                    $(this).val('0').focus();
+                    $(this).val('0.00');
                 } else if (parsedValue > 9999.99) {
                     $(this).val('9999.99');
                 } else {
