@@ -14,8 +14,8 @@
             event.preventDefault();
 
             const checkbox = event.target;
-            if(!checkbox.checked){
-                if(!confirm("there is currently " + ${associatedOffers.size()} + " associated offers, if this promotion is no longer loyalty these will be set to INACTIVE")){
+            if(!checkbox.checked && ${associatedOffers?.size() >= 1}){
+                if(!confirm("there is currently " + ${associatedOffers?.size()} + " associated offers, if this promotion is no longer loyalty these will be set to INACTIVE")){
                     checkbox.checked = true;
                 }
             }
