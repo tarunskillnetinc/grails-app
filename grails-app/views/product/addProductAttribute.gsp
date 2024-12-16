@@ -88,13 +88,21 @@
             // Redirect on success
             window.location.href = "${createLink(controller: 'product', action: 'productAttributes')}";
           } else {
-            $("#error-container").html("<div class='alert alert-danger'>An error occurred while saving the product attribute. Please try again.</div>");
+            showGenericError();
           }
         },
         error: function(xhr, status, error) {
-          $("#error-container").html(xhr.responseText);
+          if (xhr.status === 400) {
+            $("#error-container").html(xhr.responseText);
+          } else {
+            showGenericError();
+          }
         }
       });
+    }
+
+    function showGenericError() {
+      $("#error-container").html("<div class='alert alert-danger'>An error occurred while saving the product attribute. Please try again.</div>");
     }
 
     function clearErrors() {
