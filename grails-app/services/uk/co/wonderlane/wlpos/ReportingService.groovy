@@ -384,10 +384,11 @@ class ReportingService {
             tenderMovement.save(flush: true)
             return Integer.valueOf(tenderMovement.id)
         } else {
-            tenderMovement.errors.each {
-                System.out.println(it.toString())
-            }
-            throw new RuntimeException("Tender movement save validation error found")
+            String errorMessage = tenderMovement.errors.allErrors.collect { error ->
+                return error.toString()
+            }.join("; ")
+            log.error("Tender movement validation failed. errors: ${errorMessage}")
+            throw new RuntimeException("Tender movement validation failed, errors ${errorMessage}")
         }
     }
 
