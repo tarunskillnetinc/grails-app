@@ -387,7 +387,7 @@ class ReportingService {
             tenderMovement.errors.each {
                 System.out.println(it.toString())
             }
-            return -1
+            throw new RuntimeException("Tender movement save validation error found")
         }
     }
 

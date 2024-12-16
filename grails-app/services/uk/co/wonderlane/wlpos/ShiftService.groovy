@@ -727,11 +727,15 @@ class ShiftService extends MySqlPoolDal {
 
     private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
-            reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
-                    tenderType,
-                    tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                    safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                    updateAmount))
+            try {
+                reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
+                        tenderType,
+                        tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                        safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
+                        updateAmount))
+            } catch (Exception ex) {
+                log.error("Error saving tender movement for tender type: ${tenderType} error: ${ex.getMessage()}", ex)
+            }
         }
     }
 
