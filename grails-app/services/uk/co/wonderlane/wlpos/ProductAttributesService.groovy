@@ -43,4 +43,8 @@ class ProductAttributesService {
         result.success = true
         return result
     }
+
+    def getProductAttributeById(int id) {
+        return ProductAttributes.findById(id);
+    }
 }

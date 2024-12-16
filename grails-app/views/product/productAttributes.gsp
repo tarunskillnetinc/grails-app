@@ -22,35 +22,70 @@
         margin: 0;
         vertical-align: middle;
     }
+
+    .modal-dialog {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
+
+    @media (min-width: 576px) {
+        .modal-dialog {
+            min-height: calc(100% - 3.5rem);
+        }
+    }
     </style>
 
     <script type="text/javascript">
-        function submitForm(attributeName) {
-            var saveAttributeChangesUrl = "${createLink(controller: 'product', action: 'ajaxSaveProductAttributeChanges')}";
+        const addAttributeListItemURL = "${createLink(controller: 'product', action: 'ajaxAddAttributeListItem')}";
+        const saveAttributeListItemURL = "${createLink(controller: 'product', action: 'saveAttributeListItem')}";
 
-            console.log("Retailer Product Attributes - submitForm:")
-            try {
-                // Only proceed if there's an attribute name
-                if (attributeName) {
-                    $.ajax({
-                        url: saveAttributeChangesUrl,
-                        data: {name: attributeName},  // Pass the attribute name
-                        success: function (resp) {
-                            console.log("Changes saved successfully");
-                            // You might want to refresh the page or show a success message here
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error saving changes:", error);
-                            // You might want to show an error message to the user here
-                        }
-                    });
-                } else {
-                    console.log("No attributes to save");
-                    // You might want to show a message to the user that there's nothing to save
+        function addListItem(attributeId) {
+            $("#addListItemContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
+            $('#addListItemModal').modal({show: true, backdrop: 'static', keyboard: false});
+            $.ajax({
+                url: addAttributeListItemURL + "?attributeId=" + attributeId,
+                method: "GET",
+                success: function (resp) {
+                    $("#addListItemContent").html(resp);
                 }
-            } catch (ex) {
-                console.log("Exception:" + ex)
+            });
+        }
+
+        function closeModal() {
+            if (confirm("All unsaved changes will be lost, are you sure you want to cancel?")) {
+                $('#addListItemModal').modal('hide')
             }
+        }
+
+        function saveListItem() {
+            var formValues = $("#addListItemForm").serialize();
+            $("#loading-indicator").show();
+             $.ajax({
+                url: saveAttributeListItemURL,
+                method: "POST",
+                data: formValues,
+                success: function (resp) {
+                    $("#loading-indicator").hide();
+                    if (resp === "OK") {
+                        $("#addListItemContent").html('');
+                        $('#addListItemModal').modal('hide');
+                    } else {
+                        listItemUpdateGenericError();
+                    }
+                },
+                 error: function(xhr, status, error) {
+                     if (xhr.status === 400) {
+                         $("#modal-error").html(xhr.responseText);
+                     } else {
+                         listItemUpdateGenericError();
+                     }
+                 }
+            });
+        }
+
+        function listItemUpdateGenericError() {
+            $("#modal-error").html("<div class='alert alert-danger'>An error occurred while saving list item of the product attribute. Please try again.</div>");
         }
     </script>
 
@@ -99,6 +134,15 @@
                       model="[productAttributes: productAttributes, productAttributesCount: productAttributesCount]"/>
         </div>
 </section>
+
+<section id="addListItem-modal" class="container-fluid">
+    <div class="modal fade" id="addListItemModal" tabindex="-1" role="dialog" aria-labelledby="addListItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div id="addListItemContent" class="modal-content"></div>
+        </div>
+    </div>
+</section>
+
 </body>
 
 </html>

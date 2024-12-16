@@ -20,7 +20,7 @@
                     <div class="col-1 text-center">${message(code: 'ProductAttributeType.' + productAttribute.type)}</div>
                     <div class="col-2 text-center">
                         <g:if test="${productAttribute.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.LIST}">
-                            <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;">Add List Values</button>
+                            <button onclick="addListItem(${productAttribute.id})" class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;">Add List Values</button>
                         </g:if>
                     </div>
                     <div class="col-3 text-center">${productAttribute.defaultValue}</div>

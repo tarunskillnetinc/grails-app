@@ -16,7 +16,6 @@ import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
-import uk.co.wonderlane.wlpos.enums.BarcodeSignifierType
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
@@ -2019,12 +2018,40 @@ class ProductController extends BaseController {
 
         def result = productAttributesService.saveProductAttribute(productAttributes)
         if (!result.success) {
-            def types = ProductAttributeType.values()
             render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
         } else {
-            render(contentType: "application/json", status: 200) {
-                [success: true]
-            }
+          render "OK"
+        }
+    }
+
+    def ajaxAddAttributeListItem() {
+        def attributeId = params.attributeId
+        render(template: "productAttributeAddListItem", model: [attributeId: attributeId])
+    }
+
+    def saveAttributeListItem() {
+
+        def attributeId = params.attributeId? Integer.parseInt(params.attributeId) : null
+        if (attributeId == null) {
+            render(template: "/errors/errorMessage", model: [errorMessages:  ["attributeId": messageSource.getMessage("productAttribute.id.empty", [], Locale.default)], error: true], status: 400)
+        }
+
+        def productAttributes = productAttributesService.getProductAttributeById(attributeId)
+        if (productAttributes == null) {
+            render(template: "/errors/errorMessage", model: [errorMessages:  ["attributeId": messageSource.getMessage("productAttribute.attribute.notfound", [], Locale.default)], error: true], status: 400)
+        }
+
+        String itemName = params.itemName
+        if (itemName == null || itemName.isEmpty() || itemName.isBlank()) {
+            render(template: "/errors/errorMessage", model: [errorMessages:  ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", [], Locale.default)], error: true], status: 400)
+        }
+
+        productAttributes.addListValues(itemName)
+        def result = productAttributesService.saveProductAttribute(productAttributes)
+        if (!result.success) {
+            render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
+        } else {
+            render "OK"
         }
     }
 }

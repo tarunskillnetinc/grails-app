@@ -6,6 +6,7 @@ import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
 
+import javax.persistence.Transient
 import java.lang.reflect.Type
 
 class ProductAttributes {
@@ -18,7 +19,9 @@ class ProductAttributes {
     String listValues
     Boolean displayAttribute
 
-    def gson = new GsonBuilder().create()
+    def gson = new GsonBuilder().registerTypeAdapter(boolean.class, new BooleanTypeAdapter()).create()
+
+    static transients = [ "gson" ]
 
     static mapping = {
 
@@ -29,7 +32,7 @@ class ProductAttributes {
         type column: "type", sqlType: "enum", enumType: 'string'
         name column: "name"
         defaultValue column: "defaultValue"
-        listValues column: "listValues", sqlType: "jsonb"
+        listValues column: "listValues",  type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         displayAttribute column: "displayAttribute"
     }
 
@@ -61,27 +64,17 @@ class ProductAttributes {
         }
     }
 
-    List<String> ListEntries() {
-        if (this.listValues == null || this.listValues.trim().isEmpty()) {
-            return null
-        }
-        Type listType = new TypeToken<List<String>>(){}.getType()
-        return gson.fromJson(this.listValues, listType)
-    }
-
-/*    void setListValues(List<String> listValues) {
-        if (listValues == null) {
-            this.listValues = null
-        } else {
-            this.listValues = gson.toJson(listValues)
-        }
+    void addListValues(String listValue) {
+        def list = getListValues()
+        list.add(listValue)
+        this.listValues = gson.toJson(list)
     }
 
     List<String> getListValues() {
         if (this.listValues == null || this.listValues.trim().isEmpty()) {
-            return null
+            return new ArrayList<String>()
         }
         Type listType = new TypeToken<List<String>>(){}.getType()
         return gson.fromJson(this.listValues, listType)
-    }*/
+    }
 }

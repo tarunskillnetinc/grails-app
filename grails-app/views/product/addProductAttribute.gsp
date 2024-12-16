@@ -83,8 +83,11 @@
         url: "${createLink(controller: 'product', action: 'saveProductAttribute')}",
         method: "POST",
         data: formValues,
+        headers: {
+          'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+        },
         success: function(response) {
-          if (response.success) {
+          if (response === "OK") {
             // Redirect on success
             window.location.href = "${createLink(controller: 'product', action: 'productAttributes')}";
           } else {
