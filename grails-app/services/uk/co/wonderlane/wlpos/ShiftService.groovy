@@ -13,6 +13,7 @@ import uk.co.wonderlane.wlpos.entities.cash.*
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.enums.*
 import uk.co.wonderlane.wlpos.reporting.Location
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 import java.sql.*
 import java.util.stream.Collectors
@@ -727,11 +728,23 @@ class ShiftService extends MySqlPoolDal {
 
     private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
-            reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
-                    tenderType,
-                    tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                    safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                    updateAmount))
+            try {
+                TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                        tenderMovementType,
+                        tenderType,
+                        tillLocation,
+                        safeLocation,
+                        null,  // reasonCode
+                        null,  // bankingDate
+                        null,  // bank
+                        null,  // bankReferenceNumber
+                        null,  // comments
+                        updateAmount
+                )
+                reportingService.saveTenderMovement(tenderMovement)
+            } catch (Exception ex) {
+                log.error("Error saving tender movement for tender type: ${tenderType} error: ${ex.getMessage()}", ex)
+            }
         }
     }
 
