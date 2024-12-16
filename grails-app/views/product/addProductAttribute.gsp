@@ -27,27 +27,16 @@
       max-width: 300px;
     }
     .checkbox-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 0;
+      height: 38px; /* Adjust this value to match your input height */
     }
     .wl-checkbox {
       width: 20px;
       height: 20px;
+      margin-left: 0;
     }
     .form-row.align-items-end {
       margin-bottom: 1rem;
-    }
-
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      height: 38px; /* Adjust this value to match your input height */
-    }
-
-    .wl-checkbox {
-      margin: 0;
     }
   </style>
 
@@ -58,11 +47,8 @@
       typeChanged();
     };
 
-    $(function() {
-      $("#datepicker").datepicker({
-        dateFormat: "yy-mm-dd",
-        defaultDate: new Date()
-      });
+    $(document).ready(function() {
+      $("#add-product-attribute-form :input").on("input", clearErrors);
     });
 
     function typeChanged() {
@@ -71,25 +57,49 @@
 
       if (selectedType == "BOOLEAN") {
         console.log("Input type BOOLEAN");
+        $('#defaultValueLbl').show();
         dynamicInputContainer.innerHTML = `<g:select id="active" name="defaultValue" class="form-control" from="${['True','False']}" keys="${["true","false"]}" value="True" />`;
-      } else if (selectedType == "DATE") {
-        console.log("Input type DATE");
-        dynamicInputContainer.innerHTML = `<g:textField name="date" id="datepicker" value="${new Date().format('yyyy-MM-dd')}" class="form-control"/>`;
-      } else if (selectedType == "LIST") {
+      } else if (selectedType == "LIST" || selectedType == "DATE") {
         console.log("Input type LIST");
         dynamicInputContainer.innerHTML = ``;
+        $('#defaultValueLbl').hide();
       } else if (selectedType == "NUMERIC") {
         console.log("Input type NUMERIC");
         dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="5" class="form-control" min="0"
                          onkeypress="return numericOnly(event);" ondrop="return false;"
                          onpaste="return false;" oncontextmenu="return false;"/>`;
+        $('#defaultValueLbl').show();
       } else if (selectedType == "TEXT") {
         console.log("Input type TEXT");
         dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="30" class="form-control" />`;
+        $('#defaultValueLbl').show();
       }
 
     }
 
+    function saveProductAttribute() {
+      var formValues = $("#add-product-attribute-form").serialize();
+      $.ajax({
+        url: "${createLink(controller: 'product', action: 'saveProductAttribute')}",
+        method: "POST",
+        data: formValues,
+        success: function(response) {
+          if (response.success) {
+            // Redirect on success
+            window.location.href = "${createLink(controller: 'product', action: 'productAttributes')}";
+          } else {
+            $("#error-container").html("<div class='alert alert-danger'>An error occurred while saving the product attribute. Please try again.</div>");
+          }
+        },
+        error: function(xhr, status, error) {
+          $("#error-container").html(xhr.responseText);
+        }
+      });
+    }
+
+    function clearErrors() {
+      $("#error-container").empty();
+    }
 
   </script>
 </head>
@@ -110,7 +120,7 @@
   </nav>
 </section>
 <section id="header-container" class="container-fluid">
-  <div class="row header-wl mt-0">
+  <div class="row header-wl mt-0 mb-1">
     <div class="col-8 offset-2">
       <h2 id="page-title" class="mx-auto my-auto">Add Product Attribute</h2>
     </div>
@@ -118,24 +128,20 @@
     <div class="col-12 text-right mt-3">
       <div class="d-flex justify-content-end align-items-center">
         <g:link elementId="cancel-btn" controller="product" action="productAttributes" tabindex="-1" role="button" class="btn btn-wl ml-1">Cancel</g:link>
-        <button id="save-btn" class="btn btn-success ml-1" name="save" onclick="$('#add-product-attribute-form').submit();">Save</button>
+        <button id="save-btn" class="btn btn-success ml-1" name="save" onclick="saveProductAttribute();">Save</button>
       </div>
     </div>
   </div>
 </section>
-
+<section id="error-container">
+</section>
 <section id="add-product-attribute-section" class="container-fluid mt-4">
-  <g:form name="add-product-attribute-form" action="saveProductAttribute">
+  <g:form name="add-product-attribute-form" id="add-product-attribute-form" action="saveProductAttribute">
     <div id="accordion">
       <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
-        <div class="card-header pointer" id="attributeDetails" data-toggle="collapse" data-target="#collapseAttributeDetails" aria-expanded="true" aria-controls="collapseAttributeDetails">
+        <div class="card-header pointer" id="attributeDetails" data-target="#collapseAttributeDetails" aria-expanded="true" aria-controls="collapseAttributeDetails">
           <div class="row">
             <div class="col-10 font-weight-bold">Attribute Information</div>
-            <div class="col-2 text-right">
-              <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill text-right" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-              </svg>
-            </div>
           </div>
         </div>
 
@@ -149,11 +155,9 @@
                   <g:textField name="attributeName" maxlength="30" class="form-control " />
                 </div>
                 <div class="form-group col-md-6">
-                  <div class="d-flex align-items-center">
-                    <span>Display Attribute</span>
-                    <div class="checkbox-container ml-4">
+                  <label for="displayAttribute">Display Attribute</label>
+                  <div class="checkbox-container">
                       <g:checkBox name="displayAttribute" class="form-check-input wl-checkbox" checked="${false}" />
-                    </div>
                   </div>
                 </div>
               </div>
@@ -171,7 +175,7 @@
                   </div>
                 </div>
                 <div class="form-group col-md-6">
-                  <label for="defaultValue">Default Value</label>
+                  <label id="defaultValueLbl" for="defaultValue">Default Value</label>
                   <div id="dynamicDefaultValueContainer">
                     <!-- Dynamic content will be inserted here -->
                   </div>

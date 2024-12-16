@@ -258,6 +258,10 @@ beans = {
         safeService = ref('safeService')
     }
 
+    productAttributesService(ProductAttributesService) {
+        springSecurityService = ref('springSecurityService')
+        messageSource = ref('messageSource')
+    }
 
 
     gsonProvider(GsonProvider)

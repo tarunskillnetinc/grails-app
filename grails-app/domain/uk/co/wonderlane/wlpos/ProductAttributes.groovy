@@ -11,7 +11,7 @@ import java.lang.reflect.Type
 class ProductAttributes {
 
     int id
-    int retailerId
+    Integer retailerId
     ProductAttributeType type
     String name
     String defaultValue
@@ -35,12 +35,30 @@ class ProductAttributes {
 
     static constraints = {
         id nullable: false
-        retailerId nullable: false
-        type nullable: false
-        name nullable: false
-        defaultValue nullable: false
+        retailerId validator: { val, obj ->
+            if (val == null) {
+                return ['productAttribute.retailerId.empty']
+            }
+        }
+        type validator: { val, obj ->
+            if (val == null) {
+                return ['productAttribute.type.empty']
+            }
+        }
+        name validator: { val, obj ->
+            if (val == null || val.isEmpty() || val.isBlank()) {
+                return ['productAttribute.name.empty']
+            } else if (val.length() > 50 ) {
+                return ['productattributes.name.charLength']
+            }
+        }
+        defaultValue nullable: true
         listValues nullable: true
-        displayAttribute nullable: false
+        displayAttribute validator: { val, obj ->
+            if (val == null) {
+                return ['productAttribute.displayAttribute.empty']
+            }
+        }
     }
 
     List<String> ListEntries() {

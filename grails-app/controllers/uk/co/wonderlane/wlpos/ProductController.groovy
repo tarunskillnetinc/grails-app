@@ -16,6 +16,7 @@ import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
+import uk.co.wonderlane.wlpos.enums.BarcodeSignifierType
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
@@ -2010,26 +2011,20 @@ class ProductController extends BaseController {
     }
 
     def saveProductAttribute() {
-        def a = params
-        def b = 2
+        def productAttributes = new ProductAttributes()
+        productAttributes.name = params.attributeName
+        productAttributes.type = params.type? ProductAttributeType.valueOf(params.type): null
+        productAttributes.defaultValue = params.defaultValue
+        productAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false
 
-      try {
-            def productAttributes = new ProductAttributes()
-            productAttributes.name = params.attributeName
-            productAttributes.type = ProductAttributeType.valueOf(params.type)
-            if (productAttributes.type != ProductAttributeType.LIST) {
-                productAttributes.defaultValue = params.defaultValue
-            } else {
-                productAttributes.defaultValue = "[]";
+        def result = productAttributesService.saveProductAttribute(productAttributes)
+        if (!result.success) {
+            def types = ProductAttributeType.values()
+            render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
+        } else {
+            render(contentType: "application/json", status: 200) {
+                [success: true]
             }
-            productAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false;
-            productAttributesService.saveProductAttribute(productAttributes)
-            redirect("product": "category", action:"productAttributes")
-        } catch (ex) {
-          //TODO - How can an error be shown on the addProductAttribute page?
-          log.error("Error when attempting to save a new product attribute")
-          response.status = 400
-          return
         }
     }
 }
