@@ -101,6 +101,12 @@ class TenderMovementController {
             if( errorMessages.empty ) {
                 //Check balances and till exists
                 for (tillNo in tillNos) {
+                    // Ensure the till actually support cash management - someone may have logged in and disabled it.
+                    if (!shiftService.isCashManagementEnable(tillNo)){
+                        errorMessages.add("Cash Management is not enabled for till ${tillNo}")
+                        continue
+                    }
+
                     Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
                     if (shift != null) {
                         BigDecimal tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tender).findFirst()
