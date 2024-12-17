@@ -2030,24 +2030,27 @@ class ProductController extends BaseController {
     }
 
     def saveAttributeListItem() {
-
-        def attributeId = params.attributeId? Integer.parseInt(params.attributeId) : null
+        def attributeId = params.attributeId ? Integer.parseInt(params.attributeId) : null
         if (attributeId == null) {
-            render(template: "/errors/errorMessage", model: [errorMessages:  ["attributeId": messageSource.getMessage("productAttribute.id.empty", [], Locale.default)], error: true], status: 400)
-        }
-
-        def productAttributes = productAttributesService.getProductAttributeById(attributeId)
-        if (productAttributes == null) {
-            render(template: "/errors/errorMessage", model: [errorMessages:  ["attributeId": messageSource.getMessage("productAttribute.attribute.notfound", [], Locale.default)], error: true], status: 400)
+            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.id.empty", [], Locale.default)], error: true], status: 400)
+            return
         }
 
         String itemName = params.itemName
         if (itemName == null || itemName.isEmpty() || itemName.isBlank()) {
-            render(template: "/errors/errorMessage", model: [errorMessages:  ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", [], Locale.default)], error: true], status: 400)
+            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", [], Locale.default)], error: true], status: 400)
+            return
         }
 
-        productAttributes.addListValues(itemName)
-        def result = productAttributesService.saveProductAttribute(productAttributes)
+        // Get current list values
+        List<String> currentList = productAttributesService.getListValues(attributeId) ?: []
+
+        // Add new item
+        currentList.add(itemName)
+
+        // Update listValues using the updateListValues method
+        def result = productAttributesService.updateListValues(attributeId, currentList)
+
         if (!result.success) {
             render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
         } else {

@@ -2,11 +2,11 @@ package uk.co.wonderlane.wlpos
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
+import groovy.json.JsonSlurper
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
 
-import javax.persistence.Transient
+import javax.inject.Inject
 import java.lang.reflect.Type
 
 class ProductAttributes {
@@ -19,9 +19,7 @@ class ProductAttributes {
     String listValues
     Boolean displayAttribute
 
-    def gson = new GsonBuilder().registerTypeAdapter(boolean.class, new BooleanTypeAdapter()).create()
-
-    static transients = [ "gson" ]
+    public ProductAttributes() {}
 
     static mapping = {
 
@@ -32,7 +30,7 @@ class ProductAttributes {
         type column: "type", sqlType: "enum", enumType: 'string'
         name column: "name"
         defaultValue column: "defaultValue"
-        listValues column: "listValues",  type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
+        listValues column: "listValues", type: "uk.co.wonderlane.wlpos.usertypes.JsonType", sqlType: "json"
         displayAttribute column: "displayAttribute"
     }
 
@@ -51,7 +49,7 @@ class ProductAttributes {
         name validator: { val, obj ->
             if (val == null || val.isEmpty() || val.isBlank()) {
                 return ['productAttribute.name.empty']
-            } else if (val.length() > 50 ) {
+            } else if (val.length() > 50) {
                 return ['productattributes.name.charLength']
             }
         }
@@ -64,17 +62,23 @@ class ProductAttributes {
         }
     }
 
-    void addListValues(String listValue) {
-        def list = getListValues()
-        list.add(listValue)
-        this.listValues = gson.toJson(list)
-    }
-
     List<String> getListValues() {
         if (this.listValues == null || this.listValues.trim().isEmpty()) {
-            return new ArrayList<String>()
+            return []
         }
-        Type listType = new TypeToken<List<String>>(){}.getType()
-        return gson.fromJson(this.listValues, listType)
+        try {
+            return new JsonSlurper().parseText(this.listValues) as List<String>
+        } catch (Exception e) {
+            log.error("Error parsing listValues JSON: ${e.message}", e)
+            return []
+        }
+    }
+
+    void setListValues(List<String> list) {
+        if (list == null) {
+            this.listValues = null
+        } else {
+            this.listValues = JsonOutput.toJson(list)
+        }
     }
 }
