@@ -133,7 +133,15 @@ class TenderMovementController {
                 render(contentType: 'application/json', text: jsonResponse)
             }
         } catch (Exception ex) {
-            render(status: 500, text: "Error fetching till balance: ${ex.message}")
+            List<String> errorMessages = []
+            errorMessages.add("Cannot fetch the till balance.")
+            def response = [
+                    success: false,
+                    errorMessages: errorMessages
+            ]
+            log.error("getTillAvailableBalance error: ${ex.getMessage()}", ex)
+
+            render(status: 500, contentType: 'application/json', text: JsonOutput.toJson(response))
         }
     }
 
