@@ -109,4 +109,52 @@ class ProductAttributesService extends MySqlDal{
             return []
         }
     }
+
+    def updateDisplayAttribute(int id, boolean displayAttribute) {
+        def result = [success: false]
+
+        ProductAttributes.withTransaction { status ->
+            try {
+                def productAttribute = ProductAttributes.get(id)
+                if (productAttribute) {
+                    // Only update the displayAttribute field
+                    ProductAttributes.executeUpdate(
+                            "UPDATE ProductAttributes SET displayAttribute = :displayAttribute WHERE id = :id",
+                            [displayAttribute: displayAttribute, id: id]
+                    )
+                    result.success = true
+                } else {
+                    result.errorMessages = [general: messageSource.getMessage("productAttribute.notFound", null, Locale.default)]
+                }
+            } catch (Exception e) {
+                log.error "Error updating display attribute for product attribute id: ${id}. Error: ${e.message}", e
+                status.setRollbackOnly()
+                result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error.unexpected", [id] as Object[], Locale.default)]
+            }
+        }
+
+        return result
+    }
+
+    def updateDefaultValue(int id, String defaultValue) {
+        def result = [success: false]
+
+        try {
+            def updatedRows = ProductAttributes.executeUpdate(
+                    "UPDATE ProductAttributes SET defaultValue = :defaultValue WHERE id = :id",
+                    [defaultValue: defaultValue, id: id]
+            )
+
+            if (updatedRows > 0) {
+                result.success = true
+            } else {
+                result.errorMessages = [general: messageSource.getMessage("productAttribute.defaultValue.invalid", null, Locale.default)]
+            }
+        } catch (Exception e) {
+            log.error "Error updating default value for product attribute id: ${id}. Error: ${e.message}", e
+            result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error.unexpected", [id] as Object[], Locale.default)]
+        }
+
+        return result
+    }
 }

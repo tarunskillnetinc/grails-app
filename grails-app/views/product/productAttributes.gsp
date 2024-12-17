@@ -35,7 +35,7 @@
         }
     }
     </style>
-
+    <asset:javascript src="jquery-ui.js" />
     <script type="text/javascript">
         const addAttributeListItemURL = "${createLink(controller: 'product', action: 'ajaxAddAttributeListItem')}";
         const saveAttributeListItemURL = "${createLink(controller: 'product', action: 'saveAttributeListItem')}";
@@ -70,6 +70,7 @@
                     if (resp === "OK") {
                         $("#addListItemContent").html('');
                         $('#addListItemModal').modal('hide');
+                        reloadCurrentPage();
                     } else {
                         listItemUpdateGenericError();
                     }
@@ -86,6 +87,30 @@
 
         function listItemUpdateGenericError() {
             $("#modal-error").html("<div class='alert alert-danger'>An error occurred while saving list item of the product attribute. Please try again.</div>");
+        }
+
+        function reloadCurrentPage() {
+            var currentPage = $('.currentStep').text() || 1;
+            var currentMax = ${max ?: 50};
+            var currentOffset = (currentPage - 1) * currentMax;
+
+            $.ajax({
+                url: '${createLink(controller: 'product', action: 'ajaxProductAttributes')}',
+                data: {
+                    offset: currentOffset,
+                    max: currentMax
+                },
+                success: function(response) {
+                    $('#results-container').html(response);
+
+                    // Ensure the correct page is highlighted after reload
+                    $('.step').removeClass('current');
+                    $('.step:contains("' + currentPage + '")').addClass('current');
+                },
+                error: function() {
+                    alert('An error occurred while reloading the page.');
+                }
+            });
         }
     </script>
 
@@ -115,8 +140,6 @@
             <div class="d-flex justify-content-end align-items-center">
                 <g:link elementId="cancel-btn" controller="product" action="productAttributes" tabindex="-1"
                         role="button" class="btn btn-wl ml-1">Cancel</g:link>
-                <button id="save-btn" class="btn btn-success ml-1" name="save"
-                        onclick="submitForm('${productAttributes?.size() > 0 ? productAttributes?.get(0)?.name:''}');">Save</button>
             </div>
         </div>
 

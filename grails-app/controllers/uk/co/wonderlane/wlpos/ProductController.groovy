@@ -34,6 +34,7 @@ class ProductController extends BaseController {
     def tagService
     def productHistoryService
     def productAttributesService
+    def messageSource
 
     /**
      * Landing page of the controller action - displays the product search screen.
@@ -2056,6 +2057,46 @@ class ProductController extends BaseController {
         } else {
             render "OK"
         }
+    }
+
+    def updateDisplayAttribute() {
+        def result = [success: false]
+
+        try {
+            int id = params.int('id')
+            boolean displayAttribute = params.boolean('displayAttribute')
+
+            if (id) {
+                result = productAttributesService.updateDisplayAttribute(id, displayAttribute)
+            } else {
+                result.errorMessages = [general: messageSource.getMessage("productAttribute.id.empty", null, Locale.default)]
+            }
+        } catch (Exception e) {
+            log.error "Error updating display attribute: ${e.message}", e
+            result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error", null, Locale.default)]
+        }
+
+        render result as JSON
+    }
+
+    def updateDefaultValue() {
+        def result = [success: false]
+
+        try {
+            int id = params.int('id')
+            String defaultValue = params.defaultValue
+
+            if (id) {
+                result = productAttributesService.updateDefaultValue(id, defaultValue)
+            } else {
+                result.errorMessages = [general: messageSource.getMessage("productAttribute.id.empty", null, Locale.default)]
+            }
+        } catch (Exception e) {
+            log.error "Error updating default value: ${e.message}", e
+            result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error", null, Locale.default)]
+        }
+
+        render result as JSON
     }
 }
 

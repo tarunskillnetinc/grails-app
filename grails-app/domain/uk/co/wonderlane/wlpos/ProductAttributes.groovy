@@ -81,4 +81,7 @@ class ProductAttributes {
             this.listValues = JsonOutput.toJson(list)
         }
     }
+    void setListValues(String listValues) {
+        this.listValues = listValues
+    }
 }
