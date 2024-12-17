@@ -6,6 +6,7 @@
     var errorMessage = "${error}";
 
     $(document).ready(function() {
+        addMoneyMaskLogic();
         $('.date-picker').datepicker({
             format: "dd/mm/yyyy",
             weekStart: 1,
