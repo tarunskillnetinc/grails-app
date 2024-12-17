@@ -50,6 +50,7 @@
     var errorMessage = "${error}";
 
     $(document).ready(function () {
+        addMoneyMaskLogic();
         processIssueFloatActionButton();
         handleResponseMessages("${success}", "${error}");
         initializeMultiSelect();

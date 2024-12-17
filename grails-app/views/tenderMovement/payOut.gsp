@@ -3,6 +3,7 @@
     var errorMessage = "${error}";
 
     $(document).ready(function () {
+        addMoneyMaskLogic();
         processPayOutActionButton();
         handleResponseMessages(successMessage, errorMessage);
     });
