@@ -94,18 +94,24 @@ class TenderMovementController {
             boolean isTillAmountLessThanEntered = false
             List<String> errorMessages = []
 
-            //Check balances and till exists
-            for (tillNo in tillNos) {
-                Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
-                if (shift != null) {
-                    BigDecimal tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tender).findFirst()
-                            .map(TenderTotal::getValue).orElse(BigDecimal.ZERO)
-                    if (tenderValue.compareTo(enteredAmount) < 0) {
-                        isTillAmountLessThanEntered = true
-                        totalAvailableBalance = tenderValue
+            if( springSecurityService.principal.storeId == null ) {
+                errorMessages.add("You must be logged in at a store level.")
+            }
+
+            if( errorMessages.empty ) {
+                //Check balances and till exists
+                for (tillNo in tillNos) {
+                    Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
+                    if (shift != null) {
+                        BigDecimal tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tender).findFirst()
+                                .map(TenderTotal::getValue).orElse(BigDecimal.ZERO)
+                        if (tenderValue.compareTo(enteredAmount) < 0) {
+                            isTillAmountLessThanEntered = true
+                            totalAvailableBalance = tenderValue
+                        }
+                    } else {
+                        errorMessages.add("Tills shift for till no ${tillNo} not in progress status to perform tender lift")
                     }
-                } else {
-                    errorMessages.add("Tills shift for till no ${tillNo} not in progress status to perform tender lift")
                 }
             }
 
