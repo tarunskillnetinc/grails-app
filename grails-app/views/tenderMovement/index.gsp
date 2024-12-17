@@ -82,6 +82,9 @@
         function initialiseContentTab(action){
             $.get(action, function (data) {
                 $('#tender-movement-container').html(data);
+
+                //Re initiate money mask function after tab load
+                addMoneyMaskLogic();
             });
         }
 

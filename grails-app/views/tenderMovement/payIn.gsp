@@ -2,7 +2,6 @@
 	var successMessage = "${success}";
     var errorMessage = "${error}";
     $(document).ready(function () {
-        addMoneyMaskLogic();
         processPayInActionButton();
         handlePayInResponseMessages("${success}", "${error}");
     });
