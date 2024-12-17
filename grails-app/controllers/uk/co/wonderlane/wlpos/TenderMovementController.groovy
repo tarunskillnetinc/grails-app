@@ -301,7 +301,6 @@ class TenderMovementController {
             //3. Validate any selected tills
             //4. Validate tender is selected
             //5. Validate selected safe is active
-            //6. Validate selected tills have open shift
             List<String> validationFailureMessages = tenderMovementService.preValidateIssueFloatRequest(safeId, tillNos, amount, tender)
             if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) { //If safe trying to distribute money is inactive then throw error
                 def errorParams  = validationFailureMessages.join("<br>")
@@ -309,27 +308,29 @@ class TenderMovementController {
             } else {
                 List<String> tillSuccessMessages = []
                 List<String> tillFailureMessages = []
-                List<Integer> failedTills = new ArrayList<>()
                 for (Integer tillId : tillNos) {
                     try {
-                        //create tender totals
-                        Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.ADD_FLOAT, tender, amount)
+                        if (!tenderMovementService.isOpenShiftAvailable(tillId)) {
+                            tillFailureMessages.add("No open shift available for till ${tillId}.")
+                        } else {
+                            //create tender totals
+                            Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.ADD_FLOAT, tender, amount)
 
-                        //update safe session values
-                        //update safe session tender totals
-                        //add safe session audit
-                        tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.ADD_FLOAT, tender, amount.negate(), tenderMovementId, safeId)
+                            //update safe session values
+                            //update safe session tender totals
+                            //add safe session audit
+                            tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.ADD_FLOAT, tender, amount.negate(), tenderMovementId, safeId)
 
-                        //update shift values
-                        //update shift cash in drawer
-                        //update shift tender totals
-                        //add shift audit
-                        tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
+                            //update shift values
+                            //update shift cash in drawer
+                            //update shift tender totals
+                            //add shift audit
+                            tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
 
-                        tillSuccessMessages.add("Successfully processed issue float for Till ${tillId}")
+                            tillSuccessMessages.add("Successfully processed issue float for Till ${tillId}")
+                        }
                     } catch (Exception ex) {
                         log.error("Issue float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
-                        failedTills.add(tillId)
                         tillFailureMessages.add("Failed to update balances for Till ${tillId}")
                     }
                 }

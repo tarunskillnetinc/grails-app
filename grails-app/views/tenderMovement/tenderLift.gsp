@@ -4,6 +4,7 @@
     var errorMessage = "${error}";
 
     $(document).ready(function () {
+        addMoneyMaskLogic();
         processTenderLiftActionButton();
         handleResponseMessages("${success}", "${error}");
     });

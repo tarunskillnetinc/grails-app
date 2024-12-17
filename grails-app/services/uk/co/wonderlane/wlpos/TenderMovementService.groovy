@@ -151,16 +151,7 @@ class TenderMovementService {
         validateSelectedTillIds(tillNos, failureMessages)
         validateTender(tenderType, failureMessages)
         validateSafeStatus(safeId, failureMessages)
-        checkOpenShiftAvailability(tillNos, failureMessages)
         return failureMessages
-    }
-
-    void checkOpenShiftAvailability(List<Integer> tillIdList, List<String> failureMessages) {
-        for (Integer tillId : tillIdList) {
-            if (!isOpenShiftAvailable(tillId)) {
-                failureMessages.add("No open shift available for till ${tillId}.")
-            }
-        }
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
