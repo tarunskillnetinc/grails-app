@@ -70,7 +70,7 @@
 
         <div class="col-12 text-right mt-3">
             <div class="d-flex justify-content-end align-items-center">
-                <g:link controller="product" action="addProductAttribute" tabindex="-1" role="button"
+                <g:link controller="productAttributes" action="addProductAttribute" tabindex="-1" role="button"
                         class="btn btn-wl ml-1">Add Product Attribute</g:link>
             </div>
         </div>
@@ -94,8 +94,8 @@
 </section>
 
 <script type="text/javascript">
-    const addAttributeListItemURL = "${createLink(controller: 'product', action: 'ajaxAddAttributeListItem')}";
-    const saveAttributeListItemURL = "${createLink(controller: 'product', action: 'saveAttributeListItem')}";
+    const addAttributeListItemURL = "${createLink(controller: 'productAttributes', action: 'ajaxAddAttributeListItem')}";
+    const saveAttributeListItemURL = "${createLink(controller: 'productAttributes', action: 'saveAttributeListItem')}";
 
     let displayAttributeUpdates = [];
     let defaultValueUpdates = [];
@@ -157,7 +157,7 @@
         var currentOffset = (currentPage - 1) * currentMax;
 
         $.ajax({
-            url: '${createLink(controller: 'product', action: 'ajaxProductAttributes')}',
+            url: '${createLink(controller: 'productAttributes', action: 'ajaxProductAttributes')}',
             data: {
                 offset: currentOffset,
                 max: currentMax
@@ -182,7 +182,7 @@
                 let updates = [...displayAttributeUpdates, ...defaultValueUpdates];
 
                 $.ajax({
-                    url: '${createLink(controller: 'product', action: 'bulkUpdateAttributes')}',
+                    url: '${createLink(controller: 'productAttributes', action: 'bulkUpdateAttributes')}',
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({updates: updates}),

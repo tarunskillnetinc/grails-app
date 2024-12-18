@@ -33,7 +33,6 @@ class ProductController extends BaseController {
     def storeService
     def tagService
     def productHistoryService
-    def productAttributesService
     def messageSource
 
     /**
@@ -1976,102 +1975,7 @@ class ProductController extends BaseController {
         return existingVariant == null
     }
 
-    def productAttributes() {
-        int max = params.int('max') ?: 50
-        int offset = params.int('offset') ?: 0
-        String sort = params.sort ?: 'name'
-        String order = params.order?.toLowerCase() ?: 'asc'
-        long retailerId = springSecurityService.principal.retailerId
 
-        def paginatedResults = productAttributesService.getProductAttributes(max, offset, sort, order, retailerId)
-
-        [productAttributes: paginatedResults.list, productAttributesCount: paginatedResults.count]
-    }
-
-    def ajaxProductAttributes() {
-        int max = params.int('max') ?: 50
-        int offset = params.int('offset') ?: 0
-        String sort = params.sort ?: 'name'
-        String order = params.order?.toLowerCase() ?: 'asc'
-        long retailerId = springSecurityService.principal.retailerId
-
-        def paginatedResults = productAttributesService.getProductAttributes(max, offset, sort, order, retailerId)
-
-        render(template: "productAttributesResultsView", model: [productAttributes: paginatedResults.list, productAttributesCount: paginatedResults.count])
-    }
-
-    def ajaxSaveProductAttributeChanges() {
-        def a = params
-        return;
-    }
-
-    def addProductAttribute() {
-        def types = ProductAttributeType.values();
-        [attributeTypes : types]
-    }
-
-    def saveProductAttribute() {
-        def productAttributes = new ProductAttributes()
-        productAttributes.name = params.attributeName
-        productAttributes.type = params.type? ProductAttributeType.valueOf(params.type): null
-        productAttributes.defaultValue = params.defaultValue
-        productAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false
-
-        def result = productAttributesService.saveProductAttribute(productAttributes)
-        if (!result.success) {
-            render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
-        } else {
-          render "OK"
-        }
-    }
-
-    def ajaxAddAttributeListItem() {
-        def attributeId = params.attributeId
-        render(template: "productAttributeAddListItem", model: [attributeId: attributeId])
-    }
-
-    def saveAttributeListItem() {
-        def attributeId = params.attributeId ? Integer.parseInt(params.attributeId) : null
-        if (attributeId == null) {
-            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.id.empty", [], Locale.default)], error: true], status: 400)
-            return
-        }
-
-        String itemName = params.itemName
-        if (itemName == null || itemName.isEmpty() || itemName.isBlank()) {
-            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", [], Locale.default)], error: true], status: 400)
-            return
-        }
-
-        List<String> currentList = productAttributesService.getListValues(attributeId) ?: []
-        currentList.add(itemName)
-        def result = productAttributesService.updateListValues(attributeId, currentList)
-
-        if (!result.success) {
-            render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
-        } else {
-            render "OK"
-        }
-    }
-
-    def bulkUpdateAttributes() {
-        def result = [success: false]
-
-        try {
-            def updates = request.JSON.updates
-
-            if (updates) {
-                result = productAttributesService.bulkUpdateAttributes(updates)
-            } else {
-                result.errorMessages = [general: messageSource.getMessage("productAttribute.updates.empty", null, Locale.default)]
-            }
-        } catch (Exception e) {
-            log.error "Error updating product attributes: ${e.message}", e
-            result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error", null, Locale.default)]
-        }
-
-        render result as JSON
-    }
 }
 
 class AddVariantCommand {
