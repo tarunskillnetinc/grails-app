@@ -2043,13 +2043,8 @@ class ProductController extends BaseController {
             return
         }
 
-        // Get current list values
         List<String> currentList = productAttributesService.getListValues(attributeId) ?: []
-
-        // Add new item
         currentList.add(itemName)
-
-        // Update listValues using the updateListValues method
         def result = productAttributesService.updateListValues(attributeId, currentList)
 
         if (!result.success) {
