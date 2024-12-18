@@ -112,7 +112,7 @@ class ShiftController {
                     // For that select if no have create safe location
                     def safes = safeService.getStoreSafes()
                     def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safes: safes, varianceReasons:varianceReasons])
+                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons])
                     return
                 }
                 render(template: "cashUpModal", model: [shift: shift])
@@ -194,7 +194,7 @@ class ShiftController {
                 def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) {
                     def safes = safeService.getStoreSafes()
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safes: safes, varianceReasons:varianceReasons])
+                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons])
                     return
                 }
                 shiftService.processShiftCashSave(cashUpCommand, shift)
@@ -203,7 +203,7 @@ class ShiftController {
                 def tillShiftVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
-                render(template: "cashUpSummaryModalWithoutShiftReport", model: [shift: shift, varianceReasons: varianceReasons, safes: safes, isShiftFinalizeMode: false,
+                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safes: safes,
                                                                tillShiftVarianceLimit : tillShiftVarianceLimit])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
