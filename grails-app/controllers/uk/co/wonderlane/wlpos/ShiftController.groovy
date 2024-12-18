@@ -203,7 +203,7 @@ class ShiftController {
                 def tillShiftVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
-                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safes: safes, isShiftFinalizeMode: false,
+                render(template: "cashUpSummaryModalWithoutShiftReport", model: [shift: shift, varianceReasons: varianceReasons, safes: safes, isShiftFinalizeMode: false,
                                                                tillShiftVarianceLimit : tillShiftVarianceLimit])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
