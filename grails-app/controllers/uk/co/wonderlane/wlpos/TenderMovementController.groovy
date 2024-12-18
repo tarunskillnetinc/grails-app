@@ -53,10 +53,9 @@ class TenderMovementController {
         String error = params.error
         def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         //Load and return tills having  open shift + Cash management enable + Serial number available
-        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
         List<TenderType> tenders = tenderMovementService.getCashOnlyTenders()
         List<ReasonCode> reasonCodes = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_IN)
-        [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, reasonCodes:reasonCodes, success: success, error: error]
+        [safeLocations: safeLocations, primarySafe: primarySafe, tenders:tenders, reasonCodes:reasonCodes, success: success, error: error]
     }
 
     def payOut(){
