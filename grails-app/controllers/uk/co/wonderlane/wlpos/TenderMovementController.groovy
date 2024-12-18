@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.annotation.Secured
 import groovy.json.JsonOutput
 import uk.co.wonderlane.wlpos.entities.cash.SafeSession
 import uk.co.wonderlane.wlpos.entities.cash.Shift
@@ -12,6 +13,7 @@ import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.text.NumberFormat
 
+@Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
 class TenderMovementController {
 
     def tenderMovementService
