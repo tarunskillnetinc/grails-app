@@ -197,6 +197,45 @@ class ShiftService extends MySqlPoolDal {
         return shifts
     }
 
+    def List<Shift> getShiftsWithStatus(Integer tillId, ShiftStatus shiftStatus) {
+        List<Shift> shifts = new ArrayList<>()
+        Connection conn = getConnection()
+        CallableStatement getShiftsWithStatusStatement = conn.prepareCall("{ call getActiveShiftsWithStatus(?, ?, ?, ?) }")
+        try {
+            getShiftsWithStatusStatement.setInt(1, springSecurityService.principal.retailerId)
+            if (springSecurityService.principal.storeId != null) {
+                getShiftsWithStatusStatement.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                getShiftsWithStatusStatement.setNull(2, Types.INTEGER)
+            }
+            if (tillId != null) {
+                getShiftsWithStatusStatement.setInt(3, tillId)
+            } else {
+                getShiftsWithStatusStatement.setNull(3, Types.INTEGER)
+            }
+            getShiftsWithStatusStatement.setString(4, shiftStatus.toString() )
+
+            ResultSet rs = getShiftsWithStatusStatement.executeQuery()
+            try {
+                while (rs.next()) {
+                    String shiftJson = rs.getString("shift")
+
+                    shifts.add(gsonProvider.gson.fromJson(shiftJson, Shift.class))
+                }
+            } finally {
+                rs.close()
+            }
+        }catch (Exception ex) {
+            log.error(String.format("Error loading active shift for retailer: %d shiftId: %d error: %s", springSecurityService.principal.retailerId, tillId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error loading active shift for retailer: %d tillId: %d error: %s", springSecurityService.principal.retailerId, tillId, ex.getMessage()), ex)
+        } finally {
+            getShiftsWithStatusStatement.close()
+            conn.close();
+        }
+
+        return shifts
+    }
+
     def getShift(int shiftId, int retailerId, int storeId) {
         Connection conn = getConnection()
         CallableStatement getShiftStatement = conn.prepareCall("{ call getShift(?, ?, ?) }")
@@ -808,5 +847,4 @@ class ShiftService extends MySqlPoolDal {
         BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue).movePointLeft(2)
         return rollingFloatBigDecimal.min(expectedValue)
     }
-
 }

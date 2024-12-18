@@ -133,11 +133,7 @@ class TenderMovementService {
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
-        List<Shift> shiftList = shiftService.getShifts(null) // Load existing active shifts
-
-        List<Shift> openShifts = shiftList.findAll {Shift shift ->
-            shift.getShiftStatus() == ShiftStatus.OPEN // Pull back ONLY the shifts that are open.
-        }
+        List<Shift> openShifts = shiftService.getShiftsWithStatus(null,ShiftStatus.OPEN) // Load existing active shifts
 
         List<TillConfiguration> openTills = openShifts.collect { Shift shift ->
             TillConfiguration.findByRetailerIdAndTillId( shift.retailerId, shift.tillId )
