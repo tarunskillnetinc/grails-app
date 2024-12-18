@@ -219,7 +219,7 @@ function validateForm(formElements, requiredFields) {
     const amountElement = $("#amount");
     const amount = parseFloat(amountElement.val());
     if (isNaN(amount) || amount < 0.01 || amount > 999999.99) {
-        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £999,999.99." });
+        validationErrors.push({ element: amountElement, message: "Amount must be between £0.01 and £9999.99." });
     }
 
     if (validationErrors.length > 0) {
