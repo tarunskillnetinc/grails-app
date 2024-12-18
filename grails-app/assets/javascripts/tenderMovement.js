@@ -284,6 +284,10 @@ function getTillBalance(tillNos, tender, enteredAmount, callback) {
                     errorMessages: errorResponse.errorMessages || [error]
                 });
             } catch (e) {
+                // Substitute a human readable error for 401.
+                if( xhr.status === 401 && !error ) {
+                    error = "You must login to use this service."
+                }
                 // If parsing fails, return the original error
                 callback({
                     errorMessages: [error]

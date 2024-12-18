@@ -94,18 +94,30 @@ class TenderMovementController {
             boolean isTillAmountLessThanEntered = false
             List<String> errorMessages = []
 
-            //Check balances and till exists
-            for (tillNo in tillNos) {
-                Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
-                if (shift != null) {
-                    BigDecimal tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tender).findFirst()
-                            .map(TenderTotal::getValue).orElse(BigDecimal.ZERO)
-                    if (tenderValue.compareTo(enteredAmount) < 0) {
-                        isTillAmountLessThanEntered = true
-                        totalAvailableBalance = tenderValue
+            if( springSecurityService.principal.storeId == null ) {
+                errorMessages.add("You must be logged in at a store level.")
+            }
+
+            if( errorMessages.empty ) {
+                //Check balances and till exists
+                for (tillNo in tillNos) {
+                    // Ensure the till actually support cash management - someone may have logged in and disabled it.
+                    if (!shiftService.isCashManagementEnable(tillNo)){
+                        errorMessages.add("Cash Management is not enabled for till ${tillNo}")
+                        continue
                     }
-                } else {
-                    errorMessages.add("Tills shift for till no ${tillNo} not in progress status to perform tender lift")
+
+                    Shift shift = shiftService.getOpenShift(springSecurityService.principal.retailerId, springSecurityService.principal.storeId, tillNo)
+                    if (shift != null) {
+                        BigDecimal tenderValue = shift.getTenderTotals().stream().filter(tt -> tt.getTenderType() == tender).findFirst()
+                                .map(TenderTotal::getValue).orElse(BigDecimal.ZERO)
+                        if (tenderValue.compareTo(enteredAmount) < 0) {
+                            isTillAmountLessThanEntered = true
+                            totalAvailableBalance = tenderValue
+                        }
+                    } else {
+                        errorMessages.add("Tills shift for till no ${tillNo} not in progress status to perform tender lift")
+                    }
                 }
             }
 
@@ -127,7 +139,15 @@ class TenderMovementController {
                 render(contentType: 'application/json', text: jsonResponse)
             }
         } catch (Exception ex) {
-            render(status: 500, text: "Error fetching till balance: ${ex.message}")
+            List<String> errorMessages = []
+            errorMessages.add("Cannot fetch the till balance.")
+            def response = [
+                    success: false,
+                    errorMessages: errorMessages
+            ]
+            log.error("getTillAvailableBalance error: ${ex.getMessage()}", ex)
+
+            render(status: 500, contentType: 'application/json', text: JsonOutput.toJson(response))
         }
     }
 
