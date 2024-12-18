@@ -1972,8 +1972,6 @@ class ProductController extends BaseController {
         def existingVariant = ProductVariant.findBySku(sku)
         return existingVariant == null
     }
-
-
 }
 
 class AddVariantCommand {
