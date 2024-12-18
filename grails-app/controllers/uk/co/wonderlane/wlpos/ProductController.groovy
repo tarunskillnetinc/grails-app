@@ -23,7 +23,6 @@ import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
-import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 
 class ProductController extends BaseController {
 
@@ -33,7 +32,6 @@ class ProductController extends BaseController {
     def storeService
     def tagService
     def productHistoryService
-    def messageSource
 
     /**
      * Landing page of the controller action - displays the product search screen.
