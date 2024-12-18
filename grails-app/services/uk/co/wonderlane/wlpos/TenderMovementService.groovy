@@ -140,7 +140,7 @@ class TenderMovementService {
 
         List<TillConfiguration> openTills = openShifts.collect { Shift shift ->
             TillConfiguration.findByRetailerIdAndStoreIdAndTillIdAndCashManagementEnabled( springSecurityService.principal.retailerId, storeNumber, shift.tillId, true )
-        }
+        } - null
 
         return openTills;
     }
