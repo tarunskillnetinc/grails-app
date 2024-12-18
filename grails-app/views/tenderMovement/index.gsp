@@ -105,7 +105,13 @@
                 currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
 
                 const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
-                const maxValue = 9999.99;
+                
+                let maxValue = parseFloat(this.max);
+                if (isNaN(maxValue)) {
+                    //default a max value if we can't parse the one from the input
+                    maxValue = 9999.99;
+                }
+
                 const minValue = 0.01;
 
                 if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
@@ -119,10 +125,17 @@
                 value = value.replace(/,/g, ''); // Remove commas for parsing
                 const parsedValue = parseFloat(value);
 
+                let maxValue = parseFloat(this.max);
+                if (isNaN(maxValue)) {
+                    //default a max value if we can't parse the one from the input
+                    this.max = '9999.99'
+                    maxValue = 9999.99;
+                }
+
                 if (isNaN(parsedValue) || parsedValue < 0.01) {
                     $(this).val('0.00');
-                } else if (parsedValue > 9999.99) {
-                    $(this).val('9999.99');
+                } else if (parsedValue > maxValue) {
+                    $(this).val(this.max);
                 } else {
                     $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
                 }

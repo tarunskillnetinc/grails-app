@@ -89,7 +89,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">&pound;</span>
                                 </div>
-                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="999999.99" class="form-control mask-money"/>
+                                <g:textField id="amount" name="amount" value="${0.00}" min="0.01" max="9999.99" class="form-control mask-money"/>
                             </div>
                         </div>
                     </div>
