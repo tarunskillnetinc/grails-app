@@ -55,26 +55,24 @@
       var selectedType = $("#type option:selected").val();
       var dynamicInputContainer = document.getElementById("dynamicDefaultValueContainer");
 
-      if (selectedType == "BOOLEAN") {
+      if (selectedType === "BOOLEAN") {
         console.log("Input type BOOLEAN");
         $('#defaultValueLbl').show();
         dynamicInputContainer.innerHTML = `<g:select id="active" name="defaultValue" class="form-control" from="${['True','False']}" keys="${["true","false"]}" value="True" />`;
-      } else if (selectedType == "LIST" || selectedType == "DATE") {
+      } else if (selectedType === "LIST" || selectedType === "DATE") {
         console.log("Input type LIST");
         dynamicInputContainer.innerHTML = ``;
         $('#defaultValueLbl').hide();
-      } else if (selectedType == "NUMERIC") {
+      } else if (selectedType === "NUMERIC") {
         console.log("Input type NUMERIC");
-        dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="5" class="form-control" min="0"
-                         onkeypress="return numericOnly(event);" ondrop="return false;"
-                         onpaste="return false;" oncontextmenu="return false;"/>`;
+        dynamicInputContainer.innerHTML = `<g:field name="defaultValue" class="form-control" type="number" min="0" step="1"
+             onkeydown="acceptNumeric(event);"/>`;
         $('#defaultValueLbl').show();
-      } else if (selectedType == "TEXT") {
+      } else if (selectedType === "TEXT") {
         console.log("Input type TEXT");
         dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="30" class="form-control" />`;
         $('#defaultValueLbl').show();
       }
-
     }
 
     function saveProductAttribute() {

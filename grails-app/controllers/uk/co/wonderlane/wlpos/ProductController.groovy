@@ -1977,7 +1977,7 @@ class ProductController extends BaseController {
     }
 
     def productAttributes() {
-        int max = params.int('max') ?: 5
+        int max = params.int('max') ?: 50
         int offset = params.int('offset') ?: 0
         String sort = params.sort ?: 'name'
         String order = params.order?.toLowerCase() ?: 'asc'
@@ -1989,7 +1989,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxProductAttributes() {
-        int max = params.int('max') ?: 5
+        int max = params.int('max') ?: 50
         int offset = params.int('offset') ?: 0
         String sort = params.sort ?: 'name'
         String order = params.order?.toLowerCase() ?: 'asc'
