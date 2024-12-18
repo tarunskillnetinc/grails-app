@@ -28,8 +28,8 @@ class TenderMovementService {
     def userService
     def safeService
 
-    private static final MIN_AMOUNT_ISSUE_FLOAT = new BigDecimal("0.01")
-    private static final MAX_AMOUNT_ISSUE_FLOAT = new BigDecimal("99999.99")
+    private static final MIN_AMOUNT_ADD_FLOAT = new BigDecimal("0.01")
+    private static final MAX_AMOUNT_ADD_FLOAT = new BigDecimal("99999.99")
 
     private static final MIN_AMOUNT_BANK_TRANSFER = new BigDecimal("0.01")
     private static final MAX_AMOUNT_BANK_TRANSFER = new BigDecimal("999999.99")
@@ -68,7 +68,7 @@ class TenderMovementService {
         return [safeLocations, primarySafe]
     }
 
-    //Return eligible tenders for tender lift and Issue float (Here it is only CASH and VOUCHER)
+    //Return eligible tenders for tender lift and add float (Here it is only CASH and VOUCHER)
     List<TenderType> getEligibleTendersForTenderUpdate() {
         return Arrays.stream(TenderType.values()).filter(type -> type == TenderType.CASH || type == TenderType.VOUCHER)
                 .collect(Collectors.toList());
@@ -144,10 +144,10 @@ class TenderMovementService {
         return shift != null
     }
 
-    List<String> preValidateIssueFloatRequest(int safeId, List<Integer> tillNos, BigDecimal amount, TenderType tenderType){
+    List<String> preValidateAddFloatRequest(int safeId, List<Integer> tillNos, BigDecimal amount, TenderType tenderType){
         List<String> failureMessages = []
         validateSafeId(safeId, failureMessages)
-        validateIssueAmount(amount, failureMessages)
+        validateAddAmount(amount, failureMessages)
         validateSelectedTillIds(tillNos, failureMessages)
         validateTender(tenderType, failureMessages)
         validateSafeStatus(safeId, failureMessages)
@@ -336,9 +336,9 @@ class TenderMovementService {
         }
     }
 
-    private validateIssueAmount(BigDecimal amount, List<String> failureMessages){
-        if (!isAIssueFloatValidAmount(amount)){
-            failureMessages.add("Amount must be between £${MIN_AMOUNT_ISSUE_FLOAT} and £${MAX_AMOUNT_ISSUE_FLOAT}.")
+    private validateAddAmount(BigDecimal amount, List<String> failureMessages){
+        if (!isAddFloatValidAmount(amount)){
+            failureMessages.add("Amount must be between £${MIN_AMOUNT_ADD_FLOAT} and £${MAX_AMOUNT_ADD_FLOAT}.")
         }
     }
 
@@ -372,8 +372,8 @@ class TenderMovementService {
         }
     }
 
-    private boolean isAIssueFloatValidAmount(BigDecimal amount) {
-        amount >= MIN_AMOUNT_ISSUE_FLOAT && amount <= MAX_AMOUNT_ISSUE_FLOAT
+    private boolean isAddFloatValidAmount(BigDecimal amount) {
+        amount >= MIN_AMOUNT_ADD_FLOAT && amount <= MAX_AMOUNT_ADD_FLOAT
     }
 
     private validateBankTransferAmount(BigDecimal amount, List<String> failureMessages){

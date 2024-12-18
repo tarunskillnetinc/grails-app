@@ -28,7 +28,7 @@ class TenderMovementController {
 
     def index() {}
 
-    def issueFloat(){
+    def addFloat(){
         String success = params.success
         String error = params.error
         def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
@@ -285,7 +285,7 @@ class TenderMovementController {
         }
     }
 
-    def processIssueFloat(){
+    def processAddFloat(){
         Integer safeId = null
         TenderType tender = null
         try {
@@ -301,10 +301,10 @@ class TenderMovementController {
             //3. Validate any selected tills
             //4. Validate tender is selected
             //5. Validate selected safe is active
-            List<String> validationFailureMessages = tenderMovementService.preValidateIssueFloatRequest(safeId, tillNos, amount, tender)
+            List<String> validationFailureMessages = tenderMovementService.preValidateAddFloatRequest(safeId, tillNos, amount, tender)
             if (!validationFailureMessages.isEmpty() && validationFailureMessages.size() > 0) { //If safe trying to distribute money is inactive then throw error
                 def errorParams  = validationFailureMessages.join("<br>")
-                redirect(action: "issueFloat", params: [error: errorParams])
+                redirect(action: "addFloat", params: [error: errorParams])
             } else {
                 List<String> tillSuccessMessages = []
                 List<String> tillFailureMessages = []
@@ -327,10 +327,10 @@ class TenderMovementController {
                             //add shift audit
                             tenderMovementService.updateShiftBalanceTotals(ShiftAction.ADD_FLOAT, tender, amount, tenderMovementId, tillId)
 
-                            tillSuccessMessages.add("Successfully processed issue float for Till ${tillId}")
+                            tillSuccessMessages.add("Successfully processed add float for Till ${tillId}")
                         }
                     } catch (Exception ex) {
-                        log.error("Issue float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
+                        log.error("Add float item saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
                         tillFailureMessages.add("Failed to update balances for Till ${tillId}")
                     }
                 }
@@ -344,12 +344,12 @@ class TenderMovementController {
                     resultParams.error = tillFailureMessages.join("<br>")
                 }
 
-                redirect(action: "issueFloat", params: [success: resultParams.success, error: resultParams.error])
+                redirect(action: "addFloat", params: [success: resultParams.success, error: resultParams.error])
             }
         } catch (Exception ex) {
-            log.error("Issue float action failed error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)
-            String error =  "Issue float action failed. "
-            redirect(action: "issueFloat", params: [error: error])
+            log.error("Add float action failed error for safe id : ${safeId}  tender type: ${tender} error: ${ex.getMessage()}", ex)
+            String error =  "Add float action failed. "
+            redirect(action: "addFloat", params: [error: error])
         }
     }
 
