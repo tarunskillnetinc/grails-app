@@ -200,7 +200,7 @@ class ShiftService extends MySqlPoolDal {
     def List<Shift> getShiftsWithStatus(Integer tillId, ShiftStatus shiftStatus) {
         List<Shift> shifts = new ArrayList<>()
         Connection conn = getConnection()
-        CallableStatement getShiftsWithStatusStatement = conn.prepareCall("{ call getActiveShiftsWithStatus(?, ?, ?, ?) }")
+        CallableStatement getShiftsWithStatusStatement = conn.prepareCall("{ call getShiftsWithStatus(?, ?, ?, ?) }")
         try {
             getShiftsWithStatusStatement.setInt(1, springSecurityService.principal.retailerId)
             if (springSecurityService.principal.storeId != null) {
