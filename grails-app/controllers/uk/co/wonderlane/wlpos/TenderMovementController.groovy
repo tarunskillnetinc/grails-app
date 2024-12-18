@@ -33,7 +33,7 @@ class TenderMovementController {
         String error = params.error
         def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         //Load and return tills having  open shift + Cash management enable + Serial number available
-        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
+        List<TillConfiguration> tills =  tenderMovementService.returnAllOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }
@@ -43,7 +43,7 @@ class TenderMovementController {
         String error = params.error
         def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
         //Load and return tills having  open shift + Cash management enable + Serial number available
-        List<TillConfiguration> tills =  tenderMovementService.returnAllActiveOpenTills()
+        List<TillConfiguration> tills =  tenderMovementService.returnAllOpenTills()
         List<TenderType> tenders = tenderMovementService.getEligibleTendersForTenderUpdate()
         [safeLocations: safeLocations, primarySafe: primarySafe, tills: tills, tenders:tenders, success: success, error: error]
     }

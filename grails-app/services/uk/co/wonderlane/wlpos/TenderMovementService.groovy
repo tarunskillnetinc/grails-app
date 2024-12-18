@@ -132,7 +132,7 @@ class TenderMovementService {
         return failureMessages
     }
 
-    List<TillConfiguration> returnAllActiveOpenTills(){
+    List<TillConfiguration> returnAllOpenTills(){
         List<Shift> openShifts = shiftService.getShiftsWithStatus(null,ShiftStatus.OPEN) // Load existing active shifts
 
         final def store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId) // By definition we can only be pulling back data from the store we're logged into, so lets do it once
