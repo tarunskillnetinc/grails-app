@@ -29,14 +29,7 @@ class ProductAttributesService extends MySqlDal{
 
         def totalCount = query.count()
 
-        def results = query.list(max: max, offset: offset)
-
-        if (sort) {
-            results = results.sort { it[sort] }
-            if (order?.equalsIgnoreCase('desc')) {
-                results = results.reverse()
-            }
-        }
+        def results = query.list(max: max, offset: offset, sort: sort)
 
         return [list: results, count: totalCount]
     }
