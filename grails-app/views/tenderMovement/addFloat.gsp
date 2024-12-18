@@ -1,14 +1,14 @@
 <style>
-    #issue-float-form-container .dropdown-menu {
+    #add-float-form-container .dropdown-menu {
         display: none;
     }
-    #issue-float-form-container .dropdown-menu.show {
+    #add-float-form-container .dropdown-menu.show {
         display: block;
     }
-    #issue-float-form-container .dropdown {
+    #add-float-form-container .dropdown {
         position: relative;
     }
-    #issue-float-form-container .dropdown-menu {
+    #add-float-form-container .dropdown-menu {
         position: absolute;
         top: 100%;
         left: 0;
@@ -26,7 +26,7 @@
         border: 1px solid rgba(0,0,0,.15);
         border-radius: .25rem;
     }
-    #issue-float-form-container .caret {
+    #add-float-form-container .caret {
         display: inline-block;
         width: 0;
         height: 0;
@@ -39,7 +39,7 @@
         border-left: 0.3em solid transparent;
     }
 
-    #issue-float-form-container .dropdown.show .caret {
+    #add-float-form-container .dropdown.show .caret {
         transform: rotate(180deg);
     }
 </style>
@@ -51,17 +51,17 @@
 
     $(document).ready(function () {
         addMoneyMaskLogic();
-        processIssueFloatActionButton();
+        processAddFloatActionButton();
         handleResponseMessages("${success}", "${error}");
         initializeMultiSelect();
     });
 
-    function processIssueFloatActionButton(){
+    function processAddFloatActionButton(){
         // Remove any existing click handlers for #tender-lift-save
-        $(document).off('click', '#issue-float-save');
+        $(document).off('click', '#add-float-save');
 
         // Add the click handler once
-        $(document).on('click', '#issue-float-save', function(e) {
+        $(document).on('click', '#add-float-save', function(e) {
             e.preventDefault(); // Prevent default button action if it's a submit button
 
             // Disable the button to prevent multiple clicks
@@ -70,7 +70,7 @@
             $button.prop('disabled', true);
 
             // Call the processTenderLift function
-            processIssueFloat();
+            processAddFloat();
 
             // Re-enable the button after a short delay
             setTimeout(function() {
@@ -140,7 +140,7 @@
         </section>
 
         <section class="mt-1">
-            <g:form method="post" action="processIssueFloat" class="mt-1" name="processIssueFloat">
+            <g:form method="post" action="processAddFloat" class="mt-1" name="processAddFloat">
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
@@ -199,8 +199,8 @@
                 </div>
 
                 <div class="buttons-container">
-                    <button id="issue-float-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
-                    <button id="issue-float-save" type="button" class="btn btn-success">Save</button>
+                    <button id="add-float-cancel" type="button" name="safe-save-button" onclick="handleCancelTenderUpdate('${createLink(action:'/home')}')" class="btn btn-wl mr-2">Cancel</button>
+                    <button id="add-float-save" type="button" class="btn btn-success">Save</button>
                 </div>
             </g:form>
         </section>

@@ -1,7 +1,7 @@
 var TenderMovementUrls = TenderMovementUrls || (function () {
     var _processTenderLift;
     var _getTillAvailableBalance;
-    var _processIssueFloat;
+    var _processAddFloat;
     var _getSafeAvailableBalance;
     var _processPayIn;
     var _processPayOut;
@@ -9,10 +9,10 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
     var _processBankReceipt;
 
     return {
-        init : function (processTenderLift, getTillAvailableBalance, processIssueFloat, getSafeAvailableBalance, processPayIn, processPayOut, processBankDeposit, processBankReceipt) {
+        init : function (processTenderLift, getTillAvailableBalance, processAddFloat, getSafeAvailableBalance, processPayIn, processPayOut, processBankDeposit, processBankReceipt) {
             _processTenderLift = processTenderLift;
             _getTillAvailableBalance = getTillAvailableBalance;
-            _processIssueFloat = processIssueFloat;
+            _processAddFloat = processAddFloat;
             _getSafeAvailableBalance = getSafeAvailableBalance;
             _processPayIn = processPayIn;
             _processPayOut = processPayOut;
@@ -32,8 +32,8 @@ var TenderMovementUrls = TenderMovementUrls || (function () {
             return _processPayIn;
         },
 
-        getProcessIssueFloat : function () {
-            return _processIssueFloat;
+        getProcessAddFloat : function () {
+            return _processAddFloat;
         },
 
         getSafeAvailableBalance : function () {

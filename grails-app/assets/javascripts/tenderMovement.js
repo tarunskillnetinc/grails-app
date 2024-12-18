@@ -22,7 +22,7 @@ function processTenderLift() {
     });
 }
 
-function processIssueFloat() {
+function processAddFloat() {
     const safeIdElement = $("select[name='safeId']");
     const tenderElement = $("select[name='tender']");
     const amountElement = $("#amount");
@@ -48,7 +48,7 @@ function processIssueFloat() {
 
     getSafeBalance(totalAmountToBeDistributed, tenderElement.val(), safeIdElement.val(), (error, result) => {
         let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
-        handleBalanceCheck(error, result, confirmMessage, submitIssueFloat);
+        handleBalanceCheck(error, result, confirmMessage, submitAddFloat);
     });
 }
 
@@ -353,11 +353,11 @@ function submitTenderLift() {
     });
 }
 
-function submitIssueFloat() {
+function submitAddFloat() {
     $.ajax({
-        url: TenderMovementUrls.getProcessIssueFloat(),
+        url: TenderMovementUrls.getProcessAddFloat(),
         method: "POST",
-        data: $("#processIssueFloat").serialize(),
+        data: $("#processAddFloat").serialize(),
         success: updateTenderMovementContainer,
         error: updateTenderMovementContainer
     });
