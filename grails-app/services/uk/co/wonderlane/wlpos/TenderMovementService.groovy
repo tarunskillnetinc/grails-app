@@ -34,28 +34,6 @@ class TenderMovementService {
     private static final MIN_AMOUNT_BANK_TRANSFER = new BigDecimal("0.01")
     private static final MAX_AMOUNT_BANK_TRANSFER = new BigDecimal("999999.99")
 
-    List<TillConfiguration> getAllActiveTills() {
-        Integer retailerId =  springSecurityService.principal.retailerId
-        Integer storeId = springSecurityService.principal.storeId
-        Store store = storeService.getStore(retailerId, storeId)
-        Integer storeNumber = store.getConfig().getStoreNumber()
-        return TillConfiguration.createCriteria().list {
-            and {
-                isNotNull('serialNumber')
-                ne('serialNumber', '')  // Exclude empty strings
-                eq('cashManagementEnabled', true)  // Only return entries with cashManagementEnabled = true
-            }
-            eq('retailerId', springSecurityService.principal.retailerId)
-            if (storeNumber != null) { //In Till configuration table store id means store number
-                eq('storeId', storeNumber)
-            }
-
-            // Sort by tillId in ascending order
-            order('tillId', 'asc')
-
-        } as List<TillConfiguration>
-    }
-
     List fetchSafeLocations() {
         List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safeLocations?.find { it.primary }
@@ -155,15 +133,17 @@ class TenderMovementService {
     }
 
     List<TillConfiguration> returnAllActiveOpenTills(){
-        List<Shift> shiftList = shiftService.getShifts(null) //Load existing active shifts
-        List<TillConfiguration> allTills =  getAllActiveTills()
-        List<TillConfiguration> openTills = allTills.findAll { till ->
-            shiftList.any { shift ->
-                shift?.tillId == till?.tillId &&
-                        shift?.shiftStatus == ShiftStatus.OPEN
-            }
+        List<Shift> shiftList = shiftService.getShifts(null) // Load existing active shifts
+
+        List<Shift> openShifts = shiftList.findAll {Shift shift ->
+            shift.getShiftStatus() == ShiftStatus.OPEN // Pull back ONLY the shifts that are open.
         }
-        return openTills
+
+        List<TillConfiguration> openTills = openShifts.collect { Shift shift ->
+            TillConfiguration.findByRetailerIdAndTillId( shift.retailerId, shift.tillId )
+        }
+
+        return openTills;
     }
 
     List<Integer> returnRequestedTillIds(Map params) {
