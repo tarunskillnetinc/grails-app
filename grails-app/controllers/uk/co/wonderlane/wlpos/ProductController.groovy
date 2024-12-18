@@ -1977,7 +1977,7 @@ class ProductController extends BaseController {
     }
 
     def productAttributes() {
-        int max = params.int('max') ?: 50
+        int max = params.int('max') ?: 5
         int offset = params.int('offset') ?: 0
         String sort = params.sort ?: 'name'
         String order = params.order?.toLowerCase() ?: 'asc'
@@ -1989,7 +1989,7 @@ class ProductController extends BaseController {
     }
 
     def ajaxProductAttributes() {
-        int max = params.int('max') ?: 50
+        int max = params.int('max') ?: 5
         int offset = params.int('offset') ?: 0
         String sort = params.sort ?: 'name'
         String order = params.order?.toLowerCase() ?: 'asc'
@@ -2059,40 +2059,19 @@ class ProductController extends BaseController {
         }
     }
 
-    def updateDisplayAttribute() {
+    def bulkUpdateAttributes() {
         def result = [success: false]
 
         try {
-            int id = params.int('id')
-            boolean displayAttribute = params.boolean('displayAttribute')
+            def updates = request.JSON.updates
 
-            if (id) {
-                result = productAttributesService.updateDisplayAttribute(id, displayAttribute)
+            if (updates) {
+                result = productAttributesService.bulkUpdateAttributes(updates)
             } else {
-                result.errorMessages = [general: messageSource.getMessage("productAttribute.id.empty", null, Locale.default)]
+                result.errorMessages = [general: messageSource.getMessage("productAttribute.updates.empty", null, Locale.default)]
             }
         } catch (Exception e) {
-            log.error "Error updating display attribute: ${e.message}", e
-            result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error", null, Locale.default)]
-        }
-
-        render result as JSON
-    }
-
-    def updateDefaultValue() {
-        def result = [success: false]
-
-        try {
-            int id = params.int('id')
-            String defaultValue = params.defaultValue
-
-            if (id) {
-                result = productAttributesService.updateDefaultValue(id, defaultValue)
-            } else {
-                result.errorMessages = [general: messageSource.getMessage("productAttribute.id.empty", null, Locale.default)]
-            }
-        } catch (Exception e) {
-            log.error "Error updating default value: ${e.message}", e
+            log.error "Error updating product attributes: ${e.message}", e
             result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error", null, Locale.default)]
         }
 

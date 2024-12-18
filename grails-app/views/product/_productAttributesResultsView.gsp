@@ -49,7 +49,7 @@
     </div>
 
     <div class="my-3 text-right">
-        <util:remotePaginate action="ajaxProductAttributes" total="${productAttributesCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 50}"/>
+        <util:remotePaginate action="ajaxProductAttributes" total="${productAttributesCount ?: 0}" update="results-container" offset="${offset ?: 0}" max="${max ?: 5}"/>
     </div>
 </div>
 
@@ -59,83 +59,23 @@
             $('html, body').animate({ scrollTop: 0 }, 'fast');
         });
 
+        applyTemporaryStates();
+
+        // Event handlers for changes
         $('.display-attribute-checkbox').on('change', function() {
             var checkbox = $(this);
             var attributeId = checkbox.data('attribute-id');
             var isChecked = checkbox.prop('checked');
-            var previousState = !isChecked;
-            var row = checkbox.closest('.row');
-            var originalColor = row.css('background-color');
 
-            if (confirm('Are you sure you want to ' + (isChecked ? 'display' : 'hide') + ' this attribute?')) {
-                // User confirmed, make AJAX call
-                $.ajax({
-                    url: '${createLink(controller: 'product', action: 'updateDisplayAttribute')}',
-                    method: 'POST',
-                    data: {
-                        id: attributeId,
-                        displayAttribute: isChecked
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Update was successful, change color to green and fade out
-                            row.css('background-color', '#E8F5E9')  // Light green color
-                                .animate({ backgroundColor: originalColor }, 1000);
-                        } else {
-                            // Update failed, revert checkbox state
-                            checkbox.prop('checked', previousState);
-                            alert('Failed to update display attribute: ' + response.message);
-                        }
-                    },
-                    error: function() {
-                        // Update was successful, change color to green and fade out
-                        row.css('background-color', '#FFDCE0')  // Light green color
-                            .animate({ backgroundColor: originalColor }, 1000);
-                        // AJAX call failed, revert checkbox state
-                        checkbox.prop('checked', previousState);
-                    }
-                });
-            } else {
-                // User canceled, revert checkbox state
-                checkbox.prop('checked', previousState);
-            }
+            updateDisplayAttributeState(attributeId, isChecked);
         });
 
         $('.default-value-select').on('change', function() {
             var select = $(this);
             var attributeId = select.data('attribute-id');
             var newDefaultValue = select.val();
-            var row = select.closest('.row');
-            var originalColor = row.css('background-color');
 
-            if (confirm('Are you sure you want to update the default value to "' + newDefaultValue + '"?')) {
-                $.ajax({
-                    url: '${createLink(controller: 'product', action: 'updateDefaultValue')}',
-                    method: 'POST',
-                    data: {
-                        id: attributeId,
-                        defaultValue: newDefaultValue
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            row.css('background-color', '#E8F5E9')  // Very light green color
-                                .animate({ backgroundColor: originalColor }, 1000);
-                        } else {
-                            row.css('background-color', '#FFDCE0')  // Light red color
-                                .animate({ backgroundColor: originalColor }, 1000);
-                            alert('Failed to update default value: ' + response.message);
-                        }
-                    },
-                    error: function() {
-                        row.css('background-color', '#FFDCE0')  // Light red color
-                            .animate({ backgroundColor: originalColor }, 1000);
-                        alert('An error occurred while updating the default value.');
-                    }
-                });
-            } else {
-                // User canceled, revert select to previous value
-                select.val(select.find('option[selected]').val());
-            }
+            updateDefaultValueState(attributeId, newDefaultValue);
         });
 
     });

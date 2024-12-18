@@ -1,13 +1,8 @@
 package uk.co.wonderlane.wlpos
 
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
+
 import groovy.json.JsonSlurper
 import uk.co.wonderlane.wlpos.enums.ProductAttributeType
-import uk.co.wonderlane.wlpos.usertypes.BooleanTypeAdapter
-
-import javax.inject.Inject
-import java.lang.reflect.Type
 
 class ProductAttributes {
 

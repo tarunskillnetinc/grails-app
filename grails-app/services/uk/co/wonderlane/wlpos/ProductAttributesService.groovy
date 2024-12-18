@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
+import groovy.sql.Sql
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 
@@ -110,49 +111,37 @@ class ProductAttributesService extends MySqlDal{
         }
     }
 
-    def updateDisplayAttribute(int id, boolean displayAttribute) {
-        def result = [success: false]
+    def bulkUpdateAttributes(List<Map> updates) {
+        def result = [success: false, updatedCount: 0, errors: []]
 
-        ProductAttributes.withTransaction { status ->
-            try {
-                def productAttribute = ProductAttributes.get(id)
-                if (productAttribute) {
-                    // Only update the displayAttribute field
-                    ProductAttributes.executeUpdate(
-                            "UPDATE ProductAttributes SET displayAttribute = :displayAttribute WHERE id = :id",
-                            [displayAttribute: displayAttribute, id: id]
-                    )
-                    result.success = true
-                } else {
-                    result.errorMessages = [general: messageSource.getMessage("productAttribute.notFound", null, Locale.default)]
+        try (Connection conn = getConnection();
+             CallableStatement bulkUpdateStatement = conn.prepareCall("{ call bulkUpdateProductAttributes(?) }")) {
+
+            // Wrap the updates in an object with an 'updates' key
+            def wrappedUpdates = [updates: updates]
+
+            // Ensure displayAttribute is a boolean before converting to JSON
+            wrappedUpdates.updates.each { update ->
+                if (update.containsKey('displayAttribute')) {
+                    update.displayAttribute = Boolean.valueOf(update.displayAttribute)
                 }
-            } catch (Exception e) {
-                log.error "Error updating display attribute for product attribute id: ${id}. Error: ${e.message}", e
-                status.setRollbackOnly()
-                result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error.unexpected", [id] as Object[], Locale.default)]
             }
-        }
 
-        return result
-    }
+            String jsonUpdates = gsonProvider.gson.toJson(wrappedUpdates)
+            bulkUpdateStatement.setString(1, jsonUpdates)
 
-    def updateDefaultValue(int id, String defaultValue) {
-        def result = [success: false]
+            bulkUpdateStatement.executeUpdate()
 
-        try {
-            def updatedRows = ProductAttributes.executeUpdate(
-                    "UPDATE ProductAttributes SET defaultValue = :defaultValue WHERE id = :id",
-                    [defaultValue: defaultValue, id: id]
-            )
-
-            if (updatedRows > 0) {
-                result.success = true
-            } else {
-                result.errorMessages = [general: messageSource.getMessage("productAttribute.defaultValue.invalid", null, Locale.default)]
-            }
-        } catch (Exception e) {
-            log.error "Error updating default value for product attribute id: ${id}. Error: ${e.message}", e
-            result.errorMessages = [general: messageSource.getMessage("productAttribute.update.error.unexpected", [id] as Object[], Locale.default)]
+            result.success = true
+            result.updatedCount = updates.size() // Assuming all updates were successful
+        } catch (SQLException ex) {
+            log.error("SQL error during bulk update of product attributes. Error: ${ex.getMessage()}", ex)
+            result.errors << [general: messageSource.getMessage("productAttribute.bulkUpdate.error.sql", null, Locale.default)]
+            throw new RuntimeException("SQL error during bulk update of product attributes. Error: ${ex.getMessage()}", ex)
+        } catch (Exception ex) {
+            log.error("Unexpected error during bulk update of product attributes. Error: ${ex.getMessage()}", ex)
+            result.errors << [general: messageSource.getMessage("productAttribute.bulkUpdate.error.unexpected", null, Locale.default)]
+            throw new RuntimeException("Unexpected error during bulk update of product attributes. Error: ${ex.getMessage()}", ex)
         }
 
         return result

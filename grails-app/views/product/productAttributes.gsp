@@ -40,6 +40,9 @@
         const addAttributeListItemURL = "${createLink(controller: 'product', action: 'ajaxAddAttributeListItem')}";
         const saveAttributeListItemURL = "${createLink(controller: 'product', action: 'saveAttributeListItem')}";
 
+        let displayAttributeUpdates = [];
+        let defaultValueUpdates = [];
+
         function addListItem(attributeId) {
             $("#addListItemContent").html("<div class=\"modal-body\"><div class=\"d-flex justify-content-center\"><div id=\"loadingIndicator\" class=\"spinner-border\" role=\"status\"><span class=\"sr-only\">Loading...</span></div></div></div>");
             $('#addListItemModal').modal({show: true, backdrop: 'static', keyboard: false});
@@ -91,7 +94,7 @@
 
         function reloadCurrentPage() {
             var currentPage = $('.currentStep').text() || 1;
-            var currentMax = ${max ?: 50};
+            var currentMax = ${max ?: 5};
             var currentOffset = (currentPage - 1) * currentMax;
 
             $.ajax({
@@ -111,6 +114,77 @@
                     alert('An error occurred while reloading the page.');
                 }
             });
+        }
+
+        function submitForm(attributeName) {
+            if (confirm('Are you sure you want to save these changes?')) {
+                let updates = [...displayAttributeUpdates, ...defaultValueUpdates];
+
+                $.ajax({
+                    url: '${createLink(controller: 'product', action: 'bulkUpdateAttributes')}',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({updates: updates}),
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Successfully updated ' + response.updatedCount + ' attributes.');
+                            reloadCurrentPage();
+                        } else {
+                            alert('Failed to update some attributes. Please check the console for details.');
+                            console.error('Update errors:', response.errors);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while updating the attributes.');
+                    }
+                });
+            }
+        }
+
+        function applyTemporaryStates() {
+            if (typeof displayAttributeUpdates !== 'undefined') {
+                displayAttributeUpdates.forEach(function(update) {
+                    var checkbox = $('#displayAttribute_' + update.id);
+                    if (checkbox.length) {
+                        checkbox.prop('checked', update.displayAttribute);
+                    }
+                });
+            }
+
+            if (typeof defaultValueUpdates !== 'undefined') {
+                defaultValueUpdates.forEach(function(update) {
+                    var select = $('#defaultValue_' + update.id);
+                    if (select.length) {
+                        select.val(update.defaultValue);
+                    }
+                });
+            }
+        }
+
+        function updateDisplayAttributeState(attributeId, isChecked) {
+            if (typeof displayAttributeUpdates === 'undefined') {
+                displayAttributeUpdates = [];
+            }
+
+            let index = displayAttributeUpdates.findIndex(u => u.id === attributeId);
+            if (index !== -1) {
+                displayAttributeUpdates[index].displayAttribute = isChecked;
+            } else {
+                displayAttributeUpdates.push({id: attributeId, displayAttribute: isChecked});
+            }
+        }
+
+        function updateDefaultValueState(attributeId, newDefaultValue) {
+            if (typeof defaultValueUpdates === 'undefined') {
+                defaultValueUpdates = [];
+            }
+
+            let index = defaultValueUpdates.findIndex(u => u.id === attributeId);
+            if (index !== -1) {
+                defaultValueUpdates[index].defaultValue = newDefaultValue;
+            } else {
+                defaultValueUpdates.push({id: attributeId, defaultValue: newDefaultValue});
+            }
         }
     </script>
 
@@ -138,8 +212,11 @@
 
         <div class="col-12 text-right mt-3">
             <div class="d-flex justify-content-end align-items-center">
-                <g:link elementId="cancel-btn" controller="product" action="productAttributes" tabindex="-1"
-                        role="button" class="btn btn-wl ml-1">Cancel</g:link>
+                <g:link elementId="cancel-btn" uri="/" tabindex="-1"
+                        role="button" class="btn btn-wl ml-1"
+                        onclick="return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');">Cancel</g:link>
+                <button id="save-btn" class="btn btn-success ml-1" name="save"
+                        onclick="submitForm('${productAttributes?.size() > 0 ? productAttributes?.get(0)?.name:''}');">Save</button>
             </div>
         </div>
 
