@@ -135,8 +135,11 @@ class TenderMovementService {
     List<TillConfiguration> returnAllActiveOpenTills(){
         List<Shift> openShifts = shiftService.getShiftsWithStatus(null,ShiftStatus.OPEN) // Load existing active shifts
 
+        final def store = storeService.getStore(springSecurityService.principal.retailerId, springSecurityService.principal.storeId) // By definition we can only be pulling back data from the store we're logged into, so lets do it once
+        final def storeNumber = store?.config?.storeNumber // and avoid the JSON parsing hit every time.
+
         List<TillConfiguration> openTills = openShifts.collect { Shift shift ->
-            TillConfiguration.findByRetailerIdAndTillId( shift.retailerId, shift.tillId )
+            TillConfiguration.findByRetailerIdAndStoreIdAndTillId( springSecurityService.principal.retailerId, storeNumber, shift.tillId )
         }
 
         return openTills;
