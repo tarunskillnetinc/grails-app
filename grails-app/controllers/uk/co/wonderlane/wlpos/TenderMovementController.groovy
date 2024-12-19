@@ -186,7 +186,8 @@ class TenderMovementController {
                 redirect(action: "payIn", params: [error: "Selected safe not active please try with another."])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId, TenderMovementType.PAID_IN, tender, reasonCode.description, amount)
+                Integer tenderMovementId = tenderMovementService.recordSafeTenderMovement(
+                        safeId, tender, amount, reasonCode.description, true)
 
                 //update safe session values
                 //update safe session tender totals
@@ -220,7 +221,7 @@ class TenderMovementController {
                 redirect(action: "tenderLift", params: [error: "Selected safe is not active please try with another"])
             } else {
                 //create tender totals
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.CASH_LIFT, tender, amount)
+                Integer tenderMovementId = tenderMovementService.recordTenderTransfer(tillId, safeId, tender, amount, true)
 
                 //update safe session values
                 //update safe session tender totals
@@ -316,7 +317,7 @@ class TenderMovementController {
                             tillFailureMessages.add("No open shift available for till ${tillId}.")
                         } else {
                             //create tender totals
-                            Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(tillId, safeId, TenderMovementType.ADD_FLOAT, tender, amount)
+                            Integer tenderMovementId = tenderMovementService.recordTenderTransfer(tillId, safeId, tender, amount, false)
 
                             //update safe session values
                             //update safe session tender totals
@@ -366,21 +367,19 @@ class TenderMovementController {
             reasonCode = params.reasonCode
             BigDecimal amount = params.amount ? new BigDecimal(format.parse(params.amount)?.toString()) : BigDecimal.ZERO
 
-            def varianceReasons = reasonCodeService.getReasonCodesByType(springSecurityService.principal.retailerId, ReasonCodeType.PAID_OUT)
-
             if (!isAPayOutValidAmount(amount)) {
                 def errorMessage = "Payout amount must be between ${MIN_AMOUNT_PAYOUT} and ${MAX_AMOUNT_PAYOUT}."
                 log.error(errorMessage)
                 redirect(action: "payOut", params: [error: errorMessage])
             } else if (!tenderMovementService.isSafeActive(safeId)){
                 redirect(action: "payOut", params: [error: "Selected safe not active please try with another"])
-            } else if(!isValidReasonCode(reasonCode, varianceReasons)) {
+            } else if (reasonCode == null) {
                 redirect(action: "payOut", params: [error: "Invalid reason code."])
             } else if (tender != TenderType.CASH) {
                 redirect(action: "payOut", params: [error: "Invalid tender type."])
             } else {
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(),
-                        TenderMovementType.PAID_OUT, tender, reasonCode, amount)
+                Integer tenderMovementId = tenderMovementService.recordSafeTenderMovement(
+                        safeId.intValue(), tender, amount, reasonCode, false)
 
                 //update safe session values
                 //update safe session tender totals
@@ -417,7 +416,8 @@ class TenderMovementController {
                 Safe safe = Safe.findByIdAndRetailerId(safeId, springSecurityService.principal.retailerId)
 
                 // If all validations pass, add tender movement entry
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(), TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
+                Integer tenderMovementId = tenderMovementService.recordBankingMovement(
+                        safeId.intValue(), tender, amount, false, bankingDate, bank, bagReferenceNumber, comments)
 
                 //update safe session values
                 //update safe session tender totals
@@ -453,7 +453,8 @@ class TenderMovementController {
                 Safe safe = Safe.findByIdAndRetailerId(safeId, springSecurityService.principal.retailerId)
 
                 // If all validations pass, add tender movement entry
-                Integer tenderMovementId = tenderMovementService.tenderMovementUpdate(safeId.intValue(), TenderMovementType.BANKING, tender, bankingDate, bank, bagReferenceNumber, comments, amount)
+                Integer tenderMovementId = tenderMovementService.recordBankingMovement(
+                        safeId.intValue(), tender, amount, true, bankingDate, bank, bagReferenceNumber, comments)
 
                 //update safe session values
                 //update safe session tender totals
@@ -471,11 +472,6 @@ class TenderMovementController {
 
     private boolean isAPayOutValidAmount(BigDecimal amount) {
         amount >= MIN_AMOUNT_PAYOUT && amount <= MAX_AMOUNT_PAYOUT
-    }
-    private boolean isValidReasonCode(String code, List<ReasonCode> varianceReasons) {
-        return varianceReasons.stream()
-                .anyMatch(reasonCode -> reasonCode.getCode() != null &&
-                        reasonCode.getCode().equals(code));
     }
 
 }

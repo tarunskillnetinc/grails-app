@@ -726,14 +726,14 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
+    private void createNewTenderMovement(Location fromLocation, Location toLocation, TenderMovementType tenderMovementType, TenderType tenderType, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
             try {
                 TenderMovement tenderMovement = reportingService.createNewTenderMovement(
                         tenderMovementType,
                         tenderType,
-                        tillLocation,
-                        safeLocation,
+                        fromLocation,
+                        toLocation,
                         null,  // reasonCode
                         null,  // bankingDate
                         null,  // bank
