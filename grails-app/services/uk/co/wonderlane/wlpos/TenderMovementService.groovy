@@ -34,11 +34,25 @@ class TenderMovementService {
     private static final MIN_AMOUNT_BANK_TRANSFER = new BigDecimal("0.01")
     private static final MAX_AMOUNT_BANK_TRANSFER = new BigDecimal("999999.99")
 
-    List fetchActiveSafeLocations() {
-        List<Safe> safeLocations = safeService.getStoreSafes();
-        safeLocations = safeLocations?.findAll { Safe safe ->
-            safeManagementService.getActiveSession(safe.id) != null
-        }
+    List fetchActiveSafeLocationsAndInactiveSafesWithTenderValues() {
+        List<SafeSession> safeSessions = safeManagementService.getActiveSafeSessions(null)
+
+        List<Safe> safeLocations = safeSessions?.collect { SafeSession safeSession ->
+            Safe safe = Safe.findByIdAndRetailerId(safeSession.safeId, springSecurityService.principal.retailerId)
+
+            if( !safe ) {
+                return null
+            } else if( safe.active ) {
+                return safe
+            } else { // TC: When safe status is changed from Active to Inactive and any one tender holds tender values
+                List<TenderTotal> tenderTotals = safeSession.transferPendingTotals()
+                if( tenderTotals.stream().anyMatch { it.getValue() != BigDecimal.ZERO } ) {
+                    return safe
+                }
+            }
+
+            return null
+        } - null
 
         Safe primarySafe = safeLocations?.find { it.primary }
         // Place primary safe at the top and sort remaining safes by id
