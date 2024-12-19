@@ -65,7 +65,7 @@
                             <label for="reasonCode" class="col-form-label">Reason Code</label>
                             <g:select name="reasonCode"
                                       from="${varianceReasons}"
-                                      optionKey="code"
+                                      optionKey="description"
                                       optionValue="description"
                                       class="form-control select-border"/>
                         </div>
