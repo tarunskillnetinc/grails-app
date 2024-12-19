@@ -34,6 +34,22 @@ class TenderMovementService {
     private static final MIN_AMOUNT_BANK_TRANSFER = new BigDecimal("0.01")
     private static final MAX_AMOUNT_BANK_TRANSFER = new BigDecimal("999999.99")
 
+    List fetchActiveSafeLocations() {
+        List<Safe> safeLocations = safeService.getStoreSafes();
+        safeLocations = safeLocations?.findAll { Safe safe ->
+            safeManagementService.getActiveSession(safe.id) != null
+        }
+
+        Safe primarySafe = safeLocations?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
+        } else {
+            safeLocations = safeLocations?.sort { it.id }
+        }
+        return [safeLocations, primarySafe]
+    }
+
     List fetchSafeLocations() {
         List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safeLocations?.find { it.primary }

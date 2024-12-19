@@ -72,7 +72,9 @@ class TenderMovementController {
     def bankDeposit(){
         String success = params.success
         String error = params.error
-        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
+
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchActiveSafeLocations()
+
         List<TenderType> tenders = tenderMovementService.getCashTenders()
         [safes: safeLocations, primarySafe: primarySafe, tenders:tenders, success: success, error: error]
     }
