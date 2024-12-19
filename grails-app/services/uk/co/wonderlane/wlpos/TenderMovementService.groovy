@@ -253,7 +253,7 @@ class TenderMovementService {
         validateBankDateFormat(bankDate, failureMessages)
         validateTender(tenderType, failureMessages)
         validateBankTransferTenderType(tenderType, failureMessages)
-        validateSafeStatus(safeId, failureMessages)
+
         return failureMessages
     }
 
