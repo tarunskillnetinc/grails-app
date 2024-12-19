@@ -14,6 +14,7 @@ import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 
 import java.math.RoundingMode
+import java.util.stream.Collectors
 
 class ReportingController {
 
@@ -1533,7 +1534,10 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: TenderMovementType.values(), stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
+        def movementTypes = TenderMovementType.values().stream()
+                .sorted(Comparator.comparing(t -> t.toString()))
+                .collect(Collectors.toList())
+        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: movementTypes, stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
     }
 
     def ajaxTenderMovements(SortParams sortParams) {
