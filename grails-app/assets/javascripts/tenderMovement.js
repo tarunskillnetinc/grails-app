@@ -17,7 +17,7 @@ function processTenderLift() {
     const tillNos = [tillNoElement.val()];
 
     getTillBalance(tillNos, tenderElement.val(), amount, (error, result) => {
-        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in till. Do you want to continue?`;
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than the available amount in till. Do you want to continue?`;
         handleBalanceCheck(error, result, confirmMessage, submitTenderLift);
     });
 }
@@ -47,7 +47,7 @@ function processAddFloat() {
 
 
     getSafeBalance(totalAmountToBeDistributed, tenderElement.val(), safeIdElement.val(), (error, result) => {
-        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than the available amount in the safe. Do you want to continue?`;
         handleBalanceCheck(error, result, confirmMessage, submitAddFloat);
     });
 }
@@ -124,7 +124,7 @@ function processPayOut() {
         return;
     }
     getSafeBalance(amount, tender, safeId, (error, result) => {
-        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe. Do you want to continue?`;
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than the available amount in the safe. Do you want to continue?`;
         handleBalanceCheck(error, result, confirmMessage, submitPayOut);
     });
 }
@@ -164,7 +164,7 @@ function processBankDeposit() {
 
     // If validation passes, submit the form
     getSafeBalance(amount, tender, safeId, (error, result) => {
-        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than available amount in the safe for a Cash tender. Do you want to continue?`;
+        let confirmMessage = `Entered amount £${amount.toFixed(2)} is more than the available amount in the safe for a Cash tender. Do you want to continue?`;
         handleBalanceCheck(error, result, confirmMessage, submitBankDeposit);
     });
 }
