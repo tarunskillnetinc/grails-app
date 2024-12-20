@@ -34,6 +34,42 @@ class TenderMovementService {
     private static final MIN_AMOUNT_BANK_TRANSFER = new BigDecimal("0.01")
     private static final MAX_AMOUNT_BANK_TRANSFER = new BigDecimal("999999.99")
 
+    List fetchActiveSafeLocationsAndInactiveSafesWithTenderValues() {
+        List<Safe> safeLocations = fetchActiveSafeLocationListAndInactiveSafesWithTenderValues()
+
+        Safe primarySafe = safeLocations?.find { it.primary }
+        // Place primary safe at the top and sort remaining safes by id
+        if (primarySafe) {
+            safeLocations = [primarySafe] + (safeLocations - primarySafe)?.sort { it.id }
+        } else {
+            safeLocations = safeLocations?.sort { it.id }
+        }
+        return [safeLocations, primarySafe]
+    }
+
+    private List<Safe> fetchActiveSafeLocationListAndInactiveSafesWithTenderValues() {
+        List<SafeSession> safeSessions = safeManagementService.getActiveSafeSessions(null)
+
+        List<Safe> safeLocations = safeSessions?.collect { SafeSession safeSession ->
+            Safe safe = Safe.findByIdAndRetailerId(safeSession.safeId, springSecurityService.principal.retailerId)
+
+            if (!safe) {
+                return null
+            } else if (safe.active) {
+                return safe
+            } else { // TC: When safe status is changed from Active to Inactive and any one tender holds tender values
+                List<TenderTotal> tenderTotals = safeSession.transferPendingTotals()
+                if (tenderTotals.stream().anyMatch { it.getValue() != BigDecimal.ZERO }) {
+                    return safe
+                }
+            }
+
+            return null
+        } - null
+
+        safeLocations
+    }
+
     List fetchSafeLocations() {
         List<Safe> safeLocations = safeService.getStoreSafes() ?.findAll { it.active }
         Safe primarySafe = safeLocations?.find { it.primary }
@@ -223,7 +259,8 @@ class TenderMovementService {
         validateBankDateFormat(bankDate, failureMessages)
         validateTender(tenderType, failureMessages)
         validateBankTransferTenderType(tenderType, failureMessages)
-        validateSafeStatus(safeId, failureMessages)
+        validateBankTransferSafeType(safeId, failureMessages)
+
         return failureMessages
     }
 
@@ -329,6 +366,15 @@ class TenderMovementService {
         }
     }
 
+    private validateBankTransferSafeType(int safeId, ArrayList<String> failureMessages) {
+        List<Safe> safes = tenderMovementService.fetchActiveSafeLocationListAndInactiveSafesWithTenderValues()
+        for (final def safe in safes) {
+            if( safe.id == safeId )
+                return;
+        }
+
+        failureMessages.add("The safe must be either Active or have Tender Values.")
+    }
 
     boolean isValidDateFormat(String dateStr) {
         // Define the expected date format
@@ -349,7 +395,4 @@ class TenderMovementService {
             return false
         }
     }
-
-
-
 }

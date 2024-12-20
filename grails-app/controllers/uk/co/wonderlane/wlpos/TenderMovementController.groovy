@@ -8,7 +8,6 @@ import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
 import uk.co.wonderlane.wlpos.enums.ReasonCodeType
 import uk.co.wonderlane.wlpos.enums.SafeSessionAction
 import uk.co.wonderlane.wlpos.enums.ShiftAction
-import uk.co.wonderlane.wlpos.enums.TenderMovementType
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 import java.text.NumberFormat
@@ -72,7 +71,9 @@ class TenderMovementController {
     def bankDeposit(){
         String success = params.success
         String error = params.error
-        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchSafeLocations()
+
+        def (List<Safe> safeLocations, Safe primarySafe) = tenderMovementService.fetchActiveSafeLocationsAndInactiveSafesWithTenderValues()
+
         List<TenderType> tenders = tenderMovementService.getCashTenders()
         [safes: safeLocations, primarySafe: primarySafe, tenders:tenders, success: success, error: error]
     }
