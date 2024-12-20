@@ -234,7 +234,7 @@ class TenderMovementController {
                 //add shift audit
                 tenderMovementService.updateShiftBalanceTotals(ShiftAction.CASH_LIFT, tender, amount.negate(), tenderMovementId, tillId)
 
-                redirect(action: "tenderLift", params: [success: "Successfully process tender lift for till ${tillId}"])
+                redirect(action: "tenderLift", params: [success: "Successfully processed tender lift for till ${tillId}"])
             }
         } catch (Exception ex) {
             log.error("Tender lift saving error for safe id : ${safeId} till id: ${tillId} tender type: ${tender} error: ${ex.getMessage()}", ex)
@@ -424,7 +424,7 @@ class TenderMovementController {
                 //add safe session audit
                 tenderMovementService.updateSafeSessionBalanceTotals(SafeSessionAction.BANK_DEPOSIT, tender, amount.negate(), tenderMovementId, safeId)
 
-                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit. Funds move from ${safe.description} to bank"])
+                redirect(action: "bankDeposit", params: [success: "Successfully completed bank deposit. Funds moved from ${safe.description} to bank"])
             }
         } catch (Exception ex) {
             log.error("Bank deposit saving error for safe id : ${safeId} tender type: ${tender} error: ${ex.getMessage()}", ex)
