@@ -367,7 +367,7 @@ class TenderMovementService {
     }
 
     private validateBankTransferSafeType(int safeId, ArrayList<String> failureMessages) {
-        List<Safe> safes = tenderMovementService.fetchActiveSafeLocationListAndInactiveSafesWithTenderValues()
+        List<Safe> safes = fetchActiveSafeLocationListAndInactiveSafesWithTenderValues()
         for (final def safe in safes) {
             if( safe.id == safeId )
                 return;
