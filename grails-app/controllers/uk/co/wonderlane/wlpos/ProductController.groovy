@@ -1975,7 +1975,8 @@ class ProductController extends BaseController {
     }
 
     def isValidSku(long sku) {
-        def existingVariant = ProductVariant.findBySku(sku)
+        def existingVariants = ProductVariant.findAllBySku(sku)
+        def existingVariant = existingVariants.find {it.sku == sku && it.product.retailerId == springSecurityService.principal.retailerId}
         return existingVariant == null
     }
 }
