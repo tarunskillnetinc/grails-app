@@ -96,6 +96,15 @@ class ProductVariant implements Serializable {
         locationz bindable: true
     }
 
+    static int countMatchingSkusForRetailer(Long sku, Integer retailerId) {
+        def query = "FROM ProductVariant pv JOIN pv.product p WHERE pv.sku = :sku AND p.retailerId = :retailerId"
+        def params = [sku: sku, retailerId: retailerId]
+
+        def count = ProductVariant.executeQuery(query, params).size()
+
+        return count
+    }
+
     List<ProductPrice> getPrices() {
         return ProductPrice.findAllBySkuAndEffectiveDateLessThanEquals(sku, getSessionEffectiveDate(), [sort: "effectiveDate", order: "desc"])?.unique { it.priceBand }
     }
