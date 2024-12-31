@@ -64,10 +64,11 @@ class FinancialWeekService extends MySqlDal {
     }
 
     @Transactional('transactions')
-    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear) {
+    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear, retailerId) {
         def criteria = FinancialWeek.createCriteria()
         return criteria.list {
             eq("financialYear", financialYear)
+            eq("retailerId", retailerId)
             order("startDate", "asc")
         }
     }
@@ -140,10 +141,11 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    List<String> loadFinancialYears(){
+    List<String> loadFinancialYears(int retailerId){
         try {
             def financialWeeks = getAllFinancialWeeks()
-            return financialWeeks?.collect { it.financialYear }?.unique()
+            return financialWeeks?.findAll { it.retailerId == retailerId }  // Filter by retailerId
+                    ?.collect { it.financialYear }?.unique()
         } catch (Exception ex) {
             log.error("Financial week - Error loading financial years : ${ex.message} " , ex)
             throw new RuntimeException("Financial week - Error loading financial years : ${ex.message} " , ex)
