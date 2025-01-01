@@ -156,6 +156,7 @@
         function downloadFinancialWeekUploadFile(){
             var selectedYear = $('#yearSelect').val();
             if (selectedYear) {
+                $('#message-container').html('');
                 // Construct the download URL with the selected financial year as a query parameter
                 var downloadUrl = "${createLink(controller: 'FinancialWeek', action: 'downloadCsv')}?yearSelect=" + encodeURIComponent(selectedYear);
                 window.location.href = downloadUrl;
@@ -205,7 +206,6 @@
             $("#uploadResults").html("");
             uploadButton.disabled = false
             uploadButton.innerHTML = "Upload Financial Week File"
-            showErrorAlert(msg)
             resetFileUploadInput();
             setPreventWindowNavigation(null);
         }
