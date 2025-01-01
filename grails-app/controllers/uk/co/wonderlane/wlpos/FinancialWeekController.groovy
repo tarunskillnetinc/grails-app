@@ -36,7 +36,7 @@ class FinancialWeekController {
             List<String[]> rows = financialWeekService.readCsvFile(file)
 
             //Validate existing financial years --> check against database
-            financialWeekService.financialYearPreValidation(rows, errors)
+            financialWeekService.financialYearPreValidation(rows, errors, retailerId)
 
             //This method will validate each row
             // 1 -> Do row level validation
@@ -56,7 +56,7 @@ class FinancialWeekController {
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert
                 financialWeekService.saveFinancialWeeksInBatches(financialWeeks, errors)
-                List<String> financialYears = financialWeekService.loadFinancialYears()
+                List<String> financialYears = financialWeekService.loadFinancialYears(retailerId)
                 log.info("Successfully process financial week csv file..... ")
                 render status: 200, contentType: 'application/json', text: JsonOutput.toJson([financialYears: financialYears])
             } else { // Show all errors and rollback

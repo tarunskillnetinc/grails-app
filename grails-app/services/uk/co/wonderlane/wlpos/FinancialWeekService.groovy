@@ -73,9 +73,9 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    boolean isFinancialYearExists(String financialYear){
+    boolean isFinancialYearExists(String financialYear, int retailerId){
         try {
-            List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear)
+            List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear, retailerId)
             if (existingWeeksForFinancialYear!= null && !existingWeeksForFinancialYear.isEmpty()){
                 return true
             }
@@ -177,7 +177,7 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    void financialYearPreValidation(List<String[]> rows, List<String> errors){
+    void financialYearPreValidation(List<String[]> rows, List<String> errors, int retailerId){
         try {
             Set<String> financialYears = rows?.collect { it[1] } as Set // Extract the financial years
             if (financialYears.size() > 1) {
@@ -191,7 +191,7 @@ class FinancialWeekService extends MySqlDal {
             }
 
             String financialYear = financialYears.first()
-            if (isFinancialYearExists(financialYear)){
+            if (isFinancialYearExists(financialYear, retailerId)){
                 errors << "Financial year already exists. Found: $financialYears in records."
                 throw new IllegalArgumentException("Financial week - Financial year already existed. Found: $financialYears")
             }
