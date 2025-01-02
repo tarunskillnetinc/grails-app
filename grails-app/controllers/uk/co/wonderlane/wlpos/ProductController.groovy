@@ -487,6 +487,9 @@ class ProductController extends BaseController {
                     }
                 }
                 product = new Product(paramsMap)
+                if (product.variants != null) {
+                    product.variants.removeAll { it == null } // Remove any null variants from list.
+                }
             } else {
                 product = new Product()
                 copyProduct(editedProduct, product)
