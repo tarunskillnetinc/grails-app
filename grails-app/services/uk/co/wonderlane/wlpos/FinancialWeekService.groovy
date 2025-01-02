@@ -58,23 +58,24 @@ class FinancialWeekService extends MySqlDal {
     }
 
     @Transactional('transactions')
-    List<FinancialWeek> getAllFinancialWeeks() {
+    List<FinancialWeek> getAllFinancialWeeks(int retailerId) {
         def financialWeeks = FinancialWeek.list()
-        return financialWeeks.unique { it.financialYear }
+        return financialWeeks.findAll { it.retailerId == retailerId }.unique { it.financialYear }
     }
 
     @Transactional('transactions')
-    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear) {
+    List<FinancialWeek> getAllFinancialWeeksByFinancialYear(String financialYear, retailerId) {
         def criteria = FinancialWeek.createCriteria()
         return criteria.list {
             eq("financialYear", financialYear)
+            eq("retailerId", retailerId)
             order("startDate", "asc")
         }
     }
 
-    boolean isFinancialYearExists(String financialYear){
+    boolean isFinancialYearExists(String financialYear, int retailerId){
         try {
-            List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear)
+            List<FinancialWeek> existingWeeksForFinancialYear = getAllFinancialWeeksByFinancialYear(financialYear, retailerId)
             if (existingWeeksForFinancialYear!= null && !existingWeeksForFinancialYear.isEmpty()){
                 return true
             }
@@ -140,10 +141,10 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    List<String> loadFinancialYears(){
+    List<String> loadFinancialYears(int retailerId){
         try {
-            def financialWeeks = getAllFinancialWeeks()
-            return financialWeeks?.collect { it.financialYear }?.unique()
+            def financialWeeks = getAllFinancialWeeks(retailerId) //This will return all financial week for retailer
+            return financialWeeks?.findAll { it.retailerId == retailerId }?.collect { it.financialYear }?.unique() //Filter out unique financial year from this
         } catch (Exception ex) {
             log.error("Financial week - Error loading financial years : ${ex.message} " , ex)
             throw new RuntimeException("Financial week - Error loading financial years : ${ex.message} " , ex)
@@ -175,7 +176,7 @@ class FinancialWeekService extends MySqlDal {
         }
     }
 
-    void financialYearPreValidation(List<String[]> rows, List<String> errors){
+    void financialYearPreValidation(List<String[]> rows, List<String> errors, int retailerId){
         try {
             Set<String> financialYears = rows?.collect { it[1] } as Set // Extract the financial years
             if (financialYears.size() > 1) {
@@ -189,7 +190,7 @@ class FinancialWeekService extends MySqlDal {
             }
 
             String financialYear = financialYears.first()
-            if (isFinancialYearExists(financialYear)){
+            if (isFinancialYearExists(financialYear, retailerId)){
                 errors << "Financial year already exists. Found: $financialYears in records."
                 throw new IllegalArgumentException("Financial week - Financial year already existed. Found: $financialYears")
             }
