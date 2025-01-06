@@ -35,7 +35,7 @@ class Barcode {
         sku nullable: true
         pack nullable: true
         retailerId nullable: false
-        barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
+        barcode size: 1..20, blank: true, nullable: true, validator: { val, obj ->
             if (!obj.isBarcodeNonProductType(obj.retailerId)) {
                 //Initially set barcode value is available for use
                 boolean isBarcodeActive = false
@@ -91,20 +91,22 @@ class Barcode {
     private String barcodeSignifiersType(int retailerId){
         ArrayList<BarcodeSignifier> barcodeSignifiers = BarcodeSignifier.findAllByRetailerId(retailerId)
 
-        for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
-            if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
-                if (barcode.length() != barcodeSignifier.getLength()) {
+        if(barcode != null) {
+            for (BarcodeSignifier barcodeSignifier : barcodeSignifiers) {
+                if (barcodeSignifier.getLength() != null && barcodeSignifier.getLength() != 0) {
+                    if (barcode.length() != barcodeSignifier.getLength()) {
+                        continue
+                    }
+                }
+
+                if (barcode.length() < barcodeSignifier.getPattern().length()) {
                     continue
                 }
-            }
 
-            if (barcode.length() < barcodeSignifier.getPattern().length()) {
-                continue
-            }
-
-            String sub = barcode.substring(0, barcodeSignifier.getPattern().length());
-            if (sub.equals(barcodeSignifier.getPattern())) {
-                return barcodeSignifier.getType()
+                String sub = barcode.substring(0, barcodeSignifier.getPattern().length());
+                if (sub.equals(barcodeSignifier.getPattern())) {
+                    return barcodeSignifier.getType()
+                }
             }
         }
         return null
