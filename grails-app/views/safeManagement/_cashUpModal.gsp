@@ -6,12 +6,12 @@
     <div class="row mt-3 mb-2">
         <g:if test="${safeSession}">
             <div class="col-12">
-
                 <div class="row">
                     <p class="mx-auto"><strong>${safeDescription}</strong> count reconciliation</p>
                 </div>
 
                 <g:hiddenField name="safeSessionId" value="${safeSession.id}"/>
+
                 <g:if test="${safeSession.reconciliationTotals.size() > 0}">
                     <div class="row cash-up-by">
                         <p class="mx-auto">
@@ -21,7 +21,7 @@
                     </div>
 
                     <div id="cashUpContainer" class="mt-3 mr-4">
-                        <g:render template="/shift/cashUpByTotals" model="[values: [ cashTotal: (safeSession.reconciliationTotals.find { it.tenderType.name() == 'CASH' }?.value ?: BigDecimal.ZERO), vouchersTotal: safeSession.reconciliationTotals.find { it.tenderType.name() == 'VOUCHER' }?.value ?: BigDecimal.ZERO ]]" />
+                        <g:render template="/shift/cashUpByTotals" model="[values: [ cashTotal: (safeSession.reconciliationTotals.find { it.cashTender }?.value ?: BigDecimal.ZERO), totals: safeSession.reconciliationTotals.find { !it.cashTender }], tenderTypes: tenderTypes]" />
                     </div>
                 </g:if>
                 <g:else>
@@ -32,7 +32,7 @@
                     </div>
 
                     <div id="cashUpContainer" class="mt-3 mr-4">
-                        <g:render template="/shift/cashUpByValue" />
+                        <g:render template="/shift/cashUpByValue" model="[tenderTypes: tenderTypes]" />
                     </div>
                 </g:else>
             </div>

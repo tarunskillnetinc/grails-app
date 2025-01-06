@@ -250,9 +250,9 @@
 
                                     <span id="retailer-configuration" class="dropdown-header">Retailer Configuration</span>
 
-
                                     <g:link elementId="cash-management-dropdown" controller="cashManagement" class="dropdown-item">Cash Management</g:link>
                                     <g:link elementId="reason-code-dropdown" controller="reasonCode" class="dropdown-item">Reason Codes</g:link>
+                                    <g:link elementId="tender-type-dropdown" controller="tenderType" class="dropdown-item">Tender Types</g:link>
                                     <g:link elementId="barcode-config-dropdown" controller="barcodeConfig" class="dropdown-item">Barcode Configuration</g:link>
                                 </g:if>
                             </sec:ifAnyGranted>

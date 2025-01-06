@@ -109,7 +109,7 @@ class TenderMovementController {
         }
     }
 
-    def processTenderLift(){
+    def processTenderLift() {
         Integer safeId = null
         Integer tillId = null
         TenderType tender = null

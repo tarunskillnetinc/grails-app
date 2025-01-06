@@ -17,6 +17,7 @@ class ButtonController {
     def imageService
     def imageRecordService
     def rabbitService
+    def tenderTypeService
     def gsonProvider
 
     def edit() {
@@ -33,15 +34,18 @@ class ButtonController {
             buttonImage = imageService.getImage(imageRecord)
         }
 
+        def (availableTenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, null, null, 0, 9999)
+
         [button: button,
          buttonImage: buttonImage,
          availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid.type),
          availableSubPages: buttonService.getOtherButtonGrids(),
-         availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+         availableLegacyTenderTypes: uk.co.wonderlane.wlpos.enums.TenderType.values().findAll { it != uk.co.wonderlane.wlpos.enums.TenderType.CASHBACK },
+         availableTenderTypes: availableTenderTypes,
          productSku: productVariant?.sku,
          productDescription: productVariant?.product?.description,
          storeId: getStoreId(),
-         displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+         displayExactOption: button.tenderType != null && !button.tenderType.cardPayment,
          displayManualOption: button.tenderType != null]
     }
 
@@ -84,7 +88,7 @@ class ButtonController {
         }
 
         if (!form.exact && !form.manual && (form.amount == null || (form.amount != null && form.amount.compareTo(BigDecimal.ZERO) <= 0))) {
-            form.errors.reject(form.tenderType == TenderType.CASH ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
+            form.errors.reject(form.legacyTenderType == uk.co.wonderlane.wlpos.enums.TenderType.CASH ? 'button.error.amount.min.message.exact' : 'button.error.amount.min.message.noExact')
         }
 
         def button
@@ -244,17 +248,20 @@ class ButtonController {
                     buttonImage = imageService.getImage(imageRecord)
                 }
 
+                def (availableTenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, null, null, 0, 9999)
+
                 // TODO Populate an error to display on screen.
                 render (view: "edit", model: [
                         button: button,
                         buttonImage: buttonImage,
                         availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
                         availableSubPages: buttonService.getOtherButtonGrids(),
-                        availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+                        availableLegacyTenderTypes: uk.co.wonderlane.wlpos.enums.TenderType.values().findAll { it != uk.co.wonderlane.wlpos.enums.TenderType.CASHBACK },
+                        availableTenderTypes: availableTenderTypes,
                         productSku: productVariant?.sku,
                         productDescription: productVariant?.product?.description,
                         storeId: getStoreId(),
-                        displayExactOption: button?.tenderType != null && button?.tenderType == TenderType.CASH,
+                        displayExactOption: button?.tenderType != null && !button?.tenderType?.cardPayment,
                         displayManualOption: button?.tenderType != null
                 ])
             }
@@ -278,18 +285,21 @@ class ButtonController {
             productVariant = productService.getProductVariant(button.sku)
         }
 
+        def (availableTenderTypes, totalCount) = tenderTypeService.getTenderTypes(null, false, null, null, 0, 9999)
+
         render (view: "edit", model: [
                 button: button,
                 buttonImage: buttonImage,
                 availableProcesses: buttonService.getAvailableProcesses(button.buttonGrid?.type),
                 availableSubPages: buttonService.getOtherButtonGrids(),
-                availableTenderTypes: TenderType.values().findAll { it != TenderType.CASHBACK },
+                availableLegacyTenderTypes: uk.co.wonderlane.wlpos.enums.TenderType.values().findAll { it != uk.co.wonderlane.wlpos.enums.TenderType.CASHBACK },
+                availableTenderTypes: availableTenderTypes,
                 productSku: productVariant?.sku,
                 productDescription: productVariant?.product?.description,
                 storeId: getStoreId(),
                 form: form,
                 previousImage: uploadedImage,
-                displayExactOption: button.tenderType != null && button.tenderType == TenderType.CASH,
+                displayExactOption: button.tenderType != null && !button.tenderType?.cardPayment,
                 displayManualOption: button.tenderType != null
         ])
     }
@@ -311,13 +321,7 @@ class ButtonController {
     }
 
     private SyncMessage buildButtonSyncMessage(SyncMessageType messageType) {
-        return new SyncMessage(
-            messageType,
-            springSecurityService.principal.retailerId,
-            springSecurityService.principal.storeNumber,
-            springSecurityService.principal.storeId,
-            null
-        )
+        return new SyncMessage(messageType, springSecurityService.principal.retailerId, springSecurityService.principal.storeNumber, springSecurityService.principal.storeId, null)
     }
 
     private Button copyButtonGrid(Button button, Boolean existingButton) {
