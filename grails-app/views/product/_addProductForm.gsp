@@ -109,19 +109,18 @@
 
             <div id="collapseProductVariants" class="collapse" aria-labelledby="productVariants" data-parent="#accordion">
 
-                <div id="preferredSkuSelect">
-                    <div class="row mx-4 pt-3 pb-2">
-                        <label for="preferredSku" class="col-11 col-form-label text-right">Select Preferred SKU</label>
-                        <div class="col-1">
+
+                <div class="card-body py-5">
+                    <div class="row mx-5 pt-3 pb-2" style="display: flex; align-items: center;">
+                        <label for="preferredSku" class="col-form-label text-right mr-4" style="flex: 1; text-align: right; margin-right: auto;">Select Preferred SKU</label>
+                        <div class="col-2 px-0" style="display: flex; justify-content: flex-end;">
                             <g:select name="preferredSku" from="${skuList}" value="${product?.preferredSku}" optionKey="sku" optionValue="sku" class="form-control select-border" onchange="updatePreferredSku(this.value)"/>
                         </div>
                     </div>
-                </div>
 
-                <div class="card-body py-5">
                     <g:hiddenField name="relevantVariant" value="" />
 
-                    <div class="row mx-5 table-wl bottom-border">
+                    <div class="row mx-5 table-wl bottom-border" style="margin-top: 10px;">
                         <div class="col-2 font-weight-bold">SKU</div>
                         <div class="col-2 font-weight-bold">Retail Price</div>
                         <div class="col-2 font-weight-bold">Cost Price</div>
@@ -189,23 +188,6 @@
                                     <g:checkBox name="snappyProduct" class="col-1 form-check-input wl-checkbox" checked="${product?.snappyProduct}"/>
                                 </div>
                             </fieldset>
-                            <div class="row mt-1 form-group">
-                                <span class="col-3 col-form-label text-right pr-4">Stock Management</span>
-                                <div class="col-9">
-                                    <div class="form-check d-flex align-items-center">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="stock" value="STOCK" checked="${product?.stockSale?.name() == 'STOCK' ?: product == null}" valueMessagePrefix="StockSale"/>
-                                        <label class="form-check-label mb-0 mt-2 ml-2" for="stock">Standard stock</label>
-                                    </div>
-                                    <div class="form-check d-flex align-items-center py-1">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="noStockSale" value="NO_STOCK_SALE" checked="${product?.stockSale?.name() == 'NO_STOCK_SALE'}"  valueMessagePrefix="StockSale"/>
-                                        <label class="form-check-label mb-0 mt-2 ml-2" for="noStockSale">No stock, Allowed for sale</label>
-                                    </div>
-                                    <div class="form-check d-flex align-items-center py-1">
-                                        <g:radio class="form-check-input wl-radio" type="radio" name="stockSale" id="noStockNoSale" value="NO_STOCK_NO_SALE" checked="${product?.stockSale?.name() == 'NO_STOCK_NO_SALE'}"  valueMessagePrefix="StockSale"/>
-                                        <label class="form-check-label mb-0 mt-2 ml-2" for="noStockNoSale">No stock, Not allowed for sale</label>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="col-12 col-lg-6">

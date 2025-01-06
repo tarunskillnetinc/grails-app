@@ -16,7 +16,7 @@ function getSafeSessions() {
 }
 
 
-function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescription, configuredRecountAttempt, currentRecountAttempt) {
+function showSafeSessionReconcileModal(sessionId, versionId, isRecount, isFinal, safeDescription, configuredRecountAttempt, currentRecountAttempt) {
     var proceedWithWarning = true;
     if ((!isRecount && configuredRecountAttempt === 0) || (isRecount && configuredRecountAttempt === currentRecountAttempt + 1)) { //This is only for reconcile actions to show warning
         proceedWithWarning = confirm("Warning! This is your last available chance to count the safe");
@@ -25,7 +25,7 @@ function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescri
         $.ajax({
             url: SafeManagementUrls.getSafeSessionCashUpUrl(),
             method: "POST",
-            data: { sessionId: sessionId, isRecount: isRecount, isFinalise: isFinal, safeDescription: safeDescription },
+            data: { sessionId: sessionId, versionId: versionId, isRecount: isRecount, isFinalise: isFinal, safeDescription: safeDescription },
             success: function(resp) {
                 $('#sessionModal').modal({ show: true, backdrop: 'static', keyboard: false });
                 $("#modal-content").html(resp);
@@ -52,13 +52,14 @@ function showSafeSessionReconcileModal(sessionId, isRecount, isFinal, safeDescri
     }
 }
 
-function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
+function saveSafeSessionCashUrl(safeSessionId, versionId, isRecount, safeDescription) {
     var cashUpBy = $("#cashUpBy").val();
     if (cashUpBy === "VALUE" && !isFormValid()) {
         return;
     }
     var formValues = $("#cashUpForm").serializeArray();
     formValues.push({name:'safeSessionId', value: safeSessionId})
+    formValues.push({name:'versionId', value: versionId})
     formValues.push({name:'isRecount', value: isRecount})
     formValues.push({name:'safeDescription', value: safeDescription})
 
@@ -74,8 +75,8 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
             if ($("#modal-content").length) {
                 $("#modal-content").empty();
             }
-            if ($('#shiftModal').length) {
-                $('#shiftModal').modal('hide');
+            if ($('#sessionModal').length) {
+                $('#sessionModal').modal('hide');
             }
 
             if ($('.modal-backdrop').length) {
@@ -89,15 +90,16 @@ function saveSafeSessionCashUrl(safeSessionId, isRecount, safeDescription) {
     });
 }
 
-function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription, isSafeFinalisingWarningRequired) {
+function submitSafeSession(safeSessionId, versionId, isRecount, isFinalise, safeDescription, isSafeFinalisingWarningRequired) {
     var proceedWithSubmission = true;
     if (isFinalise && isSafeFinalisingWarningRequired) {
-        proceedWithSubmission = confirm("Safe is in inactive and still contain tender value. Are you sure you want to finalise the safe?");
+        proceedWithSubmission = confirm("This safe is inactive and still contains tender value. Are you sure you want to finalise the safe?");
     }
     if (proceedWithSubmission) {
 
         var formValues = $("#safeSessionVarianceForm").serializeArray();
         formValues.push({name:'safeSessionId', value: safeSessionId})
+        formValues.push({name:'versionId', value: versionId})
         formValues.push({name:'isRecount', value: isRecount})
         formValues.push({name:'isFinalise', value: isFinalise})
         formValues.push({name:'safeDescription', value: safeDescription})
@@ -107,13 +109,9 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription
             method: "POST",
             data: formValues,
             success: function(resp) {
-                if (isFinalise){
-                    $("#modal-content").html('')
-                    $('#sessionModal').modal('hide'); // This line hides the modal
-                    $("#results-container").html(resp);
-                } else {
-                    $("#modal-content").html(resp);
-                }
+                $("#modal-content").html('')
+                $('#sessionModal').modal('hide'); // This line hides the modal
+                $("#results-container").html(resp);
             },
             error: function (resp) {
                 if ($("#modal-content").length) {
@@ -133,4 +131,21 @@ function submitSafeSession(safeSessionId, isRecount, isFinalise, safeDescription
             }
         });
     }
+}
+
+function safeSpotCheck(safeSessionId) {
+    $.ajax({
+        url: SafeManagementUrls.spotCheckUrl(),
+        method: "POST",
+        data: {safeSessionId: safeSessionId},
+        success: function(resp) {
+            $('#sessionModal').modal({ show: true });
+            $("#modal-content").html(resp);
+        },
+        error: function(resp) {
+            $("#search-results").show();
+            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
+            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
+        },
+    });
 }
