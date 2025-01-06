@@ -20,6 +20,10 @@ class TenderMovement {
     Integer userId
     String userName
     DateTime timestamp
+    String bankName
+    String bankReference
+    DateTime bankingDate  // Changed from String to DateTime
+    String comment
 
     static transients = ['store']
 
@@ -43,6 +47,10 @@ class TenderMovement {
         userId column: "userId"
         userName column: "userName"
         timestamp column: "timestamp"
+        bankName column: "bankName"
+        bankReference column: "bankReference"
+        bankingDate column: "bankingDate"  // Added mapping for bankingDate
+        comment column: "comment"
     }
 
     static constraints = {
@@ -60,6 +68,10 @@ class TenderMovement {
         userId nullable: false
         userName nullable: false, blank: false, maxSize: 45
         timestamp nullable: true
+        bankName nullable: true
+        bankReference nullable: true
+        bankingDate nullable: true  // Added constraint for bankingDate
+        comment nullable: true
     }
 
     Store getStore() {

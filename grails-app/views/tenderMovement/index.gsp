@@ -4,27 +4,32 @@
     <meta name="layout" content="main"/>
     <title>Tender Movement</title>
 
-    <asset:stylesheet src="multi-select-checks.css"/>
-    <asset:javascript src="validators/input-validator.js"/>
-    <asset:javascript src="popper.min.js"/>
-    <asset:javascript src="multi-select-checks.js"/>
+    <asset:stylesheet src="tenderMovements.css" />
+    <asset:stylesheet src="bootstrap-datepicker3.min.css" />
+
     <asset:javascript src="money-mask.js"/>
     <asset:javascript src="tenderMovementUrls.js"/>
     <asset:javascript src="tenderMovement.js"/>
+    <asset:javascript src="bootstrap-datepicker.min.js" />
 
     <script type="text/javascript">
 
         $(document).ready(function () {
-
             TenderMovementUrls.init(
                 "${createLink(controller: 'TenderMovement', action: 'processTenderLift')}",
-                "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}"
+                "${createLink(controller: 'TenderMovement', action: 'getTillAvailableBalance')}",
+                "${createLink(controller: 'TenderMovement', action: 'processAddFloat')}",
+                "${createLink(controller: 'TenderMovement', action: 'getSafeAvailableBalance')}",
+                "${createLink(controller: 'TenderMovement', action: 'processPayIn')}",
+                "${createLink(controller: 'TenderMovement', action: 'processPayOut')}",
+                "${createLink(controller: 'TenderMovement', action: 'processBankDeposit')}",
+                "${createLink(controller: 'TenderMovement', action: 'processBankReceipt')}"
             );
 
             // Select the first tab by default if none are active
             if (!$('.nav-link.active').length) {
-                $('#issue-float-tab').addClass('active');
-                $('#issue-float-container').addClass('active');
+                $('#add-float-tab').addClass('active');
+                $('#add-float-container').addClass('active');
             }
 
             // Initial load of the first tab's content
@@ -32,9 +37,7 @@
             var initialAction = getControllerLinkForTabId(firstTab.attr('id'));
             var initialTabName = $('a[data-toggle="tab"].active').data('tab-name');
             updateBreadcrumb(initialTabName);
-            $.get(initialAction, function (data) {
-                $('#tender-movement-container').html(data);
-            });
+            initialiseContentTab(initialAction)
 
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -46,18 +49,15 @@
                 updateBreadcrumb(tabName);
 
                 // Make AJAX call to load content for the selected tab
-                $.get(action, function (data) {
-                    $('#tender-movement-container').html(data);
-                });
+                initialiseContentTab(action);
 
             });
-
 
             // Function to determine the action based on the tab ID
             function getControllerLinkForTabId(tabId) {
                 switch (tabId) {
-                    case 'issue-float-tab':
-                        return "${createLink(controller: 'tenderMovement' , action: 'issueFloat')}";
+                    case 'add-float-tab':
+                        return "${createLink(controller: 'tenderMovement' , action: 'addFloat')}";
                     case 'tender-lift-tab':
                         return "${createLink(controller: 'tenderMovement' , action: 'tenderLift')}";
                     case 'pay-in-tab':
@@ -77,6 +77,69 @@
 
         function updateBreadcrumb(tabName) {
             $('#current-page-name').text(tabName);
+        }
+
+        function initialiseContentTab(action){
+            $.get(action, function (data) {
+                $('#tender-movement-container').html(data);
+            });
+        }
+
+        function addMoneyMaskLogic(){
+            $('.mask-money').maskMoney({
+                prefix: '',
+                allowNegative: false,
+                thousands: ',',
+                decimal: '.',
+                affixesStay: true,
+                precision: 2,
+            });
+
+            $('.mask-money').on('keydown', function(e) {
+                // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
+                if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
+                    return;
+                }
+
+                let currentValue = $(this).val();
+                currentValue = currentValue.replace(/,/g, '').replace(/[^0-9]/g, '') + e.key;
+
+                const newValue = parseFloat(currentValue) / 100; // To handle two decimal places
+                
+                let maxValue = parseFloat(this.max);
+                if (isNaN(maxValue)) {
+                    //default a max value if we can't parse the one from the input
+                    maxValue = 9999.99;
+                }
+
+                const minValue = 0.01;
+
+                if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
+                    e.preventDefault();
+                }
+            });
+
+            // Ensure proper formatting on blur
+            $('.mask-money').on('blur', function() {
+                let value = $(this).val();
+                value = value.replace(/,/g, ''); // Remove commas for parsing
+                const parsedValue = parseFloat(value);
+
+                let maxValue = parseFloat(this.max);
+                if (isNaN(maxValue)) {
+                    //default a max value if we can't parse the one from the input
+                    this.max = '9999.99'
+                    maxValue = 9999.99;
+                }
+
+                if (isNaN(parsedValue) || parsedValue < 0.01) {
+                    $(this).val('0.00');
+                } else if (parsedValue > maxValue) {
+                    $(this).val(this.max);
+                } else {
+                    $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
+                }
+            });
         }
 
     </script>
@@ -138,7 +201,8 @@
                 <div class="col">
                     <ol class="breadcrumb">
                         <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                        <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
+                        <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link uri="/tenderMovement/index">Tender Movement</g:link></li>
+                        <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page"><span id="current-page-name"></span></li>
                     </ol>
                 </div>
             </div>
@@ -149,8 +213,8 @@
             <div class="col-12 pl-0">
                 <ul id="tab-ul" class="nav nav-tabs tabs-wl d-flex m-0 flex-nowrap overflow-auto" role="tablist">
                     <li class="nav-item m-0 flex-shrink-0">
-                        <a id="issue-float-tab" data-toggle="tab" href="#issue-float-container" data-action="issueFloat"
-                           aria-selected="true" role="tab" aria-controls="issue-float-container" class="nav-link active" data-tab-name="Issue Float">Issue Float</a>
+                        <a id="add-float-tab" data-toggle="tab" href="#add-float-container" data-action="addFloat"
+                           aria-selected="true" role="tab" aria-controls="add-float-container" class="nav-link active" data-tab-name="Add Float">Add Float</a>
                     </li>
                     <li class="nav-item m-0 flex-shrink-0">
                         <a id="tender-lift-tab" data-toggle="tab" href="#tender-lift-container" data-action="tenderLift"

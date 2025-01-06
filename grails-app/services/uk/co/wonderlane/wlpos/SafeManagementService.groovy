@@ -76,22 +76,18 @@ class SafeManagementService extends MySqlPoolDal {
         throw new SafeSessionUpdateException(null, "Failed to add tender to the new Safe Session")
     }
 
-    SafeSession  addTenderToSafe(int safeId, List<ReconciliationTotal> tenderAmounts) {
+    SafeSession addTenderToSafe(int safeId, List<ReconciliationTotal> tenderAmounts) {
         if (tenderAmounts == null || tenderAmounts.isEmpty()) {
-            return null
+            return getActiveSession(safeId)
         }
-
-        SafeSession updatedSession = null
 
         try (Connection conn = getConnection()) {
             int attempt = 0
-            boolean saved = false
-            while (!saved) {
+            while (attempt < 10) {
                 attempt++
+                SafeSession session = getActiveSessionUsingConnection(conn, safeId)
 
-                SafeSession safeSession = getActiveSession(conn, safeId)
-
-                if (safeSession) {
+                if (session) {
                     for (amount in tenderAmounts) {
                         if (safeSession.getSessionStatus() != SafeSessionStatus.OPEN) {
                             safeSession.addToPendingTotals(amount.tenderTypeId, amount.tenderTypeName, amount.cashTender, amount.value)
@@ -102,36 +98,32 @@ class SafeManagementService extends MySqlPoolDal {
 
                     int sessionId = saveSafeSessionUsingConnection(conn, safeSession)
 
-                    saved = sessionId > 0
-
-                    if (saved) {
-                        updatedSession = safeSession
+                    if (sessionId > 0) {
+                        return getSafeSessionUsingConnection(conn, sessionId) // refresh the versionId
                     }
                 } else {
                     // if there is no active sessions then it might be finalising so give it half a second
                     sleep(500)
                 }
-
-                if (attempt > 10) {
-                    String errorMsg = "Failed to update safe session with tender movements for retailer: ${safeSession.getRetailerId()} store: ${safeSession.getStoreId()} safeId: ${safeSession.getSafeId()}"
-                    log.error(errorMsg)
-                    throw new RuntimeException(errorMsg)
-                }
             }
         }
-
-        return updatedSession
+        String errorMsg = "Failed to add tender movements for retailer: ${springSecurityService.principal.retailerId}," +
+                " store: ${springSecurityService.principal.storeId} and safeId: ${safeId}"
+        log.error(errorMsg)
+        throw new RuntimeException(errorMsg)
     }
 
-     def saveSafeSession(SafeSession safeSession) throws SafeSessionUpdateException {
-         try (Connection conn = getConnection()) {
-             int savedId = saveSafeSessionUsingConnection(conn, safeSession)
+    def saveSafeSession(SafeSession safeSession) throws SafeSessionUpdateException {
+        try (Connection conn = getConnection()) {
+            int savedId = saveSafeSessionUsingConnection(conn, safeSession)
 
-             if (savedId < 0) {
-                 throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process.")
-             }
-         }
-     }
+            if (savedId > 0) {
+                return getSafeSessionUsingConnection(conn, savedId)
+            }
+
+            throw new SafeSessionUpdateException(safeSession, "Failed to update session as data has been updated by another process. Please try again.")
+        }
+    }
 
     private def saveSafeSessionUsingConnection(Connection conn, SafeSession safeSession) {
         try (CallableStatement saveSafeSessionStatement = conn.prepareCall("{ call saveSafeSession(?, ?, ?) }")) {
@@ -155,14 +147,20 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
+    SafeSession getActiveSession(int safeId) {
+        try (Connection conn = getConnection()) {
+            return getActiveSessionUsingConnection(conn, safeId)
+        }
+    }
+
+    private SafeSession getActiveSessionUsingConnection(Connection conn, int safeId) {
+        getActiveSafeSessionsUsingConnection(conn, safeId).stream().findFirst().orElse(null)
+    }
+
     List<SafeSession> getActiveSafeSessions(Integer safeId) {
         try (Connection conn = getConnection()) {
             return getActiveSafeSessionsUsingConnection(conn, safeId)
         }
-    }
-
-    private SafeSession getActiveSession(Connection conn, int safeId) {
-        getActiveSafeSessionsUsingConnection(conn, safeId).stream().findFirst().orElse(null)
     }
 
     private List<SafeSession> getActiveSafeSessionsUsingConnection(Connection conn, Integer safeId) {
@@ -196,9 +194,14 @@ class SafeManagementService extends MySqlPoolDal {
     }
 
     def getSafeSession(int safeSessionId) {
-        Connection conn = getConnection()
-        CallableStatement getSafeSessionStatement = conn.prepareCall("{ call getSafeSession(?, ?, ?) }")
-        try {
+        try (Connection conn = getConnection()) {
+            return getSafeSessionUsingConnection(conn, safeSessionId)
+        }
+    }
+
+
+    def getSafeSessionUsingConnection(Connection conn, int safeSessionId) {
+        try (CallableStatement getSafeSessionStatement = conn.prepareCall("{ call getSafeSession(?, ?, ?) }")) {
             getSafeSessionStatement.setInt(1, springSecurityService.principal.retailerId)
             getSafeSessionStatement.setInt(2, springSecurityService.principal.storeId)
             getSafeSessionStatement.setInt(3, safeSessionId)
@@ -214,9 +217,6 @@ class SafeManagementService extends MySqlPoolDal {
         }catch (Exception ex) {
             log.error("Error loading safe session for from retailer: ${springSecurityService.principal.retailerId} store: ${springSecurityService.principal.storeId} safe SessionId: ${safeSessionId} " + "error: ${ex.getMessage()}", ex)
             throw new RuntimeException("Error loading safe session for from retailer: ${springSecurityService.principal.retailerId} store: ${springSecurityService.principal.storeId} safe SessionId: ${safeSessionId} " + "error: ${ex.getMessage()}", ex)
-        } finally {
-            getSafeSessionStatement.close()
-            conn.close()
         }
 
         return null
@@ -231,7 +231,7 @@ class SafeManagementService extends MySqlPoolDal {
         }
     }
 
-    void processInterimReconciliationSave(SafeSessionCashUpCommand safeSessionCashUpCommand, SafeSession safeSession) throws SafeSessionUpdateException {
+    SafeSession processInterimReconciliationSave(SafeSessionCashUpCommand command, SafeSession safeSession) throws SafeSessionUpdateException {
         // This will called session save method to process on hold Reconciliation values
         try {
             def applicableTenderTypes = tenderTypeService.getApplicableTenderTypes()
@@ -258,7 +258,9 @@ class SafeManagementService extends MySqlPoolDal {
     }
 
     private static ReconciliationTotal populateReconciliationTotal(Integer tenderTypeId, String tenderTypeName, boolean cashTender, BigDecimal value, SafeSession session) {
-        BigDecimal expectedTotal = (session.tenderTotals.findAll { it.tenderTypeId == tenderTypeId }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        BigDecimal expectedTotal = (session.tenderTotals?.findAll { it.tenderTypeId == tenderTypeId }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        BigDecimal pendingTotal = (session.pendingTenderTotals?.findAll { it.tenderTypeId == tenderTypeId }*.value.sum() ?: BigDecimal.ZERO) as BigDecimal
+        expectedTotal = expectedTotal?.add(pendingTotal) ?: BigDecimal.ZERO
 
         ReconciliationTotal total = new ReconciliationTotal(tenderTypeId, tenderTypeName, cashTender)
 
@@ -268,13 +270,13 @@ class SafeManagementService extends MySqlPoolDal {
         return total
     }
 
-    void processDataSave(SafeSessionSaveCommand safeSessionSaveCommand, SafeSession safeSession) {
+    void processDataSave(SafeSessionSaveCommand command, SafeSession safeSession) {
         try {
             User loggedInUser = loadLoggedInUser()
 
             // This method will populate session data corresponding at action requested
             // Based on request (reconcile, recount or finalise) session object is populated differently
-            updateSafeSessionSaveFields(safeSessionSaveCommand, safeSession, loggedInUser)
+            updateSafeSessionSaveFields(command, safeSession, loggedInUser)
 
             saveSafeSession(safeSession) //This will called session save method to process close
 
@@ -305,8 +307,9 @@ class SafeManagementService extends MySqlPoolDal {
     //Check if it require to popup warning before finalising inactive safe having counted amount to move
     boolean isSafeFinalisingWarningRequired(SafeSession safeSession){
         Safe safe = safeService.getSafeById(safeSession.safeId)
-        def totals = safeSession.getCombinedReconciledAndPendingTotals()
-        return !safe.active && !totals.isEmpty()
+        boolean hasTender = safeSession.getCombinedReconciledAndPendingTotals().stream()
+                .anyMatch { it.getValue() != BigDecimal.ZERO }
+        return !safe.active && hasTender
     }
 
     private SafeSession populateNewSafeSession(int retailerId, int storeId, int safeId, boolean isAutoGenerated) throws Exception {
@@ -348,7 +351,8 @@ class SafeManagementService extends MySqlPoolDal {
             tenderMovementId = tenderId
         }
 
-        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT]) {
+        if (safeSessionAction in [SafeSessionAction.SPOT_CHECK, SafeSessionAction.RECONCILE, SafeSessionAction.RECOUNT, SafeSessionAction.FINALISE, SafeSessionAction.CASH_LIFT,
+                                  SafeSessionAction.PAID_IN, SafeSessionAction.ADD_FLOAT, SafeSessionAction.BANK_DEPOSIT, SafeSessionAction.BANK_RECEIPT]) {
             JsonObject jsonObject = new JsonObject()
 
             addJsonFieldToObject(jsonObject, "tenderTotals", safeSession.tenderTotals)
@@ -452,6 +456,8 @@ class SafeManagementService extends MySqlPoolDal {
                 // And update variance reason and reason text
                 safeSession.setReconciliationTotals(safeSession.getPendingReconciliationTotals())
                 safeSession.setPendingReconciliationTotals(new ArrayList<ReconciliationTotal>())
+                // And if the version hasn't changed then pending totals would have been counted
+                safeSession.transferPendingTotals()
 
                 if (safeSessionSaveCommand.tenderReconciliationVarianceReason != null) { // Update variance and variance text
                     safeSession.reconciliationTotals.findAll { it.variance != BigDecimal.ZERO }?.each {

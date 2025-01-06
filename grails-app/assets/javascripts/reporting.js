@@ -30,6 +30,7 @@ function filterReport() {
         filterValues[$(this).attr("name")] = $(this).find(":selected").val();
     }).get();
 
+    globalSortParams = null; // reset sorting from previous results
     getReportData(null, filterValues);
 }
 

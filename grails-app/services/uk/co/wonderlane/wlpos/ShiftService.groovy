@@ -13,6 +13,7 @@ import uk.co.wonderlane.wlpos.entities.cash.*
 import uk.co.wonderlane.wlpos.entities.cashmanagement.CashManagementConfig
 import uk.co.wonderlane.wlpos.enums.*
 import uk.co.wonderlane.wlpos.reporting.Location
+import uk.co.wonderlane.wlpos.reporting.TenderMovement
 
 import java.sql.*
 import java.util.stream.Collectors
@@ -210,6 +211,45 @@ class ShiftService extends MySqlPoolDal {
         return shifts
     }
 
+    def List<Shift> getShiftsWithStatus(Integer tillId, ShiftStatus shiftStatus) {
+        List<Shift> shifts = new ArrayList<>()
+        Connection conn = getConnection()
+        CallableStatement getShiftsWithStatusStatement = conn.prepareCall("{ call getShiftsWithStatus(?, ?, ?, ?) }")
+        try {
+            getShiftsWithStatusStatement.setInt(1, springSecurityService.principal.retailerId)
+            if (springSecurityService.principal.storeId != null) {
+                getShiftsWithStatusStatement.setInt(2, springSecurityService.principal.storeId)
+            } else {
+                getShiftsWithStatusStatement.setNull(2, Types.INTEGER)
+            }
+            if (tillId != null) {
+                getShiftsWithStatusStatement.setInt(3, tillId)
+            } else {
+                getShiftsWithStatusStatement.setNull(3, Types.INTEGER)
+            }
+            getShiftsWithStatusStatement.setString(4, shiftStatus.toString() )
+
+            ResultSet rs = getShiftsWithStatusStatement.executeQuery()
+            try {
+                while (rs.next()) {
+                    String shiftJson = rs.getString("shift")
+
+                    shifts.add(gsonProvider.gson.fromJson(shiftJson, Shift.class))
+                }
+            } finally {
+                rs.close()
+            }
+        }catch (Exception ex) {
+            log.error(String.format("Error loading active shift for retailer: %d shiftId: %d error: %s", springSecurityService.principal.retailerId, tillId, ex.getMessage()), ex)
+            throw new RuntimeException(String.format("Error loading active shift for retailer: %d tillId: %d error: %s", springSecurityService.principal.retailerId, tillId, ex.getMessage()), ex)
+        } finally {
+            getShiftsWithStatusStatement.close()
+            conn.close();
+        }
+
+        return shifts
+    }
+
     def getShift(int shiftId, int retailerId, int storeId) {
         Connection conn = getConnection()
         CallableStatement getShiftStatement = conn.prepareCall("{ call getShift(?, ?, ?) }")
@@ -339,21 +379,6 @@ class ShiftService extends MySqlPoolDal {
             addAudit(shift, ShiftAction.SPOT_CHECK, false, loggedInUser, null) //Add shift audit for shift close
         } catch (Exception ex) {
             log.error(String.format("Error adding spot check audit for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-        }
-    }
-
-    // This is method of processing ADD_FLOAT or CASH_LIFT request
-    void processShiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount, int safeId){
-        try {
-            ShiftAction shiftAction = isAddFloat ? ShiftAction.ADD_FLOAT : ShiftAction.CASH_LIFT
-            User loggedInUser = loadLoggedInUser()
-            shiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount) // Update shift related data (Tender total and Cash drawer)
-            shiftCashTenderMovementUpdate(shift, safeId, isAddFloat, cashAmount, voucherAmount) //Create new tender movement
-            shiftSafeSessionUpdate(safeId, isAddFloat, cashAmount, voucherAmount) //Move tender to safe session for add float or cash lift
-            addAudit(shift, shiftAction, false, loggedInUser, null) //Add shift audit for shift close
-        } catch (Exception ex) {
-            log.error(String.format("Error processing ${isAddFloat ? 'add float ' : 'cash lift '} for retailer id: %s store id: %s till id: %s error: %s", shift.getRetailerId(), shift.getStoreId(), shift.getTillId(), ex.getMessage()), ex)
-            throw new RuntimeException(String.format("Error processing  ${isAddFloat ? 'add float ' : 'cash lift '} for shift id ${shift.getId()}, safe id ${safeId} error: ${ex.getMessage()}"), ex)
         }
     }
 
@@ -731,14 +756,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void shiftCashUpdate(Shift shift, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount){
-        // If this is add float action then amounts need to be added on shift balances if cash lift then need to deduct from shift
-        BigDecimal adjustedCashAmount = isAddFloat ? cashAmount : cashAmount.negate()
-        shiftCashTenderUpdate(shift, isAddFloat, adjustedCashAmount, voucherAmount)
-        updateCashDrawer(shift, adjustedCashAmount)
-        saveShift(shift)
-    }
-
     private void shiftCashTenderMovementUpdate(Shift shift, int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount) {
         TenderMovementType tenderMovementType = isAddFloat ? TenderMovementType.ADD_FLOAT : TenderMovementType.CASH_LIFT
         Location tillLocation = locationService.getTillLocation(shift.tillId) as Location
@@ -775,14 +792,26 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    private void createNewTenderMovement(Location tillLocation, Location safeLocation, TenderMovementType tenderMovementType, Integer tenderTypeId, String tenderTypeName, BigDecimal updateAmount){
+    private void createNewTenderMovement(Location fromLocation, Location toLocation, TenderMovementType tenderMovementType, Integer tenderTypeId, String tenderTypeName, BigDecimal updateAmount){
         if (updateAmount.compareTo(BigDecimal.ZERO) != 0) {
-            reportingService.saveTenderMovement(reportingService.createNewTenderMovement(tenderMovementType,
-                    tenderTypeId,
-                    tenderTypeName,
-                    tillLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                    safeLocation as uk.co.wonderlane.wlpos.reporting.Location,
-                    updateAmount))
+            try {
+                TenderMovement tenderMovement = reportingService.createNewTenderMovement(
+                        tenderMovementType,
+                        tenderTypeId,
+                        tenderTypeName,
+                        fromLocation,
+                        toLocation,
+                        null,  // reasonCode
+                        null,  // bankingDate
+                        null,  // bank
+                        null,  // bankReferenceNumber
+                        null,  // comments
+                        updateAmount
+                )
+                reportingService.saveTenderMovement(tenderMovement)
+            } catch (Exception ex) {
+                log.error("Error saving tender movement for tender type: ${tenderType} error: ${ex.getMessage()}", ex)
+            }
         }
     }
 
@@ -834,19 +863,6 @@ class ShiftService extends MySqlPoolDal {
         }
     }
 
-    //This is for moving tender to safe session when add float and cash lift
-    private shiftSafeSessionUpdate(int safeId, boolean isAddFloat, BigDecimal cashAmount, BigDecimal voucherAmount) {
-        // todo this will need refactoring more with tender configs
-        Map<TenderType, BigDecimal> addedTenderAmounts = new HashMap<>()
-        if (cashAmount != null && cashAmount != BigDecimal.ZERO) {
-            addedTenderAmounts.put(TenderType.CASH, isAddFloat ? cashAmount.negate() : cashAmount)
-        }
-        if (voucherAmount != null && voucherAmount != BigDecimal.ZERO) {
-            addedTenderAmounts.put(TenderType.VOUCHER, isAddFloat ? voucherAmount.negate() : voucherAmount)
-        }
-        safeManagementService.addTenderToSafe(safeId, addedTenderAmounts)
-    }
-
     private void updateRollingFloatToOldShift(Shift oldShift, BigDecimal rollingFloatAmount){
         def oldTotal = oldShift.tenderTotals.find { it.tenderType == TenderType.CASH }
         oldTotal.value = oldTotal.value.subtract(rollingFloatAmount)
@@ -859,5 +875,4 @@ class ShiftService extends MySqlPoolDal {
         BigDecimal rollingFloatBigDecimal = BigDecimal.valueOf(rollingFloatValue).movePointLeft(2)
         return rollingFloatBigDecimal.min(expectedValue)
     }
-
 }

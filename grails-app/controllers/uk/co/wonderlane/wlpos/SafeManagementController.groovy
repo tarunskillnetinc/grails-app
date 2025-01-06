@@ -98,7 +98,9 @@ class SafeManagementController {
                                                                    isSafeFinalisingWarningRequired: isSafeFinalisingWarningRequired,
                                                                    tenderTypes: applicableTenderTypes])
                 } else {
-                    // Remove any tender types which do not need to be cashed up manually.
+                    //TODO CDMERGE
+                    safeSession.transferPendingTotals() // if counting then pending totals need to be included
+
                     applicableTenderTypes?.removeAll { it.cashTender } // Cash is handled completely separately.
                     applicableTenderTypes?.removeAll { it.autoReconcile } // Auto-reconciled, so not cashed up.
 
@@ -127,6 +129,9 @@ class SafeManagementController {
 
             // This is called either in reconcile or recount flow in this case safe session status can be either OPEN or RECONCILED
             if (safeSession != null && (safeSession.getSessionStatus() == SafeSessionStatus.OPEN || safeSession.getSessionStatus() == SafeSessionStatus.RECONCILED)) {
+                // ensure the save is called with the same version ID as when the data was retrieved
+                safeSession.setVersionId(safeSessionCashUpCommand.getVersionId())
+
                 def varianceReasons = reasonCodeService.getReasonCodesByType(safeSession.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_SAFE_VARIANCE)
 
                 safeManagementService.processInterimReconciliationSave(safeSessionCashUpCommand, safeSession)
@@ -139,7 +144,9 @@ class SafeManagementController {
 
                 response.status = 200
                 // Here this will load cash up summary with on hold data because that hasn't save into safe session's reconciliationTotals values
-                render(template: "cashUpSummaryModal", model: [safeSession: safeSession, varianceReasons: varianceReasons, isSafeSessionFinalizeMode: false,
+                render(template: "cashUpSummaryModal", model: [safeSession: safeSession,
+                                                               varianceReasons: varianceReasons,
+                                                               isSafeSessionFinalizeMode: false,
                                                                tillSafeSessionVarianceLimit : tillSafeSessionVarianceLimit,
                                                                safeDescription: safeSessionCashUpCommand.safeDescription,
                                                                isSafeFinalisingWarningRequired : isSafeFinalisingWarningRequired,
@@ -166,6 +173,9 @@ class SafeManagementController {
                 return
             }
 
+            // ensure the save is called with the same version ID as when the data was first retrieved
+            safeSession.setVersionId(safeSessionSaveCommand.getVersionId())
+
             // If it is RECONCILE request -> Session status must be OPEN
             // If it is RECOUNT or FINALISED request -> Session status must be RECONCILED
             def isReconcile = !safeSessionSaveCommand.isRecount && !safeSessionSaveCommand.isFinalise
@@ -174,16 +184,15 @@ class SafeManagementController {
             if (validStatus) {
                 safeManagementService.processDataSave(safeSessionSaveCommand, safeSession)
 
-                if (safeSessionSaveCommand.isFinalise) { //Only update this if it is finalized
-                    //Safe session finalise logic
-                    //If safe is active then create new safe and move all reconcile amounts into tender totals
-                    //If safe is in active but have cash in it then also create new safe and move all reconcile amounts into tender totals
+                if (safeSessionSaveCommand.isFinalise) {
+                    // If safe is active or has tender to move, then create the next safe session with said tender
                     Safe safe = safeService.getSafeById(safeSession.safeId)
 
                     List<TenderTotal> tenderTotals = safeSession.getCombinedReconciledAndPendingTotals()
 
                     //If safe is active or if save is inactive but have cash to move then create new safe session and assign counted values to new session
-                    if (safe.active || !tenderTotals.isEmpty()) {
+                    //TODOCDMERGE check the any works.
+                    if (safe.active || tenderTotals?.any { it.value != BigDecimal.ZERO }) {
                         safeManagementService.createNewSafeSessionWithTenderTotals(safe.retailerId, safe.storeId, safe.id, tenderTotals, false)
                     }
 
@@ -237,6 +246,7 @@ class SafeManagementController {
 class SafeSessionCashUpCommand {
 
     int safeSessionId
+    String versionId
     boolean isRecount
     String safeDescription
     String type // Type being navigated TO.
@@ -267,6 +277,7 @@ class SafeSessionCashUpTotalCommand {
 class SafeSessionSaveCommand {
 
     int safeSessionId
+    String versionId
     boolean isFinalise
     boolean isRecount
     String safeDescription

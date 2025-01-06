@@ -11,6 +11,7 @@
                 </div>
 
                 <g:hiddenField name="safeSessionId" value="${safeSession.id}"/>
+                <g:hiddenField name="versionId" value="${safeSession.versionId}" />
 
                 <g:if test="${safeSession.reconciliationTotals.size() > 0}">
                     <div class="row cash-up-by">
@@ -42,5 +43,5 @@
 
 <div class="modal-footer">
     <button type="button" id="cancelSafeSessionButton" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-    <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="saveSafeSessionCashUrl(${safeSession.id}, ${safeSession.reconciledDate != null}, `${safeDescription}`)">Save</button>
+    <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="saveSafeSessionCashUrl(${safeSession.id}, `${safeSession.versionId}`, ${safeSession.reconciledDate != null}, `${safeDescription}`)">Save</button>
 </div>
