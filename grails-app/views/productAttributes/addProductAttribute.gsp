@@ -156,7 +156,7 @@
               <div class="form-row align-items-end">
                 <div class="form-group col-md-6">
                   <label for="attributeName">Attribute Name</label>
-                  <g:textField name="attributeName" maxlength="30" class="form-control " />
+                  <g:textField name="attributeName" maxlength="50" class="form-control " />
                 </div>
                 <div class="form-group col-md-6">
                   <label for="displayAttribute">Display Attribute</label>
