@@ -71,13 +71,17 @@ class ProductAttributesController extends BaseController {
     def saveAttributeListItem() {
         def attributeId = params.attributeId ? Integer.parseInt(params.attributeId) : null
         if (attributeId == null) {
-            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.id.empty", [], Locale.default)], error: true], status: 400)
+            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.id.empty", null, Locale.default)],
+                                                             error: true
+            ],  status: 400)
             return
         }
 
         String itemName = params.itemName
         if (itemName == null || itemName.isEmpty() || itemName.isBlank()) {
-            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", [], Locale.default)], error: true], status: 400)
+            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", null, Locale.default)],
+                                                             error: true
+            ],  status: 400)
             return
         }
 
@@ -86,7 +90,9 @@ class ProductAttributesController extends BaseController {
         def result = productAttributesService.updateListValues(attributeId, currentList)
 
         if (!result.success) {
-            render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages, error: true], status: 400)
+            render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages,
+                                                             error: true
+            ],  status: 400)
         } else {
             render "OK"
         }
