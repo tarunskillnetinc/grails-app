@@ -124,3 +124,4 @@ class ProductAttributesController extends BaseController {
         render result as JSON
     }
 }
+
