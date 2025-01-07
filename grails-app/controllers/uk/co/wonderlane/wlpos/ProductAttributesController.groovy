@@ -45,13 +45,13 @@ class ProductAttributesController extends BaseController {
 
     def addProductAttribute() {
         def types = ProductAttributeType.values();
-        [attributeTypes : types]
+        [attributeTypes: types]
     }
 
     def saveProductAttribute() {
         def productAttributes = new ProductAttributes()
         productAttributes.name = params.attributeName
-        productAttributes.type = params.type? ProductAttributeType.valueOf(params.type): null
+        productAttributes.type = params.type ? ProductAttributeType.valueOf(params.type) : null
         productAttributes.defaultValue = params.defaultValue
         productAttributes.displayAttribute = params.displayAttribute != null ? params.displayAttribute == "on" : false
 
@@ -73,7 +73,7 @@ class ProductAttributesController extends BaseController {
         if (attributeId == null) {
             render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.id.empty", null, Locale.default)],
                                                              error: true
-            ],  status: 400)
+            ], status: 400)
             return
         }
 
@@ -81,15 +81,15 @@ class ProductAttributesController extends BaseController {
         if (itemName == null || itemName.isEmpty() || itemName.isBlank()) {
             render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.empty", null, Locale.default)],
                                                              error: true
-            ],  status: 400)
+            ], status: 400)
             return
         }
 
         List<String> currentList = productAttributesService.getListValues(attributeId) ?: []
-        if( currentList.stream().anyMatch(itemName::equalsIgnoreCase)) {
+        if (currentList.stream().anyMatch(itemName::equalsIgnoreCase)) {
             render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.not.unique", null, Locale.default)],
                                                              error: true
-            ],  status: 400)
+            ], status: 400)
             return
         }
 
@@ -99,7 +99,7 @@ class ProductAttributesController extends BaseController {
         if (!result.success) {
             render(template: "/errors/errorMessage", model: [errorMessages: result.errorMessages,
                                                              error: true
-            ],  status: 400)
+            ], status: 400)
         } else {
             render "OK"
         }
