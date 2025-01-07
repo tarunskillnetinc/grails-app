@@ -3,6 +3,7 @@ package uk.co.wonderlane.wlpos
 import com.google.gson.reflect.TypeToken
 import grails.gorm.transactions.Transactional
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 import groovy.sql.Sql
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
@@ -91,7 +92,7 @@ class ProductAttributesService extends MySqlDal{
         }
 
         try {
-            String jsonString = productAttribute.listValues
+            String jsonString = JsonOutput.toJson(productAttribute.listValues)
 
             if (jsonString) {
                 return gsonProvider.gson.fromJson(jsonString, new TypeToken<List<String>>(){}.getType())
