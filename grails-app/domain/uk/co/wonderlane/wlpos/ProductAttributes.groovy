@@ -55,7 +55,17 @@ class ProductAttributes {
                 }
             }
         }
-        defaultValue nullable: true
+
+        defaultValue nullable: true, validator: {val, obj ->
+            if (obj.type == ProductAttributeType.NUMERIC && val != null) {
+                if (!val.isNumber()) {
+                    return ['productAttribute.numeric.default.not.a.number']
+                } else if (val.toLong() > 999999999) {
+                    return ['productAttribute.numeric.default.out.of.range']
+                }
+            }
+        }
+
         listValues nullable: true
         displayAttribute validator: { val, obj ->
             if (val == null) {
