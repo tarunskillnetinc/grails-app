@@ -49,7 +49,7 @@ class ProductAttributes {
             } else if (ProductAttributes.findByName(val)){
                 return ['productAttribute.name.not.unique']
             } else {
-                def allowedCharactersRegex= /^[a-zA-Z0-9\\\\/.,]*$/
+                def allowedCharactersRegex= /^[a-zA-Z0-9 \\\\/.,]*$/
                 if (!(val ==~ allowedCharactersRegex)) {
                     return ['productAttribute.name.invalid.characters']
                 }
@@ -79,7 +79,9 @@ class ProductAttributes {
             return []
         }
         try {
-            return new JsonSlurper().parseText(this.listValues) as List<String>
+            List<String> results = new JsonSlurper().parseText(this.listValues) as List<String>
+            results.sort()
+            return results;
         } catch (Exception e) {
             log.error("Error parsing listValues JSON: ${e.message}", e)
             return []
