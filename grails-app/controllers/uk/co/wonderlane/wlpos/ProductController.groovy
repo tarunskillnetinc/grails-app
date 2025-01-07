@@ -1873,15 +1873,15 @@ class ProductController extends BaseController {
             Map<String, Barcode> existingBarcodes = new HashMap<>()
             if (productVariant.barcodez && !productVariant.barcodez.isEmpty()) {
                 productVariant.barcodez.forEach({ barcode ->
-                    existingBarcodes.put(barcode.id + "_" + barcode.barcode, barcode)
+                    existingBarcodes.put(barcode.barcode, barcode)
                 })
             }
 
             variant.barcodez.forEach({ barcode ->
                 Barcode productBarcode
 
-                if (existingBarcodes.containsKey(barcode.id + "_" + barcode.barcode)) {
-                    productBarcode = existingBarcodes.get(barcode.id + "_" + barcode.barcode)
+                if (existingBarcodes.containsKey(barcode.barcode)) {
+                    productBarcode = existingBarcodes.get(barcode.barcode)
                 } else {
                     productBarcode = new Barcode()
                 }
@@ -1907,10 +1907,10 @@ class ProductController extends BaseController {
     }
 
     def handleBarcodeValidation(Barcode barcode, Product product) {
-        if (barcode.barcode == null) {
-            return
+        if (barcode != null && StringUtils.isEmpty(barcode.getBarcode())) {
+            product.errors.reject('product.barcodes.empty', 'Barcode is empty.')
         }
-        if (barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
+        if (barcode != null && barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
             barcode.errors.allErrors
                     .each { FieldError error ->
                         final String field = error.field?.replace('profile.', '')
