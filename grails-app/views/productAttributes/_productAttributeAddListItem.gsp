@@ -15,7 +15,7 @@
     <label for="itemName" class="col-3 offset-1 col-form-label-mandatory text-right">Name</label>
     <div class="col-4">
       <div class="input-group number-box">
-        <g:field type="text" id="itemName" name="itemName" class="form-control select-border" />
+        <g:field type="text" id="itemName" name="itemName" class="form-control select-border" maxlength="50" />
       </div>
     </div>
   </div>
