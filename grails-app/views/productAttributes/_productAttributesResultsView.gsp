@@ -36,7 +36,7 @@
                                           noSelection="['':'Select a default value']"
                                           class="form-control default-value-select"
                                           data-attribute-id="${productAttribute.id}"
-                                          style="width: auto; display: inline-block;"/>
+                                          style="display: inline-block;"/>
                             </g:if>
                             <g:elseif test="${productAttribute.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
                                 ${productAttribute.defaultValue.capitalize()}

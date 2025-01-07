@@ -34,6 +34,16 @@
             min-height: calc(100% - 3.5rem);
         }
     }
+
+    #search-results .text-center {
+        display: grid;
+        align-items: center;
+    }
+
+    #search-results .row {
+        height: 3.3em;
+    }
+
     </style>
     <asset:javascript src="jquery-ui.js" />
 </head>
