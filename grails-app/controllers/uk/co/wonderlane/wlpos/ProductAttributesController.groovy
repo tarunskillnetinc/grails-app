@@ -86,6 +86,13 @@ class ProductAttributesController extends BaseController {
         }
 
         List<String> currentList = productAttributesService.getListValues(attributeId) ?: []
+        if( currentList.stream().anyMatch(itemName::equalsIgnoreCase)) {
+            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.listitem.not.unique", null, Locale.default)],
+                                                             error: true
+            ],  status: 400)
+            return
+        }
+
         currentList.add(itemName)
         def result = productAttributesService.updateListValues(attributeId, currentList)
 
