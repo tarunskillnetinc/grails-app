@@ -905,7 +905,7 @@ class ProductController extends BaseController {
             } else { // If barcode do exists change update existing values
 
                 //Only update if user has changed barcode value or else skip
-                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+                if (existingBarcode.barcode != editedBarcode.barcode) {
 
                     //Mark current barcode to delete this will insert new mark delete entry to DB
                     existingBarcode.delete = true
@@ -917,6 +917,7 @@ class ProductController extends BaseController {
                     futureBarcode.sku = existingVariant.sku
                     futureBarcode.retailerId = springSecurityService.principal.retailerId
                     futureBarcode.barcode = editedBarcode.barcode
+
                     futureBarcode.effectiveDate = effectiveDate
                     futureBarcode.recordStatus = 'C'
 
@@ -1872,15 +1873,15 @@ class ProductController extends BaseController {
             Map<String, Barcode> existingBarcodes = new HashMap<>()
             if (productVariant.barcodez && !productVariant.barcodez.isEmpty()) {
                 productVariant.barcodez.forEach({ barcode ->
-                    existingBarcodes.put(barcode.barcode, barcode)
+                    existingBarcodes.put(barcode.id + "_" + barcode.barcode, barcode)
                 })
             }
 
             variant.barcodez.forEach({ barcode ->
                 Barcode productBarcode
 
-                if (existingBarcodes.containsKey(barcode.barcode)) {
-                    productBarcode = existingBarcodes.get(barcode.barcode)
+                if (existingBarcodes.containsKey(barcode.id + "_" + barcode.barcode)) {
+                    productBarcode = existingBarcodes.get(barcode.id + "_" + barcode.barcode)
                 } else {
                     productBarcode = new Barcode()
                 }
