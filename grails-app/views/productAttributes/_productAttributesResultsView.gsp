@@ -20,7 +20,7 @@
             </g:if>
             <g:else>
                 <g:each in="${productAttributes}" var="productAttribute" status="i">
-                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable" title="Click to edit." style="cursor: pointer;">
+                    <div class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2} hoverable">
                         <div class="col-3 text-center">${productAttribute.name}</div>
                         <div class="col-1 text-center">${message(code: 'ProductAttributeType.' + productAttribute.type)}</div>
                         <div class="col-2 text-center">
