@@ -38,6 +38,9 @@
                                           data-attribute-id="${productAttribute.id}"
                                           style="width: auto; display: inline-block;"/>
                             </g:if>
+                            <g:elseif test="${productAttribute.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
+                                ${productAttribute.defaultValue.capitalize()}
+                            </g:elseif>
                             <g:else>
                                 ${productAttribute.defaultValue}
                             </g:else>
