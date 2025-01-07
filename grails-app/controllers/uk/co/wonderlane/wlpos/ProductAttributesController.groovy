@@ -93,6 +93,14 @@ class ProductAttributesController extends BaseController {
             return
         }
 
+        def allowedCharactersRegex= /^[a-zA-Z0-9 \\\\/.,]*$/
+        if (!(itemName ==~ allowedCharactersRegex)) {
+            render(template: "/errors/errorMessage", model: [errorMessages: ["attributeId": messageSource.getMessage("productAttribute.name.invalid.characters", null, Locale.default)],
+                                                             error: true
+            ], status: 400)
+            return
+        }
+
         currentList.add(itemName)
         def result = productAttributesService.updateListValues(attributeId, currentList)
 

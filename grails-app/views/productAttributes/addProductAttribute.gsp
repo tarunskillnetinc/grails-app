@@ -88,7 +88,7 @@
         dynamicInputContainer.innerHTML = `<g:field name="defaultValue" class="form-control" type="number" min="0" max="999999999" step="1" onkeydown="acceptDefaultNumeric(event,999999999);"/>`;
         $('#defaultValueLbl').show();
       } else if (selectedType === "TEXT") {
-        dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="30" class="form-control" />`;
+        dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="50" class="form-control" />`;
         $('#defaultValueLbl').show();
       }
     }
