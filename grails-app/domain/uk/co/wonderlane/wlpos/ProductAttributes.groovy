@@ -80,7 +80,7 @@ class ProductAttributes {
         }
         try {
             List<String> results = new JsonSlurper().parseText(this.listValues) as List<String>
-            results.sort()
+            Collections.sort(results, String.CASE_INSENSITIVE_ORDER);
             return results;
         } catch (Exception e) {
             log.error("Error parsing listValues JSON: ${e.message}", e)
