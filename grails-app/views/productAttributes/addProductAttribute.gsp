@@ -47,9 +47,9 @@
       typeChanged();
     };
 
-    $("#add-product-attribute-form :input").on("input", clearErrors);
-
     $(document).ready(function () {
+      $("#add-product-attribute-form :input").on("input", clearErrors);
+
       $('#add-product-attribute-form').bind('keydown', function (e) {
         if (e.keyCode == 13) {
           $('#save-btn').click();
