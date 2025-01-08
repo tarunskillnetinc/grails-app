@@ -40,6 +40,11 @@ class ProductAttributesService extends MySqlDal{
 
         try {
             productAttribute.retailerId = springSecurityService.principal.retailerId
+
+            if (productAttribute.defaultValue == "") {
+                productAttribute.defaultValue = null
+            }
+
             if (!productAttribute.validate()) {
                 result.success = false
                 def errorMessages = productAttribute.errors.fieldErrors.collectEntries { error ->
