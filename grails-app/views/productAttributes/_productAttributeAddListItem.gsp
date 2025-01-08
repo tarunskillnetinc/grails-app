@@ -10,6 +10,17 @@
   <!-- Hidden field for id -->
   <g:hiddenField name="attributeId" value="${attributeId}" />
 
+  <script>
+    $(document).ready(function () {
+      $('#addListItemForm').bind('keydown', function (e) {
+        if (e.keyCode == 13) {
+          $('#saveAddSupplierButton').click();
+          e.preventDefault()
+        }
+      });
+    });
+  </script>
+
   <!-- Integer field for startIndex -->
   <div class="row form-group mb-4 mt-4">
     <label for="itemName" class="col-3 offset-1 col-form-label-mandatory text-right">Name</label>
