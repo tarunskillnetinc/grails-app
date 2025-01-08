@@ -1,6 +1,7 @@
 package uk.co.wonderlane.wlpos
 
 import grails.gorm.transactions.Transactional
+import org.apache.commons.lang3.StringUtils
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.hibernate.criterion.Projections
@@ -176,7 +177,7 @@ class ProductService extends MySqlDal {
                     deletedBarcode.recordStatus = 'D'
                     deletedBarcode.save()
                 } else if (barcode instanceof Barcode) {
-                    if (barcode.barcode != null) {
+                    if (!StringUtils.isEmpty(barcode.barcode)) {
                         barcode.save()
                     }
                 }

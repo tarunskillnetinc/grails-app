@@ -35,7 +35,7 @@ class Barcode {
         sku nullable: true
         pack nullable: true
         retailerId nullable: false
-        barcode size: 1..20, blank: true, nullable: true, validator: { val, obj ->
+        barcode size: 1..20, blank: false, nullable: false, validator: { val, obj ->
             if (!obj.isBarcodeNonProductType(obj.retailerId)) {
                 //Initially set barcode value is available for use
                 boolean isBarcodeActive = false
