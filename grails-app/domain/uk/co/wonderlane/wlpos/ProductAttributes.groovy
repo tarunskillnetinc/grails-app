@@ -46,7 +46,7 @@ class ProductAttributes {
                 return ['productAttribute.name.empty']
             } else if (val.length() > 50) {
                 return ['productattributes.name.charLength']
-            } else if (ProductAttributes.findByNameAndRetailerId(val, obj.retailerId) ) {
+            } else if (ProductAttributes.findByName(val)){
                 return ['productAttribute.name.not.unique']
             } else {
                 def allowedCharactersRegex= /^[a-zA-Z0-9 \\\\/.,]*$/
