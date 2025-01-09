@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "STMP.8.03-SNAPSHOT"
+version "STMP.8.05-SNAPSHOT"
 group "uk.co.wonderlane.wlpos"
 
 apply plugin:"idea"
