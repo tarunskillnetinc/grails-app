@@ -513,7 +513,7 @@ class ProductController extends BaseController {
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
 
-                    if (!StringUtils.isEmpty(barcode.barcode) || !barcode.validate()) {
+                    if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                         handleBarcodeValidation(barcode, product)
                     }
                 }
