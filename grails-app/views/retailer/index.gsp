@@ -825,30 +825,16 @@
                                         bottomFileButtonName,
                                         "bottomSettingsButton"
                                 ]
-                                var itemList = [
-                                        "gapCheck",
-                                        "stockCount",
-                                        "replenishment",
-                                        "shelfAudit",
-                                        "excessCount",
-                                        "pickList",
-                                        "centralCounts",
-                                        "dynamicReplenishment",
-                                        "fitToShelf",
-                                        "orders",
-                                        "deliveries",
-                                        "releaseItem",
-                                        "inventoryAdjustment",
-                                        "transfersIn",
-                                        "transfersOut",
-                                        "shelfEdgeLabels",
-                                        "priceCheck",
-                                        "storeSales",
-                                        "storeReports",
-                                        "varianceReport"
-                                ]
-
-                                itemList.addAll(bottomButtonNames)
+                                var itemList = retailer?.config?.retailerFunctionConfig?.functionMenuItems?.keySet()?.toList()
+                                Collections.sort(itemList) // sort alphabetically
+                                itemList.sort { a, b ->
+                                    if (bottomButtonNames.contains(a) && !bottomButtonNames.contains(b)) {
+                                        return 1
+                                    } else if (!bottomButtonNames.contains(a) && bottomButtonNames.contains(b)) {
+                                        return -1
+                                    }
+                                    return 0
+                                } // move bottom buttons to end of list
                             %>
                             <g:each in="${itemList}" var="item" status="index">
                                 <div class="card bg-light border-wl accordion-card col-12 col-lg-10 offset-lg-1 px-0">
