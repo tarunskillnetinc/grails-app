@@ -856,7 +856,7 @@ class ProductController extends BaseController {
 
                         newVariant.barcodez.add(newBarcode)
 
-                        if (!newBarcode.validate()) {
+                        if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                             handleBarcodeValidation(newBarcode, product)
                         }
                 })
