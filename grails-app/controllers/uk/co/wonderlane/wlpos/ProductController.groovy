@@ -1907,9 +1907,6 @@ class ProductController extends BaseController {
     }
 
     def handleBarcodeValidation(Barcode barcode, Product product) {
-        if (barcode != null && StringUtils.isEmpty(barcode.getBarcode())) {
-            product.errors.reject('product.barcodes.empty', 'Barcode is empty.')
-        }
         if (barcode != null && barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
             barcode.errors.allErrors
                     .each { FieldError error ->
