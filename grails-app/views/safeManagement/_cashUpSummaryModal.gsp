@@ -1,3 +1,32 @@
+<script>
+
+    var reasonPromptMap = {};
+    <g:each in="${varianceReasons}" var="reason">
+        reasonPromptMap['${reason.code}'] = ${reason.promptForText};
+    </g:each>
+
+    function toggleAdditionalTextBox(select) {
+        var selectedCode = select.value;
+        var promptForText = reasonPromptMap[selectedCode];
+        var additionalTextBox = document.getElementById('additionalReasonTextBox');
+        additionalTextBox.style.display = promptForText ? 'block' : 'none';
+    }
+
+    // Function to initialize the state
+    function initializeState() {
+        var select = document.querySelector('select[name="tenderReconciliationVarianceReason"]');
+        if (select) {
+            toggleAdditionalTextBox(select);
+        }
+    }
+
+    // Try to initialize immediately
+    initializeState();
+
+    // Also try again after a short delay
+    setTimeout(initializeState, 100);
+</script>
+
 <div class="modal-header">
     <h2>Safe Session Management</h2>
 </div>
@@ -69,8 +98,7 @@
                             </p>
                         </div>
 
-
-                        <g:if test="${reconciliationTotalsSum >  tillSafeSessionVarianceLimit}">
+                        <g:if test="${reconciliationTotalsSum > tillSafeSessionVarianceLimit}">
                             <g:if test="${varianceReasons.size() > 0}">
                                 <div class="row pt-2 pb-2">
                                     <p class="mx-auto">Please select a reason:</p>
@@ -82,14 +110,19 @@
                                                   optionKey="code"
                                                   optionValue="description"
                                                   value="${reconciliationTotals.find { it.varianceReason != null }?.varianceReason}"
-                                                  class="form-control select-border form-control-sm" />
+                                                  class="form-control select-border form-control-sm"
+                                                  onchange="toggleAdditionalTextBox(this)"/>
                                     </div>
                                 </div>
                             </g:if>
-                            <div class="row pt-1 pb-2 form-group">
+                            <div id="additionalReasonTextBox" class="row pt-1 pb-2 form-group" style="display: none;">
                                 <div class="col-6 mx-auto">
-                                    <g:textField name="tenderReconciliationVarianceReasonText" class="form-control bottom-border" placeholder="Additional reason (optional)."
-                                                 maxLength="40" size="40" value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}"/>
+                                    <g:textField name="tenderReconciliationVarianceReasonText"
+                                                 class="form-control bottom-border"
+                                                 placeholder="Additional reason (optional)."
+                                                 maxLength="40"
+                                                 size="40"
+                                                 value="${reconciliationTotals.find { it.varianceReasonText != null }?.varianceReasonText}"/>
                                 </div>
                             </div>
                         </g:if>
@@ -135,10 +168,10 @@
 <div class="modal-footer">
     <button type="button" id="cancelSafeSessionButton" class="btn btn-secondary" data-dismiss="modal" onclick="getSafeSessions()">${safeSession.reconciledDate == null ? 'Cancel' : 'Close'}</button>
     <g:if test="${!isSafeSessionFinalizeMode}">
-        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, ${safeSession.reconciledDate != null}, false, '${safeDescription}', ${isSafeFinalisingWarningRequired})" >Save</button>
+        <button type="button" id="saveSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, `${safeSession.versionId}`, ${safeSession.reconciledDate != null}, false, '${safeDescription}', ${isSafeFinalisingWarningRequired})" >Save</button>
     </g:if>
     <g:else>
         %{-- Here can use same `submitSafeSession` action--}%
-        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, false, true, '${safeDescription}', ${isSafeFinalisingWarningRequired})">Finalise</button>
+        <button type="button" id="finalizeSafeSessionButton" class="btn btn-success" onclick="submitSafeSession(${safeSession.id}, `${safeSession.versionId}`, false, true, '${safeDescription}', ${isSafeFinalisingWarningRequired})">Finalise</button>
     </g:else>
 </div>

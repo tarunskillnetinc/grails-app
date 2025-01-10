@@ -23,7 +23,13 @@ function showCashModal(shiftId, isRecount, isFinalise) {
         method: "POST",
         data: { shiftId: shiftId, isRecount: isRecount, isFinalise: isFinalise },
         success: function(resp) {
-            $('#shiftModal').modal({ show: true });
+
+            if ($('#shiftModal').length) {
+                $('#shiftModal').data('bs.modal',null); // this clears the BS modal data if already configured (allowing us to change the 'backdrop'/'keyboard' mode)
+            }
+            //Ensure that clicking outside the modal, or pressing ESC doesn't leave the modal
+            $('#shiftModal').modal({ show: true, backdrop: 'static', keyboard: false });
+
             $("#modal-content").html(resp);
 
             $(".mask-money").maskMoney({ allowZero: true });
@@ -187,13 +193,9 @@ function submitShift(shiftId, isRecount, isFinalise) {
             method: "POST",
             data: formValues,
             success: function(resp) {
-                if (isFinalise){
-                    $("#modal-content").html('')
-                    $('#shiftModal').modal('hide'); // This line hides the modal
-                    $("#results-container").html(resp);
-                } else {
-                    $("#modal-content").html(resp);
-                }
+                $("#modal-content").html('')
+                $('#shiftModal').modal('hide');
+                $("#results-container").html(resp);
             },
             error: function (resp) {
                 if ($("#modal-content").length) {
@@ -261,30 +263,16 @@ function spotCheck(retailerId, storeId, tillId, shiftId) {
         method: "POST",
         data: {retailerId: retailerId, storeId: storeId,  tillId: tillId, shiftId: shiftId, tillIdFilter: tillIdFilter},
         success: function(resp) {
+
+            if ($('#shiftModal').length) {
+                $('#shiftModal').data('bs.modal',null); // this clears the BS modal data if already configured
+            }
             $('#shiftModal').modal({ show: true });
+
             $("#modal-content").html(resp);
         },
         error: function(resp) {
              $("#search-results").show();
-            var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
-            $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
-        },
-    });
-}
-
-function cashUpdateModal(isAddFloat, retailerId, storeId, tillId, shiftId) {
-    $.ajax({
-        url: ShiftUrls.cashUpdateModal(),
-        method: "POST",
-        data: {isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId, tillId: tillId, shiftId: shiftId},
-        success: function(resp) {
-            $('#shiftModal').modal({ show: true });
-            $("#modal-content").html(resp);
-            $(".mask-money").maskMoney({ allowZero: true });
-            $(".mask-money").maskMoney('mask');
-        },
-        error: function(resp) {
-            $('#search-results').show();
             var errorMessage = resp.responseJSON && resp.responseJSON.message ? resp.responseJSON.message : "Action failed for shiftId: " + shiftId;
             $("#messages-container").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + errorMessage + '</div>');
         },

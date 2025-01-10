@@ -112,7 +112,7 @@ class ShiftController {
                     // For that select if no have create safe location
                     def safes = safeService.getStoreSafes()
                     def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safes: safes, varianceReasons:varianceReasons])
+                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons])
                     return
                 }
                 render(template: "cashUpModal", model: [shift: shift])
@@ -194,7 +194,7 @@ class ShiftController {
                 def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
                 if (shift.getShiftStatus() == ShiftStatus.RECONCILED && !shiftService.isShiftRecountAmountNotExceed(shift)) {
                     def safes = safeService.getStoreSafes()
-                    render(template: "cashUpSummaryModal", model: [shift: shift, isShiftFinalizeMode: true, safes: safes, varianceReasons:varianceReasons])
+                    render(template: "cashUpFinalizeModal", model: [shift: shift, safes: safes, varianceReasons:varianceReasons])
                     return
                 }
                 shiftService.processShiftCashSave(cashUpCommand, shift)
@@ -203,7 +203,7 @@ class ShiftController {
                 def tillShiftVarianceLimit = cashManagementConfig?new BigDecimal(cashManagementConfig.getTillShiftVarianceLimit()).movePointLeft(2):0.00
                 response.status = 200
                 //Here this will load cash up summary with on hold data because that hasn't save into shift's reconciliationTotals values
-                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safes: safes, isShiftFinalizeMode: false,
+                render(template: "cashUpSummaryModal", model: [shift: shift, varianceReasons: varianceReasons, safes: safes,
                                                                tillShiftVarianceLimit : tillShiftVarianceLimit])
             } else if (shift != null && !cashUpCommand.isRecount && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
@@ -243,11 +243,11 @@ class ShiftController {
                     shiftService.updateFinaliseShiftToSafeSessionMovements(shift, saveShiftCommand.safeId) //Move into safe session
                     redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter, successMessage: String.format("Successfully finalised shift %d for till %d.", shift.getShiftNumber(), shift.getTillId())])
                     return
+                } else {
+                    Integer tillIdFilter = saveShiftCommand.tillIdFilter ? Integer.parseInt(saveShiftCommand.tillIdFilter) : null
+                    redirect(action: "ajaxGetShifts", params: [tillId: tillIdFilter])
+                    return
                 }
-                def safes = safeService.getStoreSafes()
-                def varianceReasons = reasonCodeService.getReasonCodesByType(shift.getRetailerId(), ReasonCodeType.TENDER_RECONCILIATION_VARIANCE)
-                //Here this will load cash up summary with actual shift's reconciliationTotals values because that is now confirmed
-                render(template: "cashUpSummaryModal", model: [shift: shift,  safes: safes, isShiftFinalizeMode: true, varianceReasons:varianceReasons])
             } else if (shift != null && !saveShiftCommand.isRecount && !saveShiftCommand.isFinalise && shift.getShiftStatus() != ShiftStatus.UNRECONCILED) {
                 // Request is for reconcile but already reconciled
                 render(status: 400, contentType: 'application/json', message: "Failed to reconcile shift. Already reconciled.")
@@ -434,61 +434,6 @@ class ShiftController {
             render(status: 400, contentType: 'application/json', message: error)
         }
     }
-
-    // This will update cash based on add float and cash lift
-    def ajaxSaveCashUpdate(){
-        boolean isAddFloat = false
-        Integer retailerId = null
-        Integer storeId = null
-        Integer tillId = null
-        Integer shiftId = null
-        BigDecimal cashAmount = null
-        BigDecimal voucherAmount = null
-        Integer safeId = null
-        try {
-            NumberFormat format = NumberFormat.getInstance(Locale.UK)
-            isAddFloat = Boolean.parseBoolean(params.isAddFloat)
-            shiftService.validateParams(params)
-            retailerId = Integer.parseInt(params.retailerId)
-            storeId = Integer.parseInt(params.storeId)
-            tillId = Integer.parseInt(params.tillId)
-            shiftId = params.shiftId ? Integer.parseInt(params.shiftId) : -1
-            safeId = params.safeId ? Integer.parseInt(params.safeId) : -1
-            cashAmount = params.cashTotal ? new BigDecimal(format.parse(params.cashTotal)?.toString()) : BigDecimal.ZERO
-            voucherAmount = params.vouchersTotal ? new BigDecimal(format.parse(params.vouchersTotal)?.toString()) : BigDecimal.ZERO
-            def shift = shiftService.getShift(shiftId, retailerId, storeId) //Load existing open shift
-            if (shift != null) { // If shift not exists then process the action
-                // Process save cash update based on cash lift and add float logic
-                // This will
-                // 1. Update shift balances
-                //    (If add float -> add cash and voucher amounts in tender and cash drawer)
-                //    (If cash lift -> deduct cash amounts in tender and cash drawer)
-                // 2. Update safe session balances
-                //    (If add float -> deduct cash and voucher amounts from totals)
-                //    (If cash lift -> add cash amounts from totals)
-                // 3. Create tender movements
-                // 4. Add audit
-                if (safeManagementService.getOpenSafeSession(safeId)) {
-                    shiftService.processShiftCashUpdate(shift, isAddFloat, cashAmount, voucherAmount, safeId)
-                    render "OK"
-                } else {
-                    flash.error = "No open safe session available for safe id ${safeId}"
-                    throw new RuntimeException("No open safe session available for safe id ${safeId}")
-                }
-            } else {
-                flash.error = "No shift exists anymore"
-                throw new RuntimeException("No shift exists anymore")
-            }
-        } catch (Exception ex) {
-            log.error(String.format("${isAddFloat ? 'Add float ' : 'Cash lift '} saving error for shift id: %d retailer id: %d till id: %d and for store id: %d error: %s", shiftId, retailerId, tillId, storeId, ex.getMessage()), ex)
-            String error =  "${isAddFloat ? 'Add float ' : 'Cash lift '} action failed. "
-            if (flash.error) {
-                error = error + flash.error
-            }
-            redirect(action: "ajaxCashUpdateModal", params: [tillId: tillId, isAddFloat: isAddFloat, retailerId: retailerId, storeId: storeId, shiftId: shiftId, safeId: safeId, cashAmount: cashAmount, voucherAmount: voucherAmount, error: error])
-        }
-    }
-
 
 }
 

@@ -14,6 +14,7 @@ import uk.co.wonderlane.wlpos.enums.wlim.ProductListType
 import uk.co.wonderlane.wlpos.reporting.*
 
 import java.math.RoundingMode
+import java.util.stream.Collectors
 
 class ReportingController {
 
@@ -1533,7 +1534,10 @@ class ReportingController {
 
         def stores = storeService.getStores(springSecurityService.principal.retailerId)
 
-        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: TenderMovementType.values(), stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
+        def movementTypes = TenderMovementType.values().stream()
+                .sorted(Comparator.comparing(t -> t.toString()))
+                .collect(Collectors.toList())
+        [reportType: ReportType.TENDER_MOVEMENTS, tenderTypes: TenderType.values(), tenderMovementTypes: movementTypes, stores: stores, startDate: startDate, endDate: endDate, storeId: storeId, userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS)]
     }
 
     def ajaxTenderMovements(SortParams sortParams) {
@@ -1547,15 +1551,15 @@ class ReportingController {
         TenderType tenderType = params.tenderType ? TenderType.valueOf(params.tenderType) : null
         Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
 
-        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder).toList()
+        def tenderMovements = reportingService.getTenderMovements(startDate, endDate.plusDays(1), tenderMovementType, tenderType, storeId, sortParams.max, sortParams.offset, sortParams.sortColumn, sortParams.sortOrder)
 
         if (params.csv != null && params.csv == "true") {
             def fileName = "TenderMovements-" + new Date().format("yyyy_MM_dd_HH_mm_ss") + ".csv"
             response.setHeader("Content-Disposition", "attachment; filename=${fileName}")
             response.setHeader("Content-Type", "text/csv;")
-            render getTenderMovementsCsv(tenderMovements)
+            render getTenderMovementsCsv(tenderMovements?.tenderMovements?.toList())
         } else {
-            render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements,
+            render (template: "tenderMovementsResults", model: [tenderMovements: tenderMovements?.tenderMovements?.toList(),
                                                                 userColumns: reportingService.getReportColumns(ReportType.TENDER_MOVEMENTS),
                                                                 sortParams: sortParams,
                                                                 startDate: startDate,
@@ -1563,7 +1567,7 @@ class ReportingController {
                                                                 tenderMovementType: tenderMovementType,
                                                                 tenderType: tenderType,
                                                                 storeId: storeId,
-                                                                totalResults: tenderMovements.size()])
+                                                                totalResults: tenderMovements?.totalCount])
         }
     }
 

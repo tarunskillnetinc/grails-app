@@ -247,6 +247,27 @@ beans = {
 
     }
 
+    tenderMovementService(TenderMovementService) {
+        springSecurityService = ref('springSecurityService')
+        storeService = ref('storeService')
+        reportingService = ref('reportingService')
+        locationService = ref('locationService')
+        safeManagementService = ref('safeManagementService')
+        shiftService = ref('shiftService')
+        userService = ref('userService')
+        safeService = ref('safeService')
+    }
+
+    productAttributesService(ProductAttributesService, new DatabaseCredentials(grailsApplication.config.getProperty('mysql.wlpos.host'),
+            Integer.parseInt(grailsApplication.config.getProperty('mysql.wlpos.port')),
+            grailsApplication.config.getProperty('mysql.wlpos.username'),
+            grailsApplication.config.getProperty('mysql.wlpos.password'),
+            grailsApplication.config.getProperty('mysql.wlpos.database'))) {
+        springSecurityService = ref('springSecurityService')
+        messageSource = ref('messageSource')
+        gsonProvider = ref('gsonProvider')
+    }
+
 
     gsonProvider(GsonProvider)
 

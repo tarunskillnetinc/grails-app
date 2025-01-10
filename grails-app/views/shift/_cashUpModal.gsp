@@ -3,7 +3,7 @@
 </div>
 
 <div class="row mt-3 mb-2">
-    <div class="col-8 pr-0" style="-ms-flex: 0 0 63%; flex: 0 0 63%; max-width: 63%;">
+    <div class="col-12">
         <g:if test="${shift.reconciliationTotals.size() > 0}">
             <div class="row cash-up-by">
                 <p class="mx-auto">Cash up by <a id="cashUpByValueLink" href="#" onclick="changeCashUpType('VALUE');">value</a>, <a id="cashUpByDenominationLink" href="#" onclick="changeCashUpType('DENOMINATION');">denomination</a> or <a id="cashUpByTotalsLink" href="#" class="disabled">totals</a></p>
@@ -22,10 +22,6 @@
                 <g:render template="cashUpByValue" />
             </div>
         </g:else>
-    </div>
-
-    <div class="col-4 pl-0" style="-ms-flex: 0 0 37%; flex: 0 0 37%; max-width: 37%;">
-        <g:render template="shiftReport" model="[shift: shift]" />
     </div>
 </div>
 
