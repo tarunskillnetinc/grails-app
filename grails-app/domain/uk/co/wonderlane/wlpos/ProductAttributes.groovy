@@ -49,7 +49,7 @@ class ProductAttributes {
             } else if (ProductAttributes.findByNameAndRetailerId(val, obj.retailerId) ) {
                 return ['productAttribute.name.not.unique']
             } else {
-                def allowedCharactersRegex= /^[a-zA-Z0-9 \\\\/.,]*$/
+                def allowedCharactersRegex= /^[a-zA-Z0-9 \\\\/.,()\-]*$/
                 if (!(val ==~ allowedCharactersRegex)) {
                     return ['productAttribute.name.invalid.characters']
                 }
