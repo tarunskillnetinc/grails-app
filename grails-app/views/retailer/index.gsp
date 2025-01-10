@@ -825,7 +825,7 @@
                                         bottomFileButtonName,
                                         "bottomSettingsButton"
                                 ]
-                                var itemList = retailer?.config?.retailerFunctionConfig?.functionMenuItems?.keySet()?.toList()
+                                var itemList = retailer?.config?.retailerFunctionConfig?.functionMenuItems?.keySet()?.findAll { it != "productLookup" }?.toList()
                                 Collections.sort(itemList) // sort alphabetically
                                 itemList.sort { a, b ->
                                     if (bottomButtonNames.contains(a) && !bottomButtonNames.contains(b)) {
