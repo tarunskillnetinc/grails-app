@@ -899,7 +899,7 @@ class ProductController extends BaseController {
 
                 existingVariant.barcodez.add(barcode)
 
-                 if (!barcode.validate()) {
+                if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                      handleBarcodeValidation(barcode, product)
                 }
             } else { // If barcode do exists change update existing values
@@ -921,7 +921,7 @@ class ProductController extends BaseController {
                     futureBarcode.effectiveDate = effectiveDate
                     futureBarcode.recordStatus = 'C'
 
-                    if (!futureBarcode.validate()) {
+                    if (!StringUtils.isEmpty(futureBarcode.barcode) && !futureBarcode.validate()) {
                         handleBarcodeValidation(futureBarcode, product)
                     } else {
                         //Add mark deleted barcode and newly updated barcode to add into DB
@@ -1907,9 +1907,6 @@ class ProductController extends BaseController {
     }
 
     def handleBarcodeValidation(Barcode barcode, Product product) {
-        if (barcode != null && StringUtils.isEmpty(barcode.getBarcode())) {
-            product.errors.reject('product.barcodes.empty', 'Barcode is empty.')
-        }
         if (barcode != null && barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
             barcode.errors.allErrors
                     .each { FieldError error ->
