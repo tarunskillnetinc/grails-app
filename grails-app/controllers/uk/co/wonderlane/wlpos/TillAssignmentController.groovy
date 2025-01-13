@@ -144,6 +144,7 @@ class TillAssignmentController {
                 till.pposControlBar = ""
                 till.pin = 0
                 till.dateTimeCreated = DateTime.now(DateTimeZone.UTC)
+                till.pinExpiry = DateTime.now(DateTimeZone.UTC)
             }
 
             till.retailerId = springSecurityService.principal.retailerId

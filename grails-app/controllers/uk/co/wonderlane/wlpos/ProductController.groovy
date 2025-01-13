@@ -21,7 +21,6 @@ import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
-import uk.co.wonderlane.wlpos.enums.StockSale
 import uk.co.wonderlane.wlpos.supplier.Pack
 import uk.co.wonderlane.wlpos.supplier.Supplier
 
@@ -487,6 +486,9 @@ class ProductController extends BaseController {
                     }
                 }
                 product = new Product(paramsMap)
+                if (product.variants != null) {
+                    product.variants.removeAll { it == null } // Remove any null variants from list.
+                }
             } else {
                 product = new Product()
                 copyProduct(editedProduct, product)
@@ -554,7 +556,6 @@ class ProductController extends BaseController {
             product.status = editedProduct.status
             product.preferredSku = editedProduct.preferredSku
             product.retailerProductId = editedProduct.retailerProductId
-            product.stockSale = editedProduct.stockSale
             product.selType = editedProduct.selType
             product.selDescription = editedProduct.selDescription ?: editedProduct.receiptDescription?.take(16)
             product.productImgUrl = editedProduct.productImgUrl
@@ -1141,33 +1142,31 @@ class ProductController extends BaseController {
         List<Integer> newPacksIds = new ArrayList<>()
 
         editedVariant.packs?.each { editedPack ->
-            if (editedPack != null) {
-                def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id == editedPack.id }
+            def existingPack = existingVariant.packs?.find { existingPack -> existingPack != null && existingPack.id != 0 && existingPack.id == editedPack.id }
 
-                if (existingPack && packChanged(editedPack, existingPack)) {
-                    updatePack(existingPack, editedPack, now)
-                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
-                } else if (!existingPack) {
-                    Pack newPack = new Pack()
-                    editedPack.barcodez.each { barcode ->
-                        Barcode newBarcode = new Barcode()
-                        newBarcode.retailerId = springSecurityService.principal.retailerId
-                        newBarcode.effectiveDate = effectiveDate
-                        newBarcode.pack = newPack
-                        newBarcode.barcode = barcode.barcode
-                        newBarcode.recordStatus = 'C'
-                        newPack.barcodez.add(newBarcode)
-                    }
-                    updatePack(newPack, editedPack, now)
-                    existingVariant.addToPacks(newPack)
-                    checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
-                    if (newPack.id > 0) {
-                        // New pack id got set when retrieving barcodes from DB
-                        newPacksIds.add(newPack.id)
-                    }
-                } else {
-                    checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
+            if (existingPack && packChanged(editedPack, existingPack)) {
+                updatePack(existingPack, editedPack, now)
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
+            } else if (!existingPack) {
+                Pack newPack = new Pack()
+                editedPack.barcodez.each { barcode ->
+                    Barcode newBarcode = new Barcode()
+                    newBarcode.retailerId = springSecurityService.principal.retailerId
+                    newBarcode.effectiveDate = effectiveDate
+                    newBarcode.pack = newPack
+                    newBarcode.barcode = barcode.barcode
+                    newBarcode.recordStatus = 'C'
+                    newPack.barcodez.add(newBarcode)
                 }
+                updatePack(newPack, editedPack, now)
+                existingVariant.addToPacks(newPack)
+                checkPackForBarcodeChanges(editedVariant.packs, product, newPack, editedPack, effectiveDate, (int) editedVariant.id)
+                if (newPack.id > 0) {
+                    // New pack id got set when retrieving barcodes from DB
+                    newPacksIds.add(newPack.id)
+                }
+            } else {
+                checkPackForBarcodeChanges(editedVariant.packs, product, existingPack, editedPack, effectiveDate, (int) editedVariant.id)
             }
         }
         def packsToRemove = []
@@ -1332,8 +1331,6 @@ class ProductController extends BaseController {
         builder.compare("discreetMessage", product.discreetMessage, editedProduct.discreetMessage)
         builder.compare("status", product.status, editedProduct.status)
         builder.compare("preferredSku", product.preferredSku, editedProduct.preferredSku, ProductHistoryType.PREFERRED_SKU)
-
-        builder.compare("stockSale", product.stockSale, editedProduct.stockSale)
 
         builder.compare("selDescription", product.selDescription, editedProduct.selDescription)
         builder.compare("selType", product.selType?.name, editedProduct.selType?.name)
@@ -1975,8 +1972,8 @@ class ProductController extends BaseController {
     }
 
     def isValidSku(long sku) {
-        def existingVariant = ProductVariant.findBySku(sku)
-        return existingVariant == null
+        def existingVariants = ProductVariant.countMatchingSkusForRetailer(sku, springSecurityService.principal.retailerId)
+        return existingVariants == 0
     }
 }
 
@@ -2172,7 +2169,6 @@ class ProductCommand {
     ProductStatus status
     String retailerProductId
     DateTime effectiveDate
-    StockSale stockSale
     String selDescription
     SelType selType
     String productImgUrl

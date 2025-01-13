@@ -13,17 +13,11 @@ class FinancialWeekController {
     @Secured(['ROLE_ENGINEER'])
     def index() {
         try {
-            var actionSuccess = true
-            var message = null
-            List<String> financialYears = financialWeekService.loadFinancialYears()
+            int retailerId = springSecurityService.principal.retailerId
+            List<String> financialYears = financialWeekService.loadFinancialYears(retailerId)
             boolean enableCsvDownload = financialYears != null && !financialYears.isEmpty()
-            if (params?.status) {
-                actionSuccess = params?.status
-            }
-
-            if (params?.message) {
-                message = params?.message
-            }
+            def message = flash.error ?: flash.success
+            def actionSuccess = flash.error ? false : true
             render(view: 'index', model: [financialYears: financialYears, actionSuccess: actionSuccess, enableCsvDownload : enableCsvDownload, message: message])
         } catch (Exception ex){
             log.error("Error loading financial weeks: $ex.message", ex)
@@ -33,7 +27,7 @@ class FinancialWeekController {
 
     @Secured(['ROLE_ENGINEER'])
     def ajaxCSVFinancialWeekImport() {
-        def retailerId = Retailer.get(springSecurityService.principal.retailerId).id
+        int retailerId = springSecurityService.principal.retailerId
         def file = request.getFile('file')
         List<String> errors = []
         int maxErrors = 10
@@ -42,7 +36,7 @@ class FinancialWeekController {
             List<String[]> rows = financialWeekService.readCsvFile(file)
 
             //Validate existing financial years --> check against database
-            financialWeekService.financialYearPreValidation(rows, errors)
+            financialWeekService.financialYearPreValidation(rows, errors, retailerId)
 
             //This method will validate each row
             // 1 -> Do row level validation
@@ -62,7 +56,7 @@ class FinancialWeekController {
             if (errors.isEmpty()) {  // If no validation errors, save to database as batch
                 //Persist all successful entries as batch insert
                 financialWeekService.saveFinancialWeeksInBatches(financialWeeks, errors)
-                List<String> financialYears = financialWeekService.loadFinancialYears()
+                List<String> financialYears = financialWeekService.loadFinancialYears(retailerId)
                 log.info("Successfully process financial week csv file..... ")
                 render status: 200, contentType: 'application/json', text: JsonOutput.toJson([financialYears: financialYears])
             } else { // Show all errors and rollback
@@ -81,16 +75,23 @@ class FinancialWeekController {
     @Secured(['ROLE_ENGINEER'])
     def downloadCsv() {
         try {
-            def financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect)
-            String csvFileName = "financialWeeks${params.yearSelect}.csv"
-            response.setHeader("Content-disposition", "attachment; filename=${csvFileName}")
-            response.contentType = "text/csv"
-            financialWeekService.populateCsvDownloadFile(financialWeeks, response.outputStream)
-            response.outputStream.flush()
+            int retailerId = springSecurityService.principal.retailerId
+            List<FinancialWeek> financialWeeks = financialWeekService.getAllFinancialWeeksByFinancialYear(params.yearSelect, retailerId)
+            if (financialWeeks != null && !financialWeeks.isEmpty()) {
+                String csvFileName = "financialWeeks${params.yearSelect}.csv"
+                response.setHeader("Content-disposition", "attachment; filename=${csvFileName}")
+                response.contentType = "text/csv"
+                financialWeekService.populateCsvDownloadFile(financialWeeks, response.outputStream)
+                response.outputStream.flush()
+            } else {
+                log.error("Financial week data not found for year ${params.yearSelect} and retailer id ${retailerId}")
+                flash.error = "Financial week data not found for year ${params.yearSelect} and retailer id ${retailerId}"
+                redirect(action: 'index')
+            }
         } catch (Exception ex) {
-            log.error("Errors donwloading financial weekly report, exception $ex ")
-            def errorMessage = "Financial week CSV file generation failed ${params.yearSelect}"
-            redirect(action: 'index', params: [status: false, message: errorMessage]) // Custom error page or action
+            log.error("Errors donwloading financial weekly report for financial year ${params.yearSelect}, exception $ex ")
+            flash.error = "Financial week CSV file generation failed ${params.yearSelect}"
+            redirect(action: 'index') // Custom error page or action
         }
     }
 

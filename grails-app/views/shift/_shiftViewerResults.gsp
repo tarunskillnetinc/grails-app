@@ -101,18 +101,9 @@
                                 <g:formatStringDate date="${shift?.shiftCloseTime}" inputFormat="yyyy-MM-dd HH:mm" outputFormat="dd/MM/yyyy HH:mm" timeZone="Europe/London"/>
                             </div>
                             <div class="col-2 text-center">${shift.shiftStatus}</div>
-
                             <g:if test="${shift.shiftStatus && shift.shiftStatus == uk.co.wonderlane.wlpos.enums.ShiftStatus.OPEN}">
-                                <!-- Column for Add Float and Cash Lift buttons (horizontally aligned and centered) -->
-                                <div class="col-1">
-                                    <div class="button-container d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-wl p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashUpdateModal(${true}, ${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Add Float</button>
-                                        <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="cashUpdateModal(${false}, ${shift.retailerId}, ${shift.storeId}, ${shift.tillId},  ${shift.id});">Cash Lift</button>
-                                    </div>
-                                </div>
-
                                 <!-- Adjusted column for other buttons -->
-                                <div class="${isFinancialWeekExists ? 'col-2' : 'col-3'}">
+                                <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                                     <div class="button-container d-flex justify-content-end align-items-center">
                                         <button class="btn btn-wl p-1" style="min-width: 80px; font-size: 0.9rem;" onclick="spotCheck(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Spot check</button>
                                         <button class="btn btn-success p-1 me-1" style="min-width: 80px; font-size: 0.9rem;" onclick="closeShifts(${shift.retailerId}, ${shift.storeId}, ${shift.tillId}, ${shift.id});">Close</button>
@@ -120,7 +111,6 @@
                                 </div>
                             </g:if>
                             <g:else>
-                                <!-- If shift status is not OPEN, allocate full width to the last column -->
                                 <div class="${isFinancialWeekExists ? 'col-3' : 'col-4'}">
                                     <div class="button-container d-flex justify-content-end align-items-center">
                                         <g:if test="${!shift.shiftStatus}">
