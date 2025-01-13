@@ -134,6 +134,13 @@ class LoyaltyService extends MySqlDal {
         return Offer.findById(id)
     }
 
+    def getLoyaltyOffersByOfferId(int id){
+        def activeOffers = Offer.findAllByRetailerOfferIdAndStatus(id, "ACTIVE")
+        def openOffers = Offer.findAllByRetailerOfferIdAndStatus(id, "OPEN")
+        def pendingOffers = Offer.findAllByRetailerOfferIdAndStatus(id, "PENDING")
+        return activeOffers + pendingOffers + openOffers
+    }
+
     def updateLoyaltyOfferStatus(int promotionId, int retailerId) {
         /* Set any offers associated with this promotion id and retailer id to inactive */
         Offer.withTransaction {

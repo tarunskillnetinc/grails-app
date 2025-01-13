@@ -54,6 +54,7 @@ class PromotionController {
     def edit(int id) {
         def promotion = promotionService.getPromotion(id)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        def associatedOffers = loyaltyService.getLoyaltyOffersByOfferId(id)
 
         if (!promotion) {
             flash.error = "Promotion not found"
@@ -82,7 +83,7 @@ class PromotionController {
         session.addedStores = promotion?.stores
 
 
-        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit, loyaltyEnabled: loyaltyEnabled])
+        render(view: "add", model: [promotion: promotion, promotionTypes: PromotionType.values(), canEdit: canEdit, loyaltyEnabled: loyaltyEnabled, associatedOffers: associatedOffers])
     }
 
     def ajaxSearchTags(String searchTerm) {
@@ -176,6 +177,9 @@ class PromotionController {
                 promotion = new Promotion()
             }
 
+            if (promotion.loyalty && !promotionCommand.loyalty) {
+                    loyaltyService.updateLoyaltyOfferStatus(promotion.id, promotion.retailerId)
+            }
             /* Was set as loyalty and that has not changed */
             if (promotion.loyalty && promotionCommand.loyalty) {
                 /* Promotion has just been set to inactive */
