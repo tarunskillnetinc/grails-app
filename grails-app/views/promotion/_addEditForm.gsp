@@ -4,11 +4,23 @@
     <g:if test="${!canEdit}">
         <script>
             disableSaveButton();
-            $(document).ready(function(){
+            $(document).ready(function(e){
                 $('form[name="add-promotion-form"] input, form[name="add-promotion-form"] select, form[name="add-promotion-form"] textarea, form[name="add-promotion-form"] button').attr('disabled', true);
             });
         </script>
     </g:if>
+    <script>
+        function displayAssoiatedOffers(e) {
+            event.preventDefault();
+
+            const checkbox = event.target;
+            if(!checkbox.checked && ${associatedOffers?.size() >= 1}){
+                if(!confirm("there is currently " + ${associatedOffers?.size()} + " associated offers, if this promotion is no longer loyalty these will be set to INACTIVE")){
+                    checkbox.checked = true;
+                }
+            }
+        }
+    </script>
 
     <div id="accordion">
         <!-- Promotion information. -->
@@ -34,7 +46,7 @@
                         <g:if test="${sec.loggedInUserInfo(field: 'retailer.config.loyaltyRetailerConfig.isLoyaltyEnabled').toBoolean()}">
                             <div class="row form-group form-check col-12 col-md-6 mx-0" style="padding-left: 15px !important;">
                                 <label for="active" class="col-4 col-form-label text-right pr-4">Loyalty promotion</label>
-                                <g:checkBox name="loyalty" class="col-1 form-check-input wl-checkbox mx-0" checked="${promotion ? promotion?.loyalty : false}" />
+                                <g:checkBox name="loyalty" id="loyaltyCheckBox" class="col-1 form-check-input wl-checkbox mx-0" onChange="displayAssoiatedOffers()" checked="${promotion ? promotion?.loyalty : false}" />
                             </div>
                         </g:if>
                     </div>

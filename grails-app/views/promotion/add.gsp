@@ -476,7 +476,7 @@
         </g:if>
 
         <section id="add-edit-section" class="container-fluid mt-4">
-            <g:render template="addEditForm" model="[promotion: promotion, canEdit: canEdit]"/>
+            <g:render template="addEditForm" model="[promotion: promotion, canEdit: canEdit, associatedOffers: associatedOffers]"/>
         </section>
 
         <g:render template="productSearch" />
