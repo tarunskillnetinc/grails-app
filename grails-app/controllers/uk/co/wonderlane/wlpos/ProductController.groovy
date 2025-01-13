@@ -516,7 +516,7 @@ class ProductController extends BaseController {
                     barcode.sku = variant.sku
                     barcode.effectiveDate = barcode.effectiveDate ?: effectiveDate
 
-                    if (!barcode.validate()) {
+                    if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                         handleBarcodeValidation(barcode, product)
                     }
                 }
@@ -859,7 +859,7 @@ class ProductController extends BaseController {
 
                         newVariant.barcodez.add(newBarcode)
 
-                        if (!newBarcode.validate()) {
+                        if (!StringUtils.isEmpty(newBarcode.barcode) && !newBarcode.validate()) {
                             handleBarcodeValidation(newBarcode, product)
                         }
                 })
@@ -902,13 +902,13 @@ class ProductController extends BaseController {
 
                 existingVariant.barcodez.add(barcode)
 
-                 if (!barcode.validate()) {
+                if (!StringUtils.isEmpty(barcode.barcode) && !barcode.validate()) {
                      handleBarcodeValidation(barcode, product)
                 }
             } else { // If barcode do exists change update existing values
 
                 //Only update if user has changed barcode value or else skip
-                if (existingBarcode.barcode != null && existingBarcode.barcode != editedBarcode.barcode) {
+                if (existingBarcode.barcode != editedBarcode.barcode) {
 
                     //Mark current barcode to delete this will insert new mark delete entry to DB
                     existingBarcode.delete = true
@@ -920,10 +920,11 @@ class ProductController extends BaseController {
                     futureBarcode.sku = existingVariant.sku
                     futureBarcode.retailerId = springSecurityService.principal.retailerId
                     futureBarcode.barcode = editedBarcode.barcode
+
                     futureBarcode.effectiveDate = effectiveDate
                     futureBarcode.recordStatus = 'C'
 
-                    if (!futureBarcode.validate()) {
+                    if (!StringUtils.isEmpty(futureBarcode.barcode) && !futureBarcode.validate()) {
                         handleBarcodeValidation(futureBarcode, product)
                     } else {
                         //Add mark deleted barcode and newly updated barcode to add into DB
@@ -1909,10 +1910,7 @@ class ProductController extends BaseController {
     }
 
     def handleBarcodeValidation(Barcode barcode, Product product) {
-        if (barcode == null || StringUtils.isEmpty(barcode.getBarcode())) {
-            product.errors.reject('product.barcodes.empty', 'Barcode is empty.')
-        }
-        if (barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
+        if (barcode != null && barcode.hasErrors() && barcode.errors != null && barcode.errors.allErrors.size() > 0) {
             barcode.errors.allErrors
                     .each { FieldError error ->
                         final String field = error.field?.replace('profile.', '')
@@ -1931,7 +1929,7 @@ class ProductController extends BaseController {
     }
 
     def isValidBarcode(Barcode barcode) {
-        barcode == null || StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
+        StringUtils.isEmpty(barcode.getBarcode()) || barcode.validate()
     }
 
 

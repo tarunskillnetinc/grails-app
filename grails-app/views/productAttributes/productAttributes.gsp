@@ -34,6 +34,16 @@
             min-height: calc(100% - 3.5rem);
         }
     }
+
+    #search-results .text-center {
+        display: grid;
+        align-items: center;
+    }
+
+    #search-results .row {
+        height: 3.3em;
+    }
+
     </style>
     <asset:javascript src="jquery-ui.js" />
 </head>
@@ -191,7 +201,11 @@
                             displayAttributeUpdates = [];
                             defaultValueUpdates = [];
                             reloadCurrentPage(function () {
-                                $("#success-section").html('<div class="alert alert-success alert-wl mx-0" role="alert">Successfully updated ' + response.updatedCount + ' attributes.</div>');
+                                let attributes = ' attributes.'
+                                if( response.updatedCount === 1 ) {
+                                    attributes = ' attribute.'
+                                }
+                                $("#success-section").html('<div class="alert alert-success alert-wl mx-0" role="alert">Successfully updated ' + response.updatedCount + attributes + '</div>');
                             });
                         } else {
                             $("#error-section").html('<div class="alert alert-danger alert-wl mx-0" role="alert">' + response.errorMessages.general + '</div>');

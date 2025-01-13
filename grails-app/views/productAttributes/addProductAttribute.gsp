@@ -47,9 +47,39 @@
       typeChanged();
     };
 
-    $(document).ready(function() {
+    $(document).ready(function () {
       $("#add-product-attribute-form :input").on("input", clearErrors);
+
+      $('#add-product-attribute-form').bind('keydown', function (e) {
+        if (e.keyCode == 13) {
+          $('#save-btn').click();
+          e.preventDefault()
+        }
+      });
     });
+
+    function acceptDefaultNumeric(e, maxValue) {
+      // Allow digits, backspace, and arrow keys without further checks
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        return;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        return;
+      }
+
+      // Check if the key pressed is a digit
+      if (e.key >= '0' && e.key <= '9') {
+        // Construct the potential new value by adding the typed digit
+        const newValue = parseInt(e.target.value + e.key, 10);
+
+        // Check if the new value exceeds the maximum allowed value
+        if (newValue > maxValue) {
+          e.preventDefault(); // Prevent the key press if it exceeds the maximum value
+        }
+      } else {
+        e.preventDefault(); // Prevent non-digit characters
+      }
+    }
+
 
     function typeChanged() {
       var selectedType = $("#type option:selected").val();
@@ -62,11 +92,10 @@
         dynamicInputContainer.innerHTML = ``;
         $('#defaultValueLbl').hide();
       } else if (selectedType === "NUMERIC") {
-        dynamicInputContainer.innerHTML = `<g:field name="defaultValue" class="form-control" type="number" min="0" step="1"
-             onkeydown="acceptNumeric(event);"/>`;
+        dynamicInputContainer.innerHTML = `<g:field name="defaultValue" class="form-control" type="number" min="0" max="999999999" step="1" onkeydown="acceptDefaultNumeric(event,999999999);"/>`;
         $('#defaultValueLbl').show();
       } else if (selectedType === "TEXT") {
-        dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="30" class="form-control" />`;
+        dynamicInputContainer.innerHTML = `<g:textField name="defaultValue" maxlength="50" class="form-control" />`;
         $('#defaultValueLbl').show();
       }
     }
@@ -156,7 +185,7 @@
               <div class="form-row align-items-end">
                 <div class="form-group col-md-6">
                   <label for="attributeName">Attribute Name</label>
-                  <g:textField name="attributeName" maxlength="30" class="form-control " />
+                  <g:textField name="attributeName" maxlength="50" class="form-control " />
                 </div>
                 <div class="form-group col-md-6">
                   <label for="displayAttribute">Display Attribute</label>

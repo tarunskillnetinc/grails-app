@@ -46,9 +46,26 @@ class ProductAttributes {
                 return ['productAttribute.name.empty']
             } else if (val.length() > 50) {
                 return ['productattributes.name.charLength']
+            } else if (ProductAttributes.findByNameAndRetailerId(val, obj.retailerId) ) {
+                return ['productAttribute.name.not.unique']
+            } else {
+                def allowedCharactersRegex= /^[a-zA-Z0-9 \\\\/.,()\-]*$/
+                if (!(val ==~ allowedCharactersRegex)) {
+                    return ['productAttribute.name.invalid.characters']
+                }
             }
         }
-        defaultValue nullable: true
+
+        defaultValue nullable: true, validator: {val, obj ->
+            if (obj.type == ProductAttributeType.NUMERIC && val != null) {
+                if (!val.isNumber()) {
+                    return ['productAttribute.numeric.default.not.a.number']
+                } else if (val.toLong() > 999999999) {
+                    return ['productAttribute.numeric.default.out.of.range']
+                }
+            }
+        }
+
         listValues nullable: true
         displayAttribute validator: { val, obj ->
             if (val == null) {
@@ -62,7 +79,9 @@ class ProductAttributes {
             return []
         }
         try {
-            return new JsonSlurper().parseText(this.listValues) as List<String>
+            List<String> results = new JsonSlurper().parseText(this.listValues) as List<String>
+            Collections.sort(results, String.CASE_INSENSITIVE_ORDER);
+            return results;
         } catch (Exception e) {
             log.error("Error parsing listValues JSON: ${e.message}", e)
             return []
