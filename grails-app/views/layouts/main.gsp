@@ -169,6 +169,14 @@
 
                             <div class="dropdown-divider"></div>
 
+                            <div class="dropdown-submenu">
+                                <a tabindex="-1" href="#" class="dropdown-item dropdown-toggle" id="cashManagementReportingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cash Management</a>
+                                <div class="dropdown-menu" aria-labelledby="buttonGridsDropdown">
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
                             <span id="other-reports" class="dropdown-header">Other Reports</span>
 
                             <g:link elementId="till-control-events-dropdown" controller="reporting" action="tillControlEvents" class="dropdown-item">Till Control Events</g:link>
