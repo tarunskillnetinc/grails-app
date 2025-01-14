@@ -16,6 +16,7 @@ import uk.co.wonderlane.wlpos.reporting.*
 class ReportingService {
 
     def springSecurityService
+    def financialWeekService
 
     // For sales report grouped by department, no pagination on here as the results are grouped into categories.
     @ReadOnly('reportingReadOnly')
@@ -349,12 +350,14 @@ class ReportingService {
             String comments,
             BigDecimal amount) {
 
-        TenderMovement tenderMovement = new TenderMovement()
+        def tenderMovement = new TenderMovement()
+        def financialWeek = financialWeekService.getFinancialWeek(springSecurityService.principal.retailerId)
 
         tenderMovement.setRetailerId(springSecurityService.principal.retailerId)
         tenderMovement.setStoreId(springSecurityService.principal.storeId)
         tenderMovement.setUserId(springSecurityService.principal.id)
-        tenderMovement.setUserName(springSecurityService.principal.usersName)
+        tenderMovement.setUserName(springSecurityService.principal.username)
+        tenderMovement.setUsersRealName(springSecurityService.principal.usersName)
         tenderMovement.setType(movementType)
         tenderMovement.setTenderType(tenderType)
         tenderMovement.setFromLocation(fromLocation)
@@ -365,6 +368,8 @@ class ReportingService {
         tenderMovement.setBankName(bank)
         tenderMovement.setBankReference(bankReferenceNumber)
         tenderMovement.setComment(comments)
+        tenderMovement.setFinancialWeekId(financialWeek?.getId())
+        tenderMovement.setFinancialWeekNumber(financialWeek?.getWeekNumber())
 
         if (bankingDate) {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy")
