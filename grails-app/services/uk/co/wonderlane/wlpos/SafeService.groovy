@@ -119,6 +119,16 @@ class SafeService {
         return Safe.findById(id)
     }
 
+    def getSafeDescriptionForId(Integer id){
+        if (id != null) {
+            Safe safe = getSafeById(id)
+            if (safe != null) {
+                return safe.description
+            }
+        }
+        return ""
+    }
+
     boolean isPrimaryExists(Integer retailerId, Integer storeId){
         return Safe.findByRetailerIdAndStoreIdAndPrimaryAndActive(retailerId, storeId, true, true) != null
     }
