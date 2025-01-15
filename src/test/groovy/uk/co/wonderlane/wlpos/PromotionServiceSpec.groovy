@@ -82,7 +82,7 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
 
         ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 250, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 250, productGroup: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         Product product = new Product(itemCode: "100", description: "Test", receiptDescription: "Test", retailerId: 9,

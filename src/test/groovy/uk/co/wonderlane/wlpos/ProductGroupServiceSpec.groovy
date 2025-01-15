@@ -25,7 +25,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.setRetailerId(9)
         testTag.setHidden(false)
         testTag.setDescription("test prefixsearchkeywordsuffix other text")
-        tagProduct.setTag(testTag)
+        tagProduct.setProductGroup(testTag)
         testTag.save()
 
         when: 'getTags action is executed'
@@ -56,7 +56,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.setRetailerId(100)
         testTag.setHidden(false)
         testTag.setDescription("test prefixsearchkeywordsuffix other text")
-        tagProduct.setTag(testTag)
+        tagProduct.setProductGroup(testTag)
         testTag.save()
 
         when: 'getTags action is executed'
@@ -138,7 +138,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.setDescription("test description")
         ProductGroupProduct testTagProduct = new ProductGroupProduct()
         testTagProduct.setId(100)
-        testTagProduct.setTag(testTag)
+        testTagProduct.setProductGroup(testTag)
 
         testTag.save(flush: true, failOnError: true)
         testTagProduct.save(flush: true, failOnError: true)

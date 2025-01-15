@@ -208,8 +208,8 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProducts.add(tagProductNotIncl)
         ProductGroup testTag = new ProductGroup(tagProducts: tagProducts)
         testTag.setId(1)
-        tagProduct.setTag(testTag)
-        tagProductNotIncl.setTag(testTag)
+        tagProduct.setProductGroup(testTag)
+        tagProductNotIncl.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> testTag
@@ -265,7 +265,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProducts.add(tagProduct)
         ProductGroup testTag = new ProductGroup(tagProducts: tagProducts)
         testTag.setId(1)
-        tagProduct.setTag(testTag)
+        tagProduct.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> testTag
@@ -298,7 +298,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroup testTag = new ProductGroup()
         testTag.setId(1)
         testTag.setTagProducts(tagProducts)
-        tagProduct.setTag(testTag)
+        tagProduct.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> testTag

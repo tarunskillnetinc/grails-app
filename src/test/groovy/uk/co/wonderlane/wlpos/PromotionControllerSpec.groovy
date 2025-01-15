@@ -245,7 +245,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroup: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -300,7 +300,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroup: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -516,7 +516,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroup: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -567,7 +567,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroup: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -1407,7 +1407,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         ProductGroup testTag1 = new ProductGroup(description: "Test 1")
         testTag1.setId(150)
-        ProductGroupProduct tagProduct1 = new ProductGroupProduct(sku: 100, tag: testTag1)
+        ProductGroupProduct tagProduct1 = new ProductGroupProduct(sku: 100, productGroup: testTag1)
         tagProduct1.save(flush: true, failOnError: true)
         testTag1.tagProducts.add(tagProduct1)
         testTag1.save(flush: true, failOnError: true)
@@ -1415,7 +1415,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         ProductGroup testTag2 = new ProductGroup(description: "Test 2")
         testTag2.setId(250)
 
-        ProductGroupProduct tagProduct2 = new ProductGroupProduct(sku: 150, tag: testTag2)
+        ProductGroupProduct tagProduct2 = new ProductGroupProduct(sku: 150, productGroup: testTag2)
         tagProduct2.save(flush: true, failOnError: true)
 
         testTag2.tagProducts.add(tagProduct2)

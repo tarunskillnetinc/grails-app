@@ -4,7 +4,7 @@ class ProductGroupProduct implements Serializable {
 
     def springSecurityService
 
-    static belongsTo = [tag: ProductGroup]
+    static belongsTo = [productGroupId: ProductGroup]
 
     long sku
 
@@ -22,9 +22,9 @@ class ProductGroupProduct implements Serializable {
         table "tagproduct" // TODO: After the database refactor
         version false
 
-        id composite: ['tag', 'sku']
+        id composite: ['productGroupId', 'sku']// TODO: Update name after database refactor
 
-        tag column: "tagId"
+        productGroupId column: "tagId" // TODO: Update name after database refactor
         sku column: "sku"
     }
 
@@ -63,7 +63,7 @@ class ProductGroupProduct implements Serializable {
     public uk.co.wonderlane.wlpos.entities.ProductGroupProduct getProductGroupProduct() {
         uk.co.wonderlane.wlpos.entities.ProductGroupProduct productGroupProduct = new uk.co.wonderlane.wlpos.entities.ProductGroupProduct()
 
-        productGroupProduct.setTagId(tag.id)
+        productGroupProduct.setProductGroupId(tag.id)
         productGroupProduct.setSku(sku)
 
         return productGroupProduct
@@ -74,9 +74,9 @@ class ProductGroupProduct implements Serializable {
         if (this.is(that)) return true
         if (getClass() != that.class) return false
 
-        ProductGroupProduct tagProduct = (ProductGroupProduct) that
-        if (sku != tagProduct.sku || productVariantId != tagProduct.productVariantId
-                || productId != tagProduct.productId || tag?.id != tagProduct.tag?.id || itemCode != tagProduct.itemCode) {
+        ProductGroupProduct productGroupProduct = (ProductGroupProduct) that
+        if (sku != productGroupProduct.sku || productVariantId != productGroupProduct.productVariantId
+                || productId != productGroupProduct.productId || tag?.id != productGroupProduct.tag?.id || itemCode != productGroupProduct.itemCode) {
             return false
         }
 
