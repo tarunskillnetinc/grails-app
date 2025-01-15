@@ -6,20 +6,20 @@ import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
 class TagController {
 
-    def tagService
+    def productGroupService
     def productService
     def springSecurityService
     def rabbitService
     def gsonProvider
 
     def index() {
-        def tags = tagService.getTags()
+        def tags = productGroupService.getTags()
 
         [tags: tags]
     }
 
     def show(int id) {
-        def tag = tagService.getTag(id)
+        def tag = productGroupService.getTag(id)
 
         if (!tag) {
             flash.error = "Tag not found."
@@ -39,7 +39,7 @@ class TagController {
     }
 
     def ajaxGetTags(String searchTerm, String searchBy) {
-        def tags = tagService.getTags(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+        def tags = productGroupService.getTags(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
         render(template: "tagSearchResults", model: [tags      : tags,
                                                      searchTerm: searchTerm,
@@ -52,7 +52,7 @@ class TagController {
     }
 
     def edit(int id) {
-        def tag = tagService.getTag(id)
+        def tag = productGroupService.getTag(id)
 
         if (!tag) {
             flash.error = "Tag not found."
@@ -72,7 +72,7 @@ class TagController {
     }
 
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
-        def tagProduct = new TagProduct()
+        def tagProduct = new ProductGroupProduct()
         tagProduct.sku = sku
         tagProduct.productVariantId = productVariantId
         tagProduct.productDescription = productDescription
@@ -85,7 +85,7 @@ class TagController {
         def tagProductsToRemove
 
         if (cmd.id) {
-            tag = tagService.getTag(cmd.id)
+            tag = productGroupService.getTag(cmd.id)
 
             if (!tag) {
                 flash.error = "Tag not found."
@@ -103,7 +103,7 @@ class TagController {
                 tagProductsToRemove = tag.tagProducts?.findAll { !cmd.sku.contains(it.sku) }
             }
         } else {
-            tag = new Tag()
+            tag = new ProductGroup()
         }
 
         tag.retailerId = springSecurityService.principal.retailerId
@@ -114,7 +114,7 @@ class TagController {
 
         cmd.sku?.toUnique().each {
             if (!cmd.id || !skusInTag.contains(it)) {
-                def tagProduct = new TagProduct()
+                def tagProduct = new ProductGroupProduct()
                 tagProduct.sku = it
 
                 tag.addToTagProducts(tagProduct)
@@ -125,10 +125,10 @@ class TagController {
             // Commit the product deletion if the final tag is valid for saving
             //  and there are products to remove
             tagProductsToRemove?.each {
-                tagService.deleteTagProduct(tag.id, it.sku)
+                productGroupService.deleteTagProduct(tag.id, it.sku)
             }
 
-            tagService.saveTag(tag)
+            productGroupService.saveTag(tag)
 
             // Send this update to the whole Retailer exchange!
             sendTag(tag)
@@ -158,7 +158,7 @@ class TagController {
         }
     }
 
-    private void sendTag(Tag tag) {
+    private void sendTag(ProductGroup tag) {
         // Make sure the RabbitMQ connection is available, otherwise reject the save.
         try {
             if (!rabbitService.isOpen()) {
@@ -167,7 +167,7 @@ class TagController {
 
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.TAG, springSecurityService.principal.retailerId, 0, 0, 0)
             syncMessage.setInsert(true)
-            syncMessage.setTag(tag.getTag())
+            syncMessage.setTag(tag.getProductGroup())
 
             rabbitService.sendMessage(syncMessage)
         } catch (Exception e) {

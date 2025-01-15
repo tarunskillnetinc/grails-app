@@ -397,7 +397,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
             getTopLevelCategories() >> new ArrayList()
         }
 
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTags() >> new ArrayList()
         }
 
@@ -458,7 +458,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
             getTopLevelCategories() >> new ArrayList()
         }
 
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTags() >> new ArrayList()
         }
 

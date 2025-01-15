@@ -1,6 +1,6 @@
 package uk.co.wonderlane.wlpos
 
-import org.apache.commons.lang3.RegExUtils
+
 import grails.validation.Validateable
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -20,7 +20,7 @@ class PromotionController {
     def promotionService
     def storeService
     def categoryService
-    def tagService
+    def productGroupService
     def rabbitService
     def loyaltyService
     def gsonProvider
@@ -87,7 +87,7 @@ class PromotionController {
     }
 
     def ajaxSearchTags(String searchTerm) {
-        def tags = tagService.getTags(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+        def tags = productGroupService.getTags(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
         render(template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: tags.totalCount])
     }
@@ -112,7 +112,7 @@ class PromotionController {
     }
 
     def ajaxGetTag(int id, String promotionType, String promotionGroupType, int groupId) {
-        def tag = tagService.getTag(id)
+        def tag = productGroupService.getTag(id)
 
         def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
 
@@ -285,7 +285,7 @@ class PromotionController {
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
             if (offerGroup.getTagId() != null) {
-                for (TagProduct tagProduct : Tag.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                for (ProductGroupProduct tagProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(offerGroup.getId())
                     promotionGroup.setPromotionId(offerGroup.getPromotionId())
@@ -306,7 +306,7 @@ class PromotionController {
 
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
             if (requiredGroup.getTagId() != null) {
-                for (TagProduct tagProduct : Tag.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                for (ProductGroupProduct tagProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(requiredGroup.getId())
                     promotionGroup.setPromotionId(requiredGroup.getPromotionId())
@@ -396,8 +396,8 @@ class PromotionController {
     }
 
     def tagSearch() {
-        def tags = Tag.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
-        def totalResults = Tag.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
+        def tags = ProductGroup.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+        def totalResults = ProductGroup.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
 
         render(template: "/promotion/tagSearchResults", model: [tags: tags, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }

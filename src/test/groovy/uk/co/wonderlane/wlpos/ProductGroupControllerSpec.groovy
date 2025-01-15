@@ -6,10 +6,10 @@ import grails.testing.web.controllers.ControllerUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
-class TagControllerSpec extends Specification implements ControllerUnitTest<TagController>, DataTest {
+class ProductGroupControllerSpec extends Specification implements ControllerUnitTest<TagController>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [TagProduct, Tag] as Class<?>[]
+        [ProductGroupProduct, ProductGroup] as Class<?>[]
     }
 
     def setup() {
@@ -22,10 +22,10 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should retrieve tags on index"() {
         given:
-        List<Tag> tags = new ArrayList<>()
-        tags.add(new Tag(id: 1))
-        tags.add(new Tag(id: 2))
-        controller.tagService = Stub(TagService) {
+        List<ProductGroup> tags = new ArrayList<>()
+        tags.add(new ProductGroup(id: 1))
+        tags.add(new ProductGroup(id: 2))
+        controller.productGroupService = Stub(ProductGroupService) {
             getTags() >> tags
         }
 
@@ -41,7 +41,7 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should flash error and redirect to index page if tag not found on show action"() {
         given:
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> null
         }
 
@@ -57,10 +57,10 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should return the tag with product variant id and product description on show action"() {
         given:
-        TagProduct tagProduct = new TagProduct(sku: 100)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
-        controller.tagService = Stub(TagService) {
-            getTag(_) >> new Tag(id: 1, tagProducts: Set.of(tagProduct))
+        controller.productGroupService = Stub(ProductGroupService) {
+            getTag(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -91,12 +91,12 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should return tags when ajaxGetTags action called"() {
         given:
-        FakeTagSearchResultList<Tag> tags = new FakeTagSearchResultList<>()
-        TagProduct tagProduct = new TagProduct(sku: 100)
+        FakeTagSearchResultList<ProductGroup> tags = new FakeTagSearchResultList<>()
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
-        tags.add(new Tag(id: 1, tagProducts: Set.of(tagProduct)))
+        tags.add(new ProductGroup(id: 1, tagProducts: Set.of(tagProduct)))
         tags.properties.put("totalCount", 1)
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTags(_) >> tags
         }
 
@@ -126,7 +126,7 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should flash error and redirect to index page if tag not found on edit action"() {
         given:
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> null
         }
 
@@ -142,10 +142,10 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should return the tag with product variant id and product description on edit action"() {
         given:
-        TagProduct tagProduct = new TagProduct(sku: 100)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
-        controller.tagService = Stub(TagService) {
-            getTag(_) >> new Tag(id: 1, tagProducts: Set.of(tagProduct))
+        controller.productGroupService = Stub(ProductGroupService) {
+            getTag(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -185,7 +185,7 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "should flash error when tag is not found"() {
         given:
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> null
         }
 
@@ -201,17 +201,17 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "save tags correctly on valid input and valid tag details - happy path"() {
         given:
-        TagProduct tagProduct = new TagProduct(sku: 100)
-        TagProduct tagProductNotIncl = new TagProduct(sku: 300)
-        Set<TagProduct> tagProducts = new HashSet<>()
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
+        ProductGroupProduct tagProductNotIncl = new ProductGroupProduct(sku: 300)
+        Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
         tagProducts.add(tagProductNotIncl)
-        Tag testTag = new Tag(tagProducts: tagProducts)
+        ProductGroup testTag = new ProductGroup(tagProducts: tagProducts)
         testTag.setId(1)
         tagProduct.setTag(testTag)
         tagProductNotIncl.setTag(testTag)
         testTag.save()
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> testTag
         }
 
@@ -238,7 +238,7 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "create new tage and save tags correctly on valid input and valid tag details - happy path"() {
         given:
-        controller.tagService = Stub(TagService) {}
+        controller.productGroupService = Stub(ProductGroupService) {}
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
             isOpen() >> true
@@ -260,14 +260,14 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "save tags correctly on valid input and valid tag and rabbit service error - partial error path"() {
         given:
-        TagProduct tagProduct = new TagProduct(sku: 100)
-        Set<TagProduct> tagProducts = new HashSet<>()
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
-        Tag testTag = new Tag(tagProducts: tagProducts)
+        ProductGroup testTag = new ProductGroup(tagProducts: tagProducts)
         testTag.setId(1)
         tagProduct.setTag(testTag)
         testTag.save()
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> testTag
         }
 
@@ -292,15 +292,15 @@ class TagControllerSpec extends Specification implements ControllerUnitTest<TagC
 
     void "return validation error messages on validation error is found - error path"() {
         given:
-        TagProduct tagProduct = new TagProduct(sku: 100)
-        Set<TagProduct> tagProducts = new HashSet<>()
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
-        Tag testTag = new Tag()
+        ProductGroup testTag = new ProductGroup()
         testTag.setId(1)
         testTag.setTagProducts(tagProducts)
         tagProduct.setTag(testTag)
         testTag.save()
-        controller.tagService = Stub(TagService) {
+        controller.productGroupService = Stub(ProductGroupService) {
             getTag(_) >> testTag
         }
 

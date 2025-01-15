@@ -3,7 +3,6 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import uk.co.wonderlane.wlpos.enums.LoyaltyOfferStatus
 import uk.co.wonderlane.wlpos.enums.PromotionType
 
 @Transactional
@@ -43,7 +42,7 @@ class PromotionService {
 
         def allSkus = product.variants?.collect { it.sku }
 
-        def tagCriteria = Tag.createCriteria()
+        def tagCriteria = ProductGroup.createCriteria()
         def allTags = tagCriteria.list() {
             tagProducts {
                 "in"("sku", allSkus)
@@ -52,7 +51,7 @@ class PromotionService {
 
         //loop over tags to get all tag ids
         def tagIds = []
-        tagIds = allTags?.collect { Tag it -> it.id }
+        tagIds = allTags?.collect { ProductGroup it -> it.id }
 
         def promotionCriteria = Promotion.createCriteria()
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false

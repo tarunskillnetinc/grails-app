@@ -1,10 +1,10 @@
 package uk.co.wonderlane.wlpos
 
-class TagProduct implements Serializable {
+class ProductGroupProduct implements Serializable {
 
     def springSecurityService
 
-    static belongsTo = [ tag: Tag ]
+    static belongsTo = [tag: ProductGroup]
 
     long sku
 
@@ -16,10 +16,10 @@ class TagProduct implements Serializable {
     String itemCode
 
     // Need this parameterless constructor or else dependency injection (SpringSecurityService) breaks.
-    public TagProduct() { }
+    public ProductGroupProduct() {}
 
     static mapping = {
-        table "tagproduct"
+        table "tagproduct" // TODO: After the database refactor
         version false
 
         id composite: ['tag', 'sku']
@@ -60,13 +60,13 @@ class TagProduct implements Serializable {
         itemCode = productVariant?.product?.itemCode
     }
 
-    public uk.co.wonderlane.wlpos.entities.TagProduct getTagProduct() {
-        uk.co.wonderlane.wlpos.entities.TagProduct tagProduct = new uk.co.wonderlane.wlpos.entities.TagProduct()
+    public uk.co.wonderlane.wlpos.entities.ProductGroupProduct getProductGroupProduct() {
+        uk.co.wonderlane.wlpos.entities.ProductGroupProduct productGroupProduct = new uk.co.wonderlane.wlpos.entities.ProductGroupProduct()
 
-        tagProduct.setTagId(tag.id)
-        tagProduct.setSku(sku)
+        productGroupProduct.setTagId(tag.id)
+        productGroupProduct.setSku(sku)
 
-        return tagProduct
+        return productGroupProduct
     }
 
     @Override
@@ -74,7 +74,7 @@ class TagProduct implements Serializable {
         if (this.is(that)) return true
         if (getClass() != that.class) return false
 
-        TagProduct tagProduct = (TagProduct)that
+        ProductGroupProduct tagProduct = (ProductGroupProduct) that
         if (sku != tagProduct.sku || productVariantId != tagProduct.productVariantId
                 || productId != tagProduct.productId || tag?.id != tagProduct.tag?.id || itemCode != tagProduct.itemCode) {
             return false

@@ -3,12 +3,12 @@ package uk.co.wonderlane.wlpos
 import grails.gorm.transactions.Transactional
 
 @Transactional
-class TagService {
+class ProductGroupService {
 
     def springSecurityService
 
     def getTags(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
-        return Tag.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
+        return ProductGroup.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("hidden", false)
 
@@ -32,18 +32,18 @@ class TagService {
     }
 
     def getTag(int id) {
-        return Tag.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
+        return ProductGroup.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
-    def saveTag(Tag tag) {
-        tag.save()
+    def saveTag(ProductGroup productGroup) {
+        productGroup.save()
     }
 
-    def deleteTagProduct(TagProduct tagProduct) {
+    def deleteTagProduct(ProductGroupProduct tagProduct) {
         tagProduct.delete()
     }
 
     def deleteTagProduct(int tagId, long sku) {
-        TagProduct.executeUpdate("delete TagProduct tp where tp.tag.id = :tagId and tp.sku = :sku", [tagId: tagId, sku: sku])
+        ProductGroupProduct.executeUpdate("delete ProductGroupProduct tp where tp.tag.id = :tagId and tp.sku = :sku", [tagId: tagId, sku: sku])
     }
 }

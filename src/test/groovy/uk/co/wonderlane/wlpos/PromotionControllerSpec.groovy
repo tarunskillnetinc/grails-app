@@ -14,7 +14,7 @@ import uk.co.wonderlane.wlpos.supplier.SymbolGroup
 class PromotionControllerSpec extends Specification implements ControllerUnitTest<PromotionController>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [SymbolGroup, Promotion, Category, Product, Tag, TagProduct, PromotionGroup] as Class<?>[]
+        [SymbolGroup, Promotion, Category, Product, ProductGroup, ProductGroupProduct, PromotionGroup] as Class<?>[]
     }
 
     //-------------------------------index function Unit tests----------------------------//
@@ -242,10 +242,10 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         product.variants.add(new ProductVariant(product: product, effectiveDate: DateTime.now()))
         product.save(flush: true, failOnError: true)
 
-        Tag testTag = new Tag(description: "Test")
+        ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        TagProduct tagProduct = new TagProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -297,10 +297,10 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         product.variants.add(new ProductVariant(product: product, effectiveDate: DateTime.now()))
         product.save(flush: true, failOnError: true)
 
-        Tag testTag = new Tag(description: "Test")
+        ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        TagProduct tagProduct = new TagProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -513,10 +513,10 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         controller.flash.promotion = testPromotion
 
-        Tag testTag = new Tag(description: "Test")
+        ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        TagProduct tagProduct = new TagProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -564,10 +564,10 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         controller.flash.promotion = testPromotion
 
-        Tag testTag = new Tag(description: "Test")
+        ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        TagProduct tagProduct = new TagProduct(sku: 100, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, tag: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         testTag.tagProducts.add(tagProduct)
@@ -1223,7 +1223,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         controller.springSecurityService = getFakeSpringSecurityService()
         params.searchTerm = "Test"
 
-        Tag testTag = new Tag(description: "prefixTestsuffix", hidden: false)
+        ProductGroup testTag = new ProductGroup(description: "prefixTestsuffix", hidden: false)
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
@@ -1270,7 +1270,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
             searchPromotions(_, _, _, _, _, _, _, _, _, _, _) >> result
         }
 
-        Tag testTag = new Tag(description: "prefixTestsuffix", hidden: false)
+        ProductGroup testTag = new ProductGroup(description: "prefixTestsuffix", hidden: false)
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
@@ -1325,7 +1325,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
             searchPromotions(_, _, _, _, _, _, _, _, _, _, _) >> result
         }
 
-        Tag testTag = new Tag(description: "prefixTestsuffix", hidden: false)
+        ProductGroup testTag = new ProductGroup(description: "prefixTestsuffix", hidden: false)
         testTag.setId(150)
         testTag.save(flush: true, failOnError: true)
 
@@ -1405,17 +1405,17 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         testPromotion.save(flush: true, failOnError: true)
 
-        Tag testTag1 = new Tag(description: "Test 1")
+        ProductGroup testTag1 = new ProductGroup(description: "Test 1")
         testTag1.setId(150)
-        TagProduct tagProduct1 = new TagProduct(sku: 100, tag: testTag1)
+        ProductGroupProduct tagProduct1 = new ProductGroupProduct(sku: 100, tag: testTag1)
         tagProduct1.save(flush: true, failOnError: true)
         testTag1.tagProducts.add(tagProduct1)
         testTag1.save(flush: true, failOnError: true)
 
-        Tag testTag2 = new Tag(description: "Test 2")
+        ProductGroup testTag2 = new ProductGroup(description: "Test 2")
         testTag2.setId(250)
 
-        TagProduct tagProduct2 = new TagProduct(sku: 150, tag: testTag2)
+        ProductGroupProduct tagProduct2 = new ProductGroupProduct(sku: 150, tag: testTag2)
         tagProduct2.save(flush: true, failOnError: true)
 
         testTag2.tagProducts.add(tagProduct2)

@@ -14,7 +14,7 @@ import uk.co.wonderlane.wlpos.helpers.HibernateTestMockCriteria
 class PromotionServiceSpec extends Specification implements ServiceUnitTest<PromotionService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [Promotion, Product, Category, ProductVariant, Tag] as Class<?>[]
+        [Promotion, Product, Category, ProductVariant, ProductGroup] as Class<?>[]
     }
 
     //-------------------------------savePromotion function Unit tests----------------------------//
@@ -80,9 +80,9 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
         category.setId(100)
         category.save(flush: true, failOnError: true)
 
-        Tag testTag = new Tag(description: "Test")
+        ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
-        TagProduct tagProduct = new TagProduct(sku: 250, tag: testTag)
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 250, tag: testTag)
         tagProduct.save(flush: true, failOnError: true)
 
         Product product = new Product(itemCode: "100", description: "Test", receiptDescription: "Test", retailerId: 9,

@@ -30,7 +30,7 @@ class ProductController extends BaseController {
     def restrictionsService
     def supplierService
     def storeService
-    def tagService
+    def productGroupService
     def productHistoryService
 
     /**
@@ -185,7 +185,7 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def prices() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def tags = productGroupService.getTags()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         [categories: categories, tags: tags, priceBands: priceBands]
@@ -206,7 +206,7 @@ class ProductController extends BaseController {
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def ranges() {
         def categories = categoryService.getTopLevelCategories()
-        def tags = tagService.getTags()
+        def tags = productGroupService.getTags()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
         [categories: categories, tags: tags, ranges: ranges]

@@ -5,10 +5,10 @@ import grails.testing.gorm.DataTest
 import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 
-class TagServiceSpec extends Specification implements ServiceUnitTest<TagService>, DataTest {
+class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<ProductGroupService>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
-        [TagProduct, Tag] as Class<?>[]
+        [ProductGroupProduct, ProductGroup] as Class<?>[]
     }
 
     //-------------------------------getTags function Unit tests----------------------------//
@@ -16,10 +16,10 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
     void "should retrieve tags with search criteria"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
-        TagProduct tagProduct = new TagProduct(sku: 100)
-        Set<TagProduct> tagProducts = new HashSet<>()
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
-        Tag testTag = new Tag()
+        ProductGroup testTag = new ProductGroup()
         testTag.setId(1)
         testTag.setTagProducts(tagProducts)
         testTag.setRetailerId(9)
@@ -47,10 +47,10 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
     void "should retrieve empty results with search criteria for incorrect retailer ID"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
-        TagProduct tagProduct = new TagProduct(sku: 100)
-        Set<TagProduct> tagProducts = new HashSet<>()
+        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
-        Tag testTag = new Tag()
+        ProductGroup testTag = new ProductGroup()
         testTag.setId(1)
         testTag.setTagProducts(tagProducts)
         testTag.setRetailerId(100)
@@ -82,15 +82,15 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
         given:
         service.springSecurityService = getFakeSpringSecurityService()
 
-        Tag testTag = new Tag(retailerId: 9)
+        ProductGroup testTag = new ProductGroup(retailerId: 9)
         testTag.setDescription("test description")
 
         testTag.setId(100)
 
-        mockDomain(Tag, [testTag])
+        mockDomain(ProductGroup, [testTag])
 
         when: 'getTag action is executed'
-        Tag serviceResponse = service.getTag(100)
+        ProductGroup serviceResponse = service.getTag(100)
 
         then: 'getTag action response is correct'
         serviceResponse != null
@@ -100,14 +100,14 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
         given:
         service.springSecurityService = getFakeSpringSecurityService()
 
-        Tag testTag = new Tag(retailerId: 9)
+        ProductGroup testTag = new ProductGroup(retailerId: 9)
         testTag.setDescription("test description")
         testTag.setId(100)
 
-        mockDomain(Tag, [testTag])
+        mockDomain(ProductGroup, [testTag])
 
         when: 'getTag action is executed'
-        Tag serviceResponse = service.getTag(105)
+        ProductGroup serviceResponse = service.getTag(105)
 
         then: 'getTag action response is correct'
         serviceResponse == null
@@ -117,12 +117,12 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
 
     void "should save tag correctly"() {
         given:
-        Tag testTag = new Tag(retailerId: 9)
+        ProductGroup testTag = new ProductGroup(retailerId: 9)
         testTag.setId(100)
         testTag.setDescription("test description")
 
         when: 'getTag action is executed'
-        Tag serviceResponse = service.saveTag(testTag)
+        ProductGroup serviceResponse = service.saveTag(testTag)
 
         then: 'getTag action response is correct'
         serviceResponse
@@ -133,10 +133,10 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
 
     void "should delete tag product correctly"() {
         given:
-        Tag testTag = new Tag(retailerId: 9)
+        ProductGroup testTag = new ProductGroup(retailerId: 9)
         testTag.setId(100)
         testTag.setDescription("test description")
-        TagProduct testTagProduct = new TagProduct()
+        ProductGroupProduct testTagProduct = new ProductGroupProduct()
         testTagProduct.setId(100)
         testTagProduct.setTag(testTag)
 
@@ -144,7 +144,7 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
         testTagProduct.save(flush: true, failOnError: true)
 
         when: 'deleteTagProduct action is executed'
-        TagProduct serviceResponse = service.deleteTagProduct(testTagProduct)
+        ProductGroupProduct serviceResponse = service.deleteTagProduct(testTagProduct)
 
         then: 'deleteTagProduct action response is correct'
         !serviceResponse
@@ -155,8 +155,8 @@ class TagServiceSpec extends Specification implements ServiceUnitTest<TagService
     void "should delete tag product by id correctly"() {
         given:
 
-        // mock the TagProduct.executeUpdate method since current GROM version doesn't support Hibernate queries
-        TagProduct.metaClass.static.executeUpdate = { CharSequence ch, Map map -> return 1 }
+        // mock the ProductGroupProduct.executeUpdate method since current GROM version doesn't support Hibernate queries
+        ProductGroupProduct.metaClass.static.executeUpdate = { CharSequence ch, Map map -> return 1 }
 
         when: 'deleteTagProduct action is executed'
         int serviceResponse = service.deleteTagProduct(200, 150)
