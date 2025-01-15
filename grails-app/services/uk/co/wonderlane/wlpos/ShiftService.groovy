@@ -712,6 +712,12 @@ class ShiftService extends MySqlPoolDal {
                 shift.getPendingReconciliationTotals().clear()
             } else {
                 shift.shiftStatus = ShiftStatus.FINALISED
+                shift.finalisedTime = DateTime.now()
+                shift.finalisedUserId = loggedInUser.getId()
+                shift.finalisedUserName = loggedInUser.getUsername()
+                shift.finalisedUsersRealName = loggedInUser.getName()
+                shift.finalisedSafeId = saveShiftCommand.safeId
+                shift.finalisedSafeDescription = safeService.getSafeDescriptionForId(saveShiftCommand.safeId)
             }
         }
     }
