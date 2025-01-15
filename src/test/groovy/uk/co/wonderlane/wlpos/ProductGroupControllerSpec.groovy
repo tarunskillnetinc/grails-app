@@ -42,7 +42,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
     void "should flash error and redirect to index page if tag not found on show action"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> null
+            getProductGroup(_) >> null
         }
 
         when: 'show action is executed'
@@ -60,7 +60,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
+            getProductGroup(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -127,7 +127,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
     void "should flash error and redirect to index page if tag not found on edit action"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> null
+            getProductGroup(_) >> null
         }
 
         when: 'edit action is executed'
@@ -145,7 +145,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
+            getProductGroup(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -186,7 +186,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
     void "should flash error when tag is not found"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> null
+            getProductGroup(_) >> null
         }
 
         when: 'save action is executed'
@@ -212,7 +212,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProductNotIncl.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> testTag
+            getProductGroup(_) >> testTag
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
@@ -268,7 +268,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProduct.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> testTag
+            getProductGroup(_) >> testTag
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
@@ -301,7 +301,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProduct.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getTag(_) >> testTag
+            getProductGroup(_) >> testTag
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {

@@ -112,7 +112,7 @@ class PromotionController {
     }
 
     def ajaxGetTag(int id, String promotionType, String promotionGroupType, int groupId) {
-        def tag = productGroupService.getTag(id)
+        def tag = productGroupService.getProductGroup(id)
 
         def (showQuantityField, showValueField) = getQuantityAndValueFieldVisibility(PromotionType.valueOf(promotionType))
 

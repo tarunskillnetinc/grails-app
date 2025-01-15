@@ -90,7 +90,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         mockDomain(ProductGroup, [testTag])
 
         when: 'getTag action is executed'
-        ProductGroup serviceResponse = service.getTag(100)
+        ProductGroup serviceResponse = service.getProductGroup(100)
 
         then: 'getTag action response is correct'
         serviceResponse != null
@@ -107,7 +107,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         mockDomain(ProductGroup, [testTag])
 
         when: 'getTag action is executed'
-        ProductGroup serviceResponse = service.getTag(105)
+        ProductGroup serviceResponse = service.getProductGroup(105)
 
         then: 'getTag action response is correct'
         serviceResponse == null
@@ -122,7 +122,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.setDescription("test description")
 
         when: 'getTag action is executed'
-        ProductGroup serviceResponse = service.saveTag(testTag)
+        ProductGroup serviceResponse = service.saveProductGroup(testTag)
 
         then: 'getTag action response is correct'
         serviceResponse

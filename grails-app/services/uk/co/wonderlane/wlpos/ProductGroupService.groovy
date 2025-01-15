@@ -31,11 +31,11 @@ class ProductGroupService {
         }
     }
 
-    def getTag(int id) {
+    def getProductGroup(int id) {
         return ProductGroup.findByIdAndRetailerId(id, springSecurityService.principal.retailerId)
     }
 
-    def saveTag(ProductGroup productGroup) {
+    def saveProductGroup(ProductGroup productGroup) {
         productGroup.save()
     }
 

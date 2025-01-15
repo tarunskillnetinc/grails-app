@@ -19,7 +19,7 @@ class TagController {
     }
 
     def show(int id) {
-        def tag = productGroupService.getTag(id)
+        def tag = productGroupService.getProductGroup(id)
 
         if (!tag) {
             flash.error = "Tag not found."
@@ -52,7 +52,7 @@ class TagController {
     }
 
     def edit(int id) {
-        def tag = productGroupService.getTag(id)
+        def tag = productGroupService.getProductGroup(id)
 
         if (!tag) {
             flash.error = "Tag not found."
@@ -85,7 +85,7 @@ class TagController {
         def tagProductsToRemove
 
         if (cmd.id) {
-            tag = productGroupService.getTag(cmd.id)
+            tag = productGroupService.getProductGroup(cmd.id)
 
             if (!tag) {
                 flash.error = "Tag not found."
@@ -128,7 +128,7 @@ class TagController {
                 productGroupService.deleteTagProduct(tag.id, it.sku)
             }
 
-            productGroupService.saveTag(tag)
+            productGroupService.saveProductGroup(tag)
 
             // Send this update to the whole Retailer exchange!
             sendTag(tag)
