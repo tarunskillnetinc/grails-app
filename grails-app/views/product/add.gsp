@@ -136,6 +136,13 @@
                     getProductHistory(${product?.id});
                 });
 
+                $('#collapseProductInformation').on('show.bs.collapse', function () {
+                    //Make sure that collapse action is not a part of date picker select
+                    if (!$(event.target).is('input[type="text"][id^="attribute_date_"]')) {
+                        getProductInformation(${product?.id});
+                    }
+                });
+
                 $('#effectiveDatesPicker').on('change', function () {
                     var effectiveDate = $(this).val()
                     var getProductUrl = '${createLink(controller: 'product', action: 'show')}/' + ${product?.id} + '?effectiveDate=' + encodeURI(effectiveDate);
@@ -1025,6 +1032,25 @@
                     data: { productId: productId },
                     success: function(resp) {
                         $("#productHistoryContainer").html(resp);
+                    }
+                });
+            }
+
+            function getProductInformation(productId) {
+                $('#ProductInformationContainer').html("<div class=\"d-flex justify-content-center\">\n" +
+                    "  <div class=\"spinner-border\" role=\"status\">\n" +
+                    "    <span class=\"sr-only\">Loading...</span>\n" +
+                    "  </div>\n" +
+                    "</div>");
+
+                var getProductInformationUrl = "${createLink(controller: 'product', action: 'ajaxGetProductInformation')}";
+
+                $.ajax({
+                    url: getProductInformationUrl,
+                    method: "GET",
+                    data: { productId: productId },
+                    success: function(resp) {
+                        $("#ProductInformationContainer").html(resp);
                     }
                 });
             }

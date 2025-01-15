@@ -1973,6 +1973,39 @@ class ProductController extends BaseController {
         def existingVariants = ProductVariant.countMatchingSkusForRetailer(sku, springSecurityService.principal.retailerId)
         return existingVariants == 0
     }
+
+
+    def ajaxGetProductInformation(int productId) {
+        List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
+        if (productId > 0) { // If product id does not exists there can not be any history to return
+            int retailerId = springSecurityService.principal.retailerId
+            //Try to load from product attribute table
+            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
+            //If it is empty then load from attribute table
+            List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
+
+            def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
+            def missingProductAttributes = productAttributeList.findAll {
+                !existingProductAttributeIds.contains(it.id)
+            }
+
+            missingProductAttributes.each { productAttribute ->
+                ProductAttributeValues dummyEntry = new ProductAttributeValues(
+                        retailerId: retailerId,
+                        productId: productId,
+                        productAttributeId: productAttribute.id,
+                        value: productAttribute.defaultValue ?: "", // Use defaultValue if available
+                        productAttributes: productAttribute
+                )
+                productAttributeValuesList << dummyEntry
+            }
+
+        }
+
+        render(view: "/product/_productInformation", model: [productAttributeValuesList: productAttributeValuesList])
+    }
+
+
 }
 
 class AddVariantCommand {
@@ -2179,6 +2212,8 @@ class ProductCommand {
 //    Collection<Message> refundMessages = new ArrayList<>()
 //    Collection<DiscountRate> discountRates = new ArrayList<>()
     Collection<ProductVariantCommand> variants = new ArrayList<>()
+
+    Collection<ProductAttributeValuesCommand> productAttributeValues = new ArrayList<>()
 }
 
 class RestrictionsCommand implements Validateable {
@@ -2286,6 +2321,14 @@ class RangeProductCommand {
     int productId
     int rangeId
     boolean ranged
+}
+
+class ProductAttributeValuesCommand {
+
+    Integer retailerId
+    Integer productId
+    Integer productAttributeId
+    String value
 }
 
 class CSVUploadProduct {
