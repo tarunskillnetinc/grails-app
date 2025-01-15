@@ -19,12 +19,12 @@ class ProductGroupProduct implements Serializable {
     public ProductGroupProduct() {}
 
     static mapping = {
-        table "tagproduct" // TODO: After the database refactor
+        table "productgroupproduct"
         version false
 
-        id composite: ['productGroupId', 'sku']// TODO: Update name after database refactor
+        id composite: ['productGroupId', 'sku']
 
-        productGroupId column: "tagId" // TODO: Update name after database refactor
+        productGroupId column: "productGroupId"
         sku column: "sku"
     }
 

@@ -21,9 +21,12 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="tag" action="index">Tag Management</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="productGroup"
+                                                                                  action="index">Tag Management</g:link></li>
                             <g:if test="${params.action == 'edit'}">
-                                <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="tag" action="show" id="${tag.id}">${tag.description}</g:link></li>
+                                <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="productGroup"
+                                                                                      action="show"
+                                                                                      id="${tag.id}">${tag.description}</g:link></li>
                                 <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
                             </g:if>
                             <g:else>
@@ -44,7 +47,8 @@
                 <div class="col-2 text-right">
                     <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
 
-                    <button id="save-btn" class="btn btn-success" name="save" onclick="$('#tag-form').submit();">Save</button>
+                    <button id="save-btn" class="btn btn-success" name="save"
+                            onclick="$('#productGroup-form').submit();">Save</button>
                 </div>
             </div>
 
@@ -109,7 +113,7 @@
         <asset:javascript src="tag.js" />
 
         <script type='text/javascript'>
-            var addProductUrl = "${createLink(controller: 'tag', action: 'ajaxAddProduct')}";
+        var addProductUrl = "${createLink(controller: 'productGroup', action: 'ajaxAddProduct')}";
         </script>
     </body>
 </html>

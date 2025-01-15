@@ -12,7 +12,7 @@
     <div id="noResultsRow" class="col pt-2 pb-2 my-auto text-center wl-striped0">No results found.</div>
 </g:if>
 
-<g:each in="${tags}" var="tag" status="i">
+<g:each in="${tags}" var="productGroup" status="i">
     <div id="tag-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2} hoverable pointer" title="Click to view." onclick="document.location.href='${createLink(action:'show', id: tag.id)}';">
         <div id="tag-${i+1}-id" class="col-2">${tag.id}</div>
         <div id="tag-${i+1}-description" class="col-6">${tag.description}</div>

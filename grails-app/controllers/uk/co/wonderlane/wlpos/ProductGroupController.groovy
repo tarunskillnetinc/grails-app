@@ -4,7 +4,7 @@ import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 
-class TagController {
+class ProductGroupController {
 
     def productGroupService
     def productService
@@ -94,12 +94,12 @@ class TagController {
             }
 
             // Find the products that needs to be Removed upon successful save
-            // If there are no products left the CMD will have no skus so we can just use the whole tag products list
+            // If there are no products left the CMD will have no skus so we can just use the whole productGroup products list
             // which will fail save validation but lets the user rectify.
             if (!cmd.sku) {
                 tagProductsToRemove = tag.tagProducts
             } else {
-                // Remove any TagProducts which are no longer in the tag.
+                // Remove any TagProducts which are no longer in the productGroup.
                 tagProductsToRemove = tag.tagProducts?.findAll { !cmd.sku.contains(it.sku) }
             }
         } else {
@@ -122,7 +122,7 @@ class TagController {
         }
 
         if (cmd.validate() && tag.validate()) {
-            // Commit the product deletion if the final tag is valid for saving
+            // Commit the product deletion if the final productGroup is valid for saving
             //  and there are products to remove
             tagProductsToRemove?.each {
                 productGroupService.deleteTagProduct(tag.id, it.sku)
@@ -139,7 +139,7 @@ class TagController {
         } else {
             cmd.errors.allErrors.each { FieldError error ->
                 final String field = error.field?.replace('profile.', '')
-                final String code = "tag.$field.$error.code"
+                final String code = "productGroup.$field.$error.code"
 
                 tag.errors.rejectValue((field == "sku" ? "tagProducts" : field), code)
             }

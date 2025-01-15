@@ -65,7 +65,7 @@
             }
 
             function resetButtonClicked() {
-                $('#tag').prop("selectedIndex", 0);
+                $('#productGroup').prop("selectedIndex", 0);
                 $('input[name="category.id"]:checked').prop("checked", false);
                 $('#searchTerm').val("");
             }
@@ -75,7 +75,7 @@
 
                 var searchTerm = $('#searchTerm').val();
                 var category = $('input[name="category.id"]:checked').val();
-                var tag = $('#tag').val();
+                var productGroup = $('#productGroup').val();
 
                 $('#search-results').html("<div class=\"d-flex justify-content-center pt-2\">\n" +
                     "  <div class=\"spinner-border\" role=\"status\">\n" +

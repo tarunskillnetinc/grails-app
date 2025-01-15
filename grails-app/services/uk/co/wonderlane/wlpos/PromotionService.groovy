@@ -49,7 +49,7 @@ class PromotionService {
             }
         }
 
-        //loop over tags to get all tag ids
+        //loop over tags to get all productGroup ids
         def tagIds = []
         tagIds = allTags?.collect { ProductGroup it -> it.id }
 

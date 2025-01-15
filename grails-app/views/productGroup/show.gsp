@@ -13,7 +13,8 @@
                     <div class="col">
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link controller="tag" action="index">Tag Management</g:link></li>
+                            <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link
+                                    controller="productGroup" action="index">Tag Management</g:link></li>
                             <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${tag?.description ?: "View Tag"}</li>
                         </ol>
                     </div>
@@ -28,7 +29,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link elementId="edit-tag-btn" action="edit" id="${tag.id}" class="btn btn-wl">Edit Tag</g:link>
+                    <g:link elementId="edit-productGroup-btn" action="edit" id="${tag.id}"
+                            class="btn btn-wl">Edit Tag</g:link>
                 </div>
             </div>
 

@@ -11,7 +11,7 @@ class ProductGroup {
     static hasMany = [tagProducts: ProductGroupProduct] // TODO: After the database refactor
 
     static mapping = {
-        table "tag" // TODO: after the database refactor
+        table "productGroup" // TODO: after the database refactor
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"

@@ -198,7 +198,7 @@ class PromotionController {
             }
 
             if (promotion.type == PromotionType.BOGOF) {
-                // For BOGOFs the user only selects a single item/category/tag which creates an OFFER group. We need to also add a matching REQUIRED group.
+                // For BOGOFs the user only selects a single item/category/productGroup which creates an OFFER group. We need to also add a matching REQUIRED group.
                 promotionCommand.requiredGroups?.clear()
 
                 promotionCommand.offerGroups?.each {

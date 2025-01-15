@@ -6,7 +6,7 @@ import grails.testing.web.controllers.ControllerUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
-class ProductGroupControllerSpec extends Specification implements ControllerUnitTest<TagController>, DataTest {
+class ProductGroupControllerSpec extends Specification implements ControllerUnitTest<ProductGroupController>, DataTest {
 
     Class<?>[] getDomainClassesToMock() {
         [ProductGroupProduct, ProductGroup] as Class<?>[]
@@ -50,7 +50,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'show action response is correct'
         response.status == HttpStatus.FOUND.value()
-        response.redirectUrl == "/tag/index"
+        response.redirectUrl == "/productGroup/index"
         controller.flash.error == "Tag not found."
         controllerResponse == null
     }
@@ -135,7 +135,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'edit action response is correct'
         response.status == HttpStatus.FOUND.value()
-        response.redirectUrl == "/tag/index"
+        response.redirectUrl == "/productGroup/index"
         controller.flash.error == "Tag not found."
         controllerResponse == null
     }
@@ -157,7 +157,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
         then: 'edit action response is correct'
         response.status == HttpStatus.OK.value()
-        view == "/tag/add"
+        view == "/productGroup/add"
         model.tag.tagProducts[0] != null
 
         where:

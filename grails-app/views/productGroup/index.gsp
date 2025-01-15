@@ -15,7 +15,7 @@
             });
 
             function search() {
-                var URL = "${createLink(controller: 'tag', action: 'ajaxGetTags')}";
+                var URL = "${createLink(controller: 'productGroup', action: 'ajaxGetTags')}";
                 var searchTerm = $('#tagSearchTerm').val();
                 var searchBy = $('#tagSearchBy').val();
 
@@ -63,7 +63,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link elementId="add-new-tag-btn" controller="tag" action="add" class="btn btn-wl">Add New Tag</g:link>
+                    <g:link elementId="add-new-productGroup-btn" controller="productGroup" action="add"
+                            class="btn btn-wl">Add New Tag</g:link>
                 </div>
             </div>
 

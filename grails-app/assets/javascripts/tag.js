@@ -11,10 +11,10 @@ function productSelected (id, sku, description) {
             let i = $('#productList').children().length - 1; // remove hidden noResultsRow
             let row = $('#productVariant' +id);
             row.addClass("wl-striped" +((i-1) % 2));
-            row.find('#tag-product-0-id').attr("id", "tag-product-" + i + "-id");
-            row.find('#tag-product-0-sku').attr("id", "tag-product-" + i + "-sku");
-            row.find('#tag-product-0-description').attr("id", "tag-product-" + i + "-description");
-            row.find('#tag-product-0-remove-btn').attr("id", "tag-product-" + i + "-remove-btn");
+            row.find('#productGroup-product-0-id').attr("id", "productGroup-product-" + i + "-id");
+            row.find('#productGroup-product-0-sku').attr("id", "productGroup-product-" + i + "-sku");
+            row.find('#productGroup-product-0-description').attr("id", "productGroup-product-" + i + "-description");
+            row.find('#productGroup-product-0-remove-btn').attr("id", "productGroup-product-" + i + "-remove-btn");
         }
     });
 }

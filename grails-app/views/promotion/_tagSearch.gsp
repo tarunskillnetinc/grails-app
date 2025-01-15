@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <g:hiddenField name="tagModal-currentPromotionType" value=""/>
-                <h3 class="tag-search-header">Select tag</h3>
+                <h3 class="tag-search-header">Select productGroup</h3>
 
                 <div class="row mt-4 ml-0 mr-0">
                     <div class="input-group offset-2 col-8">
@@ -52,7 +52,7 @@
         var URL = "${createLink(controller: 'promotion', action: 'ajaxSearchTags')}";
         var searchTerm = $('#tagSearchTerm').val();
 
-        $('#tag-search-results').html("<div class=\"d-flex justify-content-center\">\n" +
+        $('#productGroup-search-results').html("<div class=\"d-flex justify-content-center\">\n" +
             "  <div class=\"spinner-border\" role=\"status\">\n" +
             "    <span class=\"sr-only\">Loading...</span>\n" +
             "  </div>\n" +
@@ -62,7 +62,7 @@
             url: URL,
             data: { searchTerm: searchTerm },
             success: function(resp) {
-                $('#tag-search-results').html(resp);
+                $('#productGroup-search-results').html(resp);
                 $('#tagSearchTerm').data('prev',$('#tagSearchTerm').val())
                 $('#tagSearchBy').data('prev', $('#tagSearchBy').val())
             }

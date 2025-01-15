@@ -149,7 +149,7 @@
                 addPromotionGroup(sku, url);
             }
 
-            // Add the selected tag to the relevant promotion group section.
+            // Add the selected productGroup to the relevant promotion group section.
             function addPromotionGroupTag(id) {
                 var url = "${createLink(controller: 'promotion', action: 'ajaxGetTag')}";
 
@@ -220,27 +220,27 @@
             }
 
             function enableOrDisablePromotionGroupButtonsForBogof(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForFixedAmount(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForPercentage(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForXForY(promotionGroupType) {
-                // Single product, category or tag allowed at a time.
+                // Single product, category or productGroup allowed at a time.
                 setPromotionGroupButtonEnabledness(promotionGroupType, false, false, false);
             }
 
             function enableOrDisablePromotionGroupButtonsForFixedPrice(promotionGroupType) {
-                // Multiple of either a product, tag or category allowed.
+                // Multiple of either a product, productGroup or category allowed.
 
                 // Find out which group type we've used so far and only enable that button.
                 if ($("#" +promotionGroupType +"Groups\\[0\\]\\.sku").val() > 0) {

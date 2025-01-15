@@ -267,7 +267,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         model.promotion != null
         model.tagsRequired != null
         model.tagsRequired.size() == 1
-        model.productItemType == "tag"
+        model.productItemType == "productGroup"
 
         where:
         ID | sku  | categoryId | tagId | retailerId
@@ -322,7 +322,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         model.promotion != null
         model.tagsOffer != null
         model.tagsOffer.size() == 1
-        model.productItemType == "tag"
+        model.productItemType == "productGroup"
 
         where:
         ID | sku  | categoryId | tagId | retailerId
