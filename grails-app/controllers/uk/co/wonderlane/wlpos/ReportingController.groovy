@@ -21,6 +21,7 @@ class ReportingController {
     def reportingService
     def supplierService
     def productListService
+    def locationService
     def storeService
     def springSecurityService
 
@@ -41,6 +42,7 @@ class ReportingController {
     private static final PRODUCT_LIST_REPORT_SORT_COLUMNS = ["sku", "description", "itemQuantity", "totalCost"]
     private static final TENDER_MOVEMENT_REPORT_SORT_COLUMNS = ["timestamp", "storeId", "fromLocation", "toLocation", "amount", "type", "reason", "userName"]
     private static final CHARITY_DONATION_REPORT_SORT_COLUMNS = ["storeNumber", "tillId", "transactionId", "basketTotal", "donationTotal", "dateCreated"]
+    private static final BANKING_REPORT_SORT_COLUMNS = ["financialWeekNumber", "bankingDate", "type", "bankName", "usersRealName", "amount", "comment"]
 
     def index() {
 
@@ -2199,5 +2201,68 @@ class ReportingController {
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
+    }
+
+    def bankingReport() {
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.startDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay().plusDays(1).minusMillis(1)
+        def stores = storeService.getStores(springSecurityService.principal.retailerId)
+        def bankingType = ['Bank Deposit', 'Bank Receipt']
+
+        [reportType         : ReportType.BANKING_REPORT,
+         startDate          : startDate,
+         endDate            : endDate,
+         userColumns        : reportingService.getReportColumns(ReportType.BANKING_REPORT),
+         stores             : stores,
+         bankingType        : bankingType]
+    }
+
+    def ajaxBankingReport(SortParams sortParams) {
+        sortParams.validateParams(BANKING_REPORT_SORT_COLUMNS)
+
+        DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
+        DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+        DateTime endDate = params.endDate ? DateTime.parse(params.endDate, dateFormatter).withTimeAtStartOfDay().plusDays(1).minusMillis(1) : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
+
+        Integer storeId = params.storeFilter ? getIntegerParam(params.storeFilter) : null
+
+        def tenderMovementTypes = []
+        def bankingType = params.bankingType ?: ""
+
+        switch (bankingType) {
+            case "Bank Deposit":
+                tenderMovementTypes << TenderMovementType.BANKING
+                break
+            case "Bank Receipt":
+                tenderMovementTypes << TenderMovementType.CASH_INBOUND
+                break
+            default:
+                tenderMovementTypes << TenderMovementType.BANKING
+                tenderMovementTypes << TenderMovementType.CASH_INBOUND
+                break
+        }
+
+        def locations
+
+        if (storeId == null) {
+            locations = locationService.getLocationsByRetailerId()
+        } else {
+            locations = locationService.getLocationsByStoreId(storeId)
+        }
+
+        def locationMap = locations.collectEntries { [(it.id): it.description] }
+
+        /* Currently this should always only filter on the bankingDate anr return the results in descending order */
+        def tenderMovements = reportingService.getBankingTenderMovements(startDate, endDate.plusDays(1), tenderMovementTypes, storeId, sortParams.max, sortParams.offset, "bankingDate", "desc")
+
+        render (template: "bankingReportResults", model: [bankingReports: tenderMovements?.tenderMovements?.toList(),
+                                                            userColumns: reportingService.getReportColumns(ReportType.BANKING_REPORT),
+                                                            sortParams: sortParams,
+                                                            startDate: startDate,
+                                                            endDate: endDate,
+                                                            locationMap: locationMap,
+                                                            storeId: storeId,
+                                                            totalResults: tenderMovements?.totalCount])
     }
 }
