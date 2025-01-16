@@ -5,9 +5,9 @@
                 <div class="form-group row">
 
                     <div class="row col-xl-5 col-12 mb-4">
-                        <label for="storeId" class="col-2 col-form-label-sm text-right">Store ID:</label>
+                        <label for="storeIdSelect" class="col-2 col-form-label-sm text-right">Store ID:</label>
                         <div class="col-4">
-                            <g:select name="storeId" from="${stores}" optionValue="${{it.config.storeNumber}}"
+                            <g:select id="storeIdSelect" name="storeIdSelect" from="${stores}" optionValue="${{it.config.storeNumber}}"
                                       optionKey="id"
                                       noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
                                       class="form-control select-border"
@@ -16,7 +16,7 @@
 
                         <label for="tillId" class="col-2 col-form-label-sm text-right">Till ID:</label>
                         <div class="col-4">
-                            <g:select name="tillId" from="${stores}" optionValue="${{it.config.storeNumber}}"
+                            <g:select id="tillIdSelect" name="tillIdSelect" from="${stores}" optionValue="${{it.config.storeNumber}}"
                                       optionKey="id"
                                       noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
                                       class="form-control select-border"
@@ -39,8 +39,7 @@
                     <div class="row col-xl-2 col-12 mb-4">
                         <label for="shiftNumber" class="col-xl-5 col-2 col-form-label-sm text-right">Shift no.:</label>
                         <div class="col-xl-7 col-4">
-                            <g:select name="shiftNumber" from="${stores}" optionValue="${{it.config.storeNumber}}"
-                                      optionKey="id"
+                            <g:select id="shiftNumberSelect" name="shiftNumberSelect" from="${stores}" optionValue="${{it.config.storeNumber}}" optionKey="id"
                                       noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
                                       class="form-control select-border"
                                       disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
