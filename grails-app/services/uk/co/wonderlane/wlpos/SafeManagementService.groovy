@@ -432,11 +432,13 @@ class SafeManagementService extends MySqlPoolDal {
                     safeSession.reconciledDate = DateTime.now()
                     safeSession.reconciledByUserId = loggedInUser.getId()
                     safeSession.reconciledByUsersName = loggedInUser.getUsername()
+                    safeSession.reconciledByRealName = loggedInUser.getName()
                     safeSession.sessionStatus = SafeSessionStatus.RECONCILED
                  } else {
                     safeSession.reReconciledDate = DateTime.now()
                     safeSession.reReconciledByUserId = loggedInUser.getId()
                     safeSession.reReconciledByUsersName = loggedInUser.getUsername()
+                    safeSession.reReconciledByRealName = loggedInUser.getName()
                     safeSession.totalRecountAttempts = (safeSession.totalRecountAttempts ?: 0) + 1
                 }
             } else {
