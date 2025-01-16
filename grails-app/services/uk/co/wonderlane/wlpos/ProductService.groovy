@@ -911,11 +911,11 @@ class ProductService extends MySqlDal {
     }
 
     List<ProductAttributeValues> getProductInformation(int productId) {
-        List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
+        List<ProductAttributeValues> returnedAttributeValuesList = new ArrayList<>()
         if (productId > 0) { // If product id does not exists there can not be any history to return
             int retailerId = springSecurityService.principal.retailerId
             //Try to load from product attribute table
-            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
+            List<ProductAttributeValues> productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
             //If it is empty then load from attribute table
             List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
 
@@ -926,8 +926,7 @@ class ProductService extends MySqlDal {
                     ProductAttributes productAttributes = productAttributesMap.get(productAttribute.productAttributeId)
                     if (productAttributes) {
                         productAttribute.productAttributes = productAttributes
-                    } else {
-                        throw new RuntimeException("No product attribute to be found from product attribute id ${productAttribute.productAttributeId}")
+                        returnedAttributeValuesList.add(productAttribute)
                     }
                 }
             }
@@ -945,10 +944,10 @@ class ProductService extends MySqlDal {
                         value: productAttribute.defaultValue ?: "", // Use defaultValue if available
                         productAttributes: productAttribute
                 )
-                productAttributeValuesList << dummyEntry
+                returnedAttributeValuesList << dummyEntry
             }
         }
-        return productAttributeValuesList
+        return returnedAttributeValuesList
     }
 
     ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct) {
