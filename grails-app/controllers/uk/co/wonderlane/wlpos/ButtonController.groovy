@@ -203,10 +203,10 @@ class ButtonController {
                     saveButton(button, image, singularButtonUpdate, imageRecord)
                 }
             }
-            if(buttonService.saveButton(button)){
+            if (buttonService.saveButton(button)) {
                 flash.message = "Button saved successfully"
-            }else if (buttonService.saveButtonGrid(button.buttonGrid)){
-                flash.message = "Button saved successfully"
+            } else if (buttonService.saveButtonGrid(button.buttonGrid)) {
+                flash.message = "Button grid saved successfully"
             }
 
             try {
