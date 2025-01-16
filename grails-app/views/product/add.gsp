@@ -136,12 +136,12 @@
                     getProductHistory(${product?.id});
                 });
 
-                $('#collapseProductInformation').on('show.bs.collapse', function () {
-                    //Make sure that collapse action is not a part of date picker select
-                    if (!$(event.target).is('input[type="text"][id^="attribute_date_"]')) {
-                        getProductInformation(${product?.id});
-                    }
-                });
+                %{--$('#collapseProductInformation').on('show.bs.collapse', function () {--}%
+                %{--    //Make sure that collapse action is not a part of date picker select--}%
+                %{--    if (!$(event.target).is('input[type="text"][id^="attribute_date_"]')) {--}%
+                %{--        getProductInformation(${product?.id});--}%
+                %{--    }--}%
+                %{--});--}%
 
                 $('#effectiveDatesPicker').on('change', function () {
                     var effectiveDate = $(this).val()
@@ -1212,7 +1212,8 @@
                                                         isNewProduct       : isNewProduct,
                                                         snappyEnabled      : snappyEnabled,
                                                         locationsEnabled   : locationsEnabled,
-                                                        locationsType      : locationsType]" />
+                                                        locationsType      : locationsType,
+                                                        productAttributeValuesList : productAttributeValuesList]" />
         </section>
 
         <section id="addVariant-modal" class="container-fluid">

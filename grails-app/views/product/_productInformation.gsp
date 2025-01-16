@@ -1,3 +1,7 @@
+<%@ page import="org.joda.time.DateTime" %>
+<%@ page import="org.joda.time.DateTimeZone" %>
+<%@ page import="org.joda.time.format.DateTimeFormat" %>
+
 <asset:stylesheet src="bootstrap-datepicker3.min.css" />
 <asset:javascript src="bootstrap-datepicker.min.js" />
 
@@ -35,11 +39,11 @@
                 <div class="col-6">
                     <g:if test="${attributeValue?.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.LIST}">
                         <g:select name="productAttributeValues[${index}].value"
-                                  from="${attributeValue.productAttributes.listValues}"
-                                  value="${attributeValue.productAttributes.defaultValue}"
-                                  noSelection="['':'Select a default value']"
+                                  from="${attributeValue?.productAttributes?.listValues}"
+                                  value="${attributeValue?.value ?: attributeValue.productAttributes.defaultValue}"
                                   class="form-control select-border"
-                                  data-attribute-id="${attributeValue.productAttributes.id}" />
+                                  data-attribute-id="${attributeValue.productAttributes.id}"
+                                  disabled="${!isStore}"/>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.TEXT}">
@@ -47,32 +51,36 @@
                                      value="${attributeValue.value}"
                                      maxlength="50"
                                      placeholder="${attributeValue.productAttributes.defaultValue ?: ''}"
-                                     class="form-control bottom-border" />
+                                     class="form-control bottom-border"
+                                     disabled="${!isStore}"/>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.NUMERIC}">
                         <g:field name="productAttributeValues[${index}].value"
                                  type="number"
                                  value="${attributeValue.value}"
-                                 class="form-control bottom-border" />
+                                 class="form-control bottom-border"
+                                 disabled="${!isStore}"/>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.BOOLEAN}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
                             <g:checkBox name="productAttributeValues[${index}].value"
-                                        value="${attributeValue.value ?: attributeValue.productAttributes.defaultValue}"
+                                        value="true"
                                         checked="${attributeValue.value == 'true'}"
                                         class="form-check-input wl-checkbox"
-                                        style="margin-left: 0;" />
+                                        style="margin-left: 0;"
+                                        disabled="${!isStore}"/>
                         </div>
                     </g:if>
 
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.DATE}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
-                            <g:textField name="productAttributeValues[${index}].value"\
+                            <g:textField name="productAttributeValues[${index}].value"
                                          id="attribute_date_${index}"
                                          class="col-5 form-control bottom-border"
-                                         value="${attributeValue.value ? attributeValue?.value?.format('dd/MM/yyyy') : null}"/>
+                                         value="${attributeValue.value}"
+                                         disabled="${!isStore}"/>
                         </div>
                     </g:if>
 

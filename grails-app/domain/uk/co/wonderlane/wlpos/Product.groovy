@@ -77,7 +77,7 @@ class Product {
         status column: "`status`", sqlType: "enum", enumType: "string"
         retailerProductId column: "retailerProductId"
         variants cascade: "save-update,delete"
-        productAttributeValues cascade: "save-update,delete" , key: 'productId'
+        productAttributeValues cascade: "save-update,delete"
         selDescription column: "selDescription"
         selType column: "selType"
         productImgUrl column: "productImgUrl"

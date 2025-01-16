@@ -13,6 +13,7 @@ import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
 import uk.co.wonderlane.wlpos.enums.LocationsType
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.SyncMessageType
 import uk.co.wonderlane.wlpos.reporting.ReportColumns
 import uk.co.wonderlane.wlpos.reporting.ReportType
@@ -157,12 +158,21 @@ class ProductService extends MySqlDal {
         product.save()
     }
 
-    def saveProduct(Product product, List<ProductVariant> productVariantList) {
+    def saveProduct(Product product, List<ProductVariant> productVariantList, ArrayList<ProductAttributeValues> updatedAttributes) {
         if (productVariantList != null && productVariantList.size() > 0) {
             productVariantList.each { pv -> product.addToVariants(pv) }
         }
 
-        product.save(flush: true)
+        if (updatedAttributes != null && updatedAttributes.size() > 0) {
+            updatedAttributes.each { productAttributeValues ->
+                    productAttributeValues.validate()
+                    if (!productAttributeValues.hasErrors()){
+                        product.addToProductAttributeValues(productAttributeValues)
+                    }
+            }
+        }
+
+        product.save(flush: true, failOnError: true)
     }
 
     def saveBarcodes(Product product) {
@@ -899,4 +909,91 @@ class ProductService extends MySqlDal {
 
         return results.sort { it.id }
     }
+
+    List<ProductAttributeValues> getProductInformation(int productId) {
+        List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
+        if (productId > 0) { // If product id does not exists there can not be any history to return
+            int retailerId = springSecurityService.principal.retailerId
+            //Try to load from product attribute table
+            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
+            //If it is empty then load from attribute table
+            List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
+
+            HashMap<Long, ProductAttributes> productAttributesMap = productAttributeList?.collectEntries {[(it.id): it]} ?: [:]
+
+            productAttributeValuesList?.each {
+                productAttribute -> {
+                    ProductAttributes productAttributes = productAttributesMap.get(productAttribute.productAttributeId)
+                    if (productAttributes) {
+                        productAttribute.productAttributes = productAttributes
+                    } else {
+                        throw new RuntimeException("No product attribute to be found from product attribute id ${productAttribute.productAttributeId}")
+                    }
+                }
+            }
+
+            def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
+            def missingProductAttributes = productAttributeList.findAll {
+                !existingProductAttributeIds.contains(it.id)
+            }
+
+            missingProductAttributes.each { productAttribute ->
+                ProductAttributeValues dummyEntry = new ProductAttributeValues(
+                        retailerId: retailerId,
+                        productId: productId,
+                        productAttributeId: productAttribute.id,
+                        value: productAttribute.defaultValue ?: "", // Use defaultValue if available
+                        productAttributes: productAttribute
+                )
+                productAttributeValuesList << dummyEntry
+            }
+        }
+        return productAttributeValuesList
+    }
+
+    ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct) {
+        ArrayList<ProductAttributeValues> updatedOrNewAttributes = []
+
+        try {
+            // Create a map with composite keys for existing attributes
+            def existingAttributesMap = product?.productAttributeValues?.collectEntries {
+                ["${it.productAttributeId}_${it.productId}_${it.retailerId}": it]} ?: [:]
+
+            // Create a map for product attributes
+            def productAttributesMap = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(
+                    springSecurityService.principal.retailerId, true)?.collectEntries { [(it.id): it] } ?: [:]
+
+            // Loop through the edited product attributes
+            editedProduct?.productAttributeValues?.each { editedAttr ->
+                def key = "${editedAttr.productAttributeId}_${editedAttr.productId}_${editedAttr.retailerId}"
+                def existingAttr = existingAttributesMap.get(key)
+                def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
+
+                // Set default value for BOOLEAN type attributes
+                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
+                    editedAttr.value = 'false'
+                }
+
+                if (existingAttr) {
+                    if (existingAttr.value != editedAttr.value) {
+                        existingAttr.value = editedAttr.value
+                    }
+                } else {
+                    def newAttr = new ProductAttributeValues(
+                            productId: editedAttr.productId,
+                            retailerId: editedAttr.retailerId,
+                            productAttributeId: editedAttr.productAttributeId,
+                            value: editedAttr.value,
+                            id: editedAttr.productAttributeId
+                    )
+                    updatedOrNewAttributes << newAttr
+                }
+            }
+        } catch (Exception ex) {
+            log.error("Error in processing product attribute values: ${ex.message}", ex)
+        }
+
+        return updatedOrNewAttributes
+    }
+
 }
