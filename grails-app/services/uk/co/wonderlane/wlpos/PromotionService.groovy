@@ -82,7 +82,7 @@ class PromotionService {
                     relevantPromotions.add(promotion)
                 } else if (promotionGroup.categoryId && promotionGroup.categoryId == product.category.id) {
                     relevantPromotions.add(promotion)
-                } else if (promotionGroup.tagId && tagIds?.contains(promotionGroup.tagId)) {
+                } else if (promotionGroup.productGroupId && tagIds?.contains(promotionGroup.productGroupId)) {
                     relevantPromotions.add(promotion)
                 }
             }

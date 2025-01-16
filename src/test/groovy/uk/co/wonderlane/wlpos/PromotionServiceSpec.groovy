@@ -63,15 +63,15 @@ class PromotionServiceSpec extends Specification implements ServiceUnitTest<Prom
         testPromotion.setId(100)
 
         PromotionGroup promotionGroupSkuMatch = new PromotionGroup(type: PromotionGroupType.OFFER, sku: 250,
-                categoryId: null, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroupSkuMatch)
 
         PromotionGroup promotionGroupCategoryMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
-                categoryId: 100, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroupCategoryMatch)
 
         PromotionGroup promotionGroupTagMatch = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
-                categoryId: null, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroupTagMatch)
 
         testPromotion.save(flush: true, failOnError: true)

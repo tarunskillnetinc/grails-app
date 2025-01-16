@@ -70,7 +70,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: sku,
-                categoryId: categoryId, tagId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: categoryId, productGroupId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -110,7 +110,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: sku,
-                categoryId: categoryId, tagId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: categoryId, productGroupId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -150,7 +150,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: sku,
-                categoryId: categoryId, tagId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: categoryId, productGroupId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -189,7 +189,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: sku,
-                categoryId: categoryId, tagId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: categoryId, productGroupId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -228,7 +228,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: sku,
-                categoryId: categoryId, tagId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: categoryId, productGroupId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -283,7 +283,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: sku,
-                categoryId: categoryId, tagId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: categoryId, productGroupId: tagId, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -351,7 +351,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: 100,
-                categoryId: null, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -388,7 +388,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: 100,
-                categoryId: null, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -425,7 +425,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
-                categoryId: 100, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -461,7 +461,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: null,
-                categoryId: 100, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -497,7 +497,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: null,
-                categoryId: null, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -548,7 +548,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
                 type: PromotionType.FIXED_PRICE, amount: BigDecimal.TEN, updateDatetime: DateTime.now())
 
         PromotionGroup promotionGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: null,
-                categoryId: null, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: null, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.groups.add(promotionGroup)
         testPromotion.save(flush: true, failOnError: true)
 
@@ -1387,19 +1387,19 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         testPromotion.setId(100)
 
         PromotionGroup promotionOfferGroup = new PromotionGroup(type: PromotionGroupType.OFFER, sku: 100,
-                categoryId: 100, tagId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: 150, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.addToGroups(promotionOfferGroup)
 
         PromotionGroup promotionOfferGroupNoTag = new PromotionGroup(type: PromotionGroupType.OFFER, sku: 100,
-                categoryId: 100, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.addToGroups(promotionOfferGroupNoTag)
 
         PromotionGroup promotionRequiredGroup = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: 100,
-                categoryId: 100, tagId: 250, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: 250, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.addToGroups(promotionRequiredGroup)
 
         PromotionGroup promotionRequiredGroupNoTag = new PromotionGroup(type: PromotionGroupType.REQUIRED, sku: 100,
-                categoryId: 100, tagId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
+                categoryId: 100, productGroupId: null, requiredQuantity: 10, requiredValue: 10, promotion: testPromotion)
         testPromotion.addToGroups(promotionRequiredGroupNoTag)
 
 
