@@ -8,10 +8,10 @@ class ProductGroup {
     Integer maxSellQuantity
     boolean hidden
 
-    static hasMany = [productGroupProducts: ProductGroupProduct] // TODO: After the database refactor
+    static hasMany = [productGroupProducts: ProductGroupProduct]
 
     static mapping = {
-        table "productGroup" // TODO: after the database refactor
+        table "productGroup"
         version false
 
         retailerId column: "retailerId", sqlType: "tinyint"
@@ -25,8 +25,8 @@ class ProductGroup {
         maxSellQuantity nullable: true, min: 1, max: 999
     }
 
-    public ProductGroup getProductGroup() {
-        ProductGroup productGroup = new ProductGroup()
+    public uk.co.wonderlane.wlpos.entities.ProductGroup getProductGroup() {
+        uk.co.wonderlane.wlpos.entities.ProductGroup productGroup = new uk.co.wonderlane.wlpos.entities.ProductGroup()
         productGroup.setId(id)
         productGroup.setDescription(description)
         productGroup.setMaxSellQuantity(maxSellQuantity)

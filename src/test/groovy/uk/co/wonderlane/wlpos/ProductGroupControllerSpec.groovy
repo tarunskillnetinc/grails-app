@@ -208,8 +208,8 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProducts.add(productGroupProductNotIncl)
         ProductGroup testproductGroup = new ProductGroup(productGroupProducts: tagProducts)
         testproductGroup.setId(1)
-        productGroupProduct.setProductGroup(testproductGroup)
-        productGroupProductNotIncl.setProductGroup(testproductGroup)
+        productGroupProduct.setProductGroupId(testproductGroup)
+        productGroupProductNotIncl.setProductGroupId(testproductGroup)
         testproductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroup(_) >> testproductGroup
@@ -265,7 +265,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         productGroupProducts.add(productGroupProduct)
         ProductGroup testProductGroup = new ProductGroup(productGroupProducts: productGroupProducts)
         testProductGroup.setId(1)
-        productGroupProduct.setProductGroup(testProductGroup)
+        productGroupProduct.setProductGroupId(testProductGroup)
         testProductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroup(_) >> testProductGroup
@@ -298,7 +298,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroup testProductGroup = new ProductGroup()
         testProductGroup.setId(1)
         testProductGroup.setProductGroupProducts(productGroupProducts)
-        productGroupProduct.setProductGroup(testProductGroup)
+        productGroupProduct.setProductGroupId(testProductGroup)
         testProductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroup(_) >> testProductGroup

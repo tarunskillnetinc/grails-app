@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Tag Management</title>
+        <title>Product Group Management</title>
     </head>
 
     <body>
@@ -14,7 +14,7 @@
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                             <li id="breadcrumb-2" class="breadcrumb-item" aria-current="page"><g:link
-                                    controller="productGroup" action="index">Tag Management</g:link></li>
+                                    controller="productGroup" action="index">Product Group Management</g:link></li>
                             <li id="breadcrumb-3" class="breadcrumb-item active"
                                 aria-current="page">${productGroup?.description ?: "View Tag"}</li>
                         </ol>
@@ -26,12 +26,12 @@
         <section id="tag-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 id="page-title" class="mx-auto">Tag Management</h2>
+                    <h2 id="page-title" class="mx-auto">Product Group Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
                     <g:link elementId="edit-productGroup-btn" action="edit" id="${productGroup.id}"
-                            class="btn btn-wl">Edit Tag</g:link>
+                            class="btn btn-wl">Edit Product Group</g:link>
                 </div>
             </div>
 
@@ -68,15 +68,18 @@
             </div>
 
             <div id="search-results" class="align-content-center mb-5">
-                <g:if test="${!productGroup.tagProducts || productGroup.tagProducts?.size() == 0}">
+                <g:if test="${!productGroup.productGroupProducts || productGroup.productGroupProducts?.size() == 0}">
                     <div id="noResultsRow" class="col pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                 </g:if>
 
-                <g:each in="${productGroup.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
-                    <div id="tag-product-${i+1}" class="row col-8 offset-2 pt-2 pb-2 wl-striped${i%2}">
-                        <div id="tag-product-${i+1}-id" class="col-2">${tagProduct.itemCode}</div>
-                        <div id="tag-product-${i+1}-sku" class="col-4">${tagProduct.sku}</div>
-                        <div id="tag-product-${i+1}-description" class="col-6">${tagProduct.productDescription}</div>
+                <g:each in="${productGroup.productGroupProducts?.sort { it.sku }}" var="productGroupProduct" status="i">
+                    <div id="productGroup-product-${i + 1}" class="row col-8 offset-2 pt-2 pb-2 wl-striped${i % 2}">
+                        <div id="productGroup-product-${i + 1}-id" class="col-2">${productGroupProduct.itemCode}</div>
+
+                        <div id="productGroup-product-${i + 1}-sku" class="col-4">${productGroupProduct.sku}</div>
+
+                        <div id="productGroup-product-${i + 1}-description"
+                             class="col-6">${productGroupProduct.productDescription}</div>
                     </div>
                 </g:each>
             </div>

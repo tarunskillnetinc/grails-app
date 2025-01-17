@@ -206,7 +206,7 @@ class PromotionController {
                     pgc.type = PromotionGroupType.REQUIRED
                     pgc.sku = it.sku
                     pgc.categoryId = it.categoryId
-                    pgc.tagId = it.tagId
+                    pgc.productGroupId = it.productGroupId
                     pgc.requiredQuantity = it.requiredQuantity
                     pgc.requiredValue = it.requiredValue
 
@@ -710,7 +710,7 @@ class PromotionGroupCommand implements Validateable {
     PromotionGroupType type
     Long sku
     Integer categoryId
-    Integer tagId
+    Integer productGroupId
     Integer requiredQuantity
     BigDecimal requiredValue
 
@@ -718,12 +718,12 @@ class PromotionGroupCommand implements Validateable {
         id nullable: true
         type nullable: false
         sku nullable: true, validator: { val, obj ->
-            val != null || !(obj.categoryId == null && obj.tagId == null)
+            val != null || !(obj.categoryId == null && obj.productGroupId == null)
         }
         categoryId nullable: true, validator: { val, obj ->
-            val != null || !(obj.sku == null && obj.tagId == null)
+            val != null || !(obj.sku == null && obj.productGroupId == null)
         }
-        tagId nullable: true, validator: { val, obj ->
+        productGroupId nullable: true, validator: { val, obj ->
             val != null || !(obj.sku == null && obj.categoryId == null)
         }
         requiredQuantity nullable: true, range:1..999999999

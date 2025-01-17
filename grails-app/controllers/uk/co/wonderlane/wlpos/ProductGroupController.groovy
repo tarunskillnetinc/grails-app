@@ -145,7 +145,7 @@ class ProductGroupController {
             }
 
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
-                def productVariants = productService.getProductVariants(productGroup.tagProducts?.collect { it.sku })
+                def productVariants = productService.getProductVariants(productGroup.productGroupProducts?.collect { it.sku })
 
                 productGroup.productGroupProducts.each { productGroupProduct ->
                     Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id

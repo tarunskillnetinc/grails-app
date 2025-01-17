@@ -217,7 +217,7 @@ environments:
                 password: Pa**W0rd01
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: wlpos
+                database: zagreus-wlpos
             transactions:
                 host: localhost
                 port: 3306
@@ -225,7 +225,7 @@ environments:
                 password: Pa**W0rd01
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: transactions
+                database: zagreus-transactions
             loyalty:
                 host: localhost
                 port: 3306
@@ -233,7 +233,7 @@ environments:
                 password: Pa**W0rd01
                 #username: "wonderlane"
                 #password: "RkmqjzNlLEi6OYNrcd8WJlIdIk3klD"
-                database: loyalty
+                database: zagreus-loyalty
         wlpos:
             defaultImageBucket: "retail-platform-default-images-test"
             cfdImageBucket: "retail-platform-customer-display-images-test"

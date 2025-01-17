@@ -63,7 +63,7 @@ class ProductGroupProduct implements Serializable {
     public uk.co.wonderlane.wlpos.entities.ProductGroupProduct getProductGroupProduct() {
         uk.co.wonderlane.wlpos.entities.ProductGroupProduct productGroupProduct = new uk.co.wonderlane.wlpos.entities.ProductGroupProduct()
 
-        productGroupProduct.setProductGroupId(tag.id)
+        productGroupProduct.setProductGroupId(productGroupProduct.productGroupId)
         productGroupProduct.setSku(sku)
 
         return productGroupProduct
@@ -76,7 +76,7 @@ class ProductGroupProduct implements Serializable {
 
         ProductGroupProduct productGroupProduct = (ProductGroupProduct) that
         if (sku != productGroupProduct.sku || productVariantId != productGroupProduct.productVariantId
-                || productId != productGroupProduct.productId || tag?.id != productGroupProduct.tag?.id || itemCode != productGroupProduct.itemCode) {
+                || productId != productGroupProduct.productId || productGroup?.id != productGroupProduct.productGroupId || itemCode != productGroupProduct.itemCode) {
             return false
         }
 
@@ -85,6 +85,6 @@ class ProductGroupProduct implements Serializable {
 
     @Override
     int hashCode() {
-        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (tag?.id?.hashCode() ?: 123)
+        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (productGroup?.id?.hashCode() ?: 123)
     }
 }
