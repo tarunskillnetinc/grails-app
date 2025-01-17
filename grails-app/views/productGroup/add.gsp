@@ -65,7 +65,7 @@
                 </div>
             </g:hasErrors>
 
-            <g:form name="tag-form" action="save" novalidate="novalidate" class="mt-4">
+            <g:form name="productGroup-form" action="save" novalidate="novalidate" class="mt-4">
                 <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
@@ -118,7 +118,7 @@
         <!-- Product search modal -->
         <g:render template="/product/productSearch" />
 
-        <asset:javascript src="tag.js" />
+        <asset:javascript src="productgroup.js"/>
 
         <script type='text/javascript'>
         var addProductUrl = "${createLink(controller: 'productGroup', action: 'ajaxAddProduct')}";

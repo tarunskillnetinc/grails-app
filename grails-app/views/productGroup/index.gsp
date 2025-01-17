@@ -64,7 +64,7 @@
 
                 <div class="col-2 text-right">
                     <g:link elementId="add-new-productGroup-btn" controller="productGroup" action="add"
-                            class="btn btn-wl">Add New Tag</g:link>
+                            class="btn btn-wl">Add New Product Group</g:link>
                 </div>
             </div>
 

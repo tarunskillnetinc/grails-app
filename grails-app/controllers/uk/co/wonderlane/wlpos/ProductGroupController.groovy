@@ -141,7 +141,7 @@ class ProductGroupController {
                 final String field = error.field?.replace('profile.', '')
                 final String code = "productGroup.$field.$error.code"
 
-                productGroup.errors.rejectValue((field == "sku" ? "tagProducts" : field), code)
+                productGroup.errors.rejectValue((field == "sku" ? "productGroupProducts" : field), code)
             }
 
             if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
