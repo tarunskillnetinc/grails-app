@@ -964,30 +964,31 @@ class ProductService extends MySqlDal {
                 def existingAttr = existingAttributesMap.get(key)
                 def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
 
-                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) { // Set default value for BOOLEAN type attributes
-                    editedAttr.value = 'false'
-                }
-
-                if (existingAttr) {
-                    //If updated attribute already on productattributevalues table
-                    //If so then check updated value is change to current value
-                    //If it does then update current value to new value
-                    if (existingAttr?.value != editedAttr?.value) {
-                        existingAttr?.value = editedAttr?.value
+                if (productAttributes) { //Check master product attribute exists
+                    if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) { // Set default value for BOOLEAN type attributes
+                        editedAttr.value = 'false'
                     }
-                } else if (productAttributes && productAttributes?.defaultValue != editedAttr?.value) {
-                    def newAttr = new ProductAttributeValues(
-                            productId: editedAttr?.productId,
-                            retailerId: editedAttr?.retailerId,
-                            productAttributeId: editedAttr?.productAttributeId,
-                            value: editedAttr?.value,
-                            id: editedAttr?.productAttributeId,
-                            attributeName: editedAttr?.attributeName,
-                            attributeType: editedAttr?.attributeType
-                    )
-                    updatedOrNewAttributes << newAttr
-                }
 
+                    if (existingAttr) {
+                        //If updated attribute already on productattributevalues table
+                        //If so then check updated value is change to current value
+                        //If it does then update current value to new value
+                        if (existingAttr?.value != editedAttr?.value) {
+                            existingAttr?.value = editedAttr?.value
+                        }
+                    } else if (productAttributes?.defaultValue != editedAttr?.value) {
+                        def newAttr = new ProductAttributeValues(
+                                productId: editedAttr?.productId,
+                                retailerId: editedAttr?.retailerId,
+                                productAttributeId: editedAttr?.productAttributeId,
+                                value: editedAttr?.value,
+                                id: editedAttr?.productAttributeId,
+                                attributeName: editedAttr?.attributeName,
+                                attributeType: editedAttr?.attributeType
+                        )
+                        updatedOrNewAttributes << newAttr
+                    }
+                }
 
             }
         } catch (Exception ex) {
