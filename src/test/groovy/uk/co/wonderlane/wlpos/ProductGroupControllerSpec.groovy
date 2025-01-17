@@ -57,10 +57,10 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     void "should return the tag with product variant id and product description on show action"() {
         given:
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        tagProduct.save()
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        productGroupProduct.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> new ProductGroup(id: 1, productGroupProducts: Set.of(tagProduct))
+            getProductGroup(_) >> new ProductGroup(id: 1, productGroupProducts: Set.of(productGroupProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -92,9 +92,9 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
     void "should return tags when ajaxGetTags action called"() {
         given:
         FakeTagSearchResultList<ProductGroup> tags = new FakeTagSearchResultList<>()
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        tagProduct.save()
-        tags.add(new ProductGroup(id: 1, productGroupProducts: Set.of(tagProduct)))
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        productGroupProduct.save()
+        tags.add(new ProductGroup(id: 1, productGroupProducts: Set.of(productGroupProduct)))
         tags.properties.put("totalCount", 1)
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroups(_) >> tags
@@ -142,10 +142,10 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     void "should return the tag with product variant id and product description on edit action"() {
         given:
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        tagProduct.save()
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        productGroupProduct.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> new ProductGroup(id: 1, productGroupProducts: Set.of(tagProduct))
+            getProductGroup(_) >> new ProductGroup(id: 1, productGroupProducts: Set.of(productGroupProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -203,16 +203,16 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         given:
         ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
         ProductGroupProduct productGroupProductNotIncl = new ProductGroupProduct(sku: 300)
-        Set<ProductGroupProduct> tagProducts = new HashSet<>()
-        tagProducts.add(productGroupProduct)
-        tagProducts.add(productGroupProductNotIncl)
-        ProductGroup testproductGroup = new ProductGroup(productGroupProducts: tagProducts)
-        testproductGroup.setId(1)
-        productGroupProduct.setProductGroupId(testproductGroup)
-        productGroupProductNotIncl.setProductGroupId(testproductGroup)
-        testproductGroup.save()
+        Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
+        productGroupProducts.add(productGroupProduct)
+        productGroupProducts.add(productGroupProductNotIncl)
+        ProductGroup testProductGroup = new ProductGroup(productGroupProducts: productGroupProducts)
+        testProductGroup.setId(1)
+        productGroupProduct.setProductGroupId(testProductGroup)
+        productGroupProductNotIncl.setProductGroupId(testProductGroup)
+        testProductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> testproductGroup
+            getProductGroup(_) >> testProductGroup
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
@@ -222,21 +222,21 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveProductGroupCommand saveTagCommand = new SaveProductGroupCommand()
-        saveTagCommand.setId(100)
+        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        saveProductGroupCommand.setId(100)
         Long[] skus = new Long[2]
         skus[0] = 100
         skus[1] = 200
-        saveTagCommand.setSku(skus)
-        saveTagCommand.setDescription("Test Command")
-        controller.save(saveTagCommand)
+        saveProductGroupCommand.setSku(skus)
+        saveProductGroupCommand.setDescription("Test Command")
+        controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
         response.status == HttpStatus.FOUND.value()
         controller.flash.message == "Tag saved successfully."
     }
 
-    void "create new tage and save tags correctly on valid input and valid tag details - happy path"() {
+    void "create new productgroup and save productgroups correctly on valid input and valid productgroup details - happy path"() {
         given:
         controller.productGroupService = Stub(ProductGroupService) {}
 

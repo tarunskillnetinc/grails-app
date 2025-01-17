@@ -42,16 +42,16 @@ class PromotionService {
 
         def allSkus = product.variants?.collect { it.sku }
 
-        def tagCriteria = ProductGroup.createCriteria()
-        def allTags = tagCriteria.list() {
+        def productGroupCriteria = ProductGroup.createCriteria()
+        def allProductGroups = productGroupCriteria.list() {
             tagProducts {
                 "in"("sku", allSkus)
             }
         }
 
         //loop over tags to get all productGroup ids
-        def tagIds = []
-        tagIds = allTags?.collect { ProductGroup it -> it.id }
+        def productGroupIds = []
+        productGroupIds = allProductGroups?.collect { ProductGroup it -> it.id }
 
         def promotionCriteria = Promotion.createCriteria()
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
@@ -82,7 +82,7 @@ class PromotionService {
                     relevantPromotions.add(promotion)
                 } else if (promotionGroup.categoryId && promotionGroup.categoryId == product.category.id) {
                     relevantPromotions.add(promotion)
-                } else if (promotionGroup.productGroupId && tagIds?.contains(promotionGroup.productGroupId)) {
+                } else if (promotionGroup.productGroupId && productGroupIds?.contains(promotionGroup.productGroupId)) {
                     relevantPromotions.add(promotion)
                 }
             }

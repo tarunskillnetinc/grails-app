@@ -242,14 +242,14 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         product.variants.add(new ProductVariant(product: product, effectiveDate: DateTime.now()))
         product.save(flush: true, failOnError: true)
 
-        ProductGroup testTag = new ProductGroup(description: "Test")
-        testTag.setId(150)
+        ProductGroup testProductGroup = new ProductGroup(description: "Test")
+        testProductGroup.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroupId: testTag)
-        tagProduct.save(flush: true, failOnError: true)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup)
+        productGroupProduct.save(flush: true, failOnError: true)
 
-        testTag.tagProducts.add(tagProduct)
-        testTag.save(flush: true, failOnError: true)
+        testProductGroup.productGroupProducts.add(productGroupProduct)
+        testProductGroup.save(flush: true, failOnError: true)
 
         Map principal = new HashMap()
         principal.put("storeId", 100)
@@ -297,14 +297,14 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         product.variants.add(new ProductVariant(product: product, effectiveDate: DateTime.now()))
         product.save(flush: true, failOnError: true)
 
-        ProductGroup testTag = new ProductGroup(description: "Test")
-        testTag.setId(150)
+        ProductGroup testProductGroup = new ProductGroup(description: "Test")
+        testProductGroup.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroupId: testTag)
-        tagProduct.save(flush: true, failOnError: true)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup)
+        productGroupProduct.save(flush: true, failOnError: true)
 
-        testTag.tagProducts.add(tagProduct)
-        testTag.save(flush: true, failOnError: true)
+        testProductGroup.productGroupProducts.add(productGroupProduct)
+        testProductGroup.save(flush: true, failOnError: true)
 
         Map principal = new HashMap()
         principal.put("storeId", 100)
@@ -516,10 +516,10 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         ProductGroup testTag = new ProductGroup(description: "Test")
         testTag.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroupId: testTag)
-        tagProduct.save(flush: true, failOnError: true)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testTag)
+        productGroupProduct.save(flush: true, failOnError: true)
 
-        testTag.tagProducts.add(tagProduct)
+        testTag.productGroupProducts.add(productGroupProduct)
         testTag.save(flush: true, failOnError: true)
 
         Map principal = new HashMap()
@@ -564,14 +564,14 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         controller.flash.promotion = testPromotion
 
-        ProductGroup testTag = new ProductGroup(description: "Test")
-        testTag.setId(150)
+        ProductGroup testProductGroup = new ProductGroup(description: "Test")
+        testProductGroup.setId(150)
 
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100, productGroupId: testTag)
-        tagProduct.save(flush: true, failOnError: true)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup)
+        productGroupProduct.save(flush: true, failOnError: true)
 
-        testTag.tagProducts.add(tagProduct)
-        testTag.save(flush: true, failOnError: true)
+        testProductGroup.productGroupProducts.add(productGroupProduct)
+        testProductGroup.save(flush: true, failOnError: true)
 
         Map principal = new HashMap()
         principal.put("storeId", 100)
@@ -1405,21 +1405,21 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
 
         testPromotion.save(flush: true, failOnError: true)
 
-        ProductGroup testTag1 = new ProductGroup(description: "Test 1")
-        testTag1.setId(150)
-        ProductGroupProduct tagProduct1 = new ProductGroupProduct(sku: 100, productGroupId: testTag1)
-        tagProduct1.save(flush: true, failOnError: true)
-        testTag1.tagProducts.add(tagProduct1)
-        testTag1.save(flush: true, failOnError: true)
+        ProductGroup testProductGroup1 = new ProductGroup(description: "Test 1")
+        testProductGroup1.setId(150)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100, productGroupId: testProductGroup1)
+        productGroupProduct.save(flush: true, failOnError: true)
+        testProductGroup1.productGroupProducts.add(productGroupProduct)
+        testProductGroup1.save(flush: true, failOnError: true)
 
-        ProductGroup testTag2 = new ProductGroup(description: "Test 2")
-        testTag2.setId(250)
+        ProductGroup testProductGroup2 = new ProductGroup(description: "Test 2")
+        testProductGroup2.setId(250)
 
-        ProductGroupProduct tagProduct2 = new ProductGroupProduct(sku: 150, productGroupId: testTag2)
-        tagProduct2.save(flush: true, failOnError: true)
+        ProductGroupProduct productGroupProduct2 = new ProductGroupProduct(sku: 150, productGroupId: testProductGroup2)
+        productGroupProduct2.save(flush: true, failOnError: true)
 
-        testTag2.tagProducts.add(tagProduct2)
-        testTag2.save(flush: true, failOnError: true)
+        testProductGroup2.productGroupProducts.add(productGroupProduct2)
+        testProductGroup2.save(flush: true, failOnError: true)
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {}
 

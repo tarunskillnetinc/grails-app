@@ -13,20 +13,20 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
 
     //-------------------------------getTags function Unit tests----------------------------//
 
-    void "should retrieve tags with search criteria"() {
+    void "should retrieve product groups with search criteria"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        Set<ProductGroupProduct> tagProducts = new HashSet<>()
-        tagProducts.add(tagProduct)
-        ProductGroup testTag = new ProductGroup()
-        testTag.setId(1)
-        testTag.setProductGroupProducts(tagProducts)
-        testTag.setRetailerId(9)
-        testTag.setHidden(false)
-        testTag.setDescription("test prefixsearchkeywordsuffix other text")
-        tagProduct.setProductGroupId(testTag)
-        testTag.save()
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
+        productGroupProducts.add(productGroupProduct)
+        ProductGroup productGroup = new ProductGroup()
+        productGroup.setId(1)
+        productGroup.setProductGroupProducts(productGroupProducts)
+        productGroup.setRetailerId(9)
+        productGroup.setHidden(false)
+        productGroup.setDescription("test prefixsearchkeywordsuffix other text")
+        productGroupProduct.setProductGroupId(productGroup)
+        productGroup.save()
 
         when: 'getTags action is executed'
         def serviceResponse = service.getProductGroups(searchKeyword)
@@ -47,17 +47,17 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
     void "should retrieve empty results with search criteria for incorrect retailer ID"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        Set<ProductGroupProduct> tagProducts = new HashSet<>()
-        tagProducts.add(tagProduct)
-        ProductGroup testTag = new ProductGroup()
-        testTag.setId(1)
-        testTag.setProductGroupProducts(tagProducts)
-        testTag.setRetailerId(100)
-        testTag.setHidden(false)
-        testTag.setDescription("test prefixsearchkeywordsuffix other text")
-        tagProduct.setProductGroupId(testTag)
-        testTag.save()
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
+        productGroupProducts.add(productGroupProduct)
+        ProductGroup productGroup = new ProductGroup()
+        productGroup.setId(1)
+        productGroup.setProductGroupProducts(productGroupProducts)
+        productGroup.setRetailerId(100)
+        productGroup.setHidden(false)
+        productGroup.setDescription("test prefixsearchkeywordsuffix other text")
+        productGroupProduct.setProductGroupId(productGroup)
+        productGroup.save()
 
         when: 'getTags action is executed'
         def serviceResponse = service.getProductGroups(searchKeyword)
@@ -78,7 +78,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
 
     //-------------------------------getTag function Unit tests----------------------------//
 
-    void "should retrieve tag with tag id"() {
+    void "should retrieve productGroup with productGroup id"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
 
@@ -96,7 +96,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         serviceResponse != null
     }
 
-    void "should retrieve empty results if tag for the tag id not exists"() {
+    void "should retrieve empty results if productGroup for the productGroup id not exists"() {
         given:
         service.springSecurityService = getFakeSpringSecurityService()
 
@@ -115,7 +115,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
 
     //-------------------------------saveTag function Unit tests----------------------------//
 
-    void "should save tag correctly"() {
+    void "should save productGroup correctly"() {
         given:
         ProductGroup testTag = new ProductGroup(retailerId: 9)
         testTag.setId(100)
@@ -129,39 +129,39 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         serviceResponse.getId() == 100
     }
 
-    //-------------------------------deleteTagProduct function Unit tests----------------------------//
+    //-------------------------------deleteProductGroupProduct function Unit tests----------------------------//
 
-    void "should delete tag product correctly"() {
+    void "should delete productGroup product correctly"() {
         given:
-        ProductGroup testTag = new ProductGroup(retailerId: 9)
-        testTag.setId(100)
-        testTag.setDescription("test description")
-        ProductGroupProduct testTagProduct = new ProductGroupProduct()
-        testTagProduct.setId(100)
-        testTagProduct.setProductGroupId(testTag)
+        ProductGroup productGroup = new ProductGroup(retailerId: 9)
+        productGroup.setId(100)
+        productGroup.setDescription("test description")
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct()
+        productGroupProduct.setId(100)
+        productGroupProduct.setProductGroupId(productGroup)
 
-        testTag.save(flush: true, failOnError: true)
-        testTagProduct.save(flush: true, failOnError: true)
+        productGroup.save(flush: true, failOnError: true)
+        productGroupProduct.save(flush: true, failOnError: true)
 
-        when: 'deleteTagProduct action is executed'
-        ProductGroupProduct serviceResponse = service.deleteProductGroupProduct(testTagProduct)
+        when: 'deleteProductGroupProduct action is executed'
+        ProductGroupProduct serviceResponse = service.deleteProductGroupProduct(productGroupProduct)
 
-        then: 'deleteTagProduct action response is correct'
+        then: 'deleteProductGroupProduct action response is correct'
         !serviceResponse
     }
 
-    //------------------------deleteTagProduct by Id and sku function Unit tests-----------------------//
+    //------------------------deleteProductGroupProduct by Id and sku function Unit tests-----------------------//
 
-    void "should delete tag product by id correctly"() {
+    void "should delete productGroup product by id correctly"() {
         given:
 
         // mock the ProductGroupProduct.executeUpdate method since current GROM version doesn't support Hibernate queries
         ProductGroupProduct.metaClass.static.executeUpdate = { CharSequence ch, Map map -> return 1 }
 
-        when: 'deleteTagProduct action is executed'
+        when: 'deleteProductGroupProduct action is executed'
         int serviceResponse = service.deleteProductGroupProduct(200, 150)
 
-        then: 'deleteTagProduct action response is correct'
+        then: 'deleteProductGroupProduct action response is correct'
         serviceResponse == 1
     }
 
