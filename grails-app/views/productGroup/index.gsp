@@ -120,7 +120,7 @@
             </div>
 
             <div id="search-results" class="align-content-center">
-                <g:render template="tagSearchResults" model="[tags: tags]" />
+                <g:render template="tagSearchResults" model="[productGroups: productGroups]"/>
             </div>
         </section>
     </body>

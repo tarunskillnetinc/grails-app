@@ -26,11 +26,13 @@
                             <g:if test="${params.action == 'edit'}">
                                 <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="productGroup"
                                                                                       action="show"
-                                                                                      id="${tag.id}">${tag.description}</g:link></li>
-                                <li id="breadcrumb-4" class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
+                                                                                      id="${productGroup.id}">${productGroup.description}</g:link></li>
+                                <li id="breadcrumb-4" class="breadcrumb-item active"
+                                    aria-current="page">${productGroup?.description ? "Edit Tag" : "Add Tag"}</li>
                             </g:if>
                             <g:else>
-                                <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${tag?.description ? "Edit Tag" : "Add Tag"}</li>
+                                <li id="breadcrumb-3" class="breadcrumb-item active"
+                                    aria-current="page">${productGroup?.description ? "Edit Tag" : "Add Tag"}</li>
                             </g:else>
                         </ol>
                     </div>
@@ -45,7 +47,8 @@
                 </div>
 
                 <div class="col-2 text-right">
-                    <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}" id="${tag?.id}" role="button" class="btn btn-danger">Cancel</g:link>
+                    <g:link elementId="cancel-btn" action="${params.action == 'edit' ? 'show' : 'index'}"
+                            id="${productGroup?.id}" role="button" class="btn btn-danger">Cancel</g:link>
 
                     <button id="save-btn" class="btn btn-success" name="save"
                             onclick="$('#productGroup-form').submit();">Save</button>
@@ -56,23 +59,26 @@
                 <div class="alert alert-success alert-wl mx-0" role="alert">${flash.message}</div>
             </g:if>
 
-            <g:hasErrors bean="${tag}">
+            <g:hasErrors bean="${productGroup}">
                 <div id="tag-management-errors-list" class="alert alert-danger alert-wl mx-0" role="alert">
-                    <g:renderErrors bean="${tag}" as="list" />
+                    <g:renderErrors bean="${productGroup}" as="list"/>
                 </div>
             </g:hasErrors>
 
             <g:form name="tag-form" action="save" novalidate="novalidate" class="mt-4">
-                <g:hiddenField name="id" value="${tag?.id ?: 0}" />
+                <g:hiddenField name="id" value="${productGroup?.id ?: 0}"/>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="description" class="col-4 col-form-label text-right pr-4">Description</label>
-                    <g:textField name="description" class="col-8 form-control bottom-border" value="${tag?.description}" maxlength="50"/>
+                    <g:textField name="description" class="col-8 form-control bottom-border"
+                                 value="${productGroup?.description}" maxlength="50"/>
                 </div>
 
                 <div class="form-group row col-12 col-lg-6 mt-4">
                     <label for="maxSellQuantity" class="col-4 col-form-label text-right pr-4">Maximum Sell Quantity</label>
-                    <g:field name="maxSellQuantity" type="number" min="0" max="999" value="${tag?.maxSellQuantity}" class="col-2 form-control bottom-border" onkeypress="return preventNegativeInteger(event);" onpaste="return false;" />
+                    <g:field name="maxSellQuantity" type="number" min="0" max="999"
+                             value="${productGroup?.maxSellQuantity}" class="col-2 form-control bottom-border"
+                             onkeypress="return preventNegativeInteger(event);" onpaste="return false;"/>
                 </div>
 
                 <div class="header-wl mt-5">
@@ -96,12 +102,12 @@
                 </div>
 
                 <div id="productList" class="align-content-center mb-5">
-                    <g:if test="${!tag?.tagProducts || tag?.tagProducts?.size() == 0}">
+                    <g:if test="${!productGroup?.tagProducts || productGroup?.tagProducts?.size() == 0}">
                         <div id="noResultsRow" class="col-8 offset-2 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                     </g:if>
 
-                    <g:each in="${tag?.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
-                        <g:render template="tagProductRow" model="[tagProduct: tagProduct, i: i]" />
+                    <g:each in="${productGroup?.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
+                        <g:render template="tagProductRow" model="[productGroupProduct: tagProduct, i: i]"/>
                     </g:each>
                 </div>
             </g:form>

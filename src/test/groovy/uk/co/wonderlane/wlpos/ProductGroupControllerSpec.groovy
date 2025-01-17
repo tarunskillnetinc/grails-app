@@ -101,7 +101,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         }
 
         when: 'ajaxGetTags action is executed'
-        controller.ajaxGetTags("search term")
+        controller.ajaxGetProductGroups("search term")
 
         then: 'ajaxGetTags action response is correct'
         response.status == HttpStatus.OK.value()
@@ -190,9 +190,9 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         }
 
         when: 'save action is executed'
-        SaveTagCommand saveTagCommand = new SaveTagCommand()
-        saveTagCommand.setId(100)
-        controller.save(saveTagCommand)
+        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        saveProductGroupCommand.setId(100)
+        controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
         response.status == HttpStatus.OK.value()
@@ -201,18 +201,18 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     void "save tags correctly on valid input and valid tag details - happy path"() {
         given:
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        ProductGroupProduct tagProductNotIncl = new ProductGroupProduct(sku: 300)
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        ProductGroupProduct productGroupProductNotIncl = new ProductGroupProduct(sku: 300)
         Set<ProductGroupProduct> tagProducts = new HashSet<>()
-        tagProducts.add(tagProduct)
-        tagProducts.add(tagProductNotIncl)
-        ProductGroup testTag = new ProductGroup(productGroupProducts: tagProducts)
-        testTag.setId(1)
-        tagProduct.setProductGroup(testTag)
-        tagProductNotIncl.setProductGroup(testTag)
-        testTag.save()
+        tagProducts.add(productGroupProduct)
+        tagProducts.add(productGroupProductNotIncl)
+        ProductGroup testproductGroup = new ProductGroup(productGroupProducts: tagProducts)
+        testproductGroup.setId(1)
+        productGroupProduct.setProductGroup(testproductGroup)
+        productGroupProductNotIncl.setProductGroup(testproductGroup)
+        testproductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> testTag
+            getProductGroup(_) >> testproductGroup
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
@@ -222,7 +222,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveTagCommand saveTagCommand = new SaveTagCommand()
+        SaveProductGroupCommand saveTagCommand = new SaveProductGroupCommand()
         saveTagCommand.setId(100)
         Long[] skus = new Long[2]
         skus[0] = 100
@@ -247,11 +247,11 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveTagCommand saveTagCommand = new SaveTagCommand()
+        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
         Long[] skus = new Long[0]
-        saveTagCommand.setSku(skus)
-        saveTagCommand.setDescription("Test Command")
-        controller.save(saveTagCommand)
+        saveProductGroupCommand.setSku(skus)
+        saveProductGroupCommand.setDescription("Test Command")
+        controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
         response.status == HttpStatus.FOUND.value()
@@ -260,15 +260,15 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     void "save tags correctly on valid input and valid tag and rabbit service error - partial error path"() {
         given:
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        Set<ProductGroupProduct> tagProducts = new HashSet<>()
-        tagProducts.add(tagProduct)
-        ProductGroup testTag = new ProductGroup(productGroupProducts: tagProducts)
-        testTag.setId(1)
-        tagProduct.setProductGroup(testTag)
-        testTag.save()
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
+        productGroupProducts.add(productGroupProduct)
+        ProductGroup testProductGroup = new ProductGroup(productGroupProducts: productGroupProducts)
+        testProductGroup.setId(1)
+        productGroupProduct.setProductGroup(testProductGroup)
+        testProductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> testTag
+            getProductGroup(_) >> testProductGroup
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
@@ -278,12 +278,12 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveTagCommand saveTagCommand = new SaveTagCommand()
+        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
         Long[] skus = new Long[1]
         skus[0] = 100
-        saveTagCommand.setSku(skus)
-        saveTagCommand.setDescription("Test Command")
-        controller.save(saveTagCommand)
+        saveProductGroupCommand.setSku(skus)
+        saveProductGroupCommand.setDescription("Test Command")
+        controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
         response.status == HttpStatus.FOUND.value()
@@ -292,16 +292,16 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
 
     void "return validation error messages on validation error is found - error path"() {
         given:
-        ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
-        Set<ProductGroupProduct> tagProducts = new HashSet<>()
-        tagProducts.add(tagProduct)
-        ProductGroup testTag = new ProductGroup()
-        testTag.setId(1)
-        testTag.setProductGroupProducts(tagProducts)
-        tagProduct.setProductGroup(testTag)
-        testTag.save()
+        ProductGroupProduct productGroupProduct = new ProductGroupProduct(sku: 100)
+        Set<ProductGroupProduct> productGroupProducts = new HashSet<>()
+        productGroupProducts.add(productGroupProduct)
+        ProductGroup testProductGroup = new ProductGroup()
+        testProductGroup.setId(1)
+        testProductGroup.setProductGroupProducts(productGroupProducts)
+        productGroupProduct.setProductGroup(testProductGroup)
+        testProductGroup.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> testTag
+            getProductGroup(_) >> testProductGroup
         }
 
         controller.rabbitService = Stub(BackOfficeRabbitService) {
@@ -316,12 +316,12 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         controller.springSecurityService = getFakeSpringSecurityService()
 
         when: 'save action is executed'
-        SaveTagCommand saveTagCommand = new SaveTagCommand()
-        saveTagCommand.setId(100)
+        SaveProductGroupCommand saveProductGroupCommand = new SaveProductGroupCommand()
+        saveProductGroupCommand.setId(100)
         Long[] skus = new Long[1]
         skus[0] = 100
-        saveTagCommand.setSku(skus)
-        controller.save(saveTagCommand)
+        saveProductGroupCommand.setSku(skus)
+        controller.save(saveProductGroupCommand)
 
         then: 'save action response is correct'
         response.status == HttpStatus.OK.value()

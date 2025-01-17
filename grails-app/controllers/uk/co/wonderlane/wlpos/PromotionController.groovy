@@ -87,9 +87,9 @@ class PromotionController {
     }
 
     def ajaxSearchTags(String searchTerm) {
-        def tags = productGroupService.getProductGroups(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+        def productGroups = productGroupService.getProductGroups(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
-        render(template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: tags.totalCount])
+        render(template: "tagSearchResults", model: [productGroups: productGroups, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: productGroups.totalCount])
     }
 
     def ajaxSearchCategories(String searchTerm, String searchBy) {
@@ -396,10 +396,10 @@ class PromotionController {
     }
 
     def tagSearch() {
-        def tags = ProductGroup.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
+        def productGroups = ProductGroup.findAllByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false, [max: params.max ? Integer.parseInt(params.max) : 50, sort: "description", order: "asc", offset: params.offset ? Integer.parseInt(params.offset) : 0])
         def totalResults = ProductGroup.countByRetailerIdAndDescriptionLikeAndHidden(springSecurityService.principal.retailerId, "%" + params.searchTerm + "%", false)
 
-        render(template: "/promotion/tagSearchResults", model: [tags: tags, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
+        render(template: "/promotion/tagSearchResults", model: [productGroups: productGroups, storeId: springSecurityService.principal.storeId, searchTerm: params.searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: totalResults])
     }
 
     def promotionSearch() {

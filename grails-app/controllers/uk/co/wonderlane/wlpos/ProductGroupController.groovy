@@ -15,7 +15,7 @@ class ProductGroupController {
     def index() {
         def productGroups = productGroupService.getProductGroups()
 
-        [tags: productGroups]
+        [productGroups: productGroups]
     }
 
     def show(int id) {
@@ -29,22 +29,22 @@ class ProductGroupController {
 
         def products = productService.getProductVariants(productGroup?.tagProducts?.collect { it.sku })
 
-        productGroup?.tagProducts?.each { tagProduct ->
-            Integer productVariantId = products?.find { it.sku == tagProduct.sku }?.id
-            tagProduct.productVariantId = productVariantId ? productVariantId : 0
-            tagProduct.productDescription = products?.find { it.sku == tagProduct.sku }?.product?.description
+        productGroup?.productGroupProducts?.each { productGroupProduct ->
+            Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
+            productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
+            productGroupProduct.productDescription = products?.find { it.sku == productGroupProduct.sku }?.product?.description
         }
 
-        [tag: productGroup]
+        [productGroup: productGroup]
     }
 
-    def ajaxGetTags(String searchTerm, String searchBy) {
-        def tags = productGroupService.getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+    def ajaxGetProductGroups(String searchTerm, String searchBy) {
+        def productGroups = productGroupService.getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
-        render(template: "tagSearchResults", model: [tags      : tags,
-                                                     searchTerm: searchTerm,
-                                                     max       : params.max ?: 50,
-                                                     offset    : params.offset])
+        render(template: "tagSearchResults", model: [productGroups: productGroups,
+                                                     searchTerm   : searchTerm,
+                                                     max          : params.max ?: 50,
+                                                     offset       : params.offset])
     }
 
     def add() {
@@ -52,42 +52,42 @@ class ProductGroupController {
     }
 
     def edit(int id) {
-        def tag = productGroupService.getProductGroup(id)
+        def productGroup = productGroupService.getProductGroup(id)
 
-        if (!tag) {
+        if (!productGroup) {
             flash.error = "Tag not found."
             redirect(action: "index")
             return
         }
 
-        def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
+        def productVariants = productService.getProductVariants(productGroup.getProductGroupProducts?.collect { it.sku })
 
-        tag.tagProducts.each { tagProduct ->
-            Integer productVariantId = productVariants?.find { it.sku == tagProduct.sku }?.id
-            tagProduct.productVariantId = productVariantId ? productVariantId : 0
-            tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
+        productGroup.productGroupProducts.each { productGroupProduct ->
+            Integer productVariantId = productVariants?.find { it.sku == productGroupProduct.sku }?.id
+            productGroupProduct.productVariantId = productVariantId ? productVariantId : 0
+            productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
         }
 
-        render (view: "add", model: [tag: tag])
+        render(view: "add", model: [productGroup: productGroup])
     }
 
     def ajaxAddProduct(int productVariantId, long sku, String productDescription) {
-        def tagProduct = new ProductGroupProduct()
-        tagProduct.sku = sku
-        tagProduct.productVariantId = productVariantId
-        tagProduct.productDescription = productDescription
+        def productGroupProduct = new ProductGroupProduct()
+        productGroupProduct.sku = sku
+        productGroupProduct.productVariantId = productVariantId
+        productGroupProduct.productDescription = productDescription
 
-        render (template: "tagProductRow", model: [tagProduct: tagProduct])
+        render(template: "productGroupProductRow", model: [productGroupProduct: productGroupProduct])
     }
 
-    def save(SaveTagCommand cmd) {
-        def tag
-        def tagProductsToRemove
+    def save(SaveProductGroupCommand cmd) {
+        def productGroup
+        def productGroupProductsToRemove
 
         if (cmd.id) {
-            tag = productGroupService.getProductGroup(cmd.id)
+            productGroup = productGroupService.getProductGroup(cmd.id)
 
-            if (!tag) {
+            if (!productGroup) {
                 flash.error = "Tag not found."
                 render (action: "index")
                 return
@@ -97,68 +97,68 @@ class ProductGroupController {
             // If there are no products left the CMD will have no skus so we can just use the whole productGroup products list
             // which will fail save validation but lets the user rectify.
             if (!cmd.sku) {
-                tagProductsToRemove = tag.tagProducts
+                productGroupProductsToRemove = productGroup.productGroupProducts
             } else {
                 // Remove any TagProducts which are no longer in the productGroup.
-                tagProductsToRemove = tag.tagProducts?.findAll { !cmd.sku.contains(it.sku) }
+                productGroupProductsToRemove = productGroup.productGroupProducts?.findAll { !cmd.sku.contains(it.sku) }
             }
         } else {
-            tag = new ProductGroup()
+            productGroup = new ProductGroup()
         }
 
-        tag.retailerId = springSecurityService.principal.retailerId
-        tag.description = cmd.description
-        tag.maxSellQuantity = cmd.maxSellQuantity
+        productGroup.retailerId = springSecurityService.principal.retailerId
+        productGroup.description = cmd.description
+        productGroup.maxSellQuantity = cmd.maxSellQuantity
 
-        def skusInTag = tag.tagProducts?.collect { it.sku }
+        def skusInProductGroup = productGroup.productGroupProducts?.collect { it.sku }
 
         cmd.sku?.toUnique().each {
-            if (!cmd.id || !skusInTag.contains(it)) {
-                def tagProduct = new ProductGroupProduct()
-                tagProduct.sku = it
+            if (!cmd.id || !skusInProductGroup.contains(it)) {
+                def productGroupProduct = new ProductGroupProduct()
+                productGroupProduct.sku = it
 
-                tag.addToProductGroupProducts(tagProduct)
+                productGroup.addToProductGroupProducts(productGroupProduct)
             }
         }
 
-        if (cmd.validate() && tag.validate()) {
+        if (cmd.validate() && productGroup.validate()) {
             // Commit the product deletion if the final productGroup is valid for saving
             //  and there are products to remove
-            tagProductsToRemove?.each {
-                productGroupService.deleteProductGroupProduct(tag.id, it.sku)
+            productGroupProductsToRemove?.each {
+                productGroupService.deleteProductGroupProduct(productGroup.id, it.sku)
             }
 
-            productGroupService.saveProductGroup(tag)
+            productGroupService.saveProductGroup(productGroup)
 
             // Send this update to the whole Retailer exchange!
-            sendTag(tag)
+            sendProductGroup(productGroup)
 
-            flash.message = "Tag saved successfully."
+            flash.message = "Product Group saved successfully."
 
-            redirect(action: "show", id: tag.id)
+            redirect(action: "show", id: productGroup.id)
         } else {
             cmd.errors.allErrors.each { FieldError error ->
                 final String field = error.field?.replace('profile.', '')
                 final String code = "productGroup.$field.$error.code"
 
-                tag.errors.rejectValue((field == "sku" ? "tagProducts" : field), code)
+                productGroup.errors.rejectValue((field == "sku" ? "tagProducts" : field), code)
             }
 
-            if (tag.tagProducts && tag.tagProducts?.size() > 0) {
-                def productVariants = productService.getProductVariants(tag.tagProducts?.collect { it.sku })
+            if (productGroup.productGroupProducts && productGroup.productGroupProducts?.size() > 0) {
+                def productVariants = productService.getProductVariants(productGroup.tagProducts?.collect { it.sku })
 
-                tag.tagProducts.each { tagProduct ->
-                    Integer variantId = productVariants.find { it.sku == tagProduct.sku }?.id
-                    tagProduct.productVariantId = variantId ? variantId : 0
-                    tagProduct.productDescription = productVariants.find { it.sku == tagProduct.sku }?.product?.description
+                productGroup.productGroupProducts.each { productGroupProduct ->
+                    Integer variantId = productVariants.find { it.sku == productGroupProduct.sku }?.id
+                    productGroupProduct.productVariantId = variantId ? variantId : 0
+                    productGroupProduct.productDescription = productVariants.find { it.sku == productGroupProduct.sku }?.product?.description
                 }
             }
 
-            render(view: "add", model: [tag: tag])
+            render(view: "add", model: [productGroup: productGroup])
         }
     }
 
-    private void sendTag(ProductGroup tag) {
+    private void sendProductGroup(ProductGroup productGroup) {
         // Make sure the RabbitMQ connection is available, otherwise reject the save.
         try {
             if (!rabbitService.isOpen()) {
@@ -167,7 +167,7 @@ class ProductGroupController {
 
             SyncMessage syncMessage = new SyncMessage(SyncMessageType.TAG, springSecurityService.principal.retailerId, 0, 0, 0)
             syncMessage.setInsert(true)
-            syncMessage.setTag(tag.getProductGroup())
+            syncMessage.setProductGroup(productGroup.getProductGroup())
 
             rabbitService.sendMessage(syncMessage)
         } catch (Exception e) {
@@ -176,7 +176,7 @@ class ProductGroupController {
     }
 }
 
-class SaveTagCommand {
+class SaveProductGroupCommand {
 
     int id
     String description
