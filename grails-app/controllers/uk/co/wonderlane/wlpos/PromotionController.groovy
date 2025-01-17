@@ -485,6 +485,7 @@ class PromotionController {
                     : []
         } catch (Exception e) {
             log.error(e.message)
+            e.printStackTrace()
             promotionsError = true
         }
 

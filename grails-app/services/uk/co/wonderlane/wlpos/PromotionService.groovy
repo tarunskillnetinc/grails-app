@@ -44,7 +44,7 @@ class PromotionService {
 
         def productGroupCriteria = ProductGroup.createCriteria()
         def allProductGroups = productGroupCriteria.list() {
-            tagProducts {
+            productGroupProducts {
                 "in"("sku", allSkus)
             }
         }
