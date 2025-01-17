@@ -328,7 +328,7 @@ class EposTagLib {
                 out << """User ${productHistory?.usersName} changed Preferred SKU from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break;
             case ProductHistoryType.PRODUCT_ATTRIBUTE:
-                out << """User ${productHistory?.usersName} changed 
+                out << """User ${productHistory?.usersName} changed product attribute field
                         ${productHistory?.field} 
                             from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break
