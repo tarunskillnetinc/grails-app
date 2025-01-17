@@ -19,6 +19,7 @@ import org.springframework.validation.ObjectError
 import uk.co.wonderlane.wlpos.enums.LocationsType
 import uk.co.wonderlane.wlpos.enums.PackStatus
 import uk.co.wonderlane.wlpos.enums.PriceMarkedType
+import uk.co.wonderlane.wlpos.enums.ProductAttributeType
 import uk.co.wonderlane.wlpos.enums.ProductHistoryType
 import uk.co.wonderlane.wlpos.enums.ProductStatus
 import uk.co.wonderlane.wlpos.supplier.Pack
@@ -2301,6 +2302,8 @@ class ProductAttributeValuesCommand {
     Integer productId
     Integer productAttributeId
     String value
+    String attributeName
+    ProductAttributeType attributeType
 }
 
 class CSVUploadProduct {

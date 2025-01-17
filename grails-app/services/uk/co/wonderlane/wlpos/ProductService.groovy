@@ -919,7 +919,7 @@ class ProductService extends MySqlDal {
             //If it is empty then load from attribute table
             List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
 
-            HashMap<Long, ProductAttributes> productAttributesMap = productAttributeList?.collectEntries {[(it.id): it]} ?: [:]
+            HashMap<Integer, ProductAttributes> productAttributesMap = productAttributeList?.collectEntries {[(it.id): it]} ?: [:] as HashMap<Integer, ProductAttributes>
 
             productAttributeValuesList?.each {
                 productAttribute -> {
@@ -952,7 +952,6 @@ class ProductService extends MySqlDal {
 
     ArrayList<ProductAttributeValues> getUpdatedProductAttributeValues(Product product, ProductCommand editedProduct) {
         ArrayList<ProductAttributeValues> updatedOrNewAttributes = []
-
         try {
             // Create a map with composite keys for existing attributes
             def existingAttributesMap = product?.productAttributeValues?.collectEntries {
@@ -968,24 +967,28 @@ class ProductService extends MySqlDal {
                 def existingAttr = existingAttributesMap.get(key)
                 def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
 
-                // Set default value for BOOLEAN type attributes
-                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
-                    editedAttr.value = 'false'
-                }
-
-                if (existingAttr) {
-                    if (existingAttr.value != editedAttr.value) {
-                        existingAttr.value = editedAttr.value
+                if (productAttributes) {
+                    // Set default value for BOOLEAN type attributes
+                    if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
+                        editedAttr.value = 'false'
                     }
-                } else {
-                    def newAttr = new ProductAttributeValues(
-                            productId: editedAttr.productId,
-                            retailerId: editedAttr.retailerId,
-                            productAttributeId: editedAttr.productAttributeId,
-                            value: editedAttr.value,
-                            id: editedAttr.productAttributeId
-                    )
-                    updatedOrNewAttributes << newAttr
+
+                    if (existingAttr) {
+                        if (existingAttr.value != editedAttr.value) {
+                            existingAttr.value = editedAttr.value
+                        }
+                    } else {
+                        def newAttr = new ProductAttributeValues(
+                                productId: editedAttr.productId,
+                                retailerId: editedAttr.retailerId,
+                                productAttributeId: editedAttr.productAttributeId,
+                                value: editedAttr.value,
+                                id: editedAttr.productAttributeId,
+                                attributeName: editedAttr.attributeName,
+                                attributeType: editedAttr.attributeType
+                        )
+                        updatedOrNewAttributes << newAttr
+                    }
                 }
             }
         } catch (Exception ex) {
