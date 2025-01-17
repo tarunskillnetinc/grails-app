@@ -164,12 +164,7 @@ class ProductService extends MySqlDal {
         }
 
         if (updatedAttributes != null && updatedAttributes.size() > 0) {
-            updatedAttributes.each { productAttributeValues ->
-                    productAttributeValues.validate()
-                    if (!productAttributeValues.hasErrors()){
-                        product.addToProductAttributeValues(productAttributeValues)
-                    }
-            }
+            updatedAttributes.each { productAttributeValues -> product.addToProductAttributeValues(productAttributeValues)}
         }
 
         product.save(flush: true, failOnError: true)
@@ -912,40 +907,42 @@ class ProductService extends MySqlDal {
 
     List<ProductAttributeValues> getProductInformation(int productId) {
         List<ProductAttributeValues> returnedAttributeValuesList = new ArrayList<>()
-        if (productId > 0) { // If product id does not exists there can not be any history to return
-            int retailerId = springSecurityService.principal.retailerId
-            //Try to load from product attribute table
-            List<ProductAttributeValues> productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
-            //If it is empty then load from attribute table
-            List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
+        List<ProductAttributeValues> productAttributeValuesList = new ArrayList<>()
+        int retailerId = springSecurityService.principal.retailerId
+        if (productId > 0) {// If product id does not exists there can not be any history to return
+            productAttributeValuesList = ProductAttributeValues.findAllByRetailerIdAndProductId(retailerId, productId)
+        }
+        //Try to load from product attribute table
 
-            HashMap<Integer, ProductAttributes> productAttributesMap = productAttributeList?.collectEntries {[(it.id): it]} ?: [:] as HashMap<Integer, ProductAttributes>
+        //If it is empty then load from attribute table
+        List<ProductAttributes> productAttributeList = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(retailerId, true)
 
-            productAttributeValuesList?.each {
-                productAttribute -> {
-                    ProductAttributes productAttributes = productAttributesMap.get(productAttribute.productAttributeId)
-                    if (productAttributes) {
-                        productAttribute.productAttributes = productAttributes
-                        returnedAttributeValuesList.add(productAttribute)
-                    }
+        HashMap<Integer, ProductAttributes> productAttributesMap = productAttributeList?.collectEntries {[(it.id): it]} ?: [:] as HashMap<Integer, ProductAttributes>
+
+        productAttributeValuesList?.each {
+            productAttribute -> {
+                ProductAttributes productAttributes = productAttributesMap.get(productAttribute.productAttributeId)
+                if (productAttributes) {
+                    productAttribute.productAttributes = productAttributes
+                    returnedAttributeValuesList.add(productAttribute)
                 }
             }
+        }
 
-            def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
-            def missingProductAttributes = productAttributeList.findAll {
-                !existingProductAttributeIds.contains(it.id)
-            }
+        def existingProductAttributeIds = productAttributeValuesList*.productAttributeId.toSet()
+        def missingProductAttributes = productAttributeList.findAll {
+            !existingProductAttributeIds.contains(it.id)
+        }
 
-            missingProductAttributes.each { productAttribute ->
-                ProductAttributeValues dummyEntry = new ProductAttributeValues(
-                        retailerId: retailerId,
-                        productId: productId,
-                        productAttributeId: productAttribute.id,
-                        value: productAttribute.defaultValue ?: "", // Use defaultValue if available
-                        productAttributes: productAttribute
-                )
-                returnedAttributeValuesList << dummyEntry
-            }
+        missingProductAttributes.each { productAttribute ->
+            ProductAttributeValues dummyEntry = new ProductAttributeValues(
+                    retailerId: retailerId,
+                    productId: productId,
+                    productAttributeId: productAttribute.id,
+                    value: productAttribute.defaultValue ?: "", // Use defaultValue if available
+                    productAttributes: productAttribute
+            )
+            returnedAttributeValuesList << dummyEntry
         }
         return returnedAttributeValuesList
     }
@@ -967,29 +964,31 @@ class ProductService extends MySqlDal {
                 def existingAttr = existingAttributesMap.get(key)
                 def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
 
-                if (productAttributes) {
-                    // Set default value for BOOLEAN type attributes
-                    if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
-                        editedAttr.value = 'false'
-                    }
-
-                    if (existingAttr) {
-                        if (existingAttr.value != editedAttr.value) {
-                            existingAttr.value = editedAttr.value
-                        }
-                    } else {
-                        def newAttr = new ProductAttributeValues(
-                                productId: editedAttr.productId,
-                                retailerId: editedAttr.retailerId,
-                                productAttributeId: editedAttr.productAttributeId,
-                                value: editedAttr.value,
-                                id: editedAttr.productAttributeId,
-                                attributeName: editedAttr.attributeName,
-                                attributeType: editedAttr.attributeType
-                        )
-                        updatedOrNewAttributes << newAttr
-                    }
+                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) { // Set default value for BOOLEAN type attributes
+                    editedAttr.value = 'false'
                 }
+
+                if (existingAttr) {
+                    //If updated attribute already on productattributevalues table
+                    //If so then check updated value is change to current value
+                    //If it does then update current value to new value
+                    if (existingAttr?.value != editedAttr?.value) {
+                        existingAttr?.value = editedAttr?.value
+                    }
+                } else if (productAttributes && productAttributes?.defaultValue != editedAttr?.value) {
+                    def newAttr = new ProductAttributeValues(
+                            productId: editedAttr?.productId,
+                            retailerId: editedAttr?.retailerId,
+                            productAttributeId: editedAttr?.productAttributeId,
+                            value: editedAttr?.value,
+                            id: editedAttr?.productAttributeId,
+                            attributeName: editedAttr?.attributeName,
+                            attributeType: editedAttr?.attributeType
+                    )
+                    updatedOrNewAttributes << newAttr
+                }
+
+
             }
         } catch (Exception ex) {
             log.error("Error in processing product attribute values: ${ex.message}", ex)

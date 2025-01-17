@@ -140,6 +140,7 @@ class ProductController extends BaseController {
 
         def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
         def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
+        List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(-1)
 
         render(view: "add", model: [storeId         : springSecurityService.principal.storeId,
                                     statusValues    : ProductStatus.values(),
@@ -152,7 +153,8 @@ class ProductController extends BaseController {
                                     isNewProduct    : true,
                                     locationsEnabled: locationsEnabled,
                                     locationsType   : springSecurityService.principal.retailer.config.locationsType.name(),
-                                    loyaltyEnabled  : loyaltyEnabled])
+                                    loyaltyEnabled  : loyaltyEnabled,
+                                    productAttributeValuesList : productAttributeValuesList])
     }
 
     def search() {
@@ -758,6 +760,7 @@ class ProductController extends BaseController {
             def locationsEnabled = [LocationsType.SIMPLE, LocationsType.ADVANCED].contains(springSecurityService.principal.retailer.config.locationsType)
             def loyaltyEnabled = springSecurityService.principal.retailer.config?.loyaltyRetailerConfig?.isLoyaltyEnabled ? true : false
             def selTypeValues = productService.getRetailerSelTypes(springSecurityService.principal.retailerId)
+            List<ProductAttributeValues> productAttributeValuesList = productService.getProductInformation(product?.id ?: -1)
 
             render(view: "add", model: [product            : product,
                                         skuList            : skuList(product),
@@ -774,7 +777,8 @@ class ProductController extends BaseController {
                                         vatValues          : vatValues,
                                         locationsType      : springSecurityService.principal.retailer.config.locationsType.name(),
                                         locationsEnabled   : locationsEnabled,
-                                        loyaltyEnabled     : loyaltyEnabled])
+                                        loyaltyEnabled     : loyaltyEnabled,
+                                        productAttributeValuesList : productAttributeValuesList])
         }
     }
 

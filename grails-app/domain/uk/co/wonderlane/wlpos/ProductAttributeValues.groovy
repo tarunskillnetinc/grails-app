@@ -31,23 +31,29 @@ class ProductAttributeValues implements Serializable {
     }
 
     static constraints = {
+
         retailerId nullable: false , validator: { val, obj ->
             if (val == null) {
                 return ['productAttributeValues.retailerId.empty', obj.productAttributes.name]
             }
         }
+
         productId nullable: false , validator: { val, obj ->
             if (val == null) {
                 return ['productAttributeValues.productId.empty', obj.productAttributes.name]
             }
         }
+
         productAttributeId nullable: false , validator: { val, obj ->
             if (val == null) {
                 return ['productAttributeValues.attributeId.empty', obj.productAttributes.name]
             }
         }
+
         value nullable: true, validator: {val, obj ->
-            if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null) {
+            if (val == null) {
+                return ['productAttributeValues.numeric.default.out.of.range', obj?.attributeName]
+            } else if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null) {
                 try {
                     // Try parsing the value as a BigDecimal
                     BigDecimal numericValue = new BigDecimal(val)

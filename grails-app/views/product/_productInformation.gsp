@@ -25,6 +25,7 @@
             precision: 2,
         });
 
+
         $('.numeric-mask').on('keydown', function (e) {
             // Allow navigation keys, backspace, delete, tab, enter, and arrow keys
             if ($.inArray(e.key, ['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End']) !== -1) {
@@ -48,10 +49,10 @@
             const newValue = parseFloat(currentValue) / 100; // Handle two decimal places
             let maxValue = parseFloat(this.max);
             if (isNaN(maxValue)) {
-                maxValue = 9999.99; // Default max value
+                maxValue = 999999.99; // Default max value
             }
 
-            const minValue = 0.01;
+            const minValue = 0.00;
 
             if (isNaN(newValue) || newValue < minValue || newValue > maxValue) {
                 e.preventDefault();
@@ -73,18 +74,24 @@
 
             let maxValue = parseFloat(this.max);
             if (isNaN(maxValue)) {
-                maxValue = 9999.99; // Default max value
+                maxValue = 999999.99; // Default max value
             }
 
-            if (isNaN(parsedValue) || parsedValue < 0.01) {
+            if (isNaN(parsedValue) || parsedValue < 0.00) {
                 $(this).val(''); // Allow empty instead of defaulting to 0.00
             } else if (parsedValue > maxValue) {
                 $(this).val(maxValue.toFixed(2)); // Clamp to max value
             } else {
-                $(this).val(parsedValue.toFixed(2)); // Format to 2 decimal places
+                // If the parsed value is an integer (i.e., no decimals or whole number like 4.00, 5.00)
+                if (parsedValue % 1 === 0) {
+                    $(this).val(parsedValue.toString()); // Display without decimals
+                } else {
+                    $(this).val(parsedValue.toFixed(2)); // Display with 2 decimals if not an integer
+                }
             }
         });
     }
+
 
 </script>
 
