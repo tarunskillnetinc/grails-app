@@ -85,6 +85,6 @@ class ProductGroupProduct implements Serializable {
 
     @Override
     int hashCode() {
-        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (productGroup?.id?.hashCode() ?: 123)
+        return sku.hashCode() + productVariantId.hashCode() + productId.hashCode() + (productGroupId?.id?.hashCode() ?: 123)
     }
 }
