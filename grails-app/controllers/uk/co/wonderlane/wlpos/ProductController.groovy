@@ -1355,6 +1355,7 @@ class ProductController extends BaseController {
         builder.compare("quantityChangeForced", product.restrictions.quantityChangeForced, editedProduct.restrictions.quantityChangeForced)
         builder.compare("receiptPrintForced", product.restrictions.receiptPrintForced, editedProduct.restrictions.receiptPrintForced)
         builder.compare("allowsLoyaltyPointsCollection", product.restrictions.allowsLoyaltyPointsCollection, editedProduct.restrictions.allowsLoyaltyPointsCollection)
+        builder.compare("alwaysOpenCashDrawer", product.restrictions.alwaysOpenCashDrawer, editedProduct.restrictions.alwaysOpenCashDrawer)
 
         builder.compare("vatCode", product.vatCode?.description, editedProduct.vatCode?.description)
 
@@ -1800,7 +1801,8 @@ class ProductController extends BaseController {
                 first.quantityChangeAllowed != second.quantityChangeAllowed ||
                 first.quantityChangeForced != second.quantityChangeForced ||
                 first.receiptPrintForced != second.receiptPrintForced ||
-                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection
+                first.allowsLoyaltyPointsCollection != second.allowsLoyaltyPointsCollection ||
+                first.alwaysOpenCashDrawer != second.alwaysOpenCashDrawer
     }
 
     private static void copyRestrictions(RestrictionsCommand from, Restrictions to) {
@@ -1819,6 +1821,7 @@ class ProductController extends BaseController {
         to.quantityChangeForced = from.quantityChangeForced
         to.receiptPrintForced = from.receiptPrintForced
         to.allowsLoyaltyPointsCollection = from.allowsLoyaltyPointsCollection
+        to.alwaysOpenCashDrawer = from.alwaysOpenCashDrawer
     }
 
     private void copyProduct(ProductCommand from, Product to) {
@@ -2198,6 +2201,7 @@ class RestrictionsCommand implements Validateable {
     Boolean quantityChangeForced
     Boolean receiptPrintForced
     Boolean allowsLoyaltyPointsCollection
+    Boolean alwaysOpenCashDrawer
 
     static constraints = {
         importFrom Restrictions
