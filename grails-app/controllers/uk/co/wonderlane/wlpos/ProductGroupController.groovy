@@ -27,7 +27,7 @@ class ProductGroupController {
             return
         }
 
-        def products = productService.getProductVariants(productGroup?.tagProducts?.collect { it.sku })
+        def products = productService.getProductVariants(productGroup?.productGroupProducts?.collect { it.sku })
 
         productGroup?.productGroupProducts?.each { productGroupProduct ->
             Integer productVariantId = products?.find { it.sku == productGroupProduct.sku }?.id
