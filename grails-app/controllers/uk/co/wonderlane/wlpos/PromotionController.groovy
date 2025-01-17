@@ -118,7 +118,7 @@ class PromotionController {
 
         PromotionGroupCommand promotionGroup = new PromotionGroupCommand()
         promotionGroup.type = PromotionGroupType.valueOf(promotionGroupType.toUpperCase())
-        promotionGroup.tagId = id
+        promotionGroup.productGroupId = id
 
         render(template: "promotionGroup", model: [promotionGroup: promotionGroup, promoGroupId: groupId, promoGroupName: "${promotionGroupType}PromoGroup-${groupId}", promotionGroupDescription: tag.description, promotionGroupType: promotionGroupType, showQuantityField: showQuantityField, showValueField: showValueField])
     }
@@ -285,7 +285,7 @@ class PromotionController {
         List<uk.co.wonderlane.wlpos.entities.PromotionGroup> tagGroups = new ArrayList<>();
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup offerGroup : tillPromo.getPromotionOfferGroups()) {
             if (offerGroup.getTagId() != null) {
-                for (ProductGroupProduct tagProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(offerGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(offerGroup.getId())
                     promotionGroup.setPromotionId(offerGroup.getPromotionId())
@@ -293,8 +293,8 @@ class PromotionController {
                     promotionGroup.setType(offerGroup.getType())
                     promotionGroup.setRequiredQuantity(offerGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(offerGroup.isExcessQuantity())
-                    promotionGroup.setTagId(offerGroup.getTagId())
-                    promotionGroup.setSku(tagProduct.sku)
+                    promotionGroup.setProductGroupId(offerGroup.getTagId())
+                    promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
                 }
@@ -306,7 +306,7 @@ class PromotionController {
 
         for (uk.co.wonderlane.wlpos.entities.PromotionGroup requiredGroup : tillPromo.getPromotionRequiredGroups()) {
             if (requiredGroup.getTagId() != null) {
-                for (ProductGroupProduct tagProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
+                for (ProductGroupProduct productGroupProduct : ProductGroup.findByIdAndRetailerId(requiredGroup.tagId, springSecurityService.principal.retailerId).tagProducts) {
                     uk.co.wonderlane.wlpos.entities.PromotionGroup promotionGroup = new uk.co.wonderlane.wlpos.entities.PromotionGroup()
                     promotionGroup.setId(requiredGroup.getId())
                     promotionGroup.setPromotionId(requiredGroup.getPromotionId())
@@ -314,8 +314,8 @@ class PromotionController {
                     promotionGroup.setType(requiredGroup.getType())
                     promotionGroup.setRequiredQuantity(requiredGroup.getRequiredQuantity())
                     promotionGroup.setExcessQuantity(requiredGroup.isExcessQuantity())
-                    promotionGroup.setTagId(requiredGroup.getTagId())
-                    promotionGroup.setSku(tagProduct.sku)
+                    promotionGroup.setProductGroupId(requiredGroup.getTagId())
+                    promotionGroup.setSku(productGroupProduct.sku)
 
                     tagGroups.add(promotionGroup)
                 }

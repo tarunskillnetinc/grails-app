@@ -247,7 +247,7 @@
                     setPromotionGroupButtonEnabledness(promotionGroupType, true, false, false);
                 } else if ($("#" +promotionGroupType +"Groups\\[0\\]\\.categoryId").val() > 0) {
                     setPromotionGroupButtonEnabledness(promotionGroupType, false, true, false);
-                } else if ($("#" +promotionGroupType +"Groups\\[0\\]\\.tagId").val() > 0) {
+                } else if ($("#" + promotionGroupType + "Groups\\[0\\]\\.productGroupId").val() > 0) {
                     setPromotionGroupButtonEnabledness(promotionGroupType, false, false, true);
                 } else {
                     // Shouldn't be hitting this.
@@ -286,7 +286,7 @@
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.type").attr("id", promotionGroupType +"Groups[" +index +"].type").attr("name", promotionGroupType +"Groups[" +index +"].type");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.sku").attr("id", promotionGroupType +"Groups[" +index +"].sku").attr("name", promotionGroupType +"Groups[" +index +"].sku");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.categoryId").attr("id", promotionGroupType +"Groups[" +index +"].categoryId").attr("name", promotionGroupType +"Groups[" +index +"].categoryId");
-                    $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.tagId").attr("id", promotionGroupType +"Groups[" +index +"].tagId").attr("name", promotionGroupType +"Groups[" +index +"].tagId");
+                    $("#" + promotionGroupType + "Groups\\[" + currentIndex + "\\]\\.productGroupId").attr("id", promotionGroupType + "Groups[" + index + "].productGroupId").attr("name", promotionGroupType + "Groups[" + index + "].productGroupId");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.requiredValue").attr("id", promotionGroupType +"Groups[" +index +"].requiredValue").attr("name", promotionGroupType +"Groups[" +index +"].requiredValue");
                     $("#" +promotionGroupType +"Groups\\[" +currentIndex +"\\]\\.requiredQuantity").attr("id", promotionGroupType +"Groups[" +index +"].requiredQuantity").attr("name", promotionGroupType +"Groups[" +index +"].requiredQuantity");
 
