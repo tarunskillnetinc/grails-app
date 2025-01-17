@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Tag Management</title>
+        <title>Product Group Management</title>
         <asset:javascript src="co-utils.js"/>
         <asset:javascript src="validators/input-validator.js" />
 
@@ -22,17 +22,17 @@
                         <ol class="breadcrumb">
                             <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
                             <li id="breadcrumb-2" class="breadcrumb-item"><g:link controller="productGroup"
-                                                                                  action="index">Tag Management</g:link></li>
+                                                                                  action="index">Product Group Management</g:link></li>
                             <g:if test="${params.action == 'edit'}">
                                 <li id="breadcrumb-3" class="breadcrumb-item"><g:link controller="productGroup"
                                                                                       action="show"
                                                                                       id="${productGroup.id}">${productGroup.description}</g:link></li>
                                 <li id="breadcrumb-4" class="breadcrumb-item active"
-                                    aria-current="page">${productGroup?.description ? "Edit Tag" : "Add Tag"}</li>
+                                    aria-current="page">${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</li>
                             </g:if>
                             <g:else>
                                 <li id="breadcrumb-3" class="breadcrumb-item active"
-                                    aria-current="page">${productGroup?.description ? "Edit Tag" : "Add Tag"}</li>
+                                    aria-current="page">${productGroup?.description ? "Edit Product Group" : "Add Product Group"}</li>
                             </g:else>
                         </ol>
                     </div>
@@ -43,7 +43,7 @@
         <section id="central-count-search" class="container-fluid">
             <div class="row header-wl mt-3">
                 <div class="col-8 offset-2">
-                    <h2 id="page-title"  class="mx-auto">Tag Management</h2>
+                    <h2 id="page-title" class="mx-auto">Product Group Management</h2>
                 </div>
 
                 <div class="col-2 text-right">
@@ -102,12 +102,14 @@
                 </div>
 
                 <div id="productList" class="align-content-center mb-5">
-                    <g:if test="${!productGroup?.tagProducts || productGroup?.tagProducts?.size() == 0}">
+                    <g:if test="${!productGroup?.productGroupProducts || productGroup?.productGroupProducts?.size() == 0}">
                         <div id="noResultsRow" class="col-8 offset-2 pt-2 pb-2 my-auto text-center wl-striped0">No products added.</div>
                     </g:if>
 
-                    <g:each in="${productGroup?.tagProducts?.sort { it.sku }}" var="tagProduct" status="i">
-                        <g:render template="tagProductRow" model="[productGroupProduct: tagProduct, i: i]"/>
+                    <g:each in="${productGroup?.productGroupProducts?.sort { it.sku }}" var="productGroupProduct"
+                            status="i">
+                        <g:render template="productGroupProductRow"
+                                  model="[productGroupProduct: productGroupProduct, i: i]"/>
                     </g:each>
                 </div>
             </g:form>

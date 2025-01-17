@@ -3,7 +3,7 @@
     <head>
         <meta name="layout" content="main" />
 
-        <title>Tag Management</title>
+        <title>Product Group Management</title>
 
         <script type="text/javascript">
             $(document).ready(function () {

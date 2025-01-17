@@ -60,7 +60,7 @@ class ProductGroupController {
             return
         }
 
-        def productVariants = productService.getProductVariants(productGroup.getProductGroupProducts?.collect { it.sku })
+        def productVariants = productService.getProductVariants(productGroup.productGroupProducts?.collect { it.sku })
 
         productGroup.productGroupProducts.each { productGroupProduct ->
             Integer productVariantId = productVariants?.find { it.sku == productGroupProduct.sku }?.id
@@ -99,7 +99,7 @@ class ProductGroupController {
             if (!cmd.sku) {
                 productGroupProductsToRemove = productGroup.productGroupProducts
             } else {
-                // Remove any TagProducts which are no longer in the productGroup.
+                // Remove any ProductGroupProducts which are no longer in the productGroup.
                 productGroupProductsToRemove = productGroup.productGroupProducts?.findAll { !cmd.sku.contains(it.sku) }
             }
         } else {
