@@ -87,7 +87,7 @@ class PromotionController {
     }
 
     def ajaxSearchTags(String searchTerm) {
-        def tags = productGroupService.getTags(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+        def tags = productGroupService.getProductGroups(searchTerm, "everything", params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
         render(template: "tagSearchResults", model: [tags: tags, searchTerm: searchTerm, searchBy: params.searchBy, max: params.max ?: 50, offset: params.offset, totalResults: tags.totalCount])
     }

@@ -26,7 +26,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tags.add(new ProductGroup(id: 1))
         tags.add(new ProductGroup(id: 2))
         controller.productGroupService = Stub(ProductGroupService) {
-            getTags() >> tags
+            getProductGroups() >> tags
         }
 
         when: 'index action is executed'
@@ -97,7 +97,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tags.add(new ProductGroup(id: 1, tagProducts: Set.of(tagProduct)))
         tags.properties.put("totalCount", 1)
         controller.productGroupService = Stub(ProductGroupService) {
-            getTags(_) >> tags
+            getProductGroups(_) >> tags
         }
 
         when: 'ajaxGetTags action is executed'

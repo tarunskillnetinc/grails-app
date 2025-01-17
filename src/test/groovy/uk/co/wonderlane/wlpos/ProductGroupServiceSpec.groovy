@@ -29,7 +29,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.save()
 
         when: 'getTags action is executed'
-        def serviceResponse = service.getTags(searchKeyword)
+        def serviceResponse = service.getProductGroups(searchKeyword)
 
         then: 'getTags action response is correct'
         serviceResponse != null
@@ -60,7 +60,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTag.save()
 
         when: 'getTags action is executed'
-        def serviceResponse = service.getTags(searchKeyword)
+        def serviceResponse = service.getProductGroups(searchKeyword)
 
         then: 'getTags action response is correct'
         serviceResponse != null
@@ -144,7 +144,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         testTagProduct.save(flush: true, failOnError: true)
 
         when: 'deleteTagProduct action is executed'
-        ProductGroupProduct serviceResponse = service.deleteTagProduct(testTagProduct)
+        ProductGroupProduct serviceResponse = service.deleteProductGroupProduct(testTagProduct)
 
         then: 'deleteTagProduct action response is correct'
         !serviceResponse
@@ -159,7 +159,7 @@ class ProductGroupServiceSpec extends Specification implements ServiceUnitTest<P
         ProductGroupProduct.metaClass.static.executeUpdate = { CharSequence ch, Map map -> return 1 }
 
         when: 'deleteTagProduct action is executed'
-        int serviceResponse = service.deleteTagProduct(200, 150)
+        int serviceResponse = service.deleteProductGroupProduct(200, 150)
 
         then: 'deleteTagProduct action response is correct'
         serviceResponse == 1

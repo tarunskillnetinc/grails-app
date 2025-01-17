@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <g:hiddenField name="tagModal-currentPromotionType" value=""/>
-                <h3 class="tag-search-header">Select productGroup</h3>
+                <h3 class="tag-search-header">Select Product Group</h3>
 
                 <div class="row mt-4 ml-0 mr-0">
                     <div class="input-group offset-2 col-8">

@@ -398,7 +398,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         }
 
         controller.productGroupService = Stub(ProductGroupService) {
-            getTags() >> new ArrayList()
+            getProductGroups() >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()
@@ -459,7 +459,7 @@ class ProductControllerSpec extends Specification implements ControllerUnitTest<
         }
 
         controller.productGroupService = Stub(ProductGroupService) {
-            getTags() >> new ArrayList()
+            getProductGroups() >> new ArrayList()
         }
 
         controller.springSecurityService = getFakeSpringSecurityService()

@@ -7,7 +7,7 @@ class ProductGroupService {
 
     def springSecurityService
 
-    def getTags(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
+    def getProductGroups(String searchTerm = null, String searchBy = "everything", int offset = 0, int max = 50, String sort = "description", String order = "ASC") {
         return ProductGroup.createCriteria().list([offset: offset, max: max, sort: sort, order: order]) {
             eq ("retailerId", springSecurityService.principal.retailerId)
             eq ("hidden", false)
@@ -39,11 +39,11 @@ class ProductGroupService {
         productGroup.save()
     }
 
-    def deleteTagProduct(ProductGroupProduct tagProduct) {
-        tagProduct.delete()
+    def deleteProductGroupProduct(ProductGroupProduct productGroupProduct) {
+        productGroupProduct.delete()
     }
 
-    def deleteTagProduct(int tagId, long sku) {
-        ProductGroupProduct.executeUpdate("delete ProductGroupProduct tp where tp.productGroup.id = :tagId and tp.sku = :sku", [tagId: tagId, sku: sku])
+    def deleteProductGroupProduct(int productGroupId, long sku) {
+        ProductGroupProduct.executeUpdate("delete ProductGroupProduct tp where tp.productGroup.id = :productGroupId and tp.sku = :sku", [productGroupId: productGroupId, sku: sku])
     }
 }

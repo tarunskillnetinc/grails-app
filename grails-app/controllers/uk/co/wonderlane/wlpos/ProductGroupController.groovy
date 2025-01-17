@@ -13,7 +13,7 @@ class ProductGroupController {
     def gsonProvider
 
     def index() {
-        def tags = productGroupService.getTags()
+        def tags = productGroupService.getProductGroups()
 
         [tags: tags]
     }
@@ -39,7 +39,7 @@ class ProductGroupController {
     }
 
     def ajaxGetTags(String searchTerm, String searchBy) {
-        def tags = productGroupService.getTags(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
+        def tags = productGroupService.getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
         render(template: "tagSearchResults", model: [tags      : tags,
                                                      searchTerm: searchTerm,
@@ -125,7 +125,7 @@ class ProductGroupController {
             // Commit the product deletion if the final productGroup is valid for saving
             //  and there are products to remove
             tagProductsToRemove?.each {
-                productGroupService.deleteTagProduct(tag.id, it.sku)
+                productGroupService.deleteProductGroupProduct(tag.id, it.sku)
             }
 
             productGroupService.saveProductGroup(tag)
