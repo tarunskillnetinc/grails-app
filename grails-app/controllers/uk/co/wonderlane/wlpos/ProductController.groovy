@@ -596,7 +596,7 @@ class ProductController extends BaseController {
         }
 
         // Load product attribute values
-        ArrayList<ProductAttributeValues> updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct)
+        ArrayList<ProductAttributeValues> updatedAttributes = productService.getUpdatedProductAttributeValues(product, editedProduct, builder, effectiveDate)
 
         product.validate()
         if (duplicateItemCode) {

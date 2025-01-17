@@ -327,6 +327,11 @@ class EposTagLib {
             case ProductHistoryType.PREFERRED_SKU:
                 out << """User ${productHistory?.usersName} changed Preferred SKU from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
                 break;
+            case ProductHistoryType.PRODUCT_ATTRIBUTE:
+                out << """User ${productHistory?.usersName} changed 
+                        ${productHistory?.field} 
+                            from ${productHistory?.fromValue} to ${productHistory?.toValue} at ${productHistory?.updateDate?.toString('dd/MM/yyyy HH:mm:ss')}"""
+                break
             default:
                 out << """User ${productHistory?.usersName} changed 
                         ${(g.message(code: 'ProductHistory.' + productHistory?.field) != null && !g.message(code: 'ProductHistory.' + productHistory?.field).isEmpty())  ? g.message(code: 'ProductHistory.' + productHistory?.field) : productHistory?.field} 
