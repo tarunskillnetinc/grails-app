@@ -701,11 +701,13 @@ class ShiftService extends MySqlPoolDal {
                     shift.reconciledDate = DateTime.now()
                     shift.reconciledByUserId = loggedInUser.getId()
                     shift.reconciledByUsersName = loggedInUser.getUsername()
+                    shift.reconciledByRealName = loggedInUser.getName()
                     shift.shiftStatus = ShiftStatus.RECONCILED
                 } else {
                     shift.reReconciledDate = DateTime.now()
                     shift.reReconciledByUserId = loggedInUser.getId()
                     shift.reReconciledByUsersName = loggedInUser.getUsername()
+                    shift.reReconciledByRealName = loggedInUser.getName()
                     shift.totalRecountAttempts = (shift.totalRecountAttempts ?: 0) + 1
                 }
                 // Once update done clear `pending` list
