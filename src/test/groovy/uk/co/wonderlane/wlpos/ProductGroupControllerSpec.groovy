@@ -60,7 +60,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
+            getProductGroup(_) >> new ProductGroup(id: 1, productGroupProducts: Set.of(tagProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -94,7 +94,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         FakeTagSearchResultList<ProductGroup> tags = new FakeTagSearchResultList<>()
         ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
-        tags.add(new ProductGroup(id: 1, tagProducts: Set.of(tagProduct)))
+        tags.add(new ProductGroup(id: 1, productGroupProducts: Set.of(tagProduct)))
         tags.properties.put("totalCount", 1)
         controller.productGroupService = Stub(ProductGroupService) {
             getProductGroups(_) >> tags
@@ -145,7 +145,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         tagProduct.save()
         controller.productGroupService = Stub(ProductGroupService) {
-            getProductGroup(_) >> new ProductGroup(id: 1, tagProducts: Set.of(tagProduct))
+            getProductGroup(_) >> new ProductGroup(id: 1, productGroupProducts: Set.of(tagProduct))
         }
 
         controller.productService = Stub(ProductService) {
@@ -206,7 +206,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
         tagProducts.add(tagProductNotIncl)
-        ProductGroup testTag = new ProductGroup(tagProducts: tagProducts)
+        ProductGroup testTag = new ProductGroup(productGroupProducts: tagProducts)
         testTag.setId(1)
         tagProduct.setProductGroup(testTag)
         tagProductNotIncl.setProductGroup(testTag)
@@ -263,7 +263,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         ProductGroupProduct tagProduct = new ProductGroupProduct(sku: 100)
         Set<ProductGroupProduct> tagProducts = new HashSet<>()
         tagProducts.add(tagProduct)
-        ProductGroup testTag = new ProductGroup(tagProducts: tagProducts)
+        ProductGroup testTag = new ProductGroup(productGroupProducts: tagProducts)
         testTag.setId(1)
         tagProduct.setProductGroup(testTag)
         testTag.save()
@@ -297,7 +297,7 @@ class ProductGroupControllerSpec extends Specification implements ControllerUnit
         tagProducts.add(tagProduct)
         ProductGroup testTag = new ProductGroup()
         testTag.setId(1)
-        testTag.setTagProducts(tagProducts)
+        testTag.setProductGroupProducts(tagProducts)
         tagProduct.setProductGroup(testTag)
         testTag.save()
         controller.productGroupService = Stub(ProductGroupService) {

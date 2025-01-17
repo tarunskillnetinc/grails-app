@@ -13,29 +13,29 @@ class ProductGroupController {
     def gsonProvider
 
     def index() {
-        def tags = productGroupService.getProductGroups()
+        def productGroups = productGroupService.getProductGroups()
 
-        [tags: tags]
+        [tags: productGroups]
     }
 
     def show(int id) {
-        def tag = productGroupService.getProductGroup(id)
+        def productGroup = productGroupService.getProductGroup(id)
 
-        if (!tag) {
+        if (!productGroup) {
             flash.error = "Tag not found."
             redirect(action: "index")
             return
         }
 
-        def products = productService.getProductVariants(tag?.tagProducts?.collect { it.sku })
+        def products = productService.getProductVariants(productGroup?.tagProducts?.collect { it.sku })
 
-        tag?.tagProducts?.each {tagProduct ->
+        productGroup?.tagProducts?.each { tagProduct ->
             Integer productVariantId = products?.find { it.sku == tagProduct.sku }?.id
             tagProduct.productVariantId = productVariantId ? productVariantId : 0
             tagProduct.productDescription = products?.find { it.sku == tagProduct.sku }?.product?.description
         }
 
-        [tag: tag]
+        [tag: productGroup]
     }
 
     def ajaxGetTags(String searchTerm, String searchBy) {
@@ -117,7 +117,7 @@ class ProductGroupController {
                 def tagProduct = new ProductGroupProduct()
                 tagProduct.sku = it
 
-                tag.addToTagProducts(tagProduct)
+                tag.addToProductGroupProducts(tagProduct)
             }
         }
 
