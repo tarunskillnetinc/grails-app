@@ -116,7 +116,7 @@
                 <div class="col-6">
                     <g:if test="${attributeValue?.productAttributes?.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.LIST}">
                         <g:select name="productAttributeValues[${index}].value"
-                                  from="${attributeValue?.productAttributes?.listValues}"
+                                  from="${attributeValue?.productAttributes?.listValues?.sort { it.toLowerCase() }}"
                                   value="${attributeValue?.value ?: attributeValue.productAttributes.defaultValue}"
                                   class="col-12 form-control select-border"
                                   data-attribute-id="${attributeValue.productAttributes.id}"
