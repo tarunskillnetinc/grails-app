@@ -7,7 +7,6 @@ import org.hibernate.Transaction
 import org.hibernate.criterion.Projections
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -1012,7 +1011,7 @@ class ProductService extends MySqlDal {
     boolean isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product){
         boolean isValidationPassed = true
         if (productAttributes?.type == ProductAttributeType.TEXT && editedAttr?.value) {
-            if (editedAttr?.value.length() > 50) {
+            if (editedAttr?.value?.length() > 50) {
                 product.errors.reject('productAttributeValues.text.max.size', [productAttributes?.name] as Object[],
                         "Product attribute ${productAttributes?.name} validation failed")
                 isValidationPassed = false
