@@ -118,7 +118,7 @@
                         <g:select name="productAttributeValues[${index}].value"
                                   from="${attributeValue?.productAttributes?.listValues}"
                                   value="${attributeValue?.value ?: attributeValue.productAttributes.defaultValue}"
-                                  class="col-8 form-control select-border"
+                                  class="col-12 form-control select-border"
                                   data-attribute-id="${attributeValue.productAttributes.id}"
                                   disabled="${!isStore}"/>
                     </g:if>
@@ -127,8 +127,9 @@
                         <g:textField name="productAttributeValues[${index}].value"
                                      value="${attributeValue.value}"
                                      maxlength="50"
+                                     size="50"
                                      placeholder="${attributeValue.productAttributes.defaultValue ?: ''}"
-                                     class="col-8 form-control bottom-border"
+                                     class="col-12 form-control bottom-border"
                                      disabled="${!isStore}"/>
                     </g:if>
 
@@ -137,7 +138,7 @@
                                  id="productAttributeValues[${index}].value"
                                  max="999999.99"
                                  value="${attributeValue.value ? attributeValue.value : ''}"
-                                 class="col-8 form-control bottom-border numeric-mask"
+                                 class="col-12 form-control bottom-border numeric-mask"
                                  disabled="${!isStore}"/>
                     </g:if>
 
@@ -146,7 +147,7 @@
                             <g:checkBox name="productAttributeValues[${index}].value"
                                         value="true"
                                         checked="${attributeValue.value == 'true'}"
-                                        class="col-8 form-check-input wl-checkbox"
+                                        class="col-12 form-check-input wl-checkbox"
                                         style="margin-left: 0;"
                                         disabled="${!isStore}"/>
                         </div>
@@ -156,7 +157,7 @@
                         <div class="form-check d-flex align-items-center h-100 pl-0">
                             <g:textField name="productAttributeValues[${index}].value"
                                          id="attribute_date_${index}"
-                                         class="col-8 form-control bottom-border"
+                                         class="col-12 form-control bottom-border"
                                          value="${attributeValue.value}"
                                          disabled="${!isStore}"/>
                         </div>

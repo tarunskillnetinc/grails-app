@@ -5,10 +5,9 @@ import org.apache.commons.lang3.StringUtils
 import org.hibernate.Session
 import org.hibernate.Transaction
 import org.hibernate.criterion.Projections
-import org.hibernate.transform.AliasToBeanResultTransformer
-import org.hibernate.transform.AliasedTupleSubsetResultTransformer
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.springframework.validation.FieldError
 import uk.co.wonderlane.wlpos.dataaccess.DatabaseCredentials
 import uk.co.wonderlane.wlpos.dataaccess.MySqlDal
 import uk.co.wonderlane.wlpos.entities.SyncMessage
@@ -168,7 +167,7 @@ class ProductService extends MySqlDal {
             updatedAttributes.each { productAttributeValues -> product.addToProductAttributeValues(productAttributeValues)}
         }
 
-        product.save(flush: true, failOnError: true)
+        product.save(flush: true)
     }
 
     def saveBarcodes(Product product) {
@@ -955,13 +954,13 @@ class ProductService extends MySqlDal {
             builder = new ProductHistoryBuilder(product.id, springSecurityService, effectiveDate)
         }
 
-        // Create a map with composite keys for existing attributes
+        // Create a map with composite keys for existing product overriden attributes
         def existingAttributesMap = product?.productAttributeValues?.collectEntries {
             ["${it.productAttributeId}_${it.productId}_${it.retailerId}": it]} ?: [:]
 
-        // Create a map for product attributes
-        def productAttributesMap = ProductAttributes.findAllByRetailerIdAndDisplayAttribute(
-                springSecurityService.principal.retailerId, true)?.collectEntries { [(it.id): it] } ?: [:]
+        // Create a map for all product attributes
+        def productAttributesMap = ProductAttributes.findAllByRetailerId(
+                springSecurityService.principal.retailerId)?.collectEntries { [(it.id): it] } ?: [:]
 
         // Loop through the edited product attributes
         editedProduct?.productAttributeValues?.each { editedAttr ->
@@ -970,36 +969,73 @@ class ProductService extends MySqlDal {
             def productAttributes = productAttributesMap.get(editedAttr.productAttributeId)
 
             if (productAttributes) { //Check master product attribute exists
-                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) { // Set default value for BOOLEAN type attributes
+
+                if (productAttributes?.type == ProductAttributeType.BOOLEAN && !editedAttr?.value) {
+                    // Set default value for BOOLEAN type attributes
+                    // From UI when user deselect checkbox value will be null so assign edited value as false for those cases
                     editedAttr.value = 'false'
                 }
 
-                if (existingAttr) {
-                    //If updated attribute already on productattributevalues table
-                    //If so then check updated value is change to current value
-                    //If it does then update current value to new value
-                    if (existingAttr?.value != editedAttr?.value) {
-                        builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-                        existingAttr?.value = editedAttr?.value
+                //server level validations
+                //This include validation if type is text then it's length
+                //If type is numeric then it's values
+                boolean isValidationPassed = isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product)
+
+                if (isValidationPassed) {
+                    if (existingAttr) {
+                        //If updated attribute already on `productattributevalues` table
+                        //If so then check updated value is change to current value
+                        //If it does then update current value to new value
+                        if (existingAttr?.value != editedAttr?.value) {
+                            builder.compare(editedAttr?.attributeName, existingAttr?.value, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                            existingAttr?.value = editedAttr?.value
+                        }
+                    } else if (productAttributes?.defaultValue != editedAttr?.value) {
+                        def newAttr = new ProductAttributeValues(
+                                productId: editedAttr?.productId,
+                                retailerId: editedAttr?.retailerId,
+                                productAttributeId: editedAttr?.productAttributeId,
+                                value: editedAttr?.value,
+                                id: editedAttr?.productAttributeId,
+                                attributeName: editedAttr?.attributeName,
+                                attributeType: editedAttr?.attributeType
+                        )
+                        builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
+                        updatedOrNewAttributes << newAttr
                     }
-                } else if (productAttributes?.defaultValue != editedAttr?.value) {
-                    def newAttr = new ProductAttributeValues(
-                            productId: editedAttr?.productId,
-                            retailerId: editedAttr?.retailerId,
-                            productAttributeId: editedAttr?.productAttributeId,
-                            value: editedAttr?.value,
-                            id: editedAttr?.productAttributeId,
-                            attributeName: editedAttr?.attributeName,
-                            attributeType: editedAttr?.attributeType
-                    )
-                    builder.compare(editedAttr?.attributeName, productAttributes?.defaultValue, editedAttr?.value, ProductHistoryType.PRODUCT_ATTRIBUTE)
-                    updatedOrNewAttributes << newAttr
                 }
             }
-
         }
-
         return updatedOrNewAttributes
+    }
+
+    boolean isProductAttributeUpdateValidationsPassed(productAttributes, editedAttr, product){
+        boolean isValidationPassed = true
+        if (productAttributes?.type == ProductAttributeType.TEXT && editedAttr?.value) {
+            if (editedAttr?.value.length() > 50) {
+                product.errors.reject('productAttributeValues.text.max.size', [productAttributes?.name] as Object[],
+                        "Product attribute ${productAttributes?.name} validation failed")
+                isValidationPassed = false
+            }
+        } else if (productAttributes?.type == ProductAttributeType.NUMERIC && editedAttr?.value) {
+            try {
+                // Try parsing the value as a BigDecimal
+                BigDecimal numericValue = new BigDecimal(editedAttr?.value)
+
+                // Check if the value exceeds the maximum allowed value
+                if (numericValue.compareTo(BigDecimal.ZERO) < 0 || numericValue.compareTo(new BigDecimal("999999.99")) > 0) {
+                    product.errors.reject('productAttributeValues.numeric.default.out.of.range', [productAttributes?.name] as Object[],
+                            "Product attribute ${productAttributes?.name} validation failed")
+                    isValidationPassed = false
+                }
+            } catch (Exception e) {
+                // If the value is not a valid number, return the appropriate error message
+                product.errors.reject('productAttributeValues.numeric.default.not.a.number', [productAttributes?.name] as Object[],
+                        "Product attribute ${productAttributes?.name} validation failed")
+                isValidationPassed = false
+            }
+        }
+        return isValidationPassed
     }
 
 }

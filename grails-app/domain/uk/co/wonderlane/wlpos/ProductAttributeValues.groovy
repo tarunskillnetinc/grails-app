@@ -34,41 +34,39 @@ class ProductAttributeValues implements Serializable {
 
         retailerId nullable: false , validator: { val, obj ->
             if (val == null) {
-                return ['productAttributeValues.retailerId.empty', obj.productAttributes.name]
+                return ['productAttributeValues.retailerId.empty', [obj?.attributeName]]
             }
         }
 
         productId nullable: false , validator: { val, obj ->
             if (val == null) {
-                return ['productAttributeValues.productId.empty', obj.productAttributes.name]
+                return ['productAttributeValues.productId.empty', [obj?.attributeName]]
             }
         }
 
         productAttributeId nullable: false , validator: { val, obj ->
             if (val == null) {
-                return ['productAttributeValues.attributeId.empty', obj.productAttributes.name]
+                return ['productAttributeValues.attributeId.empty', [obj?.attributeName]]
             }
         }
 
         value nullable: true, validator: {val, obj ->
-            if (val == null) {
-                return ['productAttributeValues.numeric.default.out.of.range', obj?.attributeName]
-            } else if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null) {
+            if (obj?.attributeType == ProductAttributeType.NUMERIC && val != null) {
                 try {
                     // Try parsing the value as a BigDecimal
                     BigDecimal numericValue = new BigDecimal(val)
 
                     // Check if the value exceeds the maximum allowed value
-                    if (numericValue.compareTo(999999.99) > 0) {
-                        return ['productAttributeValues.numeric.default.out.of.range', obj?.attributeName]
+                    if (numericValue.compareTo(BigDecimal.ZERO) < 0 || numericValue.compareTo(new BigDecimal("999999.99")) > 0) {
+                        return ['productAttributeValues.numeric.default.out.of.range', [obj?.attributeName]]
                     }
                 } catch (Exception e) {
                     // If the value is not a valid number, return the appropriate error message
-                    return ['productAttributeValues.numeric.default.not.a.number', obj?.attributeName]
+                    return ['productAttributeValues.numeric.default.not.a.number', [obj?.attributeName]]
                 }
             } else if (obj?.attributeType == ProductAttributeType.TEXT && val != null){
                 if (val.length() > 50) {
-                    return ['productAttributeValues.numeric.default.not.a.number', obj?.attributeName]
+                    return ['productAttributeValues.text.max.size', [obj?.attributeName]]
                 }
             }
         }
