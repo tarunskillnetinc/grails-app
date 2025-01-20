@@ -54,7 +54,7 @@ class PromotionGroup {
         promotionGroup.setPromotionId(promotion.id)
         promotionGroup.setSku(sku)
         promotionGroup.setProductCategoryId(categoryId)
-        promotionGroup.setTagId(productGroupId)
+        promotionGroup.setProductGroupId() Id(productGroupId)
         promotionGroup.setRequiredQuantity(requiredQuantity)
         promotionGroup.setRequiredValue(requiredValue)
         promotionGroup.setExcessQuantity(excessQuantity)

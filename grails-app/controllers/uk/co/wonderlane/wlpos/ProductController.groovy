@@ -195,7 +195,7 @@ class ProductController extends BaseController {
     def pricesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer productGroupId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
         def productPrices = productService.searchProductPrices(searchTerm, categoryId, productGroupId)
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
