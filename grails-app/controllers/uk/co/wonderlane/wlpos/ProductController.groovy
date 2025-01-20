@@ -188,7 +188,7 @@ class ProductController extends BaseController {
         def productGroups = productGroupService.getProductGroups()
         def priceBands = PriceBand.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: productGroups, priceBands: priceBands]
+        [categories: categories, productGroups: productGroups, priceBands: priceBands]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
