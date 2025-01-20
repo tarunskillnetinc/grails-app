@@ -2,10 +2,9 @@
 
     $(document).ready(function() {
         // Initialize the datepicker only once after the page has loaded
-        $("[id^='attribute_date_']").datepicker({
+        $("[id^='product_attribute_information_date_']").datepicker({
             format: "dd/mm/yyyy",
             weekStart: 1,
-            endDate: new Date().toString(),
             todayHighlight: true,
             autoclose: true,
             todayBtn: "linked",
@@ -159,7 +158,7 @@
                     <g:if test="${attributeValue.productAttributes.type == uk.co.wonderlane.wlpos.enums.ProductAttributeType.DATE}">
                         <div class="form-check d-flex align-items-center h-100 pl-0">
                             <g:textField name="productAttributeValues[${index}].value"
-                                         id="attribute_date_${index}"
+                                         id="product_attribute_information_date_${index}"
                                          class="col-lg-12 form-control bottom-border"
                                          value="${attributeValue.value}"
                                          disabled="${!isStore}"/>
