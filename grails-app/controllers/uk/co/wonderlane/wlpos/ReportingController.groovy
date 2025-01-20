@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.annotation.Secured
 import groovy.json.JsonSlurper
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -2203,6 +2204,7 @@ class ReportingController {
         return stringBuilder.toString()
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def bankingReport() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter).withTimeAtStartOfDay() : DateTime.now(DateTimeZone.UTC).withTimeAtStartOfDay()
@@ -2218,6 +2220,7 @@ class ReportingController {
          bankingType        : bankingType]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxBankingReport(SortParams sortParams) {
         sortParams.validateParams(BANKING_REPORT_SORT_COLUMNS)
 
