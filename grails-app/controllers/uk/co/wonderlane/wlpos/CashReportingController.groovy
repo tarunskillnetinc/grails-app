@@ -1,5 +1,6 @@
 package uk.co.wonderlane.wlpos
 
+import grails.plugin.springsecurity.annotation.Secured
 import groovy.json.JsonOutput
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
@@ -8,7 +9,6 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import uk.co.wonderlane.wlpos.entities.cash.ReconciliationTotal
 import uk.co.wonderlane.wlpos.entities.cash.TenderTotal
-import uk.co.wonderlane.wlpos.enums.ShiftStatus
 import uk.co.wonderlane.wlpos.enums.TenderType
 
 class CashReportingController {
@@ -18,8 +18,10 @@ class CashReportingController {
     def tillAssignmentService
     def springSecurityService
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def index() {}
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def shiftFinalisation() {
         DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy").withZoneUTC()
         DateTime startDate = params.startDate ? DateTime.parse(params.startDate, dateFormatter) : DateTime.now(DateTimeZone.UTC).minusDays(7)
@@ -33,6 +35,7 @@ class CashReportingController {
         [stores: stores, tills: tills, startDate: startDate, endDate: endDate]
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetTillsForStore(int storeNumber) {
         def tillIds = []
         def tills = tillAssignmentService.getTillsByStoreId(storeNumber)
@@ -40,6 +43,7 @@ class CashReportingController {
         render status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: tillIds])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetFinalisedShiftsForTill(Integer storeNumber, int tillId, String startDate, String endDate) {
         if (!startDate || !endDate) {
             render status: 500
@@ -54,6 +58,7 @@ class CashReportingController {
         render status: 200, contentType: 'application/json', text: JsonOutput.toJson([options: shiftNumbers])
     }
 
+    @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE', 'ROLE_STORE_MANAGER', 'ROLE_SUPERVISOR'])
     def ajaxGetFinalisedShiftReport(Integer storeNumber, int tillId, int shiftNumber) {
         def shift = cashReportingService.getShiftForShiftNumber(storeNumber, tillId, shiftNumber).getShift()
         if (shift) {
