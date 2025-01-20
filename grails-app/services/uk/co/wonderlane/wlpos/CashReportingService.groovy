@@ -26,7 +26,7 @@ class CashReportingService {
             eq("storeId", storeId)
             eq("tillId", tillId)
             eq("shiftStatus", ShiftStatus.FINALISED.toString())
-            between("dateUpdated", startDate, endDate) // todo - should really be finalised date from JSON, how do that?
+            between("dateCreated", startDate, endDate)
         }
     }
 
