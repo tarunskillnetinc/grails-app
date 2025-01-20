@@ -10,9 +10,4 @@ class PartnerCategoryManagementControllerSpec extends Specification implements C
 
     def cleanup() {
     }
-
-    void "test something"() {
-        expect:"fix me"
-            true == false
-    }
 }
