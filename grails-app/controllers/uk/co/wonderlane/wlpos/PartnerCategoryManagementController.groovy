@@ -5,10 +5,15 @@ class PartnerCategoryManagementController {
     def springSecurityService
     def categoryService
 
-    def index() {}
+    def index() {
+        List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
+        [ecomSupplierList: ecomSupplierList]
+    }
 
     def ajaxGetPartnerCategories(){
-        List<EcomSupplier> ecomSupplierList = EcomSupplier.findAll()
+        int retailerId = springSecurityService.principal.retailerId
+        List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
+        render(view: "_partnerCategoryResults", model: [ecomSupplierList: ecomSupplierList])
     }
 
     def addPartnerCategory(){
@@ -17,7 +22,7 @@ class PartnerCategoryManagementController {
         def isUpdate = false
         def partnerCategoryList = []
         List<EcomSupplier> ecomSupplierList = EcomSupplier.findAllByRetailerIdAndDeleted(retailerId, false)
-        EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findById(supplierCategoryId)
+        EcomSupplierCategory ecomSupplierCategory = EcomSupplierCategory.findByIdAndDeleted(supplierCategoryId, false)
         def categoryValues  = categoryService.getTopLevelCategories()
         def selectedCategoryId = null
 
@@ -28,4 +33,21 @@ class PartnerCategoryManagementController {
                                                     selectedCategoryId : selectedCategoryId,
                                                     isUpdate : isUpdate])
     }
+
+    def savePartnerCategory(){
+        try {
+
+        } catch (Exception ex) {
+
+        }
+    }
+
+    def removePartnerCategory(){
+        try {
+
+        } catch (Exception ex) {
+
+        }
+    }
+
 }

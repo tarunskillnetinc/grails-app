@@ -20,8 +20,8 @@ class EcomSupplierCategory implements Serializable{
         retailerId column: "retailerId", sqlType: "tinyint"
         description column: "description"
         deleted column: "deleted" , sqlType: "BIT(1)"
-        ecomSupplier  column: "ecomsupplierid"
-        ecomSupplierCategoryMappings cascade: 'all-delete-orphan', key: 'ecomsuppliercategoryid'
+        ecomSupplier  column: "ecomSupplierId"
+        ecomSupplierCategoryMappings cascade: 'all-delete-orphan', key: 'ecomSupplierCategoryId'
     }
 
     static constraints = {

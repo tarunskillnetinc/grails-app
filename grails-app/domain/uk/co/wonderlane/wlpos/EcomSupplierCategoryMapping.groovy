@@ -10,9 +10,9 @@ class EcomSupplierCategoryMapping implements Serializable{
         table "ecomsuppliercategorymapping"
         version false
 
-        ecomSupplierCategory column: "ecomsuppliercategoryid"
-        category column: 'categoryid'
-        ecomSupplier  column: "ecomsupplierId"
+        ecomSupplierCategory column: "ecomSupplierCategoryId"
+        category column: 'categoryId'
+        ecomSupplier  column: "ecomSupplierId"
         id composite: ['ecomSupplierCategory', 'ecomSupplier', 'category']
     }
 

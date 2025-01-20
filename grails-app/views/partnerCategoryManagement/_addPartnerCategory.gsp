@@ -39,7 +39,7 @@
             <div class="col">
                 <ol class="breadcrumb">
                     <li id="breadcrumb-1" class="breadcrumb-item"><g:link uri="/">Home</g:link></li>
-                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="safe-configuration-link">Partner Category</g:link></li>
+                    <li id="breadcrumb-2" class="breadcrumb-item active" aria-current="page"><g:link href="#" class="partner-category-link" controller="partnerCategoryManagement" action="index">Partner Category</g:link></li>
                     <li id="breadcrumb-3" class="breadcrumb-item active" aria-current="page">${isUpdate ? 'Edit Partner Category' : 'Add Partner Category'}</li>
                 </ol>
             </div>

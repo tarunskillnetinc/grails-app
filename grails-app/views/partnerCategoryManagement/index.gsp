@@ -11,7 +11,7 @@
 
     <script type="text/javascript">
 
-        var getTillsUrl = "${createLink(controller: 'tillAssignment', action: 'ajaxSearchForTills')}"
+        var getPartnerCategoriesUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxGetPartnerCategories')}"
         var addPartnerCategoryUrl = "${createLink(controller: 'partnerCategoryManagement', action: 'ajaxAddPartnerCategory')}"
 
 
@@ -31,6 +31,25 @@
         });
 
         function getPartnerCategories() {
+            tillId = $("#tillId").val();
+
+            $.ajax({
+                url: getPartnerCategoriesUrl(),
+                method: "POST",
+                data: { tillId: tillId },
+                success: function(resp) {
+                    $("#results-container").html(resp);
+                },
+                error: function() {
+                    $("#search-results").show();
+                    const result = document.createElement('div');
+                    $(result).addClass('col pt-2 pb-2 text-center my-auto wl-striped0').html('No shifts found.');
+                    $("#search-results").html(result);
+                },
+            });
+        }
+
+        function loadPartnerCategories() {
             $('#results-container').html("");
             $("#loading-indicator").show();
 
@@ -45,7 +64,7 @@
             }).get();
 
             $.ajax({
-                url: getTillsUrl,
+                url: ajaxGetPartnerCategories,
                 data: filterParams,
                 success: function(resp) {
                     $('#results-container').html(resp);
@@ -141,12 +160,8 @@
                         <div class="form-group row">
                             <label for="partnerNameFilter" class="col-2 col-form-label-sm text-right">Partner Name</label>
                             <div class="col-3">
-                                <g:select name="partnerNameFilter" from="${stores}"
-                                          optionValue="${{it.config.storeNumber}}"
-                                          optionKey="${{it.config.storeNumber}}"
-                                          noSelection="${sec.loggedInUserInfo(field: 'storeId') ? ['': sec.loggedInUserInfo(field: 'storeNumber')] : ['': 'All']}"
-                                          class="form-control select-border"
-                                          disabled="${sec.loggedInUserInfo(field: 'storeId') ? true : false}"></g:select>
+                                <g:select name="partnerNameFilter" from="${ecomSupplierList}"
+                                          class="form-control select-border"></g:select>
                             </div>
                         </div>
 
@@ -166,13 +181,13 @@
             </div>
         </div>
     </div>
-</section>
 
-<section id="tills-container" class="container-fluid mb-3">
-    <div id="results-container">
+    <div id="results-container" class="align-content-center">
         <g:render template="partnerCategoryResults"/>
     </div>
+
 </section>
+
 
 <section id="addTill-modal" class="container-fluid">
     <!-- Add Till modal -->
