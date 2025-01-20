@@ -1216,7 +1216,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         2  | "other"
     }
 
-    //-------------------------------tagSearch function Unit tests----------------------------//
+    //-------------------------------productGroupSearch function Unit tests----------------------------//
 
     void "should retrieve Product Group search results"() {
         given:
@@ -1228,7 +1228,7 @@ class PromotionControllerSpec extends Specification implements ControllerUnitTes
         testTag.save(flush: true, failOnError: true)
 
         when: 'productGroupSearch action is executed'
-        controller.tagSearch()
+        controller.productGroupSearch()
 
         then: 'productGroupSearch action response is correct'
         response.status == HttpStatus.OK.value()

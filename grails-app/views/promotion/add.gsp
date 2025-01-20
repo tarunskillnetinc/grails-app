@@ -481,7 +481,7 @@
 
         <g:render template="productSearch" />
         <g:render template="categorySearch" />
-        <g:render template="tagSearch" />
+        <g:render template="productGroupSearch"/>
         <g:render template="addStoresModal"/>
     </body>
 </html>

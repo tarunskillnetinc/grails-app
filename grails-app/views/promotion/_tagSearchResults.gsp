@@ -9,14 +9,14 @@
 </g:if>
 
 <g:each in="${productGroups}" var="productGroup" status="i">
-    <div id="tag-result-${i+1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i%2}">
-        <div id="tag-result-${i + 1}-description" class="col-11 my-auto">${productGroup.description}</div>
-        <a id="tag-result-${i + 1}-select-button" href="#" class="col-1 btn btn-wl my-auto"
+    <div id="productGroup-result-${i + 1}" class="row ml-0 mr-0 pt-2 pb-2 wl-striped${i % 2}">
+        <div id="productGroup-result-${i + 1}-description" class="col-11 my-auto">${productGroup.description}</div>
+        <a id="productGroup-result-${i + 1}-select-button" href="#" class="col-1 btn btn-wl my-auto"
            onclick="addPromotionGroupTag(${productGroup.id})" data-dismiss="modal">Select</a>
     </div>
 </g:each>
 
 <div class="my-3 text-right">
-    <util:remotePaginate action="tagSearch" total="${totalResults ?: 0}" update="productGroup-search-results"
+    <util:remotePaginate action="productGroupSearch" total="${totalResults ?: 0}" update="productGroup-search-results"
                          offset="${offset ?: 0}" max="${max ?: 50}" params="[searchTerm: searchTerm]"/>
 </div>

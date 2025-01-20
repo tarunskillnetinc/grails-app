@@ -41,7 +41,7 @@ class ProductGroupController {
     def ajaxGetProductGroups(String searchTerm, String searchBy) {
         def productGroups = productGroupService.getProductGroups(searchTerm, searchBy, params.offset ? Integer.parseInt(params.offset) : 0, params.max ? Integer.parseInt(params.max) : 50)
 
-        render(template: "tagSearchResults", model: [productGroups: productGroups,
+        render(template: "productGroupSearchResults", model: [productGroups: productGroups,
                                                      searchTerm   : searchTerm,
                                                      max          : params.max ?: 50,
                                                      offset       : params.offset])
