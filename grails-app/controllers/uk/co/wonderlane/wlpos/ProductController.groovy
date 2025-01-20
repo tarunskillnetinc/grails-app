@@ -209,14 +209,14 @@ class ProductController extends BaseController {
         def productGroups = productGroupService.getProductGroups()
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])
 
-        [categories: categories, tags: productGroups, ranges: ranges]
+        [categories: categories, productGroups: productGroups, ranges: ranges]
     }
 
     @Secured(['ROLE_ENGINEER', 'ROLE_HEAD_OFFICE'])
     def rangesSearch() {
         String searchTerm = params.searchTerm
         Integer categoryId = params.category ? Integer.parseInt(params.category) : null
-        Integer productGroupId = params.tag ? Integer.parseInt(params.tag) : null
+        Integer productGroupId = params.productGroup ? Integer.parseInt(params.productGroup) : null
 
         def rangeProducts = productService.searchRangeProducts(searchTerm, categoryId, productGroupId)
         def ranges = Range.findAllByRetailerId(springSecurityService.principal.retailerId, [sort: "description", order: "asc"])

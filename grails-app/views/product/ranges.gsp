@@ -84,7 +84,7 @@
 
                 $.ajax({
                     url: URL,
-                    data: { searchTerm: searchTerm, category: category, tag: tag },
+                    data: {searchTerm: searchTerm, category: category, productGroup: productGroup},
                     success: function(resp) {
                         $('#search-results').html(resp);
                     }
@@ -194,9 +194,13 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="tag" class="col-4 col-form-label text-right">Tag</label>
+                                        <label for="productGroup"
+                                               class="col-4 col-form-label text-right">Product Group</label>
                                         <div class="col-8">
-                                            <g:select name="tag" from="${tags}" noSelection="['':'All Tags']" value="${tag}" optionValue="description" optionKey="id" class="form-control select-border" />
+                                            <g:select name="productGroup" from="${productGroups}"
+                                                      noSelection="['': 'All Product Groups']" value="${productGroup}"
+                                                      optionValue="description" optionKey="id"
+                                                      class="form-control select-border"/>
                                         </div>
                                     </div>
 
