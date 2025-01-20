@@ -53,7 +53,7 @@
     }
 
     function productGroupSearch() {
-        var URL = "${createLink(controller: 'promotion', action: 'ajaxSearchTags')}";
+        var URL = "${createLink(controller: 'promotion', action: 'ajaxSearchProductGroups')}";
         var searchTerm = $('#productGroupSearchTerm').val();
 
         $('#productGroup-search-results').html("<div class=\"d-flex justify-content-center\">\n" +

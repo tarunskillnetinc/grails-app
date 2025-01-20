@@ -150,7 +150,7 @@
             }
 
             // Add the selected productGroup to the relevant promotion group section.
-            function addPromotionGroupTag(id) {
+            function addPromotionGroupProductGroup(id) {
                 var url = "${createLink(controller: 'promotion', action: 'ajaxGetTag')}";
 
                 addPromotionGroup(id, url);
